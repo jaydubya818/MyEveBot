@@ -1,0 +1,15 @@
+{
+  "tested_source_sha": "ef0771797474216b2275bda349fa2d83ccd45dfe",
+  "remote_verified_sha": "ef0771797474216b2275bda349fa2d83ccd45dfe",
+  "remote": "origin",
+  "branch": "codex/private-alpha-product-expansion",
+  "verified_at_utc": "2026-09-29T06:26:01.792641+00:00",
+  "verification": "git ls-remote --heads origin codex/private-alpha-product-expansion equals git rev-parse HEAD",
+  "handoff": {
+    "thread_id": "01a0e4bf-cdce-7ba1-91c2-6953027cca93",
+    "delivered": true,
+    "merge_requested": false,
+    "deployment_requested": false
+  },
+  "note": "This documentation-only receipt follows the tested source checkpoint. Its own final remote SHA is reported in the user handoff; no code changed after qualification."
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS_READ_ONLY",
+  "head": "0080_factory_evidence_custody.sql",
+  "pending": [],
+  "publishedLineage": true,
+  "ownerCount": 1,
+  "syntheticQualificationOwners": 0,
+  "configuredOwnerHasWork": true,
+  "databaseMutations": 0
+}

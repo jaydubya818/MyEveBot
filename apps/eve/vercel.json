@@ -1,0 +1,57 @@
+{
+  "framework": "nextjs",
+  "outputDirectory": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "codex/peer-message-answers": false,
+      "codex/federation-request-deadline": false,
+      "codex/federation-final-consolidation": false,
+      "codex/myeve-relay-final": false,
+      "codex/federation-callable-tool": false,
+      "codex/federation-approval-continuation": false,
+      "fix/expired-run-action-admission": false,
+      "codex/multirun-peer-permissions": false,
+      "codex/jev-chat-release": false,
+      "codex/jev-chat-evaluation": false,
+      "codex/relay-renewal-guidance": false,
+      "codex/relay-grant-expiry-settings": false,
+      "codex/peer-conversation-ui": false,
+      "codex/telegram-current-integration": false,
+      "codex/cloud-execution": false,
+      "codex/myeve-owner-experience": false,
+      "codex/external-alpha-qe-remediation-20261009": false,
+      "codex/external-alpha-allowance-reconciliation-20261010": false,
+      "codex/myapps-allowance-successor-20261010": false,
+      "codex/myapps-phase3b-reconciliation": false,
+      "codex/myapps-phase3-readiness": false,
+      "codex/unified-capability-control-plane": false
+    }
+  },
+  "functions": {
+    "app/api/cloud-qualification/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-cloud-work-v1"
+        }
+      ]
+    },
+    "app/api/production-validation/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-production-validation-v1"
+        }
+      ]
+    },
+    "app/api/production-canary/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-production-canary-v1"
+        }
+      ]
+    }
+  }
+}

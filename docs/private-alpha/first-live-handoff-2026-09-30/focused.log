@@ -1,0 +1,16 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run lib/engineering/alpha-conversation.test.ts lib/engineering/factory-commands.test.ts agent/tools/engineering_factory.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+
+ ✓ lib/engineering/factory-commands.test.ts (9 tests) 6ms
+ ✓ agent/tools/engineering_factory.test.ts (10 tests) 3ms
+ ✓ lib/engineering/alpha-conversation.test.ts (24 tests) 15ms
+
+ Test Files  3 passed (3)
+      Tests  43 passed (43)
+   Start at  16:28:14
+   Duration  525ms (transform 227ms, setup 0ms, collect 513ms, tests 23ms, environment 0ms, prepare 88ms)
+

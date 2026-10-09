@@ -1,0 +1,69 @@
+{
+  "observedAt": "2026-10-03T22:36:22.051349+00:00",
+  "deployments": [
+    {
+      "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "deploymentId": "dpl_36hKEptYUniSfWPnQT3JYUwi5U3d",
+      "state": "READY",
+      "target": "production",
+      "sha": "c5ad88eb7819c53b7736f672484a2beb253eef9e",
+      "expectedSha": "c5ad88eb7819c53b7736f672484a2beb253eef9e",
+      "canonicalMatch": true,
+      "url": "sofie-personal-agent-4z7dcupzb-jaydubya818.vercel.app",
+      "forbiddenProductionEnvironmentKeys": []
+    },
+    {
+      "projectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+      "deploymentId": "dpl_5bxij4TrCDFvgySPRkQfHCxEcjiy",
+      "state": "READY",
+      "target": "production",
+      "sha": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
+      "expectedSha": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
+      "canonicalMatch": true,
+      "url": "myfactory-cloud-production-3c45kn9fj-jaydubya818.vercel.app",
+      "forbiddenProductionEnvironmentKeys": []
+    }
+  ],
+  "anonymousSmoke": [
+    {
+      "check": "untrusted-local",
+      "status": 401,
+      "expected": 401,
+      "pass": true
+    },
+    {
+      "check": "invalid-workload-identity",
+      "status": 401,
+      "expected": 401,
+      "pass": true
+    },
+    {
+      "check": "sofie-anonymous/login",
+      "status": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "check": "sofie-anonymous/api/beta/factory-installation",
+      "status": 401,
+      "expected": 401,
+      "pass": true
+    }
+  ],
+  "servedLoginCredentialScan": {
+    "status": "PASS",
+    "credentials": 2,
+    "encodings": [
+      "plaintext",
+      "base64"
+    ],
+    "htmlPages": 1,
+    "linkedStaticAssets": 14,
+    "scope": "fresh production Factory application/proof credentials only; full configured-credential build scan is separate"
+  },
+  "authenticatedProductionChecks": "AWAITING_OWNER_LOGIN",
+  "previewAndDevelopmentWorkloadLiveChecks": "NOT_RUN",
+  "productionExecutionContract": "NOT_READY",
+  "paidModelCallsInitiated": 0,
+  "generatedPublicationEffectsInitiated": 0
+}

@@ -1,0 +1,26 @@
+{
+  "verdict": "PASS_FOR_SOURCE_CONSOLIDATION_AND_CANONICAL_MERGE",
+  "reviewer": "independent_consolidation_review",
+  "readOnly": true,
+  "sources": {
+    "MyEve": "1f0469ac0ab75a16b360bfca45c8f506d13c5e10",
+    "MyFactory": "0fbc881d1dcac99f87f1e5992baeafac565afa7a",
+    "Relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
+  },
+  "independentTests": {
+    "passed": 261,
+    "gatedSkipped": 12
+  },
+  "migrationPreservation": {
+    "MyEve": 75,
+    "FactoryCloud": 6
+  },
+  "blockers": [],
+  "releaseApproval": false,
+  "remainingReleaseGates": [
+    "Actual MyEve durable EvidenceProvider Proof ingestion/readback",
+    "Composed hosted natural Work to same-conversation Result",
+    "Fresh qualification of composed source/configuration/runtime identities",
+    "Production authorization and missing mission sections1\u201319"
+  ]
+}

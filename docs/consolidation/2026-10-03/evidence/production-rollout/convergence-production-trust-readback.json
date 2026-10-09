@@ -1,0 +1,33 @@
+{
+  "id": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+  "name": "myfactory-cloud-production",
+  "trustedSources": {
+    "projects": {
+      "prj_L6faw25wnFGUZtrLKBIccg8gIDLR": {
+        "label": "Sofie production to Factory production only. Application and Work authorization remain required.",
+        "customAllow": [
+          {
+            "from": {
+              "slugs": [
+                "production"
+              ]
+            },
+            "to": {
+              "slugs": [
+                "production"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "ssoProtection": {
+    "deploymentType": "all_except_custom_domains"
+  },
+  "oidcTokenConfig": {
+    "enabled": true,
+    "issuerMode": "team"
+  },
+  "rootDirectory": "apps/cloud-control"
+}

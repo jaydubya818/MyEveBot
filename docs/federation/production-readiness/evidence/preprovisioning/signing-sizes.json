@@ -1,0 +1,64 @@
+{
+  "mode": "local_exact_serialization_no_provider_call",
+  "measured": [
+    {
+      "name": "message_representative",
+      "submissionBytes": 246,
+      "signingInputBytes": 1091,
+      "tokenBytes": 1178,
+      "verified": true
+    },
+    {
+      "name": "message_max_ascii_body",
+      "submissionBytes": 16672,
+      "signingInputBytes": 22993,
+      "tokenBytes": 23080,
+      "verified": true
+    },
+    {
+      "name": "message_max_json_escaped_fields",
+      "submissionBytes": 98947,
+      "signingInputBytes": 132693,
+      "tokenBytes": 132780,
+      "verified": true
+    },
+    {
+      "name": "work_max_json_escaped_payload",
+      "submissionBytes": 45721,
+      "signingInputBytes": 61725,
+      "tokenBytes": 61812,
+      "verified": true
+    },
+    {
+      "name": "artifact_64KiB_metadata_only",
+      "submissionBytes": 536,
+      "signingInputBytes": 1478,
+      "tokenBytes": 1565,
+      "verified": true
+    },
+    {
+      "name": "knowledge_representative",
+      "submissionBytes": 290,
+      "signingInputBytes": 1150,
+      "tokenBytes": 1237,
+      "verified": true
+    },
+    {
+      "name": "knowledge_join_of_individually_bounded_inputs",
+      "submissionBytes": 88347,
+      "publicationBytes": 115600,
+      "entries": 5,
+      "wouldBeSigningInputBytes": 270431,
+      "wouldBeTokenBytes": 270518,
+      "signerInvoked": false,
+      "outcome": "REJECTED_BEFORE_SIGNING"
+    }
+  ],
+  "receiptHashBytes": 71,
+  "exportManifestHashBytes": 71,
+  "passportHashBytes": 71,
+  "maxVerifierAcceptedSigningInputBytes": 262057,
+  "signatureBytes": 64,
+  "signatureBase64urlBytes": 86,
+  "note": "Artifact content is not included in the signed delivery. All sizes use synthetic inputs; not a live KMS size attestation."
+}

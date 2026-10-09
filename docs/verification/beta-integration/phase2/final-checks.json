@@ -1,0 +1,108 @@
+{
+  "implementationSha": "d2f0db0f080a5f59a91a2bc425b84b1546512ff7",
+  "canonicalDigitalWorker": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+  "application": {
+    "passed": 1482,
+    "skipped": 56,
+    "status": "PASS",
+    "skips": "Existing environment-gated integration tests; no paid or hosted environments enabled"
+  },
+  "root": {
+    "passed": 135,
+    "status": "PASS"
+  },
+  "typecheck": "PASS",
+  "capabilityDefinitions": 147,
+  "authoredTools": 125,
+  "executorClassifications": 690,
+  "unknownExecutors": 0,
+  "productionBuild": "PASS",
+  "migration": "PASS_FRESH_AND_0057_UPGRADE",
+  "canonicalModelContext": "PASS_CONTROLLED_PROVIDER",
+  "liveModel": "NOT_RUN",
+  "protectedLiveVerification": "NOT_RUN",
+  "workAdmission": "PARTIAL_UNMOUNTED_ADAPTER_QUALIFIED",
+  "canonicalContinuation": "PARTIAL_UNMOUNTED_ADAPTER_QUALIFIED",
+  "scheduler": "PASS_LOCAL_PAUSED_WORK_ONLY",
+  "externalEventIngress": "UNMOUNTED_PENDING_REVIEW",
+  "factory": "PENDING_FINAL_SPEND_QUALIFIED_PRODUCER",
+  "capsules": "PENDING_FINAL_FROZEN_SHA",
+  "measurements": {
+    "duplicateWork": 0,
+    "falseTaskCompletion": 0,
+    "falseGoalCompletion": 0,
+    "authorityExpansion": 0,
+    "crossOwnerDisclosure": 0,
+    "staleResponseContinuation": 0,
+    "falseReady": 0,
+    "avoidableProductCoordinationDebt": 0
+  },
+  "logs": {
+    "application": {
+      "file": "logs/application.log",
+      "sha256": "cfdd8c2132bf5fde34cf2066c7cd68c3dc469940185adcf0ddd6cfb36c2a46cb",
+      "originalCaptureSha256": "c535fa0ed925b7e19ea3c80769407c5f09f2861a44b52cb8226926ee50a5427e",
+      "normalization": "Line endings and trailing whitespace only"
+    },
+    "root": {
+      "file": "logs/root.log",
+      "sha256": "a66ba16eb629fdda11aea2085ada721f9276734dec52ba9a137723647a0dd760"
+    },
+    "typecheck-governance": {
+      "file": "logs/typecheck-governance.log",
+      "sha256": "ba1c2b51640dec95e8ac716a6b81ef68e268f4ad7756fa5db7a862945c518b6f"
+    },
+    "production-build": {
+      "file": "logs/production-build.log",
+      "sha256": "175874169e0a1407fc6bd71ff47ba6604b9ed04f5fa798be2f2fd3b4b47324a2",
+      "originalCaptureSha256": "854c50e6eaf97a2a63d00fd3a9bd3f8d9f3c0c66eac2e4585835338f8a32c327",
+      "normalization": "Line endings and trailing whitespace only"
+    },
+    "canonical-journey": {
+      "file": "logs/canonical-journey.log",
+      "sha256": "cd0a4d074c9750975e57a82bff38f22b9a4b58e64bc70d7a134f1b86c6aba959"
+    },
+    "migration": {
+      "file": "logs/migration.log",
+      "sha256": "c32c607142ec30cde5d3b2d5bc184ac753f855323bc60ce2fed207dd0279fb07"
+    },
+    "goal-postgres": {
+      "file": "logs/goal-postgres.log",
+      "sha256": "0c6e07731fd224fdb6e7d3bebb24f7a1dbdee7c487bc52bac7e488bf6407a36f"
+    },
+    "recall-core": {
+      "file": "logs/recall-core.log",
+      "sha256": "29d4d7151fe475fd7d96236944a411177230759dcd7e695d9f8290bf57c3627d"
+    },
+    "recall-integration": {
+      "file": "logs/recall-integration.log",
+      "sha256": "6dfa84a96c8daf2767aebd667070e55319ca71199808fcc621976bb02bf6a811"
+    },
+    "inbox-postgres": {
+      "file": "logs/inbox-postgres.log",
+      "sha256": "2538e47ddef6fece0fadeb67b28736ac0ea98905e6bb58abf6cbe3982001d04a"
+    },
+    "recovery": {
+      "file": "logs/recovery.log",
+      "sha256": "4e786a77b163eab7d48e0ea623b3c7690b496a096eee2734d4c520fa461a6ca5"
+    },
+    "adversarial": {
+      "file": "logs/adversarial.log",
+      "sha256": "4ce7176c23dcffa3765cbd967df6db6876bbf3b4d25b833809e4765151dbc5b9"
+    },
+    "scheduler": {
+      "file": "logs/scheduler.log",
+      "sha256": "966ed2eb8e8c323f73830f6e5fce11e888ddb850d8f808b47b1f0ab24f3ce762"
+    },
+    "recall-replay": {
+      "file": "logs/recall-replay.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "latest-shared": {
+      "file": "logs/latest-shared.log",
+      "sha256": "6336b06e8ff3e9416fed7b06df9955c55f74b553c19cb6ad47504a42ae578907",
+      "originalCaptureSha256": "fa5744ef133fc026283f35a02bff7d9ae8e3466a76b0d4d18245e28de7cc1740",
+      "normalization": "Line endings and trailing whitespace only"
+    }
+  }
+}

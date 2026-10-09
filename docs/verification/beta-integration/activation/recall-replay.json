@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "changedStep": "DENIED_BEFORE_PROVIDER",
+  "originalReceipt": "PRESERVED",
+  "freshStep": "CURRENT_CORRECTION",
+  "authorityExpansion": 0
+}

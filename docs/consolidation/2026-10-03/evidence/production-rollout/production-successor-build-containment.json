@@ -1,0 +1,12 @@
+{
+  "deploymentId": "dpl_36hKEptYUniSfWPnQT3JYUwi5U3d",
+  "source": "c5ad88eb7819c53b7736f672484a2beb253eef9e",
+  "scan": {
+    "check": "cloud-client-credential-containment",
+    "status": "PASS",
+    "credentials": 5,
+    "browserFiles": 80,
+    "htmlHydrationFiles": 966,
+    "publicFiles": 2
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "format": "myapps.factory-current-main-union.v1",
+  "main": "aad23a8757b351c1e30851128120469d4c30b202",
+  "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c",
+  "files": {
+    ".github/workflows/environment-fabric.yml": {
+      "preparationSha256": "bb1031f1e26ff0474dc008ea6edb5883573d239074ccb50351343acfaf12ff17",
+      "integrationSha256": "15654a0b78d53a095c6c175f5e4ec2730b7172a861e209d9ca60c3662b8dc672",
+      "initialSha256": "43e14383ffb38bad43078faa5e8a559b12b4ef9798e2025e002597431f0bb78f",
+      "outputSha256": "4e9078186818bf548d609742df34bbf30f8f17d2515432b98c8035d2c85e3665",
+      "hunks": [
+        {
+          "from": "<<<<<<< PREPARATION\n      - run: npm audit --audit-level=low\n      # The generated preview deliberately installs offline; provision its own locked cache first.\n      - run: npm ci --prefix templates/feedback-hub --ignore-scripts --no-audit --no-fund\n      - run: npm audit --prefix templates/feedback-hub --audit-level=low\n=======\n      - run: npm ci --prefix .qualification/myeve --ignore-scripts --no-audit --no-fund\n>>>>>>> INTEGRATION\n",
+          "to": "      - run: npm audit --audit-level=low\n      # The generated preview deliberately installs offline; provision its own locked cache first.\n      - run: npm ci --prefix templates/feedback-hub --ignore-scripts --no-audit --no-fund\n      - run: npm audit --prefix templates/feedback-hub --audit-level=low\n      - run: npm ci --prefix .qualification/myeve --ignore-scripts --no-audit --no-fund\n"
+        }
+      ]
+    },
+    "apps/cloud-control/src/postgres-dispatch.mjs": {
+      "preparationSha256": "1af79caeb20201be6b8009697cf2997b0a6a8ddf30782d92d2576aa010d40a75",
+      "integrationSha256": "8790fdc7c2875ff62248be553e5507bae1d93997817bd9b4b1d066a88a2ffb7a",
+      "initialSha256": "fc7e9e98aa0221b7d660b87d5d1b85b0b4e681160eed657e0c6044efa86f053e",
+      "outputSha256": "c2c27d9b1cc8ace2217a0448d9774664dae8e581d15b4393f8d8643b9640f185",
+      "hunks": [
+        {
+          "from": "<<<<<<< PREPARATION\n  constructor(pool,{maxWorks=8,workLimitError='STAGING_WORK_LIMIT',custodyPrefix='factory/staging',verificationPolicySha256=cloudVerifierPolicySha256,assertAuthority,assertRecordScope,capabilityBindings}={}) { if(!Number.isSafeInteger(maxWorks)||maxWorks<1||maxWorks>8||!['factory/staging','factory/production'].includes(custodyPrefix)||!/^[a-f0-9]{64}$/.test(verificationPolicySha256))throw Error('DISPATCH_CONFIGURATION_INVALID');this.capabilityBindings=capabilityBindings;this.assertAuthority=assertAuthority;this.assertRecordScope=assertRecordScope;this.pool=pool;this.maxWorks=maxWorks;this.workLimitError=workLimitError;this.custodyPrefix=custodyPrefix;this.verificationPolicySha256=verificationPolicySha256; }\n=======\n  constructor(pool,{maxWorks=8,workLimitError='STAGING_WORK_LIMIT',custodyPrefix='factory/staging',verificationPolicySha256=cloudVerifierPolicySha256,assertAuthority,assertRecordScope,strictWriterFence=false,requireVerifierPass=false,onDeliveryUnknown}={}) { if(!Number.isSafeInteger(maxWorks)||maxWorks<1||maxWorks>8||!['factory/staging','factory/production'].includes(custodyPrefix)||!/^[a-f0-9]{64}$/.test(verificationPolicySha256))throw Error('DISPATCH_CONFIGURATION_INVALID');this.assertAuthority=assertAuthority;this.assertRecordScope=assertRecordScope;this.pool=pool;this.maxWorks=maxWorks;this.workLimitError=workLimitError;this.custodyPrefix=custodyPrefix;this.verificationPolicySha256=verificationPolicySha256;this.strictWriterFence=strictWriterFence;this.requireVerifierPass=requireVerifierPass;this.onDeliveryUnknown=onDeliveryUnknown; }\n>>>>>>> INTEGRATION\n",
+          "to": "  constructor(pool,{maxWorks=8,workLimitError='STAGING_WORK_LIMIT',custodyPrefix='factory/staging',verificationPolicySha256=cloudVerifierPolicySha256,assertAuthority,assertRecordScope,capabilityBindings,strictWriterFence=false,requireVerifierPass=false,onDeliveryUnknown}={}) { if(!Number.isSafeInteger(maxWorks)||maxWorks<1||maxWorks>8||!['factory/staging','factory/production'].includes(custodyPrefix)||!/^[a-f0-9]{64}$/.test(verificationPolicySha256))throw Error('DISPATCH_CONFIGURATION_INVALID');this.capabilityBindings=capabilityBindings;this.assertAuthority=assertAuthority;this.assertRecordScope=assertRecordScope;this.pool=pool;this.maxWorks=maxWorks;this.workLimitError=workLimitError;this.custodyPrefix=custodyPrefix;this.verificationPolicySha256=verificationPolicySha256;this.strictWriterFence=strictWriterFence;this.requireVerifierPass=requireVerifierPass;this.onDeliveryUnknown=onDeliveryUnknown; }\n"
+        }
+      ]
+    },
+    "apps/cloud-control/src/source-identity.json": {
+      "preparationSha256": "e38ef2c0f01febee1700dcf0aa1b8bd57e4a7197affaf1cfa6a706a8652e0096",
+      "integrationSha256": "01998adf2a13efdf6d55f4fd063311a108f1554d6edf7b84c0833e8eb2974a11",
+      "initialSha256": "e6c0d64cc333ad092217a9b22cc4d50b3ab370f0d42c114e21309bf4265067bf",
+      "outputSha256": "e38ef2c0f01febee1700dcf0aa1b8bd57e4a7197affaf1cfa6a706a8652e0096",
+      "hunks": [
+        {
+          "from": "<<<<<<< PREPARATION\n  \"sourceDigest\": \"2b161cfd196ea20fbb71fbc3701b9882e57a2345e3adf325dba35219c1e59c06\"\n=======\n  \"sourceDigest\": \"bdc1ee6744ca72b43c65f80f5c0d72f6e39945da2d4e5f28b996ff9b94711200\"\n>>>>>>> INTEGRATION\n",
+          "to": "  \"sourceDigest\": \"2b161cfd196ea20fbb71fbc3701b9882e57a2345e3adf325dba35219c1e59c06\"\n"
+        }
+      ]
+    },
+    "apps/cloud-control/test/cloud-work-lifecycle.test.mjs": {
+      "preparationSha256": "a88d0cea117da4cc203ee8218ca05d49e8d2a85743aca2ca772e40e8d50ebbaf",
+      "integrationSha256": "b6c6db17f876aebe120104824f41482530fce973ddb3b38ea7244e6a31d7a031",
+      "initialSha256": "2df3a389d7b89c1c1ac69f7a54033b3179a77174068a56d1418dda25309448b9",
+      "outputSha256": "619fc1e8699da180dae70a247fcd30120116fa4419f5eb808defa2435af28eb7",
+      "hunks": [
+        {
+          "from": "<<<<<<< PREPARATION\n\ntest('revocation recovery cannot finalize while an independent verifier is still unclean',async()=>{\n const f=fixture('allocate');await executeCloudWork(f.store,f.provider,'client',f.identity,f.recovery);\n f.row.snapshot={configuration:{cloud:{verificationPolicySha256:cloudVerifierPolicySha256}}};\n f.row.resource.provider_session_id='sbx_test';\n let attempts=0;\n f.provider.reconcileVerification=async()=>{attempts++;throw Error('VERIFIER_CLEANUP_UNPROVEN');};\n await assert.rejects(reconcileCloudWork(f.store,f.provider,'client','request'),/VERIFIER_CLEANUP_UNPROVEN/);\n assert.equal(f.row.resource.cleanup_confirmed,true);assert.equal(f.row.events.length,0);assert.equal(attempts,1);\n f.provider.reconcileVerification=async()=>{attempts++;return {cleanup_confirmed:true};};\n await reconcileCloudWork(f.store,f.provider,'client','request');\n assert.equal(attempts,2);assert.equal(f.row.events.length,1);\n assert.equal(f.effects.filter(effect=>effect==='DESTROY').length,1);\n=======\ntest('private source preflight completes after recovery scheduling and before any allocation; corruption cannot allocate',async()=>{\n for(const corrupt of [false,true]){\n  const f=fixture();f.provider.prepareSource=async(_row,note)=>{f.effects.push('SOURCE_CHECK');if(corrupt)throw Error('PRIVATE_SOURCE_DIGEST_MISMATCH');await note({privateSourceReceipt:{sha256:'a'.repeat(64)}});};\n  await executeCloudWork(f.store,f.provider,'client',f.identity,f.recovery);\n  assert.deepEqual(f.effects.slice(0,2),['RECOVERY_ACCEPTED','SOURCE_CHECK']);\n  if(corrupt){assert(!f.effects.includes('ALLOCATE'));assert(!f.effects.includes('EXECUTE'));assert.equal(f.row.resource.evidence.failureStage,'PRIVATE_SOURCE_CUSTODY');assert.equal(f.row.resource.evidence.failure,'PRIVATE_SOURCE_DIGEST_MISMATCH');assert.equal(f.row.events.length,0);}\n  else{assert.equal(f.effects[2],'ALLOCATE');assert.equal(f.row.resource.evidence.privateSourceReceipt.sha256,'a'.repeat(64));}\n }\n>>>>>>> INTEGRATION\n",
+          "to": "\ntest('revocation recovery cannot finalize while an independent verifier is still unclean',async()=>{\n const f=fixture('allocate');await executeCloudWork(f.store,f.provider,'client',f.identity,f.recovery);\n f.row.snapshot={configuration:{cloud:{verificationPolicySha256:cloudVerifierPolicySha256}}};\n f.row.resource.provider_session_id='sbx_test';\n let attempts=0;\n f.provider.reconcileVerification=async()=>{attempts++;throw Error('VERIFIER_CLEANUP_UNPROVEN');};\n await assert.rejects(reconcileCloudWork(f.store,f.provider,'client','request'),/VERIFIER_CLEANUP_UNPROVEN/);\n assert.equal(f.row.resource.cleanup_confirmed,true);assert.equal(f.row.events.length,0);assert.equal(attempts,1);\n f.provider.reconcileVerification=async()=>{attempts++;return {cleanup_confirmed:true};};\n await reconcileCloudWork(f.store,f.provider,'client','request');\n assert.equal(attempts,2);assert.equal(f.row.events.length,1);\n assert.equal(f.effects.filter(effect=>effect==='DESTROY').length,1);\n});\n\ntest('private source preflight completes after recovery scheduling and before any allocation; corruption cannot allocate',async()=>{\n for(const corrupt of [false,true]){\n  const f=fixture();f.provider.prepareSource=async(_row,note)=>{f.effects.push('SOURCE_CHECK');if(corrupt)throw Error('PRIVATE_SOURCE_DIGEST_MISMATCH');await note({privateSourceReceipt:{sha256:'a'.repeat(64)}});};\n  await executeCloudWork(f.store,f.provider,'client',f.identity,f.recovery);\n  assert.deepEqual(f.effects.slice(0,2),['RECOVERY_ACCEPTED','SOURCE_CHECK']);\n  if(corrupt){assert(!f.effects.includes('ALLOCATE'));assert(!f.effects.includes('EXECUTE'));assert.equal(f.row.resource.evidence.failureStage,'PRIVATE_SOURCE_CUSTODY');assert.equal(f.row.resource.evidence.failure,'PRIVATE_SOURCE_DIGEST_MISMATCH');assert.equal(f.row.events.length,0);}\n  else{assert.equal(f.effects[2],'ALLOCATE');assert.equal(f.row.resource.evidence.privateSourceReceipt.sha256,'a'.repeat(64));}\n }\n"
+        }
+      ]
+    },
+    "apps/cloud-control/test/production-model-provider.test.mjs": {
+      "preparationSha256": "2f4e73a2e9130d776eed9676897a90a8a8fc8f19c6e8c2911058fcfd55eea9f5",
+      "integrationSha256": "dc33bdd377ec76f062918c45d4fdf8f22e442f93e7e29a683ba916e19eaeb2f4",
+      "initialSha256": "da4cd3d91dfc72f7b9a4d4fdbb6dfec8dcbeb3d4929616ea667a6028b55c7984",
+      "outputSha256": "2f4e73a2e9130d776eed9676897a90a8a8fc8f19c6e8c2911058fcfd55eea9f5",
+      "hunks": [
+        {
+          "from": "<<<<<<< PREPARATION\n finally{test.mock.timers.setTime(pricingFixtureTime);}\n});\ntest('price expiry after construction prevents workload credential acquisition',async()=>{\n test.mock.timers.setTime(Date.parse(productionModelPrice.validUntil)-1000);\n try{\n  let acquisitions=0;\n  const provider=productionModelProvider({env,assertWorkAuthorized:async()=>{}},{getToken:async()=>{acquisitions++;return token;},verifyToken:async()=>({payload:claims})});\n  test.mock.timers.setTime(Date.parse(productionModelPrice.validUntil));\n  await assert.rejects(provider.authorize(),/PRODUCTION_MODEL_AUTHORITY_UNAVAILABLE/);\n  assert.equal(acquisitions,0);\n  assert.throws(()=>productionModelProvider({env,assertWorkAuthorized:async()=>{}}),/Current pinned model pricing/);\n }finally{test.mock.timers.setTime(pricingFixtureTime);}\n=======\n finally{test.mock.timers.setTime(Date.parse('2026-10-08T23:00:00.000Z'));}\n>>>>>>> INTEGRATION\n",
+          "to": " finally{test.mock.timers.setTime(pricingFixtureTime);}\n});\ntest('price expiry after construction prevents workload credential acquisition',async()=>{\n test.mock.timers.setTime(Date.parse(productionModelPrice.validUntil)-1000);\n try{\n  let acquisitions=0;\n  const provider=productionModelProvider({env,assertWorkAuthorized:async()=>{}},{getToken:async()=>{acquisitions++;return token;},verifyToken:async()=>({payload:claims})});\n  test.mock.timers.setTime(Date.parse(productionModelPrice.validUntil));\n  await assert.rejects(provider.authorize(),/PRODUCTION_MODEL_AUTHORITY_UNAVAILABLE/);\n  assert.equal(acquisitions,0);\n  assert.throws(()=>productionModelProvider({env,assertWorkAuthorized:async()=>{}}),/Current pinned model pricing/);\n }finally{test.mock.timers.setTime(pricingFixtureTime);}\n"
+        },
+        {
+          "from": "// Historical qualified rate-card fixture. Runtime expiry remains enforced.\ntest.mock.timers.enable({apis:['Date'],now:Date.parse('2026-10-08T23:00:00.000Z')});\n",
+          "to": ""
+        }
+      ]
+    }
+  },
+  "inventory": {
+    "path": "docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json",
+    "headSha256": "1e6360fded2fb67ae293f8f1dd51c143e75d4e0b0c9fa3f960a7c11593c22e89",
+    "integrationSha256": "8c2cd3b52deb66d06e7885c4d29b81464790df578ded6daf090958399d8c9ee1",
+    "records": {
+      "apps/cloud-control/src/capability-admission.mjs": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "73ce012e25f134cbec40e35f574f68e19f8664c2e388252d9e850fb8bbeeb518"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "73ce012e25f134cbec40e35f574f68e19f8664c2e388252d9e850fb8bbeeb518"
+        },
+        "composedSourceSha256": "73ce012e25f134cbec40e35f574f68e19f8664c2e388252d9e850fb8bbeeb518"
+      },
+      "apps/cloud-control/src/capability-controls.mjs": {
+        "head": {
+          "classification": "CAPABILITY_CONTROL",
+          "authorityBoundary": " Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required.",
+          "sha256": "17dc5e33ef3d6e907e5869a385439f8425d138827805b31de7c9c0c39490296d"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_CONTROL",
+          "authorityBoundary": " Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required.",
+          "sha256": "17dc5e33ef3d6e907e5869a385439f8425d138827805b31de7c9c0c39490296d"
+        },
+        "composedSourceSha256": "17dc5e33ef3d6e907e5869a385439f8425d138827805b31de7c9c0c39490296d"
+      },
+      "apps/cloud-control/src/cloud-harness-plan.mjs": {
+        "head": {
+          "sha256": "4c0aaeb3ecc526753e9f89dfaeaf979272e44c8d5312b4a644053424d5387671",
+          "classification": "CLOUD_HARNESS_BOUNDARY",
+          "authorityBoundary": "Dedicated staging existing Codex adapter only. Pinned package/model, host PostgreSQL SpendGateway admission, bounded private SDK mailbox, one response per productive checkpoint, read-only completion, unprivileged producer, exact-tree custody and no paid upstream fallback. Producer observations grant no verification/publication authority."
+        },
+        "integration": {
+          "sha256": "2a3815b4ccda8cf8c5515715a3dd29bd19c3ccd6c91f0c80cd92be275759f44e",
+          "classification": "CLOUD_HARNESS_BOUNDARY",
+          "authorityBoundary": "Dedicated staging existing Codex adapter only. Pinned package/model, host PostgreSQL SpendGateway admission, bounded private SDK mailbox, one response per productive checkpoint, read-only completion, unprivileged producer, exact-tree custody and no paid upstream fallback. Producer observations grant no verification/publication authority."
+        },
+        "output": {
+          "sha256": "4c0aaeb3ecc526753e9f89dfaeaf979272e44c8d5312b4a644053424d5387671",
+          "classification": "CLOUD_HARNESS_BOUNDARY",
+          "authorityBoundary": "Dedicated staging existing Codex adapter only. Pinned package/model, host PostgreSQL SpendGateway admission, bounded private SDK mailbox, one response per productive checkpoint, read-only completion, unprivileged producer, exact-tree custody and no paid upstream fallback. Producer observations grant no verification/publication authority."
+        },
+        "composedSourceSha256": "4c0aaeb3ecc526753e9f89dfaeaf979272e44c8d5312b4a644053424d5387671"
+      },
+      "apps/cloud-control/src/cloud-work-lifecycle.mjs": {
+        "head": {
+          "sha256": "c1675fa7a04575f07a9b0356751d23a3d9012fd50975382319e1fc54dddceadc",
+          "classification": "CLOUD_WORK_LIFECYCLE",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Producer startup repair review: common live-lease projection preserves failure, expiry, cancellation and paid UNKNOWN fencing; fixed diagnostic stages; operator-only zero-paid qualifier has no admission endpoint, Work grant, ledger or upstream dispatch and requires teardown even after audit failure. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required."
+        },
+        "integration": {
+          "sha256": "1c6368df932b535eef14a1d44177273c38b2d8e5fa6d2a29518f1f6434ad456c",
+          "classification": "CLOUD_WORK_LIFECYCLE",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Producer startup repair review: common live-lease projection preserves failure, expiry, cancellation and paid UNKNOWN fencing; fixed diagnostic stages; operator-only zero-paid qualifier has no admission endpoint, Work grant, ledger or upstream dispatch and requires teardown even after audit failure. Checkpoint A: dedicated signed Result/readback and cleanup-only durable reconciliation. External-alpha-only strict writer/custody fencing and verifier PASS requirement; historical callers retain existing defaults."
+        },
+        "output": {
+          "sha256": "f53e7b6ad17db52b780d0a588980cafdce1759520afb4a275d49fbd8f9901776",
+          "classification": "CLOUD_WORK_LIFECYCLE",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Producer startup repair review: common live-lease projection preserves failure, expiry, cancellation and paid UNKNOWN fencing; fixed diagnostic stages; operator-only zero-paid qualifier has no admission endpoint, Work grant, ledger or upstream dispatch and requires teardown even after audit failure. Checkpoint A: dedicated signed Result/readback and cleanup-only durable reconciliation. External-alpha-only strict writer/custody fencing and verifier PASS requirement; historical callers retain existing defaults. Current-main boundary: Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Producer startup repair review: common live-lease projection preserves failure, expiry, cancellation and paid UNKNOWN fencing; fixed diagnostic stages; operator-only zero-paid qualifier has no admission endpoint, Work grant, ledger or upstream dispatch and requires teardown even after audit failure. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required. Exact reviewed current-main and External Alpha source union; no new execution or approval authority."
+        },
+        "composedSourceSha256": "f53e7b6ad17db52b780d0a588980cafdce1759520afb4a275d49fbd8f9901776"
+      },
+      "apps/cloud-control/src/postgres-dispatch.mjs": {
+        "head": {
+          "sha256": "1af79caeb20201be6b8009697cf2997b0a6a8ddf30782d92d2576aa010d40a75",
+          "classification": "CLOUD_DISPATCH_AUTHORITY",
+          "authorityBoundary": "Fixed three-owner canonical host boundary: separate verified production OIDC and per-owner application/Proof credentials; exact immutable grant ownership on durable intake, queue, custody and cleanup. No new producer or standing Work authority. Local PostgreSQL isolation and revoked-history tests; independent review. Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required."
+        },
+        "integration": {
+          "sha256": "8790fdc7c2875ff62248be553e5507bae1d93997817bd9b4b1d066a88a2ffb7a",
+          "classification": "UNKNOWN_FENCE",
+          "authorityBoundary": "External-alpha ambiguous delivery remains UNKNOWN and cannot transition to DELIVERED through duplicate delivery; legacy routes retain their existing scope."
+        },
+        "output": {
+          "sha256": "c2c27d9b1cc8ace2217a0448d9774664dae8e581d15b4393f8d8643b9640f185",
+          "classification": "CLOUD_DISPATCH_AUTHORITY_AND_UNKNOWN_FENCE",
+          "authorityBoundary": "External-alpha ambiguous delivery remains UNKNOWN and cannot transition to DELIVERED through duplicate delivery; legacy routes retain their existing scope. Current-main boundary: Fixed three-owner canonical host boundary: separate verified production OIDC and per-owner application/Proof credentials; exact immutable grant ownership on durable intake, queue, custody and cleanup. No new producer or standing Work authority. Local PostgreSQL isolation and revoked-history tests; independent review. Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified. Lifecycle successor: exact owner/organization/installation/agent binding, revision-targeted control replay, safe pre-allocation pause, producer and verifier cleanup acknowledgments with UNKNOWN accounting preserved. Remote enrollment and installed-source qualification are not implied; independent final review required. Exact reviewed current-main and External Alpha source union; no new execution or approval authority."
+        },
+        "composedSourceSha256": "c2c27d9b1cc8ace2217a0448d9774664dae8e581d15b4393f8d8643b9640f185"
+      },
+      "apps/cloud-control/src/postgres-verification.mjs": {
+        "head": {
+          "sha256": "d93468b48820db3291924b7b3410885a116fffdf68b20a455cdb8a889fdfc030",
+          "classification": "CLOUD_PROTECTED_VERIFICATION",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Lifecycle successor: pause at the producer-cleanup checkpoint fences new verifier allocation under the same transaction lock. Existing verifier execution is preserved until its qualified cleanup."
+        },
+        "integration": {
+          "sha256": "df52aa07e6adfd42ab66354240d70681f96ea4a698faa88ce772e264039b45ff",
+          "classification": "CLOUD_PROTECTED_VERIFICATION",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant."
+        },
+        "output": {
+          "sha256": "d93468b48820db3291924b7b3410885a116fffdf68b20a455cdb8a889fdfc030",
+          "classification": "CLOUD_PROTECTED_VERIFICATION",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Lifecycle successor: pause at the producer-cleanup checkpoint fences new verifier allocation under the same transaction lock. Existing verifier execution is preserved until its qualified cleanup."
+        },
+        "composedSourceSha256": "6f8be82330828248b2ac7564e704a8eaad5f93aa371dea5d74e55ced71ee8b2f"
+      },
+      "apps/cloud-control/src/production-model-provider.mjs": {
+        "head": {
+          "classification": "ENFORCED",
+          "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant.",
+          "sha256": "e785eff8162fd7c6ad5365097802d31dfd60a72c790747ecde7d875b7a16da80"
+        },
+        "integration": {
+          "classification": "ENFORCED",
+          "authorityBoundary": "Separate canonical canary and dedicated external-alpha host loaders bind live server project/team/environment before per-Work authority and fresh verified OIDC. Shared fixed rate/endpoint/routing has no static-key fallback, model substitution or installation execution grant.",
+          "sha256": "2e1a7c3987ec0c321bbcc9d9cf0c1a3cfe602fa797d57e3a67a76c35a05f0837"
+        },
+        "output": {
+          "classification": "ENFORCED",
+          "authorityBoundary": "Separate canonical canary and dedicated external-alpha host loaders bind live server project/team/environment before per-Work authority and fresh verified OIDC. Shared fixed rate/endpoint/routing has no static-key fallback, model substitution or installation execution grant. Current-main boundary: Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. Exact reviewed current-main and External Alpha source union; no new execution or approval authority.",
+          "sha256": "15271169e311e56cf046e4ad1873520825f3f6704d8834f75a8b3ce0534a7bb1"
+        },
+        "composedSourceSha256": "15271169e311e56cf046e4ad1873520825f3f6704d8834f75a8b3ce0534a7bb1"
+      },
+      "apps/supervisor/src/capability-admission.ts": {
+        "head": {
+          "classification": "CAPABILITY_CONTROL",
+          "authorityBoundary": " Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation.",
+          "sha256": "5137c329fd7b1feb7206090059752d7c67158f1e69ff50dbe08ce744e5cfcd5f"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_CONTROL",
+          "authorityBoundary": " Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation.",
+          "sha256": "5137c329fd7b1feb7206090059752d7c67158f1e69ff50dbe08ce744e5cfcd5f"
+        },
+        "composedSourceSha256": "5137c329fd7b1feb7206090059752d7c67158f1e69ff50dbe08ce744e5cfcd5f"
+      },
+      "apps/supervisor/src/dispatch-control.ts": {
+        "head": {
+          "sha256": "efa381763399b7fc35075f2e1080d3da6661f81c0ceb9e5f16ce9f32511e5cdd",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. No model authority, retry or fallback. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Fabric boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Consolidated boundary: The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. New owner-scope metadata is append-only beside prepared Work for evidence authorization and grants no writer or model authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation."
+        },
+        "integration": {
+          "sha256": "7c7d9e9478d9471dfe74e0079924e7fbb3a83e40c47995b83453c3eb838e879b",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. No model authority, retry or fallback. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Fabric boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Consolidated boundary: The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. New owner-scope metadata is append-only beside prepared Work for evidence authorization and grants no writer or model authority."
+        },
+        "output": {
+          "sha256": "efa381763399b7fc35075f2e1080d3da6661f81c0ceb9e5f16ce9f32511e5cdd",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. No model authority, retry or fallback. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Fabric boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Consolidated boundary: The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. New owner-scope metadata is append-only beside prepared Work for evidence authorization and grants no writer or model authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation."
+        },
+        "composedSourceSha256": "efa381763399b7fc35075f2e1080d3da6661f81c0ceb9e5f16ce9f32511e5cdd"
+      },
+      "apps/supervisor/src/jobs.ts": {
+        "head": {
+          "sha256": "f187b7a766b150c0b78102b5c2d84197760e339698a089546a152ec5463ac526",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation."
+        },
+        "integration": {
+          "sha256": "ee637115b80221cf119ed489437693c59b4eb3dfa7b3f286130b0f4549cc8585",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Optional independent acceptance seam: host checks passing is necessary, never sufficient, for governed Work; FAIL, PARTIAL or verifier error blocks ready_for_review and is visible; no publication, merge or deployment authority."
+        },
+        "output": {
+          "sha256": "0c725b40ea5e72e5960b2b98351bfca9aeda51246c41a9f2c886259282717362",
+          "classification": "COMPLETION_ADMISSION",
+          "authorityBoundary": "Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Optional independent acceptance seam: host checks passing is necessary, never sufficient, for governed Work; FAIL, PARTIAL or verifier error blocks ready_for_review and is visible; no publication, merge or deployment authority. Current-main boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Exact reviewed current-main and External Alpha source union; no new execution or approval authority."
+        },
+        "composedSourceSha256": "0c725b40ea5e72e5960b2b98351bfca9aeda51246c41a9f2c886259282717362"
+      },
+      "packages/capability-control/src/index.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "0fc940c6aae693d020fc8e779fed6f132c24b5d7069115cd226fb79220eed5b4"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "0fc940c6aae693d020fc8e779fed6f132c24b5d7069115cd226fb79220eed5b4"
+        },
+        "composedSourceSha256": "0fc940c6aae693d020fc8e779fed6f132c24b5d7069115cd226fb79220eed5b4"
+      },
+      "packages/capability-control/src/registry.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "6b9b33f1527b1a2af5c2ebc61e5fa6d6d66e2dbf05467661736ccc321373304b"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "6b9b33f1527b1a2af5c2ebc61e5fa6d6d66e2dbf05467661736ccc321373304b"
+        },
+        "composedSourceSha256": "6b9b33f1527b1a2af5c2ebc61e5fa6d6d66e2dbf05467661736ccc321373304b"
+      },
+      "packages/capability-control/src/resolver.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "082b1135e1603a479db39e2d33549c44826304807a32cd0b8d00859ea8f8fa88"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "082b1135e1603a479db39e2d33549c44826304807a32cd0b8d00859ea8f8fa88"
+        },
+        "composedSourceSha256": "082b1135e1603a479db39e2d33549c44826304807a32cd0b8d00859ea8f8fa88"
+      },
+      "packages/capability-control/src/types.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "19e1b9254e0b752404aec868195903e4f185a89059d290531e5b8fd59e61d620"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": " Sequential qualification review: canonical preference and Relay evidence checks share the Factory preparation transaction; server client/owner binding is required. Original backend authority, resource, budget and UNKNOWN checks remain. Disposable real-PostgreSQL admission/bypass tests; cross-database integration and independent review remain unqualified.",
+          "sha256": "19e1b9254e0b752404aec868195903e4f185a89059d290531e5b8fd59e61d620"
+        },
+        "composedSourceSha256": "19e1b9254e0b752404aec868195903e4f185a89059d290531e5b8fd59e61d620"
+      },
+      "packages/capability-enforcement/src/postgres.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": "Canonical MyEve 9560b28d source, independently reviewed with real PostgreSQL SELECT-only receiver qualification. Exact scope, evidence, enrollment and independently retained authority witness fail closed before new admission. Uses existing policy lock and native Factory transaction; no execution grant, no restoration reset or pricing/accounting changes. External witness custody/installation approval remain required.",
+          "sha256": "8826f8166226424e4b1c59d061236de9e28fc35c2a595d2961af4d315f169209"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": "Canonical MyEve 9560b28d source, independently reviewed with real PostgreSQL SELECT-only receiver qualification. Exact scope, evidence, enrollment and independently retained authority witness fail closed before new admission. Uses existing policy lock and native Factory transaction; no execution grant, no restoration reset or pricing/accounting changes. External witness custody/installation approval remain required.",
+          "sha256": "8826f8166226424e4b1c59d061236de9e28fc35c2a595d2961af4d315f169209"
+        },
+        "composedSourceSha256": "8826f8166226424e4b1c59d061236de9e28fc35c2a595d2961af4d315f169209"
+      },
+      "packages/capability-enforcement/src/recovery-witness.ts": {
+        "head": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": "Canonical MyEve 9560b28d source, independently reviewed with real PostgreSQL SELECT-only receiver qualification. Exact scope, evidence, enrollment and independently retained authority witness fail closed before new admission. Uses existing policy lock and native Factory transaction; no execution grant, no restoration reset or pricing/accounting changes. External witness custody/installation approval remain required.",
+          "sha256": "a952deb07166fa0b3ca28075a25572eaeb45b020cee931505fbfb60689e487e9"
+        },
+        "integration": null,
+        "output": {
+          "classification": "CAPABILITY_ADMISSION",
+          "authorityBoundary": "Canonical MyEve 9560b28d source, independently reviewed with real PostgreSQL SELECT-only receiver qualification. Exact scope, evidence, enrollment and independently retained authority witness fail closed before new admission. Uses existing policy lock and native Factory transaction; no execution grant, no restoration reset or pricing/accounting changes. External witness custody/installation approval remain required.",
+          "sha256": "a952deb07166fa0b3ca28075a25572eaeb45b020cee931505fbfb60689e487e9"
+        },
+        "composedSourceSha256": "a952deb07166fa0b3ca28075a25572eaeb45b020cee931505fbfb60689e487e9"
+      },
+      "packages/contracts/src/capability-lifecycle.ts": {
+        "head": {
+          "sha256": "606fbecaf5f7b1b8e6924e0a25b5e88718d602e2012a712828393b04dad3c768",
+          "classification": "CAPABILITY_LIFECYCLE_OBSERVATION",
+          "authorityBoundary": "Typed exact native lifecycle observation only, never a portable grant or authentication mechanism. Existing enrolled Factory/Fabric transport or signed execution Result must authenticate it; MissionControl owns Mission/Attempt mapping."
+        },
+        "integration": null,
+        "output": {
+          "sha256": "606fbecaf5f7b1b8e6924e0a25b5e88718d602e2012a712828393b04dad3c768",
+          "classification": "CAPABILITY_LIFECYCLE_OBSERVATION",
+          "authorityBoundary": "Typed exact native lifecycle observation only, never a portable grant or authentication mechanism. Existing enrolled Factory/Fabric transport or signed execution Result must authenticate it; MissionControl owns Mission/Attempt mapping."
+        },
+        "composedSourceSha256": "606fbecaf5f7b1b8e6924e0a25b5e88718d602e2012a712828393b04dad3c768"
+      }
+    },
+    "outputSha256": "65f7ac0edda13086e0e9e677c1058e560f28e76da8f9a6a0510f90649105b31c"
+  },
+  "identity": {
+    "source": {
+      "version": 1,
+      "sourceDigest": "10a82f6797147a15068cd388d272f8790bec0a3969c52d4d7600029dbc2cf14d"
+    },
+    "record": {
+      "schema": "myapps-main-composition-qualification/v1",
+      "authority": "ISOLATED_SOURCE_QUALIFICATION_ONLY",
+      "mainCommit": "aad23a8757b351c1e30851128120469d4c30b202",
+      "preparationCommit": "16e9075e0b9025b4b75cca3db8790805be77689e",
+      "sourceDigest": "10a82f6797147a15068cd388d272f8790bec0a3969c52d4d7600029dbc2cf14d",
+      "configurationDigest": "415f52a554e8dbdcc48019609e4611f07085622abf5c91cd67b516e978a593ae",
+      "factoryVersion": "8911a24503a49dc76d1a197214b6c68ed2e27b57b8b2b11341d2d6b8457d3cf6",
+      "executionContractSha256": "d7a24ed69b7d8267d4817961bd0ee22c76b6313650177b31322783dcc9d2d9a3",
+      "predecessorFactoryVersion": "888a1e8febb9a932f474ac7d66aa3d8daff6f84699a2afdacb598621fe665db3",
+      "predecessorSourceDigest": "2b161cfd196ea20fbb71fbc3701b9882e57a2345e3adf325dba35219c1e59c06",
+      "historicalSourceDigest": "1c69113378ed82428d13a2f89452708204e171ac9cb952b0a725acff83844548",
+      "historicalExecutionContractSha256": "29ff7774ec7ac08a061f28fe2f81bff4a8f1124987f64a69a1b5cb8e21976b66",
+      "pricingRecord": "openai-mini-20261010-v2",
+      "qualification": "NONPRODUCTION SOURCE AND DETERMINISTIC TESTS ONLY",
+      "productionIntegration": "NOT_RUN",
+      "merge": "HOLD",
+      "deployment": "HOLD",
+      "installedAuthority": "NONE; all existing signed approvals retain their original identities",
+      "integrationCommit": "18e59dbedbe04275858327ca47d2bd7ec01a407c"
+    },
+    "testBeforeSha256": "8ccfd2a329dd938f9ba5dcbf8443115616bb8d93eec7631befc95d28ff027cd1",
+    "testAfterSha256": "ba105e71186d3e55ec2c401671bb04b5339058a3a7a109b96fdd344135126e77",
+    "testHunks": [
+      {
+        "from": "import recovery from '../../../docs/capability-control/source-identity-20261010/recovery-successor.json' with {type:'json'};\n\nimport successor from '../../../docs/myapps/current-main-source-qualification.json' with {type:'json'};\n\ntest('inventoried source and configuration resolve to the exact qualified successor',()=>{\n",
+        "to": "import recovery from '../../../docs/capability-control/source-identity-20261010/recovery-successor.json' with {type:'json'};\n\nimport preparation from '../../../docs/myapps/current-main-source-qualification.json' with {type:'json'};\n\nimport successor from '../../../docs/myapps/current-main-composition-qualification.json' with {type:'json'};\n\ntest('inventoried source and configuration resolve to the exact qualified successor',()=>{\n"
+      },
+      {
+        "from": " assert.notEqual(historical.sourceDigest,source.sourceDigest);\n assert.equal(lifecycle.factoryVersion,recovery.predecessorFactoryVersion);\n assert.equal(recovery.factoryVersion,successor.predecessorFactoryVersion);\n assert.equal(lifecycle.sourceDigest,recovery.predecessorSourceDigest);\n assert.equal(recovery.sourceDigest,successor.predecessorSourceDigest);\n assert.equal(successor.authority,'ISOLATED_SOURCE_QUALIFICATION_ONLY');\n assert.equal(predecessor.factoryVersion,'fed1724f60a7783a2dc5155928bd7f4df5a34970d9de3be53cdacc4dd0a9c30b');\n",
+        "to": " assert.notEqual(historical.sourceDigest,source.sourceDigest);\n assert.equal(lifecycle.factoryVersion,recovery.predecessorFactoryVersion);\n assert.equal(recovery.factoryVersion,preparation.predecessorFactoryVersion);\n assert.equal(preparation.factoryVersion,successor.predecessorFactoryVersion);\n assert.equal(lifecycle.sourceDigest,recovery.predecessorSourceDigest);\n assert.equal(recovery.sourceDigest,preparation.predecessorSourceDigest);\n assert.equal(preparation.sourceDigest,successor.predecessorSourceDigest);\n assert.equal(successor.authority,'ISOLATED_SOURCE_QUALIFICATION_ONLY');\n assert.equal(predecessor.factoryVersion,'fed1724f60a7783a2dc5155928bd7f4df5a34970d9de3be53cdacc4dd0a9c30b');\n"
+      },
+      {
+        "from": " const request={requestId:randomUUID(),workId:randomUUID(),workGeneration:1,deadline:new Date(now+60000).toISOString()};\n const combinations=[\n  [recovery.sourceDigest,recovery.executionContractSha256,false],\n  [lifecycle.sourceDigest,lifecycle.executionContractSha256,false],\n",
+        "to": " const request={requestId:randomUUID(),workId:randomUUID(),workGeneration:1,deadline:new Date(now+60000).toISOString()};\n const combinations=[\n  [preparation.sourceDigest,preparation.executionContractSha256,false],\n  [recovery.sourceDigest,recovery.executionContractSha256,false],\n  [lifecycle.sourceDigest,lifecycle.executionContractSha256,false],\n"
+      }
+    ]
+  }
+}

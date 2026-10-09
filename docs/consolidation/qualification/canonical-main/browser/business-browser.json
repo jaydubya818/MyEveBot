@@ -1,0 +1,37 @@
+{
+  "scope": "Production build; real disposable PostgreSQL; separate signed A/B sessions; no provider calls",
+  "checks": [
+    "Fresh unauthenticated login mounts, accepts credentials and reaches private workspace without a client error",
+    "A signed identity, private isolation, shared Work and CSRF PASS",
+    "A explicitly shares reviewed Memory and revokes through real API",
+    "B signed identity, private isolation, shared Work and CSRF PASS",
+    "A legacy/current cached conversations and drafts absent after B UI sign-in; other A tab invalidated; credential endpoints denied; stale owner requests denied"
+  ],
+  "audits": [
+    {
+      "owner": "A",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "owner": "A",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "owner": "B",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "owner": "B",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "status": "PASS"
+}

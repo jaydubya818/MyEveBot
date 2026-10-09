@@ -1,0 +1,17 @@
+{
+  "reviewer": "Independent Codex AI sub-agent /root/independent_pr3_review; fresh context; read-only",
+  "reviewedOriginalHead": "e96fc2edee827fd6a6d50a1eca02ae30293ab9a3",
+  "reviewedFixCommit": "a7182edf9111203b69e604374894740724db2931",
+  "base": "4d3f1eb685422fc77296cef245e84c5b09da6e91",
+  "reviewStatus": "COMPLETE; no remaining blocking findings after follow-up review",
+  "bugbot": "NOT_RUN: integration disabled; dashboard exposed no repository-only activation; no global activation performed",
+  "humanReview": "NONE",
+  "independentProductionSecurityReview": "NOT_RUN",
+  "sourceSha256": {
+    "apps/eve/lib/relay/owner.ts": "1bc99625896de1553e13105a073ab25560ca252c65ba9d99fdeb68197f5ecdb3",
+    "apps/eve/lib/relay/work.ts": "6b64570095590178e780b11aaee793534d7a37ef08908bf9ff48ff3959a3f873",
+    "apps/eve/lib/relay/inbox.ts": "32bf23a8b59c3db181d95afb8fc9be46f3e84fbb170d12694a6708185306b533",
+    "apps/eve/lib/relay/review-regressions.test.ts": "89aef1fb0155ccc9f29267d9555140583eb6350dec006533b674a4a522ca8455",
+    "apps/eve/lib/relay/work-authority.test.ts": "e65a907f54866ba18fe25cb9e360d3e1dae94d4b409ed7f0821391a5c5c61852"
+  }
+}

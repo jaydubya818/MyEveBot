@@ -1,0 +1,41 @@
+{
+  "id": "6b4fc30e-5935-42ef-8163-3a642b49e9bd",
+  "createdAt": "2026-09-20T22:47:52.406Z",
+  "source": "synthetic-benchmark",
+  "environment": "live-experiment",
+  "decisionId": "knowledge.classification",
+  "decisionVersion": 1,
+  "contractHash": "288398910cabc55ba623219bdc46fc3fd392bcfbd82ee8fbcc142571e950e849",
+  "datasetVersion": "knowledge-classification-v1",
+  "datasetHash": "1d784eda44d38b3e63b44be4277a8c7c39604f663eccac0a807a8fd02c61e25d",
+  "mode": "SHADOW",
+  "influence": "NONE",
+  "canonicalSource": "not-measured",
+  "concurrency": 1,
+  "rows": [
+    {
+      "id": "commitment_001",
+      "expected": "commitment",
+      "canonical": null,
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "commitment": 1,
+          "preference": 0,
+          "decision": 0,
+          "hypothesis": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 582.9445000000001,
+        "inputTokens": 414,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-20T22:47:52.405Z"
+      },
+      "failure": null
+    }
+  ]
+}

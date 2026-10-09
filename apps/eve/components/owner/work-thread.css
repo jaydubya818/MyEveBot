@@ -1,0 +1,15 @@
+.work-thread { min-width:0; overflow-wrap:anywhere; display:grid; gap:16px; }
+.work-thread article { border:1px solid var(--color-kumo-hairline); border-radius:16px; padding:20px; display:grid; gap:12px; }
+.work-thread h2 { font-size:1.1rem; font-weight:600; }
+.work-thread h3 { font-weight:600; }
+.work-thread summary { cursor:pointer; min-height:44px; padding:10px 0; }
+.work-thread button { min-height:44px; border:1px solid var(--color-kumo-hairline); border-radius:8px; padding:8px 12px; }
+.work-thread button:disabled { opacity:.55; cursor:not-allowed; }
+.work-thread a { text-decoration:underline; text-underline-offset:3px; }
+.work-thread-decision { display:grid; gap:12px; }
+.work-thread-decision section,.work-thread-decision form { display:grid; gap:12px; }
+.work-thread-decision dd { margin:0 0 8px; }
+.work-thread-decision dt { font-weight:600; }
+.work-thread-decision fieldset { min-width:0; }
+.work-thread :focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+@media(max-width:480px) { .work-thread article { padding:14px; } }

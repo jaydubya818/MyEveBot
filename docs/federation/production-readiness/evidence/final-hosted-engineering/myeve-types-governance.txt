@@ -1,0 +1,11 @@
+
+> eve-agent@0.0.0 typecheck
+> tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts
+
+capability registry ok: 133 definitions, 98 authored tools
+
+> eve-agent@0.0.0 skills:validate
+> node scripts/check-imported-skill-routing.mjs
+
+Imported routing: 93 checks, 50/57 rank one (87.7%).
+executor governance ok: 506 classified sources; UNKNOWN=0; Routine activation remains disabled

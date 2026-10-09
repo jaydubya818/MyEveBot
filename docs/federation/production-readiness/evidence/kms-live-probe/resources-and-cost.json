@@ -1,0 +1,34 @@
+{
+  "projectId": "relay-local-qualification",
+  "projectNumber": "1079783030880",
+  "location": "us-east4",
+  "keyring": "fq-compatibility-probe",
+  "cryptoKey": "fq-ed25519-probe",
+  "version": "1",
+  "algorithm": "EC_SIGN_ED25519",
+  "protectionLevel": "SOFTWARE",
+  "state": "ENABLED",
+  "createdAt": "2026-09-21T04:54:51.244760678Z",
+  "resourcesCreated": {
+    "keyrings": 1,
+    "cryptoKeys": 1,
+    "versions": 1,
+    "wif": 0,
+    "iamChanges": 0,
+    "railway": 0,
+    "deployments": 0
+  },
+  "estimatedCost": {
+    "currency": "USD",
+    "signAttempts": 4,
+    "successfulSigns": 3,
+    "publicKeyReads": 1,
+    "conservativeOperationEstimate": 1.5e-05,
+    "softwareKeyVersionPerMonth": 0.06,
+    "softwareKeyVersionPerHour": 8.2192e-05,
+    "actualBilledCost": "NOT_YET_AVAILABLE",
+    "retainedKeyAccruesStorage": true,
+    "pricingSource": "https://cloud.google.com/kms/pricing"
+  },
+  "otherResourcesAuthorized": false
+}

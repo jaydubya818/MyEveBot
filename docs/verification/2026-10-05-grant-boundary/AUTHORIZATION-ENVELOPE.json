@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "kind": "NEW_MODEL_FREE_PRODUCTION_VALIDATION_APPROVAL",
+  "status": "AWAITING_OWNER_APPROVAL",
+  "work": {
+    "id": "a6f0b486-918d-4be2-8ba8-6a4d762707a7",
+    "version": 2,
+    "generation": 2
+  },
+  "ownerScope": "owner",
+  "historicalAttempt": {
+    "workId": "479ebc7d-4f4c-496f-ad5f-1d30c0de3d1c",
+    "generation": 2,
+    "requestId": "b2f34418-7c6d-4141-88d7-31d6a666d25d",
+    "grant": "REVOKED",
+    "policy": "PRESERVE_UNCHANGED_NEVER_RETRY"
+  },
+  "installation": {
+    "myeveProjectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+    "myeveCanonicalSha": "a3a92e749227abf20b223433104b4fba88c36d97",
+    "myeveReviewedTree": "ead8d303df1869e4358aff2a1254ec5f36512bfa",
+    "factoryProjectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+    "factoryCanonicalSha": "a591127a26f3d134289f9a3a4a8bd2a8628f41",
+    "factoryOrigin": "https://myfactory-cloud-production.vercel.app",
+    "factoryDatabase": "myfactory-cloud-production-db",
+    "factoryDatabaseResourceId": "dry-morning-22844424",
+    "factoryDatabaseStoreId": "store_vUOtU0sIkDLU6TY4",
+    "factoryCustodyStoreId": "store_qBuivS8MmRxnBNnU",
+    "environment": "CLOUD_PRODUCTION",
+    "configurationRedeployment": {
+      "requiredAfterApproval": true,
+      "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "sourceSha": "a3a92e749227abf20b223433104b4fba88c36d97",
+      "configurationSha256": "e879f3a63d02295ad917078e5f40bcde13c82d6f65f82acdc1c683b6fb85023d",
+      "purpose": "Install exact new Work configuration into production runtime; not a generated application deployment",
+      "mustCompleteBefore": [
+        "startCommand",
+        "requestId",
+        "deadline",
+        "grant"
+      ]
+    }
+  },
+  "migration": {
+    "name": "0081_factory_validation_lifecycle.sql",
+    "sha256": "66bb71b44be2ff304f0873489f5548c9f6c7f1f9f5549700af218a01b069e376",
+    "qualified": true,
+    "productionApplied": true,
+    "operatorOnly": true,
+    "oldMigrationsUnchanged": true,
+    "rollback": "Transactional installation rollback on failure. Once lifecycle records exist preserve them; disable validation admission, retain history, forward-fix. No destructive down migration.",
+    "newMigrationRequired": false
+  },
+  "source": {
+    "repository": "jaydubya818/MyFactory",
+    "commit": "8f1d9527d480a0cb500d188874b35398b0ebcbf1",
+    "tree": "32483deb1b36516d58dee7be7ae90b927f5e8b78"
+  },
+  "configuration": {
+    "model": "none",
+    "executor": "operator-authored-candidate-validation",
+    "executorVersion": "1",
+    "skillRevision": "none",
+    "workerProfile": "container",
+    "verificationImage": "vercel/sandbox/node@sha256:6ad1291a9fe7d243ee9f23626e6b08614a596431801c55e14cc5ee9d525f28d1",
+    "nodeVersion": "v24.19.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "commands": [
+      "node --test fixtures/production-canary/line-endings/normalize.test.mjs"
+    ],
+    "allowedPaths": [
+      "fixtures/production-canary/line-endings/normalize.mjs"
+    ],
+    "timeoutMs": 180000,
+    "cloud": {
+      "provider": "vercel-sandbox",
+      "providerVersion": "3.5.1",
+      "region": "iad1",
+      "workerImage": "vercel/sandbox/node@sha256:6ad1291a9fe7d243ee9f23626e6b08614a596431801c55e14cc5ee9d525f28d1",
+      "networkPolicy": "deny-all-after-pinned-source-v1",
+      "toolPolicySha256": "c008d9e8a27ed67cdf8d5ae9f3a237631490f793c89ba76997a0521aced387c9",
+      "contextPolicySha256": "b2f4e80bd854f185d17d44e626a9a24ae2e430fd36ebe269aa867a60e65f8bd4",
+      "verificationPolicySha256": "8ec4526f614d82379ce3397d771315389655d6f22babb4ed394bbeb792bd009a",
+      "evidenceClass": "DETERMINISTIC",
+      "resources": {
+        "vcpus": 1,
+        "memoryMb": 2048,
+        "timeoutMs": 180000,
+        "maxArtifactBytes": 256000
+      },
+      "skills": []
+    }
+  },
+  "bindings": {
+    "sourceDigest": "dadb3b7d27677427918adaa0d6f96f605e337623808602e7d5dc81244ff6a940",
+    "configurationDigest": "d7486299b1470e1c70b35a838f1e11b458ca70d37426d3a15adca2e96f7357b3",
+    "factoryVersion": "cb0a31aabb471688a87198e901edc733f7aecd0a134c76727b25689e30ae5b22",
+    "validationContractSha256": "cbbcdfb560bf24c41ed1be83a5a06e5ba42610cbce9b8caccd272392337e27d3",
+    "operatorCandidateSha256": "30d9b2af5a611565dffebcc3d35510c3975067284ac2ff52db81fc4201ab99a6",
+    "protectedVerifierPolicySha256": "8ec4526f614d82379ce3397d771315389655d6f22babb4ed394bbeb792bd009a",
+    "engineeringConfigurationSha256": "bcdebb02f0aae1bc6e677f555e3f292f7e4687f540e0f8d83f5c057e694a70fc",
+    "criteriaSha256": "d0751a599072a3f7ee56ea3e0752cb886cb0ed7c68902eb3f0bd7cd0afb312fb",
+    "serverFactoryConfigurationSha256": "155b0533cb3ce5138ee5ff5f53aa40a994fa30adb1afff3a1d36dd7c23b8e9ae",
+    "draftConfigurationSha256": "e879f3a63d02295ad917078e5f40bcde13c82d6f65f82acdc1c683b6fb85023d"
+  },
+  "objective": "Validate production TestEvidence and DiffEvidence custody using one operator-authored line-ending candidate, independent protected checks, signed Result and durable owner Proof. No model operation or publication.",
+  "criteria": [
+    {
+      "id": "f837f739-7a80-48af-a50b-43e3155c12c1",
+      "method": "test",
+      "statement": "The exact operator-authored candidate passes all protected line-ending checks and both evidence kinds are retained in the owner-bound Proof."
+    }
+  ],
+  "protectedVerification": {
+    "id": "production-line-endings-protected-v1",
+    "image": "vercel/sandbox/node@sha256:6ad1291a9fe7d243ee9f23626e6b08614a596431801c55e14cc5ee9d525f28d1",
+    "checks": 11,
+    "timeoutMs": 45000,
+    "network": "deny-all",
+    "independentResource": true,
+    "producerTeardownBeforeVerifier": true
+  },
+  "authority": {
+    "installed": false,
+    "requestId": null,
+    "deadline": null,
+    "grantManifestSha256": null,
+    "clientId": "sofie-production-validation",
+    "maxDurationSeconds": 180,
+    "maxAttempts": 1,
+    "maxCandidates": 1,
+    "maxAuthoritativeWriters": 1,
+    "model": "none",
+    "modelOperations": 0,
+    "paidModelOperations": 0,
+    "modelFallback": "NONE",
+    "publicationEffects": 0,
+    "generatedPullRequests": 0,
+    "generatedMerges": 0,
+    "generatedApplicationDeployments": 0,
+    "generalWork": "DISABLED",
+    "automaticRepair": false,
+    "automaticPublication": false,
+    "automaticDeployment": false
+  },
+  "activationRules": [
+    "Separate owner approval of this exact envelope is required. No request UUID, deadline, grant or start command currently exists for this Work.",
+    "The operator correction requires no production application code change or migration. After exact owner approval, install the new Work configuration and perform one operator installation redeployment of canonical MyEve a3a92e749227abf20b223433104b4fba88c36d97 so the production runtime receives it. MyFactory remains a591127a26f3d134289f9a3a4a4a8bd2a8628f41. Before any start/request/deadline/grant, read back the new production deployment ID, unchanged canonical source SHA, exact new configuration digest, migration0081 checksums, owner/resources, preparation guard, zero reusable grants/paid/publication and General Work disabled.",
+    "Prepare and qualify dedicated unpooled TLS MyEve and Factory operator connections plus independent cleanup/readback access before any start. Verify hosts against the qualified installation, keep credentials mode0600/server-side, and do not open a write window until separately approved.",
+    "Install only this new exact Work/generation model-free configuration after approval. A Vercel project environment edit alone is insufficient: the same-SHA production configuration redeployment and readback must complete before starting Work. Runtime tokens must match separately provisioned identities used by the reviewed configuration digest; drift or mismatch fails preflight before activation.",
+    "After preflight, permit exactly one canonical start command. The canonical controller alone generates the single request UUID and original deadline, at most180 seconds. Never substitute, regenerate, extend or revive either historical attempt.",
+    "Use only the pinned canonical operator CLI and exact approved manifest template. Require the fresh finite preflight receipt and a new exclusive audit file. Each preliminary/locked decision records bounded non-secret predicates and transaction/fencing identity.",
+    "Wait only before an operator claim, within the original deadline and at most60 iterations/30 seconds. Claim only an exact live WAITING_GRANT lifecycle using its existing durable token/epoch/lease; never renew or reclaim that lease.",
+    "Commit the durable lifecycle claim before Factory authority writes. Validate zero paid operations, historical revoked authority unchanged, and exact installation. Install at most one grant; compare every canonical binding and digest, then positively confirm Factory commit/readback before the single activation release.",
+    "Any post-claim uncertainty forbids retry, reinsert, release replay or a new deadline. An uncertain final activation acknowledgement may mean activation committed: classify possibly activated and perform exact readback plus bounded halt/revocation/teardown only. Never infer zero execution solely from a lost acknowledgement.",
+    "After the same bounded attempt, revoke/expire its grant, verify reusable grants0, producer/verifier teardown, paid operations0 and publication0. Restore Read-Only and independently read it back. Preserve both historical attempts and the new lifecycle audit.",
+    "Claim live PASS only after11 protected checks, exact candidate, TestEvidence and DiffEvidence custody/transport/identity/digest verification, canonical Proof owner readback, terminal lifecycle and mandatory cleanup. No automatic retry, repair, publication, deployment or paid model operation."
+  ],
+  "acceptance": {
+    "TestEvidence": "PASS_REQUIRED",
+    "DiffEvidence": "PASS_REQUIRED",
+    "factoryDurableCustody": "PASS_REQUIRED",
+    "authenticatedTransport": "PASS_REQUIRED",
+    "myeveDurableCustody": "PASS_REQUIRED",
+    "candidateWorkRunFactoryVersionBinding": "PASS_REQUIRED",
+    "digestByteVerification": "PASS_REQUIRED",
+    "canonicalProofReferences": "PASS_REQUIRED",
+    "ownerReadback": "PASS_REQUIRED",
+    "crossOwnerDisclosure": 0,
+    "crossWorkDisclosure": 0,
+    "candidateMutationDuringTransport": 0,
+    "duplicateFactoryIntake": 0,
+    "staleMutations": 0,
+    "remainingReusableGrants": 0
+  },
+  "deferred": [
+    "ScreenshotEvidence",
+    "BrowserJourneyEvidence",
+    "dynamic CandidatePreviewProvider"
+  ],
+  "paidCanary": "NOT_PREPARED_NOT_AUTHORIZED",
+  "failedAttempt2": {
+    "workId": "fc90e84f-d5b0-4240-aa9e-7d3c59024ed9",
+    "version": 2,
+    "generation": 2,
+    "requestId": "a1e4a6e6-d8b4-4513-a664-685d95f32636",
+    "deadline": "2026-10-05T06:16:51.062Z",
+    "lifecycle": "HALTED",
+    "grantInstalled": false,
+    "policy": "PRESERVE_UNCHANGED_NEVER_RETRY"
+  },
+  "operator": {
+    "sourceRevision": "c6a09f43c76ba2db11cb9aa1054f3a85f0a86c62",
+    "files": {
+      "apps/eve/scripts/production-validation-grant.ts": "eb54a16750caec3929064e0b66e8271309afc0d4257d8a9a4bd8dd5196167907",
+      "apps/eve/scripts/production-validation-materializer.ts": "697131cd6d2b308450fad35f6dbc17afaa343fa801840e2a277e780c79f4b0bd"
+    },
+    "invocation": "apps/eve/scripts/production-validation-grant.ts",
+    "installation": "NOT_RUN",
+    "leaseSecondsMaximum": 45,
+    "waitMillisecondsMaximum": 30000,
+    "waitAttempts": 60,
+    "waitOccursBeforeClaimOnly": true,
+    "applicationCodeChangeRequired": false,
+    "sameShaConfigurationDeploymentRequired": true
+  },
+  "materializer": {
+    "workVersion": 2,
+    "configurationHash": "155b0533cb3ce5138ee5ff5f53aa40a994fa30adb1afff3a1d36dd7c23b8e9ae",
+    "environmentBinding": {
+      "environmentId": "myfactory-cloud-production",
+      "environmentType": "CLOUD",
+      "identityDigest": "f9bbc8d481ee6ae02bef428b829981e4b008e825d2ff340a37a414df258d8552",
+      "factoryVersion": "cb0a31aabb471688a87198e901edc733f7aecd0a134c76727b25689e30ae5b22",
+      "protocolVersion": 1,
+      "policyVersion": "environment-routing-v1",
+      "requirementsDigest": "797396e2a02c3c3383d013ee6898b8afe0d4a4d8eaf33922117390ba29a93505"
+    },
+    "criteria": [
+      {
+        "id": "f837f739-7a80-48af-a50b-43e3155c12c1",
+        "method": "test",
+        "statement": "The exact operator-authored candidate passes all protected line-ending checks and both evidence kinds are retained in the owner-bound Proof."
+      }
+    ],
+    "canonicalSpendPlan": {
+      "version": "WORK_LEDGER_V2",
+      "pricingRevision": "production-openai-mini-20261003-v1",
+      "plannedProductiveOperations": 2,
+      "plannedCompletionOperations": 1,
+      "maxPaidOperations": 3,
+      "completionReserveMicrousd": 84864
+    },
+    "manifestTemplate": {
+      "version": 1,
+      "clientId": "sofie-production-validation",
+      "ownerScope": "owner",
+      "sourceDigest": "dadb3b7d27677427918adaa0d6f96f605e337623808602e7d5dc81244ff6a940",
+      "configurationDigest": "d7486299b1470e1c70b35a838f1e11b458ca70d37426d3a15adca2e96f7357b3",
+      "factoryVersion": "cb0a31aabb471688a87198e901edc733f7aecd0a134c76727b25689e30ae5b22",
+      "contractSha256": "cbbcdfb560bf24c41ed1be83a5a06e5ba42610cbce9b8caccd272392337e27d3",
+      "candidateSha256": "30d9b2af5a611565dffebcc3d35510c3975067284ac2ff52db81fc4201ab99a6",
+      "environment": "CLOUD_PRODUCTION",
+      "publication": false,
+      "request": {
+        "protocol": "MYFACTORY_EXECUTION_V2",
+        "requestId": null,
+        "workId": "a6f0b486-918d-4be2-8ba8-6a4d762707a7",
+        "workGeneration": 2,
+        "repository": "jaydubya818/MyFactory",
+        "deadline": null,
+        "maxSpendUsd": 1,
+        "source": {
+          "repository": "jaydubya818/MyFactory",
+          "commit": "8f1d9527d480a0cb500d188874b35398b0ebcbf1",
+          "tree": "32483deb1b36516d58dee7be7ae90b927f5e8b78"
+        },
+        "input": {
+          "title": "Production evidence validation: atomic grant boundary",
+          "description": "Validate production TestEvidence and DiffEvidence custody using one operator-authored line-ending candidate, independent protected checks, signed Result and durable owner Proof. No model operation or publication.",
+          "kind": "feature",
+          "acceptanceCriteria": [
+            "The exact operator-authored candidate passes all protected line-ending checks and both evidence kinds are retained in the owner-bound Proof."
+          ],
+          "checkCommands": [
+            "node --test fixtures/production-canary/line-endings/normalize.test.mjs"
+          ],
+          "allowedPaths": [
+            "fixtures/production-canary/line-endings/normalize.mjs"
+          ]
+        }
+      }
+    },
+    "installation": {
+      "projectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+      "databaseResourceId": "dry-morning-22844424",
+      "custodyStoreId": "store_qBuivS8MmRxnBNnU"
+    },
+    "historicalGrants": [
+      {
+        "requestId": "b2f34418-7c6d-4141-88d7-31d6a666d25d",
+        "workId": "479ebc7d-4f4c-496f-ad5f-1d30c0de3d1c",
+        "manifestSha256": "3b8d6c2183eca773f7664ed4b3f09e7a7d4cc233ad00fc46a2ad3d348ff1a7be"
+      }
+    ]
+  },
+  "qualification": {
+    "exactReproducedPredicate": "lifecycle_state_is_waiting",
+    "reproducedBoundaryDefect": "CONFIRMED",
+    "historicalAttempt2ExactCause": "UNPROVEN_MISSING_HISTORICAL_SNAPSHOT",
+    "realPostgresTests": 42,
+    "operatorPreflightTests": 19,
+    "haltClassificationTests": 1,
+    "independentReview": "PASS",
+    "freshClone": "PASS",
+    "freshInstallUpgrade": "PASS",
+    "composedEvidenceProofChecks": 19,
+    "ordinaryVitestTests": 2142,
+    "productionValidation": "NOT_RUN"
+  }
+}

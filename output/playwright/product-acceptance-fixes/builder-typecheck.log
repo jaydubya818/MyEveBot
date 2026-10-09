@@ -1,0 +1,5 @@
+
+> eveclaw-builder@0.0.0 typecheck
+> tsc && tsx scripts/check-manifest.ts
+
+manifest ok: 146 prunable files, all claimed; template release 255

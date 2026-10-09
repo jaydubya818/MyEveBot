@@ -1,0 +1,229 @@
+import { readRoutineCheck } from "./routine-check.ts";
+import { RoutineAdmission,snapshotRoutineConfiguration } from "./routine-admission.ts";
+import { db } from "../agent/lib/receipts-db.ts";
+import { LostExecutionClaim, occurrenceIdentity, retryDecision, routineConfigurationSchema,
+  type ExecutionClaim, type ExecutionDatabase, type FailureCategory, type RoutineConfiguration } from "./execution-types.ts";
+
+export class ExecutionStore {
+  constructor(private database: ExecutionDatabase = db() as ExecutionDatabase, readonly admission=new RoutineAdmission(database)) {}
+
+  async pauseRoutine(ownerId: string, routineId: string): Promise<void> {
+    await this.database.query(`UPDATE execution_routines SET status='paused',paused_at=now(),updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND status='active'`,[ownerId,routineId]);
+  }
+
+  /** Call only after owner authentication and capability/dependency preflight. */
+  async resumeRoutine(ownerId: string, routineId: string, expectedVersion: number): Promise<void> {
+    const rows = await this.database.query(`WITH resumed AS (
+      UPDATE execution_routines SET status='active',paused_at=NULL,consecutive_failures=0,updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND version=$3 AND status IN ('paused','auto_paused') RETURNING *
+    ), skipped AS (
+      UPDATE execution_occurrences o SET status='cancelled',updated_at=now()
+      FROM resumed r WHERE o.owner_id=r.owner_id AND o.routine_id=r.id AND o.status IN ('pending','retrying')
+        AND o.scheduled_for<now() RETURNING o.*
+    ), runs AS (
+      UPDATE task_runs t SET status='cancelled',cancelled_at=now(),status_reason='Missed occurrence skipped on owner resume',updated_at=now()
+      FROM skipped s WHERE t.owner_id=s.owner_id AND t.id=s.run_id
+    ) SELECT id FROM resumed`,[ownerId,routineId,expectedVersion]);
+    if (!rows[0]) throw new Error("Routine changed or is not paused.");
+  }
+
+  async createRoutine(input: { ownerId: string; id: string; sourceKind: string; sourceId: string;
+    name: string; agentId: string; configuration: RoutineConfiguration; changedBy: string }) {
+    const configuration = snapshotRoutineConfiguration(input.configuration);
+    // Authority-bearing creation belongs behind an authenticated owner route.
+    return this.database.query(`WITH routine AS (
+      INSERT INTO execution_routines(id,owner_id,source_kind,source_id,name,agent_id,configuration)
+      VALUES($1,$2,$3,$4,$5,$6,$7::jsonb) RETURNING *
+    ), revision AS (
+      INSERT INTO execution_routine_versions(owner_id,routine_id,version,configuration,changed_by,review_binding)
+      SELECT owner_id,id,version,configuration,$8,jsonb_build_object('approvedBy',$8::text) FROM routine
+    ) SELECT * FROM routine`, [input.id,input.ownerId,input.sourceKind,input.sourceId,input.name,input.agentId,JSON.stringify(configuration),input.changedBy]);
+  }
+
+  async enqueue(input: { ownerId: string; routineId: string; key: string; scheduledFor: string; expectedVersion?:number }): Promise<string | null> {
+    const id = occurrenceIdentity(input.ownerId,input.routineId,input.key);
+    const admission=await this.admission.inspect(input.ownerId,input.routineId,input.expectedVersion);
+    if(!admission||["DISABLED","AUTO_PAUSED"].includes(admission.state))return null;
+    if(!admission.canRun){
+      const receipt={...admission,issues:admission.executionEnabled?admission.issues:[...admission.issues,{code:"global_disabled",message:"Routine execution is disabled for this deployment."}]};
+      const rows=await this.database.query(`INSERT INTO execution_occurrences(id,owner_id,routine_id,routine_version,occurrence_key,scheduled_for,status,admission,cost_status,cost_usd)
+        SELECT $3,owner_id,id,version,$4,$5::timestamptz,'blocked_precheck',$7::jsonb,'known',0 FROM execution_routines
+        WHERE owner_id=$1 AND id=$2 AND version=$6 ON CONFLICT DO NOTHING RETURNING id`,
+        [input.ownerId,input.routineId,id,input.key,input.scheduledFor,admission.version,JSON.stringify(receipt)]);
+      const occurrence=rows[0]??await this.occurrence(input.ownerId,id);
+      return occurrence?String(occurrence.id):null;
+    }
+    if (!Number.isFinite(Date.parse(input.scheduledFor))) throw new Error("Invalid scheduled instant.");
+    // Lock the routine before creating the run and occurrence together. Replayed
+    // ticks find the same key even after completion; revisions do not change it.
+    const rows = await this.database.query(`WITH routine AS MATERIALIZED (
+      SELECT r.* FROM execution_routines r WHERE owner_id=$1 AND id=$2 AND status='active' AND version=$6 AND NOT EXISTS(SELECT 1 FROM execution_occurrences WHERE id=$3) FOR UPDATE
+    ), occurrence AS (
+      INSERT INTO execution_occurrences(id,owner_id,routine_id,routine_version,occurrence_key,scheduled_for,run_id,admission)
+      SELECT $3,owner_id,id,version,$4,$5::timestamptz,$3||'_run',$7::jsonb FROM routine
+      ON CONFLICT DO NOTHING RETURNING *
+    ), new_run AS (
+      INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,target,max_duration_seconds,max_specialists,
+        max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,objective,expected_output)
+      SELECT o.run_id,r.owner_id,'delegated_work',r.name,r.agent_id,'queued','{}'::jsonb,
+        (r.configuration->'limits'->>'maxRuntimeSeconds')::int,0,(r.configuration->'limits'->>'maxSteps')::int,0,
+        (r.configuration->'limits'->>'maxCostUsd')::numeric,r.configuration->>'instructions','Routine result'
+      FROM occurrence o JOIN routine r ON r.id=o.routine_id RETURNING id
+    ) SELECT id FROM occurrence UNION ALL
+      SELECT id FROM execution_occurrences WHERE owner_id=$1 AND routine_id=$2 AND occurrence_key=$4 LIMIT 1`,
+    [input.ownerId,input.routineId,id,input.key,input.scheduledFor,admission.version,JSON.stringify(admission)]);
+    const occurrence=rows[0]??await this.occurrence(input.ownerId,id);
+    return occurrence?String(occurrence.id):null;
+  }
+
+  async occurrence(ownerId:string,id:string){const [row]=await this.database.query("SELECT id,status,run_id FROM execution_occurrences WHERE owner_id=$1 AND id=$2",[ownerId,id]);return row??null;}
+
+  async claim(ownerId: string, workerId: string, leaseSeconds = 60): Promise<ExecutionClaim | null> {
+    if (!workerId || !Number.isInteger(leaseSeconds) || leaseSeconds < 1 || leaseSeconds > 300) throw new Error("Invalid worker lease.");
+    if(!this.admission.dependencies.executionEnabled())return null;
+    const candidates=await this.database.query(`SELECT o.id,o.routine_id,o.routine_version,o.status FROM execution_occurrences o WHERE o.owner_id=$1
+      AND (o.status IN ('pending','retrying') OR (o.status='waiting' AND o.failure_category='approval_required' AND EXISTS(
+        SELECT 1 FROM action_requests a JOIN task_approval_decisions p ON p.owner_id=a.owner_id AND p.id=a.approval_id
+        WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id AND a.status='awaiting_approval' AND p.status='approved' AND p.expires_at>now())))
+      AND o.scheduled_for<=now() AND o.next_attempt_at<=now() ORDER BY o.scheduled_for LIMIT 50`,[ownerId]);
+    const readyIds:string[]=[];
+    for(const candidate of candidates){
+      const readiness=await this.admission.inspect(ownerId,String(candidate.routine_id),Number(candidate.routine_version));
+      if(readiness?.canRun){
+        readyIds.push(String(candidate.id));
+        await this.database.query("UPDATE execution_occurrences SET preflight=$3::jsonb WHERE owner_id=$1 AND id=$2 AND status='waiting'",[ownerId,candidate.id,JSON.stringify(readiness)]);
+      }else{
+        await this.database.query(`WITH blocked AS (UPDATE execution_occurrences SET status=CASE WHEN status='waiting' THEN status ELSE 'blocked_precheck' END,preflight=$3::jsonb,updated_at=now() WHERE owner_id=$1 AND id=$2 AND status IN ('pending','retrying','waiting') RETURNING run_id)
+          UPDATE task_runs SET status='paused',status_reason='Routine preflight blocked',updated_at=now() WHERE owner_id=$1 AND id IN (SELECT run_id FROM blocked)`,[ownerId,candidate.id,JSON.stringify(readiness)]);
+      }
+    }
+    if(!readyIds.length||!this.admission.dependencies.executionEnabled())return null;
+    const rows = await this.database.query(`WITH candidate AS MATERIALIZED (
+      SELECT o.id FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
+      WHERE o.owner_id=$1 AND o.id=ANY($4::text[]) AND (o.status IN ('pending','retrying') OR (o.status='waiting' AND o.failure_category='approval_required'
+        AND EXISTS(SELECT 1 FROM routine_pending_sends s
+          JOIN action_requests a ON a.owner_id=s.owner_id AND a.id=s.action_id
+          JOIN task_approval_decisions p ON p.owner_id=a.owner_id AND p.id=a.approval_id
+          JOIN task_runs t ON t.owner_id=s.owner_id AND t.id=s.run_id
+          WHERE s.owner_id=o.owner_id AND s.run_id=o.run_id AND t.thread_id IS NOT NULL
+            AND a.status='awaiting_approval' AND p.status='approved' AND p.expires_at>now()
+            AND p.binding_hash=a.parameter_hash))) AND o.next_attempt_at<=now()
+        AND o.scheduled_for<=now() AND (o.preflight IS NULL OR o.preflight->>'state'='READY') AND r.status='active' AND r.version=o.routine_version
+        AND NOT EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id
+          AND a.action_class<>'read' AND (a.status IN ('executing','verifying','result_unknown','recovering','needs_you')
+            OR (a.status='completed' AND o.status<>'waiting')))
+      ORDER BY o.scheduled_for,o.id FOR UPDATE OF o SKIP LOCKED LIMIT 1
+    ), claimed AS (
+      UPDATE execution_occurrences o SET status='running',claimed_by=$2,claimed_at=now(),heartbeat_at=now(),
+        lease_expires_at=now()+($3*interval '1 second'),claim_version=claim_version+1,attempt_count=attempt_count+1,updated_at=now()
+      FROM candidate c WHERE o.id=c.id RETURNING o.*
+    ), attempt AS (
+      INSERT INTO execution_attempts(owner_id,occurrence_id,attempt_number,claim_version,worker_id,status)
+      SELECT owner_id,id,attempt_count,claim_version,claimed_by,'running' FROM claimed
+    ), run AS (
+      UPDATE task_runs r SET status='running',started_at=coalesce(started_at,now()),
+        deadline_at=coalesce(deadline_at,now()+(max_duration_seconds*interval '1 second')),updated_at=now()
+      FROM claimed c WHERE r.owner_id=c.owner_id AND r.id=c.run_id
+    ) SELECT c.*,v.configuration FROM claimed c JOIN execution_routine_versions v
+      ON v.owner_id=c.owner_id AND v.routine_id=c.routine_id AND v.version=c.routine_version`, [ownerId,workerId,leaseSeconds,readyIds]);
+    const row = rows[0];
+    return row ? { ownerId, workerId, occurrenceId:String(row.id),routineId:String(row.routine_id),runId:String(row.run_id),
+      version:Number(row.claim_version),attempt:Number(row.attempt_count),configuration:routineConfigurationSchema.parse(row.configuration) } : null;
+  }
+
+  async heartbeat(claim: ExecutionClaim, leaseSeconds = 60): Promise<void> {
+    if (!Number.isInteger(leaseSeconds) || leaseSeconds < 1 || leaseSeconds > 300) throw new Error("Invalid lease duration.");
+    const rows = await this.database.query(`UPDATE execution_occurrences SET heartbeat_at=now(),lease_expires_at=now()+($5*interval '1 second')
+      WHERE owner_id=$1 AND id=$2 AND claim_version=$3 AND claimed_by=$4 AND status='running' AND lease_expires_at>now() RETURNING id`,
+    [claim.ownerId,claim.occurrenceId,claim.version,claim.workerId,leaseSeconds]);
+    if (!rows[0]) throw new LostExecutionClaim();
+  }
+
+  async complete(claim: ExecutionClaim, resultReference: string): Promise<void> {
+    if (!resultReference) throw new Error("A persisted result is required before completion.");
+    const check = await readRoutineCheck(this.database,claim);
+    const notify = !check || claim.configuration.responsibility?.notify === 'every_run' || check.condition !== 'not_met';
+    const stop = check?.condition === 'met' && claim.configuration.responsibility?.stopWhenMet === true;
+    const rows = await this.database.query(`WITH completed AS (
+      UPDATE execution_occurrences o SET status='completed',completed_at=now(),claimed_by=NULL,lease_expires_at=NULL,updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND claim_version=$3 AND claimed_by=$4 AND status='running' AND lease_expires_at>now()
+        AND NOT EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id
+          AND a.status NOT IN ('completed','cancelled','denied')) RETURNING *
+    ), attempt AS (
+      UPDATE execution_attempts a SET status='completed',finished_at=now() FROM completed c
+      WHERE a.owner_id=c.owner_id AND a.occurrence_id=c.id AND a.attempt_number=c.attempt_count
+    ), run AS (
+      UPDATE task_runs r SET status='completed',completed_at=now(),updated_at=now(),result_summary=$7
+      FROM completed c WHERE r.owner_id=c.owner_id AND r.id=c.run_id
+    ), result AS (
+      INSERT INTO task_milestones(task_id,kind,summary,metadata) SELECT c.run_id,'routine_result',$7,jsonb_build_object('resultReference',$5::text,'notify',$8::boolean,'condition',$10::text) FROM completed c
+    ), routine AS (
+      UPDATE execution_routines r SET consecutive_failures=0,last_success_at=now(),last_failure=NULL,updated_at=now(),status=CASE WHEN $9 THEN 'disabled' ELSE r.status END
+      FROM completed c WHERE r.owner_id=c.owner_id AND r.id=c.routine_id
+    ), stopped AS (
+      UPDATE reminders m SET status='done',claimed_until=NULL FROM completed c WHERE $9 AND m.owner_id=c.owner_id AND m.execution_routine_id=c.routine_id
+    ), delivery AS (
+      INSERT INTO review_deliveries(id,owner_id,local_period_key,scheduled_for,requested_channel,channel,deduplication_key,
+        occurrence_id,run_id,result_reference)
+      SELECT c.id||'_delivery',c.owner_id,c.occurrence_key,c.scheduled_for,$6,$6,c.id||':result',$2,c.run_id,$5 FROM completed c WHERE $8
+      ON CONFLICT(deduplication_key) DO NOTHING
+    ) SELECT id FROM completed`, [claim.ownerId,claim.occurrenceId,claim.version,claim.workerId,resultReference,claim.configuration.deliveryChannel,check?.summary??'Routine result available',notify,stop,check?.condition??null]);
+    if (!rows[0]) throw new LostExecutionClaim();
+  }
+
+  async fail(claim: ExecutionClaim, category: FailureCategory): Promise<void> {
+    const actions = await this.database.query(`SELECT status FROM action_requests WHERE owner_id=$1 AND run_id=$2 AND action_class<>'read'`, [claim.ownerId,claim.runId]);
+    const uncertain = actions.some(a => !["failed","denied","cancelled","planned","awaiting_approval","authorized"].includes(String(a.status)));
+    const decision = retryDecision({ category,attempt:claim.attempt,policy:claim.configuration.retry,consequentialOutcome:uncertain?"unknown":"none" });
+    const status = decision.eligibility === "retry" ? "retrying" : decision.eligibility === "wait" ? "waiting" : decision.eligibility === "recovery_required" ? "recovery_required" : "failed";
+    const rows = await this.database.query(`WITH finished AS (
+      UPDATE execution_occurrences SET status=$5,failure_category=$6,next_attempt_at=now()+($7*interval '1 second'),
+        claimed_by=NULL,lease_expires_at=NULL,updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND claim_version=$3 AND claimed_by=$4 AND status='running' AND lease_expires_at>now() RETURNING *
+    ), attempt AS (
+      UPDATE execution_attempts a SET status=CASE WHEN $5='waiting' THEN 'waiting' ELSE 'failed' END,
+        failure_category=$6,retry_decision=$8,finished_at=now() FROM finished f
+      WHERE a.owner_id=f.owner_id AND a.occurrence_id=f.id AND a.attempt_number=f.attempt_count
+    ), run AS (
+      UPDATE task_runs r SET status=CASE WHEN $5='failed' THEN 'failed' ELSE 'paused' END,
+        status_reason=CASE WHEN $5='recovery_required' THEN 'Result needs verification' WHEN $5='retrying' THEN 'Waiting for a safe retry' ELSE 'Execution needs attention' END,updated_at=now()
+      FROM finished f WHERE r.owner_id=f.owner_id AND r.id=f.run_id
+    ), routine AS (
+      UPDATE execution_routines r SET consecutive_failures=consecutive_failures+1,last_failure=$6,
+        status=CASE WHEN consecutive_failures+1>=failure_threshold THEN 'auto_paused' ELSE r.status END,
+        pause_sequence=pause_sequence+CASE WHEN consecutive_failures+1>=failure_threshold THEN 1 ELSE 0 END,
+        paused_at=CASE WHEN consecutive_failures+1>=failure_threshold THEN now() ELSE paused_at END,updated_at=now()
+      FROM finished f WHERE r.owner_id=f.owner_id AND r.id=f.routine_id AND f.status='failed' RETURNING r.*
+    ), notification AS (
+      INSERT INTO eve_events(id,owner_id,type,source_type,source_id,summary,payload,delivery_classification)
+      SELECT id||'_pause_'||pause_sequence,owner_id,'ROUTINE_AUTO_PAUSED','routine',id,'Routine paused after repeated failures',
+        jsonb_build_object('href','/control','failureCategory',$6),'activity' FROM routine WHERE status='auto_paused'
+      ON CONFLICT(id) DO NOTHING
+    ) SELECT id FROM finished`, [claim.ownerId,claim.occurrenceId,claim.version,claim.workerId,status,category,decision.delaySeconds??0,decision.eligibility]);
+    if (!rows[0]) throw new LostExecutionClaim();
+  }
+
+  async recoverExpired(ownerId: string): Promise<number> {
+    // Never restart an interrupted agent automatically. Even a read-looking run
+    // may have crossed an adapter boundary before persisting its result.
+    const rows = await this.database.query(`WITH expired AS (
+      UPDATE execution_occurrences o SET status='recovery_required',claimed_by=NULL,lease_expires_at=NULL,
+        claim_version=claim_version+1,updated_at=now() WHERE owner_id=$1 AND (
+          (status='running' AND lease_expires_at<=now()) OR
+          (status='retrying' AND EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id
+            AND a.action_class<>'read' AND a.status IN ('executing','verifying','completed','result_unknown')))
+        ) RETURNING *
+    ), attempts AS (
+      UPDATE execution_attempts a SET status='interrupted',finished_at=now(),retry_decision='recovery_required'
+      FROM expired e WHERE a.owner_id=e.owner_id AND a.occurrence_id=e.id AND a.attempt_number=e.attempt_count
+    ), actions AS (
+      UPDATE action_requests a SET status='result_unknown',updated_at=now() FROM expired e
+      WHERE a.owner_id=e.owner_id AND a.run_id=e.run_id AND a.status IN ('executing','verifying')
+    ), runs AS (
+      UPDATE task_runs r SET status='paused',status_reason='Worker stopped; verify results before resuming',updated_at=now()
+      FROM expired e WHERE r.owner_id=e.owner_id AND r.id=e.run_id
+    ) SELECT id FROM expired`, [ownerId]);
+    return rows.length;
+  }
+}

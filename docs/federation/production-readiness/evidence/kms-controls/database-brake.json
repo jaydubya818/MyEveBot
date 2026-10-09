@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-09-20T20:55:43.230Z",
+  "results": [
+    {
+      "component": "myeve",
+      "verified": true,
+      "mode": "READ_ONLY_NOLOGIN_NO_SESSIONS"
+    },
+    {
+      "component": "peer",
+      "verified": true,
+      "mode": "READ_ONLY_NOLOGIN_NO_SESSIONS"
+    },
+    {
+      "component": "relay",
+      "verified": true,
+      "mode": "READ_ONLY_NOLOGIN_NO_SESSIONS"
+    }
+  ]
+}

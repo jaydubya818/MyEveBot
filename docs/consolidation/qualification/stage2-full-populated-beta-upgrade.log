@@ -1,0 +1,3 @@
+Every preserved migration through 0067 remains byte-identical to accepted 9ef5a95
+0068 injected failure rolls back all DDL and leaves the ledger untouched
+Populated accepted-chain upgrade preserves Memory, prefix checksums and applied timestamps; no-op replay passes

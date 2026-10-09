@@ -1,0 +1,52 @@
+[
+  {
+    "file": "convergence-evidence-e2e-r2.json",
+    "rawSha256": "238fe37853c0afae49c59f4bd10f91e2806d3e08abd7a1cb1a95c32922206cf5",
+    "sha256": "238fe37853c0afae49c59f4bd10f91e2806d3e08abd7a1cb1a95c32922206cf5"
+  },
+  {
+    "file": "convergence-evidence-unit.log",
+    "rawSha256": "57699a5f25c570aa4fb458fd27fba05c31b5bd49786931295fd7e80b8d19ecdd",
+    "sha256": "57699a5f25c570aa4fb458fd27fba05c31b5bd49786931295fd7e80b8d19ecdd"
+  },
+  {
+    "file": "convergence-evidence-focused.log",
+    "rawSha256": "e54f063d65c64ebaa8a133a26bd866f5a5e33be4ca79b6d90418502d48e43dba",
+    "sha256": "e54f063d65c64ebaa8a133a26bd866f5a5e33be4ca79b6d90418502d48e43dba"
+  },
+  {
+    "file": "convergence-evidence-factory-pg.log",
+    "rawSha256": "10bf417a45101dfb82f5c5a4477aea7fca541be72712b5f96097a7c6ac163908",
+    "sha256": "10bf417a45101dfb82f5c5a4477aea7fca541be72712b5f96097a7c6ac163908"
+  },
+  {
+    "file": "convergence-cloud-evidence.log",
+    "rawSha256": "b14683d987d896ad07970714b2d8959a84a085df15291e66058c20db0f353277",
+    "sha256": "b14683d987d896ad07970714b2d8959a84a085df15291e66058c20db0f353277"
+  },
+  {
+    "file": "convergence-evidence-governance.log",
+    "rawSha256": "a0fb339f4ed29573a04c0bda3e956310094c926676ad90e8cb79cfbba2559338",
+    "sha256": "a0fb339f4ed29573a04c0bda3e956310094c926676ad90e8cb79cfbba2559338"
+  },
+  {
+    "file": "convergence-evidence-factory-governance.log",
+    "rawSha256": "638e7e33af9063e69fce442e8076307bd13cf18fc3e4961956efe653376ae652",
+    "sha256": "638e7e33af9063e69fce442e8076307bd13cf18fc3e4961956efe653376ae652"
+  },
+  {
+    "file": "convergence-evidence-vitest.log",
+    "rawSha256": "2b0ff2311bf9429a71945293e8dd147c453d12ffbfa56ed99bd1a09945c99ca9",
+    "sha256": "2b0ff2311bf9429a71945293e8dd147c453d12ffbfa56ed99bd1a09945c99ca9"
+  },
+  {
+    "file": "convergence-evidence-root-tests.log",
+    "rawSha256": "1143c31f3b75b27e0c82c3bc8bcb527957fe7e9e77b06040e4448d98324dd4fb",
+    "sha256": "1143c31f3b75b27e0c82c3bc8bcb527957fe7e9e77b06040e4448d98324dd4fb"
+  },
+  {
+    "file": "convergence-evidence-build.log",
+    "rawSha256": "561401f0ffe0e9db8da07225777b6c0a856b9779db6518cc0ed16f695f2250b4",
+    "sha256": "4637cef3b673a022d2afb49e420efd8d6c29f1ecf801479b2876ebead2dc5386"
+  }
+]

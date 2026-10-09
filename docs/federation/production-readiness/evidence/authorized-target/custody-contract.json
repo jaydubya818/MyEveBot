@@ -1,0 +1,46 @@
+{
+  "status": "MANDATORY_STOP",
+  "contractChanged": false,
+  "sources": [
+    {
+      "repository": "Relay",
+      "sha": "bbfcaa18710556fc689f60990599f4734e99a720",
+      "path": "docs/v2/evidence.md",
+      "sha256": "bdc701d9b554aaff9d4e707789111a87e02cf78619dee03cda44e0bcca0a7994",
+      "requirements": [
+        {
+          "line": 9,
+          "text": "Signing is an interface. The local Ed25519 implementation is test/development-only and refuses to initialize in production; hosted deployments must bind the interface to a KMS or HSM. Exports include the public keys required to verify historical records across signing-key rotations. `verifyAuditBundle` has no database or Relay service dependency and is the reference offline verifier."
+        },
+        {
+          "line": 17,
+          "text": "The local RSA wrapper and in-memory object client are test/development adapters and are not production credential storage. Production binds the interfaces to account-scoped KMS wrapping and private object storage."
+        }
+      ]
+    },
+    {
+      "repository": "Relay",
+      "sha": "bbfcaa18710556fc689f60990599f4734e99a720",
+      "path": "docs/v2/security/security-architecture.md",
+      "sha256": "4fefbf442693e706726252f2468fd1a31378b20c7534d7345aa6fcb293c4d49b",
+      "requirements": [
+        {
+          "line": 112,
+          "text": "1. Cloud KMS/HSM protects environment root keys; no root key is stored in application configuration."
+        }
+      ]
+    },
+    {
+      "repository": "Relay",
+      "sha": "bbfcaa18710556fc689f60990599f4734e99a720",
+      "path": "docs/adr/ADR-016-relay-v2-implementation-frontier.md",
+      "sha256": "f35d7bd417aab097248330d420ef42ab66d27bd32341f57bc740a052473e0cf0",
+      "requirements": [
+        {
+          "line": 25,
+          "text": "V2 uses distinct deployed resource names and credentials. Production configuration must supply V2-specific database, Temporal namespace, queue/topic, object-storage prefix or bucket, KMS key, runner trust domain, OAuth clients, webhook endpoints, and deploy target. A V2 process must refuse a configuration whose declared environment or resource namespace is `v1`, `rc1`, or `soak`."
+        }
+      ]
+    }
+  ]
+}

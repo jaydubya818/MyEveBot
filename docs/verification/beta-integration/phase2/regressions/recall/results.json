@@ -1,0 +1,374 @@
+{
+  "status": "READY_FOR_INTEGRATION",
+  "canonicalRuntime": "NOT_RUN",
+  "schemaActivation": "BLOCKED",
+  "liveModelImprovement": "NOT_PROVEN",
+  "checks": [
+    "Work retrieval follows multiple corrections and filters stale irrelevant poisoned sources",
+    "selected owner Memory follows multiple corrections and preserves privacy",
+    "duplicate current facts with identical provenance inject once",
+    "cross-owner cross-project unselected private and forged Work inputs fail closed",
+    "Sofie adapter obeys the complete envelope budget and supplies attributed user context",
+    "Work A knowledge survives restart and materially informs a new Work plan",
+    "Result feedback retains verified immutable result hash and cannot forge provenance",
+    "comparable Work improves with promoted learning across fresh processes",
+    "qualified replacement selects v2 and retains superseded v1",
+    "explicit rollback restores prior qualified active version and keeps history",
+    "negative evaluation retains rejection and never displaces active guidance",
+    "cross-project promotion and private-to-shareable expansion are denied",
+    "malicious feedback cannot generate promotable candidates",
+    "database rejects poisoned provenance and immutable evaluation changes",
+    "schema rejects null identity and status fields without partial mutation",
+    "feedback event identity cannot be replayed into a broader scope",
+    "conflicting promoted Work and repository guidance injects neither",
+    "conflicting sources remain explicit rather than latest-wins truth",
+    "Beta projections expose why-used corrections evaluation and versions without authority",
+    "Capsule representation preserves Work scope and never grants portability",
+    "restricted SQL role is owner-bound read-only and cannot spoof a session owner",
+    "schema installation retries fail safely and rollback preserves canonical data",
+    "recall and learning leave all authority stores unchanged"
+  ],
+  "metrics": {
+    "memoryQuality": {
+      "relevantRetrieved": 2,
+      "expectedRelevant": 2,
+      "precision": 1,
+      "recall": 1,
+      "irrelevantInjected": 0,
+      "staleInjected": 0,
+      "supersededInjected": 0,
+      "currentTruthCorrect": 2,
+      "provenanceCoverage": 1,
+      "crossScopeViolations": 0,
+      "ownerMemoryCorrections": 2,
+      "conflictingSourcesLabeled": 2
+    },
+    "newWorkReuse": {
+      "status": "CONTRACT/INTEGRATION FIXTURE PASS",
+      "canonicalRuntime": "NOT_RUN",
+      "contextConsumed": true,
+      "usedMemoryIds": [
+        "knowledge_2f25e8ae-2df4-4a8f-b9f8-f6088ccb1a29",
+        "knowledge_3e38aa0a-6d09-4b8e-9067-4b653da8ae5b"
+      ]
+    },
+    "deterministicComparison": {
+      "baseline": {
+        "correctness": 1,
+        "acceptance": 0,
+        "unnecessarySteps": 4,
+        "retrievalRelevance": 1,
+        "failureCount": 2,
+        "clarificationCount": 2
+      },
+      "withPromotedLearning": {
+        "correctness": 1,
+        "acceptance": 1,
+        "unnecessarySteps": 0,
+        "retrievalRelevance": 1,
+        "failureCount": 0,
+        "clarificationCount": 0
+      },
+      "liveModel": "NOT_PROVEN",
+      "definition": "Acceptance requires current facts with references; missing references cause failed acceptance and explicit source lookup/owner clarification steps."
+    },
+    "adversarialCases": 12,
+    "betaProjection": {
+      "memory": {
+        "contractVersion": 1,
+        "identity": "knowledge_3e38aa0a-6d09-4b8e-9067-4b653da8ae5b",
+        "kind": "knowledge",
+        "statement": "Launch deadline is Friday.",
+        "truth": "CURRENT",
+        "provenance": [
+          {
+            "sourceId": "source_66705524-8628-4050-9b83-f5a6025f23e8",
+            "type": "file",
+            "reference": "owner:correction-2",
+            "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "origin": "OWNER",
+            "relation": "confirmed_by"
+          }
+        ],
+        "scope": {
+          "kind": "WORK",
+          "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+          "repository": "fixture/launch"
+        },
+        "privacy": "WORK_SCOPED",
+        "confidence": 1,
+        "relevance": 1,
+        "correction": {
+          "previous": "knowledge_3dd3d71d-b9e3-436c-9bd7-89a06cc862a7",
+          "next": null
+        },
+        "usage": {
+          "contractVersion": 1,
+          "ownerId": "recall_reader_d80d78b6a573397f",
+          "workId": "93993d21-326b-4487-9ba5-bf0649f547d9",
+          "workVersion": 1,
+          "repository": "fixture/launch",
+          "contextRef": "context-63440697-7fdf-498a-a54f-14e1c770ade4",
+          "items": [
+            {
+              "identity": "knowledge_2f25e8ae-2df4-4a8f-b9f8-f6088ccb1a29",
+              "kind": "knowledge",
+              "text": "Launch deadline timezone is UTC.",
+              "ownerId": "recall_reader_d80d78b6a573397f",
+              "scope": {
+                "kind": "WORK",
+                "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+                "repository": "fixture/launch"
+              },
+              "privacy": "WORK_SCOPED",
+              "truth": "CURRENT",
+              "confidence": 1,
+              "relevance": 1,
+              "supersedesId": null,
+              "supersededById": null,
+              "provenance": [
+                {
+                  "type": "file",
+                  "origin": "OWNER",
+                  "relation": "supports",
+                  "sourceId": "source_88bc745d-6fc4-47cf-a5ea-0e7f2650dd83",
+                  "reference": "file:launch-timezone",
+                  "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ],
+              "reasonUsed": "Relevant owner-selected evidence from comparable Work; current correction followed"
+            },
+            {
+              "identity": "knowledge_3e38aa0a-6d09-4b8e-9067-4b653da8ae5b",
+              "kind": "knowledge",
+              "text": "Launch deadline is Friday.",
+              "ownerId": "recall_reader_d80d78b6a573397f",
+              "scope": {
+                "kind": "WORK",
+                "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+                "repository": "fixture/launch"
+              },
+              "privacy": "WORK_SCOPED",
+              "truth": "CURRENT",
+              "confidence": 1,
+              "relevance": 1,
+              "supersedesId": "knowledge_3dd3d71d-b9e3-436c-9bd7-89a06cc862a7",
+              "supersededById": null,
+              "provenance": [
+                {
+                  "type": "file",
+                  "origin": "OWNER",
+                  "relation": "confirmed_by",
+                  "sourceId": "source_66705524-8628-4050-9b83-f5a6025f23e8",
+                  "reference": "owner:correction-2",
+                  "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ],
+              "reasonUsed": "Relevant owner-selected evidence from comparable Work; current correction followed"
+            }
+          ],
+          "sourceRefs": [
+            "knowledge_2f25e8ae-2df4-4a8f-b9f8-f6088ccb1a29",
+            "source_88bc745d-6fc4-47cf-a5ea-0e7f2650dd83",
+            "knowledge_3e38aa0a-6d09-4b8e-9067-4b653da8ae5b",
+            "source_66705524-8628-4050-9b83-f5a6025f23e8"
+          ],
+          "contentHash": "21aa26c539a036c4741e9f111d890a2364da59491b53b99f1762470bf77ad01b",
+          "characters": 1496,
+          "exclusions": {
+            "irrelevant": 1,
+            "stale": 1,
+            "historical": 2,
+            "duplicate": 0,
+            "unsafe": 1,
+            "budget": 0
+          },
+          "trust": "EVIDENCE_ONLY",
+          "authorityGrants": [],
+          "reason": "Relevant owner-selected evidence from comparable Work; current correction followed"
+        },
+        "permissions": {
+          "canGrantAuthority": false,
+          "canShare": false
+        }
+      },
+      "learning": {
+        "contractVersion": 1,
+        "identity": "2ee688e2dca667bb15e86ac332d977622695092fc04e1abafb982a6bb26fae08",
+        "revision": 9,
+        "scope": {
+          "workId": null,
+          "ownerId": "recall_reader_d80d78b6a573397f",
+          "workType": "research",
+          "repository": "fixture/launch"
+        },
+        "privacy": "PRIVATE",
+        "usage": {
+          "workId": "93993d21-326b-4487-9ba5-bf0649f547d9",
+          "contextRef": "after-rollback",
+          "version": 1,
+          "hash": "293c206c7603f2a537e67c8efb5c99cf60869ac1bc3f7dc633b59cd1fb87c023",
+          "reason": "Matched owner, repository, Work type and optional Work restriction when this version was retrieved; receipt records offered guidance, not successful use"
+        },
+        "versions": [
+          {
+            "version": 1,
+            "hash": "293c206c7603f2a537e67c8efb5c99cf60869ac1bc3f7dc633b59cd1fb87c023",
+            "behavior": "cite_sources",
+            "guidance": "Include the original source references with factual Work summaries. Distinguish owner statements from inferences.",
+            "status": "PROMOTED",
+            "reason": "Restored by rollback of version 2: Owner rollback after comparing retained results",
+            "evaluation": {
+              "fixture": "work-summary-v1",
+              "result": "PASS",
+              "baselineScore": 0,
+              "learnedScore": 1
+            },
+            "sourceFeedback": [
+              {
+                "eventId": "cc6fc7a6-3025-4d6c-b5d5-655da41c394f",
+                "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+                "workVersion": 1,
+                "targetRef": "result:0ae8910a-604a-47af-928f-bc9505087141:sha256:94ba6b7dbbded4b0c2859c9ba10dfac66a1f560ee599be98691f9b759318b751",
+                "note": "Keep original references beside each launch finding.",
+                "provenance": "authenticated_owner_feedback"
+              }
+            ],
+            "correctionOf": null,
+            "replacesVersion": null,
+            "actions": {
+              "evaluate": false,
+              "promote": false,
+              "reject": false,
+              "rollback": true,
+              "restoreVersion": null
+            }
+          },
+          {
+            "version": 2,
+            "hash": "7b3dee59bf200fa643c08a7f22d98d4578290c2313bd40c58f9aa126252f56ac",
+            "behavior": "state_uncertainty",
+            "guidance": "Label uncertain and conflicting observations in Work summaries. Do not present them as Current Truth.",
+            "status": "ROLLED_BACK",
+            "reason": "Owner rollback after comparing retained results",
+            "evaluation": {
+              "fixture": "work-summary-v1",
+              "result": "PASS",
+              "baselineScore": 0,
+              "learnedScore": 1
+            },
+            "sourceFeedback": [
+              {
+                "eventId": "c1b8a6db-1dec-4e8a-8991-cd6eaeaced55",
+                "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+                "workVersion": 1,
+                "targetRef": "result:0ae8910a-604a-47af-928f-bc9505087141:sha256:94ba6b7dbbded4b0c2859c9ba10dfac66a1f560ee599be98691f9b759318b751",
+                "note": "Try labeling uncertainty in the next version.",
+                "provenance": "authenticated_owner_feedback"
+              }
+            ],
+            "correctionOf": null,
+            "replacesVersion": 1,
+            "actions": {
+              "evaluate": false,
+              "promote": false,
+              "reject": false,
+              "rollback": false,
+              "restoreVersion": null
+            }
+          },
+          {
+            "version": 3,
+            "hash": "9a5f5ad7565efb9cb1603f16f0b2eea692104596e08c660e9aec6ec093cad583",
+            "behavior": "cite_sources",
+            "guidance": "Include the original source references with factual Work summaries. Distinguish owner statements from inferences.",
+            "status": "REJECTED",
+            "reason": "Representative evaluation failed.",
+            "evaluation": {
+              "fixture": "work-summary-v1",
+              "result": "FAIL",
+              "baselineScore": 0,
+              "learnedScore": 1
+            },
+            "sourceFeedback": [
+              {
+                "eventId": "a00a154e-8b67-480a-b191-0206aa5309b9",
+                "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+                "workVersion": 1,
+                "targetRef": "result:0ae8910a-604a-47af-928f-bc9505087141:sha256:94ba6b7dbbded4b0c2859c9ba10dfac66a1f560ee599be98691f9b759318b751",
+                "note": "This change did not help the summary.",
+                "provenance": "authenticated_owner_feedback"
+              }
+            ],
+            "correctionOf": null,
+            "replacesVersion": 1,
+            "actions": {
+              "evaluate": false,
+              "promote": false,
+              "reject": false,
+              "rollback": false,
+              "restoreVersion": null
+            }
+          }
+        ],
+        "authorityGrants": []
+      }
+    },
+    "capsuleContract": {
+      "contractVersion": 1,
+      "type": "MEMORY_REPRESENTATION",
+      "identity": "knowledge_2f25e8ae-2df4-4a8f-b9f8-f6088ccb1a29",
+      "kind": "knowledge",
+      "text": "Launch deadline timezone is UTC.",
+      "ownerId": "recall_reader_d80d78b6a573397f",
+      "scope": {
+        "kind": "WORK",
+        "workId": "edab2447-2f99-4445-b6c0-43b66a25b8ed",
+        "repository": "fixture/launch"
+      },
+      "privacy": "WORK_SCOPED",
+      "provenance": [
+        {
+          "sourceId": "source_88bc745d-6fc4-47cf-a5ea-0e7f2650dd83",
+          "type": "file",
+          "reference": "file:launch-timezone",
+          "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "origin": "OWNER",
+          "relation": "supports"
+        }
+      ],
+      "currentTruth": {
+        "status": "CURRENT",
+        "supersedesId": null,
+        "supersededById": null
+      },
+      "confidence": 1,
+      "learningVersion": {
+        "id": "2ee688e2dca667bb15e86ac332d977622695092fc04e1abafb982a6bb26fae08",
+        "version": 1,
+        "hash": "293c206c7603f2a537e67c8efb5c99cf60869ac1bc3f7dc633b59cd1fb87c023"
+      },
+      "contentHash": "8817d1f864581cd29a7a99ffc6706d3e7c0e6d57f435e2ad14c12bcb63f77e40",
+      "portability": {
+        "eligible": false,
+        "reason": "Requires separate owner selection, source policy and Capsule qualification"
+      },
+      "authorityGrants": []
+    }
+  },
+  "invariants": {
+    "memoryAuthorityGrants": 0,
+    "learningAuthorityExpansions": 0,
+    "secretPromotions": 0,
+    "crossScopeViolations": 0
+  },
+  "authorityTables": [
+    "persistent_browser_profile_grants",
+    "task_approval_decisions",
+    "myeve_relay_grants",
+    "owner_qualification_budget",
+    "engineering_conversation_budget",
+    "engineering_work_model_budget"
+  ],
+  "completedAt": "2026-09-27T23:59:40.872Z"
+}

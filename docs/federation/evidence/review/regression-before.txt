@@ -1,0 +1,244 @@
+
+> eve-agent@0.0.0 test
+> vitest run lib/relay/review-regressions.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+
+ ❯ lib/relay/review-regressions.test.ts (12 tests | 12 failed) 17ms
+   × publication confirmation races > preserves concurrent PAUSED even when remote status fails 5ms
+     → promise resolved "{ viewId: 'view', version: 1 }" instead of rejecting
+   × publication confirmation races > preserves concurrent REVOKED even when remote status fails 1ms
+     → promise resolved "{ viewId: 'view', version: 1 }" instead of rejecting
+   × paid work admission and accounting > records usage after resuming an approved Run 4ms
+     → promise rejected "AssertionError: expected 'awaiting_approv… { …(4) }" instead of resolving
+   × paid work admission and accounting > denies tiny budgets before paid execution 1ms
+     → expected [Function] to throw error including 'estimated call' but got 'Model cost is unavailable or exceeds …'
+   × paid work admission and accounting > denies missing pricing before paid execution 0ms
+     → expected [Function] to throw error including 'pricing unavailable' but got 'expected \'awaiting_approval\' to be …'
+   × paid work admission and accounting > records incurred usage for rejected output {"text":"no citation","cost":"0.02"} 4ms
+     → expected "spy" to be called with arguments: [ 'relay-session-request', 0.02 ]
+
+Number of calls: 0
+
+   × paid work admission and accounting > records incurred usage for rejected output {"text":"[source]","cost":"0.2"} 0ms
+     → expected "spy" to be called with arguments: [ 'relay-session-request', 0.2 ]
+
+Number of calls: 0
+
+   × work expiration after pricing lookup > never invokes the provider if pricing arrives after expiry 0ms
+     → expected [Function] to throw error including 'Work expired' but got 'expected \'awaiting_approval\' to be …'
+   × exact Approval Center reconciliation > resumes an existing approved exact action without deciding twice 0ms
+     → Approval is no longer pending.
+   × exact Approval Center reconciliation > does not override an existing denial 0ms
+     → expected [Function] to throw error including 'does not match' but got 'Approval is no longer pending.'
+   × exact Approval Center reconciliation > poll resumes untouched accepted claims after a crash 0ms
+     → expected "spy" to be called with arguments: [ 'request' ]
+
+Number of calls: 0
+
+   × exact Approval Center reconciliation > poll reconciles canonical approvals after restart 0ms
+     → expected "spy" to be called with arguments: [ 'request' ]
+
+Number of calls: 0
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > publication confirmation races > preserves concurrent PAUSED even when remote status fails
+ FAIL  lib/relay/review-regressions.test.ts > publication confirmation races > preserves concurrent REVOKED even when remote status fails
+AssertionError: promise resolved "{ viewId: 'view', version: 1 }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "version": 1,
++   "viewId": "view",
+  }
+
+ ❯ lib/relay/review-regressions.test.ts:157:32
+    155|       );
+    156|       release();
+    157|       await expect(confirmation).rejects.toThrow(
+       |                                ^
+    158|         "local access remains disabled",
+    159|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > paid work admission and accounting > records usage after resuming an approved Run
+AssertionError: promise rejected "AssertionError: expected 'awaiting_approv… { …(4) }" instead of resolving
+ ❯ lib/relay/review-regressions.test.ts:201:5
+    199|     await expect(
+    200|       executeExternalWork(workStore(), envelope(), vi.fn()),
+    201|     ).resolves.toMatchObject({ status: "COMPLETED" });
+       |     ^
+    202|     expect(m.transition).toHaveBeenCalled();
+    203|     expect(m.record).toHaveBeenCalledWith("relay-session-request", 0.0…
+
+Caused by: AssertionError: expected 'awaiting_approval' to be 'running' // Object.is equality
+
+Expected: "running"
+Received: "awaiting_approval"
+
+ ❯ lib/relay/review-regressions.test.ts:171:19
+ ❯ Object.execute lib/relay/work.ts:232:17
+ ❯ ActionGateway.execute lib/relay/review-regressions.test.ts:58:18
+ ❯ Module.executeExternalWork lib/relay/work.ts:162:21
+ ❯ lib/relay/review-regressions.test.ts:199:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > paid work admission and accounting > denies tiny budgets before paid execution
+AssertionError: expected [Function] to throw error including 'estimated call' but got 'Model cost is unavailable or exceeds …'
+
+Expected: "estimated call"
+Received: "Model cost is unavailable or exceeds the local limit; verification required."
+
+ ❯ lib/relay/review-regressions.test.ts:208:5
+    206|     const e = envelope();
+    207|     (e.payload as any).budget.cost = "0.000000001";
+    208|     await expect(executeExternalWork(workStore(), e, vi.fn())).rejects…
+       |     ^
+    209|       "estimated call",
+    210|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > paid work admission and accounting > denies missing pricing before paid execution
+AssertionError: expected [Function] to throw error including 'pricing unavailable' but got 'expected \'awaiting_approval\' to be …'
+
+Expected: "pricing unavailable"
+Received: "expected 'awaiting_approval' to be 'running' // Object.is equality"
+
+ ❯ lib/relay/review-regressions.test.ts:215:5
+    213|   it("denies missing pricing before paid execution", async () => {
+    214|     m.prices.mockResolvedValue({ models: [] });
+    215|     await expect(
+       |     ^
+    216|       executeExternalWork(workStore(), envelope(), vi.fn()),
+    217|     ).rejects.toThrow("pricing unavailable");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > paid work admission and accounting > records incurred usage for rejected output {"text":"no citation","cost":"0.02"}
+AssertionError: expected "spy" to be called with arguments: [ 'relay-session-request', 0.02 ]
+
+Number of calls: 0
+
+ ❯ lib/relay/review-regressions.test.ts:234:24
+    232|         executeExternalWork(workStore(), envelope(), vi.fn()),
+    233|       ).rejects.toThrow();
+    234|       expect(m.record).toHaveBeenCalledWith(
+       |                        ^
+    235|         "relay-session-request",
+    236|         Number(cost),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > paid work admission and accounting > records incurred usage for rejected output {"text":"[source]","cost":"0.2"}
+AssertionError: expected "spy" to be called with arguments: [ 'relay-session-request', 0.2 ]
+
+Number of calls: 0
+
+ ❯ lib/relay/review-regressions.test.ts:234:24
+    232|         executeExternalWork(workStore(), envelope(), vi.fn()),
+    233|       ).rejects.toThrow();
+    234|       expect(m.record).toHaveBeenCalledWith(
+       |                        ^
+    235|         "relay-session-request",
+    236|         Number(cost),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > work expiration after pricing lookup > never invokes the provider if pricing arrives after expiry
+AssertionError: expected [Function] to throw error including 'Work expired' but got 'expected \'awaiting_approval\' to be …'
+
+Expected: "Work expired"
+Received: "expected 'awaiting_approval' to be 'running' // Object.is equality"
+
+ ❯ lib/relay/review-regressions.test.ts:255:5
+    253|       };
+    254|     });
+    255|     await expect(executeExternalWork(workStore(), e, vi.fn())).rejects…
+       |     ^
+    256|       "Work expired",
+    257|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > exact Approval Center reconciliation > resumes an existing approved exact action without deciding twice
+Error: Approval is no longer pending.
+ ❯ Module.decideExternalWork lib/relay/inbox.ts:204:24
+    202|     [store.ownerId, row.local_run_id],
+    203|   );
+    204|   if (!approval) throw new Error("Approval is no longer pending.");
+       |                        ^
+    205|   await decideApproval({
+    206|     ownerId: store.ownerId,
+ ❯ lib/relay/review-regressions.test.ts:285:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > exact Approval Center reconciliation > does not override an existing denial
+AssertionError: expected [Function] to throw error including 'does not match' but got 'Approval is no longer pending.'
+
+Expected: "does not match"
+Received: "Approval is no longer pending."
+
+ ❯ lib/relay/review-regressions.test.ts:291:5
+    289|   it("does not override an existing denial", async () => {
+    290|     const s = store("denied");
+    291|     await expect(decideExternalWork(s, "request", true)).rejects.toThr…
+       |     ^
+    292|       "does not match",
+    293|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > exact Approval Center reconciliation > poll resumes untouched accepted claims after a crash
+AssertionError: expected "spy" to be called with arguments: [ 'request' ]
+
+Number of calls: 0
+
+ ❯ lib/relay/review-regressions.test.ts:304:21
+    302|     );
+    303|     await pollRelay(s);
+    304|     expect(s.begin).toHaveBeenCalledWith("request");
+       |                     ^
+    305|   });
+    306|   it("poll reconciles canonical approvals after restart", async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  lib/relay/review-regressions.test.ts > exact Approval Center reconciliation > poll reconciles canonical approvals after restart
+AssertionError: expected "spy" to be called with arguments: [ 'request' ]
+
+Number of calls: 0
+
+ ❯ lib/relay/review-regressions.test.ts:309:21
+    307|     const s = store("approved");
+    308|     await pollRelay(s);
+    309|     expect(s.begin).toHaveBeenCalledWith("request");
+       |                     ^
+    310|     expect(m.decide).not.toHaveBeenCalled();
+    311|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  11:28:51
+   Duration  358ms (transform 56ms, setup 0ms, collect 103ms, tests 17ms, environment 0ms, prepare 44ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+npm error workspace eve-agent@0.0.0
+npm error location /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+npm error command failed
+npm error command sh -c vitest run lib/relay/review-regressions.test.ts

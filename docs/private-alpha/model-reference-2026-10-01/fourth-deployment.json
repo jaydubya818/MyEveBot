@@ -1,0 +1,16 @@
+{
+  "id": "dpl_FRqrGYeRrYRq5ucPoPdNnspVStXp",
+  "url": "sofie-personal-agent-n04imwv18-jaydubya818.vercel.app",
+  "readyState": "READY",
+  "gitSource": {
+    "type": "github",
+    "repoId": 1370277686,
+    "ref": "f29cb42676b13612d5566c7dc974a2552877f3f9",
+    "sha": "f29cb42676b13612d5566c7dc974a2552877f3f9"
+  },
+  "alias": [
+    "sofie-personal-agent-jaydubya818.vercel.app",
+    "sofie-personal-agent-git-f29cb42676b13612d55-1ebfd6-jaydubya818.vercel.app"
+  ],
+  "autoAssignCustomDomains": false
+}

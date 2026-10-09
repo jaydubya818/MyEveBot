@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "existingSource": "operations-monitor",
+  "futureDependency": "BLOCKED",
+  "concurrentWakeCount": 6,
+  "createdWork": 1,
+  "workControl": "paused",
+  "admissions": 0,
+  "externalEvents": "NOT_MOUNTED_PENDING_REVIEW"
+}

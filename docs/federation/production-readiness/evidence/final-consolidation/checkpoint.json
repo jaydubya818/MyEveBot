@@ -1,0 +1,65 @@
+{
+  "status": "BLOCKED_PROTOCOL_SELECTION",
+  "myeveCandidate": "522822d686724032f2939ba01f61e498e2e74f84",
+  "myeveCanonical": "e9984e4962151bffca1f6eb48c544b60bb643aa7",
+  "relayTestedCandidate": "c910c9debc1f92acd60649431a6466243a711c33",
+  "relayCanonical": "e2eb350f5655427d55cc204264020a9295173f96",
+  "recoveredAncestor": "7852287e1c5f8eb14119d9e8accdf174d27eeb69",
+  "myeve": {
+    "vitest": 663,
+    "node": 134,
+    "typecheck": "PASS",
+    "executorGovernanceSources": 520,
+    "orderedMigrations": 30,
+    "productionBuilds": 2
+  },
+  "relayOldCandidateOnly": {
+    "passed": 312,
+    "skipped": 5,
+    "performance": 2,
+    "browserFunctional": 2,
+    "browserProductionPerformance": 1,
+    "maxBrowserP95Ms": 113.98366599999986,
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "migrationCheck": "PASS",
+    "frontier": "PASS"
+  },
+  "controls": {
+    "node": 61,
+    "python": 15
+  },
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "federationDefault": "DISABLED",
+  "logSha256": {
+    "consolidation-disabled.log": "0eb72de9198acb0bb459626a128aaa8bc75ffd7351b03de3c6a5e19569d77d2a",
+    "consolidation-myeve-type.log": "1e88ddbba911651c16eb8aaf324a81ceaa218333bc3e8e5b28dd3e7bf73c6cbb",
+    "consolidation-myeve-migrations.log": "d5f7ed1ddbe5b4b00615712676b662abe0e75734083b6ecb45997606a458f1ce",
+    "consolidation-controls-python.log": "561c908ce6d7b1395c5140a541e111e65ff07e77d80f9fe21c426e00729f7cf0",
+    "consolidation-myeve-build.log": "4a9f18e634efbeb51c85408127933f789bdbfe612b74a8ff255ff897e74a31ad",
+    "consolidation-migrations.log": "8c70199a26e1ba4821a98b80b62752e27fbca2f81c6f5daa7d888052da7baba6",
+    "consolidation-relay-frontier.log": "9721032529e600c296170c4adf1aded3c9a17514a3db83e9cc9848d6a207f204",
+    "consolidation-relay-migrations.log": "60202fb1c89458642845299b392aa511cb38bd690d72864e3d00ad44c4a4155c",
+    "consolidation-relay-qualify.log": "6469952f4ad0b9e298764cac8e8b051fa27ac1b85e89327408662fff1522fffa",
+    "consolidation-relay-browser.log": "406c4c28312aeceea8bab82660262c809c42468a5bd7adc6200553f1ba99f565",
+    "consolidation-myeve-node.log": "330bc6c8b3ecbdbce2bc21531745777732926ed92746858c11cf0f6122e19695",
+    "consolidation-relay-browser-performance.log": "a7c44262ac35dc6cda2f17c4f362f3a97393b380c6c321e489fe09dbd9399025",
+    "consolidation-controls-node.log": "a2126495ed36df95a221bd10f84d9d444ccb924567ee6f65fb88928ff2fcd62a",
+    "consolidation-myeve-vitest.log": "933db893e86a0bdaa9ebb769d64dd48f93f613e205779698c2f0d4a6c668f360",
+    "consolidation-three-party.log": "6fa952c159a1e27a2f3412e77a37c87bbd15d4974218ba51102cd1976d441a74"
+  },
+  "localThreeParty": {
+    "passed": 13,
+    "cleanup": {
+      "databasesDropped": true,
+      "rolesDropped": true,
+      "processesStopped": true,
+      "fixtureSecretsDestroyed": true
+    },
+    "scope": "Earlier Relay candidate only; expanded final golden path pending"
+  }
+}

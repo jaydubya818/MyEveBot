@@ -1,0 +1,16 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run lib/engineering/factory-proposal-semantics.test.ts lib/engineering/alpha-conversation.test.ts agent/tools/engineering_factory.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+
+ ✓ agent/tools/engineering_factory.test.ts (10 tests) 4ms
+ ✓ lib/engineering/factory-proposal-semantics.test.ts (4 tests) 3ms
+ ✓ lib/engineering/alpha-conversation.test.ts (25 tests) 58ms
+
+ Test Files  3 passed (3)
+      Tests  39 passed (39)
+   Start at  17:41:13
+   Duration  1.40s (transform 642ms, setup 0ms, collect 2.18s, tests 64ms, environment 0ms, prepare 313ms)
+

@@ -1,0 +1,21 @@
+
+Running 12 tests using 1 worker
+
+(node:66600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Open a pull request (5.4s)
+  ✓   2 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Push branch only (5.4s)
+  ✓   3 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Keep private (959ms)
+  ✓   4 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Reject candidate (982ms)
+  ✓   5 [desktop] › test/agent-native/work-thread.spec.ts:40:1 › unsigned, other-thread and fork data cannot reveal Work (110ms)
+  ✓   6 [desktop] › test/agent-native/work-thread.spec.ts:46:1 › refresh failure hides decision controls until canonical recovery (478ms)
+(node:78326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Open a pull request (5.3s)
+  ✓   8 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Push branch only (5.2s)
+  ✓   9 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Keep private (888ms)
+  ✓  10 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Reject candidate (794ms)
+  ✓  11 [390px] › test/agent-native/work-thread.spec.ts:40:1 › unsigned, other-thread and fork data cannot reveal Work (117ms)
+  ✓  12 [390px] › test/agent-native/work-thread.spec.ts:46:1 › refresh failure hides decision controls until canonical recovery (448ms)
+
+  12 passed (27.9s)

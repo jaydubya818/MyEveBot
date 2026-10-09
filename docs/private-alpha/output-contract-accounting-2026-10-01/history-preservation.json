@@ -1,0 +1,47 @@
+{
+  "observedAt": "2026-10-01T19:50:54.267Z",
+  "history": [
+    {
+      "attempt": 1,
+      "workId": "a2dcadef-0738-4194-8b8c-02c16821b5fb",
+      "unchanged": true
+    },
+    {
+      "attempt": 2,
+      "workId": "dd60ac6b-5718-4844-be97-39b88eadf6ce",
+      "unchanged": true
+    },
+    {
+      "attempt": 3,
+      "workId": "7e4b305b-72e5-40f7-95e1-150456b84c66",
+      "unchanged": true
+    },
+    {
+      "attempt": 4,
+      "workId": "8a2979a8-6520-4d5e-bae7-7016a221ce04",
+      "unchanged": true
+    },
+    {
+      "attempt": 5,
+      "workId": "ad07cb0c-b290-48c8-b58d-75de95b1eb0d",
+      "unchanged": true
+    },
+    {
+      "attempt": 6,
+      "workId": "7bb874af-835b-4922-931a-53dcfb8a9d45",
+      "unchanged": true
+    },
+    {
+      "attempt": 7,
+      "workId": "dde61458-496e-4cb1-b034-e872712120bc",
+      "unchanged": true
+    }
+  ],
+  "attempt7ArtifactsUnchanged": 34,
+  "liveFactory": {
+    "paidOperations": 8,
+    "activeRuns": 0
+  },
+  "additionalRealModelOperations": 0,
+  "databaseWrites": 0
+}

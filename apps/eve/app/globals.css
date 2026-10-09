@@ -1,0 +1,50 @@
+/* Kumo theme tokens must be registered before Tailwind itself. */
+@source "../../../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+@import "@cloudflare/kumo/styles/tailwind";
+@import "tailwindcss";
+@import "./typeset.css";
+/* Utility-only import (shimmer, scroll-fade, scrollbar helpers) used by the
+   chat message scroller and attachments. Defines no color tokens. */
+@import "./vendor/shadcn/tailwind.css";
+
+.typeset-docs {
+  --typeset-font-body: var(--font-geist);
+  --typeset-font-heading: var(--font-geist);
+  --typeset-font-mono: var(--font-geist-mono);
+  --typeset-size: 14px;
+  --typeset-leading: 1.75;
+  --typeset-flow: 1.25em;
+}
+
+:root {
+  color-scheme: light;
+  /* Bridge legacy variable names used by typeset.css onto Kumo tokens. */
+  --color-foreground: var(--text-color-kumo-default);
+  --color-muted-foreground: var(--text-color-kumo-subtle);
+  --color-muted: var(--color-kumo-tint);
+  --color-border: var(--color-kumo-hairline);
+  --color-primary: var(--color-kumo-brand);
+  --color-ring: var(--color-kumo-focus);
+  --radius: 0.5rem;
+}
+
+:root[data-mode="dark"] {
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    @apply bg-kumo-canvas text-kumo-default font-sans;
+  }
+}
+
+/* Kumo portals its dialog popup and backdrop with no z-index, so fixed app
+   chrome with a z-index (the z-40 sidebar) paints over them. Lift the
+   overlay layers above everything. */
+@layer components {
+  [role="dialog"].fixed,
+  [role="alertdialog"].fixed,
+  [role="presentation"].fixed.inset-0 {
+    z-index: 50;
+  }
+}

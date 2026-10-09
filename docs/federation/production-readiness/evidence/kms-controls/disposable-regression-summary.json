@@ -1,0 +1,192 @@
+{
+  "scope": "local disposable regression; NOT production-platform gate",
+  "checks": 46,
+  "checksSummary": [
+    {
+      "name": "independent owners, Agents, credentials, processes and private storage",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "no-grant query denied before publisher invocation or private-store access",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "signed denial receipt exists without request-body content",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "caller spoofing and cross-owner enrollment rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "query grant does not grant messages, work or artifacts",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "authorized retrieval includes only published records with provenance and identity",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "private knowledge attack 1 remains within publication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "private knowledge attack 2 remains within publication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "private knowledge attack 3 remains within publication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "private knowledge attack 4 remains within publication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "private knowledge attack 5 remains within publication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "answer synthesis uses only publication references and labels citations",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "both owners receive signed metadata-only disclosure receipts",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "grant revocation denies future and cached reads before delivery; history retained",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "restoring query authority does not restore messaging",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "network delivery rejects forged signature and wrong audience",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "network delivery rejects untrusted issuer despite a valid signature",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "network delivery rejects expired assertion despite a valid signature",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "network delivery rejects future assertion despite a valid signature",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "message delivery, acknowledgement, conversation and durable replay deduplication",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "changed body cannot reuse idempotency key",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "offline recipient queues without claiming local processing",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "offline request expires without execution",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Relay and publisher restart preserve identity, queue, keys and execution ledger",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "crash after execution resumes persisted receipt exactly once across both restarts",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "source-owned artifact retrieved with signed audience proof and verified checksum; unauthenticated and expired denied",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Ava independently refuses Relay-authorized safe work",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Ava rejects unsupported email work despite Relay authority",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "bounded architecture work returns summary, artifact reference, evidence and measured usage; local Run stays local",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "publication correction increments version; old receipts remain unchanged",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "owner block denies query, message and work across both directions",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "old credential is invalid after rotation",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "new credential retains immutable Agent address and operation",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "replacement Agent does not inherit Agent-specific grants",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "discovery contains only explicit profiles, hides replacement and private views",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "live REST and MCP share authorization, result, version and receipt semantics",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "publisher cannot read the caller result through caller-only API",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "result acknowledgement purges bounded Relay payload and result ciphertext",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "publication revocation denies future queries and prior result access",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "oversized network body rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "discovery scraping rate limited",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "denied-request flood consumes durable rate limits",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "all external knowledge reads used the projection; no canonical private reads",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "all three persistence domains inspected; Relay has neither canonical private store nor local Run bodies",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "sofie full audit chain verifies",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "ava full audit chain verifies",
+      "status": "PASSED_LIVE"
+    }
+  ],
+  "dirtyCandidate": true,
+  "sourceReference": "verification.json"
+}

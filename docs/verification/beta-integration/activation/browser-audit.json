@@ -1,0 +1,162 @@
+[
+  {
+    "route": "/today",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Today",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/needs-you",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Needs you",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/results",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Results",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/memory?workId=6d1f19f3-00d7-47c1-b80f-9d7f7de3b622",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Memory and learning",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/brief",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Daily Brief",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/welcome",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Meet Sofie",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work/new",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Give Sofie an outcome",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=work&id=6d1f19f3-00d7-47c1-b80f-9d7f7de3b622",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=goal&id=86adbacf-5891-43d0-90ec-c51a6f44e2e8",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/today",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Today",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/needs-you",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Needs you",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/results",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Results",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/memory?workId=6d1f19f3-00d7-47c1-b80f-9d7f7de3b622",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Memory and learning",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/brief",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Daily Brief",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/welcome",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Meet Sofie",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work/new",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Give Sofie an outcome",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=work&id=6d1f19f3-00d7-47c1-b80f-9d7f7de3b622",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=goal&id=86adbacf-5891-43d0-90ec-c51a6f44e2e8",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  }
+]

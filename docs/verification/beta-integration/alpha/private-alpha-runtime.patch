@@ -1,0 +1,82 @@
+--- a/apps/eve/lib/beta-integration/runtime.ts
++++ b/apps/eve/lib/beta-integration/runtime.ts
+@@ -3,7 +3,7 @@
+   factoryActionSchema,
+ } from "../engineering/factory-api.ts";
+ import { factoryConfig } from "../engineering/factory-routing.ts";
+-import { GOLDEN_QUALIFICATION_REPOSITORY } from "../engineering/base-preflight.ts";
++import { betaConfiguration } from "./configuration.ts";
+ import { CanonicalBetaWork } from "./canonical-work.ts";
+ import { createRequire } from "node:module";
+ import { z } from "zod";
+@@ -397,31 +397,12 @@
+ }
+
+ let instance: BetaIntegration | undefined;
+-/** Explicit local qualification activation. Never reads the deployment DATABASE_URL. */
++/** Explicit private-alpha startup shares the canonical database. Provider execution stays separately gated. */
+ export function betaIntegration() {
+-  if (
+-    process.env.MYEVE_BETA_MODE !== "qualification" ||
+-    process.env.VERCEL_ENV === "production"
+-  )
+-    throw new Error("Beta integration is not enabled");
+-  if (!instance) {
+-    const url = new URL(process.env.MYEVE_BETA_DATABASE_URL ?? "");
+-    if (
+-      !["127.0.0.1", "localhost"].includes(url.hostname) ||
+-      !/^\/myeve_beta_[a-z0-9_]+$/.test(url.pathname)
+-    )
+-      throw new Error("Disposable beta database required");
+-    const { Pool } = createRequire(import.meta.url)("pg") as {
+-      Pool: new (config: object) => GoalPool;
+-    };
+-    instance = new BetaIntegration(
+-      new Pool({ connectionString: url.href, max: 12 }),
+-      {
+-        repository: GOLDEN_QUALIFICATION_REPOSITORY,
+-        maxCostUsd: 1,
+-        maxDurationSeconds: 300,
+-      },
+-    );
++  const settings=betaConfiguration();
++  if(!instance) {
++    const {Pool}=createRequire(import.meta.url)("pg") as {Pool:new(config:object)=>GoalPool};
++    instance=new BetaIntegration(new Pool({connectionString:settings.url,max:12}),settings.policy);
+   }
+   return instance;
+ }
+--- /dev/null
++++ b/apps/eve/lib/beta-integration/configuration.ts
+@@ -0,0 +1,20 @@
++import { z } from 'zod';
++import { webAuthConfigStatus } from '../web-auth.ts';
++import { GOLDEN_QUALIFICATION_REPOSITORY } from '../engineering/base-preflight.ts';
++
++/** Explicit startup configuration; owner input cannot choose a datastore or budget.
++ * Qualification always stays disposable. Alpha uses the same canonical application DB. */
++export function betaConfiguration(env: NodeJS.ProcessEnv = process.env) {
++  if (env.MYEVE_BETA_MODE === 'qualification') {
++    if(env.VERCEL_ENV==='production')throw new Error('Qualification cannot run in production');
++    const url=new URL(env.MYEVE_BETA_DATABASE_URL??'');
++    if(!['postgres:','postgresql:'].includes(url.protocol)||!['127.0.0.1','localhost'].includes(url.hostname)||!/^\/myeve_beta_[a-z0-9_]+$/.test(url.pathname))throw new Error('Disposable beta database required');
++    return {url:url.href,policy:{repository:GOLDEN_QUALIFICATION_REPOSITORY,maxCostUsd:1,maxDurationSeconds:300}};
++  }
++  if(env.MYEVE_BETA_MODE!=='private-alpha')throw new Error('Beta integration is not enabled');
++  if(!env.MYEVE_OWNER_ID?.trim()||!webAuthConfigStatus(env).configured)throw new Error('Private alpha requires an explicit owner and configured web authentication');
++  const url=new URL(env.DATABASE_URL??'');
++  if(!['postgres:','postgresql:'].includes(url.protocol)||!url.hostname||!url.pathname||url.pathname==='/')throw new Error('Canonical application database required');
++  const policy=z.object({repository:z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),maxCostUsd:z.coerce.number().finite().positive().max(1.35),maxDurationSeconds:z.coerce.number().int().positive().max(600)}).parse({repository:env.MYEVE_ALPHA_REPOSITORY,maxCostUsd:env.MYEVE_ALPHA_MAX_WORK_USD,maxDurationSeconds:env.MYEVE_ALPHA_MAX_WORK_SECONDS});
++  return {url:url.href,policy};
++}
+--- /dev/null
++++ b/apps/eve/lib/beta-integration/configuration.test.ts
+@@ -0,0 +1,8 @@
++import {describe,it,expect} from 'vitest';
++import {betaConfiguration} from './configuration.ts';
++const alpha={MYEVE_BETA_MODE:'private-alpha',MYEVE_OWNER_ID:'owner-one',MYEVE_ACCESS_PASSWORD:'test-only-password',MYEVE_SESSION_SECRET:'test-only-secret-at-least-thirty-two-characters',DATABASE_URL:'postgresql://fixture:fixture@db.example.invalid/alpha',MYEVE_ALPHA_REPOSITORY:'fixture/golden',MYEVE_ALPHA_MAX_WORK_USD:'1.35',MYEVE_ALPHA_MAX_WORK_SECONDS:'600'};
++describe('Private alpha database and policy boundary',()=>{
++ it('uses the canonical app DB only after explicit authenticated owner activation',()=>{expect(betaConfiguration(alpha).url).toBe(alpha.DATABASE_URL);expect(()=>betaConfiguration({...alpha,MYEVE_BETA_MODE:undefined})).toThrow();for(const key of ['MYEVE_OWNER_ID','MYEVE_SESSION_SECRET','MYEVE_ACCESS_PASSWORD','DATABASE_URL'])expect(()=>betaConfiguration({...alpha,[key]:''})).toThrow();});
++ it('retains finite bounded Work ceilings and requires reviewed repository configuration',()=>{for(const value of ['0','-1','Infinity','1.36',''])expect(()=>betaConfiguration({...alpha,MYEVE_ALPHA_MAX_WORK_USD:value})).toThrow();expect(()=>betaConfiguration({...alpha,MYEVE_ALPHA_MAX_WORK_SECONDS:'601'})).toThrow();expect(()=>betaConfiguration({...alpha,MYEVE_ALPHA_REPOSITORY:undefined})).toThrow();});
++ it('qualification never falls back to deployment data and remains forbidden in production',()=>{const local={...alpha,MYEVE_BETA_MODE:'qualification',MYEVE_BETA_DATABASE_URL:'postgresql://postgres@127.0.0.1:55489/myeve_beta_test'};expect(betaConfiguration(local).url).toBe(local.MYEVE_BETA_DATABASE_URL);expect(()=>betaConfiguration({...local,MYEVE_BETA_DATABASE_URL:alpha.DATABASE_URL})).toThrow();expect(()=>betaConfiguration({...local,MYEVE_BETA_DATABASE_URL:undefined})).toThrow();expect(()=>betaConfiguration({...local,VERCEL_ENV:'production'})).toThrow();});
++});

@@ -1,0 +1,28 @@
+RUN  v3.2.7 /Users/jaywest/.codex/worktrees/sofie-local-access/Myeve/apps/eve
+
+ ❯ lib/owner-task-lifecycle.integration.test.ts (1 test | 1 failed) 433ms
+   × owner task lifecycle in real PostgreSQL > production regression: expiry → fresh owner message → start_task preserves history and one current binding 35ms
+     → duplicate key value violates unique constraint "task_run_sessions_current"
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/owner-task-lifecycle.integration.test.ts > owner task lifecycle in real PostgreSQL > production regression: expiry → fresh owner message → start_task preserves history and one current binding
+error: duplicate key value violates unique constraint "task_run_sessions_current"
+ ❯ ../../../../private-alpha-release/Myeve/node_modules/pg/lib/client.js:631:17
+ ❯ Object.transaction lib/owner-task-lifecycle.integration.test.ts:28:37
+     26|         await c.query("BEGIN");
+     27|         const statements = build((strings: TemplateStringsArray, ...pa…
+     28|         for (const s of statements) await c.query(s.sql, s.params);
+       |                                     ^
+     29|         await c.query("COMMIT");
+     30|       } catch (e) { await c.query("ROLLBACK"); throw e; } finally { c.…
+ ❯ Module.createDelegatedTask lib/task-runs.ts:90:3
+ ❯ lib/owner-task-lifecycle.integration.test.ts:46:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  22:00:34
+   Duration  770ms (transform 49ms, setup 0ms, collect 68ms, tests 433ms, environment 0ms, prepare 37ms)

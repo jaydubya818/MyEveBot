@@ -1,0 +1,29 @@
+{
+  "deployedMyEveSha": "5196df982be2b2e55fed996289eb45b70229a158",
+  "repairCodeSha": "b41b81507bda08da1b299bf7db50086a4ba820e8",
+  "repairCodeFiles": [
+    "apps/eve/lib/engineering/conversation-model.ts"
+  ],
+  "myFactorySha": "d0c9b149d2fa18d693c501d8862d21e15f669fad",
+  "relaySha": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "factoryVersion": "2ccacb678b92b41b594f764434e30344fc164288b39dbd98c78c249505f034a7",
+  "factorySourceDigest": "6d900e5e2da8f36f18f600886790dd431d1d5dd89b85b549e73c8400ecba145d",
+  "factoryConfigurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+  "publication": "disabled",
+  "remoteBeforeDeployment": {
+    "candidateSha": "5196df982be2b2e55fed996289eb45b70229a158",
+    "repairCodeSha": "b41b81507bda08da1b299bf7db50086a4ba820e8",
+    "previousMain": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
+    "branch": "codex/private-alpha-release",
+    "cleanSource": true,
+    "ancestry": "FAST_FORWARD",
+    "remoteRelease": "EXACT",
+    "remoteMain": "EXACT",
+    "milestoneTags": "UNCHANGED",
+    "forcePush": false
+  },
+  "note": "Subsequent receipt commit changes documentation only; deployed code remains exact qualified SHA above.",
+  "codeFileHashes": {
+    "apps/eve/lib/engineering/conversation-model.ts": "ec388a8c0c2a20ef7b4ac3a182f555ce9c330efb144e4a37e352e034c8af487f"
+  }
+}

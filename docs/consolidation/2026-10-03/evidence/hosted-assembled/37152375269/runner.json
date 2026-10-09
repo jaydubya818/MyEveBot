@@ -1,0 +1,34 @@
+{
+  "runId": "37152375269",
+  "commit": "3e79b42124ac4d186c6c6b64c98839a4671a1f06",
+  "trigger": {
+    "attempt": "consolidation-1",
+    "origin": "https://sofie-cloud-qualification-6w6edaoqx-jaydubya818.vercel.app",
+    "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
+    "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
+    "myeveSourceSha": "4860ecce1af8089378aadf1321ed5c4bdabee6b1",
+    "paidModelOperations": 0,
+    "publication": "DISABLED",
+    "productionAdmission": "DISABLED",
+    "maxNewWork": 1,
+    "runAttempt": "1",
+    "authorization": "Remaining mission sections7–12: one bounded assembled deterministic hosted release qualification; production and generated-code effects disabled.",
+    "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5",
+    "runnerPreflightFailures": [
+      {
+        "runId": 37152278612,
+        "reason": "Qualification environment branch allowlist rejected consolidation before any job step",
+        "workCreated": false
+      }
+    ]
+  },
+  "runner": "GitHub-hosted Linux",
+  "platform": "linux",
+  "factoryInfrastructureCredentials": 0,
+  "producerOnRunner": false,
+  "verifierOnRunner": false,
+  "sofieLocal": false,
+  "browserProtectionCredential": 0,
+  "artifactCredentialScan": "PASS",
+  "physicalMacPowerState": "NOT_OBSERVED"
+}

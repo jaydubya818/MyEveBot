@@ -1,0 +1,1173 @@
+{
+  "reviewerId": "blind-review-3",
+  "reviewerKind": "independent-ai",
+  "reviewModel": "inherited Codex model, exact identifier unavailable",
+  "reviewedAt": "2026-09-21T04:12:55.174616+00:00",
+  "rubricId": "knowledge-taxonomy-challenge-rubric:v1",
+  "rubricHash": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+  "reviewedWithoutProviderOutputs": true,
+  "cases": [
+    {
+      "id": "c335",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Accession documentation establishes the specimen's identity."
+    },
+    {
+      "id": "c336",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "A caution about testing does not clearly assert a hypothesis, choice, or obligation."
+    },
+    {
+      "id": "c337",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Infers functional redundancy from the shared inaccessible destination."
+    },
+    {
+      "id": "c338",
+      "label": "hypothesis",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Reversibility is explicitly presented as an untested possibility."
+    },
+    {
+      "id": "c339",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "The certified record establishes the motion's procedural status."
+    },
+    {
+      "id": "c340",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "The provisional selection remains open and no standing preference is established."
+    },
+    {
+      "id": "c341",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an unmeasured explanation for apparent reach."
+    },
+    {
+      "id": "c342",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "A hypothetical choice establishes neither a decision nor a standing preference."
+    },
+    {
+      "id": "c343",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a witnessed sequence without interpretation."
+    },
+    {
+      "id": "c344",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the owner's continuing transcription convention."
+    },
+    {
+      "id": "c345",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the published loan condition."
+    },
+    {
+      "id": "c346",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Revises an untested causal explanation while leaving the cause open."
+    },
+    {
+      "id": "c347",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Announces the resolved editorial choice."
+    },
+    {
+      "id": "c348",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Acknowledges the team's accepted replacement obligation."
+    },
+    {
+      "id": "c349",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets repeated exceptions as the effective normal procedure."
+    },
+    {
+      "id": "c350",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the resolved choice against repetition."
+    },
+    {
+      "id": "c351",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Infers the shelf's practical function from borrowing behavior."
+    },
+    {
+      "id": "c352",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "The unspecified recurrence supplies insufficient context to identify its knowledge role."
+    },
+    {
+      "id": "c353",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an untested acoustic explanation."
+    },
+    {
+      "id": "c354",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts audibility at an untested position."
+    },
+    {
+      "id": "c355",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a standing meeting preparation preference."
+    },
+    {
+      "id": "c356",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Explicitly leaves the decision open without establishing another primary category."
+    },
+    {
+      "id": "c357",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes transfer and collection times into the absence of slack."
+    },
+    {
+      "id": "c358",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports acceptance of a staffing duty."
+    },
+    {
+      "id": "c359",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Sarcastic objection does not establish a promise or completed assignment choice."
+    },
+    {
+      "id": "c360",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Authenticated documentation establishes the source of the date."
+    },
+    {
+      "id": "c361",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves the stanza removal question in favor of retention."
+    },
+    {
+      "id": "c362",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Derives the appropriate planning unit from the mismatch with family travel."
+    },
+    {
+      "id": "c363",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a documented instrument specification."
+    },
+    {
+      "id": "c364",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records the dog's behavior without inferring a preference."
+    },
+    {
+      "id": "c365",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the event during the first tuning."
+    },
+    {
+      "id": "c366",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States an established ticket term."
+    },
+    {
+      "id": "c367",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly promises inventory access to the lender."
+    },
+    {
+      "id": "c368",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Updates the owner's standing preference by withdrawing it."
+    },
+    {
+      "id": "c369",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly inspected color discrepancy."
+    },
+    {
+      "id": "c370",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a certified dimension rather than a fresh measurement."
+    },
+    {
+      "id": "c371",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an effect of an untested redesign."
+    },
+    {
+      "id": "c372",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports directly observed timer behavior."
+    },
+    {
+      "id": "c373",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves which source text governs the edition."
+    },
+    {
+      "id": "c374",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the documented permit scope."
+    },
+    {
+      "id": "c375",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Confirms a completed participation choice."
+    },
+    {
+      "id": "c376",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "An intention alone establishes neither an accepted duty nor a resolved choice."
+    },
+    {
+      "id": "c377",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a final authoritative vote."
+    },
+    {
+      "id": "c378",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports contents found during sorting."
+    },
+    {
+      "id": "c379",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly accepts the translation delivery duty."
+    },
+    {
+      "id": "c380",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Accepts custodial recording responsibility."
+    },
+    {
+      "id": "c381",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an untested effect of added equipment."
+    },
+    {
+      "id": "c382",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the observed firing result."
+    },
+    {
+      "id": "c383",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Offers an untested explanation for the echo."
+    },
+    {
+      "id": "c384",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports an active association pledge."
+    },
+    {
+      "id": "c385",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an untested grip improvement."
+    },
+    {
+      "id": "c386",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a verified production history detail."
+    },
+    {
+      "id": "c387",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the schedule mismatch as unusable connections."
+    },
+    {
+      "id": "c388",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Establishes the owner's default measurement convention."
+    },
+    {
+      "id": "c389",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the mismatch between reported output and the workshop's purpose."
+    },
+    {
+      "id": "c390",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Makes an explicit repayment promise."
+    },
+    {
+      "id": "c391",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Gives the final design selection."
+    },
+    {
+      "id": "c392",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the owner's preferred teaching style."
+    },
+    {
+      "id": "c393",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the owner's preferred reminder format."
+    },
+    {
+      "id": "c394",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records the observed return sequence."
+    },
+    {
+      "id": "c395",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Corrects the sequence of a remembered occurrence."
+    },
+    {
+      "id": "c396",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes isolated successes and rehearsal failure into a coordination problem."
+    },
+    {
+      "id": "c397",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the registered scope of a key."
+    },
+    {
+      "id": "c398",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Relates occupancy and transit evidence to the gallery's connecting role."
+    },
+    {
+      "id": "c399",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Recounts a witnessed utterance without adopting its preference."
+    },
+    {
+      "id": "c400",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a completed adhesive selection."
+    },
+    {
+      "id": "c401",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a comparison of photographs without explaining the change."
+    },
+    {
+      "id": "c402",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a verified artwork title."
+    },
+    {
+      "id": "c403",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an unverified concealed signature."
+    },
+    {
+      "id": "c404",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the official abbreviation definition."
+    },
+    {
+      "id": "c405",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Describes a visible seasonal pattern without explanation."
+    },
+    {
+      "id": "c406",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Infers survey selection limits from when the survey is administered."
+    },
+    {
+      "id": "c407",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Derives the reserve's ineffectiveness from its shared connector dependency."
+    },
+    {
+      "id": "c408",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Offers an unresolved explanation for the apparent count change."
+    },
+    {
+      "id": "c409",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Acknowledges an outstanding replacement obligation."
+    },
+    {
+      "id": "c410",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves the layout choice."
+    },
+    {
+      "id": "c411",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly accepts a preservation obligation."
+    },
+    {
+      "id": "c412",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the inspected location of a break."
+    },
+    {
+      "id": "c413",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts runoff behavior before observations exist."
+    },
+    {
+      "id": "c414",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an untested source of the stripe."
+    },
+    {
+      "id": "c415",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Provides an explicit assurance as a condition of access."
+    },
+    {
+      "id": "c416",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes physical preservation and retiring expertise into knowledge loss."
+    },
+    {
+      "id": "c417",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes contamination without sample analysis."
+    },
+    {
+      "id": "c418",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports verified registry history."
+    },
+    {
+      "id": "c419",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets membership growth in light of household duplication."
+    },
+    {
+      "id": "c420",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines an explicit promise and a standing preference without isolating a target."
+    },
+    {
+      "id": "c421",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports what occurred in the presentation."
+    },
+    {
+      "id": "c422",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an effect of a cooling change not yet tested."
+    },
+    {
+      "id": "c423",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the publisher's established scale qualification."
+    },
+    {
+      "id": "c424",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets nominally empty slots as necessary transition time."
+    },
+    {
+      "id": "c425",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Identifies the subject of an accepted escort duty."
+    },
+    {
+      "id": "c426",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports an approved calendar provision."
+    },
+    {
+      "id": "c427",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a standing navigation default."
+    },
+    {
+      "id": "c428",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Accepts responsibility for a reporting duty."
+    },
+    {
+      "id": "c429",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Explicitly adopts a continuing owner default."
+    },
+    {
+      "id": "c430",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the resolved acquisition rejection."
+    },
+    {
+      "id": "c431",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports documented renewal rights."
+    },
+    {
+      "id": "c432",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines owner preference and completed selection without isolating either."
+    },
+    {
+      "id": "c433",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Closes the renaming question with retention."
+    },
+    {
+      "id": "c434",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves the award's timing."
+    },
+    {
+      "id": "c435",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets role overlap as the source of operational resilience."
+    },
+    {
+      "id": "c436",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Announces a completed reversal of an earlier choice."
+    },
+    {
+      "id": "c437",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an unresolved explanation for avoidance."
+    },
+    {
+      "id": "c438",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports documented chronology."
+    },
+    {
+      "id": "c439",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a sound heard during testing."
+    },
+    {
+      "id": "c440",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an effect of an untested redesign."
+    },
+    {
+      "id": "c441",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the measured change and explicitly withholds causal interpretation."
+    },
+    {
+      "id": "c442",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the apprentice's accepted labeling duty."
+    },
+    {
+      "id": "c443",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the mismatch between provisional rosters and an irreversible form field."
+    },
+    {
+      "id": "c444",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Rejects both reviewed alternatives."
+    },
+    {
+      "id": "c445",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the owner's preferred general presentation format."
+    },
+    {
+      "id": "c446",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a stated subject's accepted undertaking."
+    },
+    {
+      "id": "c447",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets how readers misuse a shared approval date across differing versions."
+    },
+    {
+      "id": "c448",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Makes the current sailing selection."
+    },
+    {
+      "id": "c449",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a continuing interaction preference."
+    },
+    {
+      "id": "c450",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an unisolated source of the color cast."
+    },
+    {
+      "id": "c451",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the result of the present inspection."
+    },
+    {
+      "id": "c452",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Infers the fallback's dependency contradiction from its instructions."
+    },
+    {
+      "id": "c453",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports counter behavior during a specific test."
+    },
+    {
+      "id": "c454",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a documented schema definition."
+    },
+    {
+      "id": "c455",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Defines the scope of an accepted repair promise."
+    },
+    {
+      "id": "c456",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports observed movements without a mechanism explanation."
+    },
+    {
+      "id": "c457",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Considering an option is neither a completed selection nor an accepted obligation."
+    },
+    {
+      "id": "c458",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the donor's accepted promise."
+    },
+    {
+      "id": "c459",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Makes the final route selection."
+    },
+    {
+      "id": "c460",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an unverified reason for guide behavior."
+    },
+    {
+      "id": "c461",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves the final ordering question."
+    },
+    {
+      "id": "c462",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the editor's resolved treatment of uncertainty."
+    },
+    {
+      "id": "c463",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports timed behavior during one visit."
+    },
+    {
+      "id": "c464",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a documented jurisdiction boundary."
+    },
+    {
+      "id": "c465",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets backlog clearance as transferring the burden elsewhere."
+    },
+    {
+      "id": "c466",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports rehearsal events without causal attribution."
+    },
+    {
+      "id": "c467",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports documented chronological ordering."
+    },
+    {
+      "id": "c468",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Describes the observed drying sample."
+    },
+    {
+      "id": "c469",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports an observed sound change without explanation."
+    },
+    {
+      "id": "c470",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records repeated requests without diagnosing their cause."
+    },
+    {
+      "id": "c471",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports occurrences during a specific count."
+    },
+    {
+      "id": "c472",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a published rating qualification."
+    },
+    {
+      "id": "c473",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Recounts witnessed actions."
+    },
+    {
+      "id": "c474",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a continuing workspace preference."
+    },
+    {
+      "id": "c475",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines an observation and explicit undertaking with no isolated target."
+    },
+    {
+      "id": "c476",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a documented restoration event."
+    },
+    {
+      "id": "c477",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reaffirms an accepted delivery obligation."
+    },
+    {
+      "id": "c478",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes multiple loss patterns into an unacknowledged handoff relationship."
+    },
+    {
+      "id": "c479",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts an effect of an untried transport change."
+    },
+    {
+      "id": "c480",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly adopts a continuing owner default."
+    },
+    {
+      "id": "c481",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the registered spelling of a name."
+    },
+    {
+      "id": "c482",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly frames the proposed cause as a guess pending testing."
+    },
+    {
+      "id": "c483",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets persistent naming alongside complete functional replacement."
+    },
+    {
+      "id": "c484",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States a standing personal cover preference."
+    },
+    {
+      "id": "c485",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the result of a viewing test."
+    },
+    {
+      "id": "c486",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "The isolated target states the owner's lighting preference."
+    },
+    {
+      "id": "c487",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes stated positions and minutes into a mismatch in consensus scope."
+    },
+    {
+      "id": "c488",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports an established policy exception."
+    },
+    {
+      "id": "c489",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the claimed unanimity in light of silence and absent voting."
+    },
+    {
+      "id": "c490",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the established effect of a revocation notice."
+    },
+    {
+      "id": "c491",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Logs the result of a just-completed handling test."
+    },
+    {
+      "id": "c492",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "States the owner's usual working method."
+    },
+    {
+      "id": "c493",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts conditional efficiency before the route is timed."
+    },
+    {
+      "id": "c494",
+      "label": "fact",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Reports established release from a former obligation, not a current undertaking."
+    },
+    {
+      "id": "c495",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Infers lack of backup independence from shared physical exposure."
+    },
+    {
+      "id": "c496",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves the presentation of the fragment."
+    },
+    {
+      "id": "c497",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Offers a still-open explanation for the apparent decline."
+    },
+    {
+      "id": "c498",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports contrasting witnessed speech and a direct test without added explanation."
+    },
+    {
+      "id": "c499",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Missing options and decision context prevent a supported classification."
+    },
+    {
+      "id": "c500",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports an adopted final resolution."
+    }
+  ]
+}

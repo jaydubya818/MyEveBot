@@ -1,0 +1,27 @@
+PASS fresh complete 56-migration chain
+PASS 0056 injected failure rolls back complete schema and migration ledger
+PASS 0055→0056 preserves every populated historical row and Gate C custody
+PASS 0056 rerun is exact no-op
+PASS migration and authenticated receipts create no writer authority
+PASS native writer active denies Factory admission
+PASS shared Factory partnership revocation between preflight and durable dispatch denies transport
+PASS shared Factory-only approval completes dispatch, Gate C, terminal custody, protected verification and Result without native authority
+PASS Factory success: native fenced → Factory dispatch → Gate C → terminal custody → real protected verification PASS
+PASS Factory failure: native fenced → Factory dispatch → Gate C → terminal custody → real protected verification FAIL
+PASS new normal native Run repairs after failed Factory verification; complete Factory candidate/evidence history preserved
+PASS real PostgreSQL native-vs-factory: exactly one authoritative writer
+PASS real PostgreSQL factory-vs-factory: exactly one authoritative writer
+PASS Factory completion vs cancel serializes; authority only after proven quiescence
+PASS Factory completion vs takeover serializes; authority only after proven quiescence
+PASS UNKNOWN/timeout/STOPPING blocks native reacquisition, human mutation and duplicate dispatch; Current Truth explains reconciliation
+PASS Factory FAILED preserves attempt and grants no automatic native writer
+PASS remote terminal tombstone rejects delayed dispatch after cancellation, reconciliation and native succession
+PASS real PostgreSQL late Factory custody vs new native admission preserves receipt/history and current native authority
+PASS real PostgreSQL stale Factory attempt vs current generation denies stale mutation and redispatch
+PASS SIGKILL after all eight handoff boundaries: no redispatch, automatic acquisition or lost candidate; verifier requires resource reconciliation
+PASS late result vs newer native writer and stale Factory fence vs current generation cannot overwrite custody or dispatch
+PASS native agent revocation at final SQL evidence attachment cannot retain a protected PASS
+PASS restricted application role has no implicit handoff, direct writer/custody/receipt writes or DDL authority
+PASS restricted worker role has no implicit handoff, direct writer/custody/receipt writes or DDL authority
+{"checks":25,"counters":{"concurrentProductiveWriters":0,"duplicateFactoryDispatches":0,"staleWriterMutations":0,"lostHistoricalCustody":0,"factoryGrantedAuthority":0,"falseReady":0},"migrationChecksum":"dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc","liveMyFactory":"NOT_RUN"}
+{"checks":25,"results":["fresh complete 56-migration chain","0056 injected failure rolls back complete schema and migration ledger","0055→0056 preserves every populated historical row and Gate C custody","0056 rerun is exact no-op","migration and authenticated receipts create no writer authority","native writer active denies Factory admission","shared Factory partnership revocation between preflight and durable dispatch denies transport","shared Factory-only approval completes dispatch, Gate C, terminal custody, protected verification and Result without native authority","Factory success: native fenced → Factory dispatch → Gate C → terminal custody → real protected verification PASS","Factory failure: native fenced → Factory dispatch → Gate C → terminal custody → real protected verification FAIL","new normal native Run repairs after failed Factory verification; complete Factory candidate/evidence history preserved","real PostgreSQL native-vs-factory: exactly one authoritative writer","real PostgreSQL factory-vs-factory: exactly one authoritative writer","Factory completion vs cancel serializes; authority only after proven quiescence","Factory completion vs takeover serializes; authority only after proven quiescence","UNKNOWN/timeout/STOPPING blocks native reacquisition, human mutation and duplicate dispatch; Current Truth explains reconciliation","Factory FAILED preserves attempt and grants no automatic native writer","remote terminal tombstone rejects delayed dispatch after cancellation, reconciliation and native succession","real PostgreSQL late Factory custody vs new native admission preserves receipt/history and current native authority","real PostgreSQL stale Factory attempt vs current generation denies stale mutation and redispatch","SIGKILL after all eight handoff boundaries: no redispatch, automatic acquisition or lost candidate; verifier requires resource reconciliation","late result vs newer native writer and stale Factory fence vs current generation cannot overwrite custody or dispatch","native agent revocation at final SQL evidence attachment cannot retain a protected PASS","restricted application role has no implicit handoff, direct writer/custody/receipt writes or DDL authority","restricted worker role has no implicit handoff, direct writer/custody/receipt writes or DDL authority"],"dispatches":6,"status":"PASS"}

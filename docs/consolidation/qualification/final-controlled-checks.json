@@ -1,0 +1,153 @@
+{
+  "producer": "6e164ca2f3c58a7bf2d0c905c0908dfea0ceadf9",
+  "cases": [
+    {
+      "name": "published-main-bridge",
+      "script": "test/beta-integration/published-main-bridge.integration.mjs",
+      "exitCode": 1,
+      "seconds": 0.15
+    },
+    {
+      "name": "beta-migrations",
+      "script": "test/beta-integration/migrations.mjs",
+      "exitCode": 1,
+      "seconds": 1.61
+    },
+    {
+      "name": "populated-beta-upgrade",
+      "script": "test/beta-integration/alpha-migrations.mjs",
+      "exitCode": 0,
+      "seconds": 1.17
+    },
+    {
+      "name": "beta-golden",
+      "script": "test/beta-integration/qualification.mjs",
+      "exitCode": 0,
+      "seconds": 1.19
+    },
+    {
+      "name": "canonical-journey",
+      "script": "test/beta-integration/canonical-journey.mjs",
+      "exitCode": 0,
+      "seconds": 1.02
+    },
+    {
+      "name": "adversarial",
+      "script": "test/beta-integration/adversarial.mjs",
+      "exitCode": 0,
+      "seconds": 0.93
+    },
+    {
+      "name": "recovery",
+      "script": "test/beta-integration/recovery.mjs",
+      "exitCode": 0,
+      "seconds": 3.58
+    },
+    {
+      "name": "activation-recovery",
+      "script": "test/beta-integration/activation-recovery.mjs",
+      "exitCode": 1,
+      "seconds": 0.27
+    },
+    {
+      "name": "capsules",
+      "script": "test/beta-integration/capsules-canonical.integration.mjs",
+      "exitCode": 0,
+      "seconds": 3.23
+    },
+    {
+      "name": "gate-b",
+      "script": "test/factory-writer.integration.mjs",
+      "exitCode": 0,
+      "seconds": 16.78
+    },
+    {
+      "name": "gate-c",
+      "script": "test/factory-receipt.integration.mjs",
+      "exitCode": 1,
+      "seconds": 0.13
+    },
+    {
+      "name": "routing",
+      "script": "test/routing-store.integration.mjs",
+      "exitCode": 1,
+      "seconds": 0.15
+    },
+    {
+      "name": "current-truth",
+      "script": "test/worker-projection.integration.mjs",
+      "exitCode": 0,
+      "seconds": 0.94
+    },
+    {
+      "name": "native-completion",
+      "script": "test/native-completion.integration.mjs",
+      "exitCode": 0,
+      "seconds": 15.12
+    },
+    {
+      "name": "whole-product",
+      "script": "test/alpha-whole-product.mjs",
+      "exitCode": 0,
+      "seconds": 4.9
+    },
+    {
+      "name": "published-main-bridge",
+      "exitCode": 0,
+      "workingDirectory": "repository root",
+      "supersedes": "initial cwd error"
+    }
+  ],
+  "initialSource": "e988f13338dd35799c93b3e46707f85ad5bf3a70",
+  "finalSource": "1b72192957d603a60221b7c13937a3af4b68fa47",
+  "reruns": [
+    {
+      "name": "published-main-bridge",
+      "exitCode": 0,
+      "reason": "Run from required repository root"
+    },
+    {
+      "name": "beta-migrations",
+      "exitCode": 0,
+      "reason": "Disposable archived Phase 1 ledger replica plus bridge-state error recognition"
+    },
+    {
+      "name": "activation-recovery",
+      "exitCode": 0,
+      "reason": "Use newly generated canonical journey evidence"
+    },
+    {
+      "name": "gate-c",
+      "exitCode": 0,
+      "reason": "Provision historical test role"
+    },
+    {
+      "name": "routing",
+      "exitCode": 0,
+      "reason": "Provision dedicated routing port"
+    },
+    {
+      "name": "whole-product",
+      "exitCode": 0,
+      "reason": "Exact clean remote producer clone; actual source labels; quiescent database teardown"
+    }
+  ],
+  "currentResults": {
+    "published-main-bridge": 0,
+    "beta-migrations": 0,
+    "populated-beta-upgrade": 0,
+    "beta-golden": 0,
+    "canonical-journey": 0,
+    "adversarial": 0,
+    "recovery": 0,
+    "activation-recovery": 0,
+    "capsules": 0,
+    "gate-b": 0,
+    "gate-c": 0,
+    "routing": 0,
+    "current-truth": 0,
+    "native-completion": 0,
+    "whole-product": 0
+  },
+  "status": "PASS"
+}

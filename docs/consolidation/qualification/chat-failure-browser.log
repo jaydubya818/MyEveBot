@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:64234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/eve/test/browser/chat-turn-failure.spec.cjs:42:1 › failed turn is visible after session.waiting and reload, then clears on a later turn (673ms)
+
+  1 passed (1.3s)

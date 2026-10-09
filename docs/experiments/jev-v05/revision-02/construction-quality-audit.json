@@ -1,0 +1,48 @@
+{
+  "status": "PRE_RESULTS_AUTHOR_QUALITY_AUDIT",
+  "rejected": {
+    "challenge_0125": {
+      "state": "REJECTED_LEAKAGE",
+      "reason": "Context explicitly explains that the owner is describing a difference while withholding a routine choice. Replace with natural evidence in a future revision; do not reinterpret this guided input as challenge evidence."
+    },
+    "challenge_0145": {
+      "state": "REJECTED_LEAKAGE",
+      "reason": "Context explicitly tells the reader the owner has never expressed a preference. The app setting is natural evidence, but this explanatory clause directly steers the boundary answer."
+    },
+    "challenge_0118": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0128": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0151": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0193": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0236": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0282": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    },
+    "challenge_0314": {
+      "state": "REJECTED_INVALID",
+      "reason": "EASY_SELF_LABEL shortcut: the candidate explicitly names selection or preference and does not require the claimed challenge-level distinction. Difficulty is preserved; rejected rather than downgraded after review."
+    }
+  },
+  "contextMatchesAccepted": {
+    "challenge_0237": "Natural direct quote of ticket notes, not a taxonomy instruction.",
+    "challenge_0263": "Physical slab/threshold distinction supplies evidence, not a class answer.",
+    "challenge_0288": "Natural quoted ticket evidence; interpretation remains in the candidate."
+  },
+  "nearDuplicateDisposition": "All 10 within-revision flagged pairs share a declared contrastive family; candidate/context meaning differs. Three identical candidate strings have different natural conversational contexts. Whole normalized inputs remain unique. No V0 or original-draft pair exceeds declared cross-set threshold.",
+  "limits": "Lexical screen plus construction review is not proof against every semantic paraphrase. No Jev output was used. Rejections must not be filled with easier examples to restore a round count."
+}

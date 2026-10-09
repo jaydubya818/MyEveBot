@@ -1,0 +1,27 @@
+{
+  "aws": {
+    "localProfiles": 5,
+    "identityCheck": "SSO_SESSION_EXPIRED",
+    "resourcesInspected": false,
+    "reuse": "UNVERIFIED",
+    "accountScope": "FDLC profiles; not authorization to repurpose FDLC keys"
+  },
+  "gcp": {
+    "cliAvailable": false,
+    "localGcloudConfigFound": false,
+    "resourcesInspected": false,
+    "reuse": "UNVERIFIED"
+  },
+  "azure": {
+    "cliAvailable": false,
+    "localAzureConfigFound": false,
+    "resourcesInspected": false
+  },
+  "vercelKms": {
+    "existingTeam": true,
+    "algorithmCompatible": false,
+    "reason": "Published supported signing algorithms omit Ed25519"
+  },
+  "paidResourcesCreated": false,
+  "hostedSignaturesAttempted": 0
+}

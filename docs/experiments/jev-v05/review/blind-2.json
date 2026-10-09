@@ -1,0 +1,837 @@
+[
+  {
+    "id": "c168",
+    "candidate": "We settled on a single narrator.",
+    "context": "The production meeting has concluded."
+  },
+  {
+    "id": "c169",
+    "candidate": "The difficult part of this handoff is identifying the next custodian.",
+    "context": "Each restorer finishes on time; completed objects wait days with no named recipient."
+  },
+  {
+    "id": "c170",
+    "candidate": "If the lamp flickers less on a separate circuit, shared load may explain it.",
+    "context": "The comparison has not been performed."
+  },
+  {
+    "id": "c171",
+    "candidate": "I am reversing the earlier selection: take the green fabric.",
+    "context": "The owner has authority to make the material choice."
+  },
+  {
+    "id": "c172",
+    "candidate": "I am responsible for bringing the translated captions.",
+    "context": "The owner confirms their assigned task."
+  },
+  {
+    "id": "c173",
+    "candidate": "The birds could be avoiding reflections rather than people.",
+    "context": "Both explanations remain open in the field notebook."
+  },
+  {
+    "id": "c174",
+    "candidate": "The missing insects could reflect a shift in feeding time.",
+    "context": "Counts have been taken only at noon."
+  },
+  {
+    "id": "c175",
+    "candidate": "The sign remained wet after the surrounding wall dried.",
+    "context": "The caretaker watched drying over the afternoon."
+  },
+  {
+    "id": "c176",
+    "candidate": "The quiet room is carrying the overflow of the noisy one.",
+    "context": "Visitors seeking conversation move next door when the discussion room reaches capacity; both rooms are nominally quiet spaces."
+  },
+  {
+    "id": "c177",
+    "candidate": "The oldest reel unwound without the crackling heard on the newer ones.",
+    "context": "The archivist describes today's playback."
+  },
+  {
+    "id": "c178",
+    "candidate": "The outgoing ferry left a wake that reached the marker.",
+    "context": "The fieldworker records a visible event."
+  },
+  {
+    "id": "c179",
+    "candidate": "The trust cannot sell donated objects under its charter.",
+    "context": "The relevant charter clause is uncontested."
+  },
+  {
+    "id": "c180",
+    "candidate": "The society has no voting category for temporary members.",
+    "context": "The adopted constitution lists all voting classes."
+  },
+  {
+    "id": "c181",
+    "candidate": "The tide table uses local standard time throughout.",
+    "context": "Its explanatory legend excludes seasonal clock changes."
+  },
+  {
+    "id": "c182",
+    "candidate": "The catalog's certainty exceeds the evidence attached to it.",
+    "context": "An unsigned sketch has a definitive artist heading, while its provenance note lists three unresolved attributions."
+  },
+  {
+    "id": "c183",
+    "candidate": "The tutor has committed to three follow-up sessions.",
+    "context": "The sessions are an accepted undertaking, not a tentative proposal."
+  },
+  {
+    "id": "c184",
+    "candidate": "The handbook defines a folio as one leaf, not one page.",
+    "context": "The owner is quoting the handbook's terminology."
+  },
+  {
+    "id": "c185",
+    "candidate": "The replacement latch caught on four of ten attempts.",
+    "context": "The repair log records today's tests."
+  },
+  {
+    "id": "c186",
+    "candidate": "The doorway stays unpainted.",
+    "context": "The owner is answering the decorator's final choice question."
+  },
+  {
+    "id": "c187",
+    "candidate": "The line may straighten if tension is reduced.",
+    "context": "The loom setting has not been changed."
+  },
+  {
+    "id": "c188",
+    "candidate": "The society owes the lender an inventory after the tour.",
+    "context": "The speaker acknowledges the society's obligation."
+  },
+  {
+    "id": "c189",
+    "candidate": "The archive's naming scheme may favor experienced researchers.",
+    "context": "This is a proposed usability question, with no study yet."
+  },
+  {
+    "id": "c190",
+    "candidate": "I will deliver it.",
+    "context": "The prior question asked whether the owner was making a firm promise; this is the affirmative answer."
+  },
+  {
+    "id": "c191",
+    "candidate": "I suspect the translation changes how readers interpret the warning.",
+    "context": "No comprehension study exists yet."
+  },
+  {
+    "id": "c192",
+    "candidate": "I agree to bring the lantern only if a covered cart is provided.",
+    "context": "The owner accepts a clearly conditional undertaking."
+  },
+  {
+    "id": "c193",
+    "candidate": "I did not fail to hear the second whistle.",
+    "context": "The owner clarifies that they heard it during the trial."
+  },
+  {
+    "id": "c194",
+    "candidate": "Please put unfamiliar terms in a glossary for me.",
+    "context": "The owner establishes a continuing presentation preference."
+  },
+  {
+    "id": "c195",
+    "candidate": "Perhaps the visitors read the map upside down because of the entrance angle.",
+    "context": "Their reasons have not been checked."
+  },
+  {
+    "id": "c196",
+    "candidate": "Perhaps.",
+    "context": "No proposition or preceding question is available."
+  },
+  {
+    "id": "c197",
+    "candidate": "The stair lift requires a separate electrical circuit.",
+    "context": "The installation specification states this requirement."
+  },
+  {
+    "id": "c198",
+    "candidate": "I like to compare alternatives side by side.",
+    "context": "The owner describes a recurring decision-support preference."
+  },
+  {
+    "id": "c199",
+    "candidate": "The new sign drew no questions during my shift.",
+    "context": "The attendant is reporting only that interval."
+  },
+  {
+    "id": "c200",
+    "candidate": "I like the smaller room, but I selected the larger one for this event.",
+    "context": "No primary clause is isolated."
+  },
+  {
+    "id": "c201",
+    "candidate": "The old fastening may have allowed deliberate adjustment.",
+    "context": "Historical intent is unknown and being investigated."
+  },
+  {
+    "id": "c202",
+    "candidate": "The final act is absent from the surviving manuscript.",
+    "context": "The catalog describes a verified incomplete artifact, not today's inspection."
+  },
+  {
+    "id": "c203",
+    "candidate": "The restoration fund is committed to reimbursing the approved costs.",
+    "context": "The trustees acknowledge the fund's binding undertaking."
+  },
+  {
+    "id": "c204",
+    "candidate": "I saw one signature underneath the pasted correction.",
+    "context": "The archivist describes examination under transmitted light."
+  },
+  {
+    "id": "c205",
+    "candidate": "The telescope will use the smaller mount.",
+    "context": "The owner is resolving the design options."
+  },
+  {
+    "id": "c206",
+    "candidate": "The supplier's undertaking survives the date change.",
+    "context": "The owner records an existing duty that remains active."
+  },
+  {
+    "id": "c207",
+    "candidate": "The same result without the filter would weaken my dust explanation.",
+    "context": "The filter-free comparison is planned for next week."
+  },
+  {
+    "id": "c208",
+    "candidate": "The courier may use the bridge route.",
+    "context": "The owner is granting one-time permission after a request, not predicting the route."
+  },
+  {
+    "id": "c209",
+    "candidate": "I have promised to bring the blue cases, though I like green better.",
+    "context": "No target is isolated."
+  },
+  {
+    "id": "c210",
+    "candidate": "I do not want jokes in conservation reports addressed to me.",
+    "context": "The owner states a tone preference."
+  },
+  {
+    "id": "c211",
+    "candidate": "We adopted the shorter interval.",
+    "context": "The governing group completed its scheduling decision."
+  },
+  {
+    "id": "c212",
+    "candidate": "Use cool lighting when setting up my worktable.",
+    "context": "The owner is specifying their usual workspace preference."
+  },
+  {
+    "id": "c213",
+    "candidate": "The donor retained reproduction rights.",
+    "context": "The executed gift agreement states that reservation."
+  },
+  {
+    "id": "c214",
+    "candidate": "The replacement part has the same thread but a different diameter.",
+    "context": "The two manufacturer drawings establish both dimensions."
+  },
+  {
+    "id": "c215",
+    "candidate": "I owe you an answer on the loan request.",
+    "context": "The owner acknowledges an obligation without making the decision yet."
+  },
+  {
+    "id": "c216",
+    "candidate": "The final visitor used the delivery door to leave.",
+    "context": "The steward reports a witnessed exit."
+  },
+  {
+    "id": "c217",
+    "candidate": "I do not dislike spoken notes, but I prefer written ones.",
+    "context": "The owner states their current relative preference."
+  },
+  {
+    "id": "c218",
+    "candidate": "You said I had agreed, but I never did.",
+    "context": "The owner disputes that any obligation was accepted."
+  },
+  {
+    "id": "c219",
+    "candidate": "Evening access may reach a different group of visitors.",
+    "context": "No evening opening has happened."
+  },
+  {
+    "id": "c220",
+    "candidate": "The printed serial number is not unique across editions.",
+    "context": "The publisher's numbering specification reuses each sequence."
+  },
+  {
+    "id": "c221",
+    "candidate": "The evidence supports reach more clearly than understanding.",
+    "context": "Many visitors open the audio guide; no measure records whether they listen beyond its introduction."
+  },
+  {
+    "id": "c222",
+    "candidate": "Our team agreed not to enter the protected area.",
+    "context": "The team accepted this condition of participation."
+  },
+  {
+    "id": "c223",
+    "candidate": "The published correction says the vessel was copper, not tin.",
+    "context": "The erratum is authoritative and uncontested."
+  },
+  {
+    "id": "c224",
+    "candidate": "The committee selected the reserve date.",
+    "context": "The candidate reports the actual selection, not a proposal."
+  },
+  {
+    "id": "c225",
+    "candidate": "The tally rose by two after one person passed.",
+    "context": "The tester compares the counter with a witnessed passage."
+  },
+  {
+    "id": "c226",
+    "candidate": "I must have left the key in the cabinet.",
+    "context": "The owner is guessing where the key went."
+  },
+  {
+    "id": "c227",
+    "candidate": "I will deliver it.",
+    "context": "The owner is narrating a fictional character's next line during a script read-through."
+  },
+  {
+    "id": "c228",
+    "candidate": "I am closing the public path for the event.",
+    "context": "The owner makes the authorized access choice."
+  },
+  {
+    "id": "c229",
+    "candidate": "The longer introduction could make novices feel more confident.",
+    "context": "Audience confidence has not been assessed."
+  },
+  {
+    "id": "c230",
+    "candidate": "The old pigment may be reacting with the new binder.",
+    "context": "The discoloration is known; its mechanism is not."
+  },
+  {
+    "id": "c231",
+    "candidate": "The archive's new hours shift inconvenience rather than remove it.",
+    "context": "Evening access replaces morning access; evening workers now face the conflict previously faced by day workers."
+  },
+  {
+    "id": "c232",
+    "candidate": "I chose the warmer room, though I generally prefer cool spaces.",
+    "context": "The candidate contains a current choice and an explicit standing preference."
+  },
+  {
+    "id": "c233",
+    "candidate": "The two totals answer different questions.",
+    "context": "One report counts visits and another counts distinct visitors; repeated entries explain the entire gap."
+  },
+  {
+    "id": "c234",
+    "candidate": "Perhaps the missing page was never bound in.",
+    "context": "The binding has not been examined."
+  },
+  {
+    "id": "c235",
+    "candidate": "The smallest item in the packing list determines the trip's viability.",
+    "context": "All major equipment is available; without the sole compatible adapter none can draw power at the site."
+  },
+  {
+    "id": "c236",
+    "candidate": "The apparent restoration date could instead mark an inventory.",
+    "context": "The inscription's meaning is unresolved."
+  },
+  {
+    "id": "c237",
+    "candidate": "The key may work more reliably after the lock warms.",
+    "context": "Only sporadic failures have been recorded."
+  },
+  {
+    "id": "c238",
+    "candidate": "The silence in the record should not be read as lack of concern.",
+    "context": "The only available complaint channel required writing in a language many visitors could not read."
+  },
+  {
+    "id": "c239",
+    "candidate": "The lesson from the successful pilot concerns supervision, not scale.",
+    "context": "The pilot assigned one mentor to each learner, while the expansion keeps the same mentor count for twenty times as many learners."
+  },
+  {
+    "id": "c240",
+    "candidate": "The river surface looked darker below the bridge this afternoon.",
+    "context": "No sample analysis has been performed."
+  },
+  {
+    "id": "c241",
+    "candidate": "The attendance average conceals two different experiences.",
+    "context": "Half the sessions are full and half empty; none has attendance near the average."
+  },
+  {
+    "id": "c242",
+    "candidate": "I refuse to choose between the two.",
+    "context": "The owner has settled on withholding a selection."
+  },
+  {
+    "id": "c243",
+    "candidate": "From now on, send one summary, and I will review it before noon.",
+    "context": "The candidate contains a continuing format request and a personal promise."
+  },
+  {
+    "id": "c244",
+    "candidate": "I am withdrawing our entry.",
+    "context": "The owner makes the participation choice now."
+  },
+  {
+    "id": "c245",
+    "candidate": "The queue may persist because visitors cannot see the second counter.",
+    "context": "Only the queue itself has been observed."
+  },
+  {
+    "id": "c246",
+    "candidate": "I do not want to stop using numbered steps.",
+    "context": "The owner reaffirms their established instruction-format preference."
+  },
+  {
+    "id": "c247",
+    "candidate": "The ridge may have formed during the second firing.",
+    "context": "No intermediate photograph survives."
+  },
+  {
+    "id": "c248",
+    "candidate": "The practical boundary of the collection is the scanner's format.",
+    "context": "Oversized maps are preserved and cataloged but absent from the digital collection used for all remote requests."
+  },
+  {
+    "id": "c249",
+    "candidate": "Our crew undertakes to clear the landing after the festival.",
+    "context": "The crew has accepted this responsibility."
+  },
+  {
+    "id": "c250",
+    "candidate": "For my own practice, I prefer short daily sessions.",
+    "context": "The owner describes a standing practice preference."
+  },
+  {
+    "id": "c251",
+    "candidate": "The scheduled pause could improve retention of the final scene.",
+    "context": "No comparison audience has been studied."
+  },
+  {
+    "id": "c252",
+    "candidate": "The schedule has redundancy in people but none in equipment.",
+    "context": "Two trained projectionists are available for every showing; both depend on one projector."
+  },
+  {
+    "id": "c253",
+    "candidate": "The apparent surplus belongs to a different season.",
+    "context": "Stored seed is ample by weight, but all remaining varieties require autumn sowing and the request is for spring."
+  },
+  {
+    "id": "c254",
+    "candidate": "I prefer this one.",
+    "context": "The only context is a clerk asking for the owner's final selection between two tickets."
+  },
+  {
+    "id": "c255",
+    "candidate": "The crew may interpret the orange flag as an instruction to wait.",
+    "context": "Their understanding has not been established."
+  },
+  {
+    "id": "c256",
+    "candidate": "The reported silence may result from the recorder's automatic cutoff.",
+    "context": "The device has not been tested against continuous audio."
+  },
+  {
+    "id": "c257",
+    "candidate": "I promise to return the borrowed compass before the expedition leaves.",
+    "context": "The owner is addressing the lender."
+  },
+  {
+    "id": "c258",
+    "candidate": "I accept responsibility for checking each returned key.",
+    "context": "The owner is accepting the assigned duty now."
+  },
+  {
+    "id": "c259",
+    "candidate": "You can rely on me to deliver the labels tonight.",
+    "context": "The owner is accepting the coordinator's request."
+  },
+  {
+    "id": "c260",
+    "candidate": "We have chosen the smaller hall and owe the owner a deposit.",
+    "context": "The candidate combines a selection and an obligation."
+  },
+  {
+    "id": "c261",
+    "candidate": "I will choose after the test.",
+    "context": "The owner leaves the decision pending and makes no promise to another party."
+  },
+  {
+    "id": "c262",
+    "candidate": "The handle turned farther with the case empty.",
+    "context": "The repairer describes today's paired trials."
+  },
+  {
+    "id": "c263",
+    "candidate": "Our standard size excludes the equipment people actually bring.",
+    "context": "Loan lockers fit the institution's cases; most borrowers arrive with wider mobility equipment."
+  },
+  {
+    "id": "c264",
+    "candidate": "I will carry the spare ropes; you have my word.",
+    "context": "The owner is assuring the trip leader."
+  },
+  {
+    "id": "c265",
+    "candidate": "The cassette holds a copy, not the master recording.",
+    "context": "The archive's verified transfer record identifies the source."
+  },
+  {
+    "id": "c266",
+    "candidate": "The observer's surname is misspelled in the printed caption.",
+    "context": "A verified identity record establishes the correct spelling."
+  },
+  {
+    "id": "c267",
+    "candidate": "For my visits, quiet hours suit me best.",
+    "context": "The owner describes a general visiting preference."
+  },
+  {
+    "id": "c268",
+    "candidate": "The red line indicates the former shoreline.",
+    "context": "The map legend is explicit."
+  },
+  {
+    "id": "c269",
+    "candidate": "The guide described her own preference for candlelight.",
+    "context": "Context establishes only that this quotation occurred; no one endorses it as the owner's preference."
+  },
+  {
+    "id": "c270",
+    "candidate": "No, retain the old route.",
+    "context": "The owner rejects a proposed route change and closes the discussion."
+  },
+  {
+    "id": "c271",
+    "candidate": "I always arrive before the doors open.",
+    "context": "The owner only reports their behavior; they have not approved a preference."
+  },
+  {
+    "id": "c272",
+    "candidate": "Apparently the quiet bell is our loudest exhibit today.",
+    "context": "The speaker means the bell was unusually loud during today's tour, not a general ranking."
+  },
+  {
+    "id": "c273",
+    "candidate": "The observer wrote 'no movement' but I saw the flag twitch.",
+    "context": "The candidate covers both the written note and the owner's contrary direct report."
+  },
+  {
+    "id": "c274",
+    "candidate": "The lid's seal may fail only after repeated cooling.",
+    "context": "Longer-cycle testing remains to be done."
+  },
+  {
+    "id": "c275",
+    "candidate": "The strongest link is the one our separate labels obscure.",
+    "context": "Drafts, recordings and costumes are indexed separately despite documenting the same unfinished performance."
+  },
+  {
+    "id": "c276",
+    "candidate": "The revised edition does include an index.",
+    "context": "The catalog correction has been checked against the published book."
+  },
+  {
+    "id": "c277",
+    "candidate": "The standard template uses plain borders.",
+    "context": "The owner has not adopted that template as a personal preference."
+  },
+  {
+    "id": "c278",
+    "candidate": "A larger waiting area would treat the visible queue, not the shared constraint.",
+    "context": "Ticket holders at both doors must pass one inspection desk that stays occupied throughout opening."
+  },
+  {
+    "id": "c279",
+    "candidate": "When you help me sort the archive, start with dates rather than names.",
+    "context": "The owner specifies their preferred recurring workflow."
+  },
+  {
+    "id": "c280",
+    "candidate": "The door may stick only under lateral pressure.",
+    "context": "The next trial will vary force direction."
+  },
+  {
+    "id": "c281",
+    "candidate": "The current sample smells sharper than yesterday's.",
+    "context": "The owner records a sensory comparison, without chemical identification."
+  },
+  {
+    "id": "c282",
+    "candidate": "This time, the freight option.",
+    "context": "The booking clerk asked which of two services the owner had chosen; this is the answer."
+  },
+  {
+    "id": "c283",
+    "candidate": "The transporter undertakes to return the empty crates.",
+    "context": "The accepted transport agreement includes this duty."
+  },
+  {
+    "id": "c284",
+    "candidate": "Maybe the worn wheel is responsible for the uneven line.",
+    "context": "Several parts remain possible sources."
+  },
+  {
+    "id": "c285",
+    "candidate": "I guarantee that I will attend the handover.",
+    "context": "The owner assures the outgoing custodian."
+  },
+  {
+    "id": "c286",
+    "candidate": "The shortlist is closed with the harbor venue as our choice.",
+    "context": "The owner is announcing the completed selection."
+  },
+  {
+    "id": "c287",
+    "candidate": "Repairability is what the cheaper quotation leaves out.",
+    "context": "Both quotes cover identical chairs; only the higher quote includes replaceable joints and spare parts."
+  },
+  {
+    "id": "c288",
+    "candidate": "The river has two officially named branches here.",
+    "context": "The gazetteer lists both names."
+  },
+  {
+    "id": "c289",
+    "candidate": "The instrument may have been restrung after the portrait was painted.",
+    "context": "Dates of the modification remain unknown."
+  },
+  {
+    "id": "c290",
+    "candidate": "I found no imprint on the reverse of the seal.",
+    "context": "The owner inspected that surface under magnification."
+  },
+  {
+    "id": "c291",
+    "candidate": "The helpers clustered around the only unlabeled box.",
+    "context": "The coordinator reports witnessed behavior."
+  },
+  {
+    "id": "c292",
+    "candidate": "The smaller bins might make sorting faster despite requiring more trips.",
+    "context": "No workflow trial exists."
+  },
+  {
+    "id": "c293",
+    "candidate": "For my workshop bookings, mornings are preferable.",
+    "context": "The owner sets a general scheduling preference."
+  },
+  {
+    "id": "c294",
+    "candidate": "I found sand inside both sealed cases.",
+    "context": "The owner opened the cases during the current inspection."
+  },
+  {
+    "id": "c295",
+    "candidate": "Fine, another identical poster; that will really help.",
+    "context": "The owner is sarcastically rejecting repetition; no alternative is adopted."
+  },
+  {
+    "id": "c296",
+    "candidate": "I undertake not to reproduce the restricted photographs.",
+    "context": "The owner is accepting a condition of access."
+  },
+  {
+    "id": "c297",
+    "candidate": "The sharp odor could be from the packing material.",
+    "context": "Its source has not been isolated."
+  },
+  {
+    "id": "c298",
+    "candidate": "The volunteer shortage is specific to a time window.",
+    "context": "Many people signed up overall, but no one is available during the required dawn setup."
+  },
+  {
+    "id": "c299",
+    "candidate": "My preferred route includes places to sit.",
+    "context": "The owner describes a standing accessibility-related travel preference."
+  },
+  {
+    "id": "c300",
+    "candidate": "The wording makes a conditional benefit sound universal.",
+    "context": "The headline offers free admission; the eligibility note limits it to one small association."
+  },
+  {
+    "id": "c301",
+    "candidate": "The original score is in public ownership.",
+    "context": "The donation deed transfers title to the municipality."
+  },
+  {
+    "id": "c302",
+    "candidate": "The cancellation rule transfers weather risk to the smallest participants.",
+    "context": "The organizer can cancel without charge; individual stallholders lose prepaid transport and materials."
+  },
+  {
+    "id": "c303",
+    "candidate": "The display makes authorship easier to see than collaboration.",
+    "context": "Every panel names the painter but omits the documented studio assistants."
+  },
+  {
+    "id": "c304",
+    "candidate": "It is not impossible that both counters miss fast passages.",
+    "context": "Independent counts are still needed."
+  },
+  {
+    "id": "c305",
+    "candidate": "The bus operator is a cooperative.",
+    "context": "Its registration lists that legal form."
+  },
+  {
+    "id": "c306",
+    "candidate": "I would rather have uncertainty stated plainly in research notes.",
+    "context": "The owner describes their desired writing style."
+  },
+  {
+    "id": "c307",
+    "candidate": "I have canceled the private viewing.",
+    "context": "The event owner is announcing a completed scheduling choice."
+  },
+  {
+    "id": "c308",
+    "candidate": "I prefer a smaller group even when a larger one costs less.",
+    "context": "The owner states a general participation preference."
+  },
+  {
+    "id": "c309",
+    "candidate": "The route might still be usable if the water stays below the marker.",
+    "context": "The next tide and route condition are uncertain."
+  },
+  {
+    "id": "c310",
+    "candidate": "I like instructions that distinguish optional steps.",
+    "context": "The owner states a recurring presentation preference."
+  },
+  {
+    "id": "c311",
+    "candidate": "The final version keeps both verses.",
+    "context": "The editor is issuing the resolution of a disputed cut."
+  },
+  {
+    "id": "c312",
+    "candidate": "The apparent choice of times excludes the same people each time.",
+    "context": "All four offered sessions fall within the only shift worked by the cleaning crew."
+  },
+  {
+    "id": "c313",
+    "candidate": "I like to inspect the raw sketches before polished versions.",
+    "context": "The owner describes their favored review order."
+  },
+  {
+    "id": "c314",
+    "candidate": "Fine, tiny print again, just what I love.",
+    "context": "The owner is sarcastically objecting to unreadable print."
+  },
+  {
+    "id": "c315",
+    "candidate": "The advisory panel cannot issue permits.",
+    "context": "The delegation instrument reserves that authority elsewhere."
+  },
+  {
+    "id": "c316",
+    "candidate": "The repair queue contains a procurement problem disguised as unfinished labor.",
+    "context": "The craft work is complete on most instruments; they wait only for identical replacement strings."
+  },
+  {
+    "id": "c317",
+    "candidate": "The original sketch will remain off display.",
+    "context": "The curatorial group has just resolved the loan request."
+  },
+  {
+    "id": "c318",
+    "candidate": "The maintenance calendar and the opening calendar are competing for the same hours.",
+    "context": "Every required inspection is scheduled during the only hours available for public visits."
+  },
+  {
+    "id": "c319",
+    "candidate": "The audience applauded before the curtain had fully risen.",
+    "context": "The stage manager records tonight's sequence."
+  },
+  {
+    "id": "c320",
+    "candidate": "The token remains valid after midnight.",
+    "context": "The printed validity terms explicitly permit overnight use."
+  },
+  {
+    "id": "c321",
+    "candidate": "We agreed to keep a passage clear throughout the event.",
+    "context": "The team has accepted that requirement."
+  },
+  {
+    "id": "c322",
+    "candidate": "The visitor's journey crosses a boundary our departmental reports hide.",
+    "context": "Each desk meets its own time target while visitors repeatedly wait between desks."
+  },
+  {
+    "id": "c323",
+    "candidate": "The festival admits accompanied children without a separate ticket.",
+    "context": "This is the current published admission rule."
+  },
+  {
+    "id": "c324",
+    "candidate": "The guide may not be ignoring visitors; she might not hear them through the glass.",
+    "context": "The speaker has not asked the guide or tested sound transmission."
+  },
+  {
+    "id": "c325",
+    "candidate": "I could cover the evening watch.",
+    "context": "The owner is exploring availability, not accepting the assignment."
+  },
+  {
+    "id": "c326",
+    "candidate": "I like my reference images without decorative frames.",
+    "context": "The owner describes their normal presentation preference."
+  },
+  {
+    "id": "c327",
+    "candidate": "I promised the guide that I would unlock the gate.",
+    "context": "The promise remains outstanding."
+  },
+  {
+    "id": "c328",
+    "candidate": "Use the western courtyard for the exhibition.",
+    "context": "The owner is resolving the location choice after comparing two sites."
+  },
+  {
+    "id": "c329",
+    "candidate": "My preference is to pause between long demonstrations.",
+    "context": "No specific event schedule is being selected."
+  },
+  {
+    "id": "c330",
+    "candidate": "The revised timetable takes effect next month.",
+    "context": "The operator has published an effective date; this is a report of that notice."
+  },
+  {
+    "id": "c331",
+    "candidate": "Only the morning showing is going ahead.",
+    "context": "The producer has resolved which showing to retain."
+  },
+  {
+    "id": "c332",
+    "candidate": "Two boats waited outside the harbor while the berth was empty.",
+    "context": "The watcher describes what was visible at noon."
+  },
+  {
+    "id": "c333",
+    "candidate": "If this pattern continues, the reserve may empty before autumn.",
+    "context": "Only a short interval of use has been measured."
+  },
+  {
+    "id": "c334",
+    "candidate": "The venue's legal capacity excludes staff.",
+    "context": "The issued occupancy certificate defines the count."
+  }
+]

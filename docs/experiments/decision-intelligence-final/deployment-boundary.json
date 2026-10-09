@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-21",
+  "project": "sofie-personal-agent",
+  "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+  "repository": "jaydubya818/MyEveBot",
+  "productionBranch": "main",
+  "gitDeployments": "enabled",
+  "buildSkipCommand": null,
+  "repositoryGitGuard": null,
+  "mainPushAllowed": false,
+  "reason": "Existing MyEve policy authorizes automatic Preview only, not automatic Production. Main targets Production and no guard is configured. No deployment settings changed."
+}

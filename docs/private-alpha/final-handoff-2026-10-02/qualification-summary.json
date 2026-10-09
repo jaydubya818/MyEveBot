@@ -1,0 +1,58 @@
+{
+  "acceptedCheckpoint": {
+    "sourceCommits": {
+      "MyFactory": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+      "MyEve": "fadf08e12340035e3691c6f047b4927b1ab21264"
+    },
+    "exactRemotesVerified": true,
+    "releaseBranch": "codex/private-alpha-release",
+    "sourceDigest": "edc6170aeb3b34332ddbee53fbfbb9fdde44f74d9e4fe9bc46d9096b92ad5efd",
+    "factoryVersion": "e8154ee2bf08f283e952f8a4ee8891d5b3b21d68cbebea0b5e773ec474badb9f",
+    "lifecycleTests": 18,
+    "installedCheckpointTests": 17,
+    "meteredCliTests": 1,
+    "factoryDefaultPassed": 193,
+    "factoryOptionalSkipped": 17,
+    "myeveAppPassed": 1995,
+    "myeveAppOptionalSkipped": 94,
+    "myeveRootPassed": 145,
+    "myeveRootOptionalSkipped": 2,
+    "connectedChecks": 26,
+    "additionalRealModelOperations": 0,
+    "historicalCandidateChanges": 0,
+    "productionActivation": "NOT_RUN",
+    "automaticRepair": "DISABLED",
+    "merge": "NOT_RUN",
+    "candidatePublication": "NOT_RUN"
+  },
+  "publicationReadbackRegression": {
+    "contracts": 29,
+    "browserJourneys": 12,
+    "status": "PASS",
+    "evidenceArchive": "attempt8-publication-ci-review-20261002",
+    "sourceUnchangedThroughAcceptedMyEveCheckpoint": true
+  },
+  "safeIntegerCorpus": {
+    "publicControl": "17/17 PASS",
+    "historicalSourcePublicFailures": 4,
+    "protectedControl": "11/11 PASS",
+    "reviewRegression": "PASS",
+    "scope": "synthetic controls; no successor produced"
+  },
+  "handoffFocusedRerun": {
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0,
+    "command": "node --test apps/supervisor/test/review-repair.test.mjs packages/verification/test/numeric-range.test.mjs",
+    "log": "focused-regression.log",
+    "sha256": "80d7240cc0ae221d3dcee1b34d56aa9e9c9be0bebf53a96b796e790ea48ec3d7"
+  },
+  "migrationLineageCheck": "75 ordered migrations PASS; no production connection",
+  "limitations": [
+    "Accepted archived broad-suite evidence is reused for this documentation-only handoff. Focused lifecycle/numeric regression rerun; no claim of a new full build or full suite.",
+    "Full default suites contain optional environment-gated skips. Installed checkpoint, synthetic provider, connected and protected numeric suites have separate retained opt-in evidence; unrelated optional integrations remain unclaimed.",
+    "Historical publication regression ran against the same unchanged publisher/readback source now contained in accepted MyEve; GitHub CI PASS belongs only to Candidate A.",
+    "Automatic repair and authenticated production observer integration have not been activated or live-qualified."
+  ]
+}

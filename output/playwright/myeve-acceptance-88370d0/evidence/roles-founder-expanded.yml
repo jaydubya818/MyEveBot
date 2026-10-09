@@ -1,0 +1,1106 @@
+- main:
+  - paragraph: Execution resources
+  - heading "Agents" [level=1]
+  - paragraph: Persistent Agents are configured identities. Roles are reusable expertise for bounded work.
+  - button "Create Agent":
+    - img
+    - text: Create Agent
+  - heading "Your Agents" [level=2]
+  - paragraph: Persistent identities you can open directly, pause, duplicate, or archive.
+  - navigation "Agents":
+    - button "Ava Primary Primary personal agent active":
+      - img
+      - text: Ava Primary Primary personal agent active
+    - button "Analyst Pilot evidence analyst active":
+      - img
+      - text: Analyst Pilot evidence analyst active
+  - paragraph: Create an Agent to add specialized execution capacity.
+  - region "Role Catalog":
+    - paragraph: Available expertise
+    - heading "Role Catalog" [level=2]
+    - paragraph: Role Packs describe reusable expertise. Use a Role for one bounded run, or create a persistent identity you can customize.
+    - text: 4 Role Packs · 1 Solution Pack
+    - group:
+      - text: General 4 Roles Cross-domain Reusable roles for research, communication, analysis, and coordination.
+      - group:
+        - text: Researcher On demand Finds reliable evidence before decisions are made.
+        - paragraph: Purpose
+        - paragraph: Finds reliable evidence before decisions are made.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Primary-source research
+          - listitem: Cited findings
+          - listitem: Explicit unknowns and confidence
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Research question
+          - listitem: Decision context
+          - listitem: Known constraints
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Cited findings
+          - listitem: Evidence summary
+          - listitem: Open questions
+        - paragraph: Recommended capabilities
+        - paragraph: web.search · web.read · files.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Research is read-only.
+          - listitem: Separate evidence from inference.
+          - listitem: Do not transmit private owner data.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Writer On demand Turns source material into clear, audience-appropriate written work.
+        - paragraph: Purpose
+        - paragraph: Turns source material into clear, audience-appropriate written work.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Drafting and editing
+          - listitem: Audience and tone alignment
+          - listitem: Source-faithful synthesis
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Audience
+          - listitem: Source material
+          - listitem: Voice guidance
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Draft
+          - listitem: Revision
+          - listitem: Editorial notes
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not publish or send without approval.
+          - listitem: Do not invent facts or citations.
+        - paragraph: "Reasoning: medium"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Analyst On demand Turns available information into transparent findings and decision support.
+        - paragraph: Purpose
+        - paragraph: Turns available information into transparent findings and decision support.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Structured analysis
+          - listitem: Assumption tracking
+          - listitem: Decision-ready findings
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Dataset or source material
+          - listitem: Decision question
+          - listitem: Metric definitions
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Analysis
+          - listitem: Findings
+          - listitem: Recommendation with caveats
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Show material assumptions.
+          - listitem: Do not present correlation as causation.
+          - listitem: Do not alter source data.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Scheduler On demand Turns approved commitments into explicit, reviewable schedules and follow-ups.
+        - paragraph: Purpose
+        - paragraph: Turns approved commitments into explicit, reviewable schedules and follow-ups.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Schedule preparation
+          - listitem: Conflict detection
+          - listitem: Follow-up planning
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Approved commitment
+          - listitem: Timing constraints
+          - listitem: Owner timezone
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Proposed schedule
+          - listitem: Conflict report
+          - listitem: Follow-up plan
+        - paragraph: Recommended capabilities
+        - paragraph: scheduler.automations · goals.operating-system
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not create or change standing schedules without approval.
+          - listitem: Respect owner timezone and quiet hours.
+        - paragraph: "Reasoning: medium"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+    - group:
+      - text: Software Development 10 Roles Software delivery Roles organized around a complete, evidence-backed software delivery lifecycle.
+      - paragraph: Software delivery lifecycle
+      - text: Direction Discovery Design Build Verify Release Operate Learn
+      - group:
+        - text: Product manager On demand Turns a software objective into a bounded, testable delivery brief.
+        - paragraph: "Lifecycle: Direction"
+        - paragraph: Purpose
+        - paragraph: Turns a software objective into a bounded, testable delivery brief.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Requirements
+          - listitem: Prioritization
+          - listitem: Acceptance criteria and release scope
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Product objective
+          - listitem: User evidence
+          - listitem: Delivery constraints
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Delivery brief
+          - listitem: Acceptance criteria
+          - listitem: Prioritized scope
+        - paragraph: Recommended capabilities
+        - paragraph: goals.operating-system · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Recommends scope; the owner retains product authority.
+          - listitem: Do not silently add requirements.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Researcher On demand Finds reliable evidence before decisions are made.
+        - paragraph: "Lifecycle: Discovery"
+        - paragraph: Purpose
+        - paragraph: Finds reliable evidence before decisions are made.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Primary-source research
+          - listitem: Cited findings
+          - listitem: Explicit unknowns and confidence
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Research question
+          - listitem: Decision context
+          - listitem: Known constraints
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Cited findings
+          - listitem: Evidence summary
+          - listitem: Open questions
+        - paragraph: Recommended capabilities
+        - paragraph: web.search · web.read · files.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Research is read-only.
+          - listitem: Separate evidence from inference.
+          - listitem: Do not transmit private owner data.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Product designer On demand Defines coherent software user flows, interaction states, and interface behavior.
+        - paragraph: "Lifecycle: Design"
+        - paragraph: Purpose
+        - paragraph: Defines coherent software user flows, interaction states, and interface behavior.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: User flows
+          - listitem: Loading, empty, error, and success states
+          - listitem: Interaction and accessibility requirements
+        - paragraph: Typical inputs
+        - list:
+          - listitem: User need
+          - listitem: Product brief
+          - listitem: Existing interface patterns
+        - paragraph: Typical outputs
+        - list:
+          - listitem: User flow
+          - listitem: Interaction specification
+          - listitem: State requirements
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · web.search · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not replace owner approval for material product choices.
+          - listitem: Design for implemented capabilities, not placeholders.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Software architect On demand Designs the smallest robust technical shape before implementation starts.
+        - paragraph: "Lifecycle: Design"
+        - paragraph: Purpose
+        - paragraph: Designs the smallest robust technical shape before implementation starts.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: System boundaries
+          - listitem: Data and API contracts
+          - listitem: Risk and migration planning
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Delivery brief
+          - listitem: Repository constraints
+          - listitem: Existing architecture
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Technical design
+          - listitem: Integration contracts
+          - listitem: Risk plan
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Avoid speculative abstractions.
+          - listitem: Record consequential tradeoffs before implementation.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Software developer On demand Implements a bounded change with readable code and focused tests.
+        - paragraph: "Lifecycle: Build"
+        - paragraph: Purpose
+        - paragraph: Implements a bounded change with readable code and focused tests.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Application code
+          - listitem: Database and API changes
+          - listitem: Unit and integration tests
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Technical design
+          - listitem: Acceptance criteria
+          - listitem: Write scope
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Implementation
+          - listitem: Focused tests
+          - listitem: Change summary
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Use an explicit write scope for concurrent work.
+          - listitem: Do not provide the final independent review of your own work.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Test automation engineer On demand Builds repeatable automated coverage for critical behavior and regressions.
+        - paragraph: "Lifecycle: Verify"
+        - paragraph: Purpose
+        - paragraph: Builds repeatable automated coverage for critical behavior and regressions.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Browser and integration suites
+          - listitem: Fixtures and deterministic test data
+          - listitem: CI regression coverage
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Acceptance criteria
+          - listitem: Critical flows
+          - listitem: Test environment
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Automated tests
+          - listitem: Fixtures
+          - listitem: Regression evidence
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Own test construction, not the final product verdict.
+          - listitem: Do not weaken assertions to make a failure disappear.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Code & security reviewer On demand Verification Independently reviews implementation quality, authorization, privacy, and data safety.
+        - paragraph: "Lifecycle: Verify"
+        - paragraph: Purpose
+        - paragraph: Independently reviews implementation quality, authorization, privacy, and data safety.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Code review
+          - listitem: Security and privacy review
+          - listitem: Migration and operational risk review
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Implementation diff
+          - listitem: Threat boundaries
+          - listitem: Acceptance criteria
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Prioritized findings
+          - listitem: Risk assessment
+          - listitem: Approval blockers
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Remain independent from implementation.
+          - listitem: Do not approve unresolved high-risk findings.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Release & reliability engineer On demand Prepares and verifies safe releases, migrations, rollback, and service health.
+        - paragraph: "Lifecycle: Release"
+        - paragraph: Purpose
+        - paragraph: Prepares and verifies safe releases, migrations, rollback, and service health.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: CI and deployment checks
+          - listitem: Migration and rollback plans
+          - listitem: Post-deploy health verification
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Release candidate
+          - listitem: Deployment environment
+          - listitem: Operational constraints
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Release checklist
+          - listitem: Rollback plan
+          - listitem: Health evidence
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Production mutations require explicit approval.
+          - listitem: Every release needs a recoverable plan.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Support & incident agent On demand Triages reported problems, reproduces failures, and prepares evidence-backed responses.
+        - paragraph: "Lifecycle: Operate"
+        - paragraph: Purpose
+        - paragraph: Triages reported problems, reproduces failures, and prepares evidence-backed responses.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Issue triage
+          - listitem: Reproduction and log correlation
+          - listitem: Response drafts and escalation
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Issue report
+          - listitem: Logs
+          - listitem: Affected user context
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Reproduction
+          - listitem: Triage assessment
+          - listitem: Response draft
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Default to read-only and draft-only.
+          - listitem: Do not contact users or mutate accounts without approval.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Analyst On demand Turns available information into transparent findings and decision support.
+        - paragraph: "Lifecycle: Learn"
+        - paragraph: Purpose
+        - paragraph: Turns available information into transparent findings and decision support.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Structured analysis
+          - listitem: Assumption tracking
+          - listitem: Decision-ready findings
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Dataset or source material
+          - listitem: Decision question
+          - listitem: Metric definitions
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Analysis
+          - listitem: Findings
+          - listitem: Recommendation with caveats
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · web.read
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Show material assumptions.
+          - listitem: Do not present correlation as causation.
+          - listitem: Do not alter source data.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+    - group:
+      - text: Marketing Engineering 11 Roles Marketing Evidence-backed marketing expertise coordinated around owner Goals, explicit approvals, measurable outcomes, and governed learning.
+      - paragraph: Marketing operating lifecycle
+      - text: Understand Research Plan Produce Verify Approve Execute Measure Learn
+      - group:
+        - text: Marketing Engineer On demand Coordinates an evidence-backed marketing goal from missing context through owner-ready work and measured learning.
+        - paragraph: "Lifecycle: Understand, Research, Plan, Produce, Verify, Approve, Execute, Measure, Learn"
+        - paragraph: Purpose
+        - paragraph: Coordinates an evidence-backed marketing goal from missing context through owner-ready work and measured learning.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Goal and context assessment
+          - listitem: Campaign planning and task dependencies
+          - listitem: Specialist coordination
+          - listitem: Cross-channel consistency
+          - listitem: Owner decisions and learning loop
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Marketing Goal
+          - listitem: Company and customer knowledge
+          - listitem: Offer, positioning, voice, and proof
+          - listitem: Constraints, budget, and previous results
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Campaign plan
+          - listitem: Specialist task brief
+          - listitem: Decision request
+          - listitem: Verified owner-review package
+          - listitem: Learning proposal
+        - paragraph: Recommended capabilities
+        - paragraph: goals.operating-system · web.search · web.read · files.read · files.write · skill.authored
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: May research, analyze, plan, draft, and create unpublished artifacts without publishing, sending, spending, purchasing, or changing live systems.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+          - listitem: Do not begin production while required context or material owner decisions are missing.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Market Researcher On demand Finds and verifies market, competitor, customer-conversation, search, and channel evidence.
+        - paragraph: "Lifecycle: Understand, Research"
+        - paragraph: Purpose
+        - paragraph: Finds and verifies market, competitor, customer-conversation, search, and channel evidence.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Market and competitor research
+          - listitem: Customer conversation and review research
+          - listitem: Trend and search research
+          - listitem: Evidence capture and source verification
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Research questions
+          - listitem: Campaign Goal
+          - listitem: Customer and offer context
+          - listitem: Known competitors
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Dated source records
+          - listitem: Evidence and confidence assessment
+          - listitem: Campaign-relevant findings
+          - listitem: Explicit unknowns
+        - paragraph: Recommended capabilities
+        - paragraph: web.search · web.read · computer.browser · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Research is read-only.
+          - listitem: Label every material statement as evidence, assumption, hypothesis, or recommendation.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Product Marketer On demand Turns customer and market evidence into positioning, messaging, offers, segmentation, and launch direction.
+        - paragraph: "Lifecycle: Understand, Research, Plan, Verify"
+        - paragraph: Purpose
+        - paragraph: Turns customer and market evidence into positioning, messaging, offers, segmentation, and launch direction.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: ICP and segmentation
+          - listitem: Positioning and messaging
+          - listitem: Offer and differentiation
+          - listitem: Launch strategy
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Customer evidence
+          - listitem: Current offer
+          - listitem: Competitive findings
+          - listitem: Approved claims
+        - paragraph: Typical outputs
+        - list:
+          - listitem: ICP and segments
+          - listitem: Positioning recommendation
+          - listitem: Messaging framework
+          - listitem: Campaign angles
+        - paragraph: Recommended capabilities
+        - paragraph: web.search · web.read · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not invent customer proof or product claims.
+          - listitem: Flag material positioning choices for owner decision.
+          - listitem: May research, analyze, plan, draft, and create unpublished artifacts without publishing, sending, spending, purchasing, or changing live systems.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Content Strategist On demand Plans source-faithful content systems and adapts ideas to each channel and audience.
+        - paragraph: "Lifecycle: Plan, Produce, Verify"
+        - paragraph: Purpose
+        - paragraph: Plans source-faithful content systems and adapts ideas to each channel and audience.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Content strategy and editorial planning
+          - listitem: Social and thought leadership
+          - listitem: Repurposing
+          - listitem: Channel adaptation
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign brief
+          - listitem: Voice guidance
+          - listitem: Approved claims
+          - listitem: Platform guidance
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Editorial plan
+          - listitem: Content briefs
+          - listitem: Draft content
+          - listitem: Repurposing map
+        - paragraph: Recommended capabilities
+        - paragraph: web.read · files.read · files.write · skill.authored
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not publish or schedule content without approval.
+          - listitem: Preserve claim support and channel constraints.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Creative / Brand Designer On demand Develops visual direction and campaign assets that apply the approved brand system consistently.
+        - paragraph: "Lifecycle: Plan, Produce, Verify"
+        - paragraph: Purpose
+        - paragraph: Develops visual direction and campaign assets that apply the approved brand system consistently.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Visual direction and concepts
+          - listitem: Moodboards and campaign books
+          - listitem: Asset consistency
+          - listitem: Brand application
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign brief
+          - listitem: Brand book
+          - listitem: Visual references
+          - listitem: Product imagery and feedback
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Creative concepts
+          - listitem: Moodboard
+          - listitem: Campaign book
+          - listitem: Unpublished visual assets
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Store large assets in Workspace, Blob, or an approved external provider rather than Markdown.
+          - listitem: Do not publish or modify live brand systems without approval.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Growth / Performance Marketer On demand Designs bounded acquisition experiments and interprets funnel performance without overstating attribution.
+        - paragraph: "Lifecycle: Plan, Produce, Execute, Measure"
+        - paragraph: Purpose
+        - paragraph: Designs bounded acquisition experiments and interprets funnel performance without overstating attribution.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Experiment design
+          - listitem: Paid acquisition planning
+          - listitem: Campaign testing
+          - listitem: Funnel analysis and optimization
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign brief
+          - listitem: Budget boundary
+          - listitem: Channel data
+          - listitem: Previous experiment results
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Experiment plan
+          - listitem: Paid campaign draft
+          - listitem: Performance diagnosis
+          - listitem: Optimization recommendation
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · web.read · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Never launch advertising, change budgets, or make purchases without explicit Relay authority.
+          - listitem: Flag missing tracking, stale data, partial attribution, and metric mismatches.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: SEO / AEO Specialist On demand Researches search demand and improves organic and AI-answer discoverability using verifiable evidence.
+        - paragraph: "Lifecycle: Research, Plan, Produce, Measure"
+        - paragraph: Purpose
+        - paragraph: Researches search demand and improves organic and AI-answer discoverability using verifiable evidence.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Search demand and keyword research
+          - listitem: SEO and AEO
+          - listitem: Content optimization
+          - listitem: Competitor search analysis
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Audience and offer
+          - listitem: Existing content
+          - listitem: Search evidence
+          - listitem: Competitor set
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Search-demand map
+          - listitem: SEO/AEO brief
+          - listitem: Content recommendations
+          - listitem: Search competitor analysis
+        - paragraph: Recommended capabilities
+        - paragraph: web.search · web.read · computer.browser · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not promise rankings or AI-answer inclusion.
+          - listitem: Do not change live pages without approval.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Lifecycle / Email Marketer On demand Designs segmented lifecycle messaging, retention, reactivation, and campaign timing.
+        - paragraph: "Lifecycle: Plan, Produce, Execute, Measure"
+        - paragraph: Purpose
+        - paragraph: Designs segmented lifecycle messaging, retention, reactivation, and campaign timing.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Segmentation
+          - listitem: Email sequences
+          - listitem: Lifecycle messaging
+          - listitem: Retention and reactivation
+          - listitem: Campaign timing
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Audience segments
+          - listitem: Lifecycle state
+          - listitem: Offer and voice
+          - listitem: Consent and suppression rules
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Sequence map
+          - listitem: Email drafts
+          - listitem: Segmentation specification
+          - listitem: Timing plan
+        - paragraph: Recommended capabilities
+        - paragraph: files.read · files.write · integration.composio
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Never send email or outbound communication without explicit Relay authority.
+          - listitem: Respect consent, suppression, and privacy constraints.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Landing Page / CRO Specialist On demand Plans and prepares landing pages, forms, conversion experiments, and tracking verification.
+        - paragraph: "Lifecycle: Plan, Produce, Verify, Execute, Measure"
+        - paragraph: Purpose
+        - paragraph: Plans and prepares landing pages, forms, conversion experiments, and tracking verification.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Landing-page strategy and copy
+          - listitem: Page implementation
+          - listitem: Forms and conversion optimization
+          - listitem: Tracking checks
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign brief
+          - listitem: Approved claims
+          - listitem: Brand system
+          - listitem: Analytics and form requirements
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Landing-page brief
+          - listitem: Unpublished page
+          - listitem: Form specification
+          - listitem: CRO test plan
+          - listitem: Tracking checklist
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · web.read · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not modify a live production page without explicit Relay authority.
+          - listitem: Use independent QA for functional, accessibility, and resilience checks when a page exists.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Marketing Operations On demand Prepares reliable campaign operations, integrations, tracking, automations, and data flows.
+        - paragraph: "Lifecycle: Plan, Verify, Execute, Measure"
+        - paragraph: Purpose
+        - paragraph: Prepares reliable campaign operations, integrations, tracking, automations, and data flows.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Integrations and tooling
+          - listitem: Tracking and automation
+          - listitem: Campaign operations
+          - listitem: Data flows and scheduled collection
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign plan
+          - listitem: System inventory
+          - listitem: Tracking specification
+          - listitem: Approval policy
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Operations plan
+          - listitem: Integration map
+          - listitem: Tracking specification
+          - listitem: Automation draft
+          - listitem: Freshness report
+        - paragraph: Recommended capabilities
+        - paragraph: scheduler.automations · integration.composio · computer.browser · files.read · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not activate integrations, schedules, production changes, or external writes without Relay authority.
+          - listitem: Treat a connection as unavailable or stale until freshness is verified.
+          - listitem: Role recommendations never grant authority. Relay and the owner's explicit approval remain authoritative for consequential actions.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+      - group:
+        - text: Marketing Analyst On demand Interprets performance, attribution quality, experiments, and trends into evidence-backed recommendations.
+        - paragraph: "Lifecycle: Measure, Learn"
+        - paragraph: Purpose
+        - paragraph: Interprets performance, attribution quality, experiments, and trends into evidence-backed recommendations.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Performance and trend analysis
+          - listitem: Metric interpretation
+          - listitem: Attribution-quality assessment
+          - listitem: Experiment results and recommendations
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Campaign dimensions
+          - listitem: Metric definitions
+          - listitem: Reporting period
+          - listitem: Source freshness
+          - listitem: Sales and lead-quality outcomes
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Performance report
+          - listitem: Attribution caveats
+          - listitem: Observation and insight candidates
+          - listitem: Next-test recommendation
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.read · files.write · web.read · goals.operating-system
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Do not overstate attribution or causation.
+          - listitem: Flag missing tracking, stale data, partial attribution, unavailable sources, and metric-definition mismatches.
+          - listitem: Do not silently rewrite standing instructions from results.
+        - paragraph: "Reasoning: high"
+        - button "Use Role":
+          - img
+          - text: Use Role
+        - button "Create Agent":
+          - img
+          - text: Create Agent
+    - group:
+      - text: Verification 3 Roles Product QA The fixed independent product-QA panel with isolated tools and evidence requirements.
+      - group:
+        - text: Functional & State Declared specialist Verification Exercises critical product behavior and state transitions with stored evidence.
+        - paragraph: Purpose
+        - paragraph: Exercises critical product behavior and state transitions with stored evidence.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Critical paths
+          - listitem: State transitions
+          - listitem: Local and preview parity
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Task contract
+          - listitem: Acceptance checks
+          - listitem: Target environment
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Independent verdict
+          - listitem: Evidence artifacts
+          - listitem: Blocking findings
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Read-only QA specialist.
+          - listitem: Cannot deploy or change user data.
+        - paragraph: "Reasoning: high"
+        - paragraph: This role is an isolated QA specialist and is only invoked through the existing product-QA workflow.
+      - group:
+        - text: UX & Accessibility Declared specialist Verification Checks usability, responsive behavior, keyboard access, and interface clarity.
+        - paragraph: Purpose
+        - paragraph: Checks usability, responsive behavior, keyboard access, and interface clarity.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Navigation and identity
+          - listitem: Responsive behavior
+          - listitem: Keyboard and accessibility checks
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Task contract
+          - listitem: Acceptance checks
+          - listitem: Target environment
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Independent verdict
+          - listitem: Evidence artifacts
+          - listitem: Blocking findings
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Read-only QA specialist.
+          - listitem: Validates the implementation rather than redesigning it during a run.
+        - paragraph: "Reasoning: high"
+        - paragraph: This role is an isolated QA specialist and is only invoked through the existing product-QA workflow.
+      - group:
+        - text: Trust & Resilience Declared specialist Verification Checks authentication boundaries, failure handling, cancellation, retry, and recovery.
+        - paragraph: Purpose
+        - paragraph: Checks authentication boundaries, failure handling, cancellation, retry, and recovery.
+        - paragraph: Responsibilities
+        - list:
+          - listitem: Auth and owner boundaries
+          - listitem: Failure states
+          - listitem: Cancellation and retry behavior
+        - paragraph: Typical inputs
+        - list:
+          - listitem: Task contract
+          - listitem: Acceptance checks
+          - listitem: Target environment
+        - paragraph: Typical outputs
+        - list:
+          - listitem: Independent verdict
+          - listitem: Evidence artifacts
+          - listitem: Blocking findings
+        - paragraph: Recommended capabilities
+        - paragraph: computer.browser · files.write
+        - paragraph: Safety boundaries
+        - list:
+          - listitem: Read-only QA specialist.
+          - listitem: Fails closed and never exposes secrets.
+        - paragraph: "Reasoning: high"
+        - paragraph: This role is an isolated QA specialist and is only invoked through the existing product-QA workflow.
+    - group:
+      - text: Founder OS Solution Pack 9 domains A Goal-centric operating system for understanding business state, finding the current constraint, assembling expertise, and preparing owner decisions.
+      - paragraph: Purpose
+      - paragraph: Help an owner operate the business as a connected system rather than a collection of unrelated chats or bots.
+      - paragraph: Composes Founder OS Core · Marketing Engineering
+      - button "Use Founder OS":
+        - img
+        - text: Use Founder OS
+      - button "Create Founder Agent":
+        - img
+        - text: Create Founder Agent
+      - region "Operating domains":
+        - heading "Operating domains" [level=3]
+        - text: Health waits for canonical evidence
+        - group:
+          - text: Strategy unknown Set direction, choose priorities, and make explicit strategic tradeoffs.
+          - paragraph: Roles
+          - paragraph: Strategy Advisor · Market Analyst · Business Planner
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Create / Improve Offer
+          - paragraph: Artifacts
+          - paragraph: Quarterly Business Review
+          - paragraph: Workflows
+          - paragraph: Founder Business Review
+        - group:
+          - text: Traffic unknown Build relevant awareness with the right audience.
+          - paragraph: Roles
+          - paragraph: Product Marketer · Market Researcher · Content Strategist · Growth / Performance Marketer · SEO / AEO Specialist
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Increase Qualified Leads
+          - paragraph: Artifacts
+          - paragraph: Ideal Customer Profile · Brand Positioning · Content Strategy · Campaign Brief
+        - group:
+          - text: Leads unknown Turn relevant attention into qualified demand.
+          - paragraph: Roles
+          - paragraph: Product Marketer · Lifecycle / Email Marketer · Marketing Analyst · Lead Magnet Strategist · Funnel Strategist
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Increase Qualified Leads · Improve Conversion
+          - paragraph: Artifacts
+          - paragraph: Lead Magnet · Funnel Map · Nurture Sequence
+        - group:
+          - text: Conversion unknown Help qualified prospects take the next intended step.
+          - paragraph: Roles
+          - paragraph: Conversion Strategist · Landing Page / CRO Specialist · Lifecycle / Email Marketer · Marketing Operations
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Increase Qualified Leads · Improve Conversion
+          - paragraph: Artifacts
+          - paragraph: Landing Page · VSL Script · Application Funnel
+        - group:
+          - text: Sales unknown Convert qualified opportunities through a trustworthy, repeatable sales process.
+          - paragraph: Roles
+          - paragraph: Sales Strategist · Sales Enablement · Customer Research
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Improve Sales Close Rate
+          - paragraph: Artifacts
+          - paragraph: Sales Call Script · Objection Handling · Sales Call Review Scorecard · Proposal / SOW
+        - group:
+          - text: Offer unknown Align positioning, packaging, pricing, and value with customer evidence and delivery reality.
+          - paragraph: Roles
+          - paragraph: Offer Strategist · Product Marketer · Pricing Strategist
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Improve Conversion · Improve Sales Close Rate · Create / Improve Offer · Improve Profitability
+          - paragraph: Artifacts
+          - paragraph: Offer Architecture · Pricing Matrix · Value Ladder · Competitor Analysis
+        - group:
+          - text: Delivery unknown Deliver promised outcomes reliably and create retention and expansion capacity.
+          - paragraph: Roles
+          - paragraph: Customer Success · Onboarding Specialist · Delivery Operations
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Create / Improve Offer · Improve Customer Delivery · Improve Profitability
+          - paragraph: Artifacts
+          - paragraph: Client Onboarding Plan · Milestone Tracker · Implementation Checklist · Case Study Template
+        - group:
+          - text: Finance unknown Provide transparent financial analysis, forecasts, and constraints without money-movement authority.
+          - paragraph: Roles
+          - paragraph: Financial Analyst · Business Forecaster · Unit Economics Analyst
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Create / Improve Offer · Improve Profitability · Hire a Team Member
+          - paragraph: Artifacts
+          - paragraph: Revenue Forecast · Cash Flow Forecast · Runway Model · Margin Analysis · Scenario Plan
+        - group:
+          - text: Systems unknown Improve people, process, capacity, and operating reliability across the business.
+          - paragraph: Roles
+          - paragraph: Operations · People / Hiring · Process / SOP
+          - paragraph: Example Goals
+          - paragraph: Grow Revenue · Launch a Product · Quarterly Business Review · Improve Customer Delivery · Improve Profitability · Hire a Team Member · Systematize Operations
+          - paragraph: Artifacts
+          - paragraph: Hiring Plan · Role Scorecard · Standard Operating Procedure
+      - group:
+        - text: Goal templates · 3 ready
+        - list:
+          - listitem: Grow Revenue · Ready Diagnose the limiting factor between demand, conversion, sales, offer, capacity, and economics before planning work.
+          - listitem: Launch a Product · Ready Coordinate a launch across offer, marketing, sales, delivery, finance, and systems readiness.
+          - listitem: Quarterly Business Review · Ready Review outcomes, metrics, risks, and commitments to select the next constraint and priorities.
+          - listitem: Increase Qualified Leads · Defined Improve qualified demand without optimizing for raw lead volume.
+          - listitem: Improve Conversion · Defined Find and improve the highest-leverage conversion step.
+          - listitem: Improve Sales Close Rate · Defined Improve qualification, discovery, follow-up, or offer fit based on sales evidence.
+          - listitem: Create / Improve Offer · Defined Strengthen offer fit, differentiation, packaging, and price logic.
+          - listitem: Improve Customer Delivery · Defined Improve time-to-value, consistency, retention, and delivery capacity.
+          - listitem: Improve Profitability · Defined Identify the economic constraint without assuming cost cutting is the answer.
+          - listitem: Hire a Team Member · Defined Define the capacity gap and prepare an approval-gated hiring process.
+          - listitem: Systematize Operations · Defined Turn the current operating constraint into an explicit, maintainable process.
+      - group:
+        - text: Workflows and artifacts · 1 / 31
+        - paragraph: "Founder Business Review: Reviews current business evidence to identify the primary constraint, risks, owner decisions, and next priorities."
+        - paragraph: "Reusable templates: Ideal Customer Profile · Campaign Brief · Sales Call Script · Offer Architecture · Client Onboarding Plan · Quarterly Business Review"
+      - group:
+        - text: Knowledge and capabilities
+        - paragraph: "Knowledge: company · customers · offer · positioning · products · competitors · pricing · sales · marketing · delivery · finance · people · processes · metrics"
+        - paragraph: "Recommended: goals.operating-system · web.search · web.read · computer.browser · files.read · files.write"
+        - paragraph: Context remains scoped and authorized; this pack does not create a separate Knowledge system or grant capabilities.
+      - group:
+        - text: Approval boundaries
+        - paragraph: "Safe preparation: research · analysis · drafting · planning · forecasting · create artifact · create task · recommendation"
+        - paragraph: "Owner approval required: send external communication · publish · spend money · change prices · launch ads · make payment · modify live system · commit contract · delete business data · hire or fire · change compensation · deploy code"

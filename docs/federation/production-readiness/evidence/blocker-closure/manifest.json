@@ -1,0 +1,82 @@
+{
+  "scope": "Local blocker-closure preparation only; no hosted target or external gate",
+  "createdAt": "2026-09-20T18:10:09.685813+00:00",
+  "readinessBaseline": "6f668b9",
+  "frozenPins": {
+    "myeve": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+    "relay": "614c638d6fc4099db8064540326f5de4438e93a1"
+  },
+  "independentSecurityGate": "NOT_RUN",
+  "productionPlatformGate": "NOT_RUN",
+  "sha256": {
+    "docs/federation/production-readiness/README.md": "17f7de840b98476d568e0acee9d6b63557424aa4075899cf4b505ed1fce85f0a",
+    "docs/federation/production-readiness/assessor-target.md": "983362a0e9355002358a8f88c0327230d500c89bbbf2ca506dbd735d92160211",
+    "docs/federation/production-readiness/deployment-blockers-report.md": "8d23f88f1e7f732162235c559634a4858d85b87d83cdd152c5d133bc72728572",
+    "docs/federation/production-readiness/deployment-target.md": "63836e66c68c66837d7c6bf28e6d0db766a34a0cf9b3877b33354e6ab2e33147",
+    "docs/federation/production-readiness/evidence/blocker-closure/action-upgrade.integration.mjs.txt": "84800f89b6d165f83baf5c978905d97a3a335c74c6c91dd374907735b85bc158",
+    "docs/federation/production-readiness/evidence/blocker-closure/database-access.json": "e63d1ec6916b8d9de42bd15bec7ddf6f1daf5834de12831987114ef5b0be927e",
+    "docs/federation/production-readiness/evidence/blocker-closure/execution-reliability.integration.mjs.txt": "302250583e224a476ab196bdf766d2b0b7f9fb024993d8835cc6d174646a525e",
+    "docs/federation/production-readiness/evidence/blocker-closure/hosting-inventory.json": "31e04858c9b965ad02d9f044f015af6f79926d8a0df0654c3519b34e01b081a0",
+    "docs/federation/production-readiness/evidence/blocker-closure/migrations.json": "e43dd57e98fd2aa7007614cabbadd028b313ad0b80836b56b9c29f2cde5316a9",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-build-final.txt": "334a05ae08ba6ea8db2efc37e18b79953ec4b979e79161e2c07f992f1910aab9",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-disabled-final.json": "0eb72de9198acb0bb459626a128aaa8bc75ffd7351b03de3c6a5e19569d77d2a",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-migrations.txt": "ce735556055e9d1a9cac07595883423a072d0332e9c3ff76c6cec902fffa5dbe",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-node-final.txt": "e8bcbc9cf892dfbd66110728bf539bd194429a89da7fea68ceda0cb272968be7",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-typecheck-final.txt": "7894efa2415610e78d33d610ffa279b03675966c57c6d5863a17f159b77416fd",
+    "docs/federation/production-readiness/evidence/blocker-closure/myeve-vitest-final.txt": "2569aeb6ecd82e3e2128179f66dbae033786d6e8092a0ed13fdbf73c52ea0e68",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-build.txt": "4c7b58284e8706f4ec2f6fc723d2b66b68a9d5146053665d36dd4a5c82642cee",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-e2e.txt": "2c5277bc023dc651793f8adf61551c98a4c9977ffa9f2fa871e81a4e3d9cba0d",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-frontier.txt": "999ef48825803a604bcf0147a16a98c1ba74daa886f38939db4d0bd498c476ae",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-full-final.txt": "f5ca12a0e7aba363053c47f091bff95cd3f58ad2e19252c5b5d4b032e0282314",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-lint-final.txt": "0f826e6630e9aa5bb2ef5b4ce95d82e5c4988fa6763a49e3e5505abe0105e513",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-migration-check.txt": "cc7bef974a835a928ee575651ab652c008975149695ad4b6e0b76f7d522b2576",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-performance.txt": "5c3e5e7aa47634de31be20851e1a0ba5d46998aa526d22aedaca69f22eed1016",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-startup-smoke.txt": "417c8843283191486c20c1926abb94bdc862bffbd890446dac94846d8ffacb2e",
+    "docs/federation/production-readiness/evidence/blocker-closure/relay-typecheck-final.txt": "0c086b71ec38ef3aec9c5e31e48525974f123ceee255dbf41fb96cfae8292a0b",
+    "docs/federation/production-readiness/execution-report.md": "e1df8590c7a6077afcb912024980c5569b129b8e3ec24e1f92b5822a0c44f83b",
+    "docs/federation/production-readiness/platform-qualification.md": "4a9116573f9c146d0f02e07b1bbdd403ca53d5d2680c7645a559eefe09322c07",
+    "docs/federation/production-readiness/qualification-session.md": "76add0c03e35252f9976a5219c4930c6e6f523ab8328039e84374dd995cc2b8d",
+    "docs/federation/production-readiness/security-review.md": "f6984cc0c69c7d9a39425c6ada4f429ab91655f66ca75ac131ca16f1d838d15d",
+    "docs/federation/production-readiness/target-manifest.json": "8625eebb10de19c438d9f96fe9c1c984069ebd1b073388720129f5096882dd4e",
+    "scripts/federation-readiness/PROVISIONING.md": "56b217bf2e56da610f5da1022485225026da71191d41e7cc18443be195b9018f",
+    "scripts/federation-readiness/check-disabled.mjs": "191250747517e05937c2b2ef79a27bf6b44f19de0b6d1e87f0deb369e22b62cb",
+    "scripts/federation-readiness/codex-peer.disabled.toml": "8a82c81c3e7c6b2d3fb68747ecac7908a52f4aad7834b3935ece5a0a0a7cf7e3",
+    "scripts/federation-readiness/inspect-database-access.mjs": "225b6ffe54aac7a6bb660e48cb988778fc40038018d98408731819e00676cd1a",
+    "scripts/federation-readiness/inspect-hosting.py": "8362708d9332110cf522d4a34d2853730db2ade464f2e924a97ec2420f0fb1d7",
+    "scripts/federation-readiness/provision-databases.mjs": "3627abb7c6c7db31ed0ea75e8cb44ed89bce903a80f347ff2fbd093e9d97fea9"
+  },
+  "candidateSource": {
+    "myeve": {
+      "sha": "767b585e0d910136fef8eb421933e34a5bc8b601",
+      "baseline": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+      "changedFilesSha256": {
+        "apps/eve/lib/relay/artifacts.ts": "9e2e455c15617adf3ba3b82d92486e63c988063ee5cfdc64ca33bfec3cdac75c",
+        "apps/eve/lib/relay/client.ts": "eea12394a58c6a15f8fa8d5b9a7dc073957003c64bbdc5b6ad33076bb1aa7935",
+        "apps/eve/lib/relay/ingress.test.ts": "87841df1bccaad523f4c65647f88fa5b1b946b65e362a9f98a7a695bcdbc15c6",
+        "apps/eve/lib/relay/ingress.ts": "a5200c89cc18de2c52b43836718a4b76eb993dbd21fe705306ba4a6be402ed7e",
+        "apps/eve/scripts/executor-inventory.json": "3a34de893d57f2946d4a794268b2705210a89cb3ce4ddbe69c9d830e41677f46",
+        "docs/federation/hosted-ingress.md": "52b6b82a3e7b7ee83fc2c30eb72fc76115544978978e63764ed6f55f9689fb7e",
+        "scripts/federation-qualification/migrations.mjs": "edc5a5a06c883be45f186172d7c716f187ffa4bd2525b20f2b28d44782e91f7b"
+      },
+      "workingTreeClean": true
+    },
+    "relay": {
+      "sha": "bbfcaa18710556fc689f60990599f4734e99a720",
+      "baseline": "614c638d6fc4099db8064540326f5de4438e93a1",
+      "changedFilesSha256": {
+        "docs/federation/production-crypto-startup.md": "53547d10a6261ba62764834c437f9ef2210f2d69466643d8df6b255e2f289dac",
+        "instrumentation.ts": "1a1496353d4eddf0ee96fb58fbe35bd84443fbc77d4ba8cbe3c2ff5fd3ba13e7",
+        "lib/v2/platform-bindings.ts": "d1d2023b00231eb8f5c0e2e9c743d84d261a7ff969bae07d85bc0b223b4c9a59",
+        "lib/v2/production-crypto.ts": "fcc7493be2f4bbfbdb6690161cabba24e2d1d380fa01bcd339eec6af5627ab55",
+        "scripts/production-qualification/crypto-startup-smoke.mjs": "aa222be62a927065f02beb75d86b20f7d1afa0d3ad7d3e49e94fcf026f111126",
+        "tests/federation/production-crypto.test.ts": "5f853df0d48552cbaa73f3127af91a39d4926865cbc214513dcc8688d5a9a720"
+      },
+      "workingTreeClean": true
+    }
+  },
+  "cleanup": {
+    "relayLocalPostgresContainerRemoved": true,
+    "myeveMigrationContainerRemoved": true,
+    "hostedResourcesCreated": false
+  }
+}

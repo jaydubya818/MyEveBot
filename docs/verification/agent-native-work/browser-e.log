@@ -1,0 +1,15 @@
+
+Running 6 tests using 1 worker
+
+(node:84788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › test/agent-native/responsibilities.spec.ts:10:44 › today shows canonical responsibility records (718ms)
+  ✓  2 [desktop] › test/agent-native/responsibilities.spec.ts:10:44 › inbox shows canonical responsibility records (447ms)
+  ✓  3 [desktop] › test/agent-native/responsibilities.spec.ts:24:1 › responsibility authentication and reconnect do not show stale status (315ms)
+(node:84924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [390px] › test/agent-native/responsibilities.spec.ts:10:44 › today shows canonical responsibility records (508ms)
+  ✓  5 [390px] › test/agent-native/responsibilities.spec.ts:10:44 › inbox shows canonical responsibility records (437ms)
+  ✓  6 [390px] › test/agent-native/responsibilities.spec.ts:24:1 › responsibility authentication and reconnect do not show stale status (262ms)
+
+  6 passed (4.2s)

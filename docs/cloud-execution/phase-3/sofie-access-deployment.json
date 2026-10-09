@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-10-02T16:11:14.539Z",
+  "id": "dpl_8hMRDQLr3XcriR9bLZxJ3gTLApsq",
+  "projectId": "prj_XU7fJW735PtsnKoAYtGfzdnsotIB",
+  "url": "https://sofie-cloud-qualification-p7wi976z8-jaydubya818.vercel.app",
+  "target": null,
+  "readyState": "READY",
+  "sourceSha256": {
+    "apps/eve/agent/agent.ts": "2e0a68ea316ccee134d66a9eb7fef0b21e13b216fb8c9c2fa6b9da5cc756179b",
+    "apps/eve/proxy.ts": "87928fd309852e2ef56e7e6f0a37d5de14e0dc31dd83a8f6798c15e7bf5a2a14",
+    "apps/eve/lib/engineering/cloud-access-qualification.ts": "c80e1434fbd2a7a23d9636765f0c95714a0295f5ff11c5e2744a075fa0cd51a0",
+    "apps/eve/app/api/cloud-qualification/access/route.ts": "321d2eaa2e5f00de377caf5d816f4d3d72fd6cb54a978eaa02b11adaee92dbdd",
+    "apps/eve/scripts/check-cloud-client-credentials.mjs": "f0b4c13b4b0cbe103fabf674e1806ad59cdfde1c62cdf1853d61e5466acbaefc",
+    "apps/eve/package.json": "9b08b8171d8c5ae0422ff4482512ca7838da55cf140a56ee819643bf352aa3cc"
+  },
+  "clientCredentialScan": {
+    "status": "PASS",
+    "files": 77
+  },
+  "accessMatrix": "NOT_RUN",
+  "operatorIngress": "VERCEL_AUTHENTICATION_REQUIRED",
+  "modelResolution": "DENY_FOR_QUALIFICATION_PROJECT",
+  "attempts": [
+    {
+      "id": "dpl_CAntbLKfTFREn6yhABdr1JGVEmrw",
+      "status": "CANCELED",
+      "reason": "Provider automatically classified first deployment production despite preview CLI flag; cancelled before completion"
+    },
+    {
+      "id": "dpl_FNDzSLR54k5pwjcXrHugmyqK1MFF",
+      "status": "ERROR",
+      "reason": "Environment fixture type corrected; no production bypass"
+    }
+  ]
+}

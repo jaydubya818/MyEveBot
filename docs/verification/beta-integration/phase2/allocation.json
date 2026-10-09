@@ -1,0 +1,75 @@
+[
+  {
+    "path": "/Users/jaywest/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/private/tmp/knowledge-production-source",
+    "claims": []
+  },
+  {
+    "path": "/private/tmp/myfactory-myeve-main-merge",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/goals-proactive-work/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve",
+    "claims": [
+      "0064_beta_result_fencing.sql",
+      "0062_relay_message_delegations.sql",
+      "0065_beta_result_supersession.sql",
+      "0063_beta_product_plane.sql"
+    ]
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/universal-inbox/Myeve",
+    "claims": []
+  },
+  {
+    "path": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+    "claims": []
+  }
+]

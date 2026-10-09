@@ -1,0 +1,63 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run lib/engineering/alpha-conversation.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+
+ ❯ lib/engineering/alpha-conversation.test.ts (11 tests | 1 failed) 13ms
+   ✓ private-alpha selected Work model > exposes only canonical start and no native, publication or unrelated tool 2ms
+   ✓ private-alpha selected Work model > accepts only one exact Factory proposal and text-only explanation 1ms
+   ✓ private-alpha selected Work model > uses the common ledger, bounded output and OpenAI-only existing Gateway 3ms
+   ✓ private-alpha selected Work model > denies missing exact first-operation approval MYEVE_FACTORY_REAL_EXECUTION_APPROVED 1ms
+   ✓ private-alpha selected Work model > denies missing exact first-operation approval MYEVE_FACTORY_APPROVED_WORK_ID 0ms
+   ✓ private-alpha selected Work model > denies missing exact first-operation approval MYEVE_FACTORY_APPROVED_WORK_VERSION 0ms
+   ✓ private-alpha selected Work model > denies missing exact first-operation approval MYEVE_FACTORY_APPROVED_WORK_GENERATION 0ms
+   ✓ private-alpha selected Work model > denies expired qualification without fallback 0ms
+   ✓ private-alpha selected Work model > retains UNKNOWN on provider loss without retry 0ms
+   ✓ private-alpha selected Work model > denies a common-ledger rejection before the provider 0ms
+   × normalizes the captured live JSON-text start through the canonical tool boundary 4ms
+     → expected [ { type: 'text', …(1) } ] to deeply equal [ ObjectContaining{…} ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/engineering/alpha-conversation.test.ts > normalizes the captured live JSON-text start through the canonical tool boundary
+AssertionError: expected [ { type: 'text', …(1) } ] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+-   ObjectContaining {
+-     "input": "{\"operation\":\"start\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}",
+-     "toolName": "engineering_factory",
+-     "type": "tool-call",
++   {
++     "text": "{\"operation\":\"start\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}",
++     "type": "text",
+    },
+  ]
+
+ ❯ lib/engineering/alpha-conversation.test.ts:42:25
+     40|  const f=setup(2);f.provider.mockResolvedValue({...captured,usage:{},w…
+     41|  const result=await f.model.doGenerate(options);
+     42|  expect(result.content).toEqual([expect.objectContaining({type:"tool-c…
+       |                         ^
+     43|  expect(result.finishReason.unified).toBe("tool-calls");
+     44|  expect(f.provider).toHaveBeenCalledTimes(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  16:24:49
+   Duration  687ms (transform 211ms, setup 0ms, collect 376ms, tests 13ms, environment 0ms, prepare 45ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+npm error workspace eve-agent@0.0.0
+npm error location /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+npm error command failed
+npm error command sh -c vitest run --run lib/engineering/alpha-conversation.test.ts

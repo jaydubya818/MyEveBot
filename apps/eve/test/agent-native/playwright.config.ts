@@ -1,0 +1,4 @@
+import path from 'node:path';
+import {defineConfig} from '@playwright/test';
+if(process.env.MYEVE_PRODUCT_WEB_PORT && !/^[0-9]{1,5}$/.test(process.env.MYEVE_PRODUCT_WEB_PORT))throw Error('Numeric loopback web port required');
+export default defineConfig({snapshotPathTemplate:path.resolve(import.meta.dirname,'../../../../output/playwright/agent-native/visual-baselines/{projectName}/{arg}{ext}'),testDir:'.',testMatch:'*.spec.ts',workers:1,timeout:60000,expect:{timeout:15000},reporter:[['list'],['json',{outputFile:'../../../../output/playwright/agent-native/report.json'}]],outputDir:process.env.MYEVE_PRODUCT_ARTIFACTS??'../../../../output/playwright/agent-native/artifacts',use:{baseURL:`http://localhost:${process.env.MYEVE_PRODUCT_WEB_PORT??'3198'}`,channel:'chrome',headless:true,trace:'retain-on-failure'},projects:[{name:'desktop',use:{viewport:{width:1440,height:1000}}},{name:'390px',use:{viewport:{width:390,height:844},isMobile:true,hasTouch:true}}]});

@@ -1,0 +1,61 @@
+{
+  "preparedAt": "2026-09-27T02:20:14.764Z",
+  "database": "gap2b_m1er1_2b3e464aec18b4d1",
+  "databaseURL": "postgresql://postgres@127.0.0.1:55468/gap2b_m1er1_2b3e464aec18b4d1",
+  "workId": "ca197e24-08e4-47a5-9589-b96df35485bb",
+  "workVersion": 1,
+  "workGeneration": 1,
+  "control": "paused",
+  "lifecycle": "active",
+  "ownerId": "authenticated-native-fixture",
+  "agentId": "auth-native-sofie",
+  "ceilingUsd": 1.3,
+  "maxProviderCalls": 10,
+  "maxDurationSeconds": 1800,
+  "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+  "unqualifiedConfigHash": "459ab67ad15426bf4b7ae173219a6ab073c3490c9111acec56e618c4e0b584c9",
+  "unqualifiedConfigPath": "/private/tmp/gap2b_m1er1_2b3e464aec18b4d1-unqualified-config.json",
+  "approvedBase": {
+    "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+    "files": [
+      {
+        "path": ".github/workflows/quantity-ci.yml",
+        "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+      },
+      {
+        "path": "package.json",
+        "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+      },
+      {
+        "path": "README.md",
+        "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+      },
+      {
+        "path": "test/quantity.test.mjs",
+        "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+      }
+    ]
+  },
+  "nativeCompletion": {
+    "inputBytes": 14336,
+    "implementationCalls": 5,
+    "repairCalls": 3,
+    "explanationCalls": 1,
+    "repairIterations": 1
+  },
+  "counts": {
+    "runs": 0,
+    "budgets": 0,
+    "calls": 0,
+    "writers": 0,
+    "workspaces": 0,
+    "results": 0
+  },
+  "providerAuthority": "NOT_ISSUED",
+  "runtime": "NOT_STARTED",
+  "schemaVersion": 53
+}

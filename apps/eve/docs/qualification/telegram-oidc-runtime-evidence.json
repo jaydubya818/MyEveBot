@@ -1,0 +1,517 @@
+{
+  "recordedAt": "2026-09-21T05:08:51.756Z",
+  "runtime": "eve@0.27.13",
+  "model": "anthropic/claude-sonnet-5",
+  "authentication": "canonical Vercel OIDC; no static API key",
+  "scope": "isolated loopback runtime; real Gateway/Anthropic calls, real PostgreSQL via local Neon transport; no Telegram",
+  "limits": {
+    "taskMicroUsd": 100000,
+    "aggregateMicroUsd": 5000000,
+    "tokens": 12000,
+    "outputTokensPerCall": 800,
+    "modelSteps": 8,
+    "toolCalls": 12,
+    "runtimeSeconds": 60
+  },
+  "runs": [
+    {
+      "id": "owner_run_76c99fd71f1355d4c2ed717259190de2f28572a3c6e3d29c62543d1a0eb49d81",
+      "status": "failed",
+      "request_id": "ecc348a6-3913-4efa-b29e-1d589e5d29d9",
+      "session_id": null,
+      "turn_id": null,
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 0,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "0"
+    },
+    {
+      "id": "owner_run_7c811a38ef2a094a7a9492b8dfc117fd9077e19887ab0c6c6383ad1b5f830f9f",
+      "status": "running",
+      "request_id": "4a66644c-efb8-4d18-aec7-2f7606f5a92d",
+      "session_id": null,
+      "turn_id": null,
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 0,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "0"
+    },
+    {
+      "id": "owner_run_d2e5eccacfcb5bd72840ee35d861a745b3eacf9e49836cc4063dca1d47a67576",
+      "status": "running",
+      "request_id": "6446acb1-fc58-47cd-9c51-52fb69d78176",
+      "session_id": "wrun_01M3151NX87671DCE7MZ713SG1",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 0,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "0"
+    },
+    {
+      "id": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "status": "failed",
+      "request_id": "84a5cd13-6634-49fd-b629-9c9a79a76394",
+      "session_id": "wrun_01M3156261FX93T7XMGPG7TRX3",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 0,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "0"
+    },
+    {
+      "id": "owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e",
+      "status": "failed",
+      "request_id": "fd04d035-7eac-437d-aead-e6614051c6ad",
+      "session_id": "wrun_01M315AC8C82GSN9VQ4DJPBPVK",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 1,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "3102"
+    },
+    {
+      "id": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "status": "completed",
+      "request_id": "84ededa7-d2b2-48cf-9ee3-3fb811ec8774",
+      "session_id": "wrun_01M315DQ3RXWWKEWT8MQ849T6T",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 2,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "6378"
+    },
+    {
+      "id": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "status": "cancelled",
+      "request_id": "52535731-0229-42c6-92b2-716074d73951",
+      "session_id": "wrun_01M315K53DCGNNW4FP1ZN76GCR",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": "2026-09-21T05:04:06.261Z",
+      "usage_unknown": true,
+      "model_calls_started": 1,
+      "model_reserved_microusd": "31241",
+      "model_spent_microusd": "0"
+    },
+    {
+      "id": "owner_run_e2f191ad1e113729e570aaf6812c30c737ebf9e097dc37cc905717bdec84a1f2",
+      "status": "failed",
+      "request_id": "99107e27-0385-4067-9a76-b2644ba215b2",
+      "session_id": "wrun_01M315PWGE0SP4F5EDFW87QSS1",
+      "turn_id": "turn_0",
+      "cancel_acknowledged_at": null,
+      "usage_unknown": false,
+      "model_calls_started": 0,
+      "model_reserved_microusd": "0",
+      "model_spent_microusd": "0"
+    }
+  ],
+  "calls": [
+    {
+      "run_id": "owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e",
+      "step_key": "turn_0:0",
+      "model_id": "anthropic/claude-sonnet-5",
+      "status": "completed",
+      "reserved_microusd": "31241",
+      "spent_microusd": "3102",
+      "reserved_tokens": 3848,
+      "used_tokens": 1127,
+      "usage": {
+        "raw": {
+          "input_tokens": 1021,
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "output_tokens": 106,
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "output_tokens_details": {
+            "thinking_tokens": 29
+          },
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        },
+        "inputTokens": {
+          "total": 1021,
+          "noCache": 1021,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        },
+        "outputTokens": {
+          "text": 77,
+          "total": 106,
+          "reasoning": 29
+        }
+      },
+      "provider": "anthropic",
+      "cost": "0.003102",
+      "generationId": "gen_01M315ACSP4G61958SBKQSXZ3T",
+      "providerAttempts": 1,
+      "modelAttempts": 1,
+      "fallbacks": []
+    },
+    {
+      "run_id": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "step_key": "turn_0:0",
+      "model_id": "anthropic/claude-sonnet-5",
+      "status": "completed",
+      "reserved_microusd": "31241",
+      "spent_microusd": "2802",
+      "reserved_tokens": 3848,
+      "used_tokens": 1097,
+      "usage": {
+        "raw": {
+          "input_tokens": 1021,
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "output_tokens": 76,
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        },
+        "inputTokens": {
+          "total": 1021,
+          "noCache": 1021,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        },
+        "outputTokens": {
+          "text": 76,
+          "total": 76,
+          "reasoning": 0
+        }
+      },
+      "provider": "anthropic",
+      "cost": "0.002802",
+      "generationId": "gen_01M315DQNKHQWSARKGZY9F5W5J",
+      "providerAttempts": 1,
+      "modelAttempts": 1,
+      "fallbacks": []
+    },
+    {
+      "run_id": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "step_key": "turn_0:1",
+      "model_id": "anthropic/claude-sonnet-5",
+      "status": "completed",
+      "reserved_microusd": "34900",
+      "spent_microusd": "3576",
+      "reserved_tokens": 4580,
+      "used_tokens": 1320,
+      "usage": {
+        "raw": {
+          "input_tokens": 1203,
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "output_tokens": 117,
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        },
+        "inputTokens": {
+          "total": 1203,
+          "noCache": 1203,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        },
+        "outputTokens": {
+          "text": 117,
+          "total": 117,
+          "reasoning": 0
+        }
+      },
+      "provider": "anthropic",
+      "cost": "0.003576",
+      "generationId": "gen_01M315DTC3S4EP5KMVW5RV0BX1",
+      "providerAttempts": 1,
+      "modelAttempts": 1,
+      "fallbacks": []
+    },
+    {
+      "run_id": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "step_key": "turn_0:0",
+      "model_id": "anthropic/claude-sonnet-5",
+      "status": "unknown",
+      "reserved_microusd": "31241",
+      "spent_microusd": null,
+      "reserved_tokens": 3848,
+      "used_tokens": null
+    }
+  ],
+  "contexts": [
+    {
+      "task_run_id": "owner_run_d2e5eccacfcb5bd72840ee35d861a745b3eacf9e49836cc4063dca1d47a67576",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:6446acb1-fc58-47cd-9c51-52fb69d78176",
+        "run:owner_run_d2e5eccacfcb5bd72840ee35d861a745b3eacf9e49836cc4063dca1d47a67576"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_d2e5eccacfcb5bd72840ee35d861a745b3eacf9e49836cc4063dca1d47a67576",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:6446acb1-fc58-47cd-9c51-52fb69d78176",
+        "run:owner_run_d2e5eccacfcb5bd72840ee35d861a745b3eacf9e49836cc4063dca1d47a67576"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:84a5cd13-6634-49fd-b629-9c9a79a76394",
+        "run:owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:84a5cd13-6634-49fd-b629-9c9a79a76394",
+        "run:owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:84a5cd13-6634-49fd-b629-9c9a79a76394",
+        "run:owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:84a5cd13-6634-49fd-b629-9c9a79a76394",
+        "run:owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:fd04d035-7eac-437d-aead-e6614051c6ad",
+        "run:owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:84ededa7-d2b2-48cf-9ee3-3fb811ec8774",
+        "run:owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:52535731-0229-42c6-92b2-716074d73951",
+        "run:owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e"
+      ]
+    },
+    {
+      "task_run_id": "owner_run_e2f191ad1e113729e570aaf6812c30c737ebf9e097dc37cc905717bdec84a1f2",
+      "memory_refs": [],
+      "source_refs": [
+        "owner-work:99107e27-0385-4067-9a76-b2644ba215b2",
+        "run:owner_run_e2f191ad1e113729e570aaf6812c30c737ebf9e097dc37cc905717bdec84a1f2"
+      ]
+    }
+  ],
+  "totals": {
+    "singleton": true,
+    "reserved_microusd": "31241",
+    "spent_microusd": "9480"
+  },
+  "events": [
+    {
+      "at": "2026-09-21T04:59:18.585Z",
+      "kind": "provider-start",
+      "model": "anthropic/claude-sonnet-5",
+      "runId": "owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e",
+      "stepKey": "turn_0:0",
+      "reservationMicrousd": "31241",
+      "reservedTokens": 3848,
+      "privateCanaryPresent": false
+    },
+    {
+      "at": "2026-09-21T04:59:20.705Z",
+      "kind": "provider-response",
+      "status": 200
+    },
+    {
+      "at": "2026-09-21T05:01:08.076Z",
+      "kind": "provider-start",
+      "model": "anthropic/claude-sonnet-5",
+      "runId": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "stepKey": "turn_0:0",
+      "reservationMicrousd": "31241",
+      "reservedTokens": 3848,
+      "privateCanaryPresent": false
+    },
+    {
+      "at": "2026-09-21T05:01:10.553Z",
+      "kind": "provider-response",
+      "status": 200
+    },
+    {
+      "at": "2026-09-21T05:01:10.841Z",
+      "kind": "provider-start",
+      "model": "anthropic/claude-sonnet-5",
+      "runId": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "stepKey": "turn_0:1",
+      "reservationMicrousd": "34900",
+      "reservedTokens": 4580,
+      "privateCanaryPresent": false
+    },
+    {
+      "at": "2026-09-21T05:01:13.918Z",
+      "kind": "provider-response",
+      "status": 200
+    },
+    {
+      "at": "2026-09-21T05:04:06.217Z",
+      "kind": "provider-start",
+      "model": "anthropic/claude-sonnet-5",
+      "runId": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "stepKey": "turn_0:0",
+      "reservationMicrousd": "31241",
+      "reservedTokens": 3848,
+      "privateCanaryPresent": false
+    }
+  ],
+  "scenarios": [
+    {
+      "at": "2026-09-21T04:53:18.686Z",
+      "mode": "research",
+      "runId": "owner_run_76c99fd71f1355d4c2ed717259190de2f28572a3c6e3d29c62543d1a0eb49d81",
+      "state": "FAILED",
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "0",
+        "spent_microusd": "0"
+      }
+    },
+    {
+      "at": "2026-09-21T04:57:00.368Z",
+      "mode": "research",
+      "runId": "owner_run_d0c5f946c4e1609cf3b9e25fa878e411bcee92c52cd932fb389b34ee12976650",
+      "state": "FAILED",
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "0",
+        "spent_microusd": "0"
+      }
+    },
+    {
+      "at": "2026-09-21T04:59:21.664Z",
+      "mode": "research",
+      "runId": "owner_run_ce614f883e48606843fc3cb70c09703102bfbf0e0d7ab3615c77a9fee6d8636e",
+      "state": "FAILED",
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "0",
+        "spent_microusd": "3102"
+      }
+    },
+    {
+      "at": "2026-09-21T05:01:15.121Z",
+      "mode": "research",
+      "runId": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "state": "COMPLETED",
+      "outcomeId": "outcome_f6739766-40da-4ed5-b93e-53da046b6004",
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "0",
+        "spent_microusd": "9480"
+      }
+    },
+    {
+      "at": "2026-09-21T05:03:26.694Z",
+      "mode": "replay",
+      "runId": "owner_run_b8b72b1b49e3597d482c4470f178724254f12d3fc6a261c6ff23201da3b0baae",
+      "state": "COMPLETED",
+      "outcomeId": "outcome_f6739766-40da-4ed5-b93e-53da046b6004",
+      "newProviderReservations": 0,
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "0",
+        "spent_microusd": "9480"
+      }
+    },
+    {
+      "at": "2026-09-21T05:04:56.336Z",
+      "mode": "cancel-replay",
+      "runId": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "state": "CANCELLED",
+      "newProviderReservations": 0,
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "31241",
+        "spent_microusd": "9480"
+      }
+    },
+    {
+      "at": "2026-09-21T05:06:09.555Z",
+      "mode": "budget-denied",
+      "runId": "owner_run_e2f191ad1e113729e570aaf6812c30c737ebf9e097dc37cc905717bdec84a1f2",
+      "state": "FAILED",
+      "newProviderReservations": 0,
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "31241",
+        "spent_microusd": "9480"
+      }
+    },
+    {
+      "at": "2026-09-21T05:10:22.076Z",
+      "mode": "cancel-replay",
+      "runId": "owner_run_10703c0591fb7e10c353a1c8da7508dfc394069a47d218f9b2690affee8d3a0e",
+      "state": "CANCELLED",
+      "newProviderReservations": 0,
+      "privateCanaryInOutput": false,
+      "totals": {
+        "singleton": true,
+        "reserved_microusd": "31241",
+        "spent_microusd": "9480"
+      }
+    }
+  ],
+  "liveTelegramScenarios": 0,
+  "databaseRestart": {
+    "verifiedAt": "2026-09-21T05:13:39.109Z",
+    "sameCluster": true,
+    "newProviderReservations": 0,
+    "retainedLiabilityMicrousd": 40721
+  },
+  "cleanup": {
+    "canonicalActiveRuns": 0,
+    "ledgerPreserved": true
+  }
+}

@@ -1,0 +1,4 @@
+Synthetic acceptance-test project notes — not real customer evidence.
+Project Atlas target: 10 pilot users and 80% onboarding completion.
+Pilot date: October 15, 2026 (corrected from October 1).
+Hypothesis: reducing account setup steps improves completion.

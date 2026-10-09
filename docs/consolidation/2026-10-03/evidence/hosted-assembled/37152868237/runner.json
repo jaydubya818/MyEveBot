@@ -1,0 +1,37 @@
+{
+  "runId": "37152868237",
+  "commit": "84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+  "trigger": {
+    "attempt": "consolidation-readback-1",
+    "origin": "https://sofie-cloud-qualification-6w6edaoqx-jaydubya818.vercel.app",
+    "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
+    "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
+    "myeveSourceSha": "4860ecce1af8089378aadf1321ed5c4bdabee6b1",
+    "paidModelOperations": 0,
+    "publication": "DISABLED",
+    "productionAdmission": "DISABLED",
+    "maxNewWork": 0,
+    "runAttempt": "1",
+    "authorization": "Read-only recovery of the one already-completed assembled hosted Work; proxy blocks mutation except owner login. No execution retry or new Work.",
+    "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5",
+    "runnerPreflightFailures": [
+      {
+        "runId": 37152278612,
+        "reason": "Qualification environment branch allowlist rejected consolidation before any job step",
+        "workCreated": false
+      }
+    ],
+    "recoverWorkId": "6d6b4cc2-af3d-4c96-a46c-84a0089eb6d4",
+    "candidate": "282da900fa619caa5993bec37d80758485f28da0",
+    "priorExecutionRunId": 37152375269
+  },
+  "runner": "GitHub-hosted Linux",
+  "platform": "linux",
+  "factoryInfrastructureCredentials": 0,
+  "producerOnRunner": false,
+  "verifierOnRunner": false,
+  "sofieLocal": false,
+  "browserProtectionCredential": 0,
+  "artifactCredentialScan": "PASS",
+  "physicalMacPowerState": "NOT_OBSERVED"
+}

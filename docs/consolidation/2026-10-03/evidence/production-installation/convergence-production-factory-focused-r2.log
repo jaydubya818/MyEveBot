@@ -1,0 +1,18 @@
+✔ production provider identity is fresh per request and exact installation scoped (0.683917ms)
+✔ missing, expired, foreign and preview identities fail without static token fallback (0.455042ms)
+✔ production installation binds exact runtime and fresh resource identities without granting Work (1.227875ms)
+✔ production rejects preview, foreign identity and every qualification credential (0.198333ms)
+✔ production cannot reuse staging resources, owner or a different caller (1.056708ms)
+✔ an environment toggle cannot silently activate paid production Work (0.077708ms)
+✔ all production execution routes deny before entering the qualification runtime (3.081875ms)
+✔ production action discovery never advertises a qualified writer (0.725959ms)
+✔ readiness authenticates first and distinguishes available infrastructure from execution (0.496125ms)
+✔ credential equality, expired proof or wrong owner closes production readiness (0.163708ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 357.425083

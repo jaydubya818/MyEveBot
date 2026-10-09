@@ -1,0 +1,12 @@
+status	path
+M	README.md
+M	apps/eve/components/owner/candidate-decision.tsx
+M	apps/eve/components/owner/integrated.tsx
+M	apps/eve/lib/beta-integration/runtime.ts
+M	apps/eve/lib/engineering/owner-publication.ts
+M	apps/eve/lib/engineering/publication-contract.ts
+M	apps/eve/lib/engineering/worker-projection.ts
+M	apps/eve/scripts/executor-inventory.json
+M	apps/eve/test/publication/contract.integration.mjs
+M	apps/eve/test/publication/owner.spec.ts
+M	docs/private-alpha/owner-publication-2026-10-02/README.md

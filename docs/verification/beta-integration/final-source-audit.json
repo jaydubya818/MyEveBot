@@ -1,0 +1,121 @@
+[
+  {
+    "path": "/Users/jaywest/Myeve",
+    "sha": "a7936898c77d157aa66c222b86aedce07e265e16",
+    "branch": "refs/heads/main",
+    "dirty": "M README.md\n M apps/eve/agent/connections/composio.ts\n M apps/eve/agent/instructions/computer-runtime.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md\n?? docs/plans/2026-09-25-knowledge-verification.md\n?? docs/plans/2026-09-25-myeve-engineering-claude-review.md\n?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md\n?? docs/plans/2026-09-25-myeve-engineering-verification.md\n?? docs/verification/digital-worker/\n?? output/knowledge-verification-2026-09-25.md\n?? output/playwright/knowledge-2026-09-25/",
+    "migrationHead": "0035_peer_permissions.sql"
+  },
+  {
+    "path": "/private/tmp/knowledge-production-source",
+    "sha": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+    "branch": "refs/heads/codex/knowledge-production",
+    "dirty": "",
+    "migrationHead": "0038_owner_qualification_budget.sql"
+  },
+  {
+    "path": "/private/tmp/myfactory-myeve-main-merge",
+    "sha": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+    "branch": null,
+    "dirty": "",
+    "migrationHead": "0038_owner_qualification_budget.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "branch": "refs/heads/codex/beta-product-experience",
+    "dirty": "",
+    "migrationHead": "0040_relay_message_delegations.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "branch": "refs/heads/codex/digital-worker-integration",
+    "dirty": "",
+    "migrationHead": "0057_factory_preparation_intent.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+    "sha": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+    "branch": "refs/heads/codex/p0-gap-02-common-ledger",
+    "dirty": "",
+    "migrationHead": "0052_work_model_ledger.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+    "sha": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+    "branch": "refs/heads/codex/p0-gap2b-projection",
+    "dirty": "",
+    "migrationHead": "0052_work_model_ledger.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+    "sha": "a00e8f46f348a6a38fdb2e9dcae954147aac0d92",
+    "branch": "refs/heads/codex/p0-gap2b-qualification",
+    "dirty": "",
+    "migrationHead": "0053_native_completion_contract.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/goals-proactive-work/Myeve",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "branch": "refs/heads/codex/goals-proactive-work",
+    "dirty": "",
+    "migrationHead": "0040_relay_message_delegations.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve",
+    "sha": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+    "branch": "refs/heads/codex/myeve-beta-integration",
+    "dirty": "M apps/eve/agent/lib/memory-store.test.ts\n M apps/eve/agent/lib/memory-store.ts\n M apps/eve/agent/schedules/memory-consolidation.ts\n M apps/eve/app/chat.tsx\n M apps/eve/app/login/page.tsx\n M apps/eve/app/page.tsx\n M apps/eve/app/results/page.tsx\n M apps/eve/lib/database-schema.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? apps/eve/app/activity/\n?? apps/eve/app/api/beta/\n?? apps/eve/app/api/learning/\n?? apps/eve/app/apps/\n?? apps/eve/app/beta-preview/\n?? apps/eve/app/brief/\n?? apps/eve/app/learning/\n?? apps/eve/app/memory/\n?? apps/eve/app/needs-you/\n?? apps/eve/app/sofie/\n?? apps/eve/app/today/\n?? apps/eve/app/welcome/\n?? apps/eve/app/work/\n?? apps/eve/components/owner/\n?? apps/eve/goal-work-activation/\n?? apps/eve/lib/beta-integration/\n?? apps/eve/lib/digital-worker/\n?? apps/eve/lib/engineering/\n?? apps/eve/lib/goal-work/\n?? apps/eve/lib/total-recall/\n?? apps/eve/lib/universal-inbox/\n?? apps/eve/migrations/0058_beta_integration.sql\n?? apps/eve/migrations/0059_beta_result_fencing.sql\n?? apps/eve/migrations/0060_beta_work_control_prerequisite.sql\n?? apps/eve/migrations/0061_beta_result_supersession.sql\n?? apps/eve/scripts/qualify-inbox-crosswalk.mjs\n?? apps/eve/scripts/qualify-inbox-integration.ts\n?? apps/eve/scripts/qualify-inbox-postgres.mjs\n?? apps/eve/scripts/qualify-universal-inbox.ts\n?? apps/eve/test/beta-integration/\n?? apps/eve/test/fixtures/goal-work/\n?? apps/eve/test/goal-work-integration-prep.mjs\n?? apps/eve/test/goal-work.acceptance.mjs\n?? apps/eve/test/goal-work.integration.mjs\n?? apps/eve/test/helpers/\n?? apps/eve/test/owner/\n?? apps/eve/test/recall-integration-preparation.mjs\n?? apps/eve/test/total-recall.integration.mjs\n?? docs/beta-guide.md\n?? docs/beta-ux-integration-checklist.md\n?? docs/beta-ux-integration-contract.md\n?? docs/digital-worker-goals-contract.md\n?? docs/digital-worker-ux.md\n?? docs/digital-worker/\n?? docs/goal-os.md\n?? docs/goal-work-integration-crosswalk.md\n?? docs/goal-work-product-contracts.md\n?? docs/integration/\n?? docs/knowledge/total-recall.md\n?? docs/proactive-work.md\n?? docs/total-recall-learning.md\n?? docs/universal-inbox/\n?? docs/verification/beta-integration/\n?? docs/verification/beta-product-experience/\n?? docs/verification/goals-proactive-work/\n?? docs/verification/total-recall-learning/\n?? docs/verification/universal-inbox/\n?? output/playwright/beta-integration/\n?? output/playwright/beta-product-experience/",
+    "migrationHead": "0061_beta_result_supersession.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+    "sha": "3331721f6335829a52b0b0d7fd8f7deca402d79d",
+    "branch": "refs/heads/codex/portable-sofie-capsules",
+    "dirty": "",
+    "migrationHead": "0035_peer_permissions.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+    "sha": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+    "branch": "refs/heads/codex/q37-integration",
+    "dirty": "",
+    "migrationHead": "0054_factory_result_receipts.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+    "sha": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+    "branch": "refs/heads/codex/sofie-chat-mainline",
+    "dirty": "",
+    "migrationHead": "0038_owner_qualification_budget.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+    "sha": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+    "branch": "refs/heads/codex/thread-owner-conflict",
+    "dirty": "",
+    "migrationHead": "0038_owner_qualification_budget.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "branch": "refs/heads/codex/total-recall-learning",
+    "dirty": "",
+    "migrationHead": "0056_factory_writer_handoff.sql"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/universal-inbox/Myeve",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "branch": "refs/heads/codex/universal-inbox",
+    "dirty": "",
+    "migrationHead": "0040_relay_message_delegations.sql"
+  },
+  {
+    "path": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+    "sha": "cab819bdd93ae1470925765728faacf8f6beab25",
+    "branch": "refs/heads/codex/myfactory-hosted-routing",
+    "dirty": "",
+    "migrationHead": "0038_owner_qualification_budget.sql"
+  }
+]

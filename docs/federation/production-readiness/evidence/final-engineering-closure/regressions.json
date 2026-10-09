@@ -1,0 +1,58 @@
+{
+  "relay": {
+    "sha": "d817c848a7f6797fe04787e28ac96081b69359ae",
+    "passed": 285,
+    "skipped": 5,
+    "files": 55,
+    "skips": [
+      "Playwright context isolation and provider contract",
+      "Playwright private-network denial",
+      "Playwright TTL closure",
+      "Docker sandbox execution/files/timeout/destruction",
+      "Relay-managed combined browser/shell/file lifecycle"
+    ],
+    "skipReason": "Explicit RELAY_LIVE_PLAYWRIGHT and RELAY_LIVE_DOCKER switches not enabled",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "drizzleCheck": "PASS",
+    "v2Frontier": "PASS",
+    "localPerformanceTests": 2,
+    "functionalBrowserTests": 2,
+    "productionBrowserTests": 1
+  },
+  "myeve": {
+    "sha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "vitestPassed": 508,
+    "nodePassed": 130,
+    "skipped": 0,
+    "typecheck": "PASS",
+    "capabilityRegistry": {
+      "definitions": 133,
+      "authoredTools": 98
+    },
+    "skillsRouting": {
+      "checks": 93,
+      "rankOne": 50,
+      "total": 57
+    },
+    "governance": {
+      "classified": 506,
+      "unknown": 0
+    },
+    "build": "PASS"
+  },
+  "controls": {
+    "sha": "817a8525059d436dc0978970d3e80e7371e009d6",
+    "nodePassed": 61,
+    "pythonPassed": 15,
+    "skipped": 0
+  },
+  "disabledDefaultProbes": 25,
+  "migrationChecks": 8,
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "kmsCompatibility": "UNVERIFIED_REQUIRES_OWNER_AUTHORIZED_PROVIDER_PROBE"
+}

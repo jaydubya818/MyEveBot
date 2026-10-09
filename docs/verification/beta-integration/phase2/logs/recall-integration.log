@@ -1,0 +1,29 @@
+{
+  "checks": 23,
+  "comparison": {
+    "baseline": {
+      "correctness": 1,
+      "acceptance": 0,
+      "unnecessarySteps": 4,
+      "retrievalRelevance": 1,
+      "failureCount": 2,
+      "clarificationCount": 2
+    },
+    "withPromotedLearning": {
+      "correctness": 1,
+      "acceptance": 1,
+      "unnecessarySteps": 0,
+      "retrievalRelevance": 1,
+      "failureCount": 0,
+      "clarificationCount": 0
+    },
+    "liveModel": "NOT_PROVEN",
+    "definition": "Acceptance requires current facts with references; missing references cause failed acceptance and explicit source lookup/owner clarification steps."
+  },
+  "invariants": {
+    "memoryAuthorityGrants": 0,
+    "learningAuthorityExpansions": 0,
+    "secretPromotions": 0,
+    "crossScopeViolations": 0
+  }
+}

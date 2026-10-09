@@ -1,0 +1,557 @@
+
+> sellerfi-local-factory@0.1.0 test
+> npm run test --workspaces --if-present
+
+
+> @factory/cloud-control@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ cloud custody computes exactly the same nested tree and commit as Git without invoking Git during validation (219.833083ms)
+✔ cloud custody rejects source substitution, candidate tampering, scope escalation and malformed files (134.157458ms)
+✔ Attempt 3: storage readback validates decoded bytes, not absent or compressed Content-Length (0.915541ms)
+✔ storage readback rejects missing, partial, enlarged and changed content regardless of metadata (0.285708ms)
+✔ cloud admission binds immutable repository and server-granted capabilities with no laptop paths (10.753041ms)
+✔ source policy cannot accidentally admit traversal, .git paths, duplicate commands or invalid numbers (0.316917ms)
+✔ host checkpoint preserves exact custody and visible checks: passing (585.026292ms)
+✔ host checkpoint preserves exact custody and visible checks: failing (488.397958ms)
+✔ host checkpoint preserves exact custody and visible checks: outside-scope (128.692334ms)
+✔ Attempt 2: exact Codex package bin layout and companions install together (1.642625ms)
+✔ old assumed layout, missing companion, traversal and wrong version fail closed (1.231667ms)
+✔ installer diagnostics never echo arbitrary provider data (0.336458ms)
+✔ deterministic cloud transport retains canonical reservations, checkpoint and completion accounting (28.937959ms)
+✔ fixture has no route/model/tool fallback and no second response (0.46775ms)
+✔ mailbox requires a fresh canonical directory (22.342625ms)
+✔ worker loopback authenticates, serializes and transports without credentials in files (65.369958ms)
+✔ host boundary yields and rejects malformed or symlink replies (110.967416ms)
+✔ relay fixes gateway destination and identity, writes no token, and never replays failure (1.044125ms)
+✔ relay rejects extra authority fields, mismatched IDs, deadlines and cancellation (0.450958ms)
+✔ queue cannot select another client, deployment, model, image or arbitrary worker program (1.813292ms)
+✔ redelivery observes existing terminal Run and signed Result without an allocation or execution (0.126875ms)
+✔ signed cloud snapshot pins source tree, immutable image, policies, envelope and evidence class (6.405666ms)
+✔ cloud snapshot rejects mutable images, local profiles, missing policy/source and excess resources (0.5565ms)
+✔ verification is deduplicated, binds immutable custody and returns only after cleanup (3.038292ms)
+✔ failed protected check remains FAIL after successful teardown (0.128583ms)
+✔ custody mismatch and candidate exceptions never become success or uncontrolled evidence (0.289125ms)
+✔ cancelled authority prevents allocation; missing allocation receipt stays unresolved (0.376583ms)
+✔ lost database allocation receipt is recovered only for the same destroyed resource (0.114ms)
+✔ cleanup failure withholds PASS and reconciliation never allocates a replacement (0.391458ms)
+✔ recovery with no verifier intent does not create one (1.249541ms)
+✔ cloud Work API authenticates before touching any dependency and rejects production project/environment (2.350042ms)
+✔ qualification controls retain disabled admission and cannot call arbitrary methods or routes (2.386125ms)
+✔ deployment bypass alone has no authority and Work grant denials remain explicit (0.698292ms)
+✔ provider-only credential cannot create/read/dispatch/collect/verify/publish on any application path (0.260625ms)
+✔ Vercel rewrite capture preserves the canonical route without accepting query overrides (0.748958ms)
+✔ hosted lifecycle schedules recovery before allocation, collects after quiescence, tears down before terminal and never re-executes (4.306375ms)
+✔ queue ambiguity or fenced authority prevents allocation; allocation ambiguity cannot claim early quiescence (0.37925ms)
+✔ command failure still destroys resource; cleanup uncertainty prevents terminal result (0.253417ms)
+✔ recovery fences first and never restarts productive execution (0.336834ms)
+✔ HEADLESS cloud custody and teardown never consult unavailable operator session surfaces (0.16925ms)
+✔ pinned cloud verifier runs after producer teardown and before canonical terminal (0.197958ms)
+✔ missing or unclean verifier cannot silently fall back to producer checks (1.220583ms)
+✔ deterministic executor produces a real exact-source Git candidate accepted by custody and signed protocol (LOCAL fixture, not cloud) (507.942708ms)
+✔ every hosted queue callback retains a specific private trigger before the generic function pattern (2.317417ms)
+✔ deployed MJS entries retain the explicit TypeScript dependency closure (504.192834ms)
+✔ durable intent precedes effects, custody precedes cleanup, replay never executes (1.638416ms)
+✔ allocation ambiguity holds the slot and never retries before delayed cleanup reconciliation (0.486834ms)
+✔ execution ambiguity never becomes PASS and preserves cleanup truth (0.146375ms)
+✔ custody ambiguity never becomes PASS and preserves cleanup truth (0.119833ms)
+✔ cleanup ambiguity never becomes PASS and preserves cleanup truth (0.0945ms)
+✔ actual SDK allocation retries cannot repeat a mutating transport after 503 or network ambiguity (1220.318333ms)
+✔ artifact streaming enforces a bound before retaining excess bytes (0.8835ms)
+✔ readiness credential, production scope, invalid IDs and caller code cannot reach effects (6.5765ms)
+✔ hosted empty POST stream is accepted without accepting a caller payload (1.09525ms)
+✔ failed worker commands retain diagnostics before artifact access or teardown (0.739667ms)
+✔ allocation refuses mutable images, wrong registry scope and unbounded time (1.852625ms)
+✔ allocation pins exact source and grants no worker credentials, ports, persistence or failover (0.77575ms)
+✔ hosted-infrastructure-probe.mjs refuses before provider execution (70.069959ms)
+✔ hosted-queue-check.mjs refuses before provider execution (64.451416ms)
+﹣ CONNECTED canonical cloud dispatch admission, concurrency, cancellation and leases (1.779542ms) # SKIP
+﹣ CONNECTED PostgreSQL canonical ledger parity, race, recovery and fencing (0.775833ms) # SKIP
+﹣ CONNECTED independent verifier admission, concurrency, fencing and cleanup (0.779583ms) # SKIP
+✔ durable intent precedes send; replay never resends; late delivery resolves UNKNOWN once (1.663417ms)
+✔ delivery before send acknowledgement never regresses DELIVERED (0.109334ms)
+✔ forged payload or wrong queue scope cannot reach durable update (0.35575ms)
+✔ HTTP authorization, environment and body guards run before queue or database access (19.512083ms)
+✔ empty streamed POST is supported; GET never sends (0.809833ms)
+✔ rejects absent, short and incorrect operator tokens (21.205542ms)
+✔ no dependency access before authentication (0.837333ms)
+✔ denies production and another project even with valid token (0.649541ms)
+✔ healthy infrastructure cannot enable cloud Work admission (0.828083ms)
+✔ independent dependency failures are retained without raw credential errors (0.117917ms)
+✔ requires authenticated database URL and verified TLS regardless of URL flags (0.403ms)
+✔ same exact authorized identity can be resolved again without mutating Current Truth (2.102833ms)
+✔ session scope guard denies cross-Work request (0.215333ms)
+✔ session scope guard denies cross-Work grant (0.077166ms)
+✔ session scope guard denies cross-owner (0.068ms)
+✔ session scope guard denies cross-business (0.065083ms)
+✔ session scope guard denies cross-environment (0.053459ms)
+✔ session scope guard denies other execution (0.05425ms)
+✔ session scope guard denies other attempt (0.05975ms)
+✔ session scope guard denies stale Work generation (0.068542ms)
+✔ session scope guard denies stale execution generation (0.107625ms)
+✔ session scope guard denies expired scope (0.076375ms)
+✔ session scope guard denies invalid expiry (0.055291ms)
+✔ session scope guard denies revoked scope (0.059ms)
+✔ session scope guard denies missing operator (0.042542ms)
+✔ session scope guard denies terminal execution (0.04475ms)
+✔ session scope guard denies verifier attachment (0.047792ms)
+✔ session scope guard denies ungranted surface (0.046458ms)
+✔ session request rejects host selection (0.053959ms)
+✔ session request rejects native session selection (0.034417ms)
+✔ session request rejects credential (0.043875ms)
+✔ session request rejects command (0.029917ms)
+✔ session request rejects owner chosen by caller (0.034916ms)
+✔ session request rejects nested path (0.059833ms)
+✔ session request rejects shell text (0.047ms)
+✔ session request rejects HEADLESS interactive request (0.039375ms)
+✔ session request rejects unknown surface (0.03325ms)
+✔ session request rejects unknown version (0.033958ms)
+✔ session request rejects missing field (0.034125ms)
+✔ session request rejects fractional generation (0.036417ms)
+✔ session request rejects zero generation (0.03375ms)
+ℹ tests 103
+ℹ suites 0
+ℹ pass 100
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms 1637.566333
+
+> @factory/supervisor@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ agent note changes durable UI data but cannot grant publication approval (21.396ms)
+✔ candidate, evidence, and policy changes invalidate an approved draft request (16.55ms)
+✔ human approval requires a fresh device-owner confirmation (16.031375ms)
+✔ an exact approved candidate records one draft PR and repeated calls stay local (32.317084ms)
+✔ a changed candidate blocks draft publication before the adapter is called (23.631375ms)
+✔ an uncertain draft outcome only reconciles remote state on retry (14.329083ms)
+✔ app builder creates a durable WorkOrder linked to a versioned scaffold (33.305917ms)
+✔ connected app intake is scoped, idempotent across restart, and uses the shared audit records (87.670042ms)
+✔ connections cannot escape repository/action scope, impersonate humans, or survive revocation (56.63625ms)
+✔ prepare binds actual attempt before any execution; response-loss/restart replay never redispatches (470.544375ms)
+✔ wrong token, replay mutation, incomplete binding and changed FactoryVersion cannot start work (104.539292ms)
+✔ stop before dispatch creates a durable terminal fence rejecting delayed execution after restart (101.43875ms)
+✔ running stop stays STOPPING until the actual adapter call settles (97.594125ms)
+✔ default paid dispatch denies even with valid binding and injected dependencies (97.656042ms)
+✔ producer deadline aborts execution without a MyEve polling loop (667.423167ms)
+✔ connected START routes each synthetic model call through exact Work spend gateway (667.832666ms)
+✔ completion prerequisite/finalization fails closed: no changes (121.989125ms)
+✔ completion prerequisite/finalization fails closed: outside scope (117.756292ms)
+✔ completion prerequisite/finalization fails closed: failed checks (663.178583ms)
+✔ completion prerequisite/finalization fails closed: completion failure (400.44575ms)
+✔ completion prerequisite/finalization fails closed: completion mutation (468.466541ms)
+✔ Owner Computer capabilities track permissions independently and omit local roots (31.229584ms)
+✔ offline, revoked, stale and absent heartbeat never advertise an online Mac (1.003167ms)
+✔ Local Factory health cannot qualify background or protected verification authority (0.6855ms)
+✔ CLOUD_COMPUTER is not a new environment type or implied cloud capability (1.763792ms)
+✔ environment wire contract rejects agent/harness field agentId (0.07625ms)
+✔ environment wire contract rejects agent/harness field specialistRole (0.049208ms)
+✔ environment wire contract rejects agent/harness field harness (0.044125ms)
+✔ environment wire contract rejects agent/harness field codex (0.053333ms)
+✔ environment wire contract rejects agent/harness field claudeCode (0.040667ms)
+✔ environment wire contract rejects agent/harness field deepAgent (0.04075ms)
+✔ environment wire contract rejects agent/harness field cursor (0.045458ms)
+✔ Software Engineer retains identity across resource-driven environments (1.052958ms)
+✔ Designer retains identity across resource-driven environments (1.340542ms)
+✔ Researcher retains identity across resource-driven environments (0.254083ms)
+✔ Sofie retains identity across resource-driven environments (0.235708ms)
+✔ Future Specialist retains identity across resource-driven environments (0.646042ms)
+✔ explicit cloud computer requirements use existing capability/policy/qualification routing (0.493583ms)
+✔ CLOUD may qualify browser without the other computer capabilities (9.730916ms)
+✔ browser absent cannot become qualified cloud computer access (7.605666ms)
+✔ browser unavailable cannot become qualified cloud computer access (0.354542ms)
+✔ browser incompatible cannot become qualified cloud computer access (0.099292ms)
+✔ browser unqualified cannot become qualified cloud computer access (5.211375ms)
+✔ browser unauthorized cannot become qualified cloud computer access (0.140833ms)
+✔ CLOUD may qualify desktop without the other computer capabilities (0.120958ms)
+✔ desktop absent cannot become qualified cloud computer access (0.097375ms)
+✔ desktop unavailable cannot become qualified cloud computer access (0.326542ms)
+✔ desktop incompatible cannot become qualified cloud computer access (0.463167ms)
+✔ desktop unqualified cannot become qualified cloud computer access (0.105084ms)
+✔ desktop unauthorized cannot become qualified cloud computer access (0.050792ms)
+✔ CLOUD may qualify screenshot without the other computer capabilities (0.066958ms)
+✔ screenshot absent cannot become qualified cloud computer access (0.085125ms)
+✔ screenshot unavailable cannot become qualified cloud computer access (0.065375ms)
+✔ screenshot incompatible cannot become qualified cloud computer access (0.064333ms)
+✔ screenshot unqualified cannot become qualified cloud computer access (0.071917ms)
+✔ screenshot unauthorized cannot become qualified cloud computer access (0.033417ms)
+✔ CLOUD may qualify appInteraction without the other computer capabilities (0.076ms)
+✔ appInteraction absent cannot become qualified cloud computer access (0.066792ms)
+✔ appInteraction unavailable cannot become qualified cloud computer access (0.067667ms)
+✔ appInteraction incompatible cannot become qualified cloud computer access (0.073042ms)
+✔ appInteraction unqualified cannot become qualified cloud computer access (0.077083ms)
+✔ appInteraction unauthorized cannot become qualified cloud computer access (0.04175ms)
+✔ operator browser surface is not an agent browser capability (0.102667ms)
+✔ repository Work stays independent of future computer capabilities (0.080541ms)
+✔ descriptor rejects credential field (0.966917ms)
+✔ descriptor rejects unknown capability (0.169333ms)
+✔ descriptor rejects duplicate capability (0.10075ms)
+✔ descriptor rejects negative capacity (0.076792ms)
+✔ descriptor rejects fractional heartbeat (0.066084ms)
+✔ descriptor rejects NaN heartbeat (0.069166ms)
+✔ descriptor rejects reversed protocol (0.058792ms)
+✔ descriptor rejects missing version pin (0.044083ms)
+✔ descriptor rejects mutable cloud runtime (0.063958ms)
+✔ descriptor rejects wrong schema (0.085042ms)
+✔ descriptor rejects unknown environment (0.13925ms)
+✔ descriptor rejects control characters (0.058792ms)
+✔ descriptor parsing is defensive and missing capabilities stay absent (0.782917ms)
+✔ routing matrix: repository with both online (0.835458ms)
+✔ routing matrix: repository with Mac offline (0.235ms)
+✔ routing matrix: Mac file (0.199333ms)
+✔ routing matrix: offline Mac file (0.185709ms)
+✔ routing matrix: offline cloud never falls back (0.174417ms)
+✔ routing matrix: explicit local qualification (0.214584ms)
+✔ cloud fails closed: offline (0.239417ms)
+✔ cloud fails closed: stale heartbeat (0.183458ms)
+✔ cloud fails closed: future heartbeat (0.177125ms)
+✔ cloud fails closed: capacity exhausted (0.966875ms)
+✔ cloud fails closed: environment revoked (1.485417ms)
+✔ cloud fails closed: protocol mismatch (0.463416ms)
+✔ cloud fails closed: missing capability (0.41175ms)
+✔ cloud fails closed: wrong capability version (0.502375ms)
+✔ cloud fails closed: capability unavailable (1.005042ms)
+✔ cloud fails closed: advertisement without qualification (0.613834ms)
+✔ cloud fails closed: unqualified FactoryVersion (0.65475ms)
+✔ cloud fails closed: runtime drift (0.22725ms)
+✔ cloud fails closed: provider drift (0.202291ms)
+✔ cloud fails closed: qualification expired (0.185ms)
+✔ cloud fails closed: qualification revoked (0.180167ms)
+✔ cloud fails closed: qualification not yet valid (0.176542ms)
+✔ cloud fails closed: qualification lacks required capability (1.221584ms)
+✔ cloud fails closed: conflicting qualification (0.459875ms)
+✔ cloud fails closed: environment wrong owner (0.38525ms)
+✔ cloud fails closed: environment wrong business (0.471542ms)
+✔ cloud fails closed: environment not authorized (1.070958ms)
+✔ authority mismatch denies owner (0.137375ms)
+✔ authority mismatch denies business (0.093167ms)
+✔ authority mismatch denies Work (0.097708ms)
+✔ authority mismatch denies generation (0.084667ms)
+✔ authority mismatch denies expiry (0.083334ms)
+✔ authority mismatch denies invalid expiry (0.084708ms)
+✔ authority mismatch denies repository (0.082583ms)
+✔ authority mismatch denies capability (0.082208ms)
+✔ Mac resource pins the device; permission loss never routes desktop elsewhere (0.35475ms)
+✔ selection is deterministic across ordering and duplicate identity is rejected (1.019459ms)
+✔ bound Work survives environment removal as readback, never new admission (3.015291ms)
+✔ safe read model omits scope/version internals and reflects stale/downgraded state (0.292583ms)
+✔ derivation requires real resource identity and evidence does not authorize execution (0.2325ms)
+✔ qualified advertisement of desktop cannot replace Work authority (0.198625ms)
+✔ qualified advertisement of browser cannot replace Work authority (0.172583ms)
+✔ qualified advertisement of git cannot replace Work authority (0.146625ms)
+✔ qualified advertisement of shell cannot replace Work authority (0.137083ms)
+✔ additional cloud sandbox needs its own authority and qualification without changing Work (0.865125ms)
+✔ adding an eligible sandbox cannot migrate an existing execution binding (0.3655ms)
+✔ multiple owner computers retain independent resource identity and exact Work binding (0.370333ms)
+✔ Attempt 4 inspection is deterministic zero-call context with missing target explicitly represented (440.390625ms)
+✔ untracked credentials are not context; symlinks, changed HEAD and oversized source fail closed (300.96875ms)
+✔ implementation feedback is bounded data from visible checks, never arbitrary logs (100.873333ms)
+✔ prepare does not start, and start retains the canonical atomic claim and gateway (13.390708ms)
+✔ a live productive or completion group prevents quiescence and artifact collection (16.873458ms)
+✔ unavailable verifier stays unresolved; read never changes business state (21.156708ms)
+✔ malformed PID and foreign live supervisor never establish absence (8.607125ms)
+✔ cancel requests stop without claiming the running executor has terminated (13.51325ms)
+✔ cross-attempt inputs fail before resource operations (18.946167ms)
+✔ a prior attempt cannot contribute resources or settlement to the current attempt (8.122792ms)
+✔ local teardown honestly retains candidate workspace required by legacy publication (8.422917ms)
+✔ readiness failure cannot expose provider errors or start work (14.875917ms)
+✔ supervisor commits only a scoped source change and records exact identity (346.203125ms)
+✔ supervisor rejects out-of-scope and symlink changes (164.51475ms)
+✔ supervisor rejects an agent-created commit even if the worktree is clean (106.042125ms)
+✔ completion tree pins only authorized changes; no commit until successful host finalization (311.650666ms)
+✔ fresh publication pushes only the reviewed commit and creates one draft PR (7.70125ms)
+✔ existing exact draft PR reconciles without another remote mutation (0.23025ms)
+✔ unknown prior outcome uses read-only reconciliation and holds a branch without a PR (0.289583ms)
+✔ read-only reconciliation works after the local workspace is gone or base moves (0.101583ms)
+✔ a moved base or occupied WorkOrder branch blocks all mutations (0.210875ms)
+✔ a ready or closed PR cannot be mistaken for the approved draft (0.194042ms)
+✔ lost push or PR response is reconciled from exact remote state (10.424292ms)
+✔ an unconfirmed create remains uncertain and reconcileOnly never retries it (0.28275ms)
+✔ invalid or changed local candidates never contact GitHub (0.360625ms)
+✔ hosted request reaches shared actions, survives lost receipt/restart, and rejects revocation and forgery (57.5855ms)
+﹣ Attempt 6 deterministic checkpoint: correct-first (0.78175ms) # SKIP
+﹣ Attempt 6 deterministic checkpoint: repairable (0.052167ms) # SKIP
+﹣ Attempt 6 deterministic checkpoint: still-bad (0.042208ms) # SKIP
+﹣ Attempt 6 deterministic checkpoint: outside-scope (0.037459ms) # SKIP
+✔ default host Codex cannot start a paid operation without a Work spend gateway (60.389042ms)
+✔ wrong baseline failure text blocks Codex before implementation (29.584042ms)
+✔ post-fix reproduction failure blocks ready for review despite another passing check (75.1585ms)
+✔ cancel during worktree creation removes the workspace and frees the active slot (24.134125ms)
+✔ pausing dispatch while a start resolves its workspace prevents a new run (12.833125ms)
+✔ restart holds an untracked worker and preserves completed history (15.405584ms)
+✔ restart allows retry after the recorded host process group is absent (14.831ms)
+✔ manual and automatic Linear creation save durable links without duplicate issues (35.561916ms)
+✔ lost remote response reconciles the saved UUID after restart and keeps local creation successful (39.994209ms)
+✔ GraphQL errors are not success, secrets are not recorded, and interrupted sync is recoverable (16.6595ms)
+✔ existing OAuth connection refreshes authorization and binds sync to the recovered workspace (13.867042ms)
+✔ OAuth failures never expose provider credentials in the action error (0.309291ms)
+﹣ Safe-integer corpus checkpoint: correct-first (0.770416ms) # SKIP
+﹣ Safe-integer corpus checkpoint: repairable (0.053584ms) # SKIP
+﹣ Safe-integer corpus checkpoint: still-bad (0.042958ms) # SKIP
+﹣ Safe-integer corpus checkpoint: outside-scope (0.040459ms) # SKIP
+✔ preflight uses authenticated read-only endpoints and returns only bounded safe metadata (17.718125ms)
+✔ denial, absent or unknown eligibility, wrong provider, missing tools and rate changes fail closed (1.275459ms)
+✔ OIDC pins configuration and never falls back to the Keychain reader (7.333125ms)
+✔ scoped SDK identity is acquired once, verified, refreshed before expiry, and reacquired on restart (1.540625ms)
+✔ wrong project, owner, audience, issuer, environment, expiry or signature fail closed without token disclosure (0.780542ms)
+✔ OIDC requests remain admitted, limited and completion-reserved; local tool search does not create extra operations (83.560667ms)
+▶ gateway denial, transport loss, missing usage and credential echoes retain UNKNOWN without retries or disclosure
+  ✔ denied (28.455625ms)
+  ✔ throw (27.367792ms)
+  ✔ unknown (24.124334ms)
+  ✔ echo (20.76325ms)
+✔ gateway denial, transport loss, missing usage and credential echoes retain UNKNOWN without retries or disclosure (102.699167ms)
+✔ cancellation denies OIDC model dispatch without a paid operation (34.974375ms)
+✔ real startup cannot borrow synthetic workers, fixtures, or authority overrides (1.29825ms)
+✔ real startup requires provisioned signing before attempting credential access (0.375958ms)
+✔ provider configuration rejects inline secrets and oversized model bounds (0.095917ms)
+✔ live preparation rejects expanded Work authority before touching persistence or provider (0.581459ms)
+✔ Gateway model identity survives signed candidate provenance without normalization (342.476709ms)
+✔ golden producer admission captures actual F1 and returns independently verifiable C1/E1/E2 bytes (414.394375ms)
+✔ immutable snapshot rejects wrong version and preserves the original (218.732292ms)
+✔ wrong request, WorkOrder, attempt, producer and expected version fail correlation (213.844083ms)
+✔ changed candidate, artifact, evidence and manifest bytes are rejected (196.81025ms)
+✔ duplicate delivery and conflicting operation are distinguishable (221.779833ms)
+✔ candidate or check-log mutation before freezing prevents signing (503.851083ms)
+✔ unknown timeout produces UNKNOWN with no fabricated terminal receipt (87.382958ms)
+✔ unresolved baseline and candidate verification remain UNKNOWN with retry held (252.678667ms)
+✔ cancellation is STOPPING until terminal and retains original version (84.529ms)
+✔ legacy attempts cannot be relabeled with current Factory configuration (54.557ms)
+✔ key rotation preserves historical verification but denies retired/revoked current admission (216.118709ms)
+✔ unexpected authority fields and unsupported protocol are rejected even by a valid signer (228.23ms)
+✔ valid producer signing a different configuration cannot satisfy the expected F1 (205.068542ms)
+✔ scoped authenticated endpoint and client read only the exact attempt, including after restart (288.476667ms)
+✔ one exact Proof evidence reference crosses the authenticated Work boundary and rejects scope substitutions (278.822666ms)
+✔ revoked current signing configuration denies capture before a worker starts (77.198708ms)
+✔ separate processes serialize immutable attempt records without duplicate or replacement (168.84825ms)
+﹣ Bounded productive semantics: context-contract (0.812958ms) # SKIP
+﹣ Bounded productive semantics: targeted-inspection (0.058041ms) # SKIP
+﹣ Bounded productive semantics: captured-no-edit (0.038583ms) # SKIP
+﹣ Bounded productive semantics: correct-first (0.038375ms) # SKIP
+﹣ Bounded productive semantics: repairable (0.041583ms) # SKIP
+﹣ Bounded productive semantics: still-bad (0.033666ms) # SKIP
+﹣ Bounded productive semantics: outside-scope (0.038958ms) # SKIP
+﹣ Bounded productive semantics: linked-repair (0.039083ms) # SKIP
+✔ captured productive context contained all implementation facts and explicit first-response edit instructions (0.725292ms)
+✔ explicit pinned config loads only a synthetic injected secret (1.199375ms)
+✔ missing, inaccessible and malformed Keychain values fail closed without disclosure (0.304084ms)
+✔ endpoint, model, secret ref, expiry and mode cannot silently fall back (0.101208ms)
+✔ explicit real-provider config reaches only the synthetic metered boundary (57.344166ms)
+✔ Attempt-8 escape → owner-bounded repair Work → new candidate → full fresh verification → independent review (22.206167ms)
+✔ reviews and verification ingestion are host-only; agent can propose but cannot approve (14.145333ms)
+✔ proposal/approval replay survives restart and never creates a duplicate Work (16.208458ms)
+✔ independent-review and exact-candidate records cannot be relabeled (10.330416ms)
+✔ Candidate A verdicts and unchanged tree cannot pass Candidate B (14.345916ms)
+✔ restricted findings never enter producer context; absence of public reproduction needs an owner (53.786708ms)
+✔ protected payload, malformed findings, unsupported policy and scope expansion fail closed (10.395667ms)
+✔ maxRounds is a chain limit, not a renewable allowance (14.5815ms)
+✔ maxOperations is a chain limit, not a renewable allowance (15.871458ms)
+✔ maxBudgetMicrousd is a chain limit, not a renewable allowance (15.571625ms)
+✔ a second round links B to C without rewriting A; objective and contract stay fixed (16.548584ms)
+✔ expired chain and UNKNOWN evidence cannot trigger another repair (15.253709ms)
+✔ canonical preparation enforces exact objective, base, scope, operations, budget, duration and one binding (14.387041ms)
+✔ failed-review publication is denied; publication approval never follows review PASS automatically (10.319541ms)
+✔ private review PASS does not replace published CI or post-CI review (12.665ms)
+✔ restricted-only finding cannot authorize a repair prompt (11.2235ms)
+✔ ancestor verdicts cannot be recycled into later repair rounds (25.971708ms)
+✔ failed preparation is Needs You and cannot create an unmetered retry (11.429541ms)
+✔ shared create action persists its WorkOrder and event across a restart (50.948167ms)
+✔ state-changing actions require a local origin and session token (19.332917ms)
+✔ a shared loopback token cannot authorize a human-only action (12.508917ms)
+✔ restart holds an in-flight draft outcome for read-only reconciliation (10.915416ms)
+✔ agent endpoint creates scoped work and can pause but cannot resume dispatch (25.748333ms)
+✔ app builder endpoint creates a linked scaffold without claiming verification (25.513083ms)
+✔ explicit local preview serves generated UI and its action API, then stops truthfully (2588.948542ms)
+✔ manual signals are deduplicated and releases stay empty until recorded (16.78175ms)
+✔ same exact authorized identity can be resolved again without mutating Current Truth (2.979166ms)
+✔ session scope guard denies cross-Work request (0.256709ms)
+✔ session scope guard denies cross-Work grant (0.086708ms)
+✔ session scope guard denies cross-owner (0.065083ms)
+✔ session scope guard denies cross-business (0.071167ms)
+✔ session scope guard denies cross-environment (0.063541ms)
+✔ session scope guard denies other execution (0.05675ms)
+✔ session scope guard denies other attempt (0.060125ms)
+✔ session scope guard denies stale Work generation (0.067042ms)
+✔ session scope guard denies stale execution generation (0.10175ms)
+✔ session scope guard denies expired scope (0.079709ms)
+✔ session scope guard denies invalid expiry (0.055791ms)
+✔ session scope guard denies revoked scope (0.065959ms)
+✔ session scope guard denies missing operator (0.048625ms)
+✔ session scope guard denies terminal execution (0.040375ms)
+✔ session scope guard denies verifier attachment (0.048167ms)
+✔ session scope guard denies ungranted surface (0.04625ms)
+✔ session request rejects host selection (0.051875ms)
+✔ session request rejects native session selection (0.097875ms)
+✔ session request rejects credential (0.050125ms)
+✔ session request rejects command (0.037541ms)
+✔ session request rejects owner chosen by caller (0.03425ms)
+✔ session request rejects nested path (0.037917ms)
+✔ session request rejects shell text (0.0485ms)
+✔ session request rejects HEADLESS interactive request (0.030792ms)
+✔ session request rejects unknown surface (0.028167ms)
+✔ session request rejects unknown version (0.030875ms)
+✔ session request rejects missing field (0.033208ms)
+✔ session request rejects fractional generation (0.032833ms)
+✔ session request rejects zero generation (0.028ms)
+✔ surface capabilities negotiate through the existing descriptor without granting execution (1.082125ms)
+﹣ installed Codex CLI reaches only the metered loopback Responses boundary (0.621792ms) # SKIP
+✔ request is reserved before provider and settles only authoritative usage (33.944916ms)
+✔ UNKNOWN denies a second paid call despite remaining Work headroom (19.127417ms)
+✔ cancelled Work and expired pricing deny before provider (11.249833ms)
+✔ concurrent requests cannot exceed the productive operation slot limit (16.034041ms)
+✔ streaming completion carries authoritative usage; missing completion stays UNKNOWN (54.333ms)
+✔ missing, stale, or fractional pricing fails closed (0.467083ms)
+✔ client tool search is metered as part of its model request and hosted search is denied (25.206667ms)
+✔ separately charged hosted tools are denied before reservation (11.733458ms)
+✔ Attempt 4: exhausted productive calls are a local terminal denial, not a provider 503 (17.896167ms)
+✔ Attempt 4 reconnaissance cannot spend the final productive slot without actual implementation (17.419958ms)
+✔ real upstream 503 retains UNKNOWN exposure and repeated local requests never retry upstream (19.32175ms)
+✔ Attempt 5: exhausted productive loop yields to host exactly once without spending completion (20.22825ms)
+✔ asynchronous durable reservation and dispatch complete before the provider is contacted (11.775208ms)
+✔ asynchronous dispatch rejection cannot contact provider and retains UNKNOWN reservation (10.642791ms)
+✔ hosted Fetch adapter retains canonical reservation, usage and no-fallback boundaries (15.006417ms)
+✔ hosted Fetch transport failure is UNKNOWN and never retried (11.716ms)
+✔ historical terminal READ never fences a newer active Work generation (17.040458ms)
+✔ a live completion process blocks terminal resource reconciliation (14.514542ms)
+✔ restart holds a live completion process even when productive pid is absent (11.168458ms)
+ℹ tests 294
+ℹ suites 0
+ℹ pass 277
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 17
+ℹ todo 0
+ℹ duration_ms 7631.146166
+
+> @factory/agents@0.1.0 test
+> node --test test/agents.test.mjs
+
+✔ preflight checks only version and login status (249.100834ms)
+✔ run keeps prompt literal and returns only event-backed completion (153.903375ms)
+✔ gateway run isolates child auth and pins the Responses provider to loopback (158.54425ms)
+✔ process start callback is awaited before event processing (161.297667ms)
+✔ process start persistence failure terminates the process group and returns failed (2.682459ms)
+✔ exit zero with persuasive final prose but no turn.completed is failure (157.798166ms)
+✔ turn.completed with nonzero exit is failure (154.721959ms)
+✔ malformed JSONL prevents success (150.11325ms)
+✔ timeout and abort stop the process group (3173.110084ms)
+✔ artifacts may not be written inside the task workspace (1.09725ms)
+✔ Attempt 3: exact provider-qualified model reaches the executor as one literal argument (199.903208ms)
+✔ unsafe or ambiguous model references never launch an executor (1.964084ms)
+✔ canonical model references preserve qualified and legacy identity with bounded length (0.102292ms)
+✔ host productive boundary yields a quiescent process without claiming a completed model turn (104.722709ms)
+✔ owner cancellation dominates a productive boundary signal (105.931292ms)
+✔ host productive protocol cannot be enabled without its metered checkpoint or in completion (1.343125ms)
+✔ explicit container adapter reports its execution profile without changing local defaults (270.779042ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5165.971375
+
+> @factory/app-builder@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ lists the bundled starter without creating an app (1.397458ms)
+✔ instantiates a versioned feedback hub and hashes the final generated files (8.752583ms)
+✔ refuses overwrite, path traversal, and a symlinked task directory (8.827959ms)
+✔ preview refuses modified or extra scaffold files before install (29.816ms)
+✔ preview checks the manifest digest before running commands (5.013583ms)
+✔ preview does not launch when its durable request event cannot be recorded (5.061791ms)
+✔ offline install has a clean environment and source is rechecked afterward (142.308833ms)
+✔ a server that exits at readiness never leaves a running preview (430.139167ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 734.790125
+
+> @factory/hosted-routing@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ signed intake binds caller, repository, team, issue and expiry (2.55475ms)
+✔ only the local host key can produce an accepted receipt (0.779625ms)
+✔ lost provider response is reconciled without a duplicate and changed requests conflict (0.396708ms)
+✔ remote intake cannot introduce arbitrary execution fields or escape paths (0.071208ms)
+✔ Linear blank-line serialization preserves signed requests and receipts (0.214917ms)
+✔ oversized envelopes fail before an external issue is created (0.151625ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 72.087
+
+> @factory/storage@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ synchronized processes cannot oversubscribe last productive dollars or slot (112.439584ms)
+✔ UNKNOWN and cancellation races deny subsequent provider dispatch (203.517791ms)
+✔ synchronized completion processes cannot exceed final reserve or slot (114.589292ms)
+✔ actual writer deaths preserve slots, dollars, UNKNOWN, completion and settlement (558.583416ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (9.496875ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (9.191375ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (10.933209ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (7.289791ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (7.075959ms)
+✔ concurrent ledger connections share the last operation slot (6.783375ms)
+✔ legacy V1 Work budget has no paid admission (6.675417ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (8.193417ms)
+✔ two completion operations cannot race past protected completion slots or dollars (7.014209ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (5.954917ms)
+✔ expired pinned pricing is denied at the ledger even after an earlier reservation (6.4085ms)
+✔ Attempt 5 completion eligibility rejects UNKNOWN, stale generation, fenced writer and used completion (8.105916ms)
+✔ records survive close and reopen with contract shaped JSON and status (10.575958ms)
+✔ migrates an existing v1 WorkOrder and preserves the new failure oracle (8.016958ms)
+✔ events retain append order and nested payload after restart (8.260125ms)
+✔ separate connections serialize attempt allocation and reject bad foreign keys (64.904833ms)
+✔ a state change and audit event roll back together (6.03825ms)
+✔ signal ingestion is idempotent by source identity and preserves its WorkOrder link (7.826958ms)
+✔ release records retain artifact and prior known-good identity across restart (7.168542ms)
+✔ external actions are uniquely tied to an exact publication request and destination (5.880959ms)
+✔ v4 external actions migrate with null publication binding (3.982375ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1112.557417
+
+> @factory/verification@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ durable evidence survives readback and tampering cannot satisfy policy (20.56825ms)
+✔ screenshot and journey are collected from bounded local preview; video is optional (347.548542ms)
+✔ public and credentialed URLs are refused before launching a browser (0.459834ms)
+✔ every evidence kind has an enforced individual byte ceiling (0.903042ms)
+✔ exact committed static UI survives working-tree mutation and yields candidate-bound Playwright evidence (239.434584ms)
+✔ captured Attempt-8 implementation fails four public safe-range checks (970.185792ms)
+✔ deterministic control passes all 17 public checks without producing a live candidate (889.662167ms)
+✔ independent review regression rejects rounding/null and accepts the safe-range control (288.620417ms)
+▶ verifies the exact commit in a read-only, offline container and records honest outcomes
+  ✔ each check keeps its commit, tree, log, and isolated Docker arguments (316.126167ms)
+  ✔ git diff --check validates the candidate commit without requiring .git in the source export (173.168541ms)
+  ✔ archive attributes that omit committed content block verification (58.121833ms)
+  ✔ missing repositories produce unavailable evidence and image options are rejected (1.041666ms)
+  ✔ abort stops an active check and records remaining checks as unavailable (139.656875ms)
+✔ verifies the exact commit in a read-only, offline container and records honest outcomes (745.229542ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2218.378459

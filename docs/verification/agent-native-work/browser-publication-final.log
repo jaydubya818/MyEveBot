@@ -1,0 +1,21 @@
+
+Running 12 tests using 1 worker
+
+(node:17738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Open a pull request (5.3s)
+  ✓   2 [desktop] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Push branch only (5.1s)
+  ✓   3 [desktop] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Keep private (663ms)
+  ✓   4 [desktop] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Reject candidate (681ms)
+  ✓   5 [desktop] › test/publication/owner.spec.ts:31:1 › P0 owner auth and cross-origin requests cannot record decisions (119ms)
+  ✓   6 [desktop] › test/publication/owner.spec.ts:38:1 › P0 current CI/review supplements immutable Proof and never implies owner acceptance (4.9s)
+(node:18167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [390px] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Open a pull request (5.1s)
+  ✓   8 [390px] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Push branch only (5.0s)
+  ✓   9 [390px] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Keep private (666ms)
+  ✓  10 [390px] › test/publication/owner.spec.ts:9:2 › P0 real retained Result → Proof → owner decision → Reject candidate (654ms)
+  ✓  11 [390px] › test/publication/owner.spec.ts:31:1 › P0 owner auth and cross-origin requests cannot record decisions (103ms)
+  ✓  12 [390px] › test/publication/owner.spec.ts:38:1 › P0 current CI/review supplements immutable Proof and never implies owner acceptance (4.9s)
+
+  12 passed (35.1s)

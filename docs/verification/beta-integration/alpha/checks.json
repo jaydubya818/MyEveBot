@@ -1,0 +1,76 @@
+{
+  "recordedAt": "2026-09-29T00:45:26.064644+00:00",
+  "scope": "Available local private-alpha assembly; missing exact efe9 producer and live providers NOT_RUN",
+  "application": {
+    "status": "PASS",
+    "passed": 1845,
+    "skipped": 61,
+    "skipScope": [
+      "19 Relay model-budget integration",
+      "4 legacy Capsule staging-store",
+      "20 pending-action continuation integration",
+      "1 remember-gateway integration",
+      "16 engineering admission-context integration"
+    ]
+  },
+  "rootSecurity": {
+    "status": "PASS",
+    "passed": 135
+  },
+  "typecheck": "PASS",
+  "productionBuild": "PASS",
+  "governance": {
+    "status": "PASS",
+    "classifiedSources": 714,
+    "unknown": 0
+  },
+  "migrationLineage": {
+    "status": "PASS",
+    "migrations": 63,
+    "latest": "0067_capsule_canonical_memory.sql",
+    "preservedThrough": "0066"
+  },
+  "canonicalCapsules": {
+    "status": "PASS",
+    "checks": 12,
+    "scope": "Personal owner Memory/preferences activation; learning/Skills/Roles/Packs remain staged"
+  },
+  "goalOSPostgreSQL": {
+    "status": "PASS",
+    "checks": 19,
+    "sigkillBoundaries": 7
+  },
+  "inboxPostgreSQL": {
+    "status": "PASS",
+    "checks": 11,
+    "concurrentRetries": 16
+  },
+  "memoryLearningPostgreSQL": "PASS",
+  "gateB": "PASS",
+  "gateC": {
+    "status": "PASS",
+    "checks": 47,
+    "fixture": "Preserved signed producer golden; independent of missing final producer"
+  },
+  "canonicalRecovery": {
+    "status": "PASS",
+    "sigkillBoundaries": 7
+  },
+  "wholeProductLocalJourney": "PARTIAL",
+  "canonicalResult": "PARTIAL",
+  "proofOfWork": "PARTIAL",
+  "exactSpendSafeProducerPair": "NOT_RUN_SOURCE_UNAVAILABLE",
+  "liveSofie": "NOT_RUN",
+  "liveMyFactory": "NOT_RUN",
+  "managedBeta": "NOT_DEPLOYED",
+  "privateAlphaRuntimePatch": {
+    "status": "INACTIVE_PENDING_EXPLICIT_APPROVAL",
+    "applicability": "PASS",
+    "newTests": "NOT_RUN"
+  },
+  "notes": [
+    "Gate B teardown was changed to wait for its own database backends; all assertions and clean exit pass.",
+    "The final UI-only destination-field polish was followed by a production build, typecheck and desktop/390px browser recheck.",
+    "Unit skips remain explicit. Separate canonical Capsule, Goal, Inbox, Memory/Learning and Gate B/C PostgreSQL suites were run; skipped optional suites are not reported as executed."
+  ]
+}

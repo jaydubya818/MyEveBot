@@ -1,0 +1,688 @@
+{
+  "canonicalRepository": "/Users/jaywest/Myeve",
+  "canonicalBranch": "codex/openbot",
+  "canonicalHead": "4d3f1eb685422fc77296cef245e84c5b09da6e91",
+  "canonicalInitiallyClean": true,
+  "originFetched": true,
+  "originCanonicalBranchAtFetch": "absent",
+  "integrationBranch": "feat/relay-federation-adapter",
+  "oldIntegrationHead": "c92fd204c690c68b067d58dd6380aa23f95130d1",
+  "mergeBase": "74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c",
+  "oldFederationCommits": [
+    "c92fd204c690c68b067d58dd6380aa23f95130d1 test: qualify MyEve federation over isolated live trust domains",
+    "2f41e52979b1056f339f217e40ae48f884aa1c18 feat: add owner-controlled MyEve Relay federation adapter",
+    "595ea0e3a79f00b4d484d51f81809ea6d7397287 fix: isolate owner Knowledge display constants from server repositories"
+  ],
+  "canonicalAddedCommits": [
+    "4d3f1eb685422fc77296cef245e84c5b09da6e91 Record executor coverage and routine release qualification",
+    "d75b498b9c6ac47955e1eeabfa40962bf56d711d Qualify external write boundaries and read-only action recovery",
+    "81979b6d367776366e930278fdad897d63956fc5 Enforce canonical authority in qualified action executors"
+  ],
+  "changedFiles": [
+    {
+      "path": "apps/builder/lib/manifest.ts",
+      "classification": "Builder includes canonical browser overrides and existing missing manifest entries; preserved",
+      "diffSha256": "c3a30de35e252b363f9f2e670d8451c93c135469e4f0481bb5aff8149d6440ea"
+    },
+    {
+      "path": "apps/eve/agent/channels/agentphone-voice.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "ae231d8e8ec9bfee41439eb297bb7d0c68e7351c31c92ed6e0963dd49815faac"
+    },
+    {
+      "path": "apps/eve/agent/channels/agentphone.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "75ce4813058c067a6d5a8c7cc9859e86c8f866a4f9155d7fde505b2a8825ee85"
+    },
+    {
+      "path": "apps/eve/agent/channels/imessage.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "e8ca4ed558c1157eb611508a0c4ff96dfb7b4c956c2950a3750c0e62611e53b1"
+    },
+    {
+      "path": "apps/eve/agent/channels/slack.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "85ff4b1b2eebaa2f2197e721f9333ad10a66322592663af1d9efd3fc28b56f00"
+    },
+    {
+      "path": "apps/eve/agent/channels/telegram.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "c951935a59b9cab8bd8594e06f3e30dd4e9e36127264410a6def3fcf8d224507"
+    },
+    {
+      "path": "apps/eve/agent/connections/agentcard.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "976f0ba3280de2173854a4b9d3c16705467a1af3d78ffd306ad9f86c141fcd00"
+    },
+    {
+      "path": "apps/eve/agent/connections/composio.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "5544dff6cec3a4be3353fee2301bcf1f5ac1aae1327cf253aff26a2b6e3b2a40"
+    },
+    {
+      "path": "apps/eve/agent/connections/local-computer.ts",
+      "classification": "Unqualified inbound/outbound/opaque transports fail closed; no federation bypass",
+      "diffSha256": "0a7fefcfb44eb8c8a3d690c959db051dc1ad94a928f7505ebb48e7b81b0f3f75"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/click.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "28aeca4f4f995b987cc0da1af4eb0cdf12646ce75765f766cc507980f6a46677"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/close.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "4c7a5e373fecfb3feca475d62e8b11328d3868f9859c8388c3321ea163dee444"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/evaluate.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "6623892eeac3679bb3cbe5b2870e0eeed405e16cb7074aefc260620d15a5d70a"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/fill.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "a9d3d4d637be550421b5cd075b38f5e0a34ab60340fe3bf33327d6d4c30832cc"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/find.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "3351c33ce0f20fee07c4cb458690961e5a1059201b2de90995d320b6d8344fb7"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/get.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "b967053bc44dcdb54739f73d0d59ba9190f3249ebbfaff66c9a71ac9934442fa"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/navigate.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "44b9bbdad2611ad5fc9664266fcb85819582b0df1cad0caa2bc09bb0d276b107"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/press_key.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "d805496177963beee8873b6173454c5f6c9ca761a1e7e144daabcc4a34826aaa"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/read.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2b4d971205e998551dd7505ca8cd7970badc75337b978d217388a1695b35ec34"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/screenshot.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "0b2b41a8b5396e3cf6fdf2edad60f17355ce1bd55fe65b4e6637a46ca14711c1"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/scroll.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "6c3e2cdd524a4c5a5b4d08463c512ac8c7e86b9a9cf16084585852ef0048cb66"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/select_option.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "28a123a1d8263182a512ce6af4fdf0efea3181292ca0137384256de6bf95cc4b"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/snapshot.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "a827db906ddae328dc3662814032592d046b4197995d60eee33cf05ae1b247ef"
+    },
+    {
+      "path": "apps/eve/agent/extensions/browser/tools/wait_for.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "b0c7d52fa01873c36a6bfc21d20bee7cec0b0845f6ffe0d2477a37aeedaf310c"
+    },
+    {
+      "path": "apps/eve/agent/lib/action-context.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "4c770c2540f0af612c4442cb38cdb2367da35d66a3873cafc12a5402fa790f24"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentcard-mcp.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "d9e0c4ecbd0a3b6779bbd42bc0dda4688040e241bf7c753da263dedd93243dd6"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentmail.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2a2779a17566db028030650383d307451565bff6c57f7173b92795aeb8ef5509"
+    },
+    {
+      "path": "apps/eve/agent/lib/blob-share.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "e43d7896e834a82984efadad8d8cad009f24695140afc020e8dece3bf5de96e8"
+    },
+    {
+      "path": "apps/eve/agent/lib/blocked-channel.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "9fa2c3712ee20cb1f5f98b9d54ff0879be427ac5a63894fd06d39c77513bfbd0"
+    },
+    {
+      "path": "apps/eve/agent/lib/browser-action.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "93356f989143395206de2224c95200e4e3fbccc4dd3d84eb503e553ef12e3c6b"
+    },
+    {
+      "path": "apps/eve/agent/lib/computer-context.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "9e0a194a20361591c445bf8e500eb8c0da868e9997aae5ec6f337067809a9288"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard-attach.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "d7d2ac4b2bdaa8c5b34fffc7913640491bb92f6658a0e0c7392090570d5c8d3c"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard-connect.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "c22abd25e83239fbbab23930e4463f066fd623bfa01538f5e39310d6dd358209"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "a7ae00bf7c8e6c824c6536ef14142c6a70cd94f8ab1ff66b3edbf684c42339d7"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentphone.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "17c53d886e9a4d3cf90ed948b59caad5003e60b07e768da046baff34a7f12155"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/imessage.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "e49a101c210da7fb0d2ecd5cb44f425bd7fc8cf61b25e584b4574673eeb38002"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/imessage.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "a0f0cccd9d84cbfc78ee740d7f852e1c1500ba342163321e3cdd4e0e424d6eb8"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/local-computer.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "43c53deb1f161d7776964daa323c5e1a72cf69158dda15774777fee70fd1dfe0"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/remotion.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "b4c59391996c715ad88c0a468aa06a1415343ae309dd31b442b2ad3b7966caef"
+    },
+    {
+      "path": "apps/eve/agent/lib/executor-boundary.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "2ba4f7bbaefdf4469a7ccd212643dfb76ae1fdf3ab34fc6e9a7b086a82579354"
+    },
+    {
+      "path": "apps/eve/agent/lib/knowledge-context.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2e325953d8f1a301068727743eaae6a6d45dc9636956286092e984fb746ded07"
+    },
+    {
+      "path": "apps/eve/agent/lib/orgo.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "037f06e495e1af2879fa51ec47c96910a8014c9990e9506356c15ced276d02c4"
+    },
+    {
+      "path": "apps/eve/agent/lib/qa-browser-tool.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "f787445a250cd01d0877223a4950463b15b7c09b345e2292f50ca0345a556fdc"
+    },
+    {
+      "path": "apps/eve/agent/lib/reminders-db.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "201277d07fc0a1866a4f21fc1033fad00a86f6e16b9eb639dab66d5a38254376"
+    },
+    {
+      "path": "apps/eve/agent/lib/run-assigned-qa-suite-tool.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "e111325edaa28e74ca203cb076380dd74f631f71fd7b0228244b77f3547159fe"
+    },
+    {
+      "path": "apps/eve/agent/lib/unqualified-executor.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "f7f0c1236bdb8af73e4bbe217213f1205405cfa1f70315ee9684055c357a7e61"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/bash.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "24df0817b77263d9a1ee2033489b000b432dff91430e44e976a1337e046f6ae1"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/write_file.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2a53bb3ee7881b2bba69aede56afbfb2011405860ef56d44fafb37dca37d4892"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/bash.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "4bc78d6ac041bc25630f6ca173a8bcbb4fd07a46519f05bc94cce7e78b9c629f"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/write_file.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "c5174ccc3d0c98f62021ec09a434a554be65021afdd759f759ecdeb05c74df56"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/bash.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "ac7158c0447a9ef1a04a119e7900110b630ae03ca939597f1503edcfd9b058ff"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/write_file.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "294573bb5742fd8113db229d8de2add2e372b09dd40672c92bde717e6f7ce973"
+    },
+    {
+      "path": "apps/eve/agent/tools/agentphone.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "d9cb519f12a27c198140663eff5081d2f56e19a729683024023706198912103e"
+    },
+    {
+      "path": "apps/eve/agent/tools/artifacts.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "aba3fc6a44c89395b7d6f0ba779693dfa2bde000ec82345cbabad1b7a513ed05"
+    },
+    {
+      "path": "apps/eve/agent/tools/assign_skill.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "65f4eaf51c9e04f2b3547e55349d12b28a494f93b1c8fbe3046739c9df0fffc9"
+    },
+    {
+      "path": "apps/eve/agent/tools/attach_own_card.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "9d497061332ed2f21e6465535cb6c011bd58bd6d11560f16c90a7d9cd8319029"
+    },
+    {
+      "path": "apps/eve/agent/tools/check_email_domain.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2f1f740c5b0f84d63ca0d610dda5b247280cc4227302197f80ce76978b07937d"
+    },
+    {
+      "path": "apps/eve/agent/tools/computer.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "ed8bab0ddd80c01812985084b564289e2e59d884c9bc660623d2218d3163cb1f"
+    },
+    {
+      "path": "apps/eve/agent/tools/connect_card.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "c59a75ff7a0a5d005ba1106d2b74c5161bb3a4389bc017ff595114308fea4d2a"
+    },
+    {
+      "path": "apps/eve/agent/tools/connect_email_domain.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "ff181a7af800f315608021913aeda1b8ce3c9eab772b349f38686b00e293e83f"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_skill.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "0b3561cb60a65555e87ec0ed8982b9799e2ae135cb49a97e014f490c75e64fbd"
+    },
+    {
+      "path": "apps/eve/agent/tools/delete_skill.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "e17174405ee4c1a88c4ad2f84fcd367cf22796280ca28d6982f5b50682bf6dd4"
+    },
+    {
+      "path": "apps/eve/agent/tools/forget.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "c34e8c90e568582a45b4737561dfc6f964c0eb2a1ce110af68e1c3de350d610d"
+    },
+    {
+      "path": "apps/eve/agent/tools/fund_agentcard_wallet.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "c71500e521038f3eb13d44ce33bf297389e8a600e470e734c64a2401c204939a"
+    },
+    {
+      "path": "apps/eve/agent/tools/imessage.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "dcc71b1fc53aeadcd61478f56429a2669794d09568c1385c82130c8ec2c97155"
+    },
+    {
+      "path": "apps/eve/agent/tools/label_email.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "899268185cec3f6e6861e9d85f9723c66e07a47e322086a44f27fd73f09e6c41"
+    },
+    {
+      "path": "apps/eve/agent/tools/local_computer_task.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "7f2052eea4b158a490ae63a06234a45f4d709997bc70291965ebf1303a93591a"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_agent.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "8af5f77f6e551eda287779dde97e1bd6995feca5cee366e10bb4c783786d3b31"
+    },
+    {
+      "path": "apps/eve/agent/tools/persistent-agent-policy.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "bdcfb933e7fbdd8fd6e0b4c397c7c8cbc20770f66a6d55db2374275f5cee4812"
+    },
+    {
+      "path": "apps/eve/agent/tools/read_email.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "50f45c087a113098f03815d7b4744fbd0ea8d3d3fd311ef0c982158844410244"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_agentcard_consent.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "5697f5bdbcd5108eb54302535f4f4d6568d965212da820b4a12ae3ee1afb1787"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_computer_artifact.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "f3d0096ca105759cc6552fd6bf23695971c0fd7340ae4c8719ebd6f3f5ee4473"
+    },
+    {
+      "path": "apps/eve/agent/tools/recover_computer_session.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "2816bf9d4c1800b9b0c3994c522fdabea3402b39ed2a30ca0996ff5a9e85676a"
+    },
+    {
+      "path": "apps/eve/agent/tools/remember.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "498301ac3493a2b9a96331d76b89509f2b0bc1586d06f84115abe058d7e0a57b"
+    },
+    {
+      "path": "apps/eve/agent/tools/remove_email_domain.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "4b5d82daa9b95f7bbaa3776991e0d792be8bdcae28151e69c32b45e58d573ddf"
+    },
+    {
+      "path": "apps/eve/agent/tools/render_video.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "a3369ce0755af9a9d741b30c62f0dbfeeb2b5ec4db81ef3fb09f227d915d5a83"
+    },
+    {
+      "path": "apps/eve/agent/tools/reply_to_email.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "8daf1f42379d2b477bd0b58f50d776ffd05f5d9eabcdab02854b9b6d907f0c5e"
+    },
+    {
+      "path": "apps/eve/agent/tools/send_attachment.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "621c370f9180edaa6bb5ab75ac9a4c6fde446d25663360b7e68290864ca5d40d"
+    },
+    {
+      "path": "apps/eve/agent/tools/send_email.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "e764fdfeb395b297368f5a712700e4a4473ea0972eb934afd13c036c89288ea5"
+    },
+    {
+      "path": "apps/eve/agent/tools/share_file.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "f862d2e4e558460d5145aebf3ec064d9d5d177b2ee48190d3b12a2777d241aa2"
+    },
+    {
+      "path": "apps/eve/agent/tools/start_agentcard_phone_verification.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "d7ff437e00b1f98052d5f353160841a26a61589852d29ea51661d25ce103367f"
+    },
+    {
+      "path": "apps/eve/agent/tools/stop_computer_session.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "755837807d0ffbee03ffea105a51b575ee4048e7802ad15d3ea73845df089bc0"
+    },
+    {
+      "path": "apps/eve/agent/tools/unassign_skill.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "69549ca0b6234ed33e047ce3bda2cd4a3734d9f71982306e7ce3349cad1a75ec"
+    },
+    {
+      "path": "apps/eve/agent/tools/verify_agentcard_phone.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "d492e126f18cfbe6454a7465643e7b11681bd0cb8a73349a88215926d0f67ec5"
+    },
+    {
+      "path": "apps/eve/agent/tools/verify_card_code.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "c6d494dd60cb7c9287e71fc426ce29ca9bd0192da281de13abe9bf1e5a7baf9d"
+    },
+    {
+      "path": "apps/eve/agent/tools/write_file.ts",
+      "classification": "Authenticated executor identity, one-use gateway boundary or explicit blocked transport; preserved",
+      "diffSha256": "45ec99b3e233eb44769ca548cd9b8d572d2c86b251eed31c2f91e3b920487de3"
+    },
+    {
+      "path": "apps/eve/app/api/actions/[id]/recover/route.ts",
+      "classification": "Owner-scoped action history and read-only recovery UI/API; preserved",
+      "diffSha256": "057c4e1e71f8d07c6362782049b7ac7c33cda3f6595d97af8d339aae0e05d448"
+    },
+    {
+      "path": "apps/eve/app/api/actions/route.ts",
+      "classification": "Owner-scoped action history and read-only recovery UI/API; preserved",
+      "diffSha256": "9c6c0b48c0375e18f289518be2c47389673ca3c73b49e9b76efd479ea9739623"
+    },
+    {
+      "path": "apps/eve/components/action-authority-panel.tsx",
+      "classification": "Owner-scoped action history and read-only recovery UI/API; preserved",
+      "diffSha256": "b7bf82d2defaccb82783c487747ff057345c0c0f25addd20758d6832cc446895"
+    },
+    {
+      "path": "apps/eve/components/control-center-panel.tsx",
+      "classification": "Owner-scoped action history and read-only recovery UI/API; preserved",
+      "diffSha256": "85a580552aa40946273e5e0ea3ec4afec60684c31ef52ad859e53ff703dd1c63"
+    },
+    {
+      "path": "apps/eve/lib/action-adapters.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "bf33a3ea725aaf86db756ce880c53108fb64833046ee504451df47594f64387c"
+    },
+    {
+      "path": "apps/eve/lib/action-authority.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "f62af7445484cee33715b0572154ddceb84df84d0375e75949853424e7fb9b23"
+    },
+    {
+      "path": "apps/eve/lib/action-gateway.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "8cca4309606d480d9aabcd257860645d5cbbd1df2b66f83ac21e7040d38f6b9d"
+    },
+    {
+      "path": "apps/eve/lib/action-recovery-route.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "06fd63f69fc697fe56fa156beb827eeda7868e811c3ebbfdeb97a3135674261e"
+    },
+    {
+      "path": "apps/eve/lib/action-recovery.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "a6077ab69c66f202e2203eb82fc4cbb534fdfa78331185f136ce8545e29ee142"
+    },
+    {
+      "path": "apps/eve/lib/action-recovery.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "3a38a5d174b5d3c9c2853ff5d3df2199578f00ddba2efa51796ec9f6d3d7c0f6"
+    },
+    {
+      "path": "apps/eve/lib/approvals.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "0cf29f70688293342ba0efab4da946a853dcd3bf17fdd4bb5f582324d5aa68b1"
+    },
+    {
+      "path": "apps/eve/lib/capability-registry.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "e0d44638993c749526a595307cfd1b563d7ed4c1828ef765f90e9d93d07bb48c"
+    },
+    {
+      "path": "apps/eve/lib/composio-connect.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "a981b6868e1bac52e664d34753bec35df82fe95573419bca735c68ea875fc41d"
+    },
+    {
+      "path": "apps/eve/lib/computer-control.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "a02b316ac69c801e667c4214bdf2bac7c5fa9ccc9c3767ea5e401615fe5bc6bb"
+    },
+    {
+      "path": "apps/eve/lib/database-schema.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "05e8e5b906e47b7e63adfd978300db81a6002c139ba4765b8b1014949eeb2caa"
+    },
+    {
+      "path": "apps/eve/lib/execution-auth.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "98a3590d7f2569cd395dac147d9d8a1790ab96908923c0ec985f8600a9d0b003"
+    },
+    {
+      "path": "apps/eve/lib/execution-types.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "acb792d516257b8a0312035f26c0a0a5ff200c28cc533f71b01dd5f0280933b8"
+    },
+    {
+      "path": "apps/eve/lib/external-write-policy.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "99085c587bf5a8f7de969352c47d6d808d43a1bca6f0d240a2282984a39814bc"
+    },
+    {
+      "path": "apps/eve/lib/external-write-policy.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "7857ff2860f13650f4a6498932f0776f5e146edcd0b888e811aaaebd26ab629e"
+    },
+    {
+      "path": "apps/eve/lib/live-session-provider.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "8a71e8df6612cc695628f0e383b0e171876458d530a71852238b4ea292d61eac"
+    },
+    {
+      "path": "apps/eve/lib/missed-occurrences.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "62960e824544622ce1e14dc7f3d5dc9fdcf766f12ca8f30fa942aa7c27e4b120"
+    },
+    {
+      "path": "apps/eve/lib/missed-occurrences.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "c806c8e9023db07187580aa298d54e58f3bea07ea81355c1bfaeb4688294b886"
+    },
+    {
+      "path": "apps/eve/lib/operations.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "3f9825a7449c81056c8401d2d4f901a8578b4f38eb52babd11314da27131a78f"
+    },
+    {
+      "path": "apps/eve/lib/push-db.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "dca4e7130b3ba513175ecdbeff96e8db4a53f07261e680ae2d3a06913e87cb98"
+    },
+    {
+      "path": "apps/eve/lib/reminder-execution.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "082c07ad09d94e2f7fe1e88ceec9d9bd9a28f0b4f628ece8316b1a779af80eed"
+    },
+    {
+      "path": "apps/eve/lib/review-delivery.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "7ed1a0602151010bb32760d6ea679ccc662edcb4be9c38220fdc0eb7a9951322"
+    },
+    {
+      "path": "apps/eve/lib/routine-notifications.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "2b9341511ccaed26eede0a86e3d7d6e6f322eacc66cbf9c9d15a5a7ce8530a46"
+    },
+    {
+      "path": "apps/eve/lib/routine-release.test.ts",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "1ba895fb7af4003285d24f2d7480a47764d79649d67e1159ae830a84aa05dd3c"
+    },
+    {
+      "path": "apps/eve/lib/routine-release.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "463c5ae2ceadd33e94bc86b59ea4c53d4e995e366de08dd43d1142a8f7c49c5e"
+    },
+    {
+      "path": "apps/eve/lib/routine-review.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "f52a78d2d4c0cf6677e554eec87e1a1085d74631c3e8094d1f70480766cb565f"
+    },
+    {
+      "path": "apps/eve/lib/task-runs.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "1653ed4fe80dc7ab1e8be18f9e3614a8a48b607a8313fe250e10111a05e36642"
+    },
+    {
+      "path": "apps/eve/lib/vnc-relay.ts",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "b8e413ca56fc55d24aadebfacfb1a068a83d7b1ed90aff28ce585054c8bcbe53"
+    },
+    {
+      "path": "apps/eve/migrations/0025_action_executor_enforcement.sql",
+      "classification": "Authoritative additive executor/recovery schema; preserved byte-for-byte",
+      "diffSha256": "dff7d14770c7bcac2da334156507c26ceed2db5805083513bc02e6f06d7d04b1"
+    },
+    {
+      "path": "apps/eve/migrations/0026_action_recovery_qualification.sql",
+      "classification": "Authoritative additive executor/recovery schema; preserved byte-for-byte",
+      "diffSha256": "3d7fe899eeea91fb1711d1cc7fbed3d84484a33dfdcd2f9447feed57ff589501"
+    },
+    {
+      "path": "apps/eve/package.json",
+      "classification": "Adds executor governance to canonical typecheck; preserved",
+      "diffSha256": "e72cae99fd7488cf7a6a67c790fe3fbc28772c1982293ac55fc5a83630c02c89"
+    },
+    {
+      "path": "apps/eve/scripts/check-executor-governance.ts",
+      "classification": "Complete source classification/fingerprint governance; reviewed federation sources added without weakening validator",
+      "diffSha256": "55f9a8494db86d2ab9f015421f86473a913320453f7b99d9c59226896c87a4e1"
+    },
+    {
+      "path": "apps/eve/scripts/executor-inventory.json",
+      "classification": "Complete source classification/fingerprint governance; reviewed federation sources added without weakening validator",
+      "diffSha256": "f933a3adce287482643f7305755b8ae26e22b13571aeed49472843ad90b80493"
+    },
+    {
+      "path": "apps/eve/scripts/qualification-recovery-ui.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "228b3508f3e8aa2ebbb7d94bd970235e78626036749a3cc6c95f83357d1d5870"
+    },
+    {
+      "path": "apps/eve/test/action-coverage-cases.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "0fa4e5225168e10a1ebdb2665e0abe236ada3cb0c31344acbeaf4297fe793c54"
+    },
+    {
+      "path": "apps/eve/test/action-executor-cases.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "0ae80c558ed2edf461fa31bc789bd33a96a378dd4c97339914e08dad32de1e92"
+    },
+    {
+      "path": "apps/eve/test/action-recovery-cases.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "f78da513cdfbe52573adb29ad11aebc3b9cc1d2d7aa14d28e47df675c75161fc"
+    },
+    {
+      "path": "apps/eve/test/action-upgrade.integration.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "8a4af7bc014c9a31933d6820f9779b6c4d8bc01c4ea710a19cf0b62754968c4b"
+    },
+    {
+      "path": "apps/eve/test/execution-reliability.integration.mjs",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "b9389f8f8662d704ac5eef15052531a272ab288df9b3cb37072a4b5ccdb1f830"
+    },
+    {
+      "path": "docs/action-executor-audit.md",
+      "classification": "Canonical local authority, approval, capability, recovery or release policy; preserved",
+      "diffSha256": "d13e2e6bc11d3bb49d709e2baf05c8beb0cc5323470376c88b1f0bd4b3283a9c"
+    },
+    {
+      "path": "docs/action-gateway-qualification-report.md",
+      "classification": "Current regression/evidence; rerun unit/contracts/database coverage",
+      "diffSha256": "efcae9bff83c6a614981a98a8fe48e9e39fa6a60a384cc30801dbd1cf66d4524"
+    }
+  ],
+  "semanticConflicts": [
+    "database-schema.ts latest migration marker: preserved canonical 0026 while replaying; federation renumbered separately to 0027",
+    "Current ActionGateway AuthorizedAction must be consumed by the federation model executor; regression reproduced and fixed",
+    "Canonical executor fingerprint inventory must classify new adapter sources; no unknown exemptions added"
+  ],
+  "unchangedCanonicalDomains": [
+    "web-auth implementation",
+    "Agent store and credentials",
+    "canonical Knowledge repository",
+    "private Memory store",
+    "Goals",
+    "Workspace/conversation storage",
+    "middleware"
+  ],
+  "canonicalHistoryPreserved": true
+}

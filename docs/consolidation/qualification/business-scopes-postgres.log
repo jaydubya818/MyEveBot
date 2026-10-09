@@ -1,0 +1,20 @@
+PASS deployment and one-sided membership grant no sharing
+PASS A private Memory to B denied; B private File to A denied
+PASS explicit GOAL both authorized owners pass
+PASS explicit WORK both authorized owners pass
+PASS explicit RESULT both authorized owners pass
+PASS explicit KNOWLEDGE both authorized owners pass
+PASS bounded Work grant does not promote Memory
+PASS credential object and owner impersonation rejected
+PASS exact effect OWNER_A
+PASS exact effect OWNER_B
+PASS exact effect EITHER_OWNER
+PASS exact effect BOTH_OWNERS
+PASS shared native execution requires both approvals; changed effect denied
+PASS Sofie receives only active context and suppresses revoked output
+PASS source changes require explicit new authorization
+PASS revocation and expiry take effect on next retrieval
+PASS Work end terminates bounded access even after reopening
+PASS leaving revokes old grants permanently across rejoin
+PASS separate signed owner sessions and fail-closed duplicate passwords
+{"checks":19,"status":"PASS","scope":"controlled local PostgreSQL; no provider calls","crossOwnerPrivateDisclosures":0,"credentialsTransferred":0,"implicitPrivatePromotions":0}

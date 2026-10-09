@@ -1,0 +1,14 @@
+> eve-agent@0.0.0 test
+> vitest run lib/universal-inbox/inbox.test.ts lib/approvals.test.ts lib/relay/adapter.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/universal-inbox/Myeve/apps/eve
+
+ ✓ lib/approvals.test.ts (5 tests) 9ms
+ ✓ lib/relay/adapter.test.ts (45 tests) 25ms
+ ✓ lib/universal-inbox/inbox.test.ts (32 tests) 787ms
+
+ Test Files  3 passed (3)
+      Tests  82 passed (82)
+   Start at  13:00:09
+   Duration  1.08s (transform 210ms, setup 0ms, collect 509ms, tests 821ms, environment 0ms, prepare 104ms)

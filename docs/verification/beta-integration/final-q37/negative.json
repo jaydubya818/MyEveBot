@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "16 concurrent continuations: one resume, one generation increment, zero productive dispatch",
+    "cancelled Work cannot continue",
+    "accepted Work cannot continue",
+    "Superseded Inbox item denies an already-delivered eligibility receipt",
+    "Stale generation, wrong Work and forged correlation cannot continue"
+  ],
+  "unauthorizedProductiveEffects": 0,
+  "duplicateContinuations": 0,
+  "staleResponseContinuations": 0,
+  "authorityExpansions": 0
+}

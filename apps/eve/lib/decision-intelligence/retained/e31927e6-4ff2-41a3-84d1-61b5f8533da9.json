@@ -1,0 +1,5176 @@
+{
+  "id": "e31927e6-4ff2-41a3-84d1-61b5f8533da9",
+  "createdAt": "2026-09-21T05:31:18.115Z",
+  "source": "synthetic-benchmark",
+  "environment": "live-experiment",
+  "execution": {
+    "provider": "Jev",
+    "model": "typesafe-ai/jev",
+    "sourceCommit": "6a067090f4e8e215264c8d4c6b90150bd816cbe2"
+  },
+  "experiment": "CHALLENGE_SIX",
+  "cohort": "CHALLENGE",
+  "decisionId": "knowledge.classification",
+  "decisionVersion": 1,
+  "contractHash": "288398910cabc55ba623219bdc46fc3fd392bcfbd82ee8fbcc142571e950e849",
+  "datasetVersion": "knowledge-classification-challenge-v1",
+  "datasetHash": "d3d09732a70e2b2fc9e084acf4fb3319d8d045790bdb76d571d915a1bd981393",
+  "rubricId": "knowledge-taxonomy-challenge-rubric:v1",
+  "rubricHash": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+  "mode": "SHADOW",
+  "influence": "NONE",
+  "canonicalSource": "not-measured",
+  "concurrency": 1,
+  "rows": [
+    {
+      "id": "challenge_0016",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "fact": 0.02,
+          "hypothesis": 0,
+          "decision": 0.98
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 347.95062499999995,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:25.786Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0018",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "hypothesis": 0.02,
+          "decision": 0,
+          "commitment": 0.01,
+          "observation": 0,
+          "fact": 0.97
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.9431249999999,
+        "inputTokens": 447,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:26.055Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0007",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.01,
+          "fact": 0.86,
+          "hypothesis": 0.03,
+          "commitment": 0,
+          "observation": 0.1,
+          "preference": 0
+        },
+        "confidence": 0.86,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 257.99974999999995,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:26.314Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0004",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0,
+          "preference": 0,
+          "fact": 0,
+          "commitment": 0,
+          "hypothesis": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 223.424084,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:26.538Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0013",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.9400000000000001,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0.06,
+          "fact": 0,
+          "preference": 0
+        },
+        "confidence": 0.9400000000000001,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 216.80399999999986,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:26.755Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0012",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "preference": 0.99,
+          "decision": 0,
+          "commitment": 0.01,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224.065875,
+        "inputTokens": 457,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:26.980Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0028",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.49,
+          "observation": 0,
+          "hypothesis": 0.01,
+          "decision": 0.47,
+          "fact": 0,
+          "preference": 0.03
+        },
+        "confidence": 0.49,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 473.7240840000002,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:27.455Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0024",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "fact": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "observation": 0.02,
+          "commitment": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 259.7279580000004,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:27.715Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0009",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.04,
+          "hypothesis": 0.17,
+          "preference": 0,
+          "observation": 0.17,
+          "fact": 0.62,
+          "commitment": 0
+        },
+        "confidence": 0.62,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 285.3109589999999,
+        "inputTokens": 478,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:28.001Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0037",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "hypothesis": 0.93,
+          "commitment": 0,
+          "fact": 0,
+          "observation": 0,
+          "preference": 0.02,
+          "decision": 0.04
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 254.4786250000002,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:28.257Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0014",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.68,
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0.07,
+          "fact": 0.25,
+          "observation": 0
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 295.9114169999998,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:28.553Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0029",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 1,
+          "commitment": 0,
+          "fact": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 239.6367909999999,
+        "inputTokens": 447,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:28.794Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0031",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "commitment": 0,
+          "preference": 0,
+          "decision": 1,
+          "hypothesis": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 349.3850830000001,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:29.145Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0036",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "observation": 0.08,
+          "hypothesis": 0.03,
+          "commitment": 0,
+          "fact": 0.87,
+          "preference": 0,
+          "decision": 0.02
+        },
+        "confidence": 0.87,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 259.7295830000003,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:29.405Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0011",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "fact": 0.23,
+          "observation": 0.77,
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 313.079917,
+        "inputTokens": 464,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:29.720Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0046",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "commitment": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 263.2829579999998,
+        "inputTokens": 454,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:29.985Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0035",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.92,
+          "hypothesis": 0.07,
+          "observation": 0,
+          "preference": 0,
+          "fact": 0.01,
+          "decision": 0
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 270.1123340000004,
+        "inputTokens": 474,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:30.256Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0030",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.0827500000005,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:30.511Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0045",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0,
+          "commitment": 0.31,
+          "preference": 0.08,
+          "decision": 0.61,
+          "observation": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.61,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 250.94079199999942,
+        "inputTokens": 440,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:30.765Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0038",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0.13,
+          "hypothesis": 0,
+          "decision": 0,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.87
+        },
+        "confidence": 0.87,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.08754100000078,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:30.991Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0015",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "fact": 0.1,
+          "observation": 0.9,
+          "decision": 0,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.9,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 276.15637499999957,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:31.269Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0049",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "hypothesis": 0.98,
+          "fact": 0.02,
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 265.8485840000003,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:31.536Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0040",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "preference": 0,
+          "commitment": 1,
+          "fact": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 242.875583,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:31.781Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0033",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.14,
+          "fact": 0.01,
+          "observation": 0,
+          "preference": 0.6799999999999999,
+          "commitment": 0.17,
+          "hypothesis": 0
+        },
+        "confidence": 0.6799999999999999,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 208.5848330000008,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:31.990Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0052",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0,
+          "fact": 0.09,
+          "observation": 0,
+          "commitment": 0.03,
+          "hypothesis": 0,
+          "decision": 0.88
+        },
+        "confidence": 0.88,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 248.32499999999982,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:32.240Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0041",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.03,
+          "commitment": 0,
+          "observation": 0.01,
+          "hypothesis": 0.22,
+          "preference": 0,
+          "fact": 0.74
+        },
+        "confidence": 0.74,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 324.04975000000013,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:32.565Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0020",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.86,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 0.12,
+          "fact": 0.02
+        },
+        "confidence": 0.86,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 276.455833,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:32.843Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0061",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "hypothesis": 1,
+          "commitment": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 215.14087500000005,
+        "inputTokens": 472,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:33.059Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0055",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "hypothesis": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "preference": 0,
+          "decision": 0.01,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 233.80837500000052,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:33.295Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0039",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0.01,
+          "fact": 0,
+          "decision": 0.04,
+          "observation": 0,
+          "preference": 0.95,
+          "hypothesis": 0
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 251.67670799999905,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:33.548Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0063",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.1,
+          "observation": 0,
+          "commitment": 0.04,
+          "hypothesis": 0,
+          "preference": 0.86,
+          "fact": 0
+        },
+        "confidence": 0.86,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 285.86708400000134,
+        "inputTokens": 450,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:33.836Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0050",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0.01,
+          "fact": 0.99,
+          "decision": 0,
+          "commitment": 0,
+          "preference": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 272.9512500000001,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:34.110Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0022",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.93,
+          "fact": 0.05,
+          "preference": 0,
+          "hypothesis": 0.01
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 325.34549999999945,
+        "inputTokens": 475,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:34.437Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0080",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "fact": 0,
+          "commitment": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.39616600000045,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:34.651Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0065",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "hypothesis": 0,
+          "decision": 0,
+          "fact": 0,
+          "commitment": 1,
+          "observation": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 297.81837500000074,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:34.951Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0043",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0,
+          "decision": 0,
+          "preference": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 265.33350000000064,
+        "inputTokens": 441,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:35.218Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0071",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.99,
+          "preference": 0.01,
+          "commitment": 0,
+          "fact": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.5632079999996,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:35.487Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0058",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "fact": 0.36,
+          "hypothesis": 0,
+          "observation": 0.64,
+          "decision": 0
+        },
+        "confidence": 0.64,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 254.43862500000068,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:35.744Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0025",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.24,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0.01,
+          "fact": 0.75
+        },
+        "confidence": 0.75,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 279.7026249999999,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:36.025Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0087",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 1,
+          "commitment": 0,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 232.16112500000054,
+        "inputTokens": 585,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:36.259Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0083",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "commitment": 0.99,
+          "hypothesis": 0,
+          "preference": 0.01,
+          "decision": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 223.9276659999996,
+        "inputTokens": 473,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:36.485Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0047",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "fact": 0,
+          "preference": 1,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 209.99533299999894,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:36.697Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0072",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "fact": 0,
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0.01,
+          "decision": 0.99
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 250.37045799999942,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:36.949Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0094",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.02,
+          "observation": 0.01,
+          "preference": 0,
+          "fact": 0.97,
+          "commitment": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 233.5751249999994,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:37.184Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0032",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.11,
+          "hypothesis": 0,
+          "preference": 0,
+          "decision": 0,
+          "observation": 0.89
+        },
+        "confidence": 0.89,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 205.0641250000008,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:37.392Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0096",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 296.49062500000036,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:37.690Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0084",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.19,
+          "hypothesis": 0.01,
+          "commitment": 0.8,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 0.8,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 262.1009580000009,
+        "inputTokens": 472,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:37.953Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0067",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0,
+          "commitment": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 280.30424999999923,
+        "inputTokens": 450,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:38.236Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0073",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.77,
+          "fact": 0.05,
+          "observation": 0,
+          "preference": 0.01,
+          "commitment": 0.17,
+          "hypothesis": 0
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 246.30533300000025,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:38.484Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0098",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0,
+          "fact": 0.84,
+          "observation": 0.16,
+          "hypothesis": 0
+        },
+        "confidence": 0.84,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 266.6561249999995,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:38.751Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0057",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.51,
+          "hypothesis": 0.06,
+          "preference": 0,
+          "fact": 0.43,
+          "commitment": 0
+        },
+        "confidence": 0.51,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 196.84558300000026,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:38.949Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0108",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0,
+          "commitment": 0,
+          "hypothesis": 1,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.5198330000003,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:39.163Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0104",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.01,
+          "hypothesis": 0.02,
+          "commitment": 0.93,
+          "fact": 0.04,
+          "preference": 0
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 285.54054200000064,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:39.450Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0168",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 259.6130410000005,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:39.710Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0076",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "commitment": 0.03,
+          "preference": 0,
+          "fact": 0.14,
+          "hypothesis": 0,
+          "observation": 0,
+          "decision": 0.83
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 218.6499160000003,
+        "inputTokens": 473,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:39.931Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0123",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0,
+          "fact": 0.57,
+          "observation": 0.43,
+          "hypothesis": 0
+        },
+        "confidence": 0.57,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 203.41599999999926,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:40.136Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0064",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.96,
+          "hypothesis": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0.04
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 241.99070799999936,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:40.378Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0111",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "fact": 0,
+          "hypothesis": 1,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 320.6205000000009,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:40.701Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0109",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 0,
+          "commitment": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 199.74354099999982,
+        "inputTokens": 454,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:40.901Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0176",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "preference": 1,
+          "fact": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 270.77029199999924,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:41.173Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0077",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "preference": 0.03,
+          "decision": 0.97,
+          "commitment": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 253.43254199999865,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:41.428Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0124",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 262.8315419999999,
+        "inputTokens": 444,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:41.693Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0074",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.81,
+          "decision": 0,
+          "hypothesis": 0.01,
+          "preference": 0,
+          "fact": 0.17,
+          "commitment": 0
+        },
+        "confidence": 0.81,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 313.91341600000305,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:42.008Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0122",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "commitment": 0,
+          "decision": 0,
+          "observation": 0,
+          "fact": 0,
+          "hypothesis": 1,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 369.0392909999973,
+        "inputTokens": 454,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:42.379Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0112",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.15,
+          "fact": 0.01,
+          "commitment": 0.84,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0
+        },
+        "confidence": 0.84,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 217.20258399999875,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:42.598Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0201",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "fact": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "observation": 0,
+          "commitment": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 266.48558299999786,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:42.866Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0079",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "preference": 0,
+          "fact": 0,
+          "decision": 1,
+          "hypothesis": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.77983400000085,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:43.096Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0131",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.04,
+          "fact": 0.96,
+          "preference": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 221.95837499999834,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:43.320Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0082",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "fact": 0.01,
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0.99,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 228.12533299999996,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:43.550Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0130",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "fact": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 245.02579199999673,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:43.797Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0134",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0.18,
+          "fact": 0.43,
+          "commitment": 0.39
+        },
+        "confidence": 0.43,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 272.1358330000003,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:44.071Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0203",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.02,
+          "hypothesis": 0,
+          "fact": 0,
+          "observation": 0,
+          "preference": 0.98,
+          "commitment": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 286.770875000002,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:44.360Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0090",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0.96,
+          "hypothesis": 0,
+          "preference": 0.01,
+          "fact": 0.02,
+          "commitment": 0.01
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 317.4833749999998,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:44.679Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0136",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0.19,
+          "decision": 0.01,
+          "observation": 0.77,
+          "preference": 0.03
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 248.11495900000227,
+        "inputTokens": 451,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:44.929Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0086",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.59,
+          "preference": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "fact": 0.41
+        },
+        "confidence": 0.59,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 256.1629580000008,
+        "inputTokens": 474,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:45.187Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0140",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0.93,
+          "preference": 0,
+          "observation": 0.03,
+          "fact": 0.04,
+          "commitment": 0
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.8485419999997,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:45.456Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0153",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "commitment": 1,
+          "fact": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 189.35333399999945,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:45.647Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0244",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "preference": 1,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.083208,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:45.874Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0093",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0.02,
+          "hypothesis": 0,
+          "preference": 0,
+          "commitment": 0.11,
+          "decision": 0.87
+        },
+        "confidence": 0.87,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.81033300000126,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:46.101Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0144",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.81,
+          "hypothesis": 0,
+          "observation": 0.19,
+          "preference": 0,
+          "decision": 0
+        },
+        "confidence": 0.81,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 258.97779100000116,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:46.361Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0091",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "preference": 0,
+          "hypothesis": 0.1,
+          "observation": 0.6,
+          "fact": 0.3,
+          "commitment": 0
+        },
+        "confidence": 0.6,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 222.29754200000025,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:46.585Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0149",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0,
+          "hypothesis": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 284.5413329999974,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:46.872Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0154",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.81,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0.07,
+          "fact": 0,
+          "preference": 0.12
+        },
+        "confidence": 0.81,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 357.9369999999981,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:47.231Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0264",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "preference": 0.99,
+          "decision": 0,
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0,
+          "commitment": 0.01
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 306.8987500000003,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:47.539Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0097",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0,
+          "fact": 0.01,
+          "observation": 0,
+          "commitment": 0.07,
+          "hypothesis": 0,
+          "decision": 0.92
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 213.1429169999974,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:47.752Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0147",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.02,
+          "commitment": 0.01,
+          "preference": 0,
+          "hypothesis": 0,
+          "fact": 0.97
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 259.98404200000004,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:48.013Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0095",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0.99,
+          "fact": 0.01,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 307.12104199999885,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:48.321Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0172",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0,
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 1,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 239.85245900000155,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:48.563Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0163",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0.6,
+          "preference": 0.02,
+          "fact": 0,
+          "decision": 0,
+          "hypothesis": 0.38
+        },
+        "confidence": 0.6,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 220.64549999999872,
+        "inputTokens": 486,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:48.785Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0277",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0,
+          "observation": 0,
+          "decision": 0,
+          "preference": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 199.2497089999997,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:48.985Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0114",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.96,
+          "preference": 0.01,
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0.03,
+          "commitment": 0
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 258.38495799999873,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:49.245Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0157",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "hypothesis": 0,
+          "commitment": 0,
+          "fact": 0.77,
+          "preference": 0,
+          "decision": 0.04,
+          "observation": 0.19
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 199.06491599999936,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:49.445Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0100",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "fact": 0.08,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0.92
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 270.55862499999785,
+        "inputTokens": 476,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:49.718Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0182",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 0.99,
+          "fact": 0,
+          "decision": 0.01
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 275.22749999999724,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:49.995Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0174",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "hypothesis": 0,
+          "fact": 0,
+          "observation": 0,
+          "preference": 0,
+          "commitment": 1,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 261.8339999999989,
+        "inputTokens": 448,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:50.258Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0286",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.98,
+          "commitment": 0.01,
+          "decision": 0.01,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 259.57283299999835,
+        "inputTokens": 472,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:50.518Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0116",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.9,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0,
+          "commitment": 0.1,
+          "fact": 0
+        },
+        "confidence": 0.9,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 600.3932910000003,
+        "inputTokens": 474,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:51.120Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0164",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.11,
+          "hypothesis": 0,
+          "commitment": 0.01,
+          "fact": 0.43,
+          "preference": 0.32,
+          "observation": 0.13
+        },
+        "confidence": 0.43,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 234.90266599999813,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:51.357Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0117",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.96,
+          "hypothesis": 0.02,
+          "decision": 0,
+          "fact": 0.02,
+          "preference": 0
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 206.36858300000313,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:51.565Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0184",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 304.789249999998,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:51.872Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0178",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "fact": 0,
+          "commitment": 1,
+          "hypothesis": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 237.57779200000004,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:52.111Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0300",
+      "expected": "preference",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "hypothesis": 0,
+          "commitment": 0.06,
+          "observation": 0,
+          "decision": 0.02,
+          "preference": 0.9,
+          "fact": 0.02
+        },
+        "confidence": 0.9,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 236.58404200000223,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:52.348Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0126",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "fact": 0,
+          "observation": 0,
+          "commitment": 0.05,
+          "decision": 0.94,
+          "preference": 0.01
+        },
+        "confidence": 0.94,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 251.88058300000193,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:52.601Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0171",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0,
+          "fact": 0.97,
+          "commitment": 0,
+          "preference": 0,
+          "observation": 0.03
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 207.0127500000017,
+        "inputTokens": 440,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:52.809Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0119",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0.23,
+          "hypothesis": 0.39,
+          "fact": 0.38,
+          "decision": 0,
+          "preference": 0,
+          "commitment": 0
+        },
+        "confidence": 0.39,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 249.31408399999782,
+        "inputTokens": 489,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:53.062Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0197",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 1,
+          "preference": 0,
+          "fact": 0,
+          "commitment": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 254.8735000000015,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:53.318Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0210",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 1,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 241.77483399999983,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:53.562Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0132",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "fact": 0,
+          "decision": 0.97,
+          "commitment": 0,
+          "hypothesis": 0.03
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.33437499999854,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:53.790Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0192",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "hypothesis": 0,
+          "commitment": 0.14,
+          "decision": 0,
+          "observation": 0,
+          "preference": 0,
+          "fact": 0.86
+        },
+        "confidence": 0.86,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 190.85458300000028,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:53.983Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0129",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "fact": 0.17,
+          "observation": 0.83,
+          "preference": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "decision": 0
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224.9405000000006,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:54.210Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0219",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 1,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 229.75170799999978,
+        "inputTokens": 481,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:54.441Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0215",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0.16,
+          "hypothesis": 0,
+          "fact": 0.76,
+          "decision": 0.08,
+          "observation": 0,
+          "preference": 0
+        },
+        "confidence": 0.76,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 206.9073329999992,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:54.650Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0133",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.98,
+          "preference": 0,
+          "commitment": 0.02,
+          "fact": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 277.299417000002,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:54.929Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0207",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0.02,
+          "hypothesis": 0,
+          "fact": 0.98,
+          "decision": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 230.11933399999907,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:55.162Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0142",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.04,
+          "hypothesis": 0,
+          "preference": 0,
+          "decision": 0,
+          "observation": 0.96
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.0564579999991,
+        "inputTokens": 454,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:55.431Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0227",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "fact": 0.01,
+          "commitment": 0,
+          "hypothesis": 0.99,
+          "preference": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.22849999999744,
+        "inputTokens": 457,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:55.659Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0218",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "preference": 0,
+          "commitment": 1,
+          "fact": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 211.93483299999934,
+        "inputTokens": 451,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:55.874Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0141",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "observation": 0,
+          "decision": 0.98,
+          "fact": 0,
+          "preference": 0.02
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 252.75374999999985,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:56.128Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0231",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "observation": 0.02,
+          "preference": 0,
+          "fact": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 268.69045800000094,
+        "inputTokens": 450,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:56.398Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0150",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.92,
+          "preference": 0,
+          "commitment": 0,
+          "fact": 0.08,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 287.31595899999957,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:56.687Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0239",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0,
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 1,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 228.79258299999856,
+        "inputTokens": 457,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:56.917Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0221",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.06,
+          "observation": 0,
+          "commitment": 0.93,
+          "hypothesis": 0,
+          "preference": 0.01,
+          "fact": 0
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.22637499999837,
+        "inputTokens": 473,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:57.174Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0143",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0.01,
+          "decision": 0.23,
+          "observation": 0,
+          "fact": 0,
+          "hypothesis": 0,
+          "preference": 0.76
+        },
+        "confidence": 0.76,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 205.44204199999876,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:57.381Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0235",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "preference": 0.01,
+          "observation": 0.05,
+          "fact": 0.94
+        },
+        "confidence": 0.94,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.64304099999936,
+        "inputTokens": 441,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:57.609Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0155",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0.92,
+          "hypothesis": 0,
+          "fact": 0.08,
+          "decision": 0
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.7234580000004,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:57.837Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0242",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0.99,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.01,
+          "commitment": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 205.74758300000394,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:58.043Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0245",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0,
+          "commitment": 1,
+          "observation": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.57937500000116,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:58.272Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0146",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0.03,
+          "decision": 0.73,
+          "commitment": 0,
+          "preference": 0.02,
+          "hypothesis": 0.22
+        },
+        "confidence": 0.73,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 216.12000000000262,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:58.489Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0250",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "fact": 1,
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 233.14374999999563,
+        "inputTokens": 460,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:58.724Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0161",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.9,
+          "fact": 0.1
+        },
+        "confidence": 0.9,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 244.74575000000186,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:58.971Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0251",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 1,
+          "fact": 0,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 218.61866600000212,
+        "inputTokens": 450,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:59.191Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0249",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 1,
+          "hypothesis": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.16233400000056,
+        "inputTokens": 464,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:59.459Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0152",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0.47,
+          "hypothesis": 0,
+          "decision": 0.49,
+          "commitment": 0.04,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 0.49,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 220.90395899999567,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:59.682Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0263",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.44,
+          "hypothesis": 0.01,
+          "decision": 0,
+          "fact": 0.55,
+          "preference": 0
+        },
+        "confidence": 0.55,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 249.86629099999845,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:30:59.934Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0162",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "hypothesis": 0.08,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.3,
+          "fact": 0.62
+        },
+        "confidence": 0.62,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 251.9820000000036,
+        "inputTokens": 464,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:00.188Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0262",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "fact": 0,
+          "commitment": 0,
+          "hypothesis": 1,
+          "preference": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 375.67054199999984,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:00.565Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0255",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0,
+          "fact": 0,
+          "commitment": 0.99,
+          "preference": 0.01,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 225.03887500000565,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:00.792Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0156",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "hypothesis": 0,
+          "decision": 0.03,
+          "fact": 0,
+          "commitment": 0.01,
+          "observation": 0,
+          "preference": 0.96
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 242.2176249999975,
+        "inputTokens": 452,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:01.035Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0270",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 270.25454100000206,
+        "inputTokens": 439,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:01.307Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0173",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "hypothesis": 0.01,
+          "fact": 0.83,
+          "observation": 0.16,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 266.85958299999766,
+        "inputTokens": 478,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:01.576Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0266",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 1,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.8492499999993,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:01.833Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0261",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0,
+          "commitment": 1
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 244.33279200000106,
+        "inputTokens": 446,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:02.079Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0160",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.24,
+          "hypothesis": 0,
+          "commitment": 0,
+          "fact": 0,
+          "preference": 0.76,
+          "observation": 0
+        },
+        "confidence": 0.76,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 232.9780000000028,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:02.313Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0272",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "fact": 0.99,
+          "observation": 0.01,
+          "decision": 0,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 341.5117500000051,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:02.657Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0179",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "fact": 0.36,
+          "observation": 0.63,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0,
+          "hypothesis": 0.01
+        },
+        "confidence": 0.63,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.8978339999958,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:02.926Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0269",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "preference": 0,
+          "commitment": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 365.2743750000009,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:03.293Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0287",
+      "expected": "commitment",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0.95,
+          "fact": 0,
+          "decision": 0.04,
+          "hypothesis": 0.01
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 258.6377500000017,
+        "inputTokens": 477,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:03.553Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0165",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0.05,
+          "decision": 0.42,
+          "commitment": 0.2,
+          "fact": 0.02,
+          "observation": 0,
+          "hypothesis": 0.31
+        },
+        "confidence": 0.42,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 264.5052910000013,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:03.819Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0279",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "fact": 1,
+          "observation": 0,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 267.3743340000001,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:04.088Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0187",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0.04,
+          "decision": 0,
+          "fact": 0.06,
+          "observation": 0.9,
+          "preference": 0
+        },
+        "confidence": 0.9,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 248.03654200000165,
+        "inputTokens": 474,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:04.338Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0271",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 237.00854100000288,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:04.577Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0169",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0,
+          "decision": 0.3,
+          "observation": 0,
+          "preference": 0.7
+        },
+        "confidence": 0.7,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 234.90112499999668,
+        "inputTokens": 448,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:04.814Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0291",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0.01,
+          "fact": 0.96,
+          "commitment": 0,
+          "preference": 0,
+          "observation": 0.03
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 235.99129100000573,
+        "inputTokens": 445,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:05.051Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0188",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "fact": 0.02,
+          "observation": 0.98,
+          "commitment": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 216.05129099999613,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:05.268Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0275",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "observation": 0,
+          "hypothesis": 1,
+          "decision": 0,
+          "commitment": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 232.64312500000233,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:05.501Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0175",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "commitment": 0,
+          "decision": 1,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 293.3049170000013,
+        "inputTokens": 472,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:05.795Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0302",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "observation": 0.22,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 0.01,
+          "fact": 0.77
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 279.39854199999536,
+        "inputTokens": 451,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:06.075Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0189",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.99,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 0.01,
+          "commitment": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 261.38962500000343,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:06.337Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0293",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 0.98,
+          "fact": 0.01,
+          "decision": 0.01
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.0513329999958,
+        "inputTokens": 481,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:06.627Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0183",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "decision": 0.98,
+          "preference": 0.02
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 230.64745799999946,
+        "inputTokens": 469,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:06.859Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0303",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.97,
+          "decision": 0.03
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 198.33216700000048,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:07.058Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0196",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0.97,
+          "commitment": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0.03
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 247.19537500000297,
+        "inputTokens": 462,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:07.305Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0294",
+      "expected": "hypothesis",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 1,
+          "commitment": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 269.3713330000028,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:07.576Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0190",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0.11,
+          "hypothesis": 0,
+          "observation": 0.01,
+          "fact": 0.71,
+          "decision": 0.17,
+          "preference": 0
+        },
+        "confidence": 0.71,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 203.5331670000014,
+        "inputTokens": 471,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:07.780Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0307",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "fact": 1,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 197.64658399999462,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:07.978Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0198",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.24,
+          "hypothesis": 0,
+          "observation": 0.76,
+          "preference": 0,
+          "decision": 0
+        },
+        "confidence": 0.76,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 232.28354099999706,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:08.211Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0194",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0.02,
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0,
+          "preference": 0.78,
+          "decision": 0.2
+        },
+        "confidence": 0.78,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 274.56970900000306,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:08.486Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0311",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "fact": 0.93,
+          "hypothesis": 0,
+          "preference": 0,
+          "decision": 0.01,
+          "commitment": 0,
+          "observation": 0.06
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 268.9155830000018,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:08.756Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0200",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "hypothesis": 0,
+          "decision": 0,
+          "observation": 1,
+          "commitment": 0,
+          "fact": 0,
+          "preference": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 245.39449999999488,
+        "inputTokens": 474,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:09.002Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0202",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.89,
+          "hypothesis": 0,
+          "preference": 0.01,
+          "observation": 0,
+          "fact": 0.02,
+          "commitment": 0.08
+        },
+        "confidence": 0.89,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224.11058400000184,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:09.227Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0312",
+      "expected": "fact",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "observation": 0,
+          "hypothesis": 0.01,
+          "fact": 0.98,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0.01
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 236.0862500000003,
+        "inputTokens": 445,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:09.464Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0208",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.83,
+          "fact": 0.16,
+          "decision": 0,
+          "commitment": 0,
+          "hypothesis": 0.01,
+          "preference": 0
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 231.59891700000298,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:09.696Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0209",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0.98,
+          "fact": 0.02,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 217.41599999999744,
+        "inputTokens": 445,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:09.914Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0211",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.83,
+          "fact": 0.16,
+          "decision": 0,
+          "hypothesis": 0.01,
+          "preference": 0,
+          "commitment": 0
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 221.89424999999756,
+        "inputTokens": 456,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:10.137Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0212",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0.75,
+          "hypothesis": 0,
+          "preference": 0.22,
+          "fact": 0.01,
+          "commitment": 0.02
+        },
+        "confidence": 0.75,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 214.87791699999798,
+        "inputTokens": 465,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:10.352Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0213",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.99,
+          "hypothesis": 0,
+          "fact": 0.01,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 201.5847500000018,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:10.555Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0225",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "preference": 0.53,
+          "commitment": 0.09,
+          "hypothesis": 0,
+          "decision": 0.38,
+          "fact": 0,
+          "observation": 0
+        },
+        "confidence": 0.53,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 230.1854170000006,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:10.786Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0216",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "observation": 0.29,
+          "commitment": 0,
+          "preference": 0,
+          "fact": 0.71,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.71,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 303.8777090000003,
+        "inputTokens": 580,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:11.091Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0252",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.39,
+          "commitment": 0,
+          "observation": 0,
+          "fact": 0,
+          "preference": 0.61,
+          "hypothesis": 0
+        },
+        "confidence": 0.61,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 277.9915419999961,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:11.370Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0217",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.55,
+          "hypothesis": 0,
+          "decision": 0,
+          "fact": 0.45,
+          "preference": 0
+        },
+        "confidence": 0.55,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 245.59454099999857,
+        "inputTokens": 467,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:11.617Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0253",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "fact": 0.11,
+          "observation": 0,
+          "preference": 0.05,
+          "commitment": 0.07,
+          "decision": 0.77
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 281.20945799999754,
+        "inputTokens": 442,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:11.901Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0222",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0.01,
+          "observation": 0.98,
+          "fact": 0.01,
+          "preference": 0,
+          "decision": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 382.15262499999517,
+        "inputTokens": 466,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:12.284Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0254",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "decision": 0.52,
+          "commitment": 0.06,
+          "preference": 0.42,
+          "hypothesis": 0
+        },
+        "confidence": 0.52,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 293.426833000005,
+        "inputTokens": 470,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:12.578Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0223",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.01,
+          "observation": 0.25,
+          "fact": 0.74,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.74,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224.94974999999977,
+        "inputTokens": 577,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:12.805Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0289",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.85,
+          "preference": 0,
+          "commitment": 0.15,
+          "observation": 0,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.85,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 265.49591599999985,
+        "inputTokens": 476,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:13.072Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0226",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "fact": 0.2,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0,
+          "observation": 0.8
+        },
+        "confidence": 0.8,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 290.9588749999966,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:13.366Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0304",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.7,
+          "hypothesis": 0,
+          "fact": 0.19,
+          "commitment": 0.1,
+          "preference": 0,
+          "observation": 0.01
+        },
+        "confidence": 0.7,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 223.43904199999815,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:13.591Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0228",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "commitment": 0,
+          "decision": 0,
+          "observation": 0.05,
+          "fact": 0.4,
+          "hypothesis": 0.55,
+          "preference": 0
+        },
+        "confidence": 0.55,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 249.63154100000247,
+        "inputTokens": 461,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:13.842Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0305",
+      "expected": "decision",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0.11,
+          "preference": 0,
+          "commitment": 0.09,
+          "decision": 0.8
+        },
+        "confidence": 0.8,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.7239580000023,
+        "inputTokens": 468,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:14.100Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0230",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "preference": 0,
+          "decision": 0,
+          "hypothesis": 0.39,
+          "observation": 0.03,
+          "fact": 0.58,
+          "commitment": 0
+        },
+        "confidence": 0.58,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 222.0244160000002,
+        "inputTokens": 443,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:14.324Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0237",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.16,
+          "hypothesis": 0,
+          "preference": 0,
+          "observation": 0.84,
+          "decision": 0
+        },
+        "confidence": 0.84,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 250.26491600000008,
+        "inputTokens": 479,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:14.575Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0240",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.93,
+          "fact": 0.07
+        },
+        "confidence": 0.93,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 222.29987499999697,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:14.799Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0247",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.86,
+          "commitment": 0,
+          "preference": 0,
+          "fact": 0.14,
+          "decision": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.86,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 216.28383300000132,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:15.017Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0258",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "observation": 0.94,
+          "fact": 0.06,
+          "commitment": 0
+        },
+        "confidence": 0.94,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 218.51495799999975,
+        "inputTokens": 453,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:15.237Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0260",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0.02,
+          "observation": 0.96,
+          "commitment": 0,
+          "preference": 0,
+          "hypothesis": 0,
+          "fact": 0.02
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 199.8086669999975,
+        "inputTokens": 473,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:15.438Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0267",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.45,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 0.55
+        },
+        "confidence": 0.55,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 251.90183400000387,
+        "inputTokens": 472,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:15.692Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0273",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0.39,
+          "preference": 0,
+          "observation": 0.42,
+          "fact": 0.19,
+          "commitment": 0
+        },
+        "confidence": 0.42,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224.86904200000572,
+        "inputTokens": 475,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:15.917Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0274",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.92,
+          "hypothesis": 0,
+          "fact": 0.08,
+          "commitment": 0,
+          "decision": 0,
+          "preference": 0
+        },
+        "confidence": 0.92,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 241.6542499999996,
+        "inputTokens": 572,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:16.160Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0276",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0.54,
+          "decision": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "fact": 0.46
+        },
+        "confidence": 0.54,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.57970800000476,
+        "inputTokens": 455,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:16.387Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0278",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "decision": 0,
+          "observation": 0.87,
+          "fact": 0.13,
+          "hypothesis": 0,
+          "preference": 0
+        },
+        "confidence": 0.87,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 240.32200000000012,
+        "inputTokens": 458,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:16.628Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0283",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.68,
+          "fact": 0.28,
+          "preference": 0,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 0.04
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.06500000000233,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:16.841Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0296",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "observation": 0.96,
+          "decision": 0,
+          "fact": 0.04,
+          "preference": 0
+        },
+        "confidence": 0.96,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 257.0009580000042,
+        "inputTokens": 484,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:17.099Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0298",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "decision": 0,
+          "hypothesis": 0.91,
+          "preference": 0,
+          "observation": 0.05,
+          "fact": 0.04,
+          "commitment": 0
+        },
+        "confidence": 0.91,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 240.26420900000085,
+        "inputTokens": 449,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:17.340Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0306",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "fact": 0.06,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "observation": 0.9400000000000001,
+          "decision": 0
+        },
+        "confidence": 0.9400000000000001,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 302.0005419999943,
+        "inputTokens": 459,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:17.643Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0313",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "commitment": 0,
+          "fact": 0.98,
+          "observation": 0.02,
+          "preference": 0,
+          "hypothesis": 0,
+          "decision": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.69516699999804,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:17.900Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0315",
+      "expected": "observation",
+      "canonical": null,
+      "cohort": "CHALLENGE",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "fact": 0.02,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0.98,
+          "decision": 0,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 214.04841699999815,
+        "inputTokens": 463,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:31:18.114Z"
+      },
+      "failure": null
+    }
+  ]
+}

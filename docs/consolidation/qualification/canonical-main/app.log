@@ -1,0 +1,252 @@
+
+> eve-agent@0.0.0 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90m/private/tmp/canonical-main-myeve-20260929/apps/eve[39m
+
+ [32m✓[39m lib/digital-worker/contracts.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/engineering/candidate-custody.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m lib/engineering/execution.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-return.test.ts [2m([22m[2m78 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/agentcard-connect.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/imessage-inbound.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [2m[90m↓[39m[22m lib/pending-action-continuation.integration.test.mjs [2m([22m[2m20 tests[22m[2m | [22m[33m20 skipped[39m[2m)[22m
+ [32m✓[39m lib/routine-admission.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [2m[90m↓[39m[22m lib/relay/owner/model-budget.integration.test.mjs [2m([22m[2m19 tests[22m[2m | [22m[33m19 skipped[39m[2m)[22m
+ [32m✓[39m lib/action-recovery.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m lib/relay/adapter.test.ts [2m([22m[2m45 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m lib/relay/review-regressions.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-spend.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m agent/lib/federation-tool.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 281[2mms[22m[39m
+ [32m✓[39m agent/lib/foreman.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m agent/lib/context-assembly.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/voice/bridge.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/agentcard-attach.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/owner-knowledge.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m lib/owner-data.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 353[2mms[22m[39m
+ [32m✓[39m lib/engineering/relay-collaboration.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-authenticated-result.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m lib/relay/peer-permissions.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m agent/lib/memory-store.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 910[2mms[22m[39m
+   [33m[2m✓[22m[39m durable Memory during semantic provider failure[2m > [22mreturns local memory when the provider hangs instead of waiting past Context Assembly's memory window [33m 901[2mms[22m[39m
+ [32m✓[39m lib/computer-template-lifecycle.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 366[2mms[22m[39m
+ [32m✓[39m agent/lib/federation-approval.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m lib/universal-inbox/inbox.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 996[2mms[22m[39m
+ [32m✓[39m lib/relay/owner/model.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/computer-template-vercel.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/agentcard.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/total-recall/learning.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/imessage.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/universal-inbox/integration.test.ts [2m([22m[2m48 tests[22m[2m)[22m[33m 1066[2mms[22m[39m
+ [32m✓[39m lib/engineering/worker-projection.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/voice/dispatch.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/anonymous-eve-rate-limit.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/jev-provider.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m agent/lib/jev-chat.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/challenge-cohorts.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/relay/ingress.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/live-session-provider.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/voice/attachments.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-observation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/computer-selection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/relay/work-authority.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mdoes not generate beyond budget or after authority is revoked
+[22m[39mRelay peer reply unavailable { stage: [32m'pricing'[39m, reason: [32m'Model budget unavailable.'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mdoes not generate beyond budget or after authority is revoked
+[22m[39mRelay peer reply unavailable { stage: [32m'pricing'[39m, reason: [32m'Error'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mwithholds a generated answer when post-call authority changes and never retries
+[22m[39mRelay peer reply unavailable { stage: [32m'verification'[39m, reason: [32m'Error'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mreports an unavailable answer without inventing a response after model failure
+[22m[39mRelay peer reply unavailable { stage: [32m'generation'[39m, reason: [32m'Error'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mrefuses a paid quote or unknown price before any free-only model call
+[22m[39mRelay free model pricing mismatch { modelListed: [33mtrue[39m, rates: [ [33m0.000001[39m, [33m0[39m, [33m0.000001[39m, [33m0.000001[39m ] }
+Relay peer reply unavailable { stage: [32m'pricing'[39m, reason: [32m'Free model unavailable.'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mrefuses a paid quote or unknown price before any free-only model call
+[22m[39mRelay free model pricing mismatch { modelListed: [33mtrue[39m, rates: [ [33mNaN[39m, [33m0[39m, [33mNaN[39m, [33mNaN[39m ] }
+Relay peer reply unavailable { stage: [32m'pricing'[39m, reason: [32m'Free model unavailable.'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mwithholds a free-only reply when the provider reports a nonzero or unknown cost
+[22m[39mRelay peer reply unavailable { stage: [32m'verification'[39m, reason: [32m'Reply verification failed.'[39m }
+
+[90mstderr[2m | lib/relay/message-reply.test.ts[2m > [22m[2mbounded peer answers[2m > [22m[2mwithholds a free-only reply when the provider reports a nonzero or unknown cost
+[22m[39mRelay peer reply unavailable { stage: [32m'verification'[39m, reason: [32m'Reply verification failed.'[39m }
+
+ [32m✓[39m lib/relay/message-reply.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/private-owner-boundary.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/voice/thread.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/challenge-review.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/engineering/native-model.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/capsules/adversarial.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m lib/engineering/native-repair-context.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/shadow.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m lib/engineering/conversation-model.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/capsules/capsules.test.ts [2m([22m[2m91 tests[22m[2m)[22m[33m 1903[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/experiment.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1236[2mms[22m[39m
+   [33m[2m✓[22m[39m frozen V0.5 cohorts and contracts[2m > [22muses independently invoked six/seven predictions on matched non-Insight cases [33m 370[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/knowledge-isolation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/total-recall/retrieval-contract.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/engineering/docker-custody.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m app/api/decision-intelligence/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 394[2mms[22m[39m
+   [33m[2m✓[22m[39m read-only synthetic evidence API[2m > [22mserves challenge and stress as separate read-only metric paths [33m 325[2mms[22m[39m
+ [32m✓[39m lib/phone-auth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/qualification/client.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/ai-sdk-regression.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-beta.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m agent/lib/slack-events.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m agent/lib/raindrop-hook.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1529[2mms[22m[39m
+   [33m[2m✓[22m[39m Raindrop durable turn hook[2m > [22mcleans up after the bounded terminal retry budget is exhausted [33m 1254[2mms[22m[39m
+ [32m✓[39m lib/computer-control.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/action-authority.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [2m[90m↓[39m[22m lib/capsules/staging-store.test.ts [2m([22m[2m4 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m
+ [32m✓[39m app/api/owner-knowledge/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m agent/lib/agentphone-signature.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/engineering/factory-writer.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m agent/lib/computer-context.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/engineering/types.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m agent/lib/agentphone-voice-stream.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/artifact-client.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/composio-connect.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/computer-sandbox-backend.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/relay/message-delegation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m app/api/owner-data/route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m scripts/migration-runner.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m agent/tools/beta-tool-activation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/relay/retire-owner.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m agent/lib/slack-reactions.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/tools/remember.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/engineering/base-preflight.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m agent/tools/engineering_direct.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m app/api/relay/peer-permissions/route.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m lib/control-center.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/computer-runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m agent/lib/engineering-work-binding.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m agent/lib/engineering-knowledge-binding.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/agentphone.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/artifact-api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/routine-admission-route.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/engineering/run-truth.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m app/api/capsules/route.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m lib/capsules/total-recall-adapter.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/imessage-auth.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m agent/tools/engineering_factory.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m app/api/connections/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m lib/total-recall/api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/metrics.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/evaluation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m agent/hooks/engineering-work-context.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/engineering/github-app.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m lib/qualification/artifact-route.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m agent/instructions/persistent-agent.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m components/owner/projection.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/lib/imessage-session.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/engineering/github.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m components/owner/owner.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m agent/lib/local-computer-connection.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/threads-route-owner-conflict.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [2m[90m↓[39m[22m agent/lib/remember-gateway.integration.test.mjs [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
+ [32m✓[39m components/owner/work-canvas.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m app/api/artifacts/[id]/content/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/chat-session.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/chat-attachments.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m components/owner/product.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/lib/agentcard-mcp.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/card-auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/relay/canonical-vector.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m agent/tools/delegate_foreman_issue.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/engineering/completion-budget-plan.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/relay/owner/runtime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/owner-archive-security.test.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 2171[2mms[22m[39m
+ [32m✓[39m app/api/files/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/challenge-draft.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m lib/action-resolution-route.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/routine-resume.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m app/api/computer-profiles/route.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/external-write-policy.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/engineering/api.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m agent/lib/executor-boundary.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/voice.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m lib/threads-db-owner-conflict.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m app/api/computer-sessions/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/async-lru-cache.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/execution-types.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/relay/owner/config.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/retained-evidence.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m lib/thread-owner-conflict.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m agent/lib/owner-chat-run.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/action-recovery-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/engineering/native-api.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/relay/message-reply-settings.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/files-api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/capsules/memory-adapter.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/engineering/docker-protected-verifier.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m lib/agentcard-http.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/routine-final-gate.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/relay/canonical-v2.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m agent/lib/agentphone-policy.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m lib/thread-sync.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 4009[2mms[22m[39m
+   [33m[2m✓[22m[39m sessionHasEventAt[2m > [22mreports the tail when only a flush newline arrives before the deadline [33m 2003[2mms[22m[39m
+   [33m[2m✓[22m[39m sessionHasEventAt[2m > [22mreports the tail when the route stays silent until the deadline [33m 2002[2mms[22m[39m
+ [32m✓[39m agent/lib/telemetry-startup.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m lib/computer-api-errors.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m agent/lib/myfactory.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/approvals.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/relay/grant-duration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m scripts/migration-sql.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/relay/local-origin.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/routine-readiness-tool.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/chat-files.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m app/api/owner-data/route-privacy.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m lib/web-auth.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/activation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/routine-release.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m app/api/imessage/transcript/route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/lib/orgo-profile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/routine-preflight.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/execution-auth.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/relay/key-version.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/relay/owner/worker.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/tool-schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/relay/grant-preference.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/relay/message-draft.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/missed-occurrences.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m lib/engineering/native-behavior.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m agent/lib/web-client-context.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/routine-activation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m agent/lib/effect/artifacts.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/relay/owner/snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/chat-file-client.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/artifact-workspace-state.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/mask-email.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/channels.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/capsules/integration.test.ts [2m([22m[2m34 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 2326[2mms[22m[39m
+ [32m✓[39m lib/capabilities.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m lib/decision-intelligence/v0-preservation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m agent/lib/telemetry-privacy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m lib/capsules/canonical-identity.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstderr[2m | agent/lib/local-computer-task.test.ts[2m > [22m[2mlocal_computer_task approval[2m > [22m[2mdenies a guest instead of offering an approval prompt
+[22m[39mowner-gate: denied local_computer_task for guest group-participant
+
+ [32m✓[39m agent/lib/local-computer-task.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m agent/instrumentation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m components/owner-data-panel.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/engineering/admission-context.integration.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 17336[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mreal authenticated assembly supplies both tokens; model proposes; real tool/gateway admits, and binds the writer atomically [33m 312[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mauthenticated production continuation repairs and retains PARTIAL: controlled [33m 6037[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mauthenticated production continuation repairs and retains PARTIAL: exact-live-failure [33m 5121[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mone duplicate admission returns current state without effects and the next model chooses repository open [33m 368[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mprovider ignoring duplicate feedback is deterministically stopped after one bounded recovery opportunity [33m 393[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mlive open/read/open/read regression redirects to PLAN without repeating effects [33m 671[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22ma provider refusing PLAN after bounded open/read recovery stops without another paid call [33m 616[2mms[22m[39m
+   [33m[2m✓[22m[39m authenticated production admission context with real PostgreSQL[2m > [22mblocked intent, duplicate receipts and pause remain bounded and cannot authorize mutation [33m 471[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m192 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (196)[39m
+[2m      Tests [22m [1m[32m1896 passed[39m[22m[2m | [22m[33m45 skipped[39m[90m (1941)[39m
+[2m   Start at [22m 13:04:07
+[2m   Duration [22m 18.72s[2m (transform 4.76s, setup 0ms, collect 24.18s, tests 37.00s, environment 15ms, prepare 10.28s)[22m
+

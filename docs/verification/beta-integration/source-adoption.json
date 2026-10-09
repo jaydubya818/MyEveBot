@@ -1,0 +1,1170 @@
+[
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/agent/lib/memory-store.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "7534ebc1c581ca8d72943cdee710794288dcbcda887ebe6339c075191fd68ff3",
+    "integratedSha256": "7534ebc1c581ca8d72943cdee710794288dcbcda887ebe6339c075191fd68ff3"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/agent/lib/memory-store.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "20f11e6538c0ed0f3b1fcf77ad63ee4c71cb99d6e339ca42328aa38aad87ec04",
+    "integratedSha256": "20f11e6538c0ed0f3b1fcf77ad63ee4c71cb99d6e339ca42328aa38aad87ec04"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/agent/schedules/memory-consolidation.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3ddc9ac2902a6845ab8fa843460e65b0c346ed39e1f6a273f6b945195a0bf3e5",
+    "integratedSha256": "3ddc9ac2902a6845ab8fa843460e65b0c346ed39e1f6a273f6b945195a0bf3e5"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/activity/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "2b1e9be729dc1d30a846747feddb99643937e8034d1f6bc3bdecea9d3b8181ab",
+    "integratedSha256": "2b1e9be729dc1d30a846747feddb99643937e8034d1f6bc3bdecea9d3b8181ab"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/app/api/learning/route.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40",
+    "integratedSha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/apps/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "d772a7eae6b1003b8ef848ca9bed1b8680ae06458bda0d20746a8e4f79e63372",
+    "integratedSha256": "d772a7eae6b1003b8ef848ca9bed1b8680ae06458bda0d20746a8e4f79e63372"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/beta-preview/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "1a42f433666810cbcea3bc52b6e0ed45d57a88c2de19f7384489f18de191fb9d",
+    "integratedSha256": "1a42f433666810cbcea3bc52b6e0ed45d57a88c2de19f7384489f18de191fb9d"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/brief/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "cf86f05bbe9f290da49ededb0d2e4a094650bfaf63d8d9b827def2ed15c8b550",
+    "integratedSha256": "cf86f05bbe9f290da49ededb0d2e4a094650bfaf63d8d9b827def2ed15c8b550"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/chat.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "559a52d09462476c49c5bfb6503a97bb65ccca009f33b692cc9ce75add5d70a6",
+    "integratedSha256": "559a52d09462476c49c5bfb6503a97bb65ccca009f33b692cc9ce75add5d70a6"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/app/learning/page.tsx",
+    "classification": "ADAPT",
+    "sourceSha256": "5e1377d5ea0a64b9dc9658e313fc2d80123850e7ec26f94fbe6bf9fdf0380787",
+    "integratedSha256": "3a496531f26067d3041d88036466eb0634e078c09de2bc577985b40e6491a928"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/needs-you/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "cc42a1d6859a17499d68523dbbecaf4c2b05a8f24e035ccb186b7d79855fa4aa",
+    "integratedSha256": "cc42a1d6859a17499d68523dbbecaf4c2b05a8f24e035ccb186b7d79855fa4aa"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "d0545e830724b2c99e0285ef473d682320f9b8620836a727d86246e5ca51143c",
+    "integratedSha256": "d0545e830724b2c99e0285ef473d682320f9b8620836a727d86246e5ca51143c"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/results/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "e2f8a700a387ff1908db52c3aaf36989aa5afb1b67a4352f60313f2b8123f7ea",
+    "integratedSha256": "e2f8a700a387ff1908db52c3aaf36989aa5afb1b67a4352f60313f2b8123f7ea"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/sofie/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "06309c3aee65eaf321e86350cc4a14d266dda7f79d46c9f981e468c3f0ffd49f",
+    "integratedSha256": "06309c3aee65eaf321e86350cc4a14d266dda7f79d46c9f981e468c3f0ffd49f"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/today/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "75a8b65cea0ed76f6c6e48f659b21696d9bde3a4a10f8eaddf528ed111e29f47",
+    "integratedSha256": "75a8b65cea0ed76f6c6e48f659b21696d9bde3a4a10f8eaddf528ed111e29f47"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/welcome/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "25d38e00ed6e620667e780c1b838e1b8da93c66bc7a387cec5ecae86fb27f252",
+    "integratedSha256": "25d38e00ed6e620667e780c1b838e1b8da93c66bc7a387cec5ecae86fb27f252"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/work/new/page.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "a8ebbd1f0e5912378784b135e4d59ad4a3bf70fbb145ba5ef165d2e042cc1b34",
+    "integratedSha256": "a8ebbd1f0e5912378784b135e4d59ad4a3bf70fbb145ba5ef165d2e042cc1b34"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/app/work/page.tsx",
+    "classification": "ADAPT",
+    "sourceSha256": "af163a28c337dfa1fbaaea903a5c160df03a0467b9e2e9698215819fa689606a",
+    "integratedSha256": "57dffc4e928dca6c4f9f0650538fa0c9dcb4ee8fb5b7952c5f4261140619c2af"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/data.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "cb6ec172190153bc4e268c46a2acbcb27aa5990adb42c43f41f1c89679d95076",
+    "integratedSha256": "cb6ec172190153bc4e268c46a2acbcb27aa5990adb42c43f41f1c89679d95076"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/decisions.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "889701ce8413f53cce4c7832afc703bb35da249899d8cc37252467c4d19cc65b",
+    "integratedSha256": "889701ce8413f53cce4c7832afc703bb35da249899d8cc37252467c4d19cc65b"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/experience.tsx",
+    "classification": "ADAPT",
+    "sourceSha256": "9cb46bfc8b58b764500179b8223315ec87f8457b49e424643c7eb45e69225a1a",
+    "integratedSha256": "51806b8989c66e551313ac01e2c4f41effb80d4e3c14b63aeda2438e9e00333d"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/navigation.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "1c99ff6225d3b96211e7be597217cd21854d7c6b74698ef8049f52bd14b630cb",
+    "integratedSha256": "1c99ff6225d3b96211e7be597217cd21854d7c6b74698ef8049f52bd14b630cb"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/new-work.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "92441eeed90023cdfd0c2a7b013db4c0519f424f664d6019179bdd2c3f25020a",
+    "integratedSha256": "92441eeed90023cdfd0c2a7b013db4c0519f424f664d6019179bdd2c3f25020a"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/owner.css",
+    "classification": "ADAPT",
+    "sourceSha256": "d09af812bf623a42805846806669f2ccfe1fdf5b8c8fb98ab3e7fe0c862216de",
+    "integratedSha256": "258e00ae70a4dad5e919b30e77ed3b1babeb52b27b0decc9113aa1c0d8bb0c01"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/owner.test.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "42742641da46efc7cb19d0e8aa04d580f7a599fe8e9719e94290456ce2b675ad",
+    "integratedSha256": "42742641da46efc7cb19d0e8aa04d580f7a599fe8e9719e94290456ce2b675ad"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/preview.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c50b2dc2832bacd69ae51c5f68cc0cbda40c3fb2b38f214f5d558950623a06ce",
+    "integratedSha256": "c50b2dc2832bacd69ae51c5f68cc0cbda40c3fb2b38f214f5d558950623a06ce"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/primitives.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "e7a96e077576ac5d1fcdcd5ae33d5ed28c55586f0dd82821ebc458b9efae12b9",
+    "integratedSha256": "e7a96e077576ac5d1fcdcd5ae33d5ed28c55586f0dd82821ebc458b9efae12b9"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/projection.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "15c07cc5df63345b0ee959b578b25019afa2716cd4da12f91c63acf38c88457d",
+    "integratedSha256": "15c07cc5df63345b0ee959b578b25019afa2716cd4da12f91c63acf38c88457d"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/projection.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "97f06455844fb3e007d7d508bf45017cf0a98ab5e57480299ed081288e4430c0",
+    "integratedSha256": "97f06455844fb3e007d7d508bf45017cf0a98ab5e57480299ed081288e4430c0"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/components/owner/proof.tsx",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "d815bbf55435d4199e95a38d041b0e7b7e4272affaa956f0a2c4e5a3dead81e7",
+    "integratedSha256": "d815bbf55435d4199e95a38d041b0e7b7e4272affaa956f0a2c4e5a3dead81e7"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/goal-work-activation/README.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "27ef08c6f5918db89b81b06f1af295c98717bd12de2fbdd410a3347c2baddf51",
+    "integratedSha256": "27ef08c6f5918db89b81b06f1af295c98717bd12de2fbdd410a3347c2baddf51"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/goal-work-activation/access.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f6f57006a4759af01968e10008a8887b2cc32cc00143adb78a376b977a67e017",
+    "integratedSha256": "f6f57006a4759af01968e10008a8887b2cc32cc00143adb78a376b977a67e017"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/goal-work-activation/backfill.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "e89e51bf9e059610f57d62144017008808b41cfa41a5af8890d97f3686979b0a",
+    "integratedSha256": "e89e51bf9e059610f57d62144017008808b41cfa41a5af8890d97f3686979b0a"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/goal-work-activation/schema.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c9a7398e64d046c13170d0cadb53ffd3c65ab829a048ddbb2e09feea42247cbd",
+    "integratedSha256": "c9a7398e64d046c13170d0cadb53ffd3c65ab829a048ddbb2e09feea42247cbd"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/digital-worker/contracts.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "26fc504c71d6f630f1e59c240ae7deb92f8583ae15f799b4561bef08601de2da",
+    "integratedSha256": "26fc504c71d6f630f1e59c240ae7deb92f8583ae15f799b4561bef08601de2da"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/digital-worker/contracts.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30",
+    "integratedSha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/digital-worker/packs.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "fb2bcdc62f0fb4b6cd083e06a434474c25970fb46f955a2bee6215e3d3f72f06",
+    "integratedSha256": "fb2bcdc62f0fb4b6cd083e06a434474c25970fb46f955a2bee6215e3d3f72f06"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/digital-worker/routing.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f548914ccab0b6b0d2ba657f011b686d78bd23114c0fb89b7bae866485e0c6ae",
+    "integratedSha256": "f548914ccab0b6b0d2ba657f011b686d78bd23114c0fb89b7bae866485e0c6ae"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/api.ts",
+    "classification": "ADAPT",
+    "sourceSha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f",
+    "integratedSha256": "fa48459655a2bb996a8172d51e86d1ff0a727d5f56c65387610a9abe8f1dc7fb"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/contract.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e",
+    "integratedSha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/knowledge.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247",
+    "integratedSha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/store.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899",
+    "integratedSha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/types.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087",
+    "integratedSha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087"
+  },
+  {
+    "source": "recall prerequisite",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/engineering/types.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4",
+    "integratedSha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/api.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "92ab29e0c0a74cd996c6a17f3b28fa56218668c6d3445c2120c36ef6137a6c6e",
+    "integratedSha256": "92ab29e0c0a74cd996c6a17f3b28fa56218668c6d3445c2120c36ef6137a6c6e"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/attention-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "bbfea88319901c40ea2c99fcb851cff8aa119931ad4cb6b0ec6eea08c2231b61",
+    "integratedSha256": "bbfea88319901c40ea2c99fcb851cff8aa119931ad4cb6b0ec6eea08c2231b61"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/canonical-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3fcc11bf92214e5f75398916f87da3d811c4978ed5ce34adada030152594b07c",
+    "integratedSha256": "3fcc11bf92214e5f75398916f87da3d811c4978ed5ce34adada030152594b07c"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/context-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "482390067b79b1fa8e407f4c1d9091836553aee90a530dda7bc262d2707b2949",
+    "integratedSha256": "482390067b79b1fa8e407f4c1d9091836553aee90a530dda7bc262d2707b2949"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/contracts.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "05bb3485f59bd2d7c5e623a69cb7904c7c9f3d93478da1f1242060bc4e701c07",
+    "integratedSha256": "05bb3485f59bd2d7c5e623a69cb7904c7c9f3d93478da1f1242060bc4e701c07"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/database.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "e41425936363f5619f72db19808172dcfe64d720c79af2bc8120bc71a0aa8d42",
+    "integratedSha256": "e41425936363f5619f72db19808172dcfe64d720c79af2bc8120bc71a0aa8d42"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/dispatcher.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "a758574e755f052dc3f8f3c26980ba07880de974c8dc30e9b111788906182960",
+    "integratedSha256": "a758574e755f052dc3f8f3c26980ba07880de974c8dc30e9b111788906182960"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/event-adapters.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "baa167aa55f445622a533fdbd11cb414a606c0f46a7705046d3328824c3c9165",
+    "integratedSha256": "baa167aa55f445622a533fdbd11cb414a606c0f46a7705046d3328824c3c9165"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/inbox-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "2632383657a1b9fd97bb557c7342262d8c43615a4c99bbe6fa36c8917ee22ff2",
+    "integratedSha256": "2632383657a1b9fd97bb557c7342262d8c43615a4c99bbe6fa36c8917ee22ff2"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/product-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "581f2d415c278ffdbb5df7970d23e8d36d0aadd6ddc340cd5c8e1ba4f3eb5130",
+    "integratedSha256": "581f2d415c278ffdbb5df7970d23e8d36d0aadd6ddc340cd5c8e1ba4f3eb5130"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/projections.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3256cf34af59de61889a5835d4d85807b1c1cc5af128a30fd1b9891cf924b48d",
+    "integratedSha256": "3256cf34af59de61889a5835d4d85807b1c1cc5af128a30fd1b9891cf924b48d"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/service.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "562082815bc5288ee1e27e43af953141e8a686e8cfde88f8e0921ec3f189168f",
+    "integratedSha256": "562082815bc5288ee1e27e43af953141e8a686e8cfde88f8e0921ec3f189168f"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/lib/goal-work/validation.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "86e290e8723e9cc77022d0bade84ae6d07764775f7b697bf4da545d855257b7c",
+    "integratedSha256": "86e290e8723e9cc77022d0bade84ae6d07764775f7b697bf4da545d855257b7c"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/api.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ecea8456e82ae5bd27dcdd149676bb3364907ed46b02923228a2e7def69274b9",
+    "integratedSha256": "ecea8456e82ae5bd27dcdd149676bb3364907ed46b02923228a2e7def69274b9"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/api.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93",
+    "integratedSha256": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/fixture-consumer.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "923560478aab5de1e7f72f62c31103d5bd4517b39494a998a4b6a25c8d0b19db",
+    "integratedSha256": "923560478aab5de1e7f72f62c31103d5bd4517b39494a998a4b6a25c8d0b19db"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/learning.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "cb6f2720874aa3e6d7d34e21cab7be4f54e281d2c67a1c9a09ab6252271f626b",
+    "integratedSha256": "cb6f2720874aa3e6d7d34e21cab7be4f54e281d2c67a1c9a09ab6252271f626b"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/learning.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "40afb274c4fa72f5672323bc171391b66f1e2d6b2fc7e249718c1559c3987ffe",
+    "integratedSha256": "40afb274c4fa72f5672323bc171391b66f1e2d6b2fc7e249718c1559c3987ffe"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/projections.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f",
+    "integratedSha256": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/retrieval-contract.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ca8a96b3553e3c6d72fc247ef5a3502ca686a8fb44120fee028da81f98d5498e",
+    "integratedSha256": "ca8a96b3553e3c6d72fc247ef5a3502ca686a8fb44120fee028da81f98d5498e"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/retrieval-contract.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "755435ab99b1e29c63704da2dfe550738f2c4db1dfb9ca5680f8bf2ad9c54589",
+    "integratedSha256": "755435ab99b1e29c63704da2dfe550738f2c4db1dfb9ca5680f8bf2ad9c54589"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/runtime.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ac24b756686a95356ee6f95e41de8afc9321f51446cd70c9f16e147bb48a0724",
+    "integratedSha256": "ac24b756686a95356ee6f95e41de8afc9321f51446cd70c9f16e147bb48a0724"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/sofie-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "5510c0e2a2d524b56c72f017b7eafe9c1133813f1651086c50b54bb0bd8be7a9",
+    "integratedSha256": "5510c0e2a2d524b56c72f017b7eafe9c1133813f1651086c50b54bb0bd8be7a9"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/store.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "05d1fe34d7cb5e2c878e802b45aba8d93c19462549f228fb0cdb2c8f345ebbac",
+    "integratedSha256": "05d1fe34d7cb5e2c878e802b45aba8d93c19462549f228fb0cdb2c8f345ebbac"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/lib/total-recall/work-retrieval.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "629704a9aba454848b9fc49e417dd3f3773961b6219f9bc605f93338a46dae21",
+    "integratedSha256": "629704a9aba454848b9fc49e417dd3f3773961b6219f9bc605f93338a46dae21"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/adapters.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c809900aeaaca7f3fa8a4814216331bbe82a35acde2ccb0b73bb1adede8a5c7f",
+    "integratedSha256": "c809900aeaaca7f3fa8a4814216331bbe82a35acde2ccb0b73bb1adede8a5c7f"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/admission.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ee24c4a3aabcfcb56584bfbe7ca0fca800fffd9fa400c0a6b121ba47fca84198",
+    "integratedSha256": "ee24c4a3aabcfcb56584bfbe7ca0fca800fffd9fa400c0a6b121ba47fca84198"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/api.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "76734e5bb5476af38c463a266f5bd3972271b5556fc7c4dec78a4e4f89b9bff0",
+    "integratedSha256": "76734e5bb5476af38c463a266f5bd3972271b5556fc7c4dec78a4e4f89b9bff0"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/approval-consumer.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "13b9ace437c42314b5faa1225dfee25b46dddfbfc19911c4f7c6063c7ac36dd6",
+    "integratedSha256": "13b9ace437c42314b5faa1225dfee25b46dddfbfc19911c4f7c6063c7ac36dd6"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/beta-crosswalk.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f0ebd977e9c8ea81e3244e9798983fbe2d8fa9b8ff48b8f7705248c3560b5f6e",
+    "integratedSha256": "f0ebd977e9c8ea81e3244e9798983fbe2d8fa9b8ff48b8f7705248c3560b5f6e"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/continuation-fixture.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "96a8bddd01f5861547ea925049278228d07763c91d0f0d64573ddb2cdd574d67",
+    "integratedSha256": "96a8bddd01f5861547ea925049278228d07763c91d0f0d64573ddb2cdd574d67"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/continuation.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f49510770c61f985db62c195417a5ff467e09325f4006b558c8188d53c238963",
+    "integratedSha256": "f49510770c61f985db62c195417a5ff467e09325f4006b558c8188d53c238963"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/contracts.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "fb74550b339b57c70442e9c18abe6eb65250a34953b38c962c7863fe3c4f0a01",
+    "integratedSha256": "fb74550b339b57c70442e9c18abe6eb65250a34953b38c962c7863fe3c4f0a01"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/domain.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "384eed3f73156c1dec9582a43e08f0d1fdfe41d89a118502816b081aba79d9b3",
+    "integratedSha256": "384eed3f73156c1dec9582a43e08f0d1fdfe41d89a118502816b081aba79d9b3"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/feeds.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ae934f45f8020c04c1f9828961abee931b6a784ae837d6621075fd6ffc2b0068",
+    "integratedSha256": "ae934f45f8020c04c1f9828961abee931b6a784ae837d6621075fd6ffc2b0068"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/fixture-repository.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "2252f4ef4d8d7b7887830ae680c087aeac413e9e588cfce613b126c22d91917f",
+    "integratedSha256": "2252f4ef4d8d7b7887830ae680c087aeac413e9e588cfce613b126c22d91917f"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/fixtures.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c1c3accbb9ba6ceca39fa74283eda6cf9dace5d1adb4d6b0a439857338b1435d",
+    "integratedSha256": "c1c3accbb9ba6ceca39fa74283eda6cf9dace5d1adb4d6b0a439857338b1435d"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/goals-adapter.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "309cd8fb646101d55af05b2e8c0f52b77794b87de31d0fbaead6fb849f8467e9",
+    "integratedSha256": "309cd8fb646101d55af05b2e8c0f52b77794b87de31d0fbaead6fb849f8467e9"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/inbox.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "aa319b9b6c200ed7081cd9b511af99c4ee9aa518640aaa3d946d8491207311df",
+    "integratedSha256": "aa319b9b6c200ed7081cd9b511af99c4ee9aa518640aaa3d946d8491207311df"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/integration.test.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "28adc06cbb7c86db11ace123bbd951e0d0cc3ef3aabe5dda0bc71025e0322fe6",
+    "integratedSha256": "28adc06cbb7c86db11ace123bbd951e0d0cc3ef3aabe5dda0bc71025e0322fe6"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/postgres-repository.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "2aacbc0eb6677688952316d80d594fbfd09cd49a65939bd92ed4637583e24ea7",
+    "integratedSha256": "2aacbc0eb6677688952316d80d594fbfd09cd49a65939bd92ed4637583e24ea7"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/query.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "980d3f87daa0be1df1d58619226cd1a8a537cdcfdb2fa1983285b07b0dcb6c35",
+    "integratedSha256": "980d3f87daa0be1df1d58619226cd1a8a537cdcfdb2fa1983285b07b0dcb6c35"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/repository.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "cd5f53a3303f9f406d69ab5c00bdc56d723a54b3fa13cf5630fb877b7864218c",
+    "integratedSha256": "cd5f53a3303f9f406d69ab5c00bdc56d723a54b3fa13cf5630fb877b7864218c"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/service.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "11ff58dcf1439acaa3837c765fcd165e29a3be0ef5aeb48ab2f33041046730fb",
+    "integratedSha256": "11ff58dcf1439acaa3837c765fcd165e29a3be0ef5aeb48ab2f33041046730fb"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/lib/universal-inbox/source-adapters.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "e942b9b48d42db50b38b319724f96296b1455b23b1a7f02f905c96a02db26533",
+    "integratedSha256": "e942b9b48d42db50b38b319724f96296b1455b23b1a7f02f905c96a02db26533"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/scripts/qualify-inbox-crosswalk.mjs",
+    "classification": "ADAPT",
+    "sourceSha256": "689e0cf5a996863aec910b3912c41669337f941938231ad6c8809aee8c012a2e",
+    "integratedSha256": "4c45728d2ae18dbd2ed34f979b7c0e1b7f1f841ca7ce271edfd85be0fc6f0dd8"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/scripts/qualify-inbox-integration.ts",
+    "classification": "ADAPT",
+    "sourceSha256": "422158bd64e60d6a2cbf6356a1cfeb9840bef08434faac0b5cdc4b0975a64636",
+    "integratedSha256": "8a810719a79a310c0196a97e4c44945da93bcbf115641cb2bfa34d374b41f363"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/scripts/qualify-inbox-postgres.mjs",
+    "classification": "ADAPT",
+    "sourceSha256": "3270a3d5052c6921453bb845202bab84b0990255e03df2453d3a65a7bc34ac82",
+    "integratedSha256": "d914bca7c438f41fa144a8fe254249ac8231e4ff16e1e32bf12ce324d75662ae"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "apps/eve/scripts/qualify-universal-inbox.ts",
+    "classification": "ADAPT",
+    "sourceSha256": "dc53d3622777c6d4759df8a7b5a6835757cf132502f83d1a5d54ac39d9b6a26c",
+    "integratedSha256": "ed099e6c4060a5f7daa941b99732b4a6a9c305ee0de63fb4aec02a918c28e141"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/test/fixtures/goal-work/crash-worker.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "71f07909b0d7f336721fa52fb12dafa8c0489ae0f41c6276769fc27d1728ca95",
+    "integratedSha256": "71f07909b0d7f336721fa52fb12dafa8c0489ae0f41c6276769fc27d1728ca95"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/test/fixtures/goal-work/integration-runtime.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "b37e06236ba9809a926f63282918736f843acad9e853eb7e127f03ada12de008",
+    "integratedSha256": "b37e06236ba9809a926f63282918736f843acad9e853eb7e127f03ada12de008"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/test/goal-work-integration-prep.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "321c74335db5fbe15741d72d98c3ae96ceabce1cd30efda8da39b102f1bdf782",
+    "integratedSha256": "321c74335db5fbe15741d72d98c3ae96ceabce1cd30efda8da39b102f1bdf782"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/test/goal-work.acceptance.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0f8759042b6e7d89be04cf6bdf075fdb3f3f8e2629274bf5cde9d1fcfb9ae338",
+    "integratedSha256": "0f8759042b6e7d89be04cf6bdf075fdb3f3f8e2629274bf5cde9d1fcfb9ae338"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "apps/eve/test/goal-work.integration.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "485cd9156a1e464a9865264bcd945012bbb07e48fdba39e3da376475e99e4f83",
+    "integratedSha256": "485cd9156a1e464a9865264bcd945012bbb07e48fdba39e3da376475e99e4f83"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/test/helpers/recall-restart.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "389684a20d6b4cdf1aeb8acca07f8806cb5dfc551ca036f119cf9eb3f7f45bd5",
+    "integratedSha256": "389684a20d6b4cdf1aeb8acca07f8806cb5dfc551ca036f119cf9eb3f7f45bd5"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/test/helpers/work-recall-restart.mjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "8e1aa03e469bfb5ea082b5b4e06355909591a62a3148b44a893b6359601820ff",
+    "integratedSha256": "8e1aa03e469bfb5ea082b5b4e06355909591a62a3148b44a893b6359601820ff"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/test/owner/journey.spec.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "ebea2e63f8de1153ad0e0f239f0086ae35115e1a22cf10532cd1c89488700450",
+    "integratedSha256": "ebea2e63f8de1153ad0e0f239f0086ae35115e1a22cf10532cd1c89488700450"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/test/owner/local-server.cjs",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3319b3ac4fdb8ae36c1dc0db809e72f5f161be62bba20b8a339162b64d9e2817",
+    "integratedSha256": "3319b3ac4fdb8ae36c1dc0db809e72f5f161be62bba20b8a339162b64d9e2817"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "apps/eve/test/owner/playwright.config.ts",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0989338b40d4361394343d9e2a0630e41496d6f58d82a12fa4b3a4864f005a13",
+    "integratedSha256": "0989338b40d4361394343d9e2a0630e41496d6f58d82a12fa4b3a4864f005a13"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/test/recall-integration-preparation.mjs",
+    "classification": "ADAPT",
+    "sourceSha256": "6358f942fef792cca3a2557e95853d0731c8afbefa9acb17467a9b43b08cc09a",
+    "integratedSha256": "3de78755ee96ee5b49a798211a1ba95b24bbd46f8359c9c4584f30c4bf277c68"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "apps/eve/test/total-recall.integration.mjs",
+    "classification": "ADAPT",
+    "sourceSha256": "eded0b4f9a352420c5849579932b29d5a4569e12d757ac7eb2cdb14649b7872b",
+    "integratedSha256": "3acbf9758e4460741f4c552b3984c08e82517c179af0c0a31c0c47116694bdf2"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/beta-guide.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f1e6639bd9c08fadce14029244b0dd94840b8c3542d6cff64c7db371ee146ec8",
+    "integratedSha256": "f1e6639bd9c08fadce14029244b0dd94840b8c3542d6cff64c7db371ee146ec8"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/beta-ux-integration-checklist.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3c04d60b3ba6ddf84dbeb84d3fd9fb8e88e1054281e7d20827e714179f1916e9",
+    "integratedSha256": "3c04d60b3ba6ddf84dbeb84d3fd9fb8e88e1054281e7d20827e714179f1916e9"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/beta-ux-integration-contract.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "6700c8ce90b153c3474f8be7b8643a3064539c0c0aba2044516258898f07826c",
+    "integratedSha256": "6700c8ce90b153c3474f8be7b8643a3064539c0c0aba2044516258898f07826c"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/digital-worker-goals-contract.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0961cd9ea29577d739d9b23c7b2a0a99dcaf5dd0aff3e44f56c6f9cc83ea8ae3",
+    "integratedSha256": "0961cd9ea29577d739d9b23c7b2a0a99dcaf5dd0aff3e44f56c6f9cc83ea8ae3"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/digital-worker-ux.md",
+    "classification": "ADAPT",
+    "sourceSha256": "78b55c78e799210684e0518adc402666c5404059f5c96b95159ff7b0b37e0f7d",
+    "integratedSha256": "09269ef8ea986dc96485e2f342e5bddb8fd83a614439f6c7556de7e455337f28"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/digital-worker/total-recall-learning.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "bff2f64d7b86f984c2f6c18e2d6bd47529abb583c45c17ed9095f693f010a7bb",
+    "integratedSha256": "bff2f64d7b86f984c2f6c18e2d6bd47529abb583c45c17ed9095f693f010a7bb"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/goal-os.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "69ade96d3582b208a2c0a1f9d05197e02a01c66c68d310099b269775889c0961",
+    "integratedSha256": "69ade96d3582b208a2c0a1f9d05197e02a01c66c68d310099b269775889c0961"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/goal-work-integration-crosswalk.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "dd003bbb3ed259851fb0f0fb4ee006722e19c2d17ed9cc13e4cf6d977afe2259",
+    "integratedSha256": "dd003bbb3ed259851fb0f0fb4ee006722e19c2d17ed9cc13e4cf6d977afe2259"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/goal-work-product-contracts.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "fe73b0421c70b680bd3d5683650fe4c4cf06d90e3640815caffc5ae961ac9509",
+    "integratedSha256": "fe73b0421c70b680bd3d5683650fe4c4cf06d90e3640815caffc5ae961ac9509"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/README.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "53ad3d4b25d6ac8e0df8b1c902df173dad4621d228dd25819219b4f4e6807f60",
+    "integratedSha256": "53ad3d4b25d6ac8e0df8b1c902df173dad4621d228dd25819219b4f4e6807f60"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/contracts.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "30b2b6b6591c0ba89dd6caecca0e5b2eb767a76bbaee04e54b77ce8089b77b1d",
+    "integratedSha256": "30b2b6b6591c0ba89dd6caecca0e5b2eb767a76bbaee04e54b77ce8089b77b1d"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/crosswalk.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0f92140abc18e535f3c44327b79297288849e1fc313f95c329f1dad1ec904ab9",
+    "integratedSha256": "0f92140abc18e535f3c44327b79297288849e1fc313f95c329f1dad1ec904ab9"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/manifest.json",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "6d5cc1cef118acf11f40c90f4d36be3bfac4a8c89b96421505499bf5a8f733e0",
+    "integratedSha256": "6d5cc1cef118acf11f40c90f4d36be3bfac4a8c89b96421505499bf5a8f733e0"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/rollback.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "698418ccb4686405847b0ff88868e1afbf6ff5ac1e0f66eae77fb2d8da04e6b1",
+    "integratedSha256": "698418ccb4686405847b0ff88868e1afbf6ff5ac1e0f66eae77fb2d8da04e6b1"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/integration/total-recall/schema.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "db31986ffa248445b3d6e61af30961b9eeb870b5ae40dd1a3f55a7df57b9b183",
+    "integratedSha256": "db31986ffa248445b3d6e61af30961b9eeb870b5ae40dd1a3f55a7df57b9b183"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/knowledge/total-recall.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "a661a19e00da53d5321397189b20e54c51df9eee88ffd471297f17fdee7ba847",
+    "integratedSha256": "a661a19e00da53d5321397189b20e54c51df9eee88ffd471297f17fdee7ba847"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/proactive-work.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "a924bf84728d722f88dd2c023f4f45d524488eed9f9385da540bdd97e61ab16b",
+    "integratedSha256": "a924bf84728d722f88dd2c023f4f45d524488eed9f9385da540bdd97e61ab16b"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/total-recall-learning.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "d60dae99a29884003650ba40ffd8c3eb7e32d17a4a8aee22ef51756c4d6e673a",
+    "integratedSha256": "d60dae99a29884003650ba40ffd8c3eb7e32d17a4a8aee22ef51756c4d6e673a"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/README.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0cac00c3eb843ce10baea4afdaabd78b586756d05a0ad7be029cb81661e3efa7",
+    "integratedSha256": "0cac00c3eb843ce10baea4afdaabd78b586756d05a0ad7be029cb81661e3efa7"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/activation/README.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "3f82ba8cee0cf44adb77490184e4533290fac2123a34ac6940a47c09296dc06a",
+    "integratedSha256": "3f82ba8cee0cf44adb77490184e4533290fac2123a34ac6940a47c09296dc06a"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/activation/schema.sql",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "0bc407e22f67ac259d8d48a8e32d04e1f9d026f0b15e42c186a658f3cdf78840",
+    "integratedSha256": "0bc407e22f67ac259d8d48a8e32d04e1f9d026f0b15e42c186a658f3cdf78840"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/beta-ux-crosswalk.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "7e004b33744ef317918867113ba5f88cb4a568c61886e87ffc619d4fc57c535a",
+    "integratedSha256": "7e004b33744ef317918867113ba5f88cb4a568c61886e87ffc619d4fc57c535a"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/digital-worker-architecture.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "75f9a132f18601e7743a5c1384f27acd4ea7808593461a2892b900490f1baff9",
+    "integratedSha256": "75f9a132f18601e7743a5c1384f27acd4ea7808593461a2892b900490f1baff9"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/feeds-and-followups.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "f680613d132c181b72e799bf39c435b6377eec721c1ff58d66097583e61d8325",
+    "integratedSha256": "f680613d132c181b72e799bf39c435b6377eec721c1ff58d66097583e61d8325"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/fixture-contract.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "111048911a7447148daaee2a2e51bde0c9801827e6f3056d6b036a9384ccdce1",
+    "integratedSha256": "111048911a7447148daaee2a2e51bde0c9801827e6f3056d6b036a9384ccdce1"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/integration-crosswalk.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c29e9f4080be10b69bd6a109ecd0d4441a100b885b13b8c0b511a6f9bac2effc",
+    "integratedSha256": "c29e9f4080be10b69bd6a109ecd0d4441a100b885b13b8c0b511a6f9bac2effc"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/needs-you.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "4168e201b031f95be32658155b7d5fcf787e11368d4b2359e8575725fc1686f6",
+    "integratedSha256": "4168e201b031f95be32658155b7d5fcf787e11368d4b2359e8575725fc1686f6"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/persistence-contract.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "5d20780efa9b5e5e976cf8523ee5cdef84ce9458772798cf5e3aa3fc7a9b275e",
+    "integratedSha256": "5d20780efa9b5e5e976cf8523ee5cdef84ce9458772798cf5e3aa3fc7a9b275e"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/universal-inbox/schema-integration.md",
+    "classification": "ADOPT FEATURE",
+    "sourceSha256": "c2462b2730f44f765ee4bd56cc2239bdcea634cd44ea7f4c4c4fad7854f5aa96",
+    "integratedSha256": "c2462b2730f44f765ee4bd56cc2239bdcea634cd44ea7f4c4c4fad7854f5aa96"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/verification/beta-product-experience/AUDIT.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "078eea6517869c5388d46b5d6be574dc4d88052a7013f735dbc258ccf92bb933",
+    "integratedSha256": "4650bbe9605003ab79e7de4230f38cfb23a637d182354f106ff7ddd459d2372f"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/verification/beta-product-experience/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "17aabd4c53dc6cd8e490cb4a1a5217623d0f9e3d576f039f3b11cc3379298c63",
+    "integratedSha256": "bee67408990cd0472a4e206fdf475b1f2348f3f373ec2a386ea7d31ba9ff2a3c"
+  },
+  {
+    "source": "beta",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "path": "docs/verification/beta-product-experience/integration-preparation.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "947ac22dcc735d01b7fa8fe07cb9cc531a5ba7e96989460ba2fa4f08736e9dc5",
+    "integratedSha256": "61ccca37fe3432a928d0c29938eaca996196bf793a9bda43134bedd8fadb2b8f"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/verification/goals-proactive-work/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "31d2307ff18c703a8796aea82c584926ce7f4128473e37dfbfb6e83f2ca0c2f4",
+    "integratedSha256": "226ae8bf8d1f3ac2c8e9fb7463a1f7173026b8542cabf53aa361bb7c4d8ed997"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/verification/goals-proactive-work/integration-preparation/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "356ea929db8d5c728a6c53611bfd2ca17c140367fbf263fb7535da1bbcbc8bf3",
+    "integratedSha256": "8ca43ad80b26e23f9b98d70878c728cede205cf7b6faa2019a3ec83e517016c4"
+  },
+  {
+    "source": "goals",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "path": "docs/verification/goals-proactive-work/status.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "bbb6d433165a8890ade04f36ea12646cfa033df32124adeea8038227b04c811f",
+    "integratedSha256": "6ee7475eff40f54ddb3e6e3882ea32c4ffffef55ab92d40941390ee2f36c52a3"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/verification/total-recall-learning/INVENTORY.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "70c8a3f6f983eccdbb86dbc61bc463712a1506d326d2d69497a42d6078e10fcd",
+    "integratedSha256": "6bedd9f7ea50bb7ef288cf1188e30c2df02fa70a9ab2a7b651d9bcabb7c90c4c"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/verification/total-recall-learning/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "48db830a67ba09901d21eee9502488ba92b14df50bb6f91a47ca43ee41a06d8c",
+    "integratedSha256": "9387800f0744b403ef836517b0f58c9f1a35f53632671e474b049884e98a2740"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/verification/total-recall-learning/SUPERSEDED-BY.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "5ee0f392bb63a03eada3b4fe9bcba630a11c1e413ebd4c2e214518c2d35fe0b1",
+    "integratedSha256": "55659f07a149c4db9b05199d2f23e54b0e43e450fd1e489e2256447761b5835d"
+  },
+  {
+    "source": "recall",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "path": "docs/verification/total-recall-learning/integration-preparation/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "80df4346344898bbf3e5112c9da749455aa84283602c149c413df2adf667e2b4",
+    "integratedSha256": "cde610564b33a74744fbbc4df755a0abd5317ae78b234a88b8c242e1568c8e67"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/verification/universal-inbox/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "ad63722ee67c03376716cc374a54c7c5b883ab90cd7fcf2f1699acf5cf454369",
+    "integratedSha256": "6c3eb308293a2898cd60f4dc6848d178d1c336560b672b64f135d0f42dde30bd"
+  },
+  {
+    "source": "inbox",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "path": "docs/verification/universal-inbox/integration-preparation/README.md",
+    "classification": "SUPERSEDED",
+    "sourceSha256": "f24732e3de05f4850d13ebd766d401562d6d9a6986b26dd34b6f5b152dd500db",
+    "integratedSha256": "c718092ead3c60d98282544b3b2c95ac912994b21b1da040dc325b4214410d8c"
+  }
+]

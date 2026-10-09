@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:2039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › test/agent-native/agent-home.spec.ts:13:1 › persistent agent home shows canonical Work and history with Advanced collapsed (1.0s)
+  ✓  2 [desktop] › test/agent-native/agent-home.spec.ts:27:1 › agent home authorization and honest outage recovery (425ms)
+(node:2153) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [390px] › test/agent-native/agent-home.spec.ts:13:1 › persistent agent home shows canonical Work and history with Advanced collapsed (715ms)
+  ✓  4 [390px] › test/agent-native/agent-home.spec.ts:27:1 › agent home authorization and honest outage recovery (402ms)
+
+  4 passed (4.2s)

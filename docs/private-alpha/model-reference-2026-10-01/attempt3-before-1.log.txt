@@ -1,0 +1,21 @@
+✖ Attempt 3: exact provider-qualified model reaches the executor as one literal argument (3.878208ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121.304625
+
+✖ failing tests:
+
+test at packages/agents/test/agents.test.mjs:171:1
+✖ Attempt 3: exact provider-qualified model reaches the executor as one literal argument (3.878208ms)
+  TypeError: model must be a simple model identifier
+      at validateRunOptions (file:///private/tmp/private-alpha-live-myfactory/packages/agents/src/index.ts:89:11)
+      at runCodexWith (file:///private/tmp/private-alpha-live-myfactory/packages/agents/src/index.ts:152:3)
+      at Object.runCodex (file:///private/tmp/private-alpha-live-myfactory/packages/agents/src/index.ts:452:28)
+      at TestContext.<anonymous> (file:///private/tmp/private-alpha-live-myfactory/packages/agents/test/agents.test.mjs:174:37)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)

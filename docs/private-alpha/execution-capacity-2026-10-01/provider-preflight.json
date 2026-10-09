@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-01T06:33:26.096Z",
+  "status": "PASS",
+  "identity": "VERIFIED_PROJECT_OIDC",
+  "gatewayAuthentication": "PASS",
+  "model": "openai/gpt-5.4-mini",
+  "provider": "openai",
+  "modelEligibility": "eligible",
+  "httpAvailability": "available",
+  "pinnedRoute": "PASS",
+  "pricing": "PASS",
+  "modelOperations": 0,
+  "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+}

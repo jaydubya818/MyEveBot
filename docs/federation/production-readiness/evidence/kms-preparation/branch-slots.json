@@ -1,0 +1,25 @@
+{
+  "slots": [
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-a-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-b-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "relay",
+      "branch": "codex/fq-relay-6384519e0e01",
+      "commit": "73d9104fbe8a2c102258dc593ce61d0f23d9254f",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    }
+  ]
+}

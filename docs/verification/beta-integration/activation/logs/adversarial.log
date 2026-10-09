@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "older retained Result cannot complete current Work",
+    "Work revision invalidates completion and preserves Result history",
+    "eight concurrent Work cancellation versus Result ingestion races have no false completion",
+    "new immutable Result invalidates prior completion without deleting history",
+    "eight concurrent Result supersession versus ingestion races have no false completion",
+    "foreign Result cannot cross owner boundary",
+    "unretained owner signals are denied"
+  ],
+  "falseCompletions": 0,
+  "crossOwnerDisclosures": 0
+}

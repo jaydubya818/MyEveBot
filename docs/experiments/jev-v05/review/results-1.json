@@ -1,0 +1,1180 @@
+{
+  "reviewerId": "blind-review-1",
+  "reviewerKind": "independent-ai",
+  "reviewModel": "inherited Codex model, exact identifier unavailable",
+  "reviewedAt": "2026-09-21T04:13:10.089627+00:00",
+  "rubricId": "knowledge-taxonomy-challenge-rubric:v1",
+  "rubricHash": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+  "reviewedWithoutProviderOutputs": true,
+  "cases": [
+    {
+      "id": "c001",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c002",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c003",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c004",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c005",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Identifies authenticated inscription text rather than making the quoted promise."
+    },
+    {
+      "id": "c006",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c007",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c008",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes geographic diversity and shared selection perspective."
+    },
+    {
+      "id": "c009",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets collection size in relation to usable compatibility."
+    },
+    {
+      "id": "c010",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c011",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Missing referent prevents identifying the type of rejection."
+    },
+    {
+      "id": "c012",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c013",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets nominal choice against shared geographic constraints."
+    },
+    {
+      "id": "c014",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets empty seats in relation to accessibility."
+    },
+    {
+      "id": "c015",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Tentative intention establishes neither a completed choice nor an undertaking."
+    },
+    {
+      "id": "c016",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c017",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c018",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c019",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c020",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets recovered storage space as a search-time tradeoff."
+    },
+    {
+      "id": "c021",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c022",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets a schedule mismatch between tours and departures."
+    },
+    {
+      "id": "c023",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c024",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c025",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c026",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c027",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c028",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines approval and a personal undertaking without an isolated target."
+    },
+    {
+      "id": "c029",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Identifies a shared fixed assumption underlying apparent alternatives."
+    },
+    {
+      "id": "c030",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets reliance on keeper knowledge as a discovery barrier."
+    },
+    {
+      "id": "c031",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c032",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c033",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Retains moisture as an explanation still requiring tests."
+    },
+    {
+      "id": "c034",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c035",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets differing prices through differing service scope."
+    },
+    {
+      "id": "c036",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c037",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c038",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c039",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c040",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c041",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c042",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c043",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets how final-assembly credit obscures preparation work."
+    },
+    {
+      "id": "c044",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c045",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the mismatch between visitor vocabulary and signage."
+    },
+    {
+      "id": "c046",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c047",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a completed choice and standing preference without an isolated target."
+    },
+    {
+      "id": "c048",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c049",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c050",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports displayed text during testing rather than actual agreement."
+    },
+    {
+      "id": "c051",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c052",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c053",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c054",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c055",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c056",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c057",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c058",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c059",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c060",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c061",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets unequal navigational coverage despite translation."
+    },
+    {
+      "id": "c062",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Connects bulk discounts with the ability to store inventory."
+    },
+    {
+      "id": "c063",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets inventory availability against practical access constraints."
+    },
+    {
+      "id": "c064",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets repeated reuse as an undocumented parts function."
+    },
+    {
+      "id": "c065",
+      "label": "fact",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Identifies proposed advertising text rather than an accepted crew promise."
+    },
+    {
+      "id": "c066",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c067",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c068",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c069",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Another person\u2019s quoted preference is not the owner\u2019s; context does not distinguish fresh reporting from established information."
+    },
+    {
+      "id": "c070",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c071",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a found inscription without adopting its preference."
+    },
+    {
+      "id": "c072",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c073",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c074",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c075",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c076",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c077",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "No referent establishes what completion means here."
+    },
+    {
+      "id": "c078",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c079",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c080",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c081",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c082",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c083",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c084",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c085",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c086",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c087",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c088",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c089",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c090",
+      "label": "fact",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Identifies a rejected draft text rather than making its quoted choice."
+    },
+    {
+      "id": "c091",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets catalog organization as obscuring a meaningful sequence."
+    },
+    {
+      "id": "c092",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c093",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c094",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Synthesizes segment constraints into whole-route accessibility."
+    },
+    {
+      "id": "c095",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c096",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets the limits of expedited service under a shared constraint."
+    },
+    {
+      "id": "c097",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Predicts a future reaction without an established preference."
+    },
+    {
+      "id": "c098",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c099",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets blank map space in light of survey coverage."
+    },
+    {
+      "id": "c100",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c101",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Makes a final one-time color selection rather than a standing preference."
+    },
+    {
+      "id": "c102",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c103",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c104",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c105",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c106",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c107",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c108",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly promises completion within a qualified deadline."
+    },
+    {
+      "id": "c109",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c110",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c111",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c112",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c113",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "A hypothetical choice does not establish a decision or a standing preference."
+    },
+    {
+      "id": "c114",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets authentication limits alongside observed wear."
+    },
+    {
+      "id": "c115",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c116",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Locates the apparent loss in discovery rather than preservation."
+    },
+    {
+      "id": "c117",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c118",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c119",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c120",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c121",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c122",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Connects remote access limitations with permissions despite digitization."
+    },
+    {
+      "id": "c123",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Context leaves duty versus tentative plan unresolved."
+    },
+    {
+      "id": "c124",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c125",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c126",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c127",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c128",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets equal nominal duration against unequal preparation demands."
+    },
+    {
+      "id": "c129",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c130",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c131",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c132",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c133",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c134",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Distinguishes supplier ownership diversity from shared source exposure."
+    },
+    {
+      "id": "c135",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c136",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c137",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c138",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c139",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c140",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c141",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "A hope alone establishes neither promise, choice, nor testable prediction."
+    },
+    {
+      "id": "c142",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a defined glossary meaning rather than accepting a duty."
+    },
+    {
+      "id": "c143",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets idle equipment and key waiting as an access bottleneck."
+    },
+    {
+      "id": "c144",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c145",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports the explicitly defined meaning of accession numbers."
+    },
+    {
+      "id": "c146",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c147",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c148",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c149",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c150",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Attributes an explicit accepted promise, agreement, or obligation to a stated subject."
+    },
+    {
+      "id": "c151",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "An unresolved suggestion establishes neither completed choice nor standing preference."
+    },
+    {
+      "id": "c152",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c153",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c154",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly states the owner\u2019s recurring preference or desired way of working."
+    },
+    {
+      "id": "c155",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Resolves sample inclusion in the trial design without promising execution."
+    },
+    {
+      "id": "c156",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c157",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Records an explicit completed choice in the supplied context."
+    },
+    {
+      "id": "c158",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c159",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c160",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Explicitly accepts a conditional contingency duty."
+    },
+    {
+      "id": "c161",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c162",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Presents established information or documented scope rather than a fresh noticing."
+    },
+    {
+      "id": "c163",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Proposes an uncertain explanation or prediction whose relevant test remains incomplete."
+    },
+    {
+      "id": "c164",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c165",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Interprets recovery locations as evidence of where visitors need both hands."
+    },
+    {
+      "id": "c166",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports a directly noticed occurrence or measurement without explanatory interpretation."
+    },
+    {
+      "id": "c167",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports marks on a sheet without inferring that attendees left."
+    }
+  ]
+}

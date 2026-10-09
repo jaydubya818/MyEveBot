@@ -1,0 +1,47 @@
+{
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE",
+  "engineeringCandidates": {
+    "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
+    "relay": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+    "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
+  },
+  "frozenPinsPromoted": false,
+  "paidResourcesProvisioned": false,
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "localThreePartySimulation": "NOT_RUN",
+  "kmsPayloadCompatibility": "UNVERIFIED",
+  "regression": {
+    "relay": {
+      "passed": 279,
+      "skipped": 5,
+      "passedFiles": 51,
+      "skippedFiles": 3
+    },
+    "relayPerformance": 2,
+    "functionalBrowser": 2,
+    "productionBrowser": 1,
+    "productionBrowserMaximumP95Ms": 129.15979200000015,
+    "performanceThresholdMs": 200,
+    "myeveVitest": 508,
+    "myeveNode": 130,
+    "nodeControls": 54,
+    "pythonControls": 15,
+    "typecheck": "PASS_BOTH",
+    "relayLint": "PASS",
+    "productionBuild": "PASS_BOTH",
+    "relayMigrationConsistency": "PASS",
+    "myeveMigrationOrderCount": 27,
+    "frontier": "PASS",
+    "myeveDisposableMigrationChecks": 8,
+    "disabledDefaultNegativeProbes": 25
+  },
+  "cleanup": {
+    "migrationContainerRemoved": true,
+    "migrationCredentialsDestroyed": true,
+    "controlDatabaseContainerRemoved": true,
+    "hostedResourcesMutated": false
+  }
+}

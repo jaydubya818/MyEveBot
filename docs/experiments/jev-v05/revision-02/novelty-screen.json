@@ -1,0 +1,7054 @@
+{
+  "status": "AUTOMATED_SCREEN_COMPLETE_SEMANTIC_REVIEW_REQUIRED",
+  "thresholds": {
+    "crossDatasetJaccard": 0.6,
+    "withinJaccard": 0.65
+  },
+  "v0": [
+    {
+      "id": "challenge_0001",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0002",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_025",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0003",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_022",
+        "jaccard": 0.18518518518518517,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0004",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_022",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0005",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_025",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0006",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_008",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0007",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0008",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_033",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0009",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_004",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0010",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_023",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0011",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0012",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_031",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0013",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_018",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0014",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0015",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0016",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_024",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0017",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_005",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0018",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0019",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0020",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_010",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0021",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0022",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0023",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0024",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0025",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_016",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0026",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_005",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0027",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_006",
+        "jaccard": 0.13043478260869565,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0028",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_002",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0029",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_023",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0030",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_033",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0031",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0032",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_002",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0033",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_019",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0034",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.13043478260869565,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0035",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.35714285714285715,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0036",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_031",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0037",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_018",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0038",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.09090909090909091,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0039",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_013",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0040",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_017",
+        "jaccard": 0.38461538461538464,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0041",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_033",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0042",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_026",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0043",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_018",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0044",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0045",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0046",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0047",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_022",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0048",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0049",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_005",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0050",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_005",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0051",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_026",
+        "jaccard": 0.16,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0052",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_007",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0053",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0054",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_005",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0055",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_003",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0056",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_030",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0057",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_034",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0058",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0059",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_025",
+        "jaccard": 0.24,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0060",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_009",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0061",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0062",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_028",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0063",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_004",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0064",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_030",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0065",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0066",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_021",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0067",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_019",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0068",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.2631578947368421,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0069",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_013",
+        "jaccard": 0.29411764705882354,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0070",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_005",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0071",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_009",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0072",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0073",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_006",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0074",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_009",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0075",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_004",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0076",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_009",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0077",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_034",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0078",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_023",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0079",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0080",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0081",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_017",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0082",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_022",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0083",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0084",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_032",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0085",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_028",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0086",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_006",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0087",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_014",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0088",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_004",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0089",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_028",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0090",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0091",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_021",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0092",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_029",
+        "jaccard": 0.16129032258064516,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0093",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_018",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0094",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_026",
+        "jaccard": 0.11538461538461539,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0095",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0096",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_002",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0097",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_006",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0098",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_031",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0099",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_032",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0100",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_019",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0101",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_013",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0102",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0103",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_001",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0104",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_018",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0105",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_026",
+        "jaccard": 0.10714285714285714,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0106",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_026",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0107",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_033",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0108",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_009",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0109",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_027",
+        "jaccard": 0.13043478260869565,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0110",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0111",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_033",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0112",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0113",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_011",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0114",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_016",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0115",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_034",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0116",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_003",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0117",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_010",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0118",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0119",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0120",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_017",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0121",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_020",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0122",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_002",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0123",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_034",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0124",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_024",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0125",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_004",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0126",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_025",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0127",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_017",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0128",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_034",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0129",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_003",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0130",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_004",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0131",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0132",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_019",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0133",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0134",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0135",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_003",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0136",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_019",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0137",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_024",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0138",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_008",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0139",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_009",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0140",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0141",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_002",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0142",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_024",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0143",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_005",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0144",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_034",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0145",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_019",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0146",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_022",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0147",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0148",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_034",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0149",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_004",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0150",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_033",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0151",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_035",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0152",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_003",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0153",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_029",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0154",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_009",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0155",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_011",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0156",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_007",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0157",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_004",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0158",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_015",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0159",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_003",
+        "jaccard": 0.1,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0160",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0161",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0162",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0163",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_027",
+        "jaccard": 0.23809523809523808,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0164",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_031",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0165",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_010",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0166",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_027",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0167",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_008",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0168",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_010",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0169",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_009",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0170",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0171",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_029",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0172",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_015",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0173",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0174",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_013",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0175",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_006",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0176",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_032",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0177",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_010",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0178",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0179",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_012",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0180",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_019",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0181",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_032",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0182",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_018",
+        "jaccard": 0.05555555555555555,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0183",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_008",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0184",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_022",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0185",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_035",
+        "jaccard": 0.22727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0186",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_029",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0187",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0188",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_001",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0189",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0190",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_031",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0191",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.2777777777777778,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0192",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_014",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0193",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_001",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0194",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_009",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0195",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_028",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0196",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_013",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0197",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_010",
+        "jaccard": 0.1,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0198",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_034",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0199",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0200",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0201",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_009",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0202",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_011",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0203",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_025",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0204",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_028",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0205",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_013",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0206",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_006",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0207",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_029",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0208",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_006",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0209",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0210",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0211",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_003",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0212",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_005",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0213",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_025",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0214",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_029",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0215",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_007",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0216",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_029",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0217",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_034",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0218",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0219",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_006",
+        "jaccard": 0.09523809523809523,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0220",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_013",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0221",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0222",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_028",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0223",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0224",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_030",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0225",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_020",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0226",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_002",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0227",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_025",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0228",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_013",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0229",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_026",
+        "jaccard": 0.11538461538461539,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0230",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_012",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0231",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_009",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0232",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_010",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0233",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_011",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0234",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_013",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0235",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_007",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0236",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0237",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0238",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_017",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0239",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0240",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0241",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_003",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0242",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_035",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0243",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_029",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0244",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_025",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0245",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_005",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0246",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_026",
+        "jaccard": 0.16,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0247",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_007",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0248",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_021",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0249",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0250",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_015",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0251",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_003",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0252",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_033",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0253",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_001",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0254",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_004",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0255",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_018",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0256",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_025",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0257",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_009",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0258",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_035",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0259",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_029",
+        "jaccard": 0.13793103448275862,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0260",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_022",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0261",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_007",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0262",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0263",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0264",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_031",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0265",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_016",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0266",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_016",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0267",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_026",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0268",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_002",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0269",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_009",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0270",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0271",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0272",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_033",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0273",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_019",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0274",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_001",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0275",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_024",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0276",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_035",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0277",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_008",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0278",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_016",
+        "jaccard": 0.058823529411764705,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0279",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_006",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0280",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_027",
+        "jaccard": 0.08333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0281",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_018",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0282",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_001",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0283",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0284",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_023",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0285",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_035",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0286",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_004",
+        "jaccard": 0.2631578947368421,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0287",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_021",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0288",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_026",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0289",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_006",
+        "jaccard": 0.2631578947368421,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0290",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_035",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0291",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0292",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_012",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0293",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_008",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0294",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_023",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0295",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_028",
+        "jaccard": 0.12,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0296",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_033",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0297",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_033",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0298",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_013",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0299",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_011",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0300",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_019",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0301",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_021",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0302",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_006",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0303",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_011",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0304",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_010",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0305",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0306",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_001",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0307",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_008",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0308",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_004",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0309",
+      "nearest": {
+        "source": "V0",
+        "id": "preference_006",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0310",
+      "nearest": {
+        "source": "V0",
+        "id": "commitment_025",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0311",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_028",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0312",
+      "nearest": {
+        "source": "V0",
+        "id": "fact_008",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0313",
+      "nearest": {
+        "source": "V0",
+        "id": "decision_033",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0314",
+      "nearest": {
+        "source": "V0",
+        "id": "observation_015",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0315",
+      "nearest": {
+        "source": "V0",
+        "id": "hypothesis_028",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    }
+  ],
+  "draft": [
+    {
+      "id": "challenge_0001",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c432",
+        "jaccard": 0.29411764705882354,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0002",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c028",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0003",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c321",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0004",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c097",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0005",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c248",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0006",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c192",
+        "jaccard": 0.18518518518518517,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0007",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0008",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c494",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0009",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0010",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c200",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0011",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c045",
+        "jaccard": 0.2777777777777778,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0012",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c151",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0013",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c171",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0014",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c055",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0015",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c107",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0016",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c305",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0017",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c253",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0018",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c331",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0019",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c410",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0020",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c318",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0021",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c185",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0022",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c350",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0023",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c020",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0024",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0025",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c399",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0026",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c303",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0027",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0028",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c208",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0029",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c250",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0030",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c355",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0031",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0032",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c167",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0033",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c427",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0034",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0035",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c376",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0036",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c442",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0037",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c491",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0038",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c087",
+        "jaccard": 0.07692307692307693,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0039",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c146",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0040",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c259",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0041",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c381",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0042",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c475",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0043",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c038",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0044",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c305",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0045",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c461",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0046",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c450",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0047",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c484",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0048",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c290",
+        "jaccard": 0.14814814814814814,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0049",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c450",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0050",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c036",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0051",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0052",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c206",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0053",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c483",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0054",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c029",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0055",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c141",
+        "jaccard": 0.36363636363636365,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0056",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c122",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0057",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c184",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0058",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c244",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0059",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c095",
+        "jaccard": 0.20833333333333334,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0060",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c023",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0061",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c287",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0062",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c476",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0063",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0064",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c437",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0065",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c457",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0066",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c443",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0067",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0068",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c260",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0069",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c028",
+        "jaccard": 0.2777777777777778,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0070",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c487",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0071",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c431",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0072",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c111",
+        "jaccard": 0.36363636363636365,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0073",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c433",
+        "jaccard": 0.4,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0074",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c014",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0075",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c243",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0076",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c331",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0077",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c205",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0078",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c178",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0079",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c136",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0080",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c104",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0081",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c298",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0082",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c439",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0083",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c015",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0084",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c160",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0085",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c253",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0086",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c102",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0087",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c104",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0088",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c226",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0089",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c446",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0090",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0091",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c220",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0092",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c068",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0093",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c205",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0094",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c066",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0095",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c366",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0096",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c138",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0097",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c105",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0098",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c032",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0099",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c494",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0100",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c480",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0101",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c475",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0102",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c259",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0103",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c432",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0104",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c358",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0105",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c035",
+        "jaccard": 0.13043478260869565,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0106",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c226",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0107",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c128",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0108",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c131",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0109",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c494",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0110",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c345",
+        "jaccard": 0.13043478260869565,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0111",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c242",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0112",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0113",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c161",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0114",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c431",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0115",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c044",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0116",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c056",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0117",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c168",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0118",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c495",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0119",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c261",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0120",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c197",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0121",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c105",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0122",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c052",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0123",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c054",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0124",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c384",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0125",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c097",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0126",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c205",
+        "jaccard": 0.3,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0127",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c190",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0128",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c215",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0129",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c045",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0130",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c470",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0131",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c161",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0132",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c410",
+        "jaccard": 0.3125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0133",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0134",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c056",
+        "jaccard": 0.4,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0135",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c015",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0136",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c117",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0137",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c035",
+        "jaccard": 0.13636363636363635,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0138",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c028",
+        "jaccard": 0.23809523809523808,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0139",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c030",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0140",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0141",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c379",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0142",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c384",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0143",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c373",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0144",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c238",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0145",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c427",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0146",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c433",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0147",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c307",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0148",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c449",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0149",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c479",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0150",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c242",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0151",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c250",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0152",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c210",
+        "jaccard": 0.26666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0153",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c347",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0154",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c058",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0155",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c461",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0156",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c250",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0157",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c266",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0158",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c475",
+        "jaccard": 0.19230769230769232,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0159",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c012",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0160",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c101",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0161",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c213",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0162",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c161",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0163",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c494",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0164",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c092",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0165",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c469",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0166",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c148",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0167",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c362",
+        "jaccard": 0.20833333333333334,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0168",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c246",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0169",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c101",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0170",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c278",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0171",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c119",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0172",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c216",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0173",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c282",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0174",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c261",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0175",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c105",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0176",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c097",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0177",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c056",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0178",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c111",
+        "jaccard": 0.36363636363636365,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0179",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c235",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0180",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c460",
+        "jaccard": 0.19047619047619047,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0181",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c342",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0182",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c354",
+        "jaccard": 0.10526315789473684,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0183",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c484",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0184",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c271",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0185",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c124",
+        "jaccard": 0.21739130434782608,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0186",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c347",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0187",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c485",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0188",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c167",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0189",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c005",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0190",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0191",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c477",
+        "jaccard": 0.20833333333333334,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0192",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c036",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0193",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c484",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0194",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c058",
+        "jaccard": 0.3076923076923077,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0195",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c055",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0196",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c005",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0197",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c445",
+        "jaccard": 0.1,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0198",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c005",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0199",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c028",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0200",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0201",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c016",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0202",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c461",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0203",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c494",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0204",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c430",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0205",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c278",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0206",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c194",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0207",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c029",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0208",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c470",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0209",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c205",
+        "jaccard": 0.5,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0210",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c095",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0211",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c138",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0212",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c344",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0213",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c060",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0214",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c436",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0215",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c012",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0216",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c461",
+        "jaccard": 0.13333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0217",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c221",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0218",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c155",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0219",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c105",
+        "jaccard": 0.1111111111111111,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0220",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0221",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0222",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c495",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0223",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c338",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0224",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c116",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0225",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c350",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0226",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c225",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0227",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c499",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0228",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c483",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0229",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c066",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0230",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c327",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0231",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c265",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0232",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c478",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0233",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c170",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0234",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c483",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0235",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c146",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0236",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c410",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0237",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c476",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0238",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c478",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0239",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c151",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0240",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c450",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0241",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c152",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0242",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c327",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0243",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c025",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0244",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c117",
+        "jaccard": 0.11764705882352941,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0245",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c151",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0246",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c157",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0247",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c345",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0248",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c319",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0249",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c261",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0250",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c223",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0251",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c357",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0252",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c198",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0253",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c021",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0254",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c382",
+        "jaccard": 0.2631578947368421,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0255",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c261",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0256",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c111",
+        "jaccard": 0.20833333333333334,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0257",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c182",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0258",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c148",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0259",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c074",
+        "jaccard": 0.17391304347826086,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0260",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c152",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0261",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c461",
+        "jaccard": 0.09090909090909091,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0262",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c327",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0263",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c045",
+        "jaccard": 0.35714285714285715,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0264",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c382",
+        "jaccard": 0.21052631578947367,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0265",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c023",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0266",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c364",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0267",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0268",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c084",
+        "jaccard": 0.15384615384615385,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0269",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c445",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0270",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c366",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0271",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c172",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0272",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c426",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0273",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c381",
+        "jaccard": 0.23529411764705882,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0274",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c143",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0275",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c435",
+        "jaccard": 0.125,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0276",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c067",
+        "jaccard": 0.06666666666666667,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0277",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c007",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0278",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c233",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0279",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c328",
+        "jaccard": 0.18181818181818182,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0280",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c133",
+        "jaccard": 0.1,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0281",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c015",
+        "jaccard": 0.2727272727272727,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0282",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c071",
+        "jaccard": 0.23076923076923078,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0283",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c055",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0284",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c358",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0285",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c423",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0286",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c355",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0287",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c119",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0288",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c228",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0289",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c020",
+        "jaccard": 0.2,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0290",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c090",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0291",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c426",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0292",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c475",
+        "jaccard": 0.3157894736842105,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0293",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c380",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0294",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c342",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0295",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c045",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0296",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c242",
+        "jaccard": 0.14285714285714285,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0297",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c355",
+        "jaccard": 0.3333333333333333,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0298",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c158",
+        "jaccard": 0.21428571428571427,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0299",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c278",
+        "jaccard": 0.29411764705882354,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0300",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c427",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0301",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c120",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0302",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c436",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0303",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c114",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0304",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c056",
+        "jaccard": 0.5714285714285714,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0305",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c055",
+        "jaccard": 0.25,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0306",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c020",
+        "jaccard": 0.15,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0307",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c382",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0308",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c129",
+        "jaccard": 0.15789473684210525,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0309",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c432",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0310",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c097",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0311",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c180",
+        "jaccard": 0.17647058823529413,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0312",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c055",
+        "jaccard": 0.2857142857142857,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0313",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c030",
+        "jaccard": 0.1875,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0314",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c484",
+        "jaccard": 0.2222222222222222,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    },
+    {
+      "id": "challenge_0315",
+      "nearest": {
+        "source": "REJECTED_DRAFT_01",
+        "id": "c148",
+        "jaccard": 0.16666666666666666,
+        "candidateExact": false,
+        "candidateNormalized": false
+      },
+      "flagged": []
+    }
+  ],
+  "within": [
+    {
+      "a": "challenge_0014",
+      "b": "challenge_0305",
+      "jaccard": 1,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": true
+    },
+    {
+      "a": "challenge_0047",
+      "b": "challenge_0183",
+      "jaccard": 0.7,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0072",
+      "b": "challenge_0178",
+      "jaccard": 0.7142857142857143,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0081",
+      "b": "challenge_0236",
+      "jaccard": 0.6666666666666666,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0134",
+      "b": "challenge_0304",
+      "jaccard": 0.6666666666666666,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0145",
+      "b": "challenge_0300",
+      "jaccard": 1,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": true
+    },
+    {
+      "a": "challenge_0154",
+      "b": "challenge_0194",
+      "jaccard": 1,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": true
+    },
+    {
+      "a": "challenge_0165",
+      "b": "challenge_0287",
+      "jaccard": 0.6666666666666666,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0243",
+      "b": "challenge_0314",
+      "jaccard": 0.6875,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    },
+    {
+      "a": "challenge_0254",
+      "b": "challenge_0264",
+      "jaccard": 0.7857142857142857,
+      "sameFamily": true,
+      "contextSame": false,
+      "candidateSame": false
+    }
+  ],
+  "contextInspection": [
+    {
+      "id": "challenge_0125",
+      "candidate": "I like what the comparison reveals: written status notes keep the discussion focused on exceptions.",
+      "context": "Owner: In the first two sessions everyone read out their updates; in the next two, updates were shared beforehand and the meeting covered only blocked items. I am describing the difference; I still want to try one more format before setting my routine."
+    },
+    {
+      "id": "challenge_0145",
+      "candidate": "My default export format is CSV.",
+      "context": "Owner: I am answering the inventory question about the installed app. Its saved export setting is CSV on my account; that is the factory setting, and I have never expressed a format preference."
+    },
+    {
+      "id": "challenge_0237",
+      "candidate": "In nine of the twelve tickets, the recorded explanation was that the customer needed reassurance, not a fix.",
+      "context": "I sampled twelve closed tickets. Nine closure notes contain exactly the sentence “The customer needed reassurance, not a fix.” In those nine threads, the agent confirmed the expected behavior and changed no account settings."
+    },
+    {
+      "id": "challenge_0263",
+      "candidate": "There is a step between the kitchen and the hallway.",
+      "context": "The house survey records a 90 mm level change at that doorway. It is part of the original slab, not a loose threshold. We are using the survey to plan wheelchair access."
+    },
+    {
+      "id": "challenge_0288",
+      "candidate": "For those nine tickets, closing the case meant making the existing behavior understandable, not changing it.",
+      "context": "I sampled twelve closed tickets. Nine closure notes contain exactly the sentence “The customer needed reassurance, not a fix.” In those nine threads, the agent confirmed the expected behavior and changed no account settings."
+    }
+  ],
+  "serialized": 315,
+  "leakageFindings": [],
+  "serializationKeysOnly": true,
+  "limitations": "Token Jaccard detects lexical proximity, not semantic paraphrases. Contrastive family matches are expected and require context/meaning inspection; numeric similarity alone does not reject them."
+}

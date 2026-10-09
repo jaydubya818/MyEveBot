@@ -1,0 +1,11 @@
+✔ Cloud projects retained custody into accepted Test/Diff transport references (2.178166ms)
+✔ historical unbound owner, cross-owner, wrong signed candidate and absent receipt deny reads (0.232167ms)
+✔ Proof credential is expiring, separate and incapable of execution API access (2.393417ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 369.173709

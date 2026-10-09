@@ -1,0 +1,23 @@
+> **Current: DETERMINISTIC CLOUD GOLDEN JOURNEY PASS.** [Hosted P0 evidence](../verification/cloud-composition/hosted-p0.md). Zero local dependencies, paid model calls and production effects. Cloud feature development FROZEN; production admission/publication DISABLED. Older checkpoint statuses below are historical.
+
+> Current qualification: [hosted attempt 4](../verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
+# Deterministic CLOUD composition
+
+Implementation checkpoint, 2026-10-02. Hosted productive execution, independent sandbox verification, Mac-off and P0 are **NOT_RUN**. Paid model calls: 0. Production admission and publication: DISABLED.
+
+The dedicated Sofie preview consumes the accepted Environment Fabric contracts at MyFactory `65d1e976ea0f45aedbb3b1444c5537a7e29c99d0`; source hashes and import-only adaptation are recorded in `cloud-environment-contract.json`. Routing evidence is stored with existing canonical Factory preparation. Cloud failure cannot select a local environment.
+
+A bounded Vercel queue wakes the existing Work command consumer and Factory driver. A verified TLS unpooled database session holds the same per-owner advisory lock as the existing worker. Queue payloads contain command/deployment correlation and a ten-minute recovery window, never Work authority or credentials. Recovery is scheduled before each execution step; duplicate deliveries reconcile the saved attempt and cannot create another writer. Failed initial enqueue returns unavailable with canonical intent retained. No owner computer, local Factory, or local verifier participates.
+
+The ordinary Eve dynamic model interface selects a fixed project-slug corpus only in the dedicated preview. Authenticated primary-owner sessions receive ordinary `engineering_work` and `engineering_factory` proposals. Existing tools, ActionGateway, Work admission and selected-Work context remain mandatory. New Work starts paused; Give Back remains an existing owner UI action. No browser events or Results are fabricated, and no paid-model fallback exists. The corpus is a qualification fixture, not evidence of live natural-language generalization.
+
+The cloud profile is explicitly `factory-cloud`; effective harness/model identity comes from pinned FactoryVersion. Legacy check-shaped fields in the consumer contain only criterion/check mapping and empty input/expected slots. Protected inputs/comparison remain in Factory. Local producer and verifier adapters reject cloud profiles before resource access. Publication endpoints are excluded from qualification ingress.
+
+Validation: 60 adopted Fabric tests PASS; 492 engineering/beta tests PASS, 16 environment-gated skips; no-emit TypeScript PASS. These are deterministic tests, not hosted qualification. OIDC connected matrix/removal/restoration evidence remains in Factory `docs/cloud-execution/phase-3/trusted-sources-oidc.md`; its positive action-discovery result is not productive Work PASS.
+
+Provisioning uses a fresh synthetic staging owner and the separately provisioned Sofie database. No private-alpha owner data is copied. The Factory workload token is requested only within the Sofie backend and is never persisted. The runner retains only separately authorized Sofie operator protection/application credentials.
+
+Rollout: review the pinned profile and dedicated database, set the exact preview-only installation flag and backend configuration, deploy/scan the build, re-run ingress/access denial, then run one bounded canonical Work and preserve its numbered attempt. Do not enable production, paid calls, publication, alternate harnesses or terminal surfaces. Revoking the Factory Trusted Sources rule blocks the infrastructure hop independently of application identity; use the existing OIDC runbook procedure. Clear `MYEVE_CLOUD_DETERMINISTIC_ENABLED` and redeploy the dedicated preview to disable productive ingress.
+
+Hosted attempt 1 reached canonical Factory preparation after browser closure, then failed before allocation because admission rejected Environment evidence. See `../verification/cloud-composition/attempt-1.md`. The strict schema/binding regression is repaired; the next hosted attempt remains pending. OIDC composed access passed on deployment dpl_FGV97kwxwwsaUtijz6C6YTEU2v7S.

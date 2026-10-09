@@ -1,0 +1,15 @@
+{
+  "keyboard": [
+    {
+      "width": 1440,
+      "firstTab": "Skip to content",
+      "skipTarget": "owner-content"
+    },
+    {
+      "width": 390,
+      "firstTab": "Skip to content",
+      "skipTarget": "owner-content"
+    }
+  ],
+  "crossOriginMutationStatus": 403
+}

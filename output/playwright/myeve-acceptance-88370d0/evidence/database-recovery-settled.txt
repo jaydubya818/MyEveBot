@@ -1,0 +1,12 @@
+### Result
+{"before":"- main:\n  - img\n  - heading \"Goals are unavailable\" [level=2]\n  - paragraph: Goals are temporarily unavailable.\n  - button \"Try again\":\n    - img\n    - text: Try again","status":503,"data":{"error":{"code":"goals_unavailable","message":"Goals are temporarily unavailable.","requestId":"e1b96a64-1f68-486f-9182-a7cc81190c2b"}},"after":"- main:\n  - img\n  - heading \"Goals are unavailable\" [level=2]\n  - paragraph: Goals are temporarily unavailable.\n  - button \"Try again\":\n    - img\n    - text: Try again"}
+### Ran Playwright code
+```js
+await (async page => {const before=await page.locator("main").ariaSnapshot();const r=await page.request.get("http://localhost:3073/api/goals");if(await page.getByRole("button",{name:"Try again",exact:true}).count())await page.getByRole("button",{name:"Try again",exact:true}).click();await page.waitForTimeout(1000);return {before,status:r.status(),data:await r.json(),after:await page.locator("main").ariaSnapshot()};})(page);
+```
+### Page
+- Page URL: http://localhost:3073/goals
+- Page Title: Ava
+- Console: 15 errors, 9 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L3707-L3717

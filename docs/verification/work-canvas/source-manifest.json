@@ -1,0 +1,35 @@
+{
+  "status": "qualified disconnected interaction candidate; live canonical binding pending",
+  "base_sha": "d41c47c0292535e71011367b07fb6c3e8c587289",
+  "branch": "codex/private-alpha-product-expansion",
+  "source_sha256": {
+    "apps/eve/app/work-canvas/page.tsx": "b223e2fd83e5ee5e2c48c621a8e38fada46f11f1fb4c9ab1ca6d86bd0e3811c9",
+    "apps/eve/components/owner/product-preview.tsx": "d59b0414878b0770207ff519575da1527810330e128799c6fba2324c19a35f24",
+    "apps/eve/components/owner/work-canvas-model.ts": "7414de672d2e584fd9f557971bd0e1ffc6aea8aa05a2c0d99453e74cc189378f",
+    "apps/eve/components/owner/work-canvas.css": "6f3d1760339b9c26a0da2fac8294dd857ae338dbe22bd83ff4595224dd052f8e",
+    "apps/eve/components/owner/work-canvas.test.ts": "7881c1aa9ce5c95e709cb72b010567bad968a8b9474ea575fab87adab9b92d87",
+    "apps/eve/components/owner/work-canvas.tsx": "9fe204dda9bd7452e5b633b4fc05cb0e91c2ff774e4d45e104e2b8c8067d8881",
+    "apps/eve/test/private-alpha/work-canvas.config.ts": "bcb5beaa1c98739eba43d5c218ac709c841e067f904136ea33257a95c195f5e1",
+    "apps/eve/test/private-alpha/work-canvas.spec.ts": "008d6503d68ff81c895ba02bfd14a3d513eec5c64f54270dcdd8ae6b0a80de55"
+  },
+  "qualification": {
+    "focused_tests_passed": 9,
+    "required_typecheck": "PASS",
+    "production_build": "PASS",
+    "browser_tests_passed": 18,
+    "accessibility_scans": 80,
+    "accessibility_violations": 0,
+    "screenshots": 80,
+    "viewports": [
+      "1440x1000",
+      "390x844"
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "live_execution": "NOT_RUN"
+  },
+  "protected_path_changes": [],
+  "integration_boundary": "WAITING_FOR_CANONICAL_Q37"
+}

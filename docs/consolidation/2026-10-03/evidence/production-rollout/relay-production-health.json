@@ -1,0 +1,15 @@
+{
+  "url": "https://relay-sage-nine.vercel.app/api/health/ready",
+  "httpStatus": 200,
+  "body": {
+    "ok": true,
+    "service": "relay",
+    "checks": {
+      "database": "ready",
+      "migrations": "ready",
+      "events": "ready",
+      "federation": "ready"
+    },
+    "timestamp": "2026-10-03T22:39:29.262Z"
+  }
+}

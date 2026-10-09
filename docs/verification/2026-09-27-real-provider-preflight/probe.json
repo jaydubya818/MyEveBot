@@ -1,0 +1,56 @@
+{
+  "producer": "8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f",
+  "sqliteV7": "208fd0facca9f2535c30e558bf261243efd3ababd3113697e34dbefdf8f1598e",
+  "qualification": "BLOCKED",
+  "paidProviderCalls": 0,
+  "unknown": {
+    "status": "BLOCKED",
+    "syntheticCallsAfterUnknown": 1,
+    "retainedMicrousd": 2400
+  },
+  "completion": {
+    "status": "BLOCKED",
+    "earlierCallsAdmitted": 3,
+    "mandatoryCompletionDenied": true,
+    "availableMicrousd": 0
+  },
+  "maxOperations": {
+    "status": "BLOCKED",
+    "proposedMaxOperations": 3,
+    "observedSyntheticOperations": 4,
+    "operationsBeyondProposedLimit": 1
+  },
+  "heldCompletion": {
+    "status": "BLOCKED",
+    "completionReservationPreserved": true,
+    "gatewayCannotConsumePreheldOperation": true
+  },
+  "cleanup": [
+    {
+      "scenario": "unknown-with-headroom",
+      "postCancelCalls": 0,
+      "retainedExposurePreserved": true,
+      "loopbackServersClosed": true
+    },
+    {
+      "scenario": "completion-starvation",
+      "postCancelCalls": 0,
+      "retainedExposurePreserved": true,
+      "loopbackServersClosed": true
+    },
+    {
+      "scenario": "operation-limit",
+      "postCancelCalls": 0,
+      "retainedExposurePreserved": true,
+      "loopbackServersClosed": true
+    },
+    {
+      "scenario": "preheld-completion",
+      "postCancelCalls": 0,
+      "retainedExposurePreserved": true,
+      "loopbackServersClosed": true
+    }
+  ],
+  "cleanupStatus": "PASS_LOCAL_PROBE",
+  "scope": "Gateway/ledger counterexamples only; not a complete live-envelope dry run"
+}

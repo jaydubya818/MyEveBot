@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "deploy": false,
+  "status": "PROPOSAL_ONLY_DO_NOT_APPLY",
+  "topology": [
+    "hosted MyEve A",
+    "hosted Relay",
+    "independently operated hosted MyEve B"
+  ],
+  "federationDefault": false,
+  "qualifiedProductRevisions": {
+    "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+    "relay": "bbfcaa18710556fc689f60990599f4734e99a720",
+    "status": "MyEve migration correction locally requalified and used on isolated hosted schemas; no apps deployed or frozen pins promoted"
+  },
+  "slots": [
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-a-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-b-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "relay",
+      "branch": "codex/fq-relay-6384519e0e01",
+      "commit": "73d9104fbe8a2c102258dc593ce61d0f23d9254f",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    }
+  ],
+  "worker": {
+    "provider": "existing Railway Hobby account",
+    "existingWorkerReusable": false,
+    "newPaidServicesAuthorized": false,
+    "services": [
+      {
+        "component": "myeve",
+        "replicas": 1,
+        "maximumMemoryGB": 0.5,
+        "maximumVcpu": 0.25,
+        "maximumSeconds": 3600,
+        "automaticRestart": false
+      },
+      {
+        "component": "relay",
+        "replicas": 1,
+        "maximumMemoryGB": 0.5,
+        "maximumVcpu": 0.25,
+        "maximumSeconds": 3600,
+        "automaticRestart": false
+      },
+      {
+        "component": "peer",
+        "replicas": 1,
+        "maximumMemoryGB": 0.5,
+        "maximumVcpu": 0.25,
+        "maximumSeconds": 3600,
+        "automaticRestart": false
+      }
+    ],
+    "durableAdmissionAuthority": "PostgreSQL transactional core locally tested; controller service and hosted adapters NOT IMPLEMENTED",
+    "maximumIdleServices": 0,
+    "specification": "worker-specification.json"
+  },
+  "kms": {
+    "providerCandidate": "Google Cloud KMS",
+    "project": null,
+    "regionCandidate": "us-east4",
+    "regionVerified": false,
+    "protectionLevel": "SOFTWARE",
+    "signingAlgorithm": "EC_SIGN_ED25519",
+    "signingKeysByPurpose": [
+      "federation-delivery",
+      "evidence",
+      "passport"
+    ],
+    "wrappingAlgorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+    "wrappingAAD": "SHA256(ownerId) bytes",
+    "createResources": false,
+    "signingMessageSizeSupport": "API semantics compatible; hosted maximum-size acceptance UNVERIFIED",
+    "identity": "Existing Relay Pro project custom-environment slot, exact stable ID required; no custom environment created",
+    "regionRationale": "Actual MyEve/Relay deployments are iad1. Qualification-only iad1 override required because Relay vercel.json requests sfo1.",
+    "minimumCryptoKeys": 4,
+    "leaseAndSessionSigning": "No active keys; unavailable for this target"
+  },
+  "telemetry": {
+    "allow": [
+      "timestamp",
+      "component",
+      "operationId",
+      "requestId",
+      "durationMs",
+      "outcome",
+      "keyId",
+      "keyVersion",
+      "kmsRequestId",
+      "reservedMicrousd",
+      "actualMicrousd",
+      "httpCount",
+      "submissionCount",
+      "artifactBytes",
+      "controlState"
+    ],
+    "exclude": [
+      "Authorization",
+      "Cookie",
+      "databaseUrl",
+      "privateKey",
+      "prompt",
+      "body",
+      "rawProviderResponse",
+      "rawCanary"
+    ],
+    "evidenceRetentionDays": 30,
+    "artifactBodyRetentionSeconds": 900
+  },
+  "preflight": "node scripts/federation-readiness/controls/preflight.mjs",
+  "candidateProductRevisions": {
+    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
+    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "controls": "817a8525059d436dc0978970d3e80e7371e009d6",
+    "status": "LOCAL_ENGINEERING_PASS; UNPROMOTED; HOSTED_NOT_RUN"
+  },
+  "engineeringStatus": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING"
+}

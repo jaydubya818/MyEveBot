@@ -1,0 +1,9 @@
+# Qualification provisioning status
+
+The owner explicitly authorized isolated resources on 2026-09-20. Three logical databases now exist on the existing free Neon resources. Reuse the recorded IDs in `target-manifest.json`; do not run provisioning again or create duplicates. The provisioning script now refuses when the target record already lists databases. Its PostgreSQL dependency resolves from the operator's existing Relay installation.
+
+Creation used template0, separate non-login owner and restricted runtime roles, metadata privilege checks, verified client TLS, and A/B connection-denial checks. Normal migrations applied 27/22/27 using temporary owner logins. The MyEve session-runner correction is a separately qualified source commit. All owner and runtime logins/passwords were then revoked; temporary credential files were removed. The schemas remain preserved and inactive. Full evidence is in `docs/federation/production-readiness/evidence/authorized-target/`.
+
+STOP: the existing Relay security contract mandates KMS/HSM for hosted signing/wrapping. No managed signing key was generated or installed. Automatic approval review separately rejected the Vercel credential upload because it requires explicit destination-project approval. No upload or Vercel change occurred. See `authorized-target-report.md` before any resume.
+
+The script is retained as infrastructure scaffolding, not a ready target or instruction to run. Future resume must use these databases, rotate fresh credentials into approved custody, and finish app/worker/budget/stop controls. Do not print credentials, add them to source/evidence or pass them on command lines. Error output retains only fixed diagnostic categories and SQLSTATE, never query text/passwords. Local secret staging is not managed-runtime custody.

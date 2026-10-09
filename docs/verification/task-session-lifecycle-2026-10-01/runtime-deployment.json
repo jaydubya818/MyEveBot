@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-01T05:18:19.615464+00:00",
+  "id": "dpl_HyP7xVkpQuw4ZdXyTpTyxfSD8WqZ",
+  "url": "sofie-personal-agent-p0u3kc3us-jaydubya818.vercel.app",
+  "state": "READY",
+  "sha": "2efd2b70dfc27656966e2fe4ff46b01afd734835",
+  "health": {
+    "http": 200,
+    "body": {
+      "ok": true,
+      "status": "ready",
+      "workflowId": "workflow//eve//workflowEntry"
+    }
+  }
+}

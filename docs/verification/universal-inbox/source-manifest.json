@@ -1,0 +1,24 @@
+{
+  "baseline": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "branch": "codex/universal-inbox",
+  "files": {
+    "README.md": "23c32690b4daa72feb4ed6b2b4e9b140abc8465ebf977f51ee681c272b9316fd",
+    "apps/eve/scripts/executor-inventory.json": "3f7e7381ab7693cfc31cc684fad4c13ce06bff7db9d015756226c1e6ac135dc0",
+    "apps/eve/scripts/qualify-universal-inbox.ts": "dc53d3622777c6d4759df8a7b5a6835757cf132502f83d1a5d54ac39d9b6a26c",
+    "apps/eve/lib/universal-inbox/adapters.ts": "620c7cde60d0d109e4b133cd5c13f3b232ef329ed2fb6b2f140de2b261cd407f",
+    "apps/eve/lib/universal-inbox/api.ts": "4b3b1aec17404882c0e263a44ee2eb92227ccd5acaf7d00fc5eb443f473cdd9b",
+    "apps/eve/lib/universal-inbox/approval-consumer.ts": "8f6835fbdeaacf08f75b63d1b89ef6d9815b9f6f9b7800f1a49ecfe79278ae63",
+    "apps/eve/lib/universal-inbox/contracts.ts": "bb733818e8d2fb1ebec00193cf772d0f426a23501132ebafbf7bd1fd2d836a53",
+    "apps/eve/lib/universal-inbox/domain.ts": "e1303777b0c6b8c8e4b378d76418fb2ef70b349613499409a21b4f2f01f5fac4",
+    "apps/eve/lib/universal-inbox/fixture-repository.ts": "865c8cbc44bad6378ac78ea086b9dc1745c0a4db509625c6025f356e601da0c7",
+    "apps/eve/lib/universal-inbox/fixtures.ts": "c1c3accbb9ba6ceca39fa74283eda6cf9dace5d1adb4d6b0a439857338b1435d",
+    "apps/eve/lib/universal-inbox/inbox.test.ts": "8d813fb1f132eb43dcf1127118f8cc70f6ebc2f5dd1dcc691ecb97b415b64572",
+    "apps/eve/lib/universal-inbox/repository.ts": "cd5f53a3303f9f406d69ab5c00bdc56d723a54b3fa13cf5630fb877b7864218c",
+    "apps/eve/lib/universal-inbox/service.ts": "1b7b21027c135242afb21472eee65366d632f3c5d61a18cb54180db0daed5f81",
+    "docs/universal-inbox/README.md": "db613fc35561c3c4f7c91dd17ebaac999bd613852af9469a93e0c5a7ae3588c7",
+    "docs/universal-inbox/digital-worker-architecture.md": "75f9a132f18601e7743a5c1384f27acd4ea7808593461a2892b900490f1baff9",
+    "docs/universal-inbox/fixture-contract.md": "8f797d214e98ab8fba9ba73570217e1aac6fa5d6796224793be95c7acd19a46a",
+    "docs/universal-inbox/needs-you.md": "4168e201b031f95be32658155b7d5fcf787e11368d4b2359e8575725fc1686f6",
+    "docs/universal-inbox/schema-integration.md": "f7e516b1712edeeeeb07649c04dac49265ab64a5d5fc67103e5a82f31c0a2ea0"
+  }
+}

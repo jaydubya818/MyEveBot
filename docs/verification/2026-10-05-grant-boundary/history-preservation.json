@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "observedAt": "2026-10-05T07:21:36.672Z",
+  "pendingMigrations": 0,
+  "lastMigration": {
+    "name": "0081_factory_validation_lifecycle.sql",
+    "checksum": "66bb71b44be2ff304f0873489f5548c9f6c7f1f9f5549700af218a01b069e376",
+    "applied_at": "2026-10-05T06:05:28.493319Z"
+  },
+  "historicalPreparationUnchanged": true,
+  "preparationGuardUnchanged": true,
+  "preparationGuardEnabled": true
+}

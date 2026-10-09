@@ -1,0 +1,80 @@
+{
+  "skill_name": "thinking-out-loud",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "let me think out loud for a bit before we build anything",
+        "top_k": 3
+      },
+      {
+        "prompt": "I have a fuzzy idea for a product, interview me about it",
+        "top_k": 3
+      },
+      {
+        "prompt": "use thinking out loud to audit this ramble before you act",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "switching to speech recognition, sorry for any typos"
+      },
+      {
+        "prompt": "here's my voice memo transcript, clean up the punctuation but keep my exact words"
+      },
+      {
+        "prompt": "here's the full PRD I wrote, review it: [three pages of structured markdown]"
+      },
+      {
+        "prompt": "fix the failing test in test_ranker.py"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "switching to voice sorry for typos. so i want a weekly changelog email for our users but written like a human not release notes. marketing should own it eventually but for now me. it should pull from merged PRs. oh and we should definitely include screenshots. hmm actually screenshots are a pain to automate skip them for v1. also random but we could repurpose this for investor updates later. anyway it has to go out friday mornings without me babysitting it and the tone thing matters most, if it reads like a robot wrote it the whole thing is pointless.",
+      "expected_output": "After explicit activation, a structured echo with the mission, locked decisions, open questions, reversal and tangent ledger, and separated model additions.",
+      "expectations": [
+        "No implementation, file edits, planning, or solutioning happens before the echo is approved",
+        "Mission is a single sentence capturing the actual goal",
+        "The screenshots reversal appears in the ledger with the later position adopted",
+        "The investor-updates idea is parked as a tangent",
+        "Unstated gap-fills appear under Guessed or Open, never as locked facts",
+        "The echo ends by inviting corrections and offering the interview"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "let me ramble for a minute, and wait until I say done before echoing it back",
+      "expected_output": "Capture-mode discipline with a short acknowledgment and no reconstruction until the sentinel.",
+      "expectations": [
+        "The acknowledgment is one short line that names the exit sentinel",
+        "Every mid-stream reply is a minimal line with no solutions or summaries",
+        "A direct question is answered briefly before listening resumes",
+        "No partial echo appears before the user says done"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "after the echo, yes, interview me about the open questions",
+      "expected_output": "A targeted interview that asks one high-information question at a time.",
+      "expectations": [
+        "Questions target only items flagged in the echo",
+        "Exactly one question is asked per message",
+        "Each question briefly states why it matters",
+        "The interview stops at five questions or earlier"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "after corrections, yes that's exactly it, locked",
+      "expected_output": "Offers exactly three persistence options and writes nothing until the user chooses.",
+      "expectations": [
+        "Exactly three persistence options are offered",
+        "No file is written before the user chooses",
+        "The approved brief governs the remainder of the session"
+      ]
+    }
+  ]
+}

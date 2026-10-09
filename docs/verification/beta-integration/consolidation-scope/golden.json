@@ -1,0 +1,36 @@
+{
+  "checks": [
+    "combined migration chain and no-op replay",
+    "concurrent Task to canonical Work creates one intent",
+    "Work-scoped correction, provenance and bounded recall",
+    "Result to Task, owner decision, durable continuation, Goal evidence completion",
+    "Result feedback, evaluation, promotion and selected comparable Work reuse",
+    "cross-owner reads fail closed"
+  ],
+  "owner": "golden-f2effe9b-e76b-4d49-bcfd-f91668392079",
+  "goalId": "goal-6b36514a-5275-48bc-879e-d4d4b1d1e5cc",
+  "taskA": "task-514dec60-1b78-494c-9652-adccee51b52a",
+  "taskB": "task-6fc38144-24c0-48da-b63c-75bada737c3c",
+  "workA": "9cfeb972-7a10-4844-997c-c7b06825f376",
+  "workB": "2771838e-9d90-4590-801d-d7924724901a",
+  "laterWork": "e7896a72-8c92-49d8-a4e9-e22f2d1c6350",
+  "resultA": {
+    "id": "f296906d-c229-454e-a4a4-51972d458774",
+    "hash": "46292cb5cebbbb36817131f4aa1653b0d3d818154dd0d4af2cf421e36217d769"
+  },
+  "resultB": {
+    "id": "330e3521-09a0-4e4b-b831-e28b69719177",
+    "hash": "37b358362d3cdb0c293f99a99ab9c6a233eabf01ea7cbf395755351f2f700814"
+  },
+  "familyId": "943810e4b9144a7534b93ed111d0ef012ed2c9f05440a54b42d214bda245c458",
+  "correctedKnowledgeId": "knowledge_aae4ab71-cf11-49e7-9547-5c52ef49c652",
+  "interventions": {
+    "necessaryJudgment": 2,
+    "avoidableCoordination": 0
+  },
+  "duplicateWork": 0,
+  "falseCompletions": 0,
+  "authorityExpansions": 0,
+  "crossOwnerDisclosures": 0,
+  "externalProviders": "NOT_RUN"
+}

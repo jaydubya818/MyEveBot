@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "scope": "Single prepared statement console adapter of exact reviewed SQL, except disposable owner value, on task-owned verified-TLS PostgreSQL",
+  "migrationCount": 7,
+  "canonicalLedgerColumnsAndChecksums": "PASS",
+  "firstApply": "PASS",
+  "repeatRejected": "PASS",
+  "ownerLiteralEscaping": "PASS",
+  "authoritativeWorkRows": 0,
+  "paidCalls": 0,
+  "productionDatabaseMutations": 0,
+  "sqlSha256": "8fe0d6aebc62b4d550a64c063795ce5d087e4e643d93ba5bc08566ba179698e0"
+}

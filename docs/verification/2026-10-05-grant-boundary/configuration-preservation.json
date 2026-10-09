@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "observedAt": "2026-10-05T07:21:38.877Z",
+  "envelopeDigest": "e39844cefccfdaf81a54713d4d5149331dcfeac76e7ed8a8e784598fe0b7f4ab",
+  "configurationDigest": "a0c3a3fe6bfae82c4ce08c274c649f2a46c418eddb99bd69ef9bdec786d21816",
+  "engineeringDigest": "6463bf94158958e1fd05ec1a2f9a9f87e1bf7d7668d806429125da5414a8f5bd",
+  "installedConfigurationMatchesDraft": true,
+  "sourceBytesMatchPinnedGit": true,
+  "generalWork": "DISABLED",
+  "paidCanary": "ABSENT",
+  "work": {
+    "id": "fc90e84f-d5b0-4240-aa9e-7d3c59024ed9",
+    "generation": 2
+  }
+}

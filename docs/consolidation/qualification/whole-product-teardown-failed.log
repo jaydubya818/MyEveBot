@@ -1,0 +1,291 @@
+PASS 0057 complete failure rollback
+PASS 0056→0057 and idempotent rerun
+PASS Owner Goal → scoped Memory → paused canonical Work → Needs You → exact continuation and stale replay rejection → retained recall
+PASS Goal-bound Work → connected canonical Factory fixture → signed candidate custody → real independent Docker verification → immutable PARTIAL Result; no false Task/Goal completion or Ready
+PASS Factory Result feedback → evaluated owner-promoted learning → fresh process reuses exact repository learning
+PASS Explicit Capsule export → independent fresh Eve database → atomic canonical Memory activation → useful canonical recall after process restart
+PASS Today and Daily Brief read the retained incomplete Goal and Result state
+{"status":"PARTIAL","qualification":"Connected exact pinned consolidation producer, non-paid local fixture. Real transport/Git/SQLite/PostgreSQL and independent Docker verification. Controlled executor; no live models.","producerSHA":"6e164ca2f3c58a7bf2d0c905c0908dfea0ceadf9","consumerSHA":"f6072a03775f37e4cf9e77ae7bc0b56b33162570","upstreamConsumerSHA":"cf83e3bec6f02ca812b2e08e04c188eaa271bede","owner":"factory-beta-3aa5d9f6-9cf7-465c-a906-53841a88fc59","goalId":"19575245-42cc-4690-ae2a-2a0bdba7c550","taskId":"a82fedc6-f596-43fd-aab3-f254296ff5cb","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","result":{"id":"200a86ac-3a11-4bae-a9c6-5d0aad1258af","proof":{"contractVersion":2,"workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","workVersion":2,"criteriaVersion":1,"outcome":"PARTIAL","resultRevision":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","createdAt":"2026-09-29T07:13:19.129Z","evidence":[{"criterionId":"23a6d1f2-559a-8af4-a44b-60f2729b292d","resultRevision":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","state":"PASS","producer":"trusted-verifier","sourceRef":"native-verification:37f9ac2c-f37c-485c-9c5c-3f9852c481ec:3da4f2bc67a6fd74d8ab424e00f28525593a1fa4:23a6d1f2-559a-8af4-a44b-60f2729b292d","contentHash":"sha256:2a4c9202722e629768be9d8c73815ad9315e6066605dbbf1f8cf5cc585ae89bd","observedAt":"2026-09-29T07:13:19.129Z"}],"artifactRefs":["factory-candidate:890acbe0-1991-4381-93c2-6fa1a2b1fd78:sha256:5302b79f61e892a2a2a9a1b4a1c2cef19d63ef64e72ff421ffcb68a98cf1087c","factory-receipt:890acbe0-1991-4381-93c2-6fa1a2b1fd78","factory-version:93ac12737c3a7ff2c0712733b97a2196bf9b1fcba775998cec2fadbf04aa54c9","protected-evidence:sha256:e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed","protected-evidence:sha256:eb663b97add1b0ab52abbd04f94d6bcfcb58fdba1eeb61a6f8a94891fe0ac139","protected-evidence:sha256:f7c2885875a503a296a49b671ccf9e47922969a941acecc7b4191df3ae109104","protected-evidence:sha256:206891bdfb5cdbad0f936b0c705fbb785c04e7e026ad89a9cfdd4b0eb7b79bfd","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","changed-source:quantity.mjs"],"limitations":["Factory-produced candidate in MyEve custody and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.","Native model cost coverage is UNKNOWN. No zero-cost or complete-cost claim is made."]},"contentHash":"ae3834b624389b63ddf1f2d0ee3a9a6bfcaca761b6cefed7e0fd11fe9feb1864"},"candidates":[{"id":"890acbe0-1991-4381-93c2-6fa1a2b1fd78","sha":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","tree":"491baa865101947d484ec78ee44727e173d7fcf7","files":{"README.md":"# myeve-golden-work-qual\n\nDisposable, private sandbox for MyEve Golden Work qualification.\n\n- Approved for throwaway qualification branches and draft pull requests.\n- Contains no customer code, secrets, or production configuration.\n- CI: `.github/workflows/quantity-ci.yml` (check name `quantity-ci`) runs `npm test` on every pull request.\n\n## Task\n\nSee the open issue: implement `quantity.mjs` at the repository root.\n\n```\necho 2   | node quantity.mjs   # {\"quantity\":2}\necho 0   | node quantity.mjs   # {\"error\":\"invalid_quantity\"}\necho -3  | node quantity.mjs   # {\"error\":\"invalid_quantity\"}\necho 1.5 | node quantity.mjs   # {\"error\":\"invalid_quantity\"}\n```\n",".gitignore":"node_modules/\n","package.json":"{\n  \"name\": \"myeve-golden-work-qual\",\n  \"version\": \"0.0.0\",\n  \"private\": true,\n  \"description\": \"Disposable MyEve Golden Work qualification sandbox.\",\n  \"type\": \"module\",\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"test\": \"node --test test/quantity.test.mjs\"\n  }\n}\n","quantity.mjs":"import { stdin } from 'node:process';\n\nfunction readStdin(stream) {\n  return new Promise((resolve, reject) => {\n    const chunks = [];\n    stream.on('data', (chunk) => chunks.push(chunk));\n    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));\n    stream.on('error', reject);\n  });\n}\n\nconst raw = await readStdin(stdin);\nconst trimmed = raw.trim();\n\n// Fix: only accept strings of one or more digits (no sign, no decimal\n// point), so fractional input like \"1.5\" is rejected instead of truncated.\nconst isPositiveIntegerString = /^[0-9]+$/.test(trimmed);\nconst n = isPositiveIntegerString ? parseInt(trimmed, 10) : NaN;\n\nif (Number.isNaN(n) || n <= 0) {\n  console.log(JSON.stringify({ error: 'invalid_quantity' }));\n} else {\n  console.log(JSON.stringify({ quantity: n }));\n}\n","test/quantity.test.mjs":"import { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { spawnSync } from 'node:child_process';\nimport { existsSync } from 'node:fs';\nimport { fileURLToPath } from 'node:url';\n\nconst script = fileURLToPath(new URL('../quantity.mjs', import.meta.url));\n\nfunction run(input) {\n  const r = spawnSync(process.execPath, [script], { input, encoding: 'utf8', timeout: 5000 });\n  assert.equal(r.error, undefined, `failed to run quantity.mjs: ${r.error}`);\n  const out = r.stdout.trim();\n  let parsed;\n  assert.doesNotThrow(() => { parsed = JSON.parse(out); }, `stdout is not JSON: ${JSON.stringify(out)}`);\n  return parsed;\n}\n\ntest('quantity.mjs exists', () => {\n  assert.ok(existsSync(script), 'quantity.mjs must exist at the repository root');\n});\n\nconst valid = [['2', 2], ['1', 1], ['42\\n', 42], ['  7  \\n', 7]];\nfor (const [input, expected] of valid) {\n  test(`positive integer ${JSON.stringify(input)} -> {\"quantity\":${expected}}`, () => {\n    assert.deepEqual(run(input), { quantity: expected });\n  });\n}\n\nconst invalid = ['0', '-1', '-5\\n', '1.5', '0.25', '2.7\\n'];\nfor (const input of invalid) {\n  test(`invalid ${JSON.stringify(input)} -> {\"error\":\"invalid_quantity\"}`, () => {\n    assert.deepEqual(run(input), { error: 'invalid_quantity' });\n  });\n}\n",".github/workflows/quantity-ci.yml":"name: quantity-ci\n\non:\n  pull_request:\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  quantity-ci:\n    name: quantity-ci\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - run: npm test\n"},"patch":"[{\"path\":\"quantity.mjs\",\"before\":null,\"after\":\"import { stdin } from 'node:process';\\n\\nfunction readStdin(stream) {\\n  return new Promise((resolve, reject) => {\\n    const chunks = [];\\n    stream.on('data', (chunk) => chunks.push(chunk));\\n    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));\\n    stream.on('error', reject);\\n  });\\n}\\n\\nconst raw = await readStdin(stdin);\\nconst trimmed = raw.trim();\\n\\n// Fix: only accept strings of one or more digits (no sign, no decimal\\n// point), so fractional input like \\\"1.5\\\" is rejected instead of truncated.\\nconst isPositiveIntegerString = /^[0-9]+$/.test(trimmed);\\nconst n = isPositiveIntegerString ? parseInt(trimmed, 10) : NaN;\\n\\nif (Number.isNaN(n) || n <= 0) {\\n  console.log(JSON.stringify({ error: 'invalid_quantity' }));\\n} else {\\n  console.log(JSON.stringify({ quantity: n }));\\n}\\n\"}]","runId":"ad12f588-ba8c-4661-bb33-8857a949838c","commit":{"date":"2026-09-29T07:13:17.020Z","name":"MyFactory","email":"provenance@invalid","message":"Factory raw commit retained verbatim"},"workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","baseSha":"169b26a470c8138e4e214a972cc769a9dbd500e3","producer":"MYFACTORY","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","createdAt":"2026-09-29T07:13:17.020Z","parentSha":"169b26a470c8138e4e214a972cc769a9dbd500e3","rawCommit":"tree 491baa865101947d484ec78ee44727e173d7fcf7\nparent 169b26a470c8138e4e214a972cc769a9dbd500e3\nauthor Local Factory <factory@localhost.invalid> 1790665997 -0700\ncommitter Local Factory <factory@localhost.invalid> 1790665997 -0700\n\nFactory candidate change\n","repository":"fixture/golden","artifactHash":"5302b79f61e892a2a2a9a1b4a1c2cef19d63ef64e72ff421ffcb68a98cf1087c","changedPaths":["quantity.mjs"],"factoryProvenance":{"factoryId":"factory-beta","receiptId":"890acbe0-1991-4381-93c2-6fa1a2b1fd78","requestId":"8439feda-52d2-40c4-9aa9-6711c15f979d","remoteRunId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","workOrderId":"553b8d78-8911-4394-acd8-e3ded4fb44e4","attemptNumber":1,"factoryVersion":"93ac12737c3a7ff2c0712733b97a2196bf9b1fcba775998cec2fadbf04aa54c9","writerGeneration":1}}],"verificationEvidence":[{"id":"3d58937a-aa15-4961-bcfb-d73300b0d83d","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-0","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:17.585Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed","criteriaVersion":1},{"id":"aad8e8cf-b711-4ec9-b275-d2c09dd9729e","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-1","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":1}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:17.751Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"eb663b97add1b0ab52abbd04f94d6bcfcb58fdba1eeb61a6f8a94891fe0ac139","criteriaVersion":1},{"id":"a130b589-4fef-4399-8483-b531f8b0d0a6","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-2","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":42}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:17.919Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"f7c2885875a503a296a49b671ccf9e47922969a941acecc7b4191df3ae109104","criteriaVersion":1},{"id":"3117b560-27de-40e5-a8ea-869325319c8b","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-3","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":7}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.090Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"206891bdfb5cdbad0f936b0c705fbb785c04e7e026ad89a9cfdd4b0eb7b79bfd","criteriaVersion":1},{"id":"381c277f-c5fd-4148-966f-fbe9631b0a05","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-4","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.261Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1},{"id":"4cb0fe00-6c9c-4c48-93b0-5bae781ac080","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-5","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.425Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1},{"id":"e3eb6ae5-57db-4290-9b5f-93585dc75f28","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-6","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.590Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1},{"id":"3a667d40-e596-4ad0-8794-022abf7ebd41","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-7","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.753Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1},{"id":"94603288-b6bd-4960-9728-3991c041da57","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-8","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:18.918Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1},{"id":"395540f1-2f2e-4ce9-b50e-e9cf1cfe6644","base":"169b26a470c8138e4e214a972cc769a9dbd500e3","check":"quantity-9","result":"PASS","workId":"37f9ac2c-f37c-485c-9c5c-3f9852c481ec","artifact":"{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}","producer":"protected-supervisor","attemptId":"1eb55e01-bf75-41d4-8b4b-d0d89e825afd","candidate":"3da4f2bc67a6fd74d8ab424e00f28525593a1fa4","observedAt":"2026-09-29T07:13:19.084Z","environment":"node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1","profileHash":"dbb4a8fb76969d94d676435ad392bc1893e28098357cff4620d5245461d043d2","artifactHash":"db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535","criteriaVersion":1}],"sourceDigest":"cc32ddf516e014de20a7dc2f1faa6a116e8001cfac0431a8eb88bdeb49b6a394","configurationDigest":"f9b8992920a1f12a99b764ca225374282d7699b69bfeb3c5a99f57c5ebf95bf3","checks":["0057 complete failure rollback","0056→0057 and idempotent rerun","Owner Goal → scoped Memory → paused canonical Work → Needs You → exact continuation and stale replay rejection → retained recall","Goal-bound Work → connected canonical Factory fixture → signed candidate custody → real independent Docker verification → immutable PARTIAL Result; no false Task/Goal completion or Ready","Factory Result feedback → evaluated owner-promoted learning → fresh process reuses exact repository learning","Explicit Capsule export → independent fresh Eve database → atomic canonical Memory activation → useful canonical recall after process restart","Today and Daily Brief read the retained incomplete Goal and Result state"],"receipt":{"id":"capsule_c4cc9f9d339ce74e7b2ad6b09558069fbdb7c96a0a51af11bdab1e5cb5f89a0e","count":1,"activeCount":1,"result":"active","duplicate":false,"message":"1 personal memory activated for this Eve. Other experience remains staged; existing truth and authority are unchanged."},"learning":{"id":"0e4076d9861878558c6c3ed2019b3e93ae8765ce4066fe41452408c97b5d9a7b","hash":"e5fd206ff454e7ccd5739ebfd49bc5683f193dc55fb9ebea251815f94b821518"},"counters":{"duplicateWork":0,"duplicateFactoryExecution":0,"concurrentWriters":0,"falseTaskCompletion":0,"falseGoalCompletion":0,"falseReady":0,"authorityExpansion":0,"crossOwnerDisclosure":0,"staleContinuation":0,"capsuleAuthorityTransfer":0},"liveSofie":"NOT_RUN","liveMyFactory":"NOT_RUN"}
+node:events:487
+      throw er; // Unhandled 'error' event
+      ^
+
+error: terminating connection due to administrator command
+    at parseErrorMessage (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/parser.ts:395:9)
+    at Parser.handlePacket (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/parser.ts:212:19)
+    at Parser.parse (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/parser.ts:105:30)
+    at Socket.<anonymous> (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:509:28)
+    at addChunk (node:internal/streams/readable:563:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+    at Readable.push (node:internal/streams/readable:394:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+Emitted 'error' event on BoundPool instance at:
+    at Client.idleListener (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-pool/index.js:62:10)
+    at Client.emit (node:events:509:28)
+    at Client._handleErrorEvent (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg/lib/client.js:393:10)
+    at Client._handleErrorMessage (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg/lib/client.js:404:12)
+    at Connection.emit (node:events:509:28)
+    at /Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg/lib/connection.js:115:12
+    at Parser.parse (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/parser.ts:106:9)
+    at Socket.<anonymous> (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:509:28)
+    at addChunk (node:internal/streams/readable:563:12) {
+  length: 116,
+  severity: 'FATAL',
+  code: '57P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'postgres.c',
+  line: '3316',
+  routine: 'ProcessInterrupts',
+  client: Client {
+    _events: [Object: null prototype] { error: [Function (anonymous)] },
+    _eventsCount: 1,
+    _maxListeners: undefined,
+    connectionParameters: ConnectionParameters {
+      user: 'postgres',
+      database: 'factory_beta_3a8f33d0dc8d',
+      port: 55489,
+      host: '127.0.0.1',
+      binary: false,
+      options: undefined,
+      ssl: false,
+      client_encoding: '',
+      replication: undefined,
+      isDomainSocket: false,
+      application_name: undefined,
+      fallback_application_name: undefined,
+      statement_timeout: false,
+      lock_timeout: false,
+      idle_in_transaction_session_timeout: false,
+      query_timeout: false,
+      connect_timeout: 0
+    },
+    user: 'postgres',
+    database: 'factory_beta_3a8f33d0dc8d',
+    port: 55489,
+    host: '127.0.0.1',
+    replication: undefined,
+    _Promise: [Function: Promise],
+    _types: TypeOverrides {
+      _types: {
+        getTypeParser: [Function: getTypeParser],
+        setTypeParser: [Function: setTypeParser],
+        arrayParser: { create: [Function: create] },
+        builtins: {
+          BOOL: 16,
+          BYTEA: 17,
+          CHAR: 18,
+          INT8: 20,
+          INT2: 21,
+          INT4: 23,
+          REGPROC: 24,
+          TEXT: 25,
+          OID: 26,
+          TID: 27,
+          XID: 28,
+          CID: 29,
+          JSON: 114,
+          XML: 142,
+          PG_NODE_TREE: 194,
+          SMGR: 210,
+          PATH: 602,
+          POLYGON: 604,
+          CIDR: 650,
+          FLOAT4: 700,
+          FLOAT8: 701,
+          ABSTIME: 702,
+          RELTIME: 703,
+          TINTERVAL: 704,
+          CIRCLE: 718,
+          MACADDR8: 774,
+          MONEY: 790,
+          MACADDR: 829,
+          INET: 869,
+          ACLITEM: 1033,
+          BPCHAR: 1042,
+          VARCHAR: 1043,
+          DATE: 1082,
+          TIME: 1083,
+          TIMESTAMP: 1114,
+          TIMESTAMPTZ: 1184,
+          INTERVAL: 1186,
+          TIMETZ: 1266,
+          BIT: 1560,
+          VARBIT: 1562,
+          NUMERIC: 1700,
+          REFCURSOR: 1790,
+          REGPROCEDURE: 2202,
+          REGOPER: 2203,
+          REGOPERATOR: 2204,
+          REGCLASS: 2205,
+          REGTYPE: 2206,
+          UUID: 2950,
+          TXID_SNAPSHOT: 2970,
+          PG_LSN: 3220,
+          PG_NDISTINCT: 3361,
+          PG_DEPENDENCIES: 3402,
+          TSVECTOR: 3614,
+          TSQUERY: 3615,
+          GTSVECTOR: 3642,
+          REGCONFIG: 3734,
+          REGDICTIONARY: 3769,
+          JSONB: 3802,
+          REGNAMESPACE: 4089,
+          REGROLE: 4096
+        }
+      },
+      text: {},
+      binary: {}
+    },
+    _ending: true,
+    _ended: false,
+    _connecting: false,
+    _connected: true,
+    _connectionError: false,
+    _queryable: false,
+    _activeQuery: null,
+    enableChannelBinding: false,
+    connection: Connection {
+      _events: [Object: null prototype] {
+        newListener: [Function (anonymous)],
+        connect: [Function (anonymous)],
+        sslconnect: [Function (anonymous)],
+        authenticationCleartextPassword: [Function: bound _handleAuthCleartextPassword],
+        authenticationMD5Password: [Function: bound _handleAuthMD5Password],
+        authenticationSASL: [Function: bound _handleAuthSASL],
+        authenticationSASLContinue: [Function: bound _handleAuthSASLContinue] AsyncFunction,
+        authenticationSASLFinal: [Function: bound _handleAuthSASLFinal],
+        backendKeyData: [Function: bound _handleBackendKeyData],
+        error: [Function: bound _handleErrorEvent],
+        errorMessage: [Function: bound _handleErrorMessage],
+        readyForQuery: [Function: bound _handleReadyForQuery],
+        notice: [Function: bound _handleNotice],
+        rowDescription: [Function: bound _handleRowDescription],
+        dataRow: [Function: bound _handleDataRow],
+        portalSuspended: [Function: bound _handlePortalSuspended],
+        emptyQuery: [Function: bound _handleEmptyQuery],
+        commandComplete: [Function: bound _handleCommandComplete],
+        parseComplete: [Function: bound _handleParseComplete],
+        copyInResponse: [Function: bound _handleCopyInResponse],
+        copyData: [Function: bound _handleCopyData],
+        notification: [Function: bound _handleNotification],
+        end: [
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          Symbol(events.emitting): 0
+        ]
+      },
+      _eventsCount: 23,
+      _maxListeners: undefined,
+      stream: Socket {
+        connecting: false,
+        _hadError: false,
+        _parent: null,
+        _host: null,
+        _closeAfterHandlingError: false,
+        _events: {
+          close: [Function (anonymous)],
+          error: [Function: reportStreamError],
+          prefinish: undefined,
+          finish: undefined,
+          drain: undefined,
+          data: [Function (anonymous)],
+          end: [
+            [Function: onReadableStreamEnd],
+            [Function (anonymous)],
+            Symbol(events.emitting): 0
+          ],
+          readable: undefined,
+          connect: undefined
+        },
+        _readableState: ReadableState {
+          highWaterMark: 65536,
+          buffer: [],
+          bufferIndex: 0,
+          length: 0,
+          pipes: [],
+          awaitDrainWriters: null,
+          Symbol(kState): 194519348
+        },
+        _writableState: WritableState {
+          highWaterMark: 65536,
+          length: 0,
+          corked: 0,
+          onwrite: [Function (anonymous)],
+          writelen: 0,
+          bufferedIndex: 0,
+          pendingcb: 0,
+          Symbol(kState): 1091450164,
+          Symbol(kBufferedValue): null,
+          Symbol(kWriteCbValue): null,
+          Symbol(kAfterWriteTickInfoValue): null
+        },
+        allowHalfOpen: false,
+        _maxListeners: undefined,
+        _eventsCount: 4,
+        _sockname: null,
+        _pendingData: null,
+        _pendingEncoding: '',
+        server: null,
+        _server: null,
+        Symbol(async_id_symbol): 5175,
+        Symbol(kHandle): null,
+        Symbol(lastWriteQueueSize): 0,
+        Symbol(timeout): null,
+        Symbol(kBuffer): null,
+        Symbol(kBufferCb): null,
+        Symbol(kBufferGen): null,
+        Symbol(shapeMode): true,
+        Symbol(kCapture): false,
+        Symbol(kSetNoDelay): true,
+        Symbol(kSetKeepAlive): false,
+        Symbol(kSetKeepAliveInitialDelay): 0,
+        Symbol(kSetTOS): undefined,
+        Symbol(kBytesRead): 668,
+        Symbol(kBytesWritten): 416
+      },
+      _keepAlive: false,
+      _keepAliveInitialDelayMillis: 0,
+      parsedStatements: {},
+      ssl: false,
+      _ending: true,
+      _emitMessage: false,
+      _connecting: true,
+      Symbol(shapeMode): false,
+      Symbol(kCapture): false
+    },
+    _queryQueue: [],
+    binary: false,
+    processID: 2030,
+    secretKey: -1245819905,
+    ssl: false,
+    _connectionTimeoutMillis: 0,
+    _connectionCallback: null,
+    release: [Function (anonymous)],
+    readyForQuery: true,
+    hasExecuted: true,
+    _poolUseCount: 1,
+    Symbol(shapeMode): false,
+    Symbol(kCapture): false
+  }
+}
+
+Node.js v24.18.1

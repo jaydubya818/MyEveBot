@@ -1,0 +1,21 @@
+
+Running 12 tests using 1 worker
+
+(node:77105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › test/owner/journey.spec.ts:145:1 › new owner through results, proof, feedback and next-day brief (sample journey) (2.6s)
+  ✓   2 [desktop] › test/owner/journey.spec.ts:225:1 › live UI contract journey saves draft, carries context to conversation, and preserves approval binding (1.2s)
+  ✓   3 [desktop] › test/owner/journey.spec.ts:279:1 › partial data, expired session, stale decision and feedback retry remain honest (1.1s)
+  ✓   4 [desktop] › test/owner/journey.spec.ts:343:1 › loading, empty, keyboard focus, expired approvals and next-visit changes (1.6s)
+  ✓   5 [desktop] › test/owner/journey.spec.ts:413:1 › retained result evidence is loaded by exact run identity and failed work remains visible (584ms)
+  ✓   6 [desktop] › test/owner/journey.spec.ts:465:1 › first-work retry keeps the draft and idempotency identity; dark theme remains accessible (764ms)
+(node:77304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [mobile] › test/owner/journey.spec.ts:145:1 › new owner through results, proof, feedback and next-day brief (sample journey) (2.5s)
+  ✓   8 [mobile] › test/owner/journey.spec.ts:225:1 › live UI contract journey saves draft, carries context to conversation, and preserves approval binding (1.9s)
+  ✓   9 [mobile] › test/owner/journey.spec.ts:279:1 › partial data, expired session, stale decision and feedback retry remain honest (1.0s)
+  ✓  10 [mobile] › test/owner/journey.spec.ts:343:1 › loading, empty, keyboard focus, expired approvals and next-visit changes (1.4s)
+  ✓  11 [mobile] › test/owner/journey.spec.ts:413:1 › retained result evidence is loaded by exact run identity and failed work remains visible (673ms)
+  ✓  12 [mobile] › test/owner/journey.spec.ts:465:1 › first-work retry keeps the draft and idempotency identity; dark theme remains accessible (724ms)
+
+  12 passed (17.3s)

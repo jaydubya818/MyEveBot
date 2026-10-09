@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "contract": "relay-federation-v2",
+  "relaySource": "e2eb350f5655427d55cc204264020a9295173f96",
+  "contractHash": "b690dcc401b985c007fecda8d4308be4449d5034c157fac163b89443e4c98bc5",
+  "cases": [
+    {
+      "name": "small",
+      "materialBytes": 1291,
+      "tokenCharacters": 1378,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "intermediate",
+      "materialBytes": 23193,
+      "tokenCharacters": 23280,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "64K-class",
+      "materialBytes": 61925,
+      "tokenCharacters": 62012,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "132K-class",
+      "materialBytes": 132893,
+      "tokenCharacters": 132980,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "260000",
+      "materialBytes": 260000,
+      "tokenCharacters": 260087,
+      "providerInputBytes": 407,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "262057",
+      "materialBytes": 262057,
+      "tokenCharacters": 262144,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    }
+  ],
+  "maximumPlusOne": {
+    "rejected": true,
+    "signerCalls": 0
+  },
+  "worstSchemaSigningInputBytes": 4861,
+  "absoluteSigningInputCapBytes": 8192,
+  "kmsCalls": 0,
+  "reverseRuntimeDeliverySigning": "NOT_APPLICABLE: MyEve does not issue Relay delivery assertions; canonical byte reconstruction tested",
+  "vectors": [
+    {
+      "contract": "relay-federation-v2",
+      "purpose": "federation-delivery",
+      "keyId": "fq-delivery-v2",
+      "keyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1",
+      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAdFK0XibTrO8SZ/7T2+qwWtB/UEpV81XJOxarba8m6Ew=\n-----END PUBLIC KEY-----\n",
+      "token": "eyJhbGciOiJFZDI1NTE5Iiwia2V5VmVyc2lvbiI6InByb2plY3RzL3JlbGF5LWxvY2FsLXF1YWxpZmljYXRpb24vbG9jYXRpb25zL3VzLWVhc3Q0L2tleVJpbmdzL2ZxLWNvbXBhdGliaWxpdHktcHJvYmUvY3J5cHRvS2V5cy9mcS1lZDI1NTE5LXByb2JlL2NyeXB0b0tleVZlcnNpb25zLzEiLCJraWQiOiJmcS1kZWxpdmVyeS12MiIsInR5cCI6InJlbGF5LWZlZGVyYXRpb24tdjIifQ.eyJhdWQiOiJyZWxheTovL2ZxLW93bmVyLWIvZnEtYWdlbnQtYiIsImVudmVsb3BlIjp7ImF1dGhvcml6YXRpb25Db250ZXh0Ijp7ImdyYW50SWQiOiJmcS1ncmFudCIsImxvY2FsQXV0aG9yaXphdGlvblJlcXVpcmVkIjp0cnVlLCJwb2xpY3lEZWNpc2lvbklkIjoiZnEtZGVjaXNpb24ifSwiY2FsbGVyIjp7ImFnZW50SWQiOiJmcS1hZ2VudC1hIiwib3duZXJJZCI6ImZxLW93bmVyLWEifSwiY2FwYWJpbGl0eSI6Im1lc3NhZ2Uuc2VuZCIsImNyZWF0ZWRBdCI6IjIwMjYtMDktMjFUMTU6MDg6MjYuMjQzWiIsImV4cGlyZXNBdCI6IjIwMjYtMDktMjFUMTU6MTg6MjYuMjQzWiIsImlkIjoiZnEtcmVxdWVzdC0wMDAxIiwiaWRlbXBvdGVuY3lLZXkiOiJmcS1yZXF1ZXN0LTAwMDEiLCJwYXlsb2FkIjp7ImJvZHkiOiJTeW50aGV0aWMgZmVkZXJhdGlvbiBtZXNzYWdlLiIsInN1YmplY3QiOiJRdWFsaWZpY2F0aW9uIn0sInByb3RvY29sIjoicmVsYXkuZmVkZXJhdGlvbiIsInB1YmxpY2F0aW9uIjpudWxsLCJyZXNvdXJjZSI6ImZxLXJlc291cmNlIiwidGFyZ2V0Ijp7ImFkZHJlc3MiOiJyZWxheTovL2ZxLW93bmVyLWIvZnEtYWdlbnQtYiIsImFnZW50SWQiOiJmcS1hZ2VudC1iIiwib3duZXJJZCI6ImZxLW93bmVyLWIifSwidmVyc2lvbiI6IjEuMCJ9LCJleHAiOjE3OTAwMDMzNjYsImlhdCI6MTc5MDAwMzMwNiwiaXNzIjoiaHR0cHM6Ly9yZWxheS5zeW50aGV0aWMuaW52YWxpZCIsImp0aSI6ImZxLXJlcXVlc3QtMDAwMSJ9.fRDiZCmt9rYPLAByhOsz3jVU1FoCrlHxM_axmDGrpeol7_svqAk_3CtJomnSsHvaeXbUbeZ5mGgHSM3vQDZvDg",
+      "payloadDigest": "d9e1bb114d2b2c1727bbacec3a5a0432ddc2eebd4fa75bc8d82d41f2e8ddbf22",
+      "requestId": "fq-request-0001"
+    }
+  ]
+}

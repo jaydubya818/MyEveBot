@@ -1,0 +1,16 @@
+import {beforeEach,afterEach,expect,it,vi} from 'vitest';
+import {POST} from '../../app/api/relay/qualification-artifacts/route';
+const mocked=vi.hoisted(()=>({query:vi.fn(),ingress:vi.fn(),permit:vi.fn(),decrypt:vi.fn((_owner:string,content:string)=>content)}));
+vi.mock('./client',()=>({qualificationEnabled:()=>true,qualifyIngress:mocked.ingress,qualifyArtifact:mocked.permit}));
+vi.mock('../relay/store',()=>({FederationStore:class {ownerId='fq-owner';database={query:mocked.query};}}));
+vi.mock('../relay/transport',()=>({decryptSecret:mocked.decrypt}));
+const expiration='2026-10-01T00:00:00.000Z';
+const values=()=>['artifact','fq-owner','request','synthetic','{}','','',expiration];
+const request=(v=values())=>new Request('https://origin.invalid/api/relay/qualification-artifacts',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'insert',values:v})});
+beforeEach(()=>{vi.clearAllMocks();vi.stubEnv('FQ_OWNER_ID','fq-owner');mocked.ingress.mockResolvedValue(undefined);mocked.permit.mockResolvedValue(undefined);mocked.query.mockImplementation(async(sql:string)=>sql.startsWith('SELECT')?[{id:'artifact',owner_id:'fq-owner',request_id:'request',content_encrypted:'synthetic',metadata:{},audience:'',audience_public_key:'',expires_at:expiration,revoked:false}]:[]);});
+afterEach(()=>vi.unstubAllEnvs());
+it('real storage handler denies direct ingress before SQL or content permission',async()=>{mocked.ingress.mockRejectedValueOnce(new Error('forged'));expect((await POST(request())).status).toBe(403);expect(mocked.query).not.toHaveBeenCalled();expect(mocked.permit).not.toHaveBeenCalled();});
+it('owner mismatch is denied before artifact mutation',async()=>{const input=values();input[1]='fq-other';expect((await POST(request(input))).status).toBe(403);expect(mocked.query).not.toHaveBeenCalled();});
+it('actual decrypted bytes need permission before an insert and a retry cannot overwrite',async()=>{expect((await POST(request())).status).toBe(200);expect(mocked.permit).toHaveBeenCalledWith('fq-owner','artifact','synthetic');expect(mocked.permit.mock.invocationCallOrder[0]).toBeLessThan(mocked.query.mock.invocationCallOrder[0]);expect(mocked.query.mock.calls[0][0]).toContain('ON CONFLICT(id) DO NOTHING');expect((await POST(request())).status).toBe(200);});
+it('denied byte allowance, including cancellation/oversize, never inserts',async()=>{mocked.permit.mockRejectedValueOnce(new Error('ARTIFACT_SIZE'));expect((await POST(request())).status).toBe(403);expect(mocked.query).not.toHaveBeenCalled();});
+it('conflicting previously stored data is not a successful retry',async()=>{mocked.query.mockImplementation(async(sql:string)=>sql.startsWith('SELECT')?[{request_id:'different'}]:[]);expect((await POST(request())).status).toBe(403);});

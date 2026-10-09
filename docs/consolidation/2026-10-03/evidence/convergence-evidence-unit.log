@@ -1,0 +1,25 @@
+✔ accepted transport bytes independently match signed patch and test records (2.422166ms)
+✔ scope mismatch denied: ownerScope (0.412166ms)
+✔ scope mismatch denied: repository (0.251917ms)
+✔ scope mismatch denied: workId (0.265417ms)
+✔ scope mismatch denied: workGeneration (0.284375ms)
+✔ scope mismatch denied: requestId (1.105416ms)
+✔ metadata mismatch denied: workOrderId (0.423333ms)
+✔ metadata mismatch denied: runId (0.246584ms)
+✔ metadata mismatch denied: candidateCommit (0.231208ms)
+✔ metadata mismatch denied: factoryVersion (0.241625ms)
+✔ metadata mismatch denied: kind (0.192125ms)
+✔ metadata mismatch denied: sha256 (0.18375ms)
+✔ metadata mismatch denied: size (0.18625ms)
+✔ self-consistent but unrelated evidence is denied by admitted signed Result (0.417792ms)
+✔ noncanonical encoding, oversized and storage-path response are denied (0.820292ms)
+✔ Proof credential renewal preserves execution hash, scope changes do not (0.229792ms)
+✔ transport outage waits, integrity failure and execution credential reuse fail closed (14.456333ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 282.930042

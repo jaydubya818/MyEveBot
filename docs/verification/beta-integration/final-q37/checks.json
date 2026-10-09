@@ -1,0 +1,84 @@
+{
+  "application": {
+    "status": "PASS",
+    "passed": 1861,
+    "skipped": 45,
+    "postgresAdmission": true
+  },
+  "rootSecurity": {
+    "status": "PASS",
+    "passed": 136
+  },
+  "rootScopeNote": "Q37 root151 includes 15 chat-turn/Telegram tests for modules outside Beta; those belong to the separately owned product/channel handoffs. No such runtime was copied to inflate this result.",
+  "gateB": {
+    "status": "PASS",
+    "checks": 23
+  },
+  "gateC": {
+    "status": "PASS",
+    "checks": 47
+  },
+  "connectedFinalProducer": {
+    "status": "PASS",
+    "checks": 16,
+    "scriptedProviderCalls": 13,
+    "realProviderCalls": 0,
+    "clientSearchOutputs": 3,
+    "separateCompletions": 3
+  },
+  "capsules": {
+    "status": "PASS",
+    "checks": 12
+  },
+  "goals": {
+    "status": "PASS",
+    "checks": 19
+  },
+  "inbox": {
+    "status": "PASS",
+    "checks": 11
+  },
+  "memoryLearning": "PASS",
+  "needsYouContinuation": "PASS",
+  "staleContinuation": "PASS",
+  "canonicalRecovery": {
+    "status": "PASS",
+    "sigkillBoundaries": 7
+  },
+  "routing": "PASS",
+  "verificationRepair": "PASS",
+  "nativeCompletion": "PASS",
+  "currentTruth": "PASS",
+  "migrationBridge": {
+    "status": "PASS",
+    "checks": 9,
+    "latest": "0068_published_main_lineage_bridge.sql",
+    "activeMigrationFiles": 64,
+    "timezoneReplay": "PASS"
+  },
+  "typecheck": "PASS",
+  "governance": "PASS",
+  "productionBuild": "PASS",
+  "authenticatedBrowser": {
+    "status": "PASS",
+    "scans": 14,
+    "widths": [
+      1440,
+      390
+    ],
+    "accessibilityViolations": 0,
+    "horizontalOverflow": 0
+  },
+  "canonicalResult": "PARTIAL",
+  "proofOfWork": "PARTIAL",
+  "wholeProductGoldenJourney": "PARTIAL",
+  "liveSofie": "NOT_RUN",
+  "liveMyFactory": "NOT_RUN",
+  "managedBeta": "NOT_DEPLOYED",
+  "overall": "PARTIAL \u2014 qualified local assembly ready for canonical consolidation; Product Expansion and actual RC/live qualification remain separate",
+  "historicalCanonicalFeatureLineage": "PASS",
+  "legacyFactoryMigration": {
+    "status": "PASS",
+    "checks": 11
+  }
+}

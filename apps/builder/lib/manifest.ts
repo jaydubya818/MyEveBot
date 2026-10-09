@@ -1,0 +1,276 @@
+import type { FeatureId } from "./config";
+
+// What ships in a generated deployment. The template is the live apps/eve
+// source: everything ships except EXCLUDED paths, and the files listed in
+// FEATURE_FILES are pruned when their feature is off. Channels and agent/lib
+// modules always ship (they read env lazily and are inert without rows/keys);
+// pruning only removes what eve auto-discovers and activates: tools,
+// schedules, connections, extensions, and instruction fragments.
+//
+// scripts/check-manifest.ts asserts every prunable file in apps/eve is
+// claimed by exactly one feature, so adding a tool without updating this map
+// fails the build instead of silently shipping to every deployment.
+
+/** Path prefixes / exact files never included in a deployment. */
+export const EXCLUDED = [
+  ".agents/",
+  ".env",
+  ".eve/",
+  ".gitignore",
+  ".next/",
+  ".output/",
+  ".turbo/",
+  ".vercel/",
+  ".DS_Store",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "PLAN.md",
+  "node_modules/",
+  "scripts/migrate-memories.ts",
+  "scripts/seed-review-e2e.ts",
+  "scripts/seed-knowledge-preview.ts",
+  "tsconfig.tsbuildinfo",
+  "test/",
+  "scripts/qualification-",
+  // Canonical capability qualification uses fixture authorities and repository paths.
+  "scripts/qualify-capability-browser.mjs",
+  "scripts/qualify-capability-composed-browser.mjs",
+  "scripts/qualify-capability-control.mjs",
+  "scripts/qualify-capability-enforcement.mjs",
+  "scripts/qualify-capability-lifecycle.mjs",
+  "scripts/qualify-capability-ordering.mjs",
+  "scripts/qualify-capability-recovery.mjs",
+] as const;
+
+/** Directories whose files must all be claimed by some feature (or core). */
+export const PRUNABLE_DIRS = [
+  "agent/tools/",
+  "agent/schedules/",
+  "agent/connections/",
+  "agent/extensions/",
+  "agent/instructions/",
+] as const;
+
+/** Prunable files that ship regardless of feature selection. */
+export const CORE_PRUNABLE_FILES = [
+  "agent/instructions/capabilities.ts",
+  "agent/instructions/channel.ts",
+  "agent/instructions/computer-runtime.ts",
+  "agent/instructions/connection-reporting.ts",
+  "agent/instructions/delegation.ts",
+  "agent/instructions/installed-skills.ts",
+  "agent/instructions/persistent-agent.ts",
+  "agent/instructions/persistent-agent.test.ts",
+  "agent/instructions/on-demand-role.ts",
+  "agent/instructions/time.ts",
+  "agent/schedules/operations-monitor.ts",
+  // Dormant until the explicit owner-channel release/configuration gate passes.
+  "agent/schedules/owner-channel.ts",
+  "agent/tools/complete_task.ts",
+  "agent/tools/complete_work.ts",
+  // Internal engineering tools stay dormant behind their existing owner/runtime gates.
+  "agent/tools/engineering_work.ts",
+  // Canonical MyApps source ships, but activation remains owner + local-only.
+  "agent/tools/installed_apps.ts",
+  "agent/tools/engineering_direct.ts",
+  "agent/tools/engineering_factory.ts",
+  // Claimed for source completeness; isExcluded still removes tests from deployments.
+  "agent/tools/engineering_direct.test.ts",
+  "agent/tools/engineering_factory.test.ts",
+  "agent/tools/beta-tool-activation.test.ts",
+  "agent/tools/bash.ts",
+  "agent/tools/ask_question.ts",
+  "agent/tools/discover_capabilities.ts",
+  "agent/tools/show_capabilities.ts",
+  "agent/tools/change_capability.ts",
+  "agent/tools/create_factory_work_order.ts",
+  "agent/tools/delegate_foreman_issue.ts",
+  "agent/tools/delegate_foreman_issue.test.ts",
+  "agent/tools/get_factory_work_order.ts",
+  // Resolver emits no callable tool unless Federation is explicitly configured.
+  "agent/tools/federation_request.ts",
+  "agent/tools/list_agents.ts",
+  "agent/tools/list_roles.ts",
+  "agent/tools/list_solution_packs.ts",
+  "agent/tools/get_agent.ts",
+  "agent/tools/get_computer_session.ts",
+  "agent/tools/manage_agent.ts",
+  "agent/tools/manage_computer_session.ts",
+  "agent/tools/persistent-agent-policy.ts",
+  "agent/tools/inspect_tasks.ts",
+  "agent/tools/record_task_evidence.ts",
+  "agent/tools/read_file.ts",
+  "agent/tools/record_computer_artifact.ts",
+  "agent/tools/recover_computer_session.ts",
+  "agent/tools/start_computer_session.ts",
+  "agent/tools/start_task.ts",
+  "agent/tools/start_product_qa.ts",
+  "agent/tools/stop_computer_session.ts",
+  "agent/tools/update_task.ts",
+  "agent/tools/workflow.ts",
+  "agent/tools/write_file.ts",
+  "agent/tools/web_fetch.ts",
+] as const;
+
+/** Feature → the prunable files it owns. */
+export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
+  knowledge: [
+    "agent/instructions/knowledge.ts",
+    "agent/instructions/jev.ts",
+    "agent/tools/evaluate_with_jev.ts",
+    "agent/tools/record_fact.ts",
+    "agent/tools/record_observation.ts",
+    "agent/tools/record_decision.ts",
+    "agent/tools/record_commitment.ts",
+    "agent/tools/record_hypothesis.ts",
+    "agent/tools/record_preference.ts",
+    "agent/tools/get_knowledge.ts",
+    "agent/tools/update_knowledge_status.ts",
+    "agent/tools/search_knowledge.ts",
+    "agent/tools/inspect_owner_knowledge.ts",
+    "agent/tools/search_owner_knowledge.ts",
+    "agent/tools/list_decisions.ts",
+    "agent/tools/list_commitments.ts",
+  ],
+  goals: [
+    "agent/tools/create_goal.ts",
+    "agent/tools/list_goals.ts",
+    "agent/tools/get_routine_readiness.ts",
+    "agent/tools/get_goal.ts",
+    "agent/tools/update_goal.ts",
+    "agent/tools/manage_goal_task.ts",
+    "agent/tools/manage_goal_structure.ts",
+    "agent/tools/goal_focus.ts",
+    "agent/tools/record_outcome.ts",
+    "agent/tools/delete_outcome.ts",
+    "agent/tools/list_outcomes.ts",
+    "agent/tools/update_outcome_feedback.ts",
+    "agent/tools/review_progress.ts",
+    "agent/tools/get_review_schedule.ts",
+    "agent/tools/update_review_schedule.ts",
+    "agent/schedules/review-delivery.ts",
+    "agent/instructions/goals.ts",
+    "agent/instructions/outcomes.ts",
+  ],
+  memory: [
+    "agent/tools/remember.ts",
+    "agent/tools/remember.test.ts",
+    "agent/tools/forget.ts",
+    "agent/tools/search_memory.ts",
+    "agent/tools/list_memories.ts",
+    "agent/schedules/memory-consolidation.ts",
+  ],
+  proactive: [
+    "agent/tools/create_reminder.ts",
+    "agent/tools/cancel_reminder.ts",
+    "agent/tools/list_reminders.ts",
+    "agent/tools/create_webhook.ts",
+    "agent/tools/list_webhooks.ts",
+    "agent/tools/delete_webhook.ts",
+    "agent/tools/list_routines.ts",
+    "agent/tools/make_routine.ts",
+    "agent/tools/manage_routine.ts",
+    "agent/schedules/reminders.ts",
+  ],
+  receipts: [
+    "agent/tools/log_receipt.ts",
+    "agent/tools/query_receipts.ts",
+    "agent/tools/spending_summary.ts",
+    "agent/tools/delete_receipt.ts",
+  ],
+  skills: [
+    "agent/tools/assign_skill.ts",
+    "agent/tools/create_skill.ts",
+    "agent/tools/delete_skill.ts",
+    "agent/tools/inspect_skills.ts",
+    "agent/tools/run_skill_evals.ts",
+    "agent/tools/unassign_skill.ts",
+    "agent/instructions/custom-skills.ts",
+  ],
+  "file-sharing": [
+    "agent/instructions/artifacts.ts",
+    "agent/tools/artifacts.ts",
+    "agent/tools/send_attachment.ts",
+    "agent/tools/share_file.ts",
+  ],
+  integrations: [
+    "agent/connections/agentcard.ts",
+    "agent/connections/composio.ts",
+    "agent/connections/local-computer.ts",
+    "agent/instructions/agentcard.ts",
+    "agent/instructions/agentphone.ts",
+    "agent/instructions/computer.ts",
+    "agent/instructions/local-computer.ts",
+    "agent/schedules/email.ts",
+    "agent/tools/agentphone.ts",
+    "agent/tools/attach_own_card.ts",
+    "agent/tools/check_card_attachment.ts",
+    "agent/tools/check_email_domain.ts",
+    "agent/tools/computer.ts",
+    "agent/tools/connect_card.ts",
+    "agent/tools/connect_email_domain.ts",
+    "agent/tools/email_address.ts",
+    "agent/tools/fund_agentcard_wallet.ts",
+    "agent/tools/imessage.ts",
+    "agent/tools/label_email.ts",
+    "agent/tools/list_emails.ts",
+    "agent/tools/local_computer_task.ts",
+    "agent/tools/read_email.ts",
+    "agent/tools/record_agentcard_consent.ts",
+    "agent/tools/remove_email_domain.ts",
+    "agent/tools/render_video.ts",
+    "agent/tools/reply_to_email.ts",
+    "agent/tools/search_emails.ts",
+    "agent/tools/send_email.ts",
+    "agent/tools/start_agentcard_phone_verification.ts",
+    "agent/tools/verify_agentcard_phone.ts",
+    "agent/tools/verify_card_code.ts",
+  ],
+  browser: [
+    "agent/instructions/browser.ts",
+    "agent/tools/browser__click.ts",
+    "agent/tools/browser__close.ts",
+    "agent/tools/browser__fill.ts",
+    "agent/tools/browser__find.ts",
+    "agent/tools/browser__get.ts",
+    "agent/tools/browser__navigate.ts",
+    "agent/tools/browser__press_key.ts",
+    "agent/tools/browser__read.ts",
+    "agent/tools/browser__screenshot.ts",
+    "agent/tools/browser__scroll.ts",
+    "agent/tools/browser__select_option.ts",
+    "agent/tools/browser__snapshot.ts",
+    "agent/tools/browser__wait_for.ts",
+  ],
+  utilities: ["agent/tools/get_weather.ts", "agent/tools/roll_dice.ts"],
+};
+
+export function isExcluded(relativePath: string): boolean {
+  return /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
+    (entry) =>
+      relativePath === entry ||
+      (entry.endsWith("/") ? relativePath.startsWith(entry) : relativePath.startsWith(entry)),
+  );
+}
+
+export function isPrunable(relativePath: string): boolean {
+  return PRUNABLE_DIRS.some((dir) => relativePath.startsWith(dir));
+}
+
+/** The set of prunable files that ship for a feature selection. */
+export function allowedPrunableFiles(features: readonly FeatureId[]): Set<string> {
+  const allowed = new Set<string>(CORE_PRUNABLE_FILES);
+  for (const feature of features) {
+    for (const file of FEATURE_FILES[feature]) allowed.add(file);
+  }
+  return allowed;
+}
+
+/** Every file claimed by any feature or core — used by the completeness check. */
+export function claimedPrunableFiles(): Set<string> {
+  const claimed = new Set<string>(CORE_PRUNABLE_FILES);
+  for (const files of Object.values(FEATURE_FILES)) {
+    for (const file of files) claimed.add(file);
+  }
+  return claimed;
+}

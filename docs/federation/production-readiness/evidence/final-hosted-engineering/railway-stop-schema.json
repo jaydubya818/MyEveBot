@@ -1,0 +1,149 @@
+{
+  "mutation": [
+    {
+      "name": "deploymentCancel",
+      "args": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String"
+            }
+          }
+        }
+      ],
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "SCALAR",
+          "name": "Boolean"
+        }
+      }
+    },
+    {
+      "name": "deploymentStop",
+      "args": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String"
+            }
+          }
+        }
+      ],
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "SCALAR",
+          "name": "Boolean"
+        }
+      }
+    }
+  ],
+  "deployment": [
+    {
+      "name": "environmentId",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "SCALAR",
+          "name": "String"
+        }
+      }
+    },
+    {
+      "name": "id",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "SCALAR",
+          "name": "ID"
+        }
+      }
+    },
+    {
+      "name": "projectId",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "SCALAR",
+          "name": "String"
+        }
+      }
+    },
+    {
+      "name": "serviceId",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "ofType": null
+      }
+    },
+    {
+      "name": "status",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "ENUM",
+          "name": "DeploymentStatus"
+        }
+      }
+    }
+  ],
+  "status": {
+    "enumValues": [
+      {
+        "name": "BUILDING"
+      },
+      {
+        "name": "CRASHED"
+      },
+      {
+        "name": "DEPLOYING"
+      },
+      {
+        "name": "FAILED"
+      },
+      {
+        "name": "INITIALIZING"
+      },
+      {
+        "name": "NEEDS_APPROVAL"
+      },
+      {
+        "name": "QUEUED"
+      },
+      {
+        "name": "REMOVED"
+      },
+      {
+        "name": "REMOVING"
+      },
+      {
+        "name": "SKIPPED"
+      },
+      {
+        "name": "SLEEPING"
+      },
+      {
+        "name": "SUCCESS"
+      },
+      {
+        "name": "WAITING"
+      }
+    ]
+  }
+}

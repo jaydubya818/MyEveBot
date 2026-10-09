@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-10-01T06:34:25.420Z",
+  "historicalRowsUnchanged": true,
+  "failedWorkId": "7e4b305b-72e5-40f7-95e1-150456b84c66",
+  "oldModelCalls": 1,
+  "oldSpentMicrousd": 975,
+  "oldFactoryCommands": 1,
+  "oldRouteRuns": 1,
+  "databaseWrites": 0
+}

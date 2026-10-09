@@ -1,0 +1,376 @@
+/* Uses the owner design system; no new brand palette or typography. */
+.canvas-shell {
+  --canvas-line: #3d4539;
+  --canvas-panel: #1b211b;
+  display: grid;
+  grid-template-columns: 196px minmax(0, 1fr);
+  height: 100dvh;
+  min-height: 0;
+  overflow: clip;
+}
+.canvas-sidebar {
+  padding: 32px 24px;
+  border-right: 1px solid var(--canvas-line);
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.canvas-sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+.canvas-sidebar nav a {
+  padding: 12px;
+  min-height: 44px;
+  text-decoration: none;
+  border-radius: 9px;
+}
+.canvas-sidebar nav a[aria-current] {
+  background: var(--canvas-panel);
+  color: var(--owner-accent);
+}
+.canvas-sidebar-bottom {
+  margin-top: auto;
+  display: grid;
+  gap: 18px;
+  font-size: 14px;
+}
+.canvas-body {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.canvas-header {
+  padding: 22px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--canvas-line);
+}
+.canvas-header h1 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+  margin: 6px 0 0;
+}
+.canvas-private {
+  font-size: 12px;
+  color: var(--owner-muted);
+}
+.canvas-demo {
+  padding: 10px 40px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--canvas-line);
+}
+.canvas-demo summary {
+  cursor: pointer;
+  min-height: 28px;
+  padding: 5px 0;
+  color: var(--owner-muted);
+}
+.canvas-demo[open] {
+  max-height: 220px;
+  overflow: auto;
+}
+.canvas-demo .owner-actions {
+  margin: 10px 0;
+}
+.canvas-stream {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px max(32px, calc((100% - 760px) / 2));
+  scroll-padding: 24px;
+}
+.canvas-stream > section,
+.canvas-proof {
+  margin: 0 0 28px;
+}
+.canvas-request {
+  background: var(--canvas-panel);
+  padding: 16px 22px;
+  border-radius: 14px;
+}
+.canvas-request p:first-child {
+  margin-top: 0;
+}
+.canvas-sofie h2 {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+.canvas-status {
+  font-weight: 550;
+}
+.canvas-activity {
+  list-style: none;
+  padding: 0 0 0 15px;
+  margin: 14px 0;
+  border-left: 2px solid var(--canvas-line);
+  color: var(--owner-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.canvas-activity li {
+  margin: 7px 0;
+}
+.canvas-result h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.canvas-artifact {
+  border: 1px solid var(--canvas-line);
+  border-radius: 10px;
+  margin-top: 18px;
+}
+.canvas-artifact summary {
+  padding: 14px 16px;
+  cursor: pointer;
+  min-height: 48px;
+}
+.canvas-artifact pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 0 16px 16px;
+  font-family: inherit;
+  line-height: 1.6;
+  font-size: 14px;
+}
+.canvas-decision {
+  border-top: 1px solid var(--canvas-line);
+  padding-top: 24px;
+}
+.canvas-decision h2 {
+  margin: 10px 0 18px;
+}
+.canvas-decision fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.canvas-choice {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  min-height: 48px;
+  border: 1px solid var(--canvas-line);
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.canvas-choice:has(input:checked) {
+  border-color: var(--owner-accent);
+  background: var(--canvas-panel);
+}
+.canvas-choice input {
+  accent-color: var(--owner-accent);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.canvas-confirm {
+  margin-top: 16px;
+}
+.canvas-confirm textarea {
+  display: block;
+  width: 100%;
+  min-height: 88px;
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid var(--canvas-line);
+  border-radius: 9px;
+  background: var(--canvas-panel);
+  color: inherit;
+  font: inherit;
+}
+.canvas-confirmed,
+.canvas-inline-panel {
+  padding: 18px;
+  border: 1px solid var(--canvas-line);
+  border-radius: 12px;
+  background: var(--canvas-panel);
+}
+.canvas-proof {
+  border-top: 1px solid var(--canvas-line);
+  padding-top: 14px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.canvas-proof summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--owner-muted);
+}
+.canvas-proof dl > div {
+  margin: 14px 0;
+}
+.canvas-proof dt {
+  font-weight: 600;
+}
+.canvas-proof dd {
+  margin: 4px 0;
+  color: var(--owner-muted);
+}
+.canvas-composer {
+  padding: 16px max(32px, calc((100% - 760px) / 2))
+    max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--canvas-line);
+  background: var(--canvas-panel);
+}
+.canvas-composer label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.canvas-composer > div {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.canvas-composer textarea {
+  resize: vertical;
+  max-height: 140px;
+  min-height: 56px;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--canvas-line);
+  border-radius: 9px;
+  padding: 10px;
+}
+.canvas-composer .owner-muted {
+  display: block;
+  font-size: 11px;
+  margin-top: 8px;
+}
+:root[data-mode="light"] .canvas-shell {
+  --canvas-line: #ced6c4;
+  --canvas-panel: #fff;
+}
+@media (max-width: 700px) {
+  .canvas-shell {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .canvas-sidebar {
+    padding: 20px 6px;
+    gap: 28px;
+  }
+  .canvas-sidebar .owner-brand {
+    font-size: 14px;
+    letter-spacing: -0.6px;
+    text-align: center;
+  }
+  .canvas-sidebar nav {
+    gap: 6px;
+    font-size: 11px;
+  }
+  .canvas-sidebar nav a {
+    padding: 12px 3px;
+    text-align: center;
+  }
+  .canvas-sidebar-bottom {
+    font-size: 10px;
+    text-align: center;
+  }
+  .canvas-sidebar-bottom span {
+    display: none;
+  }
+  .canvas-header {
+    padding: 18px 16px;
+  }
+  .canvas-header h1 {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  .canvas-header .canvas-private {
+    display: none;
+  }
+  .canvas-demo {
+    padding: 8px 16px;
+  }
+  .canvas-stream {
+    padding: 22px 16px;
+  }
+  .canvas-request {
+    padding: 12px 14px;
+  }
+  .canvas-stream p {
+    font-size: 14px;
+  }
+  .canvas-decision fieldset {
+    grid-template-columns: 1fr;
+  }
+  .canvas-composer {
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+  }
+  .canvas-composer > div {
+    gap: 6px;
+  }
+  .canvas-composer button {
+    padding: 10px;
+  }
+  .canvas-composer textarea {
+    font-size: 16px;
+  }
+}
+
+/* Scope compact controls above the general owner form defaults. */
+.owner-shell.canvas-shell label.canvas-choice {
+  display: flex;
+  margin: 0;
+}
+.owner-shell.canvas-shell .canvas-choice input {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+.owner-shell.canvas-shell .canvas-demo {
+  margin: 0;
+  padding: 8px 40px;
+  border-top: 0;
+  flex-shrink: 0;
+}
+.owner-shell.canvas-shell .canvas-demo summary {
+  min-height: 28px;
+  padding: 5px 0;
+  font-size: 12px;
+}
+.owner-shell.canvas-shell .canvas-artifact {
+  padding-top: 0;
+}
+.owner-shell.canvas-shell .canvas-artifact summary {
+  padding: 14px 16px;
+}
+.owner-shell.canvas-shell .canvas-composer label {
+  margin: 0 0 8px;
+}
+.owner-shell.canvas-shell .canvas-composer textarea {
+  min-height: 56px;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .owner-shell.canvas-shell .canvas-demo {
+    padding: 8px 16px;
+  }
+}
+
+/* Keep nested conversation scrolling from moving persistent app chrome. */
+.owner-shell.canvas-shell {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  min-height: 0;
+}

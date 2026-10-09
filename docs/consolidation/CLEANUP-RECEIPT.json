@@ -1,0 +1,540 @@
+{
+  "canonicalMain": "1dbe3d31ba3b7cd0b3d3a6bfa30b45119cc78489",
+  "localBranchesDeleted": [
+    {
+      "ref": "refs/heads/codex/admin-guides-ux",
+      "name": "codex/admin-guides-ux",
+      "sha": "80e78b35552b4ee99c2ba3bb5b06a137fe739cbe",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/agent-computer-runtime",
+      "name": "codex/agent-computer-runtime",
+      "sha": "2118f23c89ac91e2d062dfde00c950e17f9c3ab1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/awesome-llm-agent-skills",
+      "name": "codex/awesome-llm-agent-skills",
+      "sha": "7d879c617212dbe81b94de624d160fe33ff9b89c",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/browser-reliability",
+      "name": "codex/browser-reliability",
+      "sha": "479eeaa9eb07d3de0010670d3d3194a7fa30e6b1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/complete-colleague-release",
+      "name": "codex/complete-colleague-release",
+      "sha": "2bd8a4ca4f8121bfe7b6cb2b72e5429b1be247d9",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/computer-run-label",
+      "name": "codex/computer-run-label",
+      "sha": "4a12c9c137da8faa8ac6f03e06a7e50baf5c5608",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/curated-agent-skills",
+      "name": "codex/curated-agent-skills",
+      "sha": "1b1abaec0cd5cb12bce5b4f8a23f5bbfda0d5755",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/decision-intelligence-final-integration",
+      "name": "codex/decision-intelligence-final-integration",
+      "sha": "3d9f0e5bc8a6dca40fd6c556100eaab121e30fc1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/engineering-pilot",
+      "name": "codex/engineering-pilot",
+      "sha": "67550453ce1c87dd20631ca6664ee78fad5f4e3e",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/federation-request-deadline",
+      "name": "codex/federation-request-deadline",
+      "sha": "196f5b80bd3499867b35fc065ca25db03b977063",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/finalizat",
+      "name": "codex/finalizat",
+      "sha": "38dc7281659b025f02b89edb138d38763b516955",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/fix-eve-deploy-docs",
+      "name": "codex/fix-eve-deploy-docs",
+      "sha": "e9c35279d94de7374234f64d8aa92e221df4e0a9",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/founder-os-canonical",
+      "name": "codex/founder-os-canonical",
+      "sha": "9c271de2b5f52c6f49f3a4802a2acb97c00dfe55",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/founder-os-solution-pack",
+      "name": "codex/founder-os-solution-pack",
+      "sha": "64164b7abe0e858d5dedfec029e63bff67602ef6",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/founderOS",
+      "name": "codex/founderOS",
+      "sha": "fbea116c8fe97c15fb2a58a52b06457aa214c25f",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/jev",
+      "name": "codex/jev",
+      "sha": "38dc7281659b025f02b89edb138d38763b516955",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/jev-chat-evaluation",
+      "name": "codex/jev-chat-evaluation",
+      "sha": "8085f5a97a50a3d0759aae711be4d2e8c3ac937a",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/jev-chat-release",
+      "name": "codex/jev-chat-release",
+      "sha": "185edd9290879a011ae8d52f4928d3fef510eeb1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/knowledge-provenance-core",
+      "name": "codex/knowledge-provenance-core",
+      "sha": "2118f23c89ac91e2d062dfde00c950e17f9c3ab1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/marketing-engineering-role-pack",
+      "name": "codex/marketing-engineering-role-pack",
+      "sha": "4b3a588e2b1c9711d72818e23de44eaf018bd524",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/marketing-engineering-role-pack-v1",
+      "name": "codex/marketing-engineering-role-pack-v1",
+      "sha": "3f3bf6f0ce8050a119514ccfc00fb71b50cf4d77",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/marketingenginnerrolepack",
+      "name": "codex/marketingenginnerrolepack",
+      "sha": "b2db7b55a2cb1de6b681d71fbe67b6c6017e2b18",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/migration-lineage-reconciliation",
+      "name": "codex/migration-lineage-reconciliation",
+      "sha": "b36f0165dc0d6ee20eb64a092dc80c58c99a4c3b",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/multirun-peer-permissions",
+      "name": "codex/multirun-peer-permissions",
+      "sha": "e6b36661244f9c25c5661af73b169a6e024c2d46",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/muse",
+      "name": "codex/muse",
+      "sha": "9cccac1a548ae4dc1721f6ae6016c78a97328cc2",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/myeve-final-integration",
+      "name": "codex/myeve-final-integration",
+      "sha": "aa07dbbe01b568cf4ed7cf49795c1bffb7918275",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/myeve-relay-final",
+      "name": "codex/myeve-relay-final",
+      "sha": "380d6a30753e5983b51fd51b5d4c7758cd86177a",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/openbot",
+      "name": "codex/openbot",
+      "sha": "396631afa4739e5ca8ac0c5c81781f82f3160403",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/p0-reliability-and-roadmap",
+      "name": "codex/p0-reliability-and-roadmap",
+      "sha": "33525f5aa67f1aab262f412d62de43b2b2a96e15",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/peer-conversation-ui",
+      "name": "codex/peer-conversation-ui",
+      "sha": "0998073a8418f5c0876eb46da2d2e7738075c0fe",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/peer-message-answers",
+      "name": "codex/peer-message-answers",
+      "sha": "177d908ce0f6a31237984688c273a61f2dfa46ae",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/permission",
+      "name": "codex/permission",
+      "sha": "38dc7281659b025f02b89edb138d38763b516955",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/preserve-openbot-pre-pr3-8364835",
+      "name": "codex/preserve-openbot-pre-pr3-8364835",
+      "sha": "8364835861380ca0942b09bb06f918db8de22a9b",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/preserve-relay-pre-rebase-c92fd20",
+      "name": "codex/preserve-relay-pre-rebase-c92fd20",
+      "sha": "c92fd204c690c68b067d58dd6380aa23f95130d1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/preserve-skill-eval-operations-33ad054",
+      "name": "codex/preserve-skill-eval-operations-33ad054",
+      "sha": "33ad0540bbecbfa575f5b633107b559263019272",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/prod-consolidation-20260913",
+      "name": "codex/prod-consolidation-20260913",
+      "sha": "00bd7507a8c0636ab8baf1b1674f3ffe6c77037c",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/product-acceptance-fixes",
+      "name": "codex/product-acceptance-fixes",
+      "sha": "e9984e4962151bffca1f6eb48c544b60bb643aa7",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/relay-grant-expiry-settings",
+      "name": "codex/relay-grant-expiry-settings",
+      "sha": "78a9df414dff9b91da26aa5b8330dbf2aeafd3f8",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/relay-renewal-guidance",
+      "name": "codex/relay-renewal-guidance",
+      "sha": "b5a6d37f9a339a0d565bf64f9cfb79a95a2fb606",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/release-integration",
+      "name": "codex/release-integration",
+      "sha": "1d20be474e7841871001cf592b8f523a178770e1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/role-catalog",
+      "name": "codex/role-catalog",
+      "sha": "c330dd38b21347fa30acc022fb8c2268c8380647",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/routine-admission-integration",
+      "name": "codex/routine-admission-integration",
+      "sha": "88370d0662c7824445b59779a8b8e8b21abfa10b",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/sandbox-prewarm-lifecycle",
+      "name": "codex/sandbox-prewarm-lifecycle",
+      "sha": "1d3ccc188f6bfe0ecfe5ab6fcaa3bb70be0bfb47",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/scoped-memory-context",
+      "name": "codex/scoped-memory-context",
+      "sha": "2118f23c89ac91e2d062dfde00c950e17f9c3ab1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/sofie-colleague-first-computer",
+      "name": "codex/sofie-colleague-first-computer",
+      "sha": "c7b287b19c9525722cf64c3fc1671a078b00ac85",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/sofie-template-sync",
+      "name": "codex/sofie-template-sync",
+      "sha": "2774057bac064a595c5386c9a09b9b4fcf3f3408",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/template",
+      "name": "codex/template",
+      "sha": "38dc7281659b025f02b89edb138d38763b516955",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/codex/updaate",
+      "name": "codex/updaate",
+      "sha": "c96ddd3b9cc1681f0ff649c7ca7189019a367e2a",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/agent-computer-runtime",
+      "name": "feat/agent-computer-runtime",
+      "sha": "58f4ae02b7a9186ae0586b24607b818868978634",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/jev-decision-intelligence-v0",
+      "name": "feat/jev-decision-intelligence-v0",
+      "sha": "d54f152eafdac40d2293281b1046e343bf65cd8b",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/jev-decision-intelligence-v05-challenge",
+      "name": "feat/jev-decision-intelligence-v05-challenge",
+      "sha": "6a067090f4e8e215264c8d4c6b90150bd816cbe2",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/knowledge-provenance-core",
+      "name": "feat/knowledge-provenance-core",
+      "sha": "5a19b622466a03816f04d4d0d42de23c8b2763cb",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/outcomes-daily-weekly-loop",
+      "name": "feat/outcomes-daily-weekly-loop",
+      "sha": "13b5a87d7a37a6fbbea0d3fa1891f1f59d6c3b3d",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/persistent-peer-permissions-v1",
+      "name": "feat/persistent-peer-permissions-v1",
+      "sha": "35f80419a766751aac68673472d82898ed678ec9",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/persistent-user-agents",
+      "name": "feat/persistent-user-agents",
+      "sha": "2118f23c89ac91e2d062dfde00c950e17f9c3ab1",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/proactive-review-delivery",
+      "name": "feat/proactive-review-delivery",
+      "sha": "bea5a9b841e54c2d2a2506a74e4e515929630d61",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/relay-federation-adapter",
+      "name": "feat/relay-federation-adapter",
+      "sha": "e6a5440328f9ed34c883f0491de4e1190b151292",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/scoped-memory-context",
+      "name": "feat/scoped-memory-context",
+      "sha": "4bc55a99ab893ec43be4a30c7cc74395de470d9b",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    },
+    {
+      "ref": "refs/heads/feat/sofie-operations-hub",
+      "name": "feat/sofie-operations-hub",
+      "sha": "4c72fe4ddaf6f870d2733ee183f237ae5c2988a6",
+      "uniqueCommits": 0,
+      "disposition": "DELETE_PROVEN_OBSOLETE",
+      "priorClassification": "ALREADY_CONTAINED",
+      "reason": "Exact main ancestry; inventory identified obsolete; no existing worktree uses branch."
+    }
+  ],
+  "remoteBranchesDeleted": [],
+  "staleRegistrationsPruned": 2,
+  "recoveryRefsCreated": [],
+  "recoveryBundle": "/Users/jaywest/Myeve/output/canonical-main-qualification-20260929/myeve-pre-cleanup.bundle"
+}

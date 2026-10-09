@@ -1,0 +1,61 @@
+{
+  "contractVersion": 1,
+  "status": "READY_FOR_INTEGRATION",
+  "schemaActivation": "BLOCKED",
+  "canonicalRuntime": "NOT_RUN",
+  "branch": "codex/total-recall-learning",
+  "baseline": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "supersedes": "4b31ddebe8235fc1efca154d41ee37061be2a444",
+  "schema": {
+    "source": "docs/integration/total-recall/schema.sql",
+    "sha256": "db31986ffa248445b3d6e61af30961b9eeb870b5ae40dd1a3f55a7df57b9b183",
+    "assignedMigration": null,
+    "owner": "codex/digital-worker-integration",
+    "registryFile": "apps/eve/lib/database-schema.ts",
+    "registryExport": "CURRENT_DATABASE_MIGRATION",
+    "registryChange": "Use allocated filename if latest in canonical chain; preserve subsequent canonical migration if any",
+    "backfill": "NONE",
+    "productionApplied": false,
+    "restrictedReader": "Explicit SELECT only; RLS owner_id=current_user; no session owner spoofing"
+  },
+  "preservedPaths": [
+    "apps/eve/migrations",
+    "apps/eve/lib/database-schema.ts",
+    "apps/eve/lib/engineering",
+    "apps/eve/lib/digital-worker",
+    "apps/eve/agent/instructions/persistent-agent.ts",
+    "apps/eve/agent/lib/context-assembly.ts",
+    "apps/eve/scripts/check-executor-governance.ts"
+  ],
+  "observedOtherWorktrees": {
+    "digital-worker-integration": {
+      "head": "2d258cf7ca79ca56550595296a1cbe0bbab94eca",
+      "status": []
+    },
+    "beta-product-experience": {
+      "head": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+      "status": []
+    },
+    "portable-sofie-capsules": {
+      "head": "bf7a45158dc14f7d38d14ad35ae84218b4866c0c",
+      "status": [
+        " M apps/eve/components/capsules/capsule-panel.tsx",
+        " M apps/eve/lib/capsules/format.ts",
+        " M apps/eve/lib/capsules/import.ts",
+        " M apps/eve/lib/capsules/security.ts",
+        " M apps/eve/scripts/executor-inventory.json",
+        " M apps/eve/scripts/qualify-capsules.ts",
+        " M docs/verification/portable-sofie-capsules/design-partner.memory-capsule.json",
+        " M docs/verification/portable-sofie-capsules/qualification.json",
+        "?? .playwright-cli/",
+        "?? apps/eve/lib/capsules/adversarial.test.ts",
+        "?? apps/eve/lib/capsules/integration-contract.ts",
+        "?? apps/eve/lib/capsules/integration.test.ts",
+        "?? apps/eve/lib/capsules/total-recall-adapter.test.ts",
+        "?? apps/eve/lib/capsules/total-recall-adapter.ts",
+        "?? apps/eve/test/capsules/integration/"
+      ]
+    }
+  },
+  "observedAt": "2026-09-27T21:10:14.852297+00:00"
+}

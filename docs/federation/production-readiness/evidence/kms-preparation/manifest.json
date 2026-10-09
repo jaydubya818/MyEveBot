@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "state": "PREPARATION_ONLY",
+  "securityGate": "NOT_RUN",
+  "platformGate": "NOT_RUN",
+  "productCommits": {
+    "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+    "relay": "bbfcaa18710556fc689f60990599f4734e99a720"
+  },
+  "sourceProductChanged": false,
+  "localTests": {
+    "python": 15,
+    "node": 5
+  },
+  "files": [
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/branch-slots.json",
+      "sha256": "f621260066f80e390dbd0063687f98d9cee6ec12e1f17db751a0b7172437c4fd"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/controls-tests.txt",
+      "sha256": "8e64cfd280f65981dec7a34b36dc52217e275c67679c6a794b0065989d3e1d9a"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/database-brake.json",
+      "sha256": "20e0d48e223b8ea39b4b00d55894fcda94ea283316be707d88f722451864a5dd"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/hosting-verification.json",
+      "sha256": "c207437856e883b985fc5071fe3f406e325171fc95a639f45a56295c0e9f4c1d"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/kms-inventory.json",
+      "sha256": "46f7b20c20617c9af972c48c2d04ad24cfe8ecfedff50d956406495507967ec4"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/node-controls-tests.txt",
+      "sha256": "f9b7d27fa6c988b89643223072104f7f50206b4b865f023f50fabaa9dfce8a03"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/preflight.json",
+      "sha256": "c4e4ad42d407f80f1bf621fa004326adbb68764d9a8448a3057ca32589410128"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/secret-status.json",
+      "sha256": "887d8e5a17f243e1b410855da79bb3ab6e1c83892b89fff2ec62f718e235bab8"
+    },
+    {
+      "path": "docs/federation/production-readiness/evidence/kms-preparation/worker-credit.json",
+      "sha256": "f5eaf20cc0fe8e79c2828dba3706eef75aca08c847a95f7c29bb69f86916bb66"
+    },
+    {
+      "path": "docs/federation/production-readiness/kms-preparation-report.md",
+      "sha256": "42bf41752aacd517ad391eab13f7b319d1ef3b082a9ffa87484bdde7ad948770"
+    },
+    {
+      "path": "docs/federation/production-readiness/runtime-proposal.json",
+      "sha256": "59f7a564ca99a8f9e14c7b0648442055ccd2fa140a357e2110426ed76939ffd4"
+    },
+    {
+      "path": "docs/federation/production-readiness/target-manifest.json",
+      "sha256": "0e847668c987041d6758e74d21fd48ccd29795818a123245d6f33c9f66da64c4"
+    },
+    {
+      "path": "scripts/federation-readiness/configure-synthetic-secrets.mjs",
+      "sha256": "ca91f912e29d33fb3f8310e93d8e0bf3755a1893240583aeea75a81c012b310d"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/.gitignore",
+      "sha256": "580b74c6488c9cbea9c5373203d7e18f5cad43e19ff73b92187c3f6eed1d4f08"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/README.md",
+      "sha256": "5952aea373a3ff5fc57d28b2b958626834b54a62ecee4ace180d53836b318866"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/database-brake.mjs",
+      "sha256": "8e6da75daa164f774c353ae63b2ed33238b54b8f53e2e128312b727aa6c155ca"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/database-brake.test.mjs",
+      "sha256": "d4529fe2fc9c30e805f187eef6a6c278004ee68eac129b9c0f341474fc64c39c"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/preflight.mjs",
+      "sha256": "eaf225694dc61babf53df664ade119ff689e5735b92124b2059d0752c769ac86"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/preflight.test.mjs",
+      "sha256": "dd29aaa2b6f8997f962142859f4b7f0dbbd917f9fc0c39dbad9b8d3c3587d896"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/session.py",
+      "sha256": "c5523c7239e9fa9702f87df984d161e30b8c64df46c05c9758d5ef7c90a9aeb4"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/supervisor.py",
+      "sha256": "f33e8287a085fa849c6f41574e5193bb6a5556132bb264c803ef56fe3b61acda"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/test_session.py",
+      "sha256": "a007764c97ec8a529d3aac5a6045a1ebb5380d9432c4bec2ed67875b89826eb0"
+    },
+    {
+      "path": "scripts/federation-readiness/controls/test_supervisor.py",
+      "sha256": "cf4cc643d18e6cc3312ba26dcb7c4c122a4bc2c47edf11d599548e234124df35"
+    },
+    {
+      "path": "scripts/federation-readiness/prepare-branch-slots.py",
+      "sha256": "be598aad0e075c248e9a7d904f2ef072149632fea2e3d0909195a512a8c07b3d"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "count": 64,
+  "head": "0068_published_main_lineage_bridge.sql",
+  "checks": [
+    "Fresh reconciled chain and no-op replay",
+    "Canonical 0057 upgrade preserves every prefix checksum and applied_at; no-op replay",
+    "Preserved Phase 1 database rejects incompatible lineage before mutation; ledger unchanged"
+  ]
+}

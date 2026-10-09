@@ -1,0 +1,23 @@
+{
+  "scope": "Observed local qualification only; no live provider claims",
+  "counters": {
+    "duplicateWork": 0,
+    "duplicateFactoryExecution": 0,
+    "concurrentWriters": 0,
+    "falseTaskCompletion": 0,
+    "falseGoalCompletion": 0,
+    "falseReady": 0,
+    "authorityExpansion": 0,
+    "crossOwnerDisclosure": 0,
+    "staleContinuation": 0,
+    "capsuleAuthorityTransfer": 0,
+    "avoidableCoordinationDebt": 0
+  },
+  "sources": [
+    "whole-product.json",
+    "capsules-canonical.json",
+    "canonical-recovery.json",
+    "logs/goal-pg.log",
+    "logs/gate-c.log"
+  ]
+}

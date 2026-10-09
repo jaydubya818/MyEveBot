@@ -1,0 +1,34 @@
+import { defineTool } from "eve/tools";
+import { z } from "zod";
+import { ownerName } from "../lib/owner";
+import { ownerOnly } from "../lib/owner-gate";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
+
+export default defineTool({
+  approval: ownerOnly,
+  description:
+    "Create or update a reusable skill: a named procedure you will follow in future conversations. Use when the user describes a repeatable workflow, routine, or format they want you to apply again later (e.g. how to run their weekly review). Saving with an existing name overwrites that skill. The skill takes effect in new conversations from then on.",
+  inputSchema: z.object({
+    name: z
+      .string()
+      .min(1)
+      .max(50)
+      .regex(/^[a-z0-9][a-z0-9_-]*$/)
+      .describe("Stable slug, e.g. 'weekly_review' or 'trip-packing'"),
+    description: z
+      .string()
+      .min(1)
+      .max(300)
+      .describe(
+        `Routing hint written as the task that should trigger this skill, e.g. 'Use when ${ownerName()} asks for their weekly review.'`,
+      ),
+    markdown: z
+      .string()
+      .min(1)
+      .max(8000)
+      .describe("The full procedure to follow, written as markdown instructions"),
+  }),
+  async execute(input, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.create_skill");
+  },
+});

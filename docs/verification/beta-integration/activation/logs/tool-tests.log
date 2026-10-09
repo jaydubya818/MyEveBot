@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve/apps/eve
+
+ ✓ agent/tools/engineering_direct.test.ts (8 tests) 4ms
+ ✓ agent/tools/beta-tool-activation.test.ts (8 tests) 6ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  20:20:15
+   Duration  527ms (transform 195ms, setup 0ms, collect 428ms, tests 9ms, environment 0ms, prepare 59ms)

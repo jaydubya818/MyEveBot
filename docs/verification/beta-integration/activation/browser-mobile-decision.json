@@ -1,0 +1,9 @@
+{
+  "width": 390,
+  "memoryCorrection": true,
+  "mountedDecisionSource": true,
+  "needsYou": true,
+  "ownerResponse": true,
+  "continuation": true,
+  "deniedUntilFreshContext": true
+}

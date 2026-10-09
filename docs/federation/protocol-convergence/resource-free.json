@@ -1,0 +1,18 @@
+[
+  {
+    "app": "eve",
+    "status": "PASS",
+    "httpStatus": 307,
+    "credentialsProvided": false,
+    "databaseProvided": false,
+    "modelProvided": false
+  },
+  {
+    "app": "builder",
+    "status": "PASS",
+    "httpStatus": 200,
+    "credentialsProvided": false,
+    "databaseProvided": false,
+    "modelProvided": false
+  }
+]

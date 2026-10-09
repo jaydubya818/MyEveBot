@@ -1,0 +1,49 @@
+{
+  "vitest": {
+    "passed": 470,
+    "files": 72,
+    "federationPassed": 36
+  },
+  "node": {
+    "passed": 130,
+    "failed": 0,
+    "command": "npm test"
+  },
+  "database": {
+    "normalRunner": "PASSED",
+    "migrations": 27,
+    "upgrade": "0026 -> 0027",
+    "canonicalSuites": [
+      "execution-reliability.integration.mjs",
+      "action-upgrade.integration.mjs"
+    ]
+  },
+  "relayCompatibility": {
+    "passed": 17,
+    "revision": "614c638d6fc4099db8064540326f5de4438e93a1"
+  },
+  "typecheck": {
+    "workspacesPassed": 2,
+    "governedSources": 502,
+    "unknown": 0
+  },
+  "build": {
+    "workspacesPassed": 2
+  },
+  "lint": {
+    "dedicatedCommand": "NOT_CONFIGURED in canonical package scripts or CI",
+    "formatting": "Prettier 3.6.2 adapter and qualification source check passed",
+    "diffCheck": "PASSED",
+    "canonicalGovernance": "PASSED"
+  },
+  "live": {
+    "passed": 42,
+    "failed": 0,
+    "evidence": "live/report.json"
+  },
+  "defaultEnabled": false,
+  "productionPlatformQualification": "NOT_RUN",
+  "independentSecurityReview": "NOT_RUN",
+  "modelAuthTemporaryFileDestroyed": true,
+  "preexistingUntrackedLink": "Moved node_modules 2 symlink to /private/tmp/myeve-relay-preserved-node-modules-link without touching its target"
+}

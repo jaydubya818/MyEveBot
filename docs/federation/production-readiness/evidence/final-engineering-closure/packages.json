@@ -1,0 +1,28 @@
+{
+  "packages": [
+    {
+      "directory": "relay-d817c848",
+      "sourceSha": "d817c848a7f6797fe04787e28ac96081b69359ae",
+      "packagedReadinessSha": "e8487568c1227b1935b16d771c4d5af74ce17b51",
+      "sourceFiles": 405,
+      "sourceManifestSha256": "83ecfab616e09a19a62d9aec8871782183cc21577b8ab513d04e8da22a51fd2e",
+      "verified": true,
+      "runtimeMatchesTestedControls": "817a8525059d436dc0978970d3e80e7371e009d6",
+      "containsCredentials": false,
+      "deployed": false
+    },
+    {
+      "directory": "myeve-a1aa73ba",
+      "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+      "packagedReadinessSha": "e8487568c1227b1935b16d771c4d5af74ce17b51",
+      "sourceFiles": 1245,
+      "sourceManifestSha256": "407b8fd56f64d3b8eb8ce5221a218b41f0cefaea7ac0ac2cb30e3e206d3be8f6",
+      "verified": true,
+      "runtimeMatchesTestedControls": "817a8525059d436dc0978970d3e80e7371e009d6",
+      "containsCredentials": false,
+      "deployed": false
+    }
+  ],
+  "dependencyInstallation": "Required by the operator build using each pinned lockfile; exports contain source only.",
+  "externalGates": "NOT_RUN"
+}

@@ -1,0 +1,292 @@
+import { Cause, Effect, Exit } from "effect";
+
+import {
+  isSupportedTaskModel,
+  isTaskModel,
+  orgo,
+  orgoForProfile,
+  orgoConfigured,
+  orgoKeySource,
+  orgoTaskModel,
+  setAppOrgoKey,
+  setAppOrgoTaskModel,
+  taskModelOptions,
+  type LiveConnection,
+} from "@/agent/lib/orgo";
+import { runtime } from "@/agent/lib/effect/runtime";
+import { requestOrigin } from "@/lib/app-url";
+import { devVncRelayUrl } from "@/lib/dev-vnc-relay";
+import { ensureAllBrowserProfiles, ensureBrowserProfile, type BrowserProfileView } from "@/lib/browser-profiles";
+import { getAgent, listAgents } from "@/lib/agents";
+import { apiError } from "@/lib/api-errors";
+import { computerApiFailure, logComputerApiDiagnostic } from "@/lib/computer-api-errors";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
+
+// Backs the live desktop view: the same Orgo desktop the agent drives, exposed
+// to the browser so the owner can watch it work and take the mouse when needed.
+// Also manages the app-stored Orgo key (PUT to set, DELETE to clear), which is
+// the no-Vercel-involved way to enable the feature; the key itself is verified
+// against Orgo before it is saved and is never sent back out.
+//
+// The state response carries the desktop's VNC connection, which is full
+// control of the machine, so this route is only as private as `requireWebAuth`
+// makes it; lock that down alongside the chat itself.
+
+interface ComputerView {
+  name: string;
+  status: string;
+  liveViewUrl: string;
+  specs: string | null;
+  resolution: string | null;
+}
+
+function view(computer: {
+  name: string;
+  status: string;
+  liveViewUrl: string;
+  ram: number | null;
+  cpu: number | null;
+  resolution: string | null;
+}): ComputerView {
+  return {
+    name: computer.name,
+    status: computer.status,
+    liveViewUrl: computer.liveViewUrl,
+    specs:
+      computer.ram === null || computer.cpu === null
+        ? null
+        : `${computer.ram} GB RAM / ${computer.cpu} CPU`,
+    resolution: computer.resolution,
+  };
+}
+
+// Waking or provisioning a desktop waits out a VM boot, which can outlive the
+// platform's default function budget; give the route the full allowance.
+export const maxDuration = 300;
+
+/**
+ * The connection the browser should use. Orgo's websockify proxy admits no
+ * browser origin of ours — localhost included — and cuts them off after the
+ * upgrade with 4001 "Origin not allowed", so the browser never talks to Orgo
+ * directly. Deployed pages are pointed at the same-origin relay (./ws); dev,
+ * where a route handler cannot upgrade a WebSocket, gets the loopback
+ * sidecar relay instead. Both dial Orgo from the server, where no Origin
+ * header is sent. The password rides along either way: the relays only
+ * carry bytes, and VNC authenticates in-band.
+ */
+async function browserConnection(
+  request: Request,
+  connection: LiveConnection | null,
+  profile: BrowserProfileView,
+): Promise<LiveConnection | null> {
+  if (connection === null) return null;
+  if (process.env.NODE_ENV === "development") {
+    // The sidecar's URL carries a per-process admission token; only this
+    // same-origin response reveals it, so an attacker page cannot connect.
+    // Null means the port isn't ours, so there is nothing safe to hand out.
+    const websocketUrl = await devVncRelayUrl({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+    return websocketUrl === null ? null : { websocketUrl, password: connection.password };
+  }
+  // Behind Vercel's proxy request.url carries an internal host, so the
+  // public origin comes from the forwarded headers.
+  const origin = new URL(requestOrigin(request));
+  return {
+    websocketUrl: `${origin.origin.replace(/^http/, "ws")}/api/computer/ws?agentId=${encodeURIComponent(profile.agentId)}`,
+    password: connection.password,
+  };
+}
+
+async function currentState(
+  request: Request,
+  profile: BrowserProfileView,
+  extra: Record<string, unknown> = {},
+): Promise<Response> {
+  const keySource = await orgoKeySource();
+  if (keySource === null) return Response.json({ enabled: false, keySource: null, profile, profiles: await ensureAllBrowserProfiles(profile.ownerId), ...extra });
+  const model = await orgoTaskModel();
+  const desktop = orgoForProfile({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+  const [models, profiles, { computer, connection }] = await Promise.all([
+    taskModelOptions(model),
+    ensureAllBrowserProfiles(profile.ownerId),
+    desktop.live(),
+  ]);
+
+  if (computer === null) {
+    return Response.json({
+      enabled: true,
+      keySource,
+      model,
+      models,
+      profile,
+      profiles,
+      provisioned: false,
+      ...extra,
+    });
+  }
+  return Response.json({
+    enabled: true,
+    keySource,
+    model,
+    models,
+    profile,
+    profiles,
+    provisioned: true,
+    computer: view(computer),
+    connection: await browserConnection(request, connection, profile),
+    ...extra,
+  });
+}
+
+async function requestedProfile(request: Request, agentId?: unknown): Promise<BrowserProfileView> {
+  const ownerId = webPrincipal(request)!.id;
+  const requested = typeof agentId === "string" && agentId.length > 0 ? agentId : new URL(request.url).searchParams.get("agentId");
+  const agent = requested ? await getAgent(ownerId, requested) : (await listAgents(ownerId))[0];
+  if (!agent) throw new Error("Agent not found.");
+  return ensureBrowserProfile(ownerId, agent);
+}
+
+function failure(request: Request, error: unknown, context: string): Response {
+  return computerApiFailure(request, error, {
+    context,
+    status: 503,
+    code: "computer_unavailable",
+    message: "The computer session is currently unavailable.",
+  });
+}
+
+export async function GET(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  try {
+    return await currentState(request, await requestedProfile(request));
+  } catch (error) {
+    return failure(request, error, "Computer state read failed");
+  }
+}
+
+export async function POST(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  if (!(await orgoConfigured())) return Response.json({ enabled: false, keySource: null });
+
+  const body = (await request.json().catch(() => null)) as { action?: unknown; agentId?: unknown } | null;
+  const action = body?.action;
+  if (action !== "start" && action !== "stop" && action !== "restart") {
+    return apiError(request, 400, "invalid_computer_action", "Choose start, stop, or restart.");
+  }
+
+  try {
+    const profile = await requestedProfile(request, body?.agentId);
+    const desktop = orgoForProfile({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+    // Waking provisions and waits for the VM — and restarts one that claims
+    // to be running with nothing to connect to — so the follow-up read finds
+    // the instance fields a VNC client needs.
+    if (profile.status !== "ready") return apiError(request, 409, "computer_profile_not_ready", "Finish owner takeover or reconnect this profile before changing its desktop.");
+    if (action === "start") await desktop.wake();
+    if (action === "stop") await desktop.stop();
+    if (action === "restart") await desktop.restart();
+    return await currentState(request, profile);
+  } catch (error) {
+    return failure(request, error, "Computer action failed");
+  }
+}
+
+/**
+ * Save an app-managed key, checking it against Orgo first, then spin the
+ * desktop up right away: the point of adding a key is to get a computer, so
+ * one should exist (and be booting) by the time the response lands. The panel
+ * polls the boot; a provisioning failure rides along without unsaving the key.
+ */
+export async function PUT(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+
+  const body = (await request.json().catch(() => null)) as { apiKey?: unknown } | null;
+  const key = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
+  if (key.length === 0 || key.length > 200) {
+    return apiError(request, 400, "invalid_computer_key", "That does not look like an API key.");
+  }
+
+  try {
+    await orgo.verifyKey(key);
+    await setAppOrgoKey(key);
+  } catch (error) {
+    return computerApiFailure(request, error, {
+      context: "Computer provider key verification failed",
+      status: 400,
+      code: "invalid_computer_key",
+      message: "The computer provider rejected that key.",
+    });
+  }
+
+  let provisionFailed = false;
+  try {
+    await orgo.provision();
+  } catch (error) {
+    provisionFailed = true;
+    logComputerApiDiagnostic(request, error, "Computer provisioning failed after key verification");
+  }
+
+  try {
+    const profile = await requestedProfile(request);
+    return await currentState(request, profile, provisionFailed ? { error: "The computer could not be started yet. Retry from the Computer panel." } : {});
+  } catch (error) {
+    return failure(request, error, "Computer state refresh failed after key verification");
+  }
+}
+
+/** Save the default model used by computer_task when a call does not override it. */
+export async function PATCH(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+
+  const body = (await request.json().catch(() => null)) as { model?: unknown } | null;
+  if (!isTaskModel(body?.model)) {
+    return apiError(request, 400, "invalid_computer_model", "Choose a supported computer-use model.");
+  }
+  const model = body.model;
+  let supported: boolean;
+  try {
+    supported = await isSupportedTaskModel(model);
+  } catch {
+    return apiError(request, 503, "computer_model_catalog_unavailable", "The model catalog is temporarily unavailable. Try again shortly.");
+  }
+  if (!supported) {
+    return apiError(request, 400, "invalid_computer_model", "Choose a supported computer-use model.");
+  }
+  const exit = await runtime.runPromiseExit(
+    Effect.tryPromise({
+      try: () => setAppOrgoTaskModel(model),
+      catch: (cause) => (cause instanceof Error ? cause : new Error(String(cause))),
+    }),
+  );
+  if (Exit.isFailure(exit)) {
+    return computerApiFailure(request, Cause.squash(exit.cause), {
+      context: "Computer model preference update failed",
+      status: 503,
+      code: "computer_model_update_failed",
+      message: "The computer model preference could not be saved.",
+    });
+  }
+
+  // Saving the preference must not depend on the unrelated Orgo live-status
+  // request succeeding; the client already has the rest of the desktop state.
+  return Response.json({ model, models: await taskModelOptions(model) });
+}
+
+/** Clear the app-managed key. A key from the environment is untouchable here. */
+export async function DELETE(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  try {
+    await setAppOrgoKey(null);
+    return await currentState(request, await requestedProfile(request));
+  } catch (error) {
+    return computerApiFailure(request, error, {
+      context: "Computer provider key removal failed",
+      status: 503,
+      code: "computer_key_removal_failed",
+      message: "The computer provider key could not be removed.",
+    });
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "relayOrigin": "https://relay-sage-nine.vercel.app",
+  "alphaAddress": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+  "sofieAddress": "relay://acct_13752e44f3dd4bd689dabc188b9a9c33/agt_6a5b98071bbb45508a233e22c80f7edd",
+  "ollamaOrigin": "http://127.0.0.1:11434",
+  "model": "llama3.2:3b",
+  "publicProfile": "Orion is a fictional inventory-forecasting project used only for this Relay test. Its test code is ORION-7."
+}

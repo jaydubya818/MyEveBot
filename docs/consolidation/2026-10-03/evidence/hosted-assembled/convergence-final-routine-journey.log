@@ -1,0 +1,1 @@
+{"category":"DETERMINISTIC","checks":18,"model":"controlled SDK proposal; not live inference","approval":"explicit harness step; browser approval NOT_RUN","scheduler":"canonical","quietResult":true,"restart":"new store and worker identity; expired claim fenced","productionRelease":false,"cloud":"NOT_RUN"}

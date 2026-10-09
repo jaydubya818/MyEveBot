@@ -1,0 +1,157 @@
+import {
+  FALLBACK_TOOLKITS,
+  listComposioToolkits,
+  manageConnections,
+  mergeComposioToolkitCatalogs,
+} from "@/lib/composio-connect";
+import { apiError } from "@/lib/api-errors";
+import { capabilityMap } from "@/lib/capabilities";
+import { requireWebAuth } from "@/lib/web-auth";
+
+// Connections manager: which Composio apps are linked, plus connect (returns
+// an OAuth link to open) and disconnect. Uses the same Composio Connect MCP
+// the agent uses, so the panel reflects exactly what Sofie can reach.
+
+interface ToolkitResult {
+  toolkit?: string;
+  status?: string;
+  accounts?: {
+    id?: string;
+    status?: string;
+    alias?: string;
+    is_default?: boolean;
+    user_info?: Record<string, unknown>;
+  }[];
+  redirect_url?: string;
+  error_message?: string;
+}
+
+/** Pick a human-readable account label out of Composio's loose user_info. */
+function accountLabel(info: Record<string, unknown> | undefined): string | null {
+  if (!info) return null;
+  for (const key of ["emailAddress", "email", "login", "username", "name", "id"]) {
+    const value = info[key];
+    if (typeof value === "string" && value.length > 0) return value;
+  }
+  return null;
+}
+
+export async function GET(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
+
+  try {
+    let catalogComplete = true;
+    const toolkits = await listComposioToolkits().catch((error: unknown) => {
+      catalogComplete = false;
+      console.error("Composio toolkit catalog failed:", error);
+      return [...FALLBACK_TOOLKITS];
+    });
+    const checkedToolkits = mergeComposioToolkitCatalogs(FALLBACK_TOOLKITS, toolkits);
+    const data = await manageConnections(
+      checkedToolkits.map(({ slug }) => ({ name: slug, action: "list" as const })),
+    );
+    const results = (data.results ?? {}) as Record<string, ToolkitResult>;
+    const names = new Map(checkedToolkits.map((toolkit) => [toolkit.slug, toolkit.name]));
+    const connections = Object.values(results)
+      .filter((entry) => (entry.accounts?.length ?? 0) > 0)
+      .map((entry) => ({
+        toolkit: entry.toolkit ?? "",
+        name: names.get(entry.toolkit ?? "") ?? entry.toolkit ?? "",
+        accounts: (entry.accounts ?? []).map((account) => ({
+          id: account.id ?? "",
+          status: account.status ?? "unknown",
+          alias: account.alias ?? null,
+          label: accountLabel(account.user_info),
+        })),
+      }));
+    return Response.json({ connections, toolkits, catalogComplete });
+  } catch (error) {
+    console.error("Connections list failed:", error);
+    return apiError(request, 502, "connections_unavailable", "Connected apps are unavailable.");
+  }
+}
+
+export async function POST(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
+
+  const body = (await request.json().catch(() => null)) as { toolkit?: unknown } | null;
+  if (body === null || typeof body.toolkit !== "string" || !/^[a-z0-9_-]+$/.test(body.toolkit)) {
+    return new Response("Invalid body", { status: 400 });
+  }
+
+  try {
+    const data = await manageConnections([{ name: body.toolkit, action: "add" }]);
+    const results = (data.results ?? {}) as Record<string, ToolkitResult>;
+    const entry = results[body.toolkit];
+    if (entry?.redirect_url) return Response.json({ url: entry.redirect_url });
+    return apiError(
+      request,
+      502,
+      "connection_link_unavailable",
+      entry?.error_message ? "The provider could not create a connection link." : "No connection link was returned.",
+    );
+  } catch (error) {
+    console.error("Connection add failed:", error);
+    return apiError(
+      request,
+      502,
+      "connection_failed",
+      "The app could not be connected.",
+    );
+  }
+}
+
+export async function DELETE(request: Request): Promise<Response> {
+  const denied = await requireWebAuth(request);
+  if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
+
+  const body = (await request.json().catch(() => null)) as {
+    toolkit?: unknown;
+    accountId?: unknown;
+  } | null;
+  if (
+    body === null ||
+    typeof body.toolkit !== "string" ||
+    !/^[a-z0-9_-]+$/.test(body.toolkit) ||
+    typeof body.accountId !== "string" ||
+    body.accountId.length === 0
+  ) {
+    return new Response("Invalid body", { status: 400 });
+  }
+
+  try {
+    await manageConnections([
+      { name: body.toolkit, action: "remove", account_id: body.accountId },
+    ]);
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Connection remove failed:", error);
+    return apiError(request, 502, "disconnect_failed", "The app could not be disconnected.");
+  }
+}

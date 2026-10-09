@@ -1,0 +1,12 @@
+### Result
+{"status":400,"body":{"error":{"code":"invalid_owner_archive","message":"The archive compression ratio exceeds the safe validation limit.","requestId":"928a56a0-9c3a-49c7-ab23-58bb5a79bc3a"}}}
+### Ran Playwright code
+```js
+await (async page => { const responsePromise=page.waitForResponse(r=>r.url().endsWith("/api/owner-data")&&r.request().method()==="POST"); await page.getByLabel("Choose a MyEve archive to verify",{exact:true}).setInputFiles("/tmp/myeve-acceptance-88370d0/evidence/archive-cases/compression-bound.zip"); const response=await responsePromise; return {status:response.status(),body:await response.json()}; })(page);
+```
+### Page
+- Page URL: http://localhost:3073/manage/data
+- Page Title: Ava
+- Console: 12 errors, 69 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L584-L587

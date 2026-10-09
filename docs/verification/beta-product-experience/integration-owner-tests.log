@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/beta-product-experience/Myeve/apps/eve
+
+ ✓ components/owner/projection.test.ts (7 tests) 3ms
+ ✓ components/owner/owner.test.tsx (5 tests) 19ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  13:48:44
+   Duration  431ms (transform 73ms, setup 0ms, collect 113ms, tests 22ms, environment 0ms, prepare 114ms)

@@ -1,0 +1,17 @@
+
+> eve-agent@0.0.0 test
+> vitest run lib/engineering/factory-spend.test.ts lib/engineering/factory-beta.test.ts lib/engineering/worker-projection.test.ts lib/engineering/run-truth.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve
+
+ ✓ lib/engineering/run-truth.test.ts (11 tests) 2ms
+ ✓ lib/engineering/factory-spend.test.ts (14 tests) 12ms
+ ✓ lib/engineering/worker-projection.test.ts (8 tests) 10ms
+ ✓ lib/engineering/factory-beta.test.ts (13 tests) 9ms
+
+ Test Files  4 passed (4)
+      Tests  46 passed (46)
+   Start at  17:10:38
+   Duration  548ms (transform 267ms, setup 0ms, collect 710ms, tests 33ms, environment 0ms, prepare 161ms)
+

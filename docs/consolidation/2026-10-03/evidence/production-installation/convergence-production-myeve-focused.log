@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/final-alpha-convergence/Myeve
+
+ ✓ apps/eve/lib/engineering/factory-request-headers.test.ts (19 tests) 4ms
+ ✓ apps/eve/lib/engineering/production-installation.test.ts (13 tests) 6ms
+ ✓ apps/eve/lib/engineering/factory-cloud-transport.test.ts (12 tests) 12ms
+
+ Test Files  3 passed (3)
+      Tests  44 passed (44)
+   Start at  14:21:58
+   Duration  374ms (transform 213ms, setup 0ms, collect 392ms, tests 22ms, environment 0ms, prepare 106ms)
+

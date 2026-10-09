@@ -1,0 +1,17 @@
+{
+  "package": "sprintf-js",
+  "version": "1.1.3",
+  "advisory": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+  "replacement": "patches/sprintf-js-1.1.3.js",
+  "patchedSha256": "7c47206ecabf615f8a028614ccf8cd9ac1fdbd3df39778338fc38c396538c87d",
+  "files": [
+    {
+      "path": "src/sprintf.js",
+      "upstreamSha256": "95add43f116385be221745307fae02d06751b01d4f939df1debb17dbe2ebf4eb"
+    },
+    {
+      "path": "dist/sprintf.min.js",
+      "upstreamSha256": "bcb857eed98349cb9713aea1cdf05561eca5ec7ffed0aa04985ade0af1765980"
+    }
+  ]
+}

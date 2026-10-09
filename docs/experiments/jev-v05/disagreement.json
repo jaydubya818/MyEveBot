@@ -1,0 +1,205 @@
+[
+  {
+    "id": "c069",
+    "candidate": "She said she prefers short tours.",
+    "context": "The owner is quoting another visitor without endorsement.",
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "NEGATION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": "fact",
+    "confidence": "HIGH",
+    "rationale": "Not owner's preference.",
+    "review": {
+      "id": "c069",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Another person’s quoted preference is not the owner’s; context does not distinguish fresh reporting from established information."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT"
+    ]
+  },
+  {
+    "id": "c208",
+    "candidate": "The courier may use the bridge route.",
+    "context": "The owner is granting one-time permission after a request, not predicting the route.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Permission may not fit a single category.",
+    "review": {
+      "id": "c208",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Grants a specific requested permission, resolving the access choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c218",
+    "candidate": "You said I had agreed, but I never did.",
+    "context": "The owner disputes that any obligation was accepted.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Denial of commitment rather than active duty.",
+    "review": {
+      "id": "c218",
+      "label": "fact",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Asserts that acceptance never occurred; no commitment is made."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c254",
+    "candidate": "I prefer this one.",
+    "context": "The only context is a clerk asking for the owner's final selection between two tickets.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Preference wording may perform a decision.",
+    "review": {
+      "id": "c254",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "The response resolves the clerk's final ticket-selection question."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c273",
+    "candidate": "The observer wrote 'no movement' but I saw the flag twitch.",
+    "context": "The candidate covers both the written note and the owner's contrary direct report.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_INSIGHT",
+      "NEGATION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Mixed evidence sources may be ambiguous.",
+    "review": {
+      "id": "c273",
+      "label": "observation",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Reports conflicting pieces of witnessed evidence without an explanation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c314",
+    "candidate": "Fine, tiny print again, just what I love.",
+    "context": "The owner is sarcastically objecting to unreadable print.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Implied aversion may be insufficiently explicit.",
+    "review": {
+      "id": "c314",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Context resolves the sarcasm as an owner objection to unreadable presentation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c498",
+    "candidate": "The caretaker called it 'perfectly dry'; my cloth came away wet.",
+    "context": "The owner reports contrasting speech and a direct test.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_INSIGHT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Reported evidence may be treated as multi-concept.",
+    "review": {
+      "id": "c498",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports contrasting witnessed speech and a direct test without added explanation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  }
+]

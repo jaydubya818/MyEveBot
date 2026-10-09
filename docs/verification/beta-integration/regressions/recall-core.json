@@ -1,0 +1,101 @@
+{
+  "scope": "Disposable PostgreSQL with UNAPPLIED proposed learning schema; no model/hosted qualification",
+  "checks": [
+    "concurrent duplicate observations have one identity",
+    "failed correction leaves old current fact intact",
+    "correction archives history and blocks replay resurrection",
+    "two concurrent corrections produce one successor",
+    "cross-owner recall is empty",
+    "cross-owner correction is denied",
+    "duplicate feedback ingestion is idempotent under concurrency",
+    "candidate is not retrieved",
+    "unqualified candidate cannot promote",
+    "memory write and correction survive fresh processes and lost responses",
+    "candidate creation and evaluation survive lost responses",
+    "promotion survives process death after commit with no duplicate replay",
+    "new process retrieves promoted version for comparable Work",
+    "owner repository and Work-type isolation",
+    "malicious or secret evidence never creates a candidate",
+    "owner correction immediately withdraws old guidance",
+    "corrected version replaces original",
+    "rollback stops future reuse but preserves past usage attribution",
+    "failed evaluation retains rejection and cannot affect later Work",
+    "promotion versus rejection is a single atomic winner",
+    "private Work learning cannot appear in another Work",
+    "two competing candidates cannot both become active",
+    "authority and approval row counts remain unchanged"
+  ],
+  "metrics": {
+    "writeMs": 21.336625000000026,
+    "correctionMs": 0.6032079999999951,
+    "retrievalMs": 6.339457999999979,
+    "resultCount": 20,
+    "resultBytes": 8853,
+    "evaluation": {
+      "fixture": "work-summary-v1",
+      "candidateHash": "6646de717bff1fc91f36c0ac220b7759cfbbc8d0787ce5206f857a2049172a2e",
+      "evaluatedAt": "2026-09-27T21:42:19.711Z",
+      "baselineScore": 0,
+      "learnedScore": 1,
+      "result": "PASS",
+      "criteria": [
+        "Every factual statement includes its original source and origin",
+        "No negative applicability feedback"
+      ],
+      "cases": [
+        {
+          "input": [
+            {
+              "statement": "Deadline is Friday",
+              "source": "file:brief-v2",
+              "origin": "owner",
+              "truth": "current"
+            }
+          ],
+          "baseline": "Deadline is Friday",
+          "learned": "Deadline is Friday [file:brief-v2; owner]",
+          "expected": [
+            "[file:brief-v2; owner]"
+          ]
+        },
+        {
+          "input": [
+            {
+              "statement": "Estimate may increase",
+              "source": "result:estimate",
+              "origin": "inference",
+              "truth": "uncertain"
+            },
+            {
+              "statement": "Two estimates disagree",
+              "source": "file:estimate-b",
+              "origin": "inference",
+              "truth": "conflicting"
+            }
+          ],
+          "baseline": "Estimate may increase\nTwo estimates disagree",
+          "learned": "Estimate may increase [result:estimate; inference]\nTwo estimates disagree [file:estimate-b; inference]",
+          "expected": [
+            "[result:estimate; inference]",
+            "[file:estimate-b; inference]"
+          ]
+        }
+      ]
+    },
+    "learningRetrievalMs": 1.2971670000001723,
+    "maliciousFixtures": 13
+  },
+  "authorityTables": [
+    "persistent_browser_profile_grants",
+    "task_approval_decisions",
+    "myeve_relay_grants",
+    "owner_qualification_budget"
+  ],
+  "invariants": {
+    "memoryAuthorityGrants": 0,
+    "learningAuthorityExpansions": 0,
+    "secretPromotions": 0,
+    "crossScopeLearningViolations": 0
+  },
+  "completedAt": "2026-09-27T21:42:21.013Z"
+}

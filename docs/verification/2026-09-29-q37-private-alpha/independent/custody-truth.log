@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/q37-private-alpha-continuation/Myeve/apps/eve
+
+ ✓ components/engineering/routing-summary.test.tsx (4 tests) 36ms
+ ✓ lib/engineering/run-truth.test.ts (11 tests) 8ms
+ ✓ lib/engineering/docker-protected-verifier.test.ts (3 tests) 2ms
+ ✓ lib/engineering/candidate-custody.test.ts (22 tests) 69ms
+
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  23:12:12
+   Duration  978ms (transform 382ms, setup 0ms, collect 1.26s, tests 115ms, environment 0ms, prepare 300ms)
+

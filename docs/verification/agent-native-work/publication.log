@@ -1,0 +1,26 @@
+PASS Exact retained custody, implementation/protected counts and full settled accounting
+PASS Immutable source and dirty unrelated checkout cannot contaminate publication
+PASS Tampered custody tree
+PASS Tampered custody sha
+PASS Tampered custody repository
+PASS Tampered custody workId
+PASS Tampered custody files
+PASS Missing custody denied
+PASS Publication readiness false denied
+PASS Wrong owner denied
+PASS Repeated click/network retry records one exact decision
+PASS Open PR, process restart, repeated polling: one push and one PR
+PASS Concurrent publication consumers: one consequential execution
+PASS Push only: one push, zero PR
+PASS keep_private persists with zero GitHub writes
+PASS reject persists with zero GitHub writes
+PASS Rejection fences stale decision; explicit new decision required
+PASS Moved base fails closed before push
+PASS Stale generation denies old owner approval
+PASS Expired owner decision denies publication
+PASS Failed protected verification denies owner decision
+PASS Crash after push claim: restart never repeats uncertain effect
+PASS Lost PR response: readback never creates second PR
+PASS Accepted PR with lost response reconciles exactly once
+PASS Concurrent UNKNOWN fencing prevents the original consumer from creating a PR
+{"checks":25,"realModelOperations":0,"realGitHubWrites":0,"status":"PASS"}

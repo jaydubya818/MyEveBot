@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": [
+    "real password login and canonical owner-scoped Settings readback",
+    "browser disable durably propagates, Sofie reads preference, backend denies admission, existing Mission survives",
+    "browser enable receives exact acknowledgment before owner-authorized native Mission admission",
+    "revoke, native fence, browser reconnect and durable pending cleanup/UNKNOWN readback",
+    "capability panel accessibility, keyboard refresh and narrow viewport"
+  ],
+  "violations": [],
+  "paidOperations": 0
+}

@@ -1,0 +1,20 @@
+✔ prepare binds actual attempt before any execution; response-loss/restart replay never redispatches (194.56525ms)
+✔ wrong token, replay mutation, incomplete binding and changed FactoryVersion cannot start work (64.423416ms)
+✔ stop before dispatch creates a durable terminal fence rejecting delayed execution after restart (60.498583ms)
+✔ running stop stays STOPPING until the actual adapter call settles (70.852792ms)
+✔ default paid dispatch denies even with valid binding and injected dependencies (59.846125ms)
+✔ producer deadline aborts execution without a MyEve polling loop (657.513542ms)
+✔ connected START routes each synthetic model call through exact Work spend gateway (420.202958ms)
+✔ completion prerequisite/finalization fails closed: no changes (89.110833ms)
+✔ completion prerequisite/finalization fails closed: outside scope (86.087458ms)
+✔ completion prerequisite/finalization fails closed: failed checks (277.769ms)
+✔ completion prerequisite/finalization fails closed: completion failure (328.7685ms)
+✔ completion prerequisite/finalization fails closed: completion mutation (363.977458ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2842.609625

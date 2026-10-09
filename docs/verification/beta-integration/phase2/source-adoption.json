@@ -1,0 +1,950 @@
+[
+  {
+    "path": "apps/eve/agent/agent.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76",
+    "priorSha256": "84407bc0caf5d48ec8a80833d4062cc36b2ff466f3a13c71206fdf10a1d116b0",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76"
+  },
+  {
+    "path": "apps/eve/agent/channels/eve.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f",
+    "priorSha256": "7ef69f8915236e4b93ca6a948b83a08d37fb247f82179a7ee6f72b5c9059ed7c",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f"
+  },
+  {
+    "path": "apps/eve/agent/hooks/engineering-work-context.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "9f15e8e691463af855ea32430c07b729237d070907d2337c16948cce95bbc7c9",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "9f15e8e691463af855ea32430c07b729237d070907d2337c16948cce95bbc7c9"
+  },
+  {
+    "path": "apps/eve/agent/hooks/engineering-work-context.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d6923254b83b2e6cdb2168852b99ccd3a2c7741ae2ba6ce374f8395dd487a646",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d6923254b83b2e6cdb2168852b99ccd3a2c7741ae2ba6ce374f8395dd487a646"
+  },
+  {
+    "path": "apps/eve/agent/instructions/persistent-agent.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "15d53e8d3a1cf9d719cf1083502eab4c1f6837a2e067edd545ef45f69ff18e32",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "15d53e8d3a1cf9d719cf1083502eab4c1f6837a2e067edd545ef45f69ff18e32"
+  },
+  {
+    "path": "apps/eve/agent/instructions/persistent-agent.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0e56f2cbbc49c807254f6633ebd425dcad20c299bc200a8000060dd23e87280d",
+    "priorSha256": "c8c038363642ade73888891d052a1ab0be460b1b1e49397e2a73b7d2d4e69d79",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0e56f2cbbc49c807254f6633ebd425dcad20c299bc200a8000060dd23e87280d"
+  },
+  {
+    "path": "apps/eve/agent/lib/context-assembly.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "88aeb516499eb751680345ed7303fe64c74b1062ebb79e109956997b191fa068",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "88aeb516499eb751680345ed7303fe64c74b1062ebb79e109956997b191fa068"
+  },
+  {
+    "path": "apps/eve/agent/lib/context-assembly.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176",
+    "priorSha256": "67bbbc0780c6cc48effded9d80e8cd45de1fd83410e62d96b2d492ed322a6cdc",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176"
+  },
+  {
+    "path": "apps/eve/agent/lib/engineering-knowledge-binding.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "2b3071b6f9369a66520ed492af361cd958f8678ae26431dfb78a5717f16c26b2",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "2b3071b6f9369a66520ed492af361cd958f8678ae26431dfb78a5717f16c26b2"
+  },
+  {
+    "path": "apps/eve/agent/lib/engineering-knowledge-binding.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d179231105f3225fd1c6d5d8cfe96987de97ed4a8cb7c6045670c4e8589322fe",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d179231105f3225fd1c6d5d8cfe96987de97ed4a8cb7c6045670c4e8589322fe"
+  },
+  {
+    "path": "apps/eve/agent/lib/engineering-work-binding.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "5e43e171aceb2acf195b892054870ce9ab9a78ebd73de54a35492964f7a5365b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "5e43e171aceb2acf195b892054870ce9ab9a78ebd73de54a35492964f7a5365b"
+  },
+  {
+    "path": "apps/eve/agent/lib/engineering-work-binding.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9"
+  },
+  {
+    "path": "apps/eve/agent/tools/engineering_direct.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d23e9a54135478c772dff1008c813e134cfc6f5b9e8bf36870fdd0cadcb54997",
+    "priorSha256": null,
+    "classification": "ADAPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "8d70d8a33ea59291dad8683edc5a504673dc2ad9a88b50186fdfb1bf9c0a025d",
+    "adaptation": "Data-only Recall or disabled beta tool resolver; see governance-adoption.json and current diff"
+  },
+  {
+    "path": "apps/eve/agent/tools/engineering_direct.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "4adedda1c41fe9759f24b0cf87d50a276b50ebbe2578d65e1e9243533d323fc0",
+    "priorSha256": null,
+    "classification": "ADAPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d370dc49ac5790d040261b6954df7826889f0b805a12a309c56f4b4a3f179d27",
+    "adaptation": "Data-only Recall or disabled beta tool resolver; see governance-adoption.json and current diff"
+  },
+  {
+    "path": "apps/eve/agent/tools/engineering_work.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "be096b0af57e4cc12996890f5f1b07772dafed0294e31e5b3bfe00c7663f8ad9",
+    "priorSha256": null,
+    "classification": "ADAPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e34120b2aded00941ad0fa23b768439fba170e2384e20817606e2ce18be766c9",
+    "adaptation": "Data-only Recall or disabled beta tool resolver; see governance-adoption.json and current diff"
+  },
+  {
+    "path": "apps/eve/components/engineering/current-work-truth.tsx",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "bfa3790737053367a678eee2cf372d7ce5d82d9e158fda7bc5d9fc8edee415ca",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "bfa3790737053367a678eee2cf372d7ce5d82d9e158fda7bc5d9fc8edee415ca"
+  },
+  {
+    "path": "apps/eve/lib/digital-worker/learning.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "1c57c7f39b066d7aa890000d8ebd7acd6de525bafc4a6851614cfb6a9b45a02c",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "1c57c7f39b066d7aa890000d8ebd7acd6de525bafc4a6851614cfb6a9b45a02c"
+  },
+  {
+    "path": "apps/eve/lib/engineering/admission-context.integration.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "954fcbdec839f3a97362422f8e09cafa64f031797656447062ddb4e97b4e8941",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "954fcbdec839f3a97362422f8e09cafa64f031797656447062ddb4e97b4e8941"
+  },
+  {
+    "path": "apps/eve/lib/engineering/api.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "07d3bd2be157d38b1c8ee2ce174714233617b22eaa046a2ac68aa87e189b3e1f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "07d3bd2be157d38b1c8ee2ce174714233617b22eaa046a2ac68aa87e189b3e1f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/api.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f",
+    "priorSha256": "fa48459655a2bb996a8172d51e86d1ff0a727d5f56c65387610a9abe8f1dc7fb",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/base-preflight.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "86f7d54c9e2f84d24baa3fdf4648340edf60985fd207f5e56c8b5e8a828fc87b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "86f7d54c9e2f84d24baa3fdf4648340edf60985fd207f5e56c8b5e8a828fc87b"
+  },
+  {
+    "path": "apps/eve/lib/engineering/base-preflight.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d3e41cd7bfeafea521586c774038b0fadf213e887ae010ad945450bf8c91f66e",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d3e41cd7bfeafea521586c774038b0fadf213e887ae010ad945450bf8c91f66e"
+  },
+  {
+    "path": "apps/eve/lib/engineering/candidate-custody.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "86c39dfdf75018fc4fbad7514d5f318e92f0cdf507f2c5c8d237e431b311316b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "86c39dfdf75018fc4fbad7514d5f318e92f0cdf507f2c5c8d237e431b311316b"
+  },
+  {
+    "path": "apps/eve/lib/engineering/completion-budget-plan.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b7bd2bbb0e57539c9d422885359d9035536839ce571e9d2643c8019f059874d0",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b7bd2bbb0e57539c9d422885359d9035536839ce571e9d2643c8019f059874d0"
+  },
+  {
+    "path": "apps/eve/lib/engineering/completion-budget-plan.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920"
+  },
+  {
+    "path": "apps/eve/lib/engineering/contract.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e",
+    "priorSha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e"
+  },
+  {
+    "path": "apps/eve/lib/engineering/conversation-budget.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a"
+  },
+  {
+    "path": "apps/eve/lib/engineering/conversation-model.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "1b992385d174e18eaea0dcb89ee8207d5afb5f04a7cd2a8e0243ec7459ef4f95",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "1b992385d174e18eaea0dcb89ee8207d5afb5f04a7cd2a8e0243ec7459ef4f95"
+  },
+  {
+    "path": "apps/eve/lib/engineering/conversation-model.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "65198c09664523152bcde2f7992dac6db1c111a099cdd031a39a7286609c644c",
+    "priorSha256": null,
+    "classification": "ADAPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0e1c1188e59cba0c341d03837f748d4995677cd1fe62f9f84c58d367d8b8bfad",
+    "adaptation": "Data-only Recall or disabled beta tool resolver; see governance-adoption.json and current diff"
+  },
+  {
+    "path": "apps/eve/lib/engineering/direct-development.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "e0c1929b0d08ad008979c1bbb5ff68270739995e9e0fded2ea9266e1ccd29c8c",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e0c1929b0d08ad008979c1bbb5ff68270739995e9e0fded2ea9266e1ccd29c8c"
+  },
+  {
+    "path": "apps/eve/lib/engineering/direct-verification-driver.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "982727de74a045a925b5851b61d90c7aef58cdfa0386d3cd7b95f86d2806b25f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "982727de74a045a925b5851b61d90c7aef58cdfa0386d3cd7b95f86d2806b25f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/docker-custody.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "2a6480848ffd2f645de3d72425edb57bae44e78273f8fce09b270ce399a8e9fd",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "2a6480848ffd2f645de3d72425edb57bae44e78273f8fce09b270ce399a8e9fd"
+  },
+  {
+    "path": "apps/eve/lib/engineering/docker-executor.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08"
+  },
+  {
+    "path": "apps/eve/lib/engineering/docker-protected-verifier.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "2d5be4d295f8233c780dd6342d875b4badc8ce0ba216d031c4533c92ecf88e14",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "2d5be4d295f8233c780dd6342d875b4badc8ce0ba216d031c4533c92ecf88e14"
+  },
+  {
+    "path": "apps/eve/lib/engineering/execution-api.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa"
+  },
+  {
+    "path": "apps/eve/lib/engineering/execution-store.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
+  },
+  {
+    "path": "apps/eve/lib/engineering/execution.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "5620bfd6a74f44b26189e96d14a1152922b3bcd096aaa56ee63cad8ddce38a03",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "5620bfd6a74f44b26189e96d14a1152922b3bcd096aaa56ee63cad8ddce38a03"
+  },
+  {
+    "path": "apps/eve/lib/engineering/execution.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "7fd28817b433ef3819dd5f020cae2c4d4589edf332a353db4e7c60725d668341",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "7fd28817b433ef3819dd5f020cae2c4d4589edf332a353db4e7c60725d668341"
+  },
+  {
+    "path": "apps/eve/lib/engineering/executor.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0fa3cf521d64d10008a5adba186917ab7524887bf092204f7afcde0a25d9deb3",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0fa3cf521d64d10008a5adba186917ab7524887bf092204f7afcde0a25d9deb3"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-authenticated-result.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-producer-protocol.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-producer-signature.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "6a2e40d3e5b3ee04e675e15a6f89d0c11412569f9a8fc5f27615583e8d9b90cb",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "6a2e40d3e5b3ee04e675e15a6f89d0c11412569f9a8fc5f27615583e8d9b90cb"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-receipt-store.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-result-channel.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966"
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-result-consumer.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3"
+  },
+  {
+    "path": "apps/eve/lib/engineering/github-app.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "75e41660845d27a15ee02c3b49dc35515137f6239da4c99b386bd393f300f24b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "75e41660845d27a15ee02c3b49dc35515137f6239da4c99b386bd393f300f24b"
+  },
+  {
+    "path": "apps/eve/lib/engineering/github-app.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2"
+  },
+  {
+    "path": "apps/eve/lib/engineering/github.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "2da4f1a98a3b415a6710ae51d4ef7d8e274a4fd6a532cac5994c67edc8b8720f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "2da4f1a98a3b415a6710ae51d4ef7d8e274a4fd6a532cac5994c67edc8b8720f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/github.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "e22c65ba27584ab846dc4d7fb0a059180cf82de5341657b0db65b024e2eee06f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e22c65ba27584ab846dc4d7fb0a059180cf82de5341657b0db65b024e2eee06f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/knowledge.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247",
+    "priorSha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247"
+  },
+  {
+    "path": "apps/eve/lib/engineering/learning-drafts.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "f8a505f0634c30f375fbbf93bf09ba53281159456853aeb6311f2f03fc49396e",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "f8a505f0634c30f375fbbf93bf09ba53281159456853aeb6311f2f03fc49396e"
+  },
+  {
+    "path": "apps/eve/lib/engineering/model-broker.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "bd40b8d96577782c16a1c5dca2c8ec00f453c4c0578edb49580d21a134326b27",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "bd40b8d96577782c16a1c5dca2c8ec00f453c4c0578edb49580d21a134326b27"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-api.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "72d8cf2e2a038e90ef0ed4080cd23753a0291aa53f9a1fef13290c3721ce1a99",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "72d8cf2e2a038e90ef0ed4080cd23753a0291aa53f9a1fef13290c3721ce1a99"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-api.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-behavior.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "5a247eda2bb7fbf82242a86cfcde0f82a994997b388c1691926caf3c13c18cea",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "5a247eda2bb7fbf82242a86cfcde0f82a994997b388c1691926caf3c13c18cea"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-behavior.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-completion.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-execution-controller.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-input.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-model-budget.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-model.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b29bd536855537c8d945d60650ed98b3a9691bb8e6a7259efa0861790cc1f1df",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b29bd536855537c8d945d60650ed98b3a9691bb8e6a7259efa0861790cc1f1df"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-model.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "7b57f2ee6687c600d147b761911fc5d165b55ace6f8622dbfe53394e58874846",
+    "priorSha256": null,
+    "classification": "ADAPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "8c154a747d6abff9b39077f32b977babaf35169eb124bc2be6decafef4036ecb",
+    "adaptation": "Data-only Recall or disabled beta tool resolver; see governance-adoption.json and current diff"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-qualification.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-repair-context.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "25ed9cc154a0dcb21ec16cd555e67d0e552d30ec7ee02b5b5fba99176fdcca78",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "25ed9cc154a0dcb21ec16cd555e67d0e552d30ec7ee02b5b5fba99176fdcca78"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-repair-context.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-results.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f"
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-routing.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc"
+  },
+  {
+    "path": "apps/eve/lib/engineering/relay-collaboration.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "cbaf1afcd306951630292232d910233f14ca7df1d7cae97eb813f2df3d4159ec",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "cbaf1afcd306951630292232d910233f14ca7df1d7cae97eb813f2df3d4159ec"
+  },
+  {
+    "path": "apps/eve/lib/engineering/relay-collaboration.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb"
+  },
+  {
+    "path": "apps/eve/lib/engineering/route-admission.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a"
+  },
+  {
+    "path": "apps/eve/lib/engineering/routing-store.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0a8c92b2f7736dde3d549717e7d0f5d6441cbaf80bf7d37b09e291215371f1ec",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0a8c92b2f7736dde3d549717e7d0f5d6441cbaf80bf7d37b09e291215371f1ec"
+  },
+  {
+    "path": "apps/eve/lib/engineering/run-truth.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "98a3d998ecde0468634158a826d350b6534f8ba923d02c13fdcd70e182a66035",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "98a3d998ecde0468634158a826d350b6534f8ba923d02c13fdcd70e182a66035"
+  },
+  {
+    "path": "apps/eve/lib/engineering/run-truth.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b"
+  },
+  {
+    "path": "apps/eve/lib/engineering/runtime.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb"
+  },
+  {
+    "path": "apps/eve/lib/engineering/store.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899",
+    "priorSha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899"
+  },
+  {
+    "path": "apps/eve/lib/engineering/types.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087",
+    "priorSha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087"
+  },
+  {
+    "path": "apps/eve/lib/engineering/types.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4",
+    "priorSha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+  },
+  {
+    "path": "apps/eve/lib/engineering/worker-projection.test.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "e22103a1c7198c1f905fa6cfe1c5221226f0d05a332d8950d07b93fddabfffdd",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e22103a1c7198c1f905fa6cfe1c5221226f0d05a332d8950d07b93fddabfffdd"
+  },
+  {
+    "path": "apps/eve/lib/engineering/worker.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318"
+  },
+  {
+    "path": "apps/eve/lib/relay/message-result.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a"
+  },
+  {
+    "path": "apps/eve/lib/web-auth.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec",
+    "priorSha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d",
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec"
+  },
+  {
+    "path": "apps/eve/test/conversation-process-fixture.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "415afdee249b1eff0872f417bad455d2925cef1f81225cf628c2c07e7744beb5",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "415afdee249b1eff0872f417bad455d2925cef1f81225cf628c2c07e7744beb5"
+  },
+  {
+    "path": "apps/eve/test/engineering-conversation.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0130c611a0eea031a5b331ac8b766e5212acc0e51247fa4ff78d0e1adfdeb7b3",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0130c611a0eea031a5b331ac8b766e5212acc0e51247fa4ff78d0e1adfdeb7b3"
+  },
+  {
+    "path": "apps/eve/test/engineering-direct-verifier.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "e36ca816e7786795624456675063c0b17d6b5b15685a0fe5ef18d30b26293219",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "e36ca816e7786795624456675063c0b17d6b5b15685a0fe5ef18d30b26293219"
+  },
+  {
+    "path": "apps/eve/test/engineering-direct.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "192debdb511001ba92aabbb026ee43be5182e4249c366d53ede472891d7a2d7f",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "192debdb511001ba92aabbb026ee43be5182e4249c366d53ede472891d7a2d7f"
+  },
+  {
+    "path": "apps/eve/test/engineering-fixtures.ts",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "2e070fa01080344a75d774fa4d7da843dcb8d33784b1b26ee96e404c5ef90bbf",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "2e070fa01080344a75d774fa4d7da843dcb8d33784b1b26ee96e404c5ef90bbf"
+  },
+  {
+    "path": "apps/eve/test/engineering-knowledge.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "6f8ad3e655661335cf00cf9c2da09613cf63dbbfc20dd8b6a01621d51a3e4ecc",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "6f8ad3e655661335cf00cf9c2da09613cf63dbbfc20dd8b6a01621d51a3e4ecc"
+  },
+  {
+    "path": "apps/eve/test/engineering-learning-drafts.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "824fdbee2bda9daa524f8e08c93a7796b5c073aedef24604c006592dc3207ff0",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "824fdbee2bda9daa524f8e08c93a7796b5c073aedef24604c006592dc3207ff0"
+  },
+  {
+    "path": "apps/eve/test/engineering-native-host.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "45b5f75b524afe609ef9e090966dfee773cfba4587f5842674e5f41e11153abc",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "45b5f75b524afe609ef9e090966dfee773cfba4587f5842674e5f41e11153abc"
+  },
+  {
+    "path": "apps/eve/test/engineering-work-context.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "5ad36a5c9c0e5f4aece3f54c5de99dffd34aad172406a06b3b4d948fff254298",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "5ad36a5c9c0e5f4aece3f54c5de99dffd34aad172406a06b3b4d948fff254298"
+  },
+  {
+    "path": "apps/eve/test/engineering-work.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "b1c5accd2dcee632bf2817e902d551c878b5d58c62c8ffd0cd54a1b06b639b89",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "b1c5accd2dcee632bf2817e902d551c878b5d58c62c8ffd0cd54a1b06b639b89"
+  },
+  {
+    "path": "apps/eve/test/factory-receipt-fixture.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "6f99af805f67a399544e06f64372fe8a9b0438cc70963d1257d48dd51c00b263",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "Factory dependencies remain unmounted",
+    "currentSha256": "6f99af805f67a399544e06f64372fe8a9b0438cc70963d1257d48dd51c00b263"
+  },
+  {
+    "path": "apps/eve/test/gap2b-retained-fixture.json",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "709eccbdd125961138d5db9b48ac35a95b9491024645872a55bdbd591ff88c83",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "709eccbdd125961138d5db9b48ac35a95b9491024645872a55bdbd591ff88c83"
+  },
+  {
+    "path": "apps/eve/test/integration-authority-boundary.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "1240794993d6a6c4fb6a756db187c28e0417b178fcc621a3c8e5f496a44fd676",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "1240794993d6a6c4fb6a756db187c28e0417b178fcc621a3c8e5f496a44fd676"
+  },
+  {
+    "path": "apps/eve/test/native-completion-migration.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "9d5fc404bae78cf466d8ca066bd258e6dd3bd9ec656ec2cefe2130bcdc432309",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "9d5fc404bae78cf466d8ca066bd258e6dd3bd9ec656ec2cefe2130bcdc432309"
+  },
+  {
+    "path": "apps/eve/test/native-completion-process.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d313b3a6def310e6d94d76840ce1e549ba4c02da0a6feb2314c66f43a0f62f2a",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "d313b3a6def310e6d94d76840ce1e549ba4c02da0a6feb2314c66f43a0f62f2a"
+  },
+  {
+    "path": "apps/eve/test/native-completion.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "0f402900117d52b3c414305d1e2bce236932a07758e5455f08c602a5a3b52ebc",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "0f402900117d52b3c414305d1e2bce236932a07758e5455f08c602a5a3b52ebc"
+  },
+  {
+    "path": "apps/eve/test/native-process-fixture.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "bb140bb544db637a4af75afe7d0e3208fc51ee18379ea66dc2fca5a22a866b4b",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "bb140bb544db637a4af75afe7d0e3208fc51ee18379ea66dc2fca5a22a866b4b"
+  },
+  {
+    "path": "apps/eve/test/route-admission.integration.mjs",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "4a46e292d89fb0939939c05d8a32a41843b3b7b7f601c2264140adad61a48a28",
+    "priorSha256": null,
+    "classification": "ADOPT CANONICAL",
+    "activation": "shared/native contract",
+    "currentSha256": "4a46e292d89fb0939939c05d8a32a41843b3b7b7f601c2264140adad61a48a28"
+  },
+  {
+    "path": "apps/eve/test/fixtures/repair-context/inputs.json",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "cca7400050f1dbfc87a1afbccd2767fc3775bd1aa8205d42ca411abb246cf730",
+    "currentSha256": "cca7400050f1dbfc87a1afbccd2767fc3775bd1aa8205d42ca411abb246cf730",
+    "classification": "ADOPT CANONICAL TEST FIXTURE",
+    "activation": "none"
+  },
+  {
+    "path": "apps/eve/test/fixtures/repair-context/legacy-payload.json",
+    "sha": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+    "sha256": "d4794944a2edfccb1d3b8a06fe6b70b68cfa4252fc3bfd5c219757577e274001",
+    "currentSha256": "d4794944a2edfccb1d3b8a06fe6b70b68cfa4252fc3bfd5c219757577e274001",
+    "classification": "ADOPT CANONICAL TEST FIXTURE",
+    "activation": "none"
+  },
+  {
+    "path": "apps/eve/lib/engineering/current-truth-lines.ts",
+    "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+    "sha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6",
+    "currentSha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6",
+    "classification": "ADOPT LATEST CANONICAL",
+    "activation": "read-only shared projections/validation; no Factory transport or dispatch",
+    "adaptation": null
+  },
+  {
+    "path": "apps/eve/lib/engineering/worker-projection.ts",
+    "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+    "sha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f",
+    "currentSha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f",
+    "classification": "ADOPT LATEST CANONICAL",
+    "activation": "read-only shared projections/validation; no Factory transport or dispatch",
+    "adaptation": null
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-spend.ts",
+    "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+    "sha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079",
+    "currentSha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079",
+    "classification": "ADOPT LATEST CANONICAL",
+    "activation": "read-only shared projections/validation; no Factory transport or dispatch",
+    "adaptation": null
+  },
+  {
+    "path": "apps/eve/lib/engineering/factory-spend.test.ts",
+    "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+    "sha256": "dc892e010e05742adbf0176319f80c9830d4961e1ffc35ba3541851783c79e62",
+    "currentSha256": "a2c2bddef0b35c5c1ac18bd10888678633e8c46ff4ba9f0d8370281a716dbbbe",
+    "classification": "ADAPT CANONICAL TEST SUBSET",
+    "activation": "read-only shared projections/validation; no Factory transport or dispatch",
+    "adaptation": "Omit transport-only cases because Factory transport is not adopted/activated"
+  }
+]

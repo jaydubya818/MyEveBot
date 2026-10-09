@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-10-02T16:48:59.529Z",
+  "evidenceClass": "CONNECTED",
+  "deploymentId": "dpl_B1j3imBHBYX7eUp2hoKCwBQ4AemJ",
+  "origin": "https://sofie-cloud-qualification-5lqkv19y7-jaydubya818.vercel.app",
+  "target": "preview",
+  "browserBundleScan": {
+    "status": "PASS",
+    "files": 77
+  },
+  "htmlHydrationBuildScan": {
+    "status": "PASS",
+    "files": 934
+  },
+  "publicFileScan": {
+    "status": "PASS",
+    "files": 2
+  },
+  "publicEnvironmentScan": "PASS",
+  "requiredServerCredentials": 4,
+  "runtimeLogScan": "PASS_FOR_OBSERVED_ACCESS_REQUESTS",
+  "applicationDenials": "PASS",
+  "factoryAccessMatrix": "FAIL_DEPLOYMENT_IMPORT_ERROR",
+  "modelOperations": 0,
+  "modelContextExposure": 0,
+  "producerAllocations": 0,
+  "verifierAllocations": 0,
+  "cloudExposureQualification": "NOT_RUN",
+  "productContract": "WAITING_FOR_CANONICAL_STAGING_COMPOSITION",
+  "localTests": {
+    "credentialScanner": 4,
+    "accessBoundary": 3,
+    "typecheck": "PASS",
+    "governance": "PASS"
+  }
+}

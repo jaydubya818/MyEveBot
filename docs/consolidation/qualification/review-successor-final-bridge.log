@@ -1,0 +1,9 @@
+PASS Fresh complete canonical chain and replay
+PASS Failure late in bridge rolls back all new DDL and ledger entries
+PASS Populated published main bridges atomically, preserving every original row/checksum/timestamp and Memory/settings; equivalents are not claimed as executed
+PASS Tampered bridge receipt is rejected without mutation
+PASS Concurrent migration attempts leave one bridge receipt and a replayable complete lineage
+PASS checksum source state fails closed before migration
+PASS partial source state fails closed before migration
+PASS schema source state fails closed before migration
+PASS mixed source state fails closed before migration

@@ -1,0 +1,23 @@
+{
+  "launchable": false,
+  "blockers": [
+    "hostedKms",
+    "purposeSeparatedKeys",
+    "versionedVerification",
+    "isolatedWorkloadIdentity",
+    "ingressAdmission",
+    "modelHardLiability",
+    "workerAdmission",
+    "artifactAdmission",
+    "outOfBandStop",
+    "syntheticEnvironmentIsolation",
+    "myeveQualificationDeploymentId",
+    "relayQualificationDeploymentId",
+    "peerQualificationDeploymentId",
+    "operator",
+    "peerOperator",
+    "stopContact",
+    "testWindow"
+  ],
+  "executesGate": false
+}

@@ -1,0 +1,48 @@
+{
+  "memoryCore": "PASS",
+  "workRetrievalContract": "PASS",
+  "newWorkReuseFixture": "PASS",
+  "canonicalRuntimeReuse": "NOT_RUN",
+  "learningLifecycleFixture": "PASS",
+  "promotionRejection": "PASS",
+  "versioningRollback": "PASS",
+  "measuredDeterministicImprovement": {
+    "baseline": {
+      "correctness": 1,
+      "acceptance": 0,
+      "unnecessarySteps": 4,
+      "retrievalRelevance": 1,
+      "failureCount": 2,
+      "clarificationCount": 2
+    },
+    "withPromotedLearning": {
+      "correctness": 1,
+      "acceptance": 1,
+      "unnecessarySteps": 0,
+      "retrievalRelevance": 1,
+      "failureCount": 0,
+      "clarificationCount": 0
+    },
+    "liveModel": "NOT_PROVEN",
+    "definition": "Acceptance requires current facts with references; missing references cause failed acceptance and explicit source lookup/owner clarification steps."
+  },
+  "liveModelImprovement": "NOT_PROVEN",
+  "memoryAuthorityGrants": 0,
+  "learningAuthorityExpansions": 0,
+  "secretPromotions": 0,
+  "crossScopeViolations": 0,
+  "schemaActivation": "BLOCKED",
+  "schemaPackage": "READY_FOR_INTEGRATION",
+  "capsuleContract": "PASS",
+  "betaUXContract": "PASS",
+  "readmeUpdated": "PASS",
+  "unitTests": {
+    "passed": 1568,
+    "skipped": 56
+  },
+  "postgresqlChecks": 46,
+  "typecheckGovernance": "PASS",
+  "productionBuild": "PASS",
+  "overall": "READY_FOR_INTEGRATION",
+  "commitIdentity": "See committing revision and source-hashes.json; no production activation or main merge"
+}

@@ -1,0 +1,527 @@
+[
+  {
+    "id": "challenge_0308",
+    "candidate": "Once the tracks were aligned, the rests emerged as part of the joke’s delivery.",
+    "context": "We aligned the rehearsal video with the score. Every audience laugh began during the two-bar rest, not under the next line. The first timestamp sheet had placed those laughs under the line because its audio track was offset."
+  },
+  {
+    "id": "challenge_0278",
+    "candidate": "Two readers asked whether client and member meant different people.",
+    "context": "The style sheet uses “client” in the introduction and “member” in every task instruction. In the read-through, two readers asked whether those words referred to different people."
+  },
+  {
+    "id": "challenge_0257",
+    "candidate": "Today’s footage makes cupboard security irrelevant to the food that went missing.",
+    "context": "I put a strip of paper across the cupboard edge to track whether it opened. It was still intact when I came home, while the bowl on the counter had less food. The camera also shows the cat eating from that bowl."
+  },
+  {
+    "id": "challenge_0194",
+    "candidate": "Count me in for the monochrome version.",
+    "context": "Designer: I am polling which cover to send to print, color or monochrome. Owner: Count me in for the monochrome version. Designer: That makes monochrome the winning cover; production assignments are tomorrow."
+  },
+  {
+    "id": "challenge_0057",
+    "candidate": "The monitor marked the crash as a possible glass break.",
+    "context": "The baby monitor labels a noise clip “possible glass break.” I played it twice and heard a short sharp crash. I am away from home and have no camera view of the kitchen."
+  },
+  {
+    "id": "challenge_0069",
+    "candidate": "The equipment arrives Tuesday, and I will personally finish the readiness checklist on Monday.",
+    "context": "The supplier delivery date is confirmed. I also made a separate promise to finish the internal checklist before the delivery."
+  },
+  {
+    "id": "challenge_0173",
+    "candidate": "The log says all eighteen were on time, including the eleven collected after the carrier cutoff.",
+    "context": "The dispatch log calls every parcel collected before noon “on time.” On Tuesday all eighteen met that mark, but eleven missed the carrier’s 11:30 sorting cutoff and waited overnight. The meeting checked both timestamps parcel by parcel."
+  },
+  {
+    "id": "challenge_0109",
+    "candidate": "I am going to water your plants while you are away.",
+    "context": "Neighbor: Can I leave the plant watering with you for the week? Owner: Yes. I am going to water your plants while you are away."
+  },
+  {
+    "id": "challenge_0315",
+    "candidate": "Both filling stations are sending their labels to the same printer right now.",
+    "context": "During the floor walk, I watched an A batch followed by a B batch emerge from P3. The other printer’s display is dark. I have not checked today’s routing settings."
+  },
+  {
+    "id": "challenge_0254",
+    "candidate": "Keep today’s code reviews in one batch at the end of the morning.",
+    "context": "Agent: Your usual review rhythm is continuous. For today we can batch them or keep interrupts on. Owner: Keep today’s code reviews in one batch at the end of the morning. Tomorrow we return to normal."
+  },
+  {
+    "id": "challenge_0169",
+    "candidate": "Use margin notes for this manuscript.",
+    "context": "Agent: I can return a separate report or margin notes for this manuscript. Which should I prepare? Owner: Use margin notes for this manuscript."
+  },
+  {
+    "id": "challenge_0261",
+    "candidate": "Put email recovery on my task list.",
+    "context": "Agent: Email recovery is selected. Will you implement it this week? Owner: Yes. Put email recovery on my task list."
+  },
+  {
+    "id": "challenge_0165",
+    "candidate": "If the landlord says yes, the spare room becomes the office.",
+    "context": "Partner: We have to settle the room plan before asking permission. Owner: If the landlord says yes, the spare room becomes the office. The dining table option is out. We can arrange movers later."
+  },
+  {
+    "id": "challenge_0037",
+    "candidate": "Awarding the badge only after eight correct answers would improve mastery.",
+    "context": "The exercise tracker counts a chapter as complete once every answer is entered. A learner entered guesses for all ten questions and received the completion badge despite scoring two out of ten."
+  },
+  {
+    "id": "challenge_0095",
+    "candidate": "The total changed once across four refreshes.",
+    "context": "I refreshed the invoice screen four times. The total changed on the first refresh and stayed the same on the next three. The server log is unavailable."
+  },
+  {
+    "id": "challenge_0236",
+    "candidate": "I have chosen the short exercises so beginners practice one technique at a time.",
+    "context": "We compared the combined shading/perspective/texture exercise with the three short exercises. The lesson outline is now settled on the short sequence."
+  },
+  {
+    "id": "challenge_0017",
+    "candidate": "The correction moves the weakness from choosing a method to carrying it out.",
+    "context": "I corrected yesterday’s notebook: on six questions I selected the right method but made an arithmetic error. On the other four both method and arithmetic were right. The notebook originally said I had selected the wrong method on six. I had entered those notes before looking at the worked solutions. This morning I compared each first line with the solution and then checked the arithmetic line by line. The six mistakes were two sign changes, three multiplication slips, and a copied digit. My tutor checked the same pages and marked the method choices as appropriate. We left the original answers intact and put the corrections in another color so I could see where each calculation diverged. None of these ten questions required a method I had not covered in class."
+  },
+  {
+    "id": "challenge_0135",
+    "candidate": "I promise to send the signed forms tomorrow, when your application will be complete.",
+    "context": "Customer: I signed the remaining forms today. The portal says it treats an application as complete only after those forms arrive. I am replying to your request for a delivery date."
+  },
+  {
+    "id": "challenge_0105",
+    "candidate": "Knowing these words in a card exercise is ahead of being able to retrieve them while speaking.",
+    "context": "I could translate all twelve flashcards when shown English first. With the same words presented in French first, I translated eleven. In a recorded conversation, I paused for five of those words before speaking them."
+  },
+  {
+    "id": "challenge_0295",
+    "candidate": "All three failures had empty filenames, and enforcing a name should stop the errors.",
+    "context": "The trace has three failed exports, each with an empty filename. No run with a forced filename has been attempted."
+  },
+  {
+    "id": "challenge_0136",
+    "candidate": "My desk faces the window.",
+    "context": "Owner: That is the current room layout. The movers placed it there because the opposite wall still needed painting; I have not said where I want it long term."
+  },
+  {
+    "id": "challenge_0303",
+    "candidate": "No, the certificate expires in November, not October.",
+    "context": "The asset register transposed the month. The issued certificate’s validity period ends on November 14, and its signed metadata has the same date. We have corrected the register."
+  },
+  {
+    "id": "challenge_0126",
+    "candidate": "The final cut will use my narration.",
+    "context": "Editor: The test versions use either your narration or subtitles. Which cut goes out? Owner: The final cut will use my narration. We can hire somebody to clean up the existing track."
+  },
+  {
+    "id": "challenge_0227",
+    "candidate": "The timeout prompted the cache restart.",
+    "context": "The revised trace shows the first timeout at 12:04, two minutes before the cache restart. Earlier we thought the timeout followed the restart. We have only one incident trace."
+  },
+  {
+    "id": "challenge_0192",
+    "candidate": "The inventory reconciliation goes out tomorrow.",
+    "context": "Document: Standard operating calendar, in force for six months. Reconciliation dispatch occurs on the first business day after month end. Tomorrow is that day. Calendar note: The inventory reconciliation goes out tomorrow."
+  },
+  {
+    "id": "challenge_0225",
+    "candidate": "Show this prototype with real sample content.",
+    "context": "Agent: Raj prepared placeholder and real-content versions. Which version goes into your Friday review? Owner: Show this prototype with real sample content. This answers Friday’s version only."
+  },
+  {
+    "id": "challenge_0286",
+    "candidate": "I like written status notes before meetings; that is how I want us to handle routine updates.",
+    "context": "Owner: In the first two sessions everyone read out their updates; in the next two, updates were shared beforehand and the meeting covered only blocked items. Having tried both, written updates are my preferred routine."
+  },
+  {
+    "id": "challenge_0116",
+    "candidate": "The permissions audit is the item I am taking into this sprint.",
+    "context": "Manager: The sprint can include audit or search, and you are selecting scope, not assigning people. Which item did you add? Owner: The permissions audit is the item I am taking into this sprint. Search has been moved to the backlog."
+  },
+  {
+    "id": "challenge_0010",
+    "candidate": "You tend to ask for fewer dependencies, so I selected the native implementation for you.",
+    "context": "Agent: You tend to ask for fewer dependencies, so I selected the native implementation for you. Owner: I have not reviewed that selection or confirmed a standing rule."
+  },
+  {
+    "id": "challenge_0213",
+    "candidate": "The window pots were dry on day two while the lower pots remained damp on day five.",
+    "context": "The pots nearest the window dried out within two days after watering. Pots on the lower shelf still had damp soil on day five. All contain the same soil mix."
+  },
+  {
+    "id": "challenge_0209",
+    "candidate": "The audit will use the smaller sample.",
+    "context": "Owner: We evaluated both permitted sampling plans. The audit will use the smaller sample. Agent: I will update the plan."
+  },
+  {
+    "id": "challenge_0297",
+    "candidate": "I would like to handle the airport pickup.",
+    "context": "Partner: I need a yes or no so I can cancel the car service. Will you pick Mum up? Owner: Yes, you can rely on me for the pickup. Partner: What shall I tell her? Owner: I would like to handle the airport pickup."
+  },
+  {
+    "id": "challenge_0161",
+    "candidate": "With the dialogue unchanged, viewers named the destination correctly in the cuts that retained the sign.",
+    "context": "In three cuts of the same scene, viewers correctly named the destination when the station sign stayed on screen. In the cut without the sign, four of five named a different city. The dialogue was identical."
+  },
+  {
+    "id": "challenge_0022",
+    "candidate": "The scanner did not accept either code with a trailing space in this run.",
+    "context": "Support handover: Sam said, “I keep seeing scans rejected.” We copied two codes into the scanner input just now, added one space to each, and got two red error flashes. We have not tried the same codes without spaces."
+  },
+  {
+    "id": "challenge_0175",
+    "candidate": "So we are taking the smaller launch scope: complete checkout, with saved carts deferred.",
+    "context": "Meeting: With saved carts included, the work estimate leaves payment retries unfinished. Without them, checkout and retries fit. After weighing that tradeoff, the owner selected the smaller scope and closed the release-scope item."
+  },
+  {
+    "id": "challenge_0086",
+    "candidate": "The five receipts split into two takeaway dinners and three already-budgeted work lunches.",
+    "context": "I checked this month’s receipts against my envelope notes. My note of “five takeaways” was wrong: there were two takeaway dinners and three prepaid work lunches. The work lunches were already included in my lunch budget."
+  },
+  {
+    "id": "challenge_0289",
+    "candidate": "Even with more time available, the one-page brief is the version we are sending.",
+    "context": "Agent: The meeting moved, so we could reopen the choice between the long and short briefs. Owner: Keep the selection we made this morning. Even with more time available, the one-page brief is the version we are sending."
+  },
+  {
+    "id": "challenge_0201",
+    "candidate": "Actually, exercises before lectures for me.",
+    "context": "Agent: Your learning profile says lectures first. Owner: That has changed. I learn more comfortably by trying problems first. Actually, exercises before lectures for me. Update how you organize my future courses."
+  },
+  {
+    "id": "challenge_0183",
+    "candidate": "For this small service, I go with plain SQL.",
+    "context": "Agent: Your usual ORM remains the default. Which storage layer did you select for this service after the spike? Owner: For this small service, I go with plain SQL. The spike is complete; write that into its design."
+  },
+  {
+    "id": "challenge_0092",
+    "candidate": "The quiet desk area is working: I counted fewer interruptions there today, and we should use it for all editing.",
+    "context": "Owner: I logged two interruptions during a two-hour edit in the quiet area and seven yesterday at the shared table. We have not discussed whether to change the team’s seating routine."
+  },
+  {
+    "id": "challenge_0071",
+    "candidate": "Lena’s written-first approach is the one for this negotiation.",
+    "context": "Agent: Lena proposed written prep; you usually use calls. Which did you select for the supplier negotiation? Owner: Lena’s written-first approach is the one for this negotiation. We will still use calls on my other accounts."
+  },
+  {
+    "id": "challenge_0058",
+    "candidate": "I found that our invoice numbers reset each January.",
+    "context": "Finance handbook review: The numbering specification defines YY-000001 as the first invoice of each calendar year. The archived ledgers follow that format, and the implementation has not changed."
+  },
+  {
+    "id": "challenge_0080",
+    "candidate": "The remaining seeds will sprout if I give them another two days.",
+    "context": "The seed packet’s germination window is seven to ten days. My notebook records first shoots on day eight, while the reminder I set had declared the tray failed on day five."
+  },
+  {
+    "id": "challenge_0112",
+    "candidate": "The overnight train is what I am booking for everyone.",
+    "context": "Coworker: The team selected the overnight train. Can you handle the reservations when finance releases the card? Owner: Yes. The overnight train is what I am booking for everyone. You can take reservations off your list."
+  },
+  {
+    "id": "challenge_0208",
+    "candidate": "The dashboard predicts three retries for job 77.",
+    "context": "The dashboard shows predicted retries as dotted marks and completed retries as solid marks. For job 77 there are three dotted marks and no solid ones. The worker log ends before the scheduled retry time."
+  },
+  {
+    "id": "challenge_0076",
+    "candidate": "The rollback script is going into the six o’clock release.",
+    "context": "Coworker: Which release slot did you select in the planner, six or eight? Owner: The rollback script is going into the six o’clock release. The slot is selected; I have not accepted the implementation ticket."
+  },
+  {
+    "id": "challenge_0171",
+    "candidate": "The delivery entrance faces the alley.",
+    "context": "The site plan locates the marked delivery entrance on the alley elevation. The street entrance is for visitors."
+  },
+  {
+    "id": "challenge_0067",
+    "candidate": "My default is to read the diff before the summary.",
+    "context": "Agent: What order should I use when presenting code changes to you? Owner: My default is to read the diff before the summary."
+  },
+  {
+    "id": "challenge_0046",
+    "candidate": "Changing this cover from red to blue would increase clicks.",
+    "context": "I posted two versions of the cover to separate small groups. The blue version received twelve clicks, the red version seven. The groups were not randomly assigned."
+  },
+  {
+    "id": "challenge_0181",
+    "candidate": "I would take the advanced seminar if I felt ready.",
+    "context": "Agent: Have you selected it or told the instructor you will attend? Owner: Neither. I would take the advanced seminar if I felt ready. I am also drawn to the beginner workshop."
+  },
+  {
+    "id": "challenge_0311",
+    "candidate": "The onboarding form has separate fields for legal name and display name.",
+    "context": "The released form schema defines legal_name and display_name as distinct properties. Both are retained in the stored profile. The help guide describes which name appears publicly."
+  },
+  {
+    "id": "challenge_0268",
+    "candidate": "We hope to maintain your quoted rate until renewal.",
+    "context": "Customer: I understand your cost forecasts are uncertain. Are you nevertheless agreeing to hold our rate until renewal? Owner: Yes, we accept that term. Customer: Please restate it. Owner: We hope to maintain your quoted rate until renewal."
+  },
+  {
+    "id": "challenge_0234",
+    "candidate": "Maybe “self-service” is the wrong description of how our largest customers actually renew.",
+    "context": "Our three largest customers renew annually and require invoices. The self-service page accepts cards only and advertises monthly checkout. Their account managers renew them manually. We have not offered invoice checkout on the page."
+  },
+  {
+    "id": "challenge_0211",
+    "candidate": "I see that this canceled subscription still has export access.",
+    "context": "Mina: What happens on the account you just canceled? Owner: Its paid period ends Friday. I clicked Export in this morning’s test and the file downloaded."
+  },
+  {
+    "id": "challenge_0307",
+    "candidate": "The return train uses platform 4 at this station.",
+    "context": "Our trip sheet copies the regular weekday working timetable. The 17:12 return service is assigned platform 4 for this timetable period. There is no planned alteration for our date."
+  },
+  {
+    "id": "challenge_0064",
+    "candidate": "Four trainees named lockout correctly but skipped it during the drill.",
+    "context": "The trainees all passed the written checklist quiz. During the drill, four skipped the physical lockout step despite naming it correctly afterward."
+  },
+  {
+    "id": "challenge_0007",
+    "candidate": "Correction: the blue meter is recording imported power, not exported power, during this kettle test.",
+    "context": "Owner: I first read the arrow backwards. With the kettle on, I watched the import register advance by 0.02 kWh while the export register stayed still."
+  },
+  {
+    "id": "challenge_0206",
+    "candidate": "In these renewals, demand for wider access coexists with demand for a simpler product surface.",
+    "context": "Of eight renewals, six customers expanded their seat count while asking for fewer dashboard reports. Their emails specifically request broader team access and simpler reporting. No revised plan has been priced or offered."
+  },
+  {
+    "id": "challenge_0039",
+    "candidate": "No slides in my internal reviews.",
+    "context": "Agent: You canceled slides for today. Is that how you want your future reviews run too? Owner: Yes. No slides in my internal reviews. Give me the working document instead."
+  },
+  {
+    "id": "challenge_0219",
+    "candidate": "The observed drop-off means removing the company-number requirement would get these users through onboarding.",
+    "context": "In six sessions users finished account creation, then stopped at the required company-registration-number field. Four explicitly said they were sole traders without that number. Two asked whether a personal tax number would work. No alternate onboarding has been tested."
+  },
+  {
+    "id": "challenge_0260",
+    "candidate": "What I saw was not trouble finding export: all three found it and then asked about the dates.",
+    "context": "During the interview, I watched three staff members locate the Download button immediately. Each then asked which date range the file would contain. Their manager had described the problem as “people cannot find export.”"
+  },
+  {
+    "id": "challenge_0002",
+    "candidate": "If the vendor confirms stock, I will place the order, and the replacement pump will be here next week.",
+    "context": "Owner: I agreed to handle ordering once the stock email arrives. The vendor’s page estimates five working days but does not guarantee delivery; no stock confirmation has arrived."
+  },
+  {
+    "id": "challenge_0041",
+    "candidate": "The workshop copy of the score omits the second verse.",
+    "context": "Editor: The singer says pages are missing. Owner: They are not. The workshop edition was issued as a shortened arrangement; its contents and pagination go straight from verse one to the coda. The library master is identical."
+  },
+  {
+    "id": "challenge_0090",
+    "candidate": "I am using the train for the client meeting.",
+    "context": "Agent: Flights remain your usual setting. For Thursday, did you pick rail or air after comparing the times? Owner: I am using the train for the client meeting. I selected the 8:10 in the itinerary draft."
+  },
+  {
+    "id": "challenge_0207",
+    "candidate": "Taken together, the records show that the basic plan has a three-seat limit.",
+    "context": "Owner: I was reconciling the plan sheet with the contract and the configuration file. Each explicitly says maximum seats: 3. The limit was fixed at launch."
+  },
+  {
+    "id": "challenge_0053",
+    "candidate": "Everyone completing an assigned task still leaves part of the kitchen work without an owner.",
+    "context": "Each person has completed their assigned kitchen tasks this week. The shared counter remained covered because the chart assigns dishes and cooking but says nothing about clearing mail and school papers."
+  },
+  {
+    "id": "challenge_0005",
+    "candidate": "I think my smooth repetition is hiding how little of the proof’s structure I can explain.",
+    "context": "I reviewed my practice log. I can reproduce each proof immediately after watching it, but cannot explain why its key step is needed the next day. My tutor wrote, “Fluency of repetition is ahead of understanding.” We have not tried a different practice method. For three evenings I watched a worked proof, closed the video, and wrote the same steps from memory. The next morning my tutor covered one step and asked what would fail without it. I could remember the missing line but could not explain why it mattered. I also struggled to adapt the proof when she changed a starting condition. The notebook contains both my immediate reproductions and the next-day questions. We have kept the length of each study session at twenty minutes because that is the time I have before work."
+  },
+  {
+    "id": "challenge_0251",
+    "candidate": "The coach has probably already left.",
+    "context": "I heard two other passengers say the connecting coach had left early. The app still shows its scheduled time. I cannot see the coach bay from the train."
+  },
+  {
+    "id": "challenge_0008",
+    "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+    "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me."
+  },
+  {
+    "id": "challenge_0302",
+    "candidate": "The rehearsal schedule gives the final scene three sessions and every other scene one.",
+    "context": "The circulated schedule lists scene eight on Monday, Wednesday, and Friday, with each of scenes one through seven appearing once."
+  },
+  {
+    "id": "challenge_0068",
+    "candidate": "We have settled on the smaller venue, and I will make sure the deposit reaches them by Friday.",
+    "context": "Owner: Both venues were available. We finished the selection during the call. The coordinator asked me personally to take responsibility for paying the deposit, and I accepted."
+  },
+  {
+    "id": "challenge_0102",
+    "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+    "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded."
+  },
+  {
+    "id": "challenge_0306",
+    "candidate": "The four calls with legal attendees were followed by requests for contract changes.",
+    "context": "Four prospects requested contract changes after their legal teams joined the calls. Two earlier prospects signed without a legal attendee. The team has not compared company size or contract value."
+  },
+  {
+    "id": "challenge_0263",
+    "candidate": "There is a step between the kitchen and the hallway.",
+    "context": "The house survey records a 90 mm level change at that doorway. It is part of the original slab, not a loose threshold. We are using the survey to plan wheelchair access."
+  },
+  {
+    "id": "challenge_0078",
+    "candidate": "We finish every lesson with a recap because that helps me retain the material.",
+    "context": "Owner: The tutor’s last six session plans end with a recap. I asked for that format after finding my recap notes easier to recall, and I still want it used."
+  },
+  {
+    "id": "challenge_0290",
+    "candidate": "We chose regional storage last spring, and every active customer record is now stored there.",
+    "context": "Migration recap: The leadership minutes record the regional-storage choice in April. Yesterday’s inventory places all active customer records in that region."
+  },
+  {
+    "id": "challenge_0013",
+    "candidate": "I am planning to take the bins out after dinner.",
+    "context": "Partner: Can you take responsibility for the bins tonight? Owner: Yes, tonight is mine. Partner: When will you do it? Owner: I am planning to take the bins out after dinner."
+  },
+  {
+    "id": "challenge_0026",
+    "candidate": "The poster makes recognizing the event easier than finding when it happens.",
+    "context": "The printed poster puts the date in small pale type below a large title. Three people named the event after a glance, but all had to lean closer to read the date."
+  },
+  {
+    "id": "challenge_0282",
+    "candidate": "I prefer lessons in twenty-minute blocks.",
+    "context": "The tutor now offers twenty-, forty-, and sixty-minute appointments. Short sessions fit the way I like to practice, so twenty minutes remains my preferred length."
+  },
+  {
+    "id": "challenge_0191",
+    "candidate": "We are going with the shorter signup copy, and I will have it live by Friday.",
+    "context": "The launch meeting ended this morning. The owner approved the new copy and assigned the rollout to herself."
+  },
+  {
+    "id": "challenge_0238",
+    "candidate": "The opening establishes emotional pressure without establishing a direction for the protagonist.",
+    "context": "Readers could describe the protagonist’s fear after chapter one, but none could say what she wanted to do next. The chapter ends with her noticing a threat and returning home; it gives her no stated goal."
+  },
+  {
+    "id": "challenge_0221",
+    "candidate": "My plan is to check the depot locks tonight.",
+    "context": "Coworker: Earlier you said you might. I need to know who owns the security round. Owner: Make me the owner; I will do the round. Coworker: When? Owner: My plan is to check the depot locks tonight."
+  },
+  {
+    "id": "challenge_0019",
+    "candidate": "I aim to have the captions ready Friday.",
+    "context": "Editor: Yesterday Friday was only a target. Can the production team rely on you to deliver then? Owner: Yes, I am accepting Friday as my delivery date. Editor: Give me the short version for the board. Owner: I aim to have the captions ready Friday."
+  },
+  {
+    "id": "challenge_0196",
+    "candidate": "The downstairs sensor has reported every two minutes in the trace I just captured.",
+    "context": "Owner: The graph looked unusually regular. I exported this morning’s twelve timestamps. Every adjacent pair is 120 seconds apart; I have not opened the sensor settings."
+  },
+  {
+    "id": "challenge_0093",
+    "candidate": "Sam plans to use the annual purchase order.",
+    "context": "Meeting notes: Sam was asked which order form he had selected, annual or quarterly. He replied, “Annual; that is the form I selected in the portal.” The recorder summarized: Sam plans to use the annual purchase order."
+  },
+  {
+    "id": "challenge_0150",
+    "candidate": "The freezer display returned from minus 10 to minus 18 within two hours of loading groceries.",
+    "context": "We noticed the freezer alarm just after loading groceries. Its display read minus 10 degrees then and minus 18 two hours later. Nobody recorded how long its door had been open."
+  },
+  {
+    "id": "challenge_0269",
+    "candidate": "Adding a paid-or-due status would reduce billing questions.",
+    "context": "All three test users located the billing tab. Each then asked whether the displayed amount was already paid or still due. The screen shows an amount without a status."
+  },
+  {
+    "id": "challenge_0188",
+    "candidate": "The deleted address returned after reload in all three runs.",
+    "context": "After a user deletes a saved address, the success toast appears and the address disappears. Reloading the page restores the address. This happened in three test runs."
+  },
+  {
+    "id": "challenge_0229",
+    "candidate": "An available step-free entrance did not amount to a usable step-free arrival at either hotel.",
+    "context": "At both hotels I visited, the step-free entrance was open, but luggage carts filled the path between that entrance and reception."
+  },
+  {
+    "id": "challenge_0255",
+    "candidate": "I intend to close the register after the last customer.",
+    "context": "Manager: Will you take the closing shift? Owner: Yes, put me on closing. I intend to close the register after the last customer."
+  },
+  {
+    "id": "challenge_0186",
+    "candidate": "“We will deliver the proofs on Friday,” Alex wrote, and Friday is now the delivery date in the project sheet.",
+    "context": "Alex is the printer’s account manager. The owner copied the email into the project sheet and changed its delivery-date cell. The email gives no separate courier confirmation."
+  },
+  {
+    "id": "challenge_0052",
+    "candidate": "Ana gets the supplier call.",
+    "context": "Owner: Correction to the assignment draft: Ana gets the supplier call, not me. Agent: Has she accepted? Owner: I have only selected the assignee; ask her this afternoon."
+  },
+  {
+    "id": "challenge_0304",
+    "candidate": "I am taking the statistics seminar.",
+    "context": "Owner: I compared the statistics and writing electives and submitted statistics as my selection. Coworker: Which one won? Owner: I am taking the statistics seminar. Attendance requirements arrive next week."
+  },
+  {
+    "id": "challenge_0120",
+    "candidate": "Keeping the old desk preserves a separate place for paperwork.",
+    "context": "Owner: The old desk is the only surface outside the dining room. If we replace it with the shelving unit, bills and school forms will have to share the dining table. Both furniture layouts are still on the table."
+  },
+  {
+    "id": "challenge_0179",
+    "candidate": "The freezer drawer held 18 one-liter containers in the packing check.",
+    "context": "I emptied the drawer this afternoon and fitted three rows of six identical containers. The drawer shut fully with all 18 inside; a nineteenth would not fit beside them."
+  },
+  {
+    "id": "challenge_0301",
+    "candidate": "The completion banner presents partial completion as if the whole file were accounted for.",
+    "context": "The import log contains 80 accepted rows and 20 rejected rows. All 20 rejections are rows with an empty currency field. The UI displays only “80 rows imported.”"
+  },
+  {
+    "id": "challenge_0012",
+    "candidate": "Keep the rough edges in my drafts.",
+    "context": "Editor: You said “keep the rough edges” on the poem. Owner: That captures how I want you to edit my early drafts generally. Keep the rough edges in my drafts."
+  },
+  {
+    "id": "challenge_0259",
+    "candidate": "The budget question makes access to an employer’s financial information part of what this interview rewards.",
+    "context": "Across the four interviews I observed, candidates described their work comfortably until asked for the project budget. Three then said their employer did not share budget figures; the fourth gave a number. The interview script used the same wording each time: “What was the total budget for that project?” One candidate asked whether the interviewer meant the team’s staffing cost or the whole program. The interviewer repeated the question without narrowing it. Another candidate offered the number of people and duration instead, explaining that those were the figures available to her. The fourth candidate had managed the budget directly. Earlier questions covered what each person built, how they tested it, and what they would change. The notes record answers to those earlier questions for all four candidates."
+  },
+  {
+    "id": "challenge_0003",
+    "candidate": "The house rule is shoes off, which is how I prefer visitors to arrive, and we agreed to keep it after the renovation.",
+    "context": "Owner: The notice has been beside the door for years. During the renovation discussion I said I still preferred shoes left in the entryway; everyone agreed to retain that arrangement."
+  },
+  {
+    "id": "challenge_0216",
+    "candidate": "The corrected replay puts the van at the east depot before the first delivery scan.",
+    "context": "Correction to the route report: the GPS replay puts the van outside the east depot at 09:20, not the west depot. It does not show whether the driver entered. The first delivery scan appears at 10:05. The original report used an old map layer with the depot names reversed. We checked the street address against the facilities list before updating the route report. There are parking spaces and a public fuel station on the same road as the east depot. The GPS samples are five minutes apart, so they do not show every movement within that area. The parcel manifest lists what was delivered but does not record when individual parcels were loaded. The driver has not yet responded to the dispatcher’s request for an account of the morning."
+  },
+  {
+    "id": "challenge_0313",
+    "candidate": "According to Noor, the archive closed at six today.",
+    "context": "Noor waited outside while I retrieved my bag. At 18:00 she texted, “The attendant has just locked both entrance doors and turned away the last visitor.”"
+  },
+  {
+    "id": "challenge_0189",
+    "candidate": "The crackle appears after export, not in the raw recording.",
+    "context": "I previously blamed the microphone for the crackle. On replay, the crackle appears in the exported WAV but not in the raw recording. I have not changed export settings or reproduced it with another file."
+  },
+  {
+    "id": "challenge_0094",
+    "candidate": "Not a new finding: revision C requires two signatures for purchases above $5,000.",
+    "context": "Review note: We thought the second signature had been introduced this month. The retained revision-C policy already states that threshold and has applied to our department for two years."
+  },
+  {
+    "id": "challenge_0040",
+    "candidate": "I plan to send you the lesson notes tonight.",
+    "context": "Tutor: Will you take responsibility for getting the notes to the absent students tonight? Owner: Yes, that is on me. I plan to send you the lesson notes tonight."
+  },
+  {
+    "id": "challenge_0048",
+    "candidate": "I recognized every word on the cards, which shows recognition is ahead of fluent retrieval, and speaking first might close that gap.",
+    "context": "I checked the same ten words on cards and then in conversation. I have not tried speaking practice before card review."
+  }
+]

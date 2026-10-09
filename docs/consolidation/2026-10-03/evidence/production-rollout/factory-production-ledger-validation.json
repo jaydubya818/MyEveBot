@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "mode": "production console READ_ONLY",
+  "databaseResourceId": "dry-morning-22844424",
+  "canonicalSource": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
+  "migrationCount": 7,
+  "checksumMismatches": 0,
+  "databaseMutations": 0
+}

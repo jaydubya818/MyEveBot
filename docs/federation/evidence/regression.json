@@ -1,0 +1,46 @@
+{
+  "completedAt": "2026-09-19T16:58:41.949833+00:00",
+  "implementationCommit": "2f41e52979b1056f339f217e40ae48f884aa1c18",
+  "node": {
+    "command": "node --import tsx --test apps/eve/test/*.test.mjs",
+    "passed": 130,
+    "failed": 0
+  },
+  "vitest": {
+    "command": "npm test --workspace=eve-agent",
+    "passed": 437,
+    "failed": 0,
+    "files": 64,
+    "adapterTests": 35
+  },
+  "relayCompatibility": {
+    "passed": 17,
+    "failed": 0,
+    "head": "614c638d6fc4099db8064540326f5de4438e93a1",
+    "database": "separate disposable PostgreSQL; destroyed"
+  },
+  "workspaceBuild": {
+    "successfulTasks": 2,
+    "failedTasks": 0
+  },
+  "workspaceTypecheck": {
+    "successfulTasks": 2,
+    "failedTasks": 0
+  },
+  "orderedMigrations": 25,
+  "canonicalDrift": {
+    "observedHead": "81979b6d367776366e930278fdad897d63956fc5",
+    "dirty": true,
+    "tested": false,
+    "touchedByThisMission": false,
+    "mergePrerequisite": "Rebase onto settled frontier, renumber colliding 0025 migration, requalify newer authority paths"
+  },
+  "cleanup": {
+    "finalLiveContainersRemoved": 3,
+    "qualificationListenersRemaining": 0,
+    "temporaryModelCredentialFileRemoved": true,
+    "browserClosed": true,
+    "browserToolReportedNoRemainingUserData": true,
+    "unrelatedContainerUntouched": "relay-v2-test-postgres"
+  }
+}

@@ -1,0 +1,7 @@
+
+> relay@0.1.0 db:check /Users/jaywest/Documents/ChatGPT/New project/relay-production-readiness
+> drizzle-kit check
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/Users/jaywest/Documents/ChatGPT/New project/relay-production-readiness/drizzle.config.ts'
+Everything's fine 🐶🔥

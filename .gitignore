@@ -1,0 +1,33 @@
+node_modules
+.turbo
+.env*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+.vercel
+.next
+.output
+.worktrees/
+.worktrees
+.env*.local
+
+# Local browser automation session state
+.playwright-cli/
+
+.local-computer/
+
+# Local controlled publication browser traces (archived as qualification evidence).
+/apps/eve/output/playwright/publication/
+/output/playwright/publication/
+
+# Credential-scanned CLOUD P0 evidence is published by its isolated test runner.
+/output/playwright/cloud/
+
+# Disposable browser qualification evidence is delivered separately.
+/output/owner-ux/
+
+# Synthetic MyApps reference qualification output.
+/output/playwright/myapps/
+
+# Capability browser artifacts are uploaded separately by isolated CI.
+/output/playwright/capability-control/

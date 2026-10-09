@@ -1,0 +1,222 @@
+{
+  "observedAt": "2026-09-30T17:45:22.446816+00:00",
+  "status": "DEPLOYED_PREFLIGHT_PASS_AWAITING_FIRST_SUBSTANTIVE_WORK_APPROVAL",
+  "authorization": "Explicit user OIDC integration, deployment, non-substantive provider preflight and bounded paused Work preparation. No substantive Golden Journey authorization.",
+  "runtime": {
+    "observedAt": "2026-09-30T17:35:01.618Z",
+    "factorySha": "d0c9b149d2fa18d693c501d8862d21e15f669fad",
+    "sourceDigest": "6d900e5e2da8f36f18f600886790dd431d1d5dd89b85b549e73c8400ecba145d",
+    "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+    "factoryVersion": "2ccacb678b92b41b594f764434e30344fc164288b39dbd98c78c249505f034a7",
+    "configuration": {
+      "model": "openai/gpt-5.4-mini",
+      "executor": "codex-cli",
+      "executorVersion": "codex-cli 0.157.0",
+      "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+      "workerProfile": "mac",
+      "verificationImage": "node:22-bookworm",
+      "nodeVersion": "v24.18.1",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "commands": [
+        "node --test"
+      ],
+      "allowedPaths": [
+        "quantity.mjs"
+      ],
+      "timeoutMs": 1800000
+    },
+    "providerPreflight": {
+      "status": "PASS",
+      "identity": "VERIFIED_PROJECT_OIDC",
+      "gatewayAuthentication": "PASS",
+      "model": "openai/gpt-5.4-mini",
+      "provider": "openai",
+      "modelEligibility": "eligible",
+      "httpAvailability": "available",
+      "pinnedRoute": "PASS",
+      "pricing": "PASS",
+      "modelOperations": 0,
+      "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+    },
+    "profileHash": "90c31f05daf7263a67eceb9a216f9b44b967aa83d6a22ec88400710df9abfb18",
+    "conversationQualification": {
+      "mode": "FACTORY_CONVERSATION_V1",
+      "modelId": "openai/gpt-5.4-mini",
+      "expiresAt": "2026-10-02T23:59:59Z",
+      "evidenceRef": "docs/private-alpha/live-2026-09-30/oidc-activation.json",
+      "ceilingMicrousd": 300000,
+      "perCallMicrousd": 150000,
+      "maxCalls": 2,
+      "maxOutputTokens": 1024,
+      "factoryCeilingMicrousd": 1050000
+    },
+    "spendPlan": {
+      "version": "WORK_LEDGER_V2",
+      "pricingRevision": "gateway-openai-20260930",
+      "plannedProductiveOperations": 2,
+      "plannedCompletionOperations": 1,
+      "maxPaidOperations": 3,
+      "completionReserveMicrousd": 336864
+    },
+    "qualificationBasis": "Actual signed OIDC and authenticated model eligibility; synthetic ledger/UNKNOWN/reserve/usage tests and connected protected-verification qualification. Real generation NOT_RUN.",
+    "signingAndControl": "EXISTING_UNCHANGED",
+    "keychain": "UNUSED_UNCHANGED",
+    "publicationAllowed": false,
+    "modelOperations": 0
+  },
+  "deployedProviderPreflight": {
+    "status": "PASS",
+    "identity": "VERIFIED_PROJECT_OIDC",
+    "gatewayAuthentication": "PASS",
+    "model": "openai/gpt-5.4-mini",
+    "provider": "openai",
+    "modelEligibility": "eligible",
+    "httpAvailability": "available",
+    "pinnedRoute": "PASS",
+    "pricing": "PASS",
+    "modelOperations": 0,
+    "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+  },
+  "factoryHealth": {
+    "observedAt": "2026-09-30T17:36:50.842Z",
+    "health": "PASS",
+    "httpStatus": 200,
+    "unauthenticatedControl": 401,
+    "authenticatedControl": 200,
+    "execution": "LIVE",
+    "spendEnforced": true,
+    "controls": [
+      "factory.prepare",
+      "factory.dispatch",
+      "factory.observe",
+      "factory.stop"
+    ],
+    "publicationAllowed": false,
+    "modelOperations": 0
+  },
+  "myeveDeployment": {
+    "id": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV",
+    "url": "sofie-personal-agent-knrqrs6a2-jaydubya818.vercel.app",
+    "readyState": "READY",
+    "status": "READY",
+    "gitSource": {
+      "type": "github",
+      "repoId": 1370277686,
+      "ref": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
+      "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
+    },
+    "alias": [
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
+    ]
+  },
+  "hostedActivation": {
+    "conversationProfile": "PRESENT_VERIFIED_EXACT_NONSECRET_CONFIG",
+    "workRecall": "ENABLED_DATA_ONLY",
+    "firstModelApprovalFlags": "ABSENT",
+    "approvedWorkFlags": "ABSENT",
+    "nativeQualification": "ABSENT",
+    "consumerWorker": "NOT_STARTED_UNTIL_EXACT_WORK_APPROVAL"
+  },
+  "qualification": {
+    "observedAt": "2026-09-30T17:32:42.666183+00:00",
+    "scope": "OIDC implementation and non-generating provider availability; substantive Golden Journey NOT_RUN",
+    "baseline": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
+    "branch": "codex/private-alpha-release",
+    "factoryTests": {
+      "tests": 152,
+      "pass": 151,
+      "fail": 0,
+      "skipped": 1
+    },
+    "myeveTests": {
+      "passed": 1912,
+      "skipped": 61
+    },
+    "connected": {
+      "checks": 19,
+      "results": [
+        "0057 complete failure rollback",
+        "0056\u21920057 and idempotent rerun",
+        "LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation",
+        "Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer",
+        "Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available",
+        "Actual HTTP/SQLite/Git signed candidate \u2192 PostgreSQL custody \u2192 real Docker verification PASS; restarted driver replay cannot dispatch twice",
+        "Connected Q37 local Relay \u2192 Factory \u2192 verifier \u2192 trusted publisher/CI/review \u2192 scoped advisory learning contract",
+        "Actual HTTP/SQLite/Git signed candidate \u2192 PostgreSQL custody \u2192 real Docker verification FAIL; restarted driver replay cannot dispatch twice",
+        "Connected Factory failure \u2192 normal new native Run \u2192 failed repair stays FAILED \u2192 bounded repair PASS; immutable Factory history survives",
+        "Private-alpha queue: duplicate intent deduplicates; exclusive worker; canonical dispatch/custody/protected verification; restart never redispatches",
+        "Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL",
+        "RESPONSE_LOST: durable UNKNOWN \u2192 restarted readback \u2192 exact terminal fence, never resend dispatch",
+        "BEFORE_HTTP: durable UNKNOWN \u2192 restarted readback \u2192 exact terminal fence, never resend dispatch",
+        "Connected RUNNING \u2192 STOPPING retains writer until actual executor settles \u2192 terminal tombstone rejects delayed START",
+        "Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority",
+        "Unavailable preparation retains request and grants no writer",
+        "Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation",
+        "Alpha UNKNOWN retains common-ledger exposure and prevents another Sofie call or Factory start",
+        "Selected-Work Sofie common ledger \u2192 canonical Factory \u2192 signed custody \u2192 Docker verifier \u2192 bounded Sofie explanation; combined ceiling and original deadline preserved"
+      ],
+      "counters": {
+        "concurrentWriters": 0,
+        "duplicateDispatches": 0,
+        "falseReady": 0,
+        "unauthenticatedAdmissions": 0
+      },
+      "provider": "synthetic",
+      "protectedVerifier": "real isolated Docker",
+      "sourceDigest": "6d900e5e2da8f36f18f600886790dd431d1d5dd89b85b549e73c8400ecba145d"
+    },
+    "checks": {
+      "producerTypecheck": "PASS",
+      "producerGovernance": "PASS_UNKNOWN_0",
+      "factoryTypecheck": "PASS",
+      "factoryBuild": "PASS",
+      "myeveTypecheck": "PASS",
+      "myeveGovernance": "PASS_UNKNOWN_0",
+      "myeveBuild": "PASS",
+      "diffCheck": "PASS"
+    },
+    "provider": {
+      "authentication": "PROJECT_SCOPED_VERCEL_OIDC",
+      "sdk": "@vercel/oidc@3.8.4",
+      "identityScope": {
+        "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+        "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
+        "issuer": "https://oidc.vercel.com/jaydubya818",
+        "audience": "https://vercel.com/jaydubya818",
+        "environment": "development"
+      },
+      "model": "openai/gpt-5.4-mini",
+      "route": "https://ai-gateway.vercel.sh/v1/responses -> openai only",
+      "availability": "PASS_AUTHENTICATED_ELIGIBLE_HTTP_AVAILABLE",
+      "pricing": "PASS_OPENAI_ENDPOINT_0.75_INPUT_4.50_OUTPUT_USD_PER_MILLION",
+      "modelOperations": 0,
+      "keychain": "UNUSED_NO_CHANGES",
+      "staticProviderKeysCopied": 0,
+      "tokenDisclosure": 0,
+      "additionalKeychainPermissionChanges": 0,
+      "plaintextSecretCopies": 0
+    },
+    "limitations": [
+      "Authenticated availability and endpoint metadata do not execute generation or a real client tool-search round trip.",
+      "Gateway exact identifier is pinned; the dated upstream snapshot is absent from its catalog.",
+      "Refresh depends on the existing SDK/CLI login; identity failure closes admission.",
+      "Fixture Results are not live Results; first substantive Work and external publication remain separately gated."
+    ]
+  },
+  "work": {
+    "id": "a2dcadef-0738-4194-8b8c-02c16821b5fb",
+    "version": 1,
+    "generation": 1,
+    "control": "paused",
+    "artifact": "first-work-authorization.json"
+  },
+  "keychain": "UNUSED_UNCHANGED_NO_FURTHER_TROUBLESHOOTING",
+  "newStaticProviderKeyCopies": 0,
+  "credentialTokenDisclosure": 0,
+  "realModelOperations": 0,
+  "externalPublication": "DISABLED_IN_SCOPED_FACTORY_CLIENT; separate exact-candidate approval required",
+  "limitations": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+}

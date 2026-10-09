@@ -1,0 +1,31 @@
+{
+  "publicContract": "compact JSON object plus exactly one LF; exit 0; empty stderr",
+  "source": "https://github.com/jaydubya818/myeve-golden-work-qual/issues/1",
+  "publicFixtureSha": "7380d3324224a5660daa1556384c7a1a17d7d21e",
+  "historicalAttempt7": "FAILED_UNCHANGED",
+  "attempt7Regression": "PASS",
+  "attempts1Through7": "PASS",
+  "connectedChecks": 26,
+  "protectedIndependentVerification": "PASS",
+  "canonicalResult": "PARTIAL",
+  "proof": "PARTIAL",
+  "publication": "DISABLED",
+  "accounting": {
+    "attempt7FactoryMicrousd": 13194,
+    "attempt7SofieMicrousd": 4768,
+    "attempt7TotalMicrousd": 17962,
+    "unknownExposureSeparate": true,
+    "proofSnapshotImmutable": true,
+    "currentTotalIncludesFinalSofie": true
+  },
+  "lifecycle": "Owner Work remains active; candidate failure and writer terminality do not close owner intent. Ready false, authority fenced. No lifecycle migration required.",
+  "myeveAppTests": 1990,
+  "myeveRootTests": 144,
+  "appEnvironmentSkipped": 94,
+  "factoryTests": 170,
+  "typecheck": "PASS",
+  "governance": "PASS",
+  "build": "PASS",
+  "additionalRealModelOperations": 0,
+  "protectedHoldoutLeakage": 0
+}

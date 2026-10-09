@@ -1,0 +1,16 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/q37-private-alpha-continuation/Myeve/apps/eve
+
+ ✓ lib/engineering/factory-observation.test.ts (5 tests) 8ms
+ ✓ lib/engineering/factory-authenticated-result.test.ts (39 tests) 38ms
+ ✓ lib/engineering/factory-return.test.ts (78 tests) 29ms
+ ✓ lib/engineering/factory-writer.test.ts (26 tests) 10ms
+ ✓ lib/engineering/worker-projection.test.ts (8 tests) 10ms
+ ✓ lib/engineering/factory-spend.test.ts (31 tests) 18ms
+ ✓ lib/engineering/factory-beta.test.ts (13 tests) 12ms
+
+ Test Files  7 passed (7)
+      Tests  200 passed (200)
+   Start at  23:10:44
+   Duration  483ms (transform 436ms, setup 0ms, collect 1.09s, tests 125ms, environment 1ms, prepare 242ms)
+

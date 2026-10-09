@@ -1,0 +1,1223 @@
+{
+  "notice": "POST-JEV REVIEW \u2014 secondary analysis only. Frozen labels and primary metrics unchanged. No new model calls or human adjudication.",
+  "highConfidenceChallengeErrors": [
+    {
+      "experiment": "CHALLENGE_SIX",
+      "id": "challenge_0156",
+      "expected": "decision",
+      "choice": "preference",
+      "confidence": 0.96,
+      "candidate": "Use short daily practice for the exam plan.",
+      "context": "Agent: I drafted a daily plan and a weekend plan for this exam. Owner: Use short daily practice for the exam plan. Keep the daily version.",
+      "difficulty": "MODERATE",
+      "boundaries": [
+        "PREFERENCE_DECISION"
+      ],
+      "label": "decision",
+      "review": {
+        "id": "challenge_0156",
+        "label": "decision",
+        "confidence": "HIGH",
+        "ambiguous": false,
+        "defensible": true,
+        "rubricSensitive": false,
+        "rationale": "Chooses the daily version of a specific exam preparation plan."
+      },
+      "reviewStatus": "POST-JEV REVIEW; frozen ground truth unchanged",
+      "errorClassification": "MODEL_ERROR",
+      "assessment": "The owner selects the daily version among two concrete plans. Preference misses the explicit adoption; the frozen Decision label remains well supported.",
+      "groundTruthReview": "NOT_REQUESTED",
+      "adjudicated": false
+    },
+    {
+      "experiment": "CHALLENGE_SIX",
+      "id": "challenge_0298",
+      "expected": "observation",
+      "choice": "hypothesis",
+      "confidence": 0.91,
+      "candidate": "The delivery driver is unloading at the alley entrance.",
+      "context": "From the stockroom window I can see the van backed up to the alley door and two crates on its ramp.",
+      "difficulty": "MODERATE",
+      "boundaries": [
+        "FACT_OBSERVATION"
+      ],
+      "label": "observation",
+      "review": {
+        "id": "challenge_0298",
+        "label": "observation",
+        "confidence": "MEDIUM",
+        "ambiguous": false,
+        "defensible": true,
+        "rubricSensitive": false,
+        "rationale": "Describes the current delivery activity visible from the window."
+      },
+      "reviewStatus": "POST-JEV REVIEW; frozen ground truth unchanged",
+      "errorClassification": "CONTEXT_INSUFFICIENT",
+      "assessment": "The context directly shows a parked van and crates, but does not explicitly show the driver unloading. Hypothesis is defensible under a strict direct-observation reading. Request secondary ground-truth review without changing the primary Observation label.",
+      "groundTruthReview": "GROUND_TRUTH_REVIEW_REQUIRED",
+      "adjudicated": false
+    },
+    {
+      "experiment": "CHALLENGE_SIX",
+      "id": "challenge_0313",
+      "expected": "observation",
+      "choice": "fact",
+      "confidence": 0.98,
+      "candidate": "According to Noor, the archive closed at six today.",
+      "context": "Noor waited outside while I retrieved my bag. At 18:00 she texted, \u201cThe attendant has just locked both entrance doors and turned away the last visitor.\u201d",
+      "difficulty": "ADVERSARIAL",
+      "boundaries": [
+        "FACT_OBSERVATION",
+        "ATTRIBUTED_STATEMENT",
+        "QUOTED_SPEECH"
+      ],
+      "label": "observation",
+      "review": {
+        "id": "challenge_0313",
+        "label": "observation",
+        "confidence": "MEDIUM",
+        "ambiguous": false,
+        "defensible": true,
+        "rubricSensitive": false,
+        "rationale": "Attributes a fresh closure observation to Noor\u2019s witnessed locking and turned-away visitor."
+      },
+      "reviewStatus": "POST-JEV REVIEW; frozen ground truth unchanged",
+      "errorClassification": "CONTRACT_AMBIGUITY",
+      "assessment": "A contemporaneous third-party observation is also presented as confirmed information. The original six-class Fact/Observation definitions do not resolve this evidential-status overlap cleanly. Preserve the scored error and request review.",
+      "groundTruthReview": "GROUND_TRUTH_REVIEW_REQUIRED",
+      "adjudicated": false
+    },
+    {
+      "experiment": "CHALLENGE_SIX",
+      "id": "challenge_0315",
+      "expected": "observation",
+      "choice": "hypothesis",
+      "confidence": 0.98,
+      "candidate": "Both filling stations are sending their labels to the same printer right now.",
+      "context": "During the floor walk, I watched an A batch followed by a B batch emerge from P3. The other printer\u2019s display is dark. I have not checked today\u2019s routing settings.",
+      "difficulty": "HARD",
+      "boundaries": [
+        "FACT_OBSERVATION",
+        "NEGATION"
+      ],
+      "label": "observation",
+      "review": {
+        "id": "challenge_0315",
+        "label": "observation",
+        "confidence": "MEDIUM",
+        "ambiguous": false,
+        "defensible": true,
+        "rubricSensitive": false,
+        "rationale": "Reports current printer use from the witnessed A and B batches."
+      },
+      "reviewStatus": "POST-JEV REVIEW; frozen ground truth unchanged",
+      "errorClassification": "POSSIBLE_GROUND_TRUTH_ISSUE",
+      "assessment": "Seeing A and B batches at P3 supports the current output pattern; inferring both stations\u2019 routing from it is less direct. The context explicitly says settings were not checked. Preserve the Observation label and request review of the observation/inference boundary.",
+      "groundTruthReview": "GROUND_TRUTH_REVIEW_REQUIRED",
+      "adjudicated": false
+    }
+  ],
+  "insightConfusions": [
+    {
+      "id": "challenge_0007",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.54,
+      "candidate": "Correction: the blue meter is recording imported power, not exported power, during this kettle test.",
+      "context": "Owner: I first read the arrow backwards. With the kettle on, I watched the import register advance by 0.02 kWh while the export register stayed still.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0009",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.71,
+      "candidate": "The cupboard was not the source shown in today\u2019s footage; the cat ate from the counter bowl.",
+      "context": "I put a strip of paper across the cupboard edge to track whether it opened. It was still intact when I came home, while the bowl on the counter had less food. The camera also shows the cat eating from that bowl.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0036",
+      "expected": "fact",
+      "choice": "insight",
+      "confidence": 0.52,
+      "candidate": "The packaging line has one label printer shared by both filling stations.",
+      "context": "The equipment register and cabling plan show stations A and B connected to printer P3. This is the installed arrangement used for capacity planning.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0050",
+      "expected": "fact",
+      "choice": "insight",
+      "confidence": 0.51,
+      "candidate": "In this course, the second quiz contributes twice as much as the first.",
+      "context": "The published grading scheme allocates 10% to quiz one and 20% to quiz two. The course coordinator confirmed those weights apply to our cohort.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0263",
+      "expected": "fact",
+      "choice": "insight",
+      "confidence": 0.38,
+      "candidate": "There is a step between the kitchen and the hallway.",
+      "context": "The house survey records a 90 mm level change at that doorway. It is part of the original slab, not a loose threshold. We are using the survey to plan wheelchair access.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0162",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.37,
+      "candidate": "The west stairwell is not accessible from the passenger lift lobby this morning.",
+      "context": "Caretaker: The visitor map joins them with a dotted line. I just followed that route. A temporary partition blocks the passage, and workers are carrying panels through the other entrance.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0262",
+      "expected": "hypothesis",
+      "choice": "insight",
+      "confidence": 0.53,
+      "candidate": "The manual renewals demonstrate that invoice checkout would make our largest customers self-service.",
+      "context": "Our three largest customers renew annually and require invoices. The self-service page accepts cards only and advertises monthly checkout. Their account managers renew them manually. We have not offered invoice checkout on the page.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0275",
+      "expected": "hypothesis",
+      "choice": "insight",
+      "confidence": 0.58,
+      "candidate": "The participant closed the page because the locked icon made the feature look unavailable.",
+      "context": "In today\u2019s session, the participant clicked the locked icon twice, waited, and closed the page. No error appeared in the recording. We did not ask what they expected the icon to do.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0273",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.68,
+      "candidate": "The workshop copy in front of me is missing the second verse.",
+      "context": "Editor: The singer says pages are missing. Owner: She is right about this printout. I just spread its pages across the piano: it jumps from page 3 to page 6. The workshop PDF has pages 4 and 5.",
+      "groundTruthReview": "FROZEN_LABEL_RETAINED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0298",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.76,
+      "candidate": "The delivery driver is unloading at the alley entrance.",
+      "context": "From the stockroom window I can see the van backed up to the alley door and two crates on its ramp.",
+      "groundTruthReview": "GROUND_TRUTH_REVIEW_REQUIRED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    },
+    {
+      "id": "challenge_0315",
+      "expected": "observation",
+      "choice": "insight",
+      "confidence": 0.57,
+      "candidate": "Both filling stations are sending their labels to the same printer right now.",
+      "context": "During the floor walk, I watched an A batch followed by a B batch emerge from P3. The other printer\u2019s display is dark. I have not checked today\u2019s routing settings.",
+      "groundTruthReview": "GROUND_TRUTH_REVIEW_REQUIRED",
+      "note": "POST-JEV REVIEW; not adjudicated and no replacement metric."
+    }
+  ],
+  "highConfidenceStress": [
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0008",
+        "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+        "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "MULTI_CONCEPT",
+          "INTENT_COMMITMENT",
+          "INSIGHT_PREFERENCE"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0008",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Expresses the owner\u2019s affinity for working with beginners while withholding role acceptance."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0044",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0.02,
+          "decision": 0,
+          "insight": 0.98,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.161834,
+        "inputTokens": 609,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.273Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0044",
+        "candidate": "The bus wait, not the train leg, is where the recorded journeys spread out.",
+        "context": "My trip log has six entries for this route. The train leg took 42\u201345 minutes each time. Door-to-door totals ranged from 68 to 119 minutes; the long totals coincided with longer waits for the same connecting bus.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "OBSERVATION_INSIGHT",
+          "NEGATION"
+        ],
+        "label": "observation",
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0044",
+          "label": "insight",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Identifies bus waiting as the component associated with variation in total journey duration."
+        },
+        "reasons": [
+          "REVIEW_DISAGREEMENT"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0069",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "observation": 0,
+          "preference": 0,
+          "insight": 0,
+          "fact": 0.02
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 225.60524999999961,
+        "inputTokens": 575,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.228Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0069",
+        "candidate": "The equipment arrives Tuesday, and I will personally finish the readiness checklist on Monday.",
+        "context": "The supplier delivery date is confirmed. I also made a separate promise to finish the internal checklist before the delivery.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0069",
+          "label": null,
+          "confidence": "HIGH",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines a confirmed delivery assertion and a separate personal promise."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0089",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "preference": 0,
+          "insight": 0.01,
+          "commitment": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "fact": 0.01,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.84308299999975,
+        "inputTokens": 574,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:40.417Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0089",
+        "candidate": "Maya has agreed to answer urgent pages within ten minutes and is on call next Monday.",
+        "context": "The shift manager signed the response agreement. The current rota also lists her on call next Monday.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0089",
+          "label": null,
+          "confidence": "HIGH",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines Maya\u2019s response agreement with a separate scheduled shift fact."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0102",
+        "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+        "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "INTENT_COMMITMENT",
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0102",
+          "label": "commitment",
+          "confidence": "HIGH",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0103",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.95,
+          "commitment": 0,
+          "decision": 0.05,
+          "fact": 0,
+          "hypothesis": 0,
+          "insight": 0
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.40545800000018,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.802Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0103",
+        "candidate": "Priya prefers calls, but I prefer written summaries and have kept them as our default.",
+        "context": "Priya told the group she prefers phone calls. The owner responded that written summaries would remain the team default and that she personally prefers them.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "PREFERENCE_FACT",
+          "PREFERENCE_DECISION",
+          "ATTRIBUTED_STATEMENT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0103",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The central owner statement explicitly endorses written summaries as a personal and continuing default preference."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0121",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.01,
+          "decision": 0.99,
+          "commitment": 0,
+          "insight": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 258.7219580000001,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.343Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0121",
+        "candidate": "Breakfast at the hotel costs 18 euros, and we are eating at the cafe instead.",
+        "context": "The hotel receipt states that breakfast costs 18 euros. I have compared the alternatives and selected the nearby cafe.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "DECISION_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0121",
+          "label": null,
+          "confidence": "LOW",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines an established breakfast price with a selected dining alternative."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0135",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 1,
+          "hypothesis": 0,
+          "observation": 0,
+          "insight": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 278.7664169999998,
+        "inputTokens": 590,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.842Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0135",
+        "candidate": "I promise to send the signed forms tomorrow, when your application will be complete.",
+        "context": "Customer: I signed the remaining forms today. The portal says it treats an application as complete only after those forms arrive. I am replying to your request for a delivery date.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0135",
+          "label": null,
+          "confidence": "MEDIUM",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines a promise to send forms with an additional application-completion prediction."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0177",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "insight": 0.01,
+          "preference": 0,
+          "commitment": 0.02,
+          "decision": 0.97,
+          "fact": 0
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 210.11316700000134,
+        "inputTokens": 582,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.986Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0177",
+        "candidate": "The opening gives us a place without a direction, so I am replacing the last paragraph with a clear goal.",
+        "context": "The review group understood the setting but not the narrator\u2019s goal. I selected a rewrite direction during our closing discussion.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "INSIGHT_DECISION",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0177",
+          "label": null,
+          "confidence": "HIGH",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines an interpretation of the opening with a selected rewrite action."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0205",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "insight": 0.98,
+          "preference": 0,
+          "fact": 0.02,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 394.99541699999827,
+        "inputTokens": 603,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:46.213Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0205",
+        "candidate": "Not a new approval layer: the revised routing makes the existing two-signature requirement visible earlier in the purchase flow.",
+        "context": "Review note: Both the old and new policies require two signatures above $5,000. Previously the requester learned about the second signature after submission; the revised screen lists both approvers before submission.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "FACT_INSIGHT",
+          "NEGATION",
+          "CORRECTION",
+          "TEMPORAL_CHANGE"
+        ],
+        "label": "insight",
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0205",
+          "label": "insight",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": true,
+          "rationale": "Synthesizes the revision as earlier visibility of an unchanged approval requirement."
+        },
+        "reasons": [
+          "RUBRIC_SENSITIVE"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0256",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "commitment": 1,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0,
+          "insight": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 220.20858399999997,
+        "inputTokens": 596,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:47.195Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0256",
+        "candidate": "If the alarm arrives today I will fit it tonight as promised, and I hope to sort the cupboard this week too.",
+        "context": "I promised the landlord that I would replace the smoke alarm if the replacement unit arrived today. I also said I hoped to reorganize the hall cupboard sometime this week.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "CONDITIONAL_COMMITMENT",
+          "INTENT_COMMITMENT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0256",
+          "label": null,
+          "confidence": "LOW",
+          "ambiguous": true,
+          "defensible": false,
+          "rubricSensitive": false,
+          "rationale": "Combines a conditional promise with a separate unaccepted cupboard wish."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0280",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.01,
+          "hypothesis": 0,
+          "commitment": 0,
+          "insight": 0.99,
+          "decision": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 274.9304579999989,
+        "inputTokens": 599,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:47.894Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0280",
+        "candidate": "My original count overstated unplanned dinner spending by mixing it with planned lunches.",
+        "context": "I checked this month\u2019s receipts against my envelope notes. My note of \u201cfive takeaways\u201d was wrong: there were two takeaway dinners and three prepaid work lunches. The work lunches were already included in my lunch budget.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "OBSERVATION_INSIGHT",
+          "CORRECTION"
+        ],
+        "label": "insight",
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0280",
+          "label": "insight",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": true,
+          "rationale": "Interprets the counting error as conflating planned spending with unplanned spending."
+        },
+        "reasons": [
+          "RUBRIC_SENSITIVE"
+        ]
+      }
+    }
+  ],
+  "disputedStress95": [
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0008",
+        "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+        "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "MULTI_CONCEPT",
+          "INTENT_COMMITMENT",
+          "INSIGHT_PREFERENCE"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0008",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Expresses the owner\u2019s affinity for working with beginners while withholding role acceptance."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0044",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0.02,
+          "decision": 0,
+          "insight": 0.98,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.161834,
+        "inputTokens": 609,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.273Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0044",
+        "candidate": "The bus wait, not the train leg, is where the recorded journeys spread out.",
+        "context": "My trip log has six entries for this route. The train leg took 42\u201345 minutes each time. Door-to-door totals ranged from 68 to 119 minutes; the long totals coincided with longer waits for the same connecting bus.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "OBSERVATION_INSIGHT",
+          "NEGATION"
+        ],
+        "label": "observation",
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0044",
+          "label": "insight",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Identifies bus waiting as the component associated with variation in total journey duration."
+        },
+        "reasons": [
+          "REVIEW_DISAGREEMENT"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0102",
+        "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+        "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "INTENT_COMMITMENT",
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0102",
+          "label": "commitment",
+          "confidence": "HIGH",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0103",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.95,
+          "commitment": 0,
+          "decision": 0.05,
+          "fact": 0,
+          "hypothesis": 0,
+          "insight": 0
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.40545800000018,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.802Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0103",
+        "candidate": "Priya prefers calls, but I prefer written summaries and have kept them as our default.",
+        "context": "Priya told the group she prefers phone calls. The owner responded that written summaries would remain the team default and that she personally prefers them.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "PREFERENCE_FACT",
+          "PREFERENCE_DECISION",
+          "ATTRIBUTED_STATEMENT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0103",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The central owner statement explicitly endorses written summaries as a personal and continuing default preference."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    }
+  ],
+  "disputedStress99": [
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0008",
+        "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+        "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "MULTI_CONCEPT",
+          "INTENT_COMMITMENT",
+          "INSIGHT_PREFERENCE"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0008",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Expresses the owner\u2019s affinity for working with beginners while withholding role acceptance."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0102",
+        "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+        "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "INTENT_COMMITMENT",
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0102",
+          "label": "commitment",
+          "confidence": "HIGH",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    }
+  ]
+}

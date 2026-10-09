@@ -1,0 +1,15 @@
+{
+  "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+  "prior": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+  "foundDuringFinalAudit": true,
+  "adopted": [
+    "lib/engineering/current-truth-lines.ts",
+    "lib/engineering/worker-projection.ts",
+    "lib/engineering/factory-spend.ts",
+    "lib/engineering/factory-spend.test.ts"
+  ],
+  "migrationBytesChanged": 0,
+  "factoryActivation": false,
+  "finalProducerQualification": "PENDING",
+  "sourceReports": "REPORT.txt and HANDOFF.txt are exact read-only upstream transcripts; their relative references belong to the pinned source tree, not this dossier."
+}

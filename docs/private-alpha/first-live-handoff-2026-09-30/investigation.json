@@ -1,0 +1,75 @@
+{
+  "failedWorkId": "a2dcadef-0738-4194-8b8c-02c16821b5fb",
+  "workVersion": 2,
+  "workGeneration": 2,
+  "sessionId": "wrun_41M3T9HBXB0GVB5QSPEX5E1XE0",
+  "model": "openai/gpt-5.4-mini",
+  "modelCalls": 1,
+  "factoryCalls": 0,
+  "costMicrousd": 717,
+  "additionalRealModelOperations": 0,
+  "response": {
+    "description": "Captured first live admission response. Provider item ID replaced with a non-secret marker; complete content shape, phase and proposal text retained. Replayed without a provider call.",
+    "content": [
+      {
+        "text": "{\"operation\":\"start\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}",
+        "type": "text",
+        "providerMetadata": {
+          "openai": {
+            "phase": "final_answer",
+            "itemId": "redacted-provider-item-id"
+          }
+        }
+      }
+    ],
+    "finishReason": {
+      "unified": "stop"
+    }
+  },
+  "parsedProposal": {
+    "operation": "start",
+    "expectedWorkVersion": 2,
+    "expectedWorkGeneration": 2
+  },
+  "expectedCommand": {
+    "operation": "start",
+    "expectedWorkVersion": 2,
+    "expectedWorkGeneration": 2
+  },
+  "firstDivergence": "conversation-model accepted a JSON text content item without normalizing it into an engineering_factory tool call",
+  "admissionDecision": "NOT_REACHED (not rejected)",
+  "routingDecision": "NOT_REACHED",
+  "writerState": "NONE",
+  "factoryEligibility": "Preflight qualified; live canonical eligibility/admission was not invoked",
+  "currentTruthBefore": {
+    "workVersion": 2,
+    "workGeneration": 2,
+    "control": "agent",
+    "lifecycle": "active",
+    "modelCalls": 0,
+    "commands": 0,
+    "routes": 0,
+    "writer": "NONE",
+    "verification": "NOT_RUN"
+  },
+  "currentTruthAfter": {
+    "workVersion": 2,
+    "workGeneration": 2,
+    "control": "agent",
+    "lifecycle": "active",
+    "modelCalls": 1,
+    "commands": 0,
+    "routes": 0,
+    "writer": "NONE",
+    "verification": "NOT_RUN",
+    "result": null
+  },
+  "controller": {
+    "phase": "STOPPED_BEFORE_RETRY",
+    "at": 1790810225.81498,
+    "failure": "Sofie did not produce an admitted command"
+  },
+  "deadline": "2026-09-30T23:24:17.140Z",
+  "historicalState": "Preserved unchanged. Local controller/consumer stopped; productive deadline expired. Work row remains active/agent as observed. Eve conversation workflow waits for input; it is not an admitted Factory writer. No resume/retry permitted.",
+  "repairCodeSha": "b41b81507bda08da1b299bf7db50086a4ba820e8"
+}

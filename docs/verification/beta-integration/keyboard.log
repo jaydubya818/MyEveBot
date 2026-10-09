@@ -1,0 +1,20 @@
+### Result
+{"keyboard":[{"width":1440,"firstTab":"Skip to content","skipTarget":"owner-content"},{"width":390,"firstTab":"Skip to content","skipTarget":"owner-content"}],"crossOriginMutationStatus":403}
+### Ran Playwright code
+```js
+await (async (page)=>{
+ const reports=[];
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:1000});await page.goto('http://localhost:3099/today');await page.getByRole('button',{name:'Refresh',exact:true}).waitFor();
+  await page.keyboard.press('Tab');const first=await page.evaluate(()=>document.activeElement?.textContent?.trim());
+  if(first!=='Skip to content')throw Error('Skip link is not first keyboard stop');
+  await page.keyboard.press('Enter');const target=await page.evaluate(()=>document.activeElement?.id);if(target!=='owner-content')throw Error('Skip link did not focus main content');
+  reports.push({width,firstTab:first,skipTarget:target});
+ }
+ const response=await page.request.post('http://localhost:3099/api/beta/start',{headers:{Origin:'https://untrusted.invalid'},data:{}});if(response.status()!==403)throw Error('Cross-origin mutation was not denied');
+ return {keyboard:reports,crossOriginMutationStatus:response.status()};
+})(page);
+```
+### Page
+- Page URL: http://localhost:3099/today#owner-content
+- Page Title: Sofie

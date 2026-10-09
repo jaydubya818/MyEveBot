@@ -1,0 +1,1508 @@
+{
+  "id": "a7438d26-d413-42db-84b7-eacda88c00ee",
+  "createdAt": "2026-09-21T05:33:50.361Z",
+  "source": "synthetic-benchmark",
+  "environment": "live-experiment",
+  "execution": {
+    "provider": "Jev",
+    "model": "typesafe-ai/jev",
+    "sourceCommit": "6a067090f4e8e215264c8d4c6b90150bd816cbe2"
+  },
+  "experiment": "TAXONOMY_STRESS",
+  "cohort": "TAXONOMY_STRESS",
+  "decisionId": "knowledge.classification",
+  "decisionVersion": 2,
+  "contractHash": "471e5e6cf2fb9906c2ef08870fdfdf4bb82a6945b45d6fbb61bb211af77095ac",
+  "datasetVersion": "knowledge-classification-challenge-v1",
+  "datasetHash": "75bb055bc2bbd3d994a8ef5d0febe358f4aab192e9121ac28d95c2e8599fca18",
+  "rubricId": "knowledge-taxonomy-challenge-rubric:v1",
+  "rubricHash": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+  "mode": "SHADOW",
+  "influence": "NONE",
+  "canonicalSource": "not-measured",
+  "concurrency": 1,
+  "rows": [
+    {
+      "id": "challenge_0001",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "decision": 0.94,
+          "hypothesis": 0,
+          "insight": 0,
+          "preference": 0.06,
+          "commitment": 0
+        },
+        "confidence": 0.94,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 431.393792,
+        "inputTokens": 584,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:35.683Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0002",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0,
+          "commitment": 0.84,
+          "insight": 0,
+          "hypothesis": 0.15,
+          "preference": 0,
+          "decision": 0.01
+        },
+        "confidence": 0.84,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 208.39875000000006,
+        "inputTokens": 592,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:35.892Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0003",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "fact": 0.05,
+          "insight": 0.03,
+          "decision": 0.13,
+          "commitment": 0.32,
+          "preference": 0.47000000000000003,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.47000000000000003,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 202.03620799999987,
+        "inputTokens": 599,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.095Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0006",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.12,
+          "observation": 0,
+          "preference": 0.79,
+          "insight": 0,
+          "commitment": 0.09,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.79,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 341.77879099999996,
+        "inputTokens": 611,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.437Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0010",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0.02,
+          "fact": 0.01,
+          "decision": 0.83,
+          "hypothesis": 0.01,
+          "insight": 0.03,
+          "preference": 0.1,
+          "commitment": 0
+        },
+        "confidence": 0.83,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.72879199999988,
+        "inputTokens": 587,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.984Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0019",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "fact": 0,
+          "hypothesis": 0.14,
+          "insight": 0,
+          "preference": 0.03,
+          "decision": 0.15,
+          "commitment": 0.68,
+          "observation": 0
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 326.845292,
+        "inputTokens": 601,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:37.311Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0023",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0,
+          "decision": 0,
+          "hypothesis": 0.32,
+          "insight": 0.68,
+          "commitment": 0,
+          "fact": 0,
+          "preference": 0
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 248.38916700000027,
+        "inputTokens": 605,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:37.560Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0027",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "insight": 0.44,
+          "observation": 0.55,
+          "preference": 0,
+          "decision": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0.01
+        },
+        "confidence": 0.55,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 237.32904099999996,
+        "inputTokens": 605,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:37.798Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0042",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "observation": 0.88,
+          "decision": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "fact": 0.12,
+          "insight": 0,
+          "preference": 0
+        },
+        "confidence": 0.88,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 246.78929100000005,
+        "inputTokens": 584,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.045Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0044",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0.02,
+          "decision": 0,
+          "insight": 0.98,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.161834,
+        "inputTokens": 609,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.273Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0048",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "preference": 0,
+          "insight": 0.79,
+          "fact": 0,
+          "commitment": 0,
+          "decision": 0,
+          "observation": 0,
+          "hypothesis": 0.21
+        },
+        "confidence": 0.79,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 225.57670899999994,
+        "inputTokens": 585,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.499Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0059",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0.03,
+          "preference": 0,
+          "hypothesis": 0,
+          "insight": 0.27,
+          "fact": 0,
+          "decision": 0,
+          "commitment": 0.6900000000000001
+        },
+        "confidence": 0.6900000000000001,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 245.99141699999973,
+        "inputTokens": 603,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.745Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0068",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "insight": 0,
+          "decision": 0.13,
+          "commitment": 0.87,
+          "observation": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 0.87,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 255.7342920000001,
+        "inputTokens": 589,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.002Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0069",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "observation": 0,
+          "preference": 0,
+          "insight": 0,
+          "fact": 0.02
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 225.60524999999961,
+        "inputTokens": 575,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.228Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0075",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "preference": 0.4,
+          "decision": 0.24,
+          "fact": 0,
+          "observation": 0,
+          "insight": 0,
+          "commitment": 0.36,
+          "hypothesis": 0
+        },
+        "confidence": 0.4,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.2423749999998,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.456Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0078",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.04,
+          "fact": 0.11,
+          "observation": 0.02,
+          "commitment": 0.11,
+          "hypothesis": 0.01,
+          "preference": 0.59,
+          "insight": 0.12
+        },
+        "confidence": 0.59,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 253.63608300000033,
+        "inputTokens": 587,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.710Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0081",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "insight": 0.72,
+          "preference": 0,
+          "fact": 0.22,
+          "hypothesis": 0.03,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.03
+        },
+        "confidence": 0.72,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 213.47041699999954,
+        "inputTokens": 578,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:39.924Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0088",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "preference": 0,
+          "commitment": 0,
+          "observation": 0,
+          "hypothesis": 0.7,
+          "fact": 0,
+          "decision": 0,
+          "insight": 0.3
+        },
+        "confidence": 0.7,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 264.3033749999995,
+        "inputTokens": 578,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:40.189Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0089",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "preference": 0,
+          "insight": 0.01,
+          "commitment": 0.98,
+          "hypothesis": 0,
+          "decision": 0,
+          "fact": 0.01,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.84308299999975,
+        "inputTokens": 574,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:40.417Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0092",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.68,
+          "fact": 0.01,
+          "hypothesis": 0,
+          "commitment": 0,
+          "observation": 0.04,
+          "preference": 0,
+          "insight": 0.27
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 244.9763750000002,
+        "inputTokens": 596,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:40.663Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0099",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.03,
+          "commitment": 0.33,
+          "insight": 0,
+          "fact": 0,
+          "hypothesis": 0.04,
+          "decision": 0.6
+        },
+        "confidence": 0.6,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 260.1847079999998,
+        "inputTokens": 578,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:40.924Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0101",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0.29,
+          "observation": 0,
+          "preference": 0.46,
+          "decision": 0.25,
+          "hypothesis": 0,
+          "insight": 0,
+          "fact": 0
+        },
+        "confidence": 0.46,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 333.3492499999993,
+        "inputTokens": 606,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.257Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0103",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.95,
+          "commitment": 0,
+          "decision": 0.05,
+          "fact": 0,
+          "hypothesis": 0,
+          "insight": 0
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.40545800000018,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.802Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0106",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0.01,
+          "preference": 0.38,
+          "commitment": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0.01,
+          "decision": 0.6
+        },
+        "confidence": 0.6,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 280.9435000000003,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.084Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0121",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.01,
+          "decision": 0.99,
+          "commitment": 0,
+          "insight": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 258.7219580000001,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.343Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0127",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0.48,
+          "fact": 0,
+          "preference": 0.09,
+          "insight": 0,
+          "decision": 0.43,
+          "hypothesis": 0
+        },
+        "confidence": 0.48,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 218.87837500000023,
+        "inputTokens": 596,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.562Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0135",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 1,
+          "hypothesis": 0,
+          "observation": 0,
+          "insight": 0,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 278.7664169999998,
+        "inputTokens": 590,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:42.842Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0138",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0,
+          "observation": 0,
+          "preference": 0.08,
+          "hypothesis": 0,
+          "commitment": 0.29,
+          "decision": 0.63,
+          "insight": 0
+        },
+        "confidence": 0.63,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 275.5357919999997,
+        "inputTokens": 603,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.118Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0158",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "insight": 0.52,
+          "fact": 0,
+          "preference": 0,
+          "observation": 0,
+          "commitment": 0,
+          "decision": 0,
+          "hypothesis": 0.48
+        },
+        "confidence": 0.52,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 221.42824999999993,
+        "inputTokens": 598,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.340Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0159",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "decision": 0,
+          "observation": 0.74,
+          "commitment": 0,
+          "hypothesis": 0,
+          "preference": 0,
+          "fact": 0.21,
+          "insight": 0.05
+        },
+        "confidence": 0.74,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 199.82608299999993,
+        "inputTokens": 585,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.541Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0166",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0.05,
+          "insight": 0.64,
+          "decision": 0.27,
+          "preference": 0,
+          "observation": 0.04
+        },
+        "confidence": 0.64,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 233.99924999999894,
+        "inputTokens": 593,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.776Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0177",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "insight": 0.01,
+          "preference": 0,
+          "commitment": 0.02,
+          "decision": 0.97,
+          "fact": 0
+        },
+        "confidence": 0.97,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 210.11316700000134,
+        "inputTokens": 582,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:43.986Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0180",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "observation",
+        "probabilities": {
+          "insight": 0.18,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0.5,
+          "hypothesis": 0.13,
+          "preference": 0,
+          "fact": 0.19
+        },
+        "confidence": 0.5,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 256.6904169999998,
+        "inputTokens": 587,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:44.243Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0181",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "decision": 0.14,
+          "observation": 0,
+          "insight": 0.01,
+          "hypothesis": 0.23,
+          "preference": 0.6,
+          "fact": 0.01,
+          "commitment": 0.01
+        },
+        "confidence": 0.6,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 301.8134170000012,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:44.546Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0185",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "fact": 0,
+          "preference": 0.71,
+          "commitment": 0.06,
+          "insight": 0,
+          "decision": 0.23
+        },
+        "confidence": 0.71,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 263.31766699999935,
+        "inputTokens": 604,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:44.810Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0186",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.9299999999999999,
+          "decision": 0,
+          "hypothesis": 0,
+          "insight": 0.02,
+          "fact": 0.02,
+          "preference": 0,
+          "observation": 0.03
+        },
+        "confidence": 0.9299999999999999,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 204.63745799999924,
+        "inputTokens": 593,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:45.015Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0191",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.75,
+          "observation": 0,
+          "hypothesis": 0,
+          "insight": 0,
+          "fact": 0,
+          "preference": 0,
+          "decision": 0.25
+        },
+        "confidence": 0.75,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 220.63504199999988,
+        "inputTokens": 575,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:45.236Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0195",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0,
+          "fact": 0.04,
+          "decision": 0,
+          "commitment": 0,
+          "insight": 0.57,
+          "preference": 0,
+          "hypothesis": 0.39
+        },
+        "confidence": 0.57,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 358.9758750000001,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:45.595Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0199",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.11,
+          "fact": 0.02,
+          "commitment": 0.53,
+          "insight": 0,
+          "preference": 0.32,
+          "hypothesis": 0,
+          "observation": 0.02
+        },
+        "confidence": 0.53,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 221.19566699999996,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:45.817Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0205",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "insight": 0.98,
+          "preference": 0,
+          "fact": 0.02,
+          "hypothesis": 0,
+          "decision": 0,
+          "commitment": 0,
+          "observation": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 394.99541699999827,
+        "inputTokens": 603,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:46.213Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0214",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "fact": 0.01,
+          "insight": 0,
+          "commitment": 0.16,
+          "preference": 0.01,
+          "decision": 0.48,
+          "observation": 0.05,
+          "hypothesis": 0.29
+        },
+        "confidence": 0.48,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 277.7242920000008,
+        "inputTokens": 589,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:46.491Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0233",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "commitment": 0,
+          "observation": 0.01,
+          "decision": 0,
+          "hypothesis": 0.56,
+          "preference": 0,
+          "fact": 0.11,
+          "insight": 0.32
+        },
+        "confidence": 0.56,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 226.82675000000017,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:46.719Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0246",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "fact",
+        "probabilities": {
+          "decision": 0.14,
+          "fact": 0.56,
+          "commitment": 0,
+          "insight": 0,
+          "preference": 0,
+          "hypothesis": 0,
+          "observation": 0.3
+        },
+        "confidence": 0.56,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 254.5717910000003,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:46.974Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0256",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "hypothesis": 0,
+          "observation": 0,
+          "commitment": 1,
+          "decision": 0,
+          "preference": 0,
+          "fact": 0,
+          "insight": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 220.20858399999997,
+        "inputTokens": 596,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:47.195Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0268",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "commitment": 0.66,
+          "hypothesis": 0.08,
+          "decision": 0.1,
+          "insight": 0,
+          "fact": 0,
+          "preference": 0.16,
+          "observation": 0
+        },
+        "confidence": 0.66,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 423.75,
+        "inputTokens": 596,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:47.619Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0280",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "preference": 0,
+          "observation": 0,
+          "fact": 0.01,
+          "hypothesis": 0,
+          "commitment": 0,
+          "insight": 0.99,
+          "decision": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 274.9304579999989,
+        "inputTokens": 599,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:47.894Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0281",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "commitment": 0.33,
+          "decision": 0.2,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "preference": 0.47000000000000003,
+          "observation": 0
+        },
+        "confidence": 0.47000000000000003,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 300.67866700000013,
+        "inputTokens": 598,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:48.196Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0284",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "preference": 0,
+          "decision": 0,
+          "fact": 0.12,
+          "observation": 0.18,
+          "insight": 0.7,
+          "commitment": 0,
+          "hypothesis": 0
+        },
+        "confidence": 0.7,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 265.40308300000106,
+        "inputTokens": 581,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:48.462Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0285",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.66,
+          "insight": 0,
+          "hypothesis": 0,
+          "commitment": 0.06,
+          "preference": 0.22,
+          "observation": 0.05,
+          "fact": 0.01
+        },
+        "confidence": 0.66,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 214.14587500000016,
+        "inputTokens": 593,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:48.676Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0290",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.68,
+          "observation": 0.01,
+          "preference": 0,
+          "insight": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0.31
+        },
+        "confidence": 0.68,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 290.1645419999986,
+        "inputTokens": 580,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:48.967Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0292",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "decision": 0.65,
+          "observation": 0,
+          "commitment": 0.23,
+          "hypothesis": 0,
+          "preference": 0.12,
+          "fact": 0,
+          "insight": 0
+        },
+        "confidence": 0.65,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 225.89620900000045,
+        "inputTokens": 598,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:49.193Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0295",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "hypothesis",
+        "probabilities": {
+          "insight": 0.06,
+          "decision": 0,
+          "observation": 0,
+          "commitment": 0,
+          "hypothesis": 0.94,
+          "preference": 0,
+          "fact": 0
+        },
+        "confidence": 0.94,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 243.3167080000003,
+        "inputTokens": 576,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:49.438Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0297",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "insight": 0,
+          "preference": 0.79,
+          "commitment": 0.14,
+          "hypothesis": 0,
+          "decision": 0.07,
+          "fact": 0,
+          "observation": 0
+        },
+        "confidence": 0.79,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 261.3771250000009,
+        "inputTokens": 600,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:49.700Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0309",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "decision",
+        "probabilities": {
+          "observation": 0,
+          "hypothesis": 0,
+          "fact": 0,
+          "commitment": 0.01,
+          "insight": 0,
+          "preference": 0.47,
+          "decision": 0.52
+        },
+        "confidence": 0.52,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 338.75395799999933,
+        "inputTokens": 573,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:50.040Z"
+      },
+      "failure": null
+    },
+    {
+      "id": "challenge_0310",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "insight": 0,
+          "commitment": 0.02,
+          "hypothesis": 0.06,
+          "decision": 0.06,
+          "preference": 0.77,
+          "observation": 0.05,
+          "fact": 0.04
+        },
+        "confidence": 0.77,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 319.98308299999917,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:50.360Z"
+      },
+      "failure": null
+    }
+  ]
+}

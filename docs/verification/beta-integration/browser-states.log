@@ -1,0 +1,25 @@
+### Result
+{"serviceFailure":"explicit alert","sessionLoss":"private state cleared; late successful read ignored","recovery":"real persisted Results restored after refresh","scope":"fault-injection UI checks; no provider responses mocked in golden journey"}
+### Ran Playwright code
+```js
+await (async (page)=>{
+ await page.goto('http://localhost:3099/today');await page.getByRole('link',{name:'Prepare the authenticated browser brief',exact:true}).waitFor();
+ await page.route('**/api/beta/goals?*',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Qualification outage'})}));
+ await page.getByRole('button',{name:'Refresh',exact:true}).click();await page.getByRole('heading',{name:'Some information is unavailable',exact:true}).waitFor();
+ await page.unrouteAll({behavior:'wait'});
+ await page.route('**/api/beta/goals?*',r=>r.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'Qualification session expired'})}));
+ await page.route('**/api/beta/results',async r=>{const response=await r.fetch();await page.getByRole('heading',{name:'Some information is unavailable',exact:true}).waitFor();await r.fulfill({response});});
+ await page.goto('http://localhost:3099/results');await page.getByRole('heading',{name:'Some information is unavailable',exact:true}).waitFor();
+ await page.waitForFunction(()=>![...document.querySelectorAll('[role="status"]')].some(e=>e.textContent.includes('Checking your current state')));
+ const leaked=await page.getByRole('button',{name:'Prefer source citations',exact:true}).count();if(leaked)throw Error('Late response restored private results after session loss');
+ await page.unrouteAll({behavior:'wait'});await page.getByRole('button',{name:'Refresh',exact:true}).click();await page.getByRole('button',{name:'Prefer source citations',exact:true}).first().waitFor();
+ return {serviceFailure:'explicit alert',sessionLoss:'private state cleared; late successful read ignored',recovery:'real persisted Results restored after refresh',scope:'fault-injection UI checks; no provider responses mocked in golden journey'};
+}
+)(page);
+```
+### Page
+- Page URL: http://localhost:3099/results
+- Page Title: Sofie
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-27T22-05-04-631Z.log#L1-L2

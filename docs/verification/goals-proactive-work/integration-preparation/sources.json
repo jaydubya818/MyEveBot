@@ -1,0 +1,54 @@
+[
+  {
+    "commit": "4b31ddebe8235fc1efca154d41ee37061be2a444",
+    "path": "apps/eve/lib/engineering/knowledge.ts",
+    "sha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247",
+    "mode": "read-only contract inspection"
+  },
+  {
+    "commit": "4b31ddebe8235fc1efca154d41ee37061be2a444",
+    "path": "apps/eve/lib/total-recall/store.ts",
+    "sha256": "291e085721903f61f638198dbfd78eaf899908fa330dbc06734ffa86b1a0c0c1",
+    "mode": "read-only contract inspection"
+  },
+  {
+    "commit": "21973e5bf646ceec4c68dc90625ff020d405d7a9",
+    "path": "apps/eve/lib/engineering/types.ts",
+    "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+  },
+  {
+    "commit": "21973e5bf646ceec4c68dc90625ff020d405d7a9",
+    "path": "apps/eve/lib/digital-worker/contracts.ts",
+    "sha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30"
+  },
+  {
+    "commit": "36675bd5c64fa848b32f7dfbbb349957b5853498",
+    "path": "apps/eve/lib/universal-inbox/contracts.ts",
+    "sha256": "bb733818e8d2fb1ebec00193cf772d0f426a23501132ebafbf7bd1fd2d836a53"
+  },
+  {
+    "commit": "36675bd5c64fa848b32f7dfbbb349957b5853498",
+    "path": "apps/eve/lib/universal-inbox/service.ts",
+    "sha256": "1b7b21027c135242afb21472eee65366d632f3c5d61a18cb54180db0daed5f81"
+  },
+  {
+    "commit": "36675bd5c64fa848b32f7dfbbb349957b5853498",
+    "path": "apps/eve/lib/universal-inbox/domain.ts",
+    "sha256": "e1303777b0c6b8c8e4b378d76418fb2ef70b349613499409a21b4f2f01f5fac4"
+  },
+  {
+    "commit": "36675bd5c64fa848b32f7dfbbb349957b5853498",
+    "path": "apps/eve/lib/universal-inbox/fixture-repository.ts",
+    "sha256": "865c8cbc44bad6378ac78ea086b9dc1745c0a4db509625c6025f356e601da0c7"
+  },
+  {
+    "commit": "ed0f6b5dad0e3a131a9f5332139e627245cbd4e8",
+    "path": "apps/eve/components/owner/projection.ts",
+    "sha256": "97f06455844fb3e007d7d508bf45017cf0a98ab5e57480299ed081288e4430c0"
+  },
+  {
+    "commit": "4b31ddebe8235fc1efca154d41ee37061be2a444",
+    "path": "apps/eve/lib/total-recall/learning.ts",
+    "sha256": "1a79e4093024b334bced0b58c33abe3ed1d769fcd369efa9b760fb34b1e65554"
+  }
+]

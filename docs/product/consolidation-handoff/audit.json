@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-10-02T17:42:47.809442+00:00",
+  "acceptedImplementationSha": "d3e4af20c51e6f5e9b1205d83e51e362f523af5b",
+  "functionalIsAncestorOfVisual": true,
+  "canonicalMainIsAncestorOfVisual": true,
+  "canonicalMergeBase": "d75091eb333a531fa91ed9d39e273948aa9d0eaf",
+  "canonicalMainOnlyCommits": 0,
+  "productOnlyCommitsAtAcceptedImplementation": 12,
+  "remoteMainVerifiedBeforePackage": "d75091eb333a531fa91ed9d39e273948aa9d0eaf",
+  "remoteProductVerifiedBeforePackage": "d3e4af20c51e6f5e9b1205d83e51e362f523af5b",
+  "remoteVerificationMethod": "git ls-remote origin refs/heads/main refs/heads/codex/agent-native-work-experience",
+  "knownTextualConflictsAgainstPinnedMain": [],
+  "automaticMergeOrDeployment": false,
+  "startingRelayMain": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "startingMyFactoryMain": "c0b4c1155a6a98f91375163443938042e6a0be10",
+  "otherRepositoryPinsMeaning": "Previously fetched checkpoint baselines, not fresh remote attestations in this documentation-only handoff.",
+  "finalCommitReceipt": "Resolve the containing handoff commit and compare to git ls-remote; exact final receipt is in the final handoff message."
+}

@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:__dirname,testMatch:'*.spec.cjs',workers:1,timeout:120000,expect:{timeout:15000},reporter:[['list']],outputDir:'../../../../output/playwright/product-acceptance-fixes/browser-artifacts',use:{baseURL:'http://127.0.0.1:3073',channel:'chrome',headless:true,actionTimeout:10000,navigationTimeout:60000,trace:'off',screenshot:'off'}});

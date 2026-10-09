@@ -1,0 +1,10 @@
+{
+  "status": "ready",
+  "pid": 48331,
+  "parentPid": 48330,
+  "at": "2026-10-01T01:18:16.480Z",
+  "permissions": {
+    "accessibility": false,
+    "screenRecording": false
+  }
+}

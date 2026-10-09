@@ -1,0 +1,96 @@
+{
+  "kind": "CONNECTED",
+  "origin": "https://sofie-cloud-qualification-o6y025hei-jaydubya818.vercel.app",
+  "deploymentId": "dpl_FGV97kwxwwsaUtijz6C6YTEU2v7S",
+  "checkedAt": "2026-10-02T21:13:18.396Z",
+  "factoryInfrastructureCredentialsInRunner": 0,
+  "results": [
+    {
+      "name": "no_sofie_bypass",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "sofie_bypass_only",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "invalid_sofie_identity",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "operator_cannot_read_owner_work",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "bypass_cannot_create_eve_session",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "composed_factory_access",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "name": "login",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "name": "canonical_owner_work_read",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "name": "authorized_owner_foreign_work_denied",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "name": "publication_surface_denied",
+      "status": 403,
+      "pass": true
+    }
+  ],
+  "workDispatched": false,
+  "paidModelCalls": 0,
+  "factoryMatrix": {
+    "kind": "CONNECTED",
+    "results": [
+      {
+        "name": "without_trust_identity",
+        "status": 302,
+        "pass": true
+      },
+      {
+        "name": "trust_identity_only",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "name": "authorized_identity",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "name": "invalid_identity",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "name": "missing_work_authority",
+        "status": 403,
+        "pass": true
+      }
+    ],
+    "passed": true,
+    "cloudProductionAdmission": "DISABLED",
+    "paidModelCalls": 0,
+    "workDispatched": false
+  },
+  "status": "PASS"
+}

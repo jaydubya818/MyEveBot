@@ -1,0 +1,10 @@
+import {execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const cwd=process.cwd();
+if(execFileSync('git',['status','--porcelain','--untracked-files=no'],{cwd,encoding:'utf8'}).trim())throw Error('SOURCE_DIRTY');
+const sha=execFileSync('git',['rev-parse','HEAD'],{cwd,encoding:'utf8'}).trim();
+const paths=execFileSync('git',['ls-files','-z'],{cwd,encoding:'utf8'}).split('\0').filter(Boolean);
+const files=Object.fromEntries(paths.map(path=>[path,createHash('sha256').update(readFileSync(`${cwd}/${path}`)).digest('hex')]));
+writeFileSync(`${cwd}/.fq-source.json`,JSON.stringify({sha,files}),{mode:0o644});
+console.log(JSON.stringify({sha,files:paths.length}));

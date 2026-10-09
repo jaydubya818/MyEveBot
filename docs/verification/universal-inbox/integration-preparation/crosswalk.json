@@ -1,0 +1,22 @@
+{
+  "pins": {
+    "beta": "ed0f6b5dad0e3a131a9f5332139e627245cbd4e8",
+    "goals": "b9b46c41480f0859d44683346bd24d7ce9f2b7c9"
+  },
+  "sources": {
+    "apps/eve/components/owner/projection.ts": {
+      "sha": "ed0f6b5dad0e3a131a9f5332139e627245cbd4e8",
+      "sha256": "97f06455844fb3e007d7d508bf45017cf0a98ab5e57480299ed081288e4430c0"
+    },
+    "apps/eve/lib/goal-work/attention-adapter.ts": {
+      "sha": "b9b46c41480f0859d44683346bd24d7ce9f2b7c9",
+      "sha256": "bbfea88319901c40ea2c99fcb851cff8aa119931ad4cb6b0ec6eea08c2231b61"
+    }
+  },
+  "existingGoalsEventCompatible": true,
+  "goalGenerationsPreserved": true,
+  "betaCanonicalApprovalProjectionCompatible": true,
+  "missingBetaAttentionSlot": true,
+  "ordinaryDecisionsRequireNewProductProjection": true,
+  "productionActivated": false
+}

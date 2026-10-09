@@ -1,0 +1,15 @@
+{
+  "ENVELOPE.md": "1bea048de111f042b8c306a21dfb16d25ff3a6357ea5819a9b81e971a818cdcb",
+  "REPORT.md": "ff8750d201bccc7c7672c287613d19d0ec527fff854dae28c32fa4076ffd7de6",
+  "consumer-focused.log": "813eadab1082185f6643d0764d506b6a757469473bdd2b33168e739499e6d3e5",
+  "installed-cli.log": "6e01c56368ad03eecef68df0d3312567c523de054a901e679b3333e28948b3b9",
+  "lineage.json": "a9894496b7a01414454a7f78705ba4ed4a7bccdbef81a49dccbb1aa5e0743f6f",
+  "migrations.log": "bd764a8c6e06331bb0425d34d6cc21118655602728b1bda37cce47be94397cfa",
+  "price-card.json": "b57f1fe210c0f3407ea12753524eb5dc64558f68ccad84cb0c49caf788fe5443",
+  "probe.json": "5e946dc722e4633ad4c7e8c2270b3fe841dad42b8d53b845d4a5f4b50c1ecb70",
+  "probe.mjs": "81c02f5e151488b40dd99e23ee82c5ece4e581bb0b452454556a8f122198e78a",
+  "producer-tests.log": "0d6d370d3c4ff3976d65b2decf6a4488693fc8dd0ffaa9df2169ab3650b1dfad",
+  "qualification-summary.json": "3a4df2b3c320ca100ea1b8a2a1880e7d8ef9e606af4d790e22a1d5934468274a",
+  "source-hashes.json": "48bff8e0b915e33f7fb5ecf57b1c905f603b3c005a858938a95c0f298737cce2",
+  "typecheck.log": "74349aaf03a2ebfba7f5f5aa00f4fedd3ee8a2139cea3a51f088fcf03130b541"
+}

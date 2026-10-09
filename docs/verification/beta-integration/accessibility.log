@@ -1,0 +1,23 @@
+### Result
+[{"route":"/today","width":1440,"scroll":1440,"heading":"Today","violations":[],"unavailable":false},{"route":"/work?kind=goal&id=10cdc7fa-1171-424f-8c36-d681c83bbf4b","width":1440,"scroll":1440,"heading":"Work","violations":[],"unavailable":false},{"route":"/work?kind=work&id=c9520de9-e6e8-41d7-acf3-f9e416f42092","width":1440,"scroll":1440,"heading":"Work","violations":[],"unavailable":false},{"route":"/work","width":1440,"scroll":1425,"heading":"Work","violations":[],"unavailable":false},{"route":"/needs-you","width":1440,"scroll":1440,"heading":"Needs you","violations":[],"unavailable":false},{"route":"/results","width":1440,"scroll":1425,"heading":"Results","violations":[],"unavailable":false},{"route":"/memory?workId=40c4855d-85d0-42cf-8bbc-1bcefed27903","width":1440,"scroll":1425,"heading":"Memory and learning","violations":[],"unavailable":false},{"route":"/brief","width":1440,"scroll":1425,"heading":"Daily Brief","violations":[],"unavailable":false},{"route":"/welcome","width":1440,"scroll":1440,"heading":"Meet Sofie","violations":[],"unavailable":false},{"route":"/today","width":390,"scroll":375,"heading":"Today","violations":[],"unavailable":false},{"route":"/work?kind=goal&id=10cdc7fa-1171-424f-8c36-d681c83bbf4b","width":390,"scroll":375,"heading":"Work","violations":[],"unavailable":false},{"route":"/work?kind=work&id=c9520de9-e6e8-41d7-acf3-f9e416f42092","width":390,"scroll":375,"heading":"Work","violations":[],"unavailable":false},{"route":"/work","width":390,"scroll":375,"heading":"Work","violations":[],"unavailable":false},{"route":"/needs-you","width":390,"scroll":390,"heading":"Needs you","violations":[],"unavailable":false},{"route":"/results","width":390,"scroll":375,"heading":"Results","violations":[],"unavailable":false},{"route":"/memory?workId=40c4855d-85d0-42cf-8bbc-1bcefed27903","width":390,"scroll":375,"heading":"Memory and learning","violations":[],"unavailable":false},{"route":"/brief","width":390,"scroll":375,"heading":"Daily Brief","violations":[],"unavailable":false},{"route":"/welcome","width":390,"scroll":375,"heading":"Meet Sofie","violations":[],"unavailable":false}]
+### Ran Playwright code
+```js
+await (async (page)=>{const reports=[];
+for(const size of [{width:1440,height:1000},{width:390,height:844}]){
+ await page.setViewportSize(size);
+ for(const route of ['/today','/work?kind=goal&id=10cdc7fa-1171-424f-8c36-d681c83bbf4b','/work?kind=work&id=c9520de9-e6e8-41d7-acf3-f9e416f42092','/work','/needs-you','/results','/memory?workId=40c4855d-85d0-42cf-8bbc-1bcefed27903','/brief','/welcome']){
+  await page.goto('http://localhost:3099'+route);
+  await page.getByRole('button',{name:'Refresh',exact:true}).waitFor();
+  await page.waitForFunction(()=> ![...document.querySelectorAll('[role="status"]')].some(e=>e.textContent.includes('Checking your current state')));
+  await page.addScriptTag({path:'/tmp/myeve-beta-accessibility/node_modules/axe-core/axe.min.js'});
+  const audit=await page.evaluate(async()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,heading:document.querySelector('h1')?.textContent,violations:(await window.axe.run({runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,impact:v.impact,targets:v.nodes.map(n=>n.target)})),unavailable:document.body.innerText.includes('Some information is unavailable')}));
+  reports.push({route,...audit});
+  await page.screenshot({path:'/Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve/output/playwright/beta-integration/'+size.width+'-'+route.split('?')[0].slice(1)+(route.includes('kind=goal')?'-goal':route.includes('kind=work')?'-detail':'')+'.png',fullPage:true});
+ }
+}
+return reports;
+})(page);
+```
+### Page
+- Page URL: http://localhost:3099/welcome
+- Page Title: Sofie

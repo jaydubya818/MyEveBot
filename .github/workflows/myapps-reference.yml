@@ -1,0 +1,61 @@
+name: MyApps deterministic reference
+on:
+  push:
+    branches: [codex/myapps-foundation, codex/myapps-phase2]
+    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
+  pull_request:
+    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test packages/myapps/test/*.test.mjs
+  composed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/MyFactory
+          ref: 0e22176fbeaaeca54f268af6e1b8b00cf9fe528b
+          path: .qualification/myfactory
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run db:migrations:check
+      - run: node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
+      - run: node node_modules/playwright/cli.js install --with-deps chromium
+      - run: npm run build --workspace @myeve/myapps-reference
+      - run: node packages/myapps/browser/journey.mjs
+      - run: cp -R output/playwright/myapps /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/journey.mjs
+        env:
+          MYAPPS_VISUAL_BASELINE_ROOT: /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/performance.mjs
+      - run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts
+        env:
+          MYAPPS_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-myapps-qualification
+          path: output/playwright/myapps/
+          retention-days: 7

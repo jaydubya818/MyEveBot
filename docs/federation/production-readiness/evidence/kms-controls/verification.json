@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "scope": "local regression and read-only hosted metadata; neither external gate",
+  "myeveUnchanged": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+  "relayBaseline": "bbfcaa18710556fc689f60990599f4734e99a720",
+  "relayProductCommit": "d1c4ed0c0ae1c246afb31b0f3c31178a4b8eda88",
+  "relayScaffoldingCommit": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
+  "candidatePromoted": false,
+  "regressionVerdict": "INCOMPLETE_EXISTING_BROWSER_LATENCY_FAILURE",
+  "sourceHashes": {
+    "lib/v2/evidence/audit.ts": "1a2522aa3af1b4a1e9c2e35d5e20ac0c3220f29a110030c7379d2952daeb73fe",
+    "lib/v2/evidence/crypto.ts": "6eacc41db71b3a1025c1c6deaa569a2b1903ee3622ffcb6416409c7c41e30939",
+    "lib/v2/evidence/signing-provider.ts": "ae7a02ef0bdad13177677a99671f0a2f4f464006f7ec277cb525b71957ffb53b",
+    "lib/v2/evidence/google-kms.ts": "3e8d98f70d524d23917691b98bc4f6d7ccde6b2e7a052b6885b3258c220ac15d",
+    "lib/v2/federation/transport.ts": "3f678f990eef2dc9dcfdb6bff9c24b74f0a747679912e6aad30586b28d78588b",
+    "lib/v2/leases.ts": "d1b793f2b3ec586ed2db3a3c9e1e0ce6a61719ccd9e460e20da53ab84fa64869",
+    "lib/v2/passports.ts": "0733e495da46f4e06b01f72c70ab9070cfb6853a48a506cb95250b435ec1c2cc",
+    "lib/v2/production-crypto.ts": "f941995272cf7f8dc328098eb1cce85c0dec04a7755567a968ee50e0e0e87e78",
+    "tests/federation/signing-provider.test.ts": "acf7e3921fef77aabddbd22b0b8a411b5e6a2f82e466289a72f42dbe32c36a28",
+    "tests/federation/signing-lifecycle.test.ts": "9be56be4d2f748a5729fde4b8710ed750056f23b461f7f71f75d1798eba8bbb9",
+    "tests/federation/production-crypto.test.ts": "9eb0dd96e511e96b4631f9f14399ca8278820b834b4fd0e4178306429c4e1bbc",
+    "docs/federation/production-crypto-startup.md": "516a7d221169c15dbf0028096743e5f71989c1ea35e60e80d9349526fc857fc0",
+    "scripts/measure-federation-signing.ts": "c63e75a313b01ccbeab1c12f4c61a3dabe459d1ed2e5662ab4252ec1dd938948",
+    "scripts/production-qualification/crypto-startup-smoke.mjs": "acd0a41b4f964cab86d51fac5d35ddcc4d37c60adc81a52745d2e61f7767ffae"
+  },
+  "tests": {
+    "relayCompleteSuite": {
+      "passed": 243,
+      "skipped": 4,
+      "failed": 0,
+      "filesPassed": 45,
+      "filesSkipped": 3,
+      "totalFiles": 48,
+      "timeoutMs": 30000
+    },
+    "finalAffectedFederationRerun": {
+      "passed": 63,
+      "failed": 0,
+      "files": 4,
+      "reason": "Final revocation-timestamp validation and exact-delivery provider test checked after complete-suite run"
+    },
+    "performance": {
+      "passed": 2,
+      "failed": 0
+    },
+    "playwrightCandidate": {
+      "passed": 2,
+      "failed": 1,
+      "benchmark": [
+        {
+          "benchmark": "/",
+          "p50Ms": 181.08470800000214,
+          "p95Ms": 3635.359209000002,
+          "p99Ms": 4257.156917,
+          "samples": 20
+        }
+      ]
+    },
+    "playwrightUnchangedBaseline": {
+      "passed": 2,
+      "failed": 1,
+      "benchmark": [
+        {
+          "benchmark": "/",
+          "p50Ms": 164.25837500000125,
+          "p95Ms": 776.6442500000012,
+          "p99Ms": 960.0164589999986,
+          "samples": 20
+        }
+      ],
+      "conclusion": "Same unchanged warm dashboard p95 <200 ms assertion fails; do not mark full qualification passed"
+    },
+    "disposableAva": {
+      "passed": 46,
+      "externalGate": false
+    },
+    "readinessPython": {
+      "passed": 15
+    },
+    "readinessNode": {
+      "passed": 7
+    },
+    "sharedPostgresIntegration": {
+      "passed": 21,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "databaseMigrationMetadata": "PASS",
+    "frontier": "PASS with missing-ref diagnostics from local copy; frozen refs reported unchanged",
+    "negativeProductionStartup": {
+      "scope": "local production build; not hosted qualification",
+      "managedSecretProductionStartup": "REJECTED",
+      "httpStatus": 500,
+      "kmsHostedStartup": "NOT_RUN"
+    },
+    "preflight": {
+      "launchable": false,
+      "blockers": [
+        "hostedKms",
+        "purposeSeparatedKeys",
+        "versionedVerification",
+        "isolatedWorkloadIdentity",
+        "ingressAdmission",
+        "modelHardLiability",
+        "workerAdmission",
+        "artifactAdmission",
+        "outOfBandStop",
+        "syntheticEnvironmentIsolation",
+        "myeveQualificationDeploymentId",
+        "relayQualificationDeploymentId",
+        "peerQualificationDeploymentId",
+        "operator",
+        "peerOperator",
+        "stopContact",
+        "testWindow"
+      ],
+      "executesGate": false
+    }
+  },
+  "initialFailures": {
+    "defaultTimeoutSuite": {
+      "passed": 233,
+      "failed": 4,
+      "skipped": 4,
+      "cause": "Three five-second timeouts plus one cascading migration-fixture error; complete rerun at30seconds passed"
+    },
+    "candidateBrowserWithConcurrentLoad": {
+      "passed": 2,
+      "failed": 1,
+      "benchmark": [
+        {
+          "benchmark": "/",
+          "p50Ms": 192.90849999999773,
+          "p95Ms": 384.3192080000008,
+          "p99Ms": 422.30470799999966,
+          "samples": 20
+        }
+      ]
+    },
+    "initialNegativeStartupSmoke": "Timed out waiting for process exit; corrected test drives actual request and observes500 plus sanitized crypto configuration rejection"
+  },
+  "gates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "paidResourcesCreated": false,
+  "hostedGoldenPathRun": false,
+  "federationDefault": false,
+  "frozenReleasePinsPromoted": false,
+  "committedSourceMatchesTestedFiles": true,
+  "localPostgresContainerRemoved": true
+}

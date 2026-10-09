@@ -1,0 +1,164 @@
+// The wizard's output: everything needed to assemble and deploy one agent.
+// Shared by the client (wizard state) and the deploy API (validation).
+
+export const FEATURE_IDS = [
+  "memory",
+  "proactive",
+  "receipts",
+  "skills",
+  "file-sharing",
+  "integrations",
+  "browser",
+  "utilities",
+  "goals",
+  "knowledge",
+] as const;
+
+export type FeatureId = (typeof FEATURE_IDS)[number];
+
+export interface CustomSchedule {
+  /** Human label; also slugified into the generated filename. */
+  name: string;
+  /** Five-field cron expression, evaluated in UTC on Vercel. */
+  cron: string;
+  /** What the agent should do when the schedule fires. */
+  prompt: string;
+}
+
+/** Where the database comes from: a fresh Neon database provisioned on the
+ * user's account (free plan), an existing Vercel-connected store (Vercel
+ * injects DATABASE_URL on connect), or a pasted connection string. */
+export type PostgresSource =
+  | { mode: "create" }
+  | { mode: "connect"; storeId: string }
+  | { mode: "manual"; url: string };
+
+/** Where Blob storage comes from: a new store created during deploy, an
+ * existing store, or a pasted token. Only consulted when a feature needs it. */
+export type BlobSource =
+  | { mode: "create" }
+  | { mode: "connect"; storeId: string }
+  | { mode: "manual"; token: string };
+
+export interface AgentConfig {
+  /** Display name of this deployment's primary personal agent (e.g. "Sofie"). */
+  agentName: string;
+  /** Vercel project slug, derived from agentName but editable. */
+  projectName: string;
+  /** The single owner this deployment serves. */
+  ownerName: string;
+  /** IANA timezone used for owner-facing schedules and review periods. */
+  ownerTimezone: string;
+  /** Password for the deployment's single-owner production web session. */
+  accessPassword: string;
+  /** Default model id ("provider/model"), routed via the AI Gateway. */
+  model: string;
+  /** Enabled feature set; drives file pruning and required keys. */
+  features: FeatureId[];
+  /** Full instructions.md contents (generated, then user-edited). */
+  instructions: string;
+  /** Optional Telegram channel. */
+  telegram: { botToken: string; botUsername: string; webhookSecret: string; allowedUserIds: string } | null;
+  /** Custom recurring jobs compiled to defineSchedule files. */
+  schedules: CustomSchedule[];
+  postgres: PostgresSource;
+  blob: BlobSource;
+  /** Secrets, used once during deploy and never persisted. */
+  keys: {
+    supermemoryApiKey?: string;
+    composioApiKey?: string;
+  };
+  /** Optional first-beta Relay pairing. The owner supplies a fingerprint
+   * obtained independently from the Relay operator. */
+  relay?: { fingerprint: string } | null;
+}
+
+export interface DeployTarget {
+  token: string;
+  /** Vercel team id, or null for the personal scope. */
+  teamId: string | null;
+}
+
+const MODEL_ID_PATTERN = /^[\w.-]+\/[\w.:-]+$/;
+const PROJECT_NAME_PATTERN = /^[a-z0-9]([a-z0-9._-]{0,98}[a-z0-9])?$/;
+
+export function slugify(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, "-")
+      .replaceAll(/^-+|-+$/g, "")
+      .slice(0, 52) || "my-eve-agent"
+  );
+}
+
+/** Keys required by the current feature selection (besides the database). */
+export function requiredKeys(features: readonly FeatureId[]): {
+  supermemory: boolean;
+  composio: boolean;
+  blob: boolean;
+} {
+  return {
+    supermemory: features.includes("memory"),
+    composio: features.includes("integrations"),
+    blob: features.includes("skills") || features.includes("file-sharing"),
+  };
+}
+
+/** Validates a wizard config server-side; returns a problem or null. */
+export function validateConfig(config: AgentConfig): string | null {
+  if (config.agentName.trim().length === 0) return "Agent name is required";
+  if (!PROJECT_NAME_PATTERN.test(config.projectName)) {
+    return "Project name must be lowercase letters, digits, and dashes";
+  }
+  if (config.ownerName.trim().length === 0) return "Owner name is required";
+  if (config.ownerTimezone !== "UTC" && !config.ownerTimezone.includes("/")) {
+    return "Owner timezone must be a valid IANA timezone";
+  }
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: config.ownerTimezone }).format(new Date(0));
+  } catch {
+    return "Owner timezone must be a valid IANA timezone";
+  }
+  if (typeof config.accessPassword !== "string" || config.accessPassword.length < 12) {
+    return "Web access password must be at least 12 characters";
+  }
+  if (!MODEL_ID_PATTERN.test(config.model)) return "Model must look like provider/model";
+  if (config.instructions.trim().length === 0) return "Instructions are required";
+  if (config.postgres.mode === "manual" && config.postgres.url.trim().length === 0) {
+    return "Postgres connection string is required";
+  }
+  if (config.postgres.mode === "connect" && config.postgres.storeId.trim().length === 0) {
+    return "Pick a database to connect";
+  }
+  for (const feature of config.features) {
+    if (!FEATURE_IDS.includes(feature)) return `Unknown feature: ${feature}`;
+  }
+  const keys = requiredKeys(config.features);
+  if (keys.supermemory && !config.keys.supermemoryApiKey?.trim()) {
+    return "Memory needs a Supermemory API key";
+  }
+  if (keys.composio && !config.keys.composioApiKey?.trim()) {
+    return "App integrations need a Composio API key";
+  }
+  if (keys.blob) {
+    if (config.blob.mode === "manual" && config.blob.token.trim().length === 0) {
+      return "Skills and file sharing need a Vercel Blob token";
+    }
+    if (config.blob.mode === "connect" && config.blob.storeId.trim().length === 0) {
+      return "Pick a Blob store to connect";
+    }
+  }
+  if (config.telegram !== null) {
+    if (config.telegram.botToken.trim().length === 0) {
+      return "Telegram needs a bot token";
+    }
+    if (config.telegram.allowedUserIds.trim().length === 0) {
+      return "Telegram needs at least one allowed user id";
+    }
+  }
+  if (config.relay != null && !/^[a-f0-9]{64}$/i.test(config.relay.fingerprint)) {
+    return "Relay needs the 64-character SHA-256 signing-key fingerprint from the operator";
+  }
+  return null;
+}

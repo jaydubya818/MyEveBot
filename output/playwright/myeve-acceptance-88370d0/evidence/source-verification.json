@@ -1,0 +1,32 @@
+[
+  {
+    "path": "apps/eve/app/chat.tsx",
+    "matchesCanonical": true,
+    "sha256": "7662f7d861235750791e9320091de54a92235ed79805a1e26b265f15fefe263e"
+  },
+  {
+    "path": "apps/eve/components/agents-panel.tsx",
+    "matchesCanonical": true,
+    "sha256": "74628b6ccb6beef236bc6136486d1f59af161460d69f2ccc0185507d1ba20b48"
+  },
+  {
+    "path": "apps/eve/components/results-panel.tsx",
+    "matchesCanonical": true,
+    "sha256": "103bc87ac062f15481d58086166ee8e9e4c7190eb1bae3bfa8e86fc198027ab3"
+  },
+  {
+    "path": "apps/eve/lib/owner-data.ts",
+    "matchesCanonical": true,
+    "sha256": "6e5ae6b01d613a86695c6f4f731b0bebc0fada38ee21e3867d062d3e433fefbc"
+  },
+  {
+    "path": "apps/eve/lib/chat-file-client.ts",
+    "matchesCanonical": true,
+    "sha256": "77dd15f1a23d295005e04c875a38891c6a2760d7c1854fb59a0e3f2c28c40bef"
+  },
+  {
+    "path": "apps/eve/app/api/computer-profiles/route.ts",
+    "matchesCanonical": true,
+    "sha256": "84c3e7f083b01bc3e27db8504a292764d35d29d6be7233d66dba1ebd4e146260"
+  }
+]

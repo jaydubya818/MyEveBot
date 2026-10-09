@@ -1,0 +1,12 @@
+PASS 0055 injected failure rolls back every new object and ledger row; existing authenticated Gate C history unchanged
+PASS populated 0054 to 0055 preserves all historical tables and the existing Gate C function
+PASS 0055 rerun is an exact data/ledger no-op
+PASS qualified 0054 signed receipt replays unchanged after 0055
+PASS renumbered legacy SQL six concurrent exact deliveries create one receipt
+PASS legacy changed manifest retains explicit conflict without replacing first receipt
+PASS renumbered legacy stage transitions resume from durable state
+PASS restricted application role: PUBLIC execute denied; explicit legacy function grant works; direct Work/receipt/DDL writes denied
+PASS restricted worker role: PUBLIC execute denied; explicit legacy function grant works; direct Work/receipt/DDL writes denied
+PASS legacy custody creates zero writers, Runs or budgets
+PASS fresh complete 55 migration chain installs both disjoint schemas
+{"checks":11,"migration0055":"PASS","originalSQLBytesChanged":0,"authorityViolations":0,"falseReady":0,"legacyProtocolQualification":"NOT_CLAIMED"}

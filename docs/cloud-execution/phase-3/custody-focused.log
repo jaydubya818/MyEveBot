@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/cloud-execution/Myeve/apps/eve
+
+ ✓ lib/engineering/factory-cloud-custody.test.ts (2 tests) 2ms
+ ✓ lib/engineering/factory-writer.test.ts (26 tests) 10ms
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  01:14:30
+   Duration  352ms (transform 76ms, setup 0ms, collect 191ms, tests 13ms, environment 0ms, prepare 68ms)
+

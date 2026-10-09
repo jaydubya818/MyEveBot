@@ -1,0 +1,17 @@
+{
+  "result": "PASSED_LIVE",
+  "hosting": "Actual Next production build with qualification-only Neon HTTP transport to disposable PostgreSQL",
+  "checks": [
+    "Manage \u2192 Relay renders authenticated owner connection",
+    "PRIVATE is the initial visibility",
+    "Owner selected only the public Atlas fact; private canary remained unselected",
+    "Exact content, reference, revision, provenance and exclusions previewed",
+    "Explicit browser confirmation created PUBLIC active version 1",
+    "Completed inbox shows correlated canonical MyEve Run and real provider receipt",
+    "Verified Relay disclosure receipts displayed separately from local activity"
+  ],
+  "limitations": [
+    "General Eve chat service was not launched; its info request was unavailable",
+    "Existing empty browser thread returned 404; Relay UI remained functional"
+  ]
+}

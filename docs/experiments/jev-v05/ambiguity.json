@@ -1,0 +1,1080 @@
+[
+  {
+    "id": "c011",
+    "candidate": "Not that one.",
+    "context": "No alternatives, speaker history, or question are supplied.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "NEGATION",
+      "LOW_CONTEXT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Insufficient context.",
+    "review": {
+      "id": "c011",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Missing referent prevents identifying the type of rejection."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c015",
+    "candidate": "I will try to inspect the roof.",
+    "context": "The owner has not accepted the inspection duty; this is a tentative intention.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Unclear undertaking scope.",
+    "review": {
+      "id": "c015",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Tentative intention establishes neither a completed choice nor an undertaking."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c028",
+    "candidate": "The plan is approved, and I will personally supply the timber.",
+    "context": "Both approval and a personal undertaking are asserted with no isolated target.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Decision and commitment coexist.",
+    "review": {
+      "id": "c028",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines approval and a personal undertaking without an isolated target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c047",
+    "candidate": "I chose paper because I prefer to annotate by hand.",
+    "context": "No target clause is isolated.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Decision and preference coexist.",
+    "review": {
+      "id": "c047",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a completed choice and standing preference without an isolated target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c069",
+    "candidate": "She said she prefers short tours.",
+    "context": "The owner is quoting another visitor without endorsement.",
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "NEGATION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": "fact",
+    "confidence": "HIGH",
+    "rationale": "Not owner's preference.",
+    "review": {
+      "id": "c069",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Another person’s quoted preference is not the owner’s; context does not distinguish fresh reporting from established information."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT"
+    ]
+  },
+  {
+    "id": "c077",
+    "candidate": "Done.",
+    "context": "No task, promise, or conversational referent is supplied.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "LOW_CONTEXT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "No defensible classification.",
+    "review": {
+      "id": "c077",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "No referent establishes what completion means here."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c113",
+    "candidate": "I would choose the smaller boat if the tide allowed it.",
+    "context": "The tide is not known and no booking choice has been made.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Conditional hypothetical choice is insufficient.",
+    "review": {
+      "id": "c113",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "A hypothetical choice does not establish a decision or a standing preference."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c123",
+    "candidate": "I should return the ladder soon.",
+    "context": "The owner mentions borrowed equipment but does not clarify whether this is a duty or a plan.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Insufficient clarity of obligation.",
+    "review": {
+      "id": "c123",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Context leaves duty versus tentative plan unresolved."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c141",
+    "candidate": "I hope to return the book tomorrow.",
+    "context": "The owner makes no assurance to the lender.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Wish rather than commitment.",
+    "review": {
+      "id": "c141",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "A hope alone establishes neither promise, choice, nor testable prediction."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c151",
+    "candidate": "We should probably keep the frame.",
+    "context": "No final choice has been made; this is a suggestion in discussion.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Unresolved proposal.",
+    "review": {
+      "id": "c151",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "An unresolved suggestion establishes neither completed choice nor standing preference."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c196",
+    "candidate": "Perhaps.",
+    "context": "No proposition or preceding question is available.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "INSIGHT_HYPOTHESIS",
+      "NEGATION",
+      "LOW_CONTEXT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "No defensible target to classify.",
+    "review": {
+      "id": "c196",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "No proposition or referent supports classification."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c200",
+    "candidate": "I like the smaller room, but I selected the larger one for this event.",
+    "context": "No primary clause is isolated.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Preference and decision coexist.",
+    "review": {
+      "id": "c200",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a preference and a selection without a target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c208",
+    "candidate": "The courier may use the bridge route.",
+    "context": "The owner is granting one-time permission after a request, not predicting the route.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Permission may not fit a single category.",
+    "review": {
+      "id": "c208",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Grants a specific requested permission, resolving the access choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c209",
+    "candidate": "I have promised to bring the blue cases, though I like green better.",
+    "context": "No target is isolated.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Promise and preference are mixed.",
+    "review": {
+      "id": "c209",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a promise and a preference without an isolated target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c218",
+    "candidate": "You said I had agreed, but I never did.",
+    "context": "The owner disputes that any obligation was accepted.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Denial of commitment rather than active duty.",
+    "review": {
+      "id": "c218",
+      "label": "fact",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Asserts that acceptance never occurred; no commitment is made."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c227",
+    "candidate": "I will deliver it.",
+    "context": "The owner is narrating a fictional character's next line during a script read-through.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Quoted fiction is not owner's commitment.",
+    "review": {
+      "id": "c227",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Fictional dialogue alone does not establish an actual promise or other primary category."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c232",
+    "candidate": "I chose the warmer room, though I generally prefer cool spaces.",
+    "context": "The candidate contains a current choice and an explicit standing preference.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Multiple concepts without isolated target.",
+    "review": {
+      "id": "c232",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a current choice and a standing preference."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c243",
+    "candidate": "From now on, send one summary, and I will review it before noon.",
+    "context": "The candidate contains a continuing format request and a personal promise.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Mixed preference and commitment.",
+    "review": {
+      "id": "c243",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a standing format preference and a promise."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c254",
+    "candidate": "I prefer this one.",
+    "context": "The only context is a clerk asking for the owner's final selection between two tickets.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Preference wording may perform a decision.",
+    "review": {
+      "id": "c254",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "The response resolves the clerk's final ticket-selection question."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c260",
+    "candidate": "We have chosen the smaller hall and owe the owner a deposit.",
+    "context": "The candidate combines a selection and an obligation.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "MULTI_CONCEPT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Decision and commitment coexist.",
+    "review": {
+      "id": "c260",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines a selection and an obligation without a primary target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c261",
+    "candidate": "I will choose after the test.",
+    "context": "The owner leaves the decision pending and makes no promise to another party.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Future intention is insufficient.",
+    "review": {
+      "id": "c261",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "A pending intention establishes neither a choice nor a promise."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c273",
+    "candidate": "The observer wrote 'no movement' but I saw the flag twitch.",
+    "context": "The candidate covers both the written note and the owner's contrary direct report.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_INSIGHT",
+      "NEGATION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Mixed evidence sources may be ambiguous.",
+    "review": {
+      "id": "c273",
+      "label": "observation",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Reports conflicting pieces of witnessed evidence without an explanation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c295",
+    "candidate": "Fine, another identical poster; that will really help.",
+    "context": "The owner is sarcastically rejecting repetition; no alternative is adopted.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Sarcasm does not establish a clear final choice.",
+    "review": {
+      "id": "c295",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Sarcastic dissatisfaction does not clearly establish a standing preference or settled choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c314",
+    "candidate": "Fine, tiny print again, just what I love.",
+    "context": "The owner is sarcastically objecting to unreadable print.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Implied aversion may be insufficiently explicit.",
+    "review": {
+      "id": "c314",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "rationale": "Context resolves the sarcasm as an owner objection to unreadable presentation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c325",
+    "candidate": "I could cover the evening watch.",
+    "context": "The owner is exploring availability, not accepting the assignment.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Capability or offer is not an accepted duty.",
+    "review": {
+      "id": "c325",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Explores possible availability without accepting a duty or making a choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c336",
+    "candidate": "We should not call the noise harmless until we test for loose bearings.",
+    "context": "The noise's cause and significance remain unresolved.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "INSIGHT_HYPOTHESIS",
+      "NEGATION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "May be advice rather than a single hypothesis.",
+    "review": {
+      "id": "c336",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "A caution about testing does not clearly assert a hypothesis, choice, or obligation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c340",
+    "candidate": "The blue one, unless you find a better option.",
+    "context": "The owner leaves the selection open pending another person's search.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Conditional provisional status uncertain.",
+    "review": {
+      "id": "c340",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "The provisional selection remains open and no standing preference is established."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c342",
+    "candidate": "I would pick the quieter route if I were choosing.",
+    "context": "No general owner preference or actual choice is explicitly established.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "PREFERENCE_FACT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Conditional hypothetical choice may be ambiguous.",
+    "review": {
+      "id": "c342",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "A hypothetical choice establishes neither a decision nor a standing preference."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c352",
+    "candidate": "It happened again.",
+    "context": "No event or prior context is supplied.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_INSIGHT",
+      "NEGATION",
+      "LOW_CONTEXT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Insufficient referent for a defensible category.",
+    "review": {
+      "id": "c352",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "The unspecified recurrence supplies insufficient context to identify its knowledge role."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c356",
+    "candidate": "I have not decided against preserving it.",
+    "context": "The owner explicitly says the final decision is still open.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Double negation does not establish a choice.",
+    "review": {
+      "id": "c356",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "Explicitly leaves the decision open without establishing another primary category."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c359",
+    "candidate": "Of course I will carry every crate myself, since apparently I have eight arms.",
+    "context": "The owner is using sarcasm to object to the proposed assignment.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Sarcasm rejects literal promise.",
+    "review": {
+      "id": "c359",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Sarcastic objection does not establish a promise or completed assignment choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c376",
+    "candidate": "I intend to bring spare batteries.",
+    "context": "No request has been accepted and no promise has been made.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Intention alone insufficient.",
+    "review": {
+      "id": "c376",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "rationale": "An intention alone establishes neither an accepted duty nor a resolved choice."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c420",
+    "candidate": "I promised to deliver the map, and I prefer paper copies.",
+    "context": "The candidate combines a promise and a standing preference.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "MULTI_CONCEPT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Multiple concepts without target isolation.",
+    "review": {
+      "id": "c420",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines an explicit promise and a standing preference without isolating a target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c432",
+    "candidate": "I prefer the harbor, but we have selected the hill.",
+    "context": "The candidate states both preference and completed choice.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "No primary-label priority for mixed statement.",
+    "review": {
+      "id": "c432",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines owner preference and completed selection without isolating either."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c457",
+    "candidate": "I will consider the northern venue.",
+    "context": "The owner has not selected a venue and is not accepting an obligation.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Intention to consider, not a completed choice.",
+    "review": {
+      "id": "c457",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Considering an option is neither a completed selection nor an accepted obligation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c475",
+    "candidate": "The screen is dim, so I will replace it tomorrow.",
+    "context": "The owner records both a noticed condition and an explicit undertaking with no isolated target.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "INSIGHT_HYPOTHESIS",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Multi-concept candidate, no priority rule.",
+    "review": {
+      "id": "c475",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Combines an observation and explicit undertaking with no isolated target."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c498",
+    "candidate": "The caretaker called it 'perfectly dry'; my cloth came away wet.",
+    "context": "The owner reports contrasting speech and a direct test.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_INSIGHT",
+      "QUOTED_SPEECH",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Reported evidence may be treated as multi-concept.",
+    "review": {
+      "id": "c498",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "rationale": "Reports contrasting witnessed speech and a direct test without added explanation."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "LOW_CONFIDENCE"
+    ]
+  },
+  {
+    "id": "c499",
+    "candidate": "The last option.",
+    "context": "No options or decision question are supplied.",
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "PREFERENCE_DECISION",
+      "NEGATION",
+      "LOW_CONTEXT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "label": null,
+    "confidence": "LOW",
+    "rationale": "Insufficient context.",
+    "review": {
+      "id": "c499",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "rationale": "Missing options and decision context prevent a supported classification."
+    },
+    "expected": null,
+    "groundTruthStatus": "AMBIGUOUS",
+    "exclusionReasons": [
+      "AMBIGUOUS",
+      "LOW_CONFIDENCE"
+    ]
+  }
+]

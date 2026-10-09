@@ -1,0 +1,13 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run agent/tools/engineering_factory.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve/apps/eve
+
+ ✓ agent/tools/engineering_factory.test.ts (9 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  17:34:14
+   Duration  382ms (transform 99ms, setup 0ms, collect 188ms, tests 2ms, environment 0ms, prepare 29ms)

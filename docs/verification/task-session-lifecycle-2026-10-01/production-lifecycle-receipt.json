@@ -1,0 +1,406 @@
+{
+  "capturedAt": "2026-10-01T05:40:07.106262+00:00",
+  "session": "wrun_41M3TV4TCX0GWZ0KDVSST9W6HC",
+  "bindings": [
+    {
+      "run": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "status": "failed",
+      "current": false,
+      "createdAt": "2026-10-01T04:22:00.205092+00:00",
+      "deadlineAt": "2026-10-01T04:37:00.207528+00:00",
+      "completedAt": "2026-10-01T04:40:20.239+00:00",
+      "callId": null
+    },
+    {
+      "run": "task_fad165a1-dfa7-4f06-b4ae-807dfbe7fed8",
+      "status": "completed",
+      "current": false,
+      "createdAt": "2026-10-01T05:19:33.791767+00:00",
+      "deadlineAt": "2026-10-01T05:34:25.6753+00:00",
+      "completedAt": "2026-10-01T05:20:43.123224+00:00",
+      "callId": "call_ORl6nMz4mjnnQAQgnls9W9CZ"
+    },
+    {
+      "run": "action_run_54668028-8a12-4f5b-9037-82240887595b",
+      "status": "cancelled",
+      "current": false,
+      "createdAt": "2026-10-01T05:19:25.673324+00:00",
+      "deadlineAt": "2026-10-01T05:34:25.6753+00:00",
+      "completedAt": null,
+      "callId": null
+    },
+    {
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "status": "awaiting_approval",
+      "current": false,
+      "createdAt": "2026-10-01T05:21:43.729475+00:00",
+      "deadlineAt": "2026-10-01T05:36:43.732709+00:00",
+      "completedAt": null,
+      "callId": null
+    },
+    {
+      "run": "action_run_ffd603d2-753a-4fe8-ad3b-66160ae3cbb0",
+      "status": "awaiting_approval",
+      "current": true,
+      "createdAt": "2026-10-01T05:36:55.65301+00:00",
+      "deadlineAt": "2026-10-01T05:51:55.653753+00:00",
+      "completedAt": null,
+      "callId": null
+    }
+  ],
+  "currentCount": 1,
+  "approvalRunMismatch": 0,
+  "actions": [
+    {
+      "id": "action_537da17c-d7ca-40be-947e-0b76b62b4e8d",
+      "run": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "capability": "computer.local.screenshot",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_6d0c3e0d763ece18a5b43da6f236e636868782136f2ba86485e3faea82855988",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T04:22:00.78214+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_1b8c060e-df4f-4fb6-9ebb-93db89b28636",
+      "run": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "capability": "computer.local.shell",
+      "status": "awaiting_approval",
+      "attempts": 0,
+      "approval": "approval_dfc43a8ba6b6745f049a8fcefb80f0440aa9d4363a41a1db71520be8aecc2851",
+      "approvalStatus": "pending",
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T04:34:08.508433+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_b9c653a3-8c1f-45bf-aac1-f1d925910f06",
+      "run": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "capability": "computer.local.screenshot",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_8388f2a3f174c7d79f9d9b059c15d7d065018682f64c1fd730cf7b37b20ee8fa",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T04:25:25.732205+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_975f4b58-3b11-462c-903e-e5e995699a35",
+      "run": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "capability": "computer.local.desktop",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_47c8cc3775a0e0081c1de127aa8ac1d7867ca312f643116408e61c0bf1b6fa12",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T04:23:28.280481+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_82149576-3db4-406b-a987-cfad50971578",
+      "run": "task_fad165a1-dfa7-4f06-b4ae-807dfbe7fed8",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:20:18.943359+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_d19b19ce-45dc-4c2e-b93d-7f0355ebdaca",
+      "run": "task_fad165a1-dfa7-4f06-b4ae-807dfbe7fed8",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:20:30.88748+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_e9c1fdb5-797b-4b95-829b-210c47394201",
+      "run": "task_fad165a1-dfa7-4f06-b4ae-807dfbe7fed8",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:20:06.404961+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_38306150-2624-4424-bbc7-eed49fea4aba",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "computer.local.desktop",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_64aba6656de1687f49722639ecc1fa370062b9c72770eac51ef4211d412702a8",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:32:33.867086+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_6081eccb-e495-4cd1-8916-c556f6e1e0a1",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:23:09.060345+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_b914c08e-09e4-4faa-a88d-c868524dca19",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "computer.local.screenshot",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_5ccbae2798bea3c1bf7c7a2461171aa48cfa512917b134a966e6672900943d0a",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:33:22.006078+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_ed9bc1da-7371-4d67-8d0a-86f7346cec34",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "computer.local.desktop",
+      "status": "awaiting_approval",
+      "attempts": 0,
+      "approval": "approval_7eca2cf9e3b277da6cf5bb2f39789c62009f0d65c37275094a380ee841abb87c",
+      "approvalStatus": "denied",
+      "approvalDecision": "denied",
+      "createdAt": "2026-10-01T05:35:48.848475+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_3cca5de8-0db5-4949-adbe-89aed1c6f6fc",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_6afbbc8119ce87fc55374937e7bab79972827a42b636c5b5574eaff443534f28",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:22:21.243326+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_83e25126-166c-4b69-90a5-48615fc78984",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:22:05.556771+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_23963cec-9855-4312-ae12-e27da75b2abd",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:21:53.455166+00:00",
+      "jobs": 0
+    },
+    {
+      "id": "action_462cc2ed-9e37-4a9a-bf28-391f4c26ecf2",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "computer.local.shell",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_e3aa342607b774a371cd1d1e1e7adc92a326bac9fbd033e8d9d6a4f878e30417",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:24:36.544521+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_ecbc93f6-6b7e-4555-a542-9520dc93e490",
+      "run": "action_run_db12d1de-2158-4130-ac44-c365534d30b6",
+      "capability": "computer.local.screenshot",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_44ff4c30ad84c9ba19a3e017ec7a0096dcaed250e652f1940d5db9b2d212c5fc",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:25:16.188916+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_15cd8788-a6b2-4d24-b38c-5be8310463e3",
+      "run": "action_run_ffd603d2-753a-4fe8-ad3b-66160ae3cbb0",
+      "capability": "computer.local.shell",
+      "status": "completed",
+      "attempts": 1,
+      "approval": "approval_bbf7f7e2d1a6bfb5173c91c5e5d76ee00a13b6ce65dd01ff906ce613e90738de",
+      "approvalStatus": "approved",
+      "approvalDecision": "approved",
+      "createdAt": "2026-10-01T05:38:12.165779+00:00",
+      "jobs": 1
+    },
+    {
+      "id": "action_7022c8f0-3d37-4dc4-aa66-98f539f0f0fa",
+      "run": "action_run_ffd603d2-753a-4fe8-ad3b-66160ae3cbb0",
+      "capability": "tool.get_factory_work_order",
+      "status": "completed",
+      "attempts": 1,
+      "approval": null,
+      "approvalStatus": null,
+      "approvalDecision": null,
+      "createdAt": "2026-10-01T05:37:03.70382+00:00",
+      "jobs": 0
+    }
+  ],
+  "jobs": [
+    {
+      "id": "b66bc591-9038-4d3c-8a3a-4a16876d0b7b",
+      "actionId": "action_462cc2ed-9e37-4a9a-bf28-391f4c26ecf2",
+      "status": "completed",
+      "parameters": {
+        "command": "open -a Calculator",
+        "operation": "shell"
+      },
+      "createdAt": "2026-10-01T05:25:08.61963+00:00",
+      "finishedAt": "2026-10-01T05:25:09.820318+00:00",
+      "imageBytes": null,
+      "metadata": "{\"exitCode\":0,\"terminated\":false,\"output\":\"\"}"
+    },
+    {
+      "id": "0c9b79d2-9170-47b0-b4d4-14419bff0c59",
+      "actionId": "action_ecbc93f6-6b7e-4555-a542-9520dc93e490",
+      "status": "completed",
+      "parameters": {
+        "operation": "screenshot"
+      },
+      "createdAt": "2026-10-01T05:25:59.656051+00:00",
+      "finishedAt": "2026-10-01T05:26:01.178428+00:00",
+      "imageBytes": 693388,
+      "metadata": "{\"width\":1496,\"height\":967,\"coordinates\":\"screen points\",\"scale\":1}"
+    },
+    {
+      "id": "145548bd-961e-4da9-9973-f9e826a4bdbe",
+      "actionId": "action_38306150-2624-4424-bbc7-eed49fea4aba",
+      "status": "completed",
+      "parameters": {
+        "x": 27,
+        "y": 13,
+        "operation": "click"
+      },
+      "createdAt": "2026-10-01T05:33:13.256101+00:00",
+      "finishedAt": "2026-10-01T05:33:15.773823+00:00",
+      "imageBytes": null,
+      "metadata": "{\"dispatched\":true,\"operation\":\"click\",\"verification\":\"Inspect a fresh screenshot before claiming the intended UI result.\"}"
+    },
+    {
+      "id": "c7f5a871-e5ee-4705-ab91-4f3d961abe0e",
+      "actionId": "action_537da17c-d7ca-40be-947e-0b76b62b4e8d",
+      "status": "completed",
+      "parameters": {},
+      "createdAt": "2026-10-01T04:22:32.742507+00:00",
+      "finishedAt": "2026-10-01T04:22:35.616196+00:00",
+      "imageBytes": null,
+      "metadata": null
+    },
+    {
+      "id": "3d78ed66-1d31-43a7-a2b6-71b8dc2fb12f",
+      "actionId": "action_975f4b58-3b11-462c-903e-e5e995699a35",
+      "status": "completed",
+      "parameters": {},
+      "createdAt": "2026-10-01T04:24:08.015321+00:00",
+      "finishedAt": "2026-10-01T04:24:08.894624+00:00",
+      "imageBytes": null,
+      "metadata": null
+    },
+    {
+      "id": "9a8e0800-fdc3-46d5-a5ae-e86f4d387706",
+      "actionId": "action_b9c653a3-8c1f-45bf-aac1-f1d925910f06",
+      "status": "completed",
+      "parameters": {},
+      "createdAt": "2026-10-01T04:33:05.718132+00:00",
+      "finishedAt": "2026-10-01T04:33:07.391126+00:00",
+      "imageBytes": null,
+      "metadata": null
+    },
+    {
+      "id": "29fe239d-980c-46c5-b4a0-68663cd25d5b",
+      "actionId": "action_b914c08e-09e4-4faa-a88d-c868524dca19",
+      "status": "completed",
+      "parameters": {
+        "operation": "screenshot"
+      },
+      "createdAt": "2026-10-01T05:34:06.938616+00:00",
+      "finishedAt": "2026-10-01T05:34:10.808891+00:00",
+      "imageBytes": 781684,
+      "metadata": "{\"width\":1496,\"height\":967,\"coordinates\":\"screen points\",\"scale\":1}"
+    },
+    {
+      "id": "99537b3a-9024-495d-8640-6dbd13f1cf0a",
+      "actionId": "action_15cd8788-a6b2-4d24-b38c-5be8310463e3",
+      "status": "completed",
+      "parameters": {
+        "command": "/usr/bin/open -a Calculator",
+        "operation": "shell"
+      },
+      "createdAt": "2026-10-01T05:38:39.292716+00:00",
+      "finishedAt": "2026-10-01T05:38:40.057542+00:00",
+      "imageBytes": null,
+      "metadata": "{\"exitCode\":0,\"terminated\":false,\"output\":\"\"}"
+    },
+    {
+      "id": "4adac911-0e5c-498c-9e3e-db41f65a028c",
+      "actionId": "action_e9c1fdb5-797b-4b95-829b-210c47394201",
+      "status": "completed",
+      "parameters": {
+        "operation": "roots"
+      },
+      "createdAt": "2026-10-01T05:20:07.350431+00:00",
+      "finishedAt": "2026-10-01T05:20:10.385941+00:00",
+      "imageBytes": null,
+      "metadata": null
+    },
+    {
+      "id": "970d978e-7215-4cc7-9b74-125598b7ef8c",
+      "actionId": "action_82149576-3db4-406b-a987-cfad50971578",
+      "status": "completed",
+      "parameters": {
+        "name": "README*",
+        "path": "/Users/jaywest/Myeve",
+        "operation": "find_files"
+      },
+      "createdAt": "2026-10-01T05:20:19.88656+00:00",
+      "finishedAt": "2026-10-01T05:20:21.45666+00:00",
+      "imageBytes": null,
+      "metadata": null
+    },
+    {
+      "id": "12c0bfa5-13e8-495f-aac0-99ff8063b433",
+      "actionId": "action_d19b19ce-45dc-4c2e-b93d-7f0355ebdaca",
+      "status": "completed",
+      "parameters": {
+        "path": "/Users/jaywest/Myeve/README.md",
+        "operation": "read_text"
+      },
+      "createdAt": "2026-10-01T05:20:31.815074+00:00",
+      "finishedAt": "2026-10-01T05:20:32.567295+00:00",
+      "imageBytes": null,
+      "metadata": null
+    }
+  ]
+}

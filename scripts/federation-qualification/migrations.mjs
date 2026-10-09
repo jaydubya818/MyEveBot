@@ -1,0 +1,300 @@
+// Disposable PostgreSQL qualification through the unmodified normal migration runner.
+import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import { connect } from "node:net";
+import { createRequire } from "node:module";
+import { randomBytes, createHash } from "node:crypto";
+import {
+  mkdtempSync,
+  writeFileSync,
+  readFileSync,
+  rmSync,
+  mkdirSync,
+  symlinkSync,
+} from "node:fs";
+import { execFileSync, spawn } from "node:child_process";
+import { resolve, join } from "node:path";
+import { tmpdir } from "node:os";
+const root = process.cwd();
+const canonicalBase = "e9984e4962151bffca1f6eb48c544b60bb643aa7";
+const require = createRequire(resolve(process.env.MYEVE_QUALIFICATION_RELAY_ROOT ?? "../relay-federation", "package.json"));
+const { Pool } = require("pg");
+const { WebSocketServer } = require("ws");
+const temp = mkdtempSync(join(tmpdir(), "myeve-rebase-migrations-"));
+const canonical = join(temp, "canonical-base");
+mkdirSync(canonical);
+execFileSync("tar", ["-x", "-C", canonical], {
+  input: execFileSync(
+    "git",
+    [
+      "archive",
+      canonicalBase,
+      "apps/eve/migrations",
+      "apps/eve/scripts/migrate-database.ts",
+      "apps/eve/lib/database-schema.ts",
+      "apps/eve/lib/owner-identity.ts",
+      "apps/eve/scripts/migration-sql.ts",
+      "apps/eve/package.json",
+      "package.json",
+    ],
+    { cwd: root },
+  ),
+});
+symlinkSync(join(root, "node_modules"), join(canonical, "node_modules"));
+const name = `myeve-rebase-migrations-${randomBytes(4).toString("hex")}`;
+const password = randomBytes(24).toString("hex"),
+  user = process.env.USER;
+const output = resolve(
+  process.env.MYEVE_QUALIFICATION_OUTPUT ?? "docs/federation/evidence/rebased",
+);
+mkdirSync(output, { recursive: true });
+const report = {
+  canonicalBase,
+  checks: [],
+};
+const docker = (...args) =>
+  execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] });
+const pools = new Map();
+let server, websocketServer,
+  started = false;
+const connection = (database) =>
+  `postgresql://${user}:${password}@127.0.0.1:55441/${database}`;
+const run = (args, cwd, env = {}) =>
+  new Promise((done, reject) => {
+    const child = spawn(process.execPath, args, {
+      cwd,
+      env: { ...process.env, ...env },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let log = "";
+    child.stdout.on("data", (c) => (log += c));
+    child.stderr.on("data", (c) => (log += c));
+    child.on("error", reject);
+    child.on("exit", (code) => (code === 0 ? done(log) : reject(Error(log))));
+  });
+try {
+  writeFileSync(
+    join(temp, "db.env"),
+    `POSTGRES_USER=${user}\nPOSTGRES_PASSWORD=${password}\nPOSTGRES_DB=postgres\n`,
+    { mode: 0o600 },
+  );
+  docker(
+    "run",
+    "-d",
+    "--name",
+    name,
+    "--env-file",
+    join(temp, "db.env"),
+    "-p",
+    "127.0.0.1:55441:5432",
+    "postgres:17-alpine",
+  );
+  started = true;
+  for (let i = 0; i < 80; i++) {
+    try {
+      docker("exec", name, "pg_isready", "-h", "127.0.0.1", "-U", user);
+      break;
+    } catch {
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  const admin = new Pool({ connectionString: connection("postgres") });
+  pools.set(connection("postgres"), admin);
+  for (const db of ["fresh", "upgrade"]) {
+    await admin.query(`CREATE DATABASE ${db}`);
+    pools.set(connection(db), new Pool({ connectionString: connection(db) }));
+  }
+  server = createServer(async (req, res) => {
+    let client;
+    try {
+      const pool = pools.get(req.headers["neon-connection-string"]);
+      if (!pool) throw Error("Unrecognized disposable database");
+      client = await pool.connect();
+      const chunks = [];
+      for await (const c of req) chunks.push(c);
+      const body = JSON.parse(Buffer.concat(chunks));
+      const batch = !!body.queries;
+      if (batch) await client.query("BEGIN");
+      const results = [];
+      for (const item of body.queries ?? [body]) {
+        const result = await client.query({
+          text: item.query,
+          values: item.params,
+          rowMode: "array",
+          types: { getTypeParser: () => (v) => v },
+        });
+        const r = Array.isArray(result) ? result.at(-1) : result;
+        results.push({
+          rows: r.rows,
+          fields: r.fields.map((f) => ({
+            name: f.name,
+            dataTypeID: f.dataTypeID,
+          })),
+          rowCount: r.rowCount,
+          command: r.command,
+          rowAsArray: true,
+        });
+      }
+      if (batch) await client.query("COMMIT");
+      res.setHeader("content-type", "application/json");
+      res.end(JSON.stringify(batch ? { results } : results[0]));
+    } catch (e) {
+      await client?.query("ROLLBACK");
+      res
+        .writeHead(400, { "content-type": "application/json" })
+        .end(JSON.stringify({ message: e.message, code: e.code }));
+    } finally {
+      client?.release();
+    }
+  });
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const port = server.address().port;
+  // Real Postgres wire protocol for the session-based runner; local bridge only.
+  websocketServer = new WebSocketServer({ host: "127.0.0.1", port: 0 });
+  await new Promise((resolve) => websocketServer.once("listening", resolve));
+  websocketServer.on("connection", (socket) => {
+    const tcp = connect({ host: "127.0.0.1", port: 55441 });
+    socket.on("message", (data) => tcp.write(data));
+    tcp.on("data", (data) => { if (socket.readyState === 1) socket.send(data); });
+    socket.on("close", () => tcp.destroy());
+    socket.on("error", () => tcp.destroy());
+    tcp.on("error", () => socket.close());
+    tcp.on("close", () => socket.close());
+  });
+  const websocketPort = websocketServer.address().port;
+  const neonModule = import.meta.resolve("@neondatabase/serverless");
+  const preload = join(temp, "neon-preload.mjs");
+  writeFileSync(
+    preload,
+    `import {neonConfig} from ${JSON.stringify(neonModule)};neonConfig.wsProxy=()=>"127.0.0.1:${websocketPort}";neonConfig.useSecureWebSocket=false;neonConfig.pipelineConnect=false;const original=globalThis.fetch;globalThis.fetch=(input,init)=>{const headers=new Headers(init?.headers);if(headers.get('neon-connection-string')===process.env.DATABASE_URL)return original('http://127.0.0.1:${port}/sql',init);return original(input,init);};`,
+  );
+  const migrate = (cwd, db) =>
+    run(["--import", preload, "apps/eve/scripts/migrate-database.ts"], cwd, {
+      DATABASE_URL: connection(db),
+    });
+  const fresh = await migrate(root, "fresh");
+  assert.equal((fresh.match(/^Applied /gm) || []).length, 30);
+  report.checks.push("Fresh: normal runner applied 30 migrations");
+  const before = await migrate(canonical, "upgrade");
+  assert.equal((before.match(/^Applied /gm) || []).length, 30);
+  const db = pools.get(connection("upgrade"));
+  await db.query(
+    "INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('upgrade-agent','upgrade-owner','primary','Agent','Research','Private instruction',true,'active',30,600,1)",
+  );
+  await db.query(
+    "INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd) VALUES('upgrade-run','upgrade-owner','delegated_work','Private run','upgrade-agent','running',600,0,30,0,1)",
+  );
+  await db.query(
+    `INSERT INTO action_requests(id,owner_id,run_id,action_key,executor,trigger,capability_id,action_class,target,parameter_hash,decision,authority_source,status,provider_receipt,attempt_count) VALUES('action_upgrade','upgrade-owner','upgrade-run','one','{}','{}','files.read','read','{}','original-hash','ALLOW','local','result_unknown','{"receipt":"preserved"}',1)`,
+  );
+  const snapshot = async () =>
+    JSON.stringify(
+      await Promise.all(
+        ["agents", "task_runs", "action_requests"].map(
+          async (t) => (await db.query(`SELECT * FROM ${t} ORDER BY id`)).rows,
+        ),
+      ),
+    );
+  const original = await snapshot();
+  const upgrade = await migrate(root, "upgrade");
+  assert.equal((upgrade.match(/^Applied /gm) || []).length, 0);
+  assert.equal(await snapshot(), original);
+  report.checks.push(
+    "Populated canonical 0030: all checksums preserved, zero new migrations; Agent/Run/action data byte-equivalent",
+  );
+  for (const database of ["fresh", "upgrade"]) {
+    const again = await migrate(root, database);
+    assert.equal((again.match(/^Already applied /gm) || []).length, 30);
+    assert.equal((again.match(/^Applied /gm) || []).length, 0);
+  }
+  report.checks.push(
+    "Normal migration runner rerun: 30 checksums accepted, zero reapplied on both databases",
+  );
+  const schema = async (pool) =>
+    (
+      await pool.query(
+        "SELECT table_name,column_name,data_type,is_nullable,column_default FROM information_schema.columns WHERE table_schema='public' ORDER BY table_name,ordinal_position",
+      )
+    ).rows;
+  assert.deepEqual(
+    await schema(db),
+    await schema(pools.get(connection("fresh"))),
+  );
+  report.checks.push(
+    "Fresh and upgraded schema columns/defaults/nullability match",
+  );
+  // A bad multi-command chunk must roll back DDL and its journal atomically.
+  const failure = join(temp, "failed-migration");
+  mkdirSync(join(failure, "apps/eve/scripts"), { recursive: true });
+  mkdirSync(join(failure, "apps/eve/lib"), { recursive: true });
+  mkdirSync(join(failure, "apps/eve/migrations"), { recursive: true });
+  symlinkSync(join(root, "node_modules"), join(failure, "node_modules"));
+  writeFileSync(join(failure, "package.json"), '{"type":"module"}');
+  writeFileSync(join(failure, "apps/eve/scripts/migrate-database.ts"), readFileSync(join(root, "apps/eve/scripts/migrate-database.ts")));
+  writeFileSync(join(failure, "apps/eve/lib/database-schema.ts"), 'export const CURRENT_DATABASE_MIGRATION="0001_failure.sql";');
+  for (const file of ["apps/eve/lib/owner-identity.ts", "apps/eve/scripts/migration-sql.ts"]) writeFileSync(join(failure, file), readFileSync(join(root, file)));
+  const failedSql = join(failure, "apps/eve/migrations/0001_failure.sql");
+  writeFileSync(failedSql, "CREATE TABLE rollback_probe(id integer); INSERT INTO absent_rollback_probe VALUES (1);");
+  await assert.rejects(migrate(failure, "fresh"), /absent_rollback_probe/);
+  assert.equal((await pools.get(connection("fresh")).query("SELECT to_regclass('public.rollback_probe') AS relation")).rows[0].relation, null);
+  assert.equal((await pools.get(connection("fresh")).query("SELECT count(*)::int AS count FROM sofie_schema_migrations WHERE name='0001_failure.sql'")).rows[0].count, 0);
+  report.checks.push("Failed multi-command migration: DDL and journal rolled back atomically");
+  writeFileSync(failedSql, "SELECT 1; SELECT 2;");
+  await migrate(failure, "fresh");
+  writeFileSync(failedSql, "SELECT 3;");
+  await assert.rejects(migrate(failure, "fresh"), /was modified/);
+  await pools.get(connection("fresh")).query("DELETE FROM sofie_schema_migrations WHERE name='0001_failure.sql'");
+  report.checks.push("Applied migration checksum drift refused before SQL execution");
+  report.migrations = (
+    await db.query(
+      "SELECT name,checksum FROM sofie_schema_migrations ORDER BY name",
+    )
+  ).rows;
+  report.federationConstraints = (
+    await db.query(
+      "SELECT conname,pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE conrelid IN (SELECT oid FROM pg_class WHERE relname LIKE 'myeve_relay_%') ORDER BY conname",
+    )
+  ).rows;
+  report.federationIndexes = (
+    await db.query(
+      "SELECT indexname,indexdef FROM pg_indexes WHERE schemaname='public' AND tablename LIKE 'myeve_relay_%' ORDER BY indexname",
+    )
+  ).rows;
+  report.preservedDataHash = createHash("sha256")
+    .update(original)
+    .digest("hex");
+  for (const file of [
+    "execution-reliability.integration.mjs",
+    "action-upgrade.integration.mjs",
+  ]) {
+    const log = await run(["--import", "tsx", `apps/eve/test/${file}`], root, {
+      PGPASSWORD: password,
+    });
+    writeFileSync(join(output, file + ".txt"), log);
+    report.checks.push(`${file}: passed against isolated PostgreSQL`);
+  }
+  report.status = "PASSED";
+} catch (error) {
+  report.status = "FAILED";
+  report.error = error.message;
+  process.exitCode = 1;
+  console.error(error.message);
+} finally {
+  await Promise.all([...pools.values()].map((p) => p.end()));
+  if (websocketServer) await new Promise((r) => websocketServer.close(r));
+  if (server) await new Promise((r) => server.close(r));
+  if (started) docker("rm", "-f", "-v", name);
+  rmSync(temp, { recursive: true, force: true });
+  report.cleanup = { containerRemoved: true, credentialsDestroyed: true };
+  writeFileSync(
+    join(output, "migrations.json"),
+    JSON.stringify(report, null, 2),
+  );
+  console.log(
+    JSON.stringify({
+      status: report.status,
+      checks: report.checks,
+      cleanup: report.cleanup,
+    }),
+  );
+}

@@ -1,0 +1,22 @@
+{
+  "engine": "PostgreSQL 17.9",
+  "comparison": "Full pg_dump --schema-only --no-owner --no-privileges; only random restrict tokens removed",
+  "schemaHashes": {
+    "canonical0030": "8e6aadc422f7a648adddd9c13b4848e5bf7fbff6b19886578084256785811804",
+    "deployed0029": "5efc08e70107532ad665a786e77a459f915378d5926de1b6ecfe5d1e128523f7",
+    "converged0031": "42cc73d1d252dd273ad1044e0beda9ef7a11c3e52c86cbb0c30dc94746ca9f39"
+  },
+  "canonicalObjectCounts": {
+    "tables": 77,
+    "indexes": 84,
+    "foreignKeys": 89,
+    "checkConstraints": 202,
+    "triggers": 2,
+    "functions": 2
+  },
+  "difference": "Only chat_files.owner_id default and nullability",
+  "finalSchemasEquivalent": true,
+  "preservedDataGroups": 17,
+  "externalProviderCalls": 0,
+  "historicalMigrationFilesChanged": 0
+}

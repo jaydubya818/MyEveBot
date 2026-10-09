@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "status": "BLOCKED_MYEVE_CANDIDATE_HISTORY_AND_PACKAGE_REFRESH",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE",
+  "executionAuthorized": false,
+  "independentSecurityGate": "NOT_RUN",
+  "productionPlatformGate": "NOT_RUN",
+  "implementationMayPassSecurityGate": false,
+  "pins": {
+    "myeve": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+    "relay": "614c638d6fc4099db8064540326f5de4438e93a1"
+  },
+  "reusableProjects": {
+    "myeve": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+    "relay": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK"
+  },
+  "candidatePeer": {
+    "product": "MyEve isolated second installation",
+    "version": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
+    "role": "Full existing receiver, separately operated; deployment pending",
+    "heterogeneousVendorCertification": false
+  },
+  "target": {
+    "myeveQualificationDeploymentId": null,
+    "myeveQualificationOrigin": null,
+    "relayQualificationDeploymentId": null,
+    "relayQualificationOrigin": null,
+    "peerReceiverVersion": null,
+    "peerArtifactOrigin": null,
+    "cryptoBootstrapRevision": "bbfcaa18710556fc689f60990599f4734e99a720",
+    "independentAssessor": null,
+    "operator": null,
+    "authorizationRecord": null,
+    "secretReferenceRecord": "evidence/kms-preparation/secret-status.json",
+    "peerQualificationDeploymentId": null,
+    "peerQualificationOrigin": null,
+    "peerOperator": null,
+    "workerIdentity": null,
+    "databaseIdentityRecord": "evidence/authorized-target/provisioning.json",
+    "telemetryLocation": null,
+    "stopContact": null,
+    "testWindow": null,
+    "budgetEnforcementReference": "../../../scripts/federation-readiness/controls/README.md"
+  },
+  "budget": {
+    "durationMinutes": 60,
+    "activeMinutes": 45,
+    "submissions": 120,
+    "httpRequestsIncludingRetries": 2000,
+    "requestsPerSecond": 2,
+    "httpConcurrency": 2,
+    "modelConcurrency": 1,
+    "totalModelUsd": "5.00",
+    "myeveModelUsd": "2.00",
+    "peerModelUsd": "3.00",
+    "myeveModelCalls": 8,
+    "perWorkUsd": "0.25",
+    "perWorkSeconds": 60,
+    "modelSteps": 1,
+    "delegatedWorkers": 0,
+    "artifactBytes": 65536,
+    "totalArtifactBytes": 524288,
+    "requestLifetimeSeconds": 900,
+    "enforcementStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS; HOSTED_NOT_RUN"
+  },
+  "blockers": [
+    "Restore missing MyEve ancestor 7852287e1c5f8eb14119d9e8accdf174d27eeb69 and publish/verify complete candidate 6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa without rewriting history.",
+    "Regenerate and freeze qualification worker packages/source manifests against the published v2 Relay and MyEve candidates before provisioning.",
+    "Authorize exact paid KMS/WIF/IAM and three Railway services; install approved isolated roles/configuration/secrets and candidate deployments",
+    "Read back hosted resource limits, exact workload IAM, TLS/ingress and smoke evidence",
+    "Assign assessor, independent peer operator, stop contact and UTC window; authorize each external gate"
+  ],
+  "proposedSuccessors": {
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
+    "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+    "status": "Tested locally; MyEve complete source publication and v2 package freeze blocked; canonical release pins unchanged"
+  },
+  "authorization": {
+    "infrastructure": "Explicitly authorized by owner, within existing/free capacity",
+    "managedRuntimeSecrets": "Explicitly authorized for synthetic-only exact project/branch scopes; 78 sensitive entries stored; no signing private keys",
+    "externalGates": "NOT_AUTHORIZED",
+    "generalEnablement": false
+  },
+  "provisionedDatabases": [
+    {
+      "component": "myeve",
+      "database": "fq_myeve_6384519e0e01",
+      "applicationRole": "fq_myeve_6384519e0e01_app",
+      "ownerRole": "fq_myeve_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 27,
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
+      "emptyAtCreation": true
+    },
+    {
+      "component": "peer",
+      "database": "fq_peer_6384519e0e01",
+      "applicationRole": "fq_peer_6384519e0e01_app",
+      "ownerRole": "fq_peer_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 27,
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
+      "emptyAtCreation": true
+    },
+    {
+      "component": "relay",
+      "database": "fq_relay_6384519e0e01",
+      "applicationRole": "fq_relay_6384519e0e01_app",
+      "ownerRole": "fq_relay_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "d06cf587dcbd47c15ae3ff66d4ccd56c79f643ebc05c25919378b4abfe43274d",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 22,
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
+      "emptyAtCreation": true
+    }
+  ],
+  "custody": {
+    "requested": "KMS/HSM-backed hosted signing; synthetic application credentials in authorized Vercel branch stores",
+    "state": "APPROVED_RELAY_WORKLOAD_AUTHORITY_PROVIDER_COMPATIBILITY_PENDING",
+    "requiredBy": [
+      "Relay docs/v2/evidence.md:9",
+      "Relay docs/v2/evidence.md:17",
+      "Relay docs/v2/security/security-architecture.md:112"
+    ],
+    "signingKeysGenerated": false,
+    "managedSecretsInstalled": true,
+    "kmsHsmPurchased": false,
+    "signingSecretsInstalled": false,
+    "candidateProvider": "Google Cloud KMS SOFTWARE EC_SIGN_ED25519; not provisioned or qualified"
+  },
+  "preparationProofs": {
+    "hostedKms": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "purposeSeparatedKeys": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "versionedVerification": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "isolatedWorkloadIdentity": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "ingressAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "modelHardLiability": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "workerAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "artifactAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "outOfBandStop": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "syntheticEnvironmentIsolation": {
+      "status": "PARTIAL_METADATA_VERIFIED_NO_APP_DEPLOYED",
+      "evidence": "evidence/kms-preparation/hosting-verification.json"
+    }
+  },
+  "preparationReport": "final-engineering-closure.md",
+  "branchSlots": [
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-a-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-b-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "relay",
+      "branch": "codex/fq-relay-6384519e0e01",
+      "commit": "73d9104fbe8a2c102258dc593ce61d0f23d9254f",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    }
+  ],
+  "latestDesignReport": "signature-v2-qualification.md",
+  "candidateCryptoRevision": "c910c9debc1f92acd60649431a6466243a711c33",
+  "candidateQualification": "V2_KMS_PASSED_LIVE_AND_LOCAL_REGRESSIONS_PASS; FULL_MYEVE_PUBLICATION_AND_PACKAGE_REFRESH_BLOCKED",
+  "candidateRevision": {
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
+    "canonicalRelayBase": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
+    "locallyQualified": true,
+    "frozenPinsPromoted": false,
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
+    "controls": "817a8525059d436dc0978970d3e80e7371e009d6"
+  },
+  "localEngineeringEvidence": "evidence/signature-v2/three-worker-simulation.json",
+  "remainingEngineering": [
+    "Restore missing MyEve ancestor 7852287e1c5f8eb14119d9e8accdf174d27eeb69 and publish/verify complete candidate 6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa without rewriting history.",
+    "Regenerate and freeze qualification worker packages/source manifests against the published v2 Relay and MyEve candidates before provisioning."
+  ],
+  "signatureContract": {
+    "algorithm": "Relay-Ed25519-SHA256-v2",
+    "version": 2,
+    "purpose": "federation-delivery",
+    "domain": "relay.signature",
+    "digest": "SHA-256",
+    "providerSigningBytes": 179,
+    "completeTokenMaxChars": 262144,
+    "status": "PASSED_LIVE",
+    "legacyRawCompatibility": "FAILED (preserved historical evidence)",
+    "evidence": "evidence/signature-v2/kms-live.json"
+  },
+  "engineeringCandidates": {
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa"
+  },
+  "candidatePublication": {
+    "relay": "REMOTE_PARITY_VERIFIED",
+    "myeve": "BLOCKED_MISSING_ANCESTOR",
+    "myeveDelta": "evidence/signature-v2/myeve-candidate.patch",
+    "frozenPackages": "STALE_PRE_V2_DO_NOT_DEPLOY"
+  }
+}

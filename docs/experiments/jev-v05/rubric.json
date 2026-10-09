@@ -1,0 +1,17 @@
+{
+  "id": "knowledge-taxonomy-challenge-rubric:v1",
+  "status": "PROVISIONAL EXPERIMENTAL RUBRIC",
+  "contract": "knowledge.classification:v2-challenge",
+  "behavioralInfluence": "NONE",
+  "notice": "Canonical Knowledge has seven categories, but its Insight boundary is currently underspecified. This evaluation interpretation is not an authoritative product definition.",
+  "labels": {
+    "fact": "A durable factual assertion presented as established information, rather than a fresh noticing, tentative explanation, choice, obligation or owner preference",
+    "observation": "A directly noticed or measured occurrence or pattern, reported as evidence without adding an explanatory interpretation",
+    "hypothesis": "An uncertain explanation or prediction put forward for testing rather than treated as an established interpretation",
+    "decision": "An explicit choice that has been made; a discussed option, intention or hypothetical choice alone is insufficient",
+    "commitment": "An explicit promise, agreement or obligation attributable to a stated subject; casual plans and wishes alone are insufficient",
+    "preference": "An explicit owner way-of-working preference or an explicitly approved/default owner preference; a quoted other person's preference is not automatically the owner's",
+    "insight": "A generated interpretation or synthesis that draws meaning or a relationship from stated evidence, rather than only reporting an occurrence; it does not imply certainty, proof or causation"
+  },
+  "ambiguityRule": "Choose AMBIGUOUS when context cannot resolve one primary label, including genuinely mixed concepts without an isolated target. No category precedence, minimum source count, numeric certainty threshold, or automatic promotion is implied. Insight synthesis is distinct from an unverified explanation or prediction requiring testing. Quoted other-person preferences are not automatically owner preferences."
+}

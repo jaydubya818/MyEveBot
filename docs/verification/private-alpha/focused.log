@@ -1,0 +1,18 @@
+
+> eve-agent@0.0.0 test
+> vitest run components/owner lib/artifact-client.test.ts lib/artifact-workspace-state.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-product-expansion/Myeve/apps/eve
+
+ ✓ lib/artifact-workspace-state.test.ts (3 tests) 1ms
+ ✓ components/owner/projection.test.ts (7 tests) 3ms
+ ✓ components/owner/product.test.ts (4 tests) 3ms
+ ✓ lib/artifact-client.test.ts (5 tests) 5ms
+ ✓ components/owner/owner.test.tsx (5 tests) 18ms
+ ✓ components/owner-data-panel.test.tsx (1 test) 5ms
+
+ Test Files  6 passed (6)
+      Tests  25 passed (25)
+   Start at  23:16:19
+   Duration  1.76s (transform 148ms, setup 0ms, collect 1.75s, tests 35ms, environment 0ms, prepare 239ms)

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "untrusted",
+    "status": 302,
+    "contentType": "text/plain",
+    "providerCode": null,
+    "redirectToVercelLogin": true
+  },
+  {
+    "name": "invalid-workload-identity",
+    "status": 302,
+    "contentType": "text/plain",
+    "providerCode": null,
+    "redirectToVercelLogin": true
+  }
+]
