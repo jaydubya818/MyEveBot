@@ -1,11 +1,17 @@
+import { ownerWorkPresentation } from './owner-work.ts';
 import type { EngineeringWorkerProjection } from '../engineering/worker-projection.ts';
 import type { OwnerPublication } from '../engineering/owner-publication.ts';
 
-export type WorkLane = 'Needs You' | 'Working' | 'Monitoring' | 'Completed' | 'Waiting';
+export type WorkLane = 'Needs You' | 'Working' | 'Monitoring' | 'Completed' | 'Waiting' | 'Stopped' | 'Ready';
 type Publication = Awaited<ReturnType<OwnerPublication['view']>>;
 /** Presentation only. Settlement never changes Work lifecycle or archives chat.
  * A retained Result or online environment alone is not completion evidence. */
 export function workState(work: EngineeringWorkerProjection, publication: Publication | null = null): {lane: WorkLane; detail: string} {
+  const display = ownerWorkPresentation(work);
+  if (display.status === 'Outcome unconfirmed') return {lane:'Needs You', detail:display.summary};
+  if (display.status === 'Stopped') return {lane:'Stopped',detail:display.summary};
+  if (display.status === 'Couldn’t complete' || display.status === 'Needs You') return {lane:'Needs You',detail:display.summary};
+  if (work.externalAlpha?.result?.current && display.status === 'Verified candidate') return {lane:'Ready',detail:display.summary};
   if (work.lifecycle === 'accepted') return {lane:'Completed',detail:'Accepted'};
   if (work.lifecycle === 'cancelled' || work.lifecycle === 'superseded') return {lane:'Completed',detail:work.lifecycle === 'cancelled' ? 'Cancelled' : 'Superseded'};
   if (work.lifecycle === 'failed') return {lane:'Needs You',detail:'Work failed; review the retained evidence.'};

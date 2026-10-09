@@ -647,3 +647,10 @@
 
 .owner-page button[role="radio"][aria-checked="true"] { border: 2px solid var(--owner-accent); background: var(--color-kumo-tint); }
 .owner-page button[role="radio"][aria-checked="true"] svg { color: var(--owner-accent); }
+.owner-today-section { margin: 0 0 36px; }
+.owner-work-summary { padding: 28px; border: 1px solid var(--owner-border); border-radius: 16px; background: var(--owner-surface); }
+.owner-work-summary > section { margin-top: 28px; }
+.owner-status { display: inline-flex; padding: 5px 10px; border-radius: 20px; background: var(--color-kumo-tint); color: var(--owner-text); font-size: 13px; }
+.owner-status[data-tone="success"] { color: var(--owner-accent); }
+.owner-status[data-tone="warning"], .owner-status[data-tone="attention"] { border: 1px solid #957b54; }
+@media(max-width:600px) { .owner-work-summary { padding: 20px; } }

@@ -21,6 +21,7 @@ import "./owner.css";
 import { Responsibilities } from "./responsibilities";
 import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
+import { WorkSummary } from "./work-summary";
 import { ProductShell } from "./product-shell";
 
 type CanonicalWork = Awaited<
@@ -158,11 +159,6 @@ export function IntegratedExperience({
       }
     };
     const jobs = [
-      read<{ changes: typeof activity }>(
-        "/api/beta/activity",
-        "Memory and learning changes",
-        (d) => setActivity(d.changes),
-      ),
       selectedKind === "goal" && selectedId
         ? read<{ goal: Today["goals"][number] }>(
             `/api/beta/goals?goalId=${encodeURIComponent(selectedId)}`,
@@ -200,6 +196,7 @@ export function IntegratedExperience({
         },
       ),
     ];
+    if (["brief", "activity", "memory"].includes(view)) jobs.push(read<{ changes: typeof activity }>("/api/beta/activity", "Activity", (d) => setActivity(d.changes)));
     if (view === "brief" || view === "activity")
       jobs.push(
         read<Brief>(
@@ -224,6 +221,12 @@ export function IntegratedExperience({
     });
     return () => controller.abort();
   }, [view, revision, memoryWork, selectedId, selectedKind]);
+  useEffect(() => {
+    const refreshVisible = () => { if (document.visibilityState === "visible") refresh(); };
+    window.addEventListener("online", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
+    return () => { window.removeEventListener("online", refreshVisible); document.removeEventListener("visibilitychange", refreshVisible); };
+  }, [refresh]);
   async function mutate(action: () => Promise<unknown>, success: string) {
     if (pending.current) return;
     pending.current = true;
@@ -656,171 +659,12 @@ export function IntegratedExperience({
                   </Card>
                 ) : selectedWork ? (
                   <>
-                    <Card title={selectedWork.title}>
-                      <p>{selectedWork.objective}</p>
-                      <p>
-                        Control: {selectedWork.control} ·{" "}
-                        {selectedWork.lifecycle}
-                      </p>
-                      <p>
-                        Revision {selectedWork.version} ·{" "}
-                        {selectedWork.repository}
-                      </p>
-                      <p>
-                        Generation {selectedWork.generation}. Creating Work does
-                        not authorize execution.
-                      </p>
-                      {canonical?.admission && (
-                        <p role="status">
-                          {canonical.admission.current
-                            ? "Admission"
-                            : "Historical admission"}
-                          : {String(canonical.admission.status)} ·{" "}
-                          {String(canonical.admission.reason)}
-                        </p>
-                      )}
-                      <div className="owner-actions">
-                        {advancedAvailable && selectedWork.lifecycle === "active" &&
-                          ["start", "reconcile", "stop", "takeover"].map(
-                            (operation) => (
-                              <button
-                                key={"factory-" + operation}
-                                disabled={busy}
-                                onClick={() =>
-                                  void mutate(
-                                    () =>
-                                      post("factory", {
-                                        workId: selectedWork.id,
-                                        operation,
-                                        expectedWorkVersion:
-                                          selectedWork.version,
-                                        expectedWorkGeneration:
-                                          selectedWork.generation,
-                                      }),
-                                    "Factory request saved. Review Current Truth; execution requires qualified admission.",
-                                  )
-                                }
-                              >
-                                {operation === "start"
-                                  ? "Start MyFactory"
-                                  : operation === "reconcile"
-                                    ? "Refresh MyFactory"
-                                    : operation === "stop"
-                                      ? "Stop MyFactory"
-                                      : "Take over MyFactory"}
-                              </button>
-                            ),
-                          )}
-                      </div>
-                      <div className="owner-actions">
-                        {advancedAvailable && selectedWork.lifecycle === "active" &&
-                          (selectedWork.control === "paused"
-                            ? ["resume", "admit"]
-                            : ["pause", "admit"]
-                          ).map((operation) => (
-                            <button
-                              key={operation}
-                              disabled={busy}
-                              onClick={() =>
-                                void mutate(
-                                  () =>
-                                    post("work", {
-                                      operation,
-                                      workId: selectedWork.id,
-                                      expectedVersion: selectedWork.version,
-                                      expectedGeneration:
-                                        selectedWork.generation,
-                                    }),
-                                  operation === "admit"
-                                    ? "Admission evaluated. Review the retained outcome."
-                                    : "Work control saved. Review current admission before proceeding.",
-                                )
-                              }
-                            >
-                              {operation === "admit"
-                                ? "Check admission"
-                                : operation === "resume"
-                                  ? "Resume Work"
-                                  : "Pause Work"}
-                            </button>
-                          ))}
-                        {advancedAvailable && selectedWork.lifecycle === "active" &&
-                          selectedWork.control === "paused" &&
-                          canonical?.continuations
-                            .filter(
-                              (c) =>
-                                c.status === "ELIGIBLE" &&
-                                c.work_version === selectedWork.version &&
-                                c.work_generation === selectedWork.generation,
-                            )
-                            .map((c) => (
-                              <button
-                                key={String(c.response_id)}
-                                disabled={busy}
-                                onClick={() =>
-                                  void mutate(
-                                    () =>
-                                      post("work", {
-                                        operation: "continue",
-                                        workId: selectedWork.id,
-                                        expectedVersion: selectedWork.version,
-                                        expectedGeneration:
-                                          selectedWork.generation,
-                                        responseId: c.response_id,
-                                      }),
-                                    "Decision applied to Work control. Current admission is evaluated separately.",
-                                  )
-                                }
-                              >
-                                Continue from decision
-                              </button>
-                            ))}
-                      </div>
-                      <ul>
-                        {selectedWork.criteria.map((c) => (
-                          <li key={c.id}>{c.statement}</li>
-                        ))}
-                      </ul>
-                      {destinationAllowed("/memory") && <Link href={`/memory?workId=${selectedWork.id}`}>Memory used for this Work</Link>}
-                    </Card>
-                    {resultCards()}
+                    {canonical?.projection ? <WorkSummary work={canonical.projection} /> : <Card title={selectedWork.title}><p>{selectedWork.objective}</p><p role="status">Detailed progress is unavailable.</p><button onClick={refresh}>Try again</button></Card>}
+
                   </>
                 ) : (
                   <>
-                    <Card title="Goals">
-                      {goalList()}
-                      {today?.nextCursor && (
-                        <button
-                          disabled={busy}
-                          onClick={() => void more("goals")}
-                        >
-                          Load more Goals
-                        </button>
-                      )}
-                    </Card>
-                    <Card title="Work intents">
-                      {works.length ? (
-                        <ul className="owner-list">
-                          {works.map((w) => (
-                            <li key={w.id}>
-                              <Link href={`/work?kind=work&id=${w.id}`}>
-                                {w.title}
-                              </Link>
-                              <p className="owner-muted">
-                                {w.lifecycle} ·{" "}
-                                {w.control === "paused"
-                                  ? "Awaiting admission"
-                                  : w.control}
-                              </p>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <Empty title="No Work yet">
-                          Ask Sofie to get something done. Its progress and results will appear here.
-                        </Empty>
-                      )}
-                    </Card>
+                    <WorkInbox />
                   </>
                 )}
               </>

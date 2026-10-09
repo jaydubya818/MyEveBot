@@ -2,6 +2,7 @@ import type { BetaIntegration } from '../beta-integration/runtime.ts';
 import { CanonicalBetaWork } from '../beta-integration/canonical-work.ts';
 import { OwnerPublication } from '../engineering/owner-publication.ts';
 import { WorkError } from '../engineering/types.ts';
+import { ownerWorkPresentation } from './owner-work.ts';
 import { workState, type WorkLane } from './work-state.ts';
 
 export async function readWorkInbox(beta: BetaIntegration, owner: string, offset = 0) {
@@ -19,13 +20,13 @@ export async function readWorkInbox(beta: BetaIntegration, owner: string, offset
       JOIN web_chat_threads t ON t.owner_id=c.owner_id AND t.id=c.thread_id
       WHERE c.owner_id=$1 AND c.source_refs @> jsonb_build_array($2::text)
       ORDER BY c.created_at DESC,c.id DESC LIMIT 1`,[owner,'engineering-work:'+projection.workId]);
-    return {id:projection.workId,title:projection.title,...workState(projection,publication),
+    return {id:projection.workId,title:projection.title,...workState(projection,publication),display:ownerWorkPresentation(projection),
       result:projection.latestResult?.summary??null,resultId:projection.latestResult?.id??projection.nativeResult?.id??null,
       version:projection.workVersion,generation:projection.workGeneration,
       agentName:thread?.agent_name ? String(thread.agent_name) : null,
       threadId:thread?.thread_id ? String(thread.thread_id) : null};
   }));
-  const counts: Record<WorkLane,number> = {'Needs You':0,Working:0,Monitoring:0,Completed:0,Waiting:0};
+  const counts: Record<WorkLane,number> = {'Needs You':0,Working:0,Monitoring:0,Completed:0,Waiting:0,Stopped:0,Ready:0};
   works.forEach(work=>counts[work.lane]++);
   return {works,counts,nextOffset:rows.length>20?offset+20:null,offset,limit:20};
 }

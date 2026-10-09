@@ -27,6 +27,7 @@ for(const width of [1440,1024,768,390]) {
    await page.addScriptTag({content:axe});
    const result=await page.evaluate(()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
    failures.push(...result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({route,id:v.id,nodes:v.nodes.map(n=>n.target)})));
+   await stable(page);
    if(process.env.CI && (width===1440||width===390)) { await page.screenshot({path:test.info().outputPath(`${name}-${width}.png`),fullPage:true}); }
    else if(width===1440||width===390) { await expect(page).toHaveScreenshot(`${name}-${width}.png`,{fullPage:true,animations:'disabled',maxDiffPixels:0}); }
   }
