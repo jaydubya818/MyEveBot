@@ -81,6 +81,15 @@ approval delivery returns the original exact installed identity without reinstal
 or re-enabling it. Disable/revoke advance the registry revision and fence pending
 approvals. Version replacement requires the exact installed base and owner decision.
 
+Candidate versions are a monotonically advancing attempt sequence, not a count of
+installations. A failed or UNKNOWN attempt stays immutable; a fresh Work/candidate
+can use the next version with the actual installed base, or a null base before
+the first installation. A revoked version may remain the exact historical base
+for a separately verified and approved repair. It cannot execute or be restored
+by that lineage reference. Only applicable, verified, unexpired previews are
+offered in the prototype. Fixture owner changes clear local state and fence
+responses started under the previous owner.
+
 Only the identity migration is admitted. Unknown or destructive migration programs
 are denied. The version switch and existing schema check commit with data in one
 transaction; failure leaves the old installation unchanged. Back up the isolated
@@ -102,7 +111,9 @@ as-of and period-start dates; money uses integer cents; win rate uses basis poin
 
 Initial self-review: strict declarations, parameterized SQL, owner keys at each
 read/write, cloned Principal, no secret/environment/network access in generated
-content, no verification APIs in the owner facade. Independent review is pending.
+content, no verification APIs in the owner facade. The authorized independent
+review and its remediation are recorded in [REVIEW.md](REVIEW.md). Final exact
+commit sign-off is recorded in the delivery qualification report.
 Public disclosure review covers only new files and synthetic fixtures; historical
 repository material is neither republished as evidence nor modified.
 

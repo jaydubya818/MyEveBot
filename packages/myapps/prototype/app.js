@@ -38,25 +38,37 @@ let owner,
   leads = [],
   asOf = "2026-10-08",
   generation = 0,
+  ownerGeneration = 0,
   notice = "";
 async function api(path, body = {}) {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
-  if (!response.ok)
-    throw Error(
-      data.error === "APP_UNAVAILABLE"
-        ? "This App is unavailable."
-        : data.error === "LEAD_REVISION_CONFLICT"
-          ? "This lead changed. Refresh before saving again."
-          : data.error === "INSTALLATION_STALE"
-            ? "The installation changed. Review a fresh approval."
-            : "The request could not be completed. Refresh and try again.",
-    );
-  return data;
+  const scope = ownerGeneration;
+  const assertOwner = () => {
+    if (scope !== ownerGeneration)
+      throw new DOMException("The fixture owner changed.", "AbortError");
+  };
+  try {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json();
+    assertOwner();
+    if (!response.ok)
+      throw Error(
+        data.error === "APP_UNAVAILABLE"
+          ? "This App is unavailable."
+          : data.error === "LEAD_REVISION_CONFLICT"
+            ? "This lead changed. Refresh before saving again."
+            : data.error === "INSTALLATION_STALE"
+              ? "The installation changed. Review a fresh approval."
+              : "The request could not be completed. Refresh and try again.",
+      );
+    return data;
+  } catch (error) {
+    assertOwner();
+    throw error;
+  }
 }
 function call(operation, input = {}, extra = {}) {
   return api("/api/app", {
@@ -69,6 +81,7 @@ function call(operation, input = {}, extra = {}) {
   });
 }
 function fail(error) {
+  if (error.name === "AbortError") return;
   const el = document.querySelector("#notice");
   if (el) {
     el.textContent = error.message;
@@ -80,9 +93,29 @@ function shell(content) {
   return `<div class="layout"><aside class="sidebar"><p class="wordmark">MyEve<span class="muted">.</span></p><nav aria-label="MyEve"><span class="placeholder">Today</span><span class="placeholder">Chat</span><span class="placeholder">Work</span><span class="placeholder">Files</span><button class="active" id="home">Apps</button><span class="placeholder">Needs You</span></nav><p class="fixture">Isolated reference<br>Synthetic data only<br>No external effects</p></aside><main id="main" class="main"><div class="topline"><span class="muted">Your workspace / Apps</span><button id="switch">Switch fixture owner</button></div><div id="notice" class="notice" role="status" aria-live="polite">${escape(notice)}</div>${content}</main></div>`;
 }
 function login() {
+  // A browser session can switch fixtures while an earlier response is pending.
+  // Clear retained owner data and prevent that response from rendering later.
+  ownerGeneration++;
+  generation++;
+  owner = selected = detail = undefined;
+  apps = [];
+  candidates = [];
+  leads = [];
+  tab = "Overview";
+  asOf = "2026-10-08";
+  notice = "";
+  document.querySelectorAll("dialog").forEach((el) => {
+    el.close();
+    el.remove();
+  });
   root.innerHTML = `<main id="main" class="panel login"><p class="wordmark">MyEve.</p><h1>Apps reference</h1><p class="muted">Explore the deterministic prototype with synthetic data. This fixture is separate from your real workspace.</p><form id="login"><label>Fixture owner<select name="owner"><option value="synthetic-owner-a">Owner A</option><option value="synthetic-owner-b">Owner B</option></select></label><button class="primary">Enter workspace</button></form><p id="notice" role="status"></p></main>`;
+  let pending = false;
   document.querySelector("#login").onsubmit = async (e) => {
     e.preventDefault();
+    if (pending) return;
+    pending = true;
+    const button = e.target.querySelector("button");
+    button.disabled = true;
     try {
       owner = (
         await api("/api/fixture-login", {
@@ -93,6 +126,8 @@ function login() {
       await render();
     } catch (error) {
       fail(error);
+      pending = false;
+      button.disabled = false;
     }
   };
 }
@@ -119,11 +154,12 @@ async function render() {
                 `<section class="panel app-card"><div class="row spread"><div><h2>Lead CRM</h2><p class="muted">Leads, pipeline, spend and follow-ups in one place.</p><span class="status">${a.installedVersion ? (a.enabled ? "Installed · enabled" : "Installed · disabled") : "Ready for your review"}</span></div><div class="row">${a.installedVersion ? `<button class="primary launch" data-id="${escape(a.appId)}">Open Lead CRM</button>` : ""}${candidates
                   .filter(
                     (c) =>
-                      c.appId === a.appId && c.version !== a.installedVersion,
+                      c.appId === a.appId &&
+                      c.version > (a.installedVersion ?? 0),
                   )
                   .map(
                     (c) =>
-                      `<button class="preview" data-id="${escape(c.appId)}" data-preview="${escape(c.previewId)}" data-version="${c.version}">${a.installedVersion ? "Preview update" : "Preview App"}</button>`,
+                      `<button class="preview" data-id="${escape(c.appId)}" data-preview="${escape(c.previewId)}" data-version="${c.version}" data-update="${Boolean(a.installedVersion)}">${a.installedVersion ? "Preview update" : "Preview App"}</button>`,
                   )
                   .join("")}</div></div></section>`,
             )
@@ -395,19 +431,21 @@ function createDialog() {
       document.querySelector("#main").setAttribute("tabindex", "-1");
       document.querySelector("#main").focus();
     } catch (error) {
+      if (error.name === "AbortError") return;
       el.querySelector("#dialog-error").textContent = error.message;
       button.disabled = false;
     }
   };
 }
 async function preview(data) {
+  const updating = data.update === "true";
   const result = await api("/api/app", {
     appId: data.id,
     operation: "preview",
     previewId: data.preview,
   });
   const el = dialog(
-    `<h2>Preview Lead CRM${data.version === "1" ? "" : " update"}</h2><p class="preview-banner">Private preview · Nothing has been installed from this candidate.</p><p>${escape(result.spec.purpose)}</p><nav class="tabs" aria-label="Preview views">${result.spec.ui.navigation.map((v) => `<button class="preview-tab" data-tab="${escape(v)}">${escape(v)}</button>`).join("")}</nav><div id="preview-content"></div><p>Stores leads, contacts, stages, notes, acquisition spend and follow-up dates. No email, payments, network, other Apps or computer access.</p><p class="muted">This candidate uses deterministic reference qualification.</p><p id="dialog-error" role="alert"></p><div class="actions"><button id="close">Close</button><button class="primary" id="request">Review installation</button></div>`,
+    `<h2>Preview Lead CRM${updating ? " update" : ""}</h2><p class="preview-banner">Private preview · Nothing has been installed from this candidate.</p><p>${escape(result.spec.purpose)}</p><nav class="tabs" aria-label="Preview views">${result.spec.ui.navigation.map((v) => `<button class="preview-tab" data-tab="${escape(v)}">${escape(v)}</button>`).join("")}</nav><div id="preview-content"></div><p>Stores leads, contacts, stages, notes, acquisition spend and follow-up dates. No email, payments, network, other Apps or computer access.</p><p class="muted">This candidate uses deterministic reference qualification.</p><p id="dialog-error" role="alert"></p><div class="actions"><button id="close">Close</button><button class="primary" id="request">Review installation</button></div>`,
   );
   const showPreview = (view) => {
     el.querySelector("#preview-content").innerHTML =
@@ -440,7 +478,7 @@ async function preview(data) {
       });
       el.close();
       const confirm = dialog(
-        `<p class="eyebrow">Needs You</p><h2>${data.version === "1" ? "Install Lead CRM" : "Update Lead CRM"}</h2><p>Version ${escape(data.version)}. Allow this exact version to read and update its own CRM data. External actions remain unavailable.</p><p>Your existing data will be preserved.</p><p id="dialog-error" role="alert"></p><div class="actions"><button id="cancel">Cancel</button><button class="primary" id="approve">${data.version === "1" ? "Install App" : "Approve update"}</button></div>`,
+        `<p class="eyebrow">Needs You</p><h2>${updating ? "Update Lead CRM" : "Install Lead CRM"}</h2><p>Version ${escape(data.version)}. Allow this exact version to read and update its own CRM data. External actions remain unavailable.</p><p>Your existing data will be preserved.</p><p id="dialog-error" role="alert"></p><div class="actions"><button id="cancel">Cancel</button><button class="primary" id="approve">${updating ? "Approve update" : "Install App"}</button></div>`,
       );
       confirm.querySelector("#cancel").onclick = () => confirm.close();
       confirm.querySelector("#approve").onclick = async () => {
@@ -453,17 +491,18 @@ async function preview(data) {
             approvalId: approval.id,
           });
           confirm.close();
-          notice =
-            data.version === "1"
-              ? "Lead CRM is installed."
-              : "Lead CRM was updated. Your data is preserved.";
+          notice = updating
+            ? "Lead CRM was updated. Your data is preserved."
+            : "Lead CRM is installed.";
           await render();
         } catch (error) {
+          if (error.name === "AbortError") return;
           confirm.querySelector("#dialog-error").textContent = error.message;
           b.disabled = false;
         }
       };
     } catch (error) {
+      if (error.name === "AbortError") return;
       el.querySelector("#dialog-error").textContent = error.message;
     }
   };

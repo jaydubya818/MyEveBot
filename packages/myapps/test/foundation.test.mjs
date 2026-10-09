@@ -534,3 +534,160 @@ test("an installation storage fault rolls back version, data and approval and sa
     rmSync(directory, { recursive: true });
   }
 });
+
+test("a revoked installed version can be repaired only by a separately verified and approved successor", () => {
+  const store = new ReferenceStore();
+  try {
+    const pkg = makePackage(),
+      row = installed(store),
+      session = store.session(principal());
+    const crm = new Crm(store, principal());
+    const lead = crm.action(
+      pkg.appId,
+      1,
+      row.digest,
+      "createLead",
+      leadInput,
+      "create",
+    );
+    const historicalProof = session.version(pkg.appId, 1).proof;
+    store.revoke(OWNER, pkg.appId, 1);
+    assert.equal(session.get(pkg.appId).enabled, false);
+    assert.throws(
+      () => crm.query(pkg.appId, 1, row.digest, "listLeads", {}),
+      /APP_UNAVAILABLE/,
+    );
+    const successor = makePackage(OWNER, 2, { version: 1, digest: row.digest });
+    assert.throws(
+      () =>
+        store.register("crm-request-1", {
+          ...successor,
+          base: { version: 1, digest: digest({ wrong: "base" }) },
+        }),
+      /APP_BASE_MISMATCH/,
+    );
+    store.register("crm-request-1", successor);
+    assert.throws(
+      () => store.createPreview(OWNER, pkg.appId, 2),
+      /APP_UNAVAILABLE/,
+    );
+    verified(store, successor);
+    const preview = store.createPreview(OWNER, pkg.appId, 2);
+    const approval = session.requestInstall(pkg.appId, preview.id);
+    assert.equal(session.get(pkg.appId).installedVersion, 1);
+    assert.equal(session.get(pkg.appId).enabled, false);
+    assert.throws(
+      () => crm.query(pkg.appId, 2, digest(successor), "listLeads", {}),
+      /APP_UNAVAILABLE/,
+    );
+    assert.throws(
+      () =>
+        store
+          .session(principal(OWNER, "agent"))
+          .approveInstall(pkg.appId, approval.id),
+      /APP_UNAVAILABLE/,
+    );
+    session.approveInstall(pkg.appId, approval.id);
+    assert.equal(session.get(pkg.appId).installedVersion, 2);
+    assert.deepEqual(
+      crm.query(pkg.appId, 2, digest(successor), "getLead", {
+        leadId: lead.id,
+      }),
+      lead,
+    );
+    assert.equal(session.version(pkg.appId, 1).state, "REVOKED");
+    assert.deepEqual(session.version(pkg.appId, 1).proof, historicalProof);
+    assert.throws(
+      () => crm.query(pkg.appId, 1, row.digest, "listLeads", {}),
+      /APP_UNAVAILABLE/,
+    );
+  } finally {
+    store.close();
+  }
+});
+
+test("failed and UNKNOWN candidates preserve history without blocking a fresh initial or update attempt", () => {
+  for (const hasInstalled of [false, true])
+    for (const status of ["FAIL", "UNKNOWN"]) {
+      const store = new ReferenceStore();
+      try {
+        const first = makePackage(),
+          session = store.session(principal());
+        const current = hasInstalled ? installed(store) : null;
+        const crm = new Crm(store, principal());
+        const lead = current
+          ? crm.action(
+              first.appId,
+              1,
+              current.digest,
+              "createLead",
+              leadInput,
+              "create",
+            )
+          : null;
+        const base = current ? { version: 1, digest: current.digest } : null;
+        const failed = makePackage(OWNER, hasInstalled ? 2 : 1, base);
+        const rejected = store.register("crm-request-1", failed);
+        store.recordVerification(OWNER, first.appId, failed.version, {
+          format: "myapps.verification.reference.v1",
+          appDigest: rejected.digest,
+          candidateId: failed.source.candidateId,
+          verifier: "synthetic-independent-verifier",
+          status,
+          cleanupConfirmed: status === "FAIL",
+          claims: [],
+        });
+        const historical = session.version(first.appId, failed.version);
+        assert.throws(
+          () => store.createPreview(OWNER, first.appId, failed.version),
+          /APP_UNAVAILABLE/,
+        );
+        const repair = makePackage(OWNER, failed.version + 1, base);
+        verified(store, repair);
+        assert.equal(
+          session.get(first.appId).installedVersion,
+          hasInstalled ? 1 : null,
+        );
+        const preview = store.createPreview(OWNER, first.appId, repair.version);
+        const approval = session.requestInstall(first.appId, preview.id);
+        session.approveInstall(first.appId, approval.id);
+        assert.equal(session.get(first.appId).installedVersion, repair.version);
+        assert.deepEqual(
+          session.version(first.appId, failed.version),
+          historical,
+        );
+        assert.throws(
+          () => store.createPreview(OWNER, first.appId, failed.version),
+          /APP_UNAVAILABLE/,
+        );
+        assert.throws(
+          () =>
+            store.register("crm-request-1", {
+              ...failed,
+              source: { ...failed.source, candidateId: "replacement" },
+            }),
+          /IMMUTABLE/,
+        );
+        if (lead)
+          assert.deepEqual(
+            crm.query(first.appId, repair.version, digest(repair), "getLead", {
+              leadId: lead.id,
+            }),
+            lead,
+          );
+        else
+          assert.deepEqual(
+            crm.query(
+              first.appId,
+              repair.version,
+              digest(repair),
+              "listLeads",
+              {},
+            ),
+            [],
+          );
+      } finally {
+        store.close();
+      }
+    }
+});

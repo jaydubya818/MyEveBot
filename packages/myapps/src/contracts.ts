@@ -345,11 +345,15 @@ export function validatePackage(value: unknown): AppPackage {
     /^[a-f0-9]{40}$/.test(value.factoryVersion.sourceCommit) &&
       isDigest(value.factoryVersion.configurationDigest),
   );
-  if (value.version === 1) requireValue(value.base === null);
-  else {
+  // Candidate versions advance independently of installation. Failed attempts remain
+  // immutable, while a new attempt can target the actual installed base (or none).
+  if (value.base !== null) {
     keys(value.base, ["version", "digest"]);
     requireValue(
-      value.base.version === value.version - 1 && isDigest(value.base.digest),
+      Number.isSafeInteger(value.base.version) &&
+        value.base.version > 0 &&
+        value.base.version < value.version &&
+        isDigest(value.base.digest),
     );
   }
   requireValue(

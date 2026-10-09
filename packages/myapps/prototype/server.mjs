@@ -93,14 +93,38 @@ export async function startPrototype({
         crm = new Crm(store, principal);
       if (path === "/api/apps") {
         keys(body, []);
+        const apps = session.list();
         return send(200, {
-          apps: session.list(),
+          apps,
           candidates: candidates
             .filter((c) => c.ownerId === owner)
-            .map((c) => ({
-              ...c,
-              name: session.version(c.appId, c.version).package.spec.name,
-            })),
+            .flatMap((c) => {
+              try {
+                const app = apps.find((a) => a.appId === c.appId);
+                if (!app || c.version <= (app.installedVersion ?? 0)) return [];
+                const version = session.version(c.appId, c.version);
+                const base = version.package.base;
+                const applicable = app.installedVersion
+                  ? base?.version === app.installedVersion &&
+                    base?.digest === app.installedDigest
+                  : base === null;
+                if (!applicable || version.state !== "VERIFIED") return [];
+                const preview = session.preview(c.appId, c.previewId);
+                if (
+                  preview.version !== c.version ||
+                  preview.appDigest !== version.digest
+                )
+                  return [];
+                return [{ ...c, name: version.package.spec.name }];
+              } catch (error) {
+                if (
+                  error instanceof AppError &&
+                  error.code === "APP_UNAVAILABLE"
+                )
+                  return [];
+                throw error;
+              }
+            }),
           asOf,
         });
       }

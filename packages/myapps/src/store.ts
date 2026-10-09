@@ -176,12 +176,19 @@ export class ReferenceStore {
         requireValue(row.digest === hash, "APP_VERSION_IMMUTABLE");
         return row;
       }
+      const latest = this.#db
+        .prepare(
+          "SELECT MAX(version) AS version FROM versions WHERE owner=? AND app=?",
+        )
+        .get(owner, id);
+      requireValue(
+        pkg.version === Number(latest?.version ?? 0) + 1,
+        "APP_VERSION_SEQUENCE",
+      );
       if (pkg.base) {
         const base = this.#version(owner, id, pkg.base.version);
-        requireValue(
-          base.digest === pkg.base.digest && base.state !== "REVOKED",
-          "APP_BASE_MISMATCH",
-        );
+        // Revocation denies execution, not immutable lineage for a separately approved repair.
+        requireValue(base.digest === pkg.base.digest, "APP_BASE_MISMATCH");
       }
       const row: VersionRow = {
         package: pkg,

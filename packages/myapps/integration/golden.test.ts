@@ -425,6 +425,15 @@ test.skipIf(!connection || !factoryRoot)(
         ),
       );
       expect(violations.map((v: any) => v.id)).toEqual([]);
+      await click("Apps");
+      await page
+        .getByRole("heading", { name: "Your Apps", exact: true })
+        .waitFor();
+      expect(
+        await page
+          .getByRole("button", { name: "Preview update", exact: true })
+          .count(),
+      ).toBe(0);
       writeFileSync(
         join(output, "golden.json"),
         JSON.stringify(
@@ -437,13 +446,13 @@ test.skipIf(!connection || !factoryRoot)(
               { version: 2, digest: digest(next) },
             ],
             factoryVersion: pkg.factoryVersion,
-            resultFactoryVersion:
-              first.manifest.execution.factoryVersion,
+            resultFactoryVersion: first.manifest.execution.factoryVersion,
             paidOperations: 0,
             productionDeployments: 0,
             productionInstallations: 0,
             externalAlphaChanges: 0,
             referenceOnly: true,
+            stalePreviewSuppression: "PASS",
           },
           null,
           2,

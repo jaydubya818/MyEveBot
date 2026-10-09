@@ -29,11 +29,12 @@ const store = new ReferenceStore(
 const pkg = makePackage(),
   row = verified(store, pkg),
   preview = store.createPreview(OWNER, pkg.appId, 1);
+const candidates = [
+  { ownerId: OWNER, appId: pkg.appId, version: 1, previewId: preview.id },
+];
 const server = await startPrototype({
   store,
-  candidates: [
-    { ownerId: OWNER, appId: pkg.appId, version: 1, previewId: preview.id },
-  ],
+  candidates,
 });
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
@@ -261,6 +262,92 @@ try {
     agent.query(pkg.appId, 1, row.digest, "listLeads", {})[0].notes.length,
     2,
   );
+  // Owner changes in one browser must clear grounded messages as well as data.
+  await page
+    .getByLabel("Your request", { exact: true })
+    .fill("Which leads need follow-up?");
+  await click("Ask Sofie");
+  await waitText("1 lead need follow-up: Acme.");
+  const switchOwner = async (owner) => {
+    await click("Switch fixture owner");
+    await page.getByLabel("Fixture owner").selectOption(owner);
+    await click("Enter workspace");
+    await page
+      .getByRole("heading", {
+        name: owner === OWNER ? "Your Apps" : "No Apps installed",
+        exact: true,
+      })
+      .waitFor();
+  };
+  await switchOwner("synthetic-owner-b");
+  assert.ok(!(await page.locator("body").innerText()).includes("Acme"));
+
+  const successor = makePackage(OWNER, 2, { version: 1, digest: row.digest });
+  verified(store, successor);
+  const updatePreview = store.createPreview(OWNER, pkg.appId, 2);
+  candidates.push({
+    ownerId: OWNER,
+    appId: pkg.appId,
+    version: 2,
+    previewId: updatePreview.id,
+  });
+  for (const phase of ["query", "render", "preview"]) {
+    await switchOwner(OWNER);
+    if (phase === "query") {
+      await click("Open Lead CRM");
+      await waitText("Open pipeline");
+    }
+    const entered = Promise.withResolvers(),
+      release = Promise.withResolvers(),
+      finished = Promise.withResolvers();
+    let held = false;
+    await page.route("**/api/*", async (route) => {
+      const body = route.request().postDataJSON();
+      const match =
+        phase === "query"
+          ? route.request().url().endsWith("/api/agent")
+          : body.operation === (phase === "preview" ? "preview" : "listLeads");
+      if (!held && match) {
+        held = true;
+        const response = await route.fetch();
+        entered.resolve();
+        await release.promise;
+        await route.fulfill({ response });
+        finished.resolve();
+      } else await route.continue();
+    });
+    try {
+      if (phase === "query") {
+        await page
+          .getByLabel("Your request", { exact: true })
+          .fill("Which leads need follow-up?");
+        await click("Ask Sofie");
+      } else
+        await click(phase === "preview" ? "Preview update" : "Open Lead CRM");
+      await entered.promise;
+      await switchOwner("synthetic-owner-b");
+      release.resolve();
+      await finished.promise;
+      await page.evaluate(
+        () =>
+          new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          ),
+      );
+      assert.ok(
+        !(await page.locator("body").innerText()).includes("Acme"),
+        phase,
+      );
+      assert.equal(await page.getByRole("dialog").count(), 0, phase);
+      assert.equal(await page.getByRole("alert").count(), 0, phase);
+      await page
+        .getByRole("heading", { name: "No Apps installed", exact: true })
+        .waitFor();
+    } finally {
+      release.resolve();
+      await page.unroute("**/api/*");
+    }
+  }
   // A second browser session must not enumerate, query or inspect another owner's candidate.
   const other = await browser.newContext();
   const foreign = await other.newPage();
@@ -316,6 +403,50 @@ try {
     assert.equal(response.status, 404);
   }
   await other.close();
+  // A failed first candidate must still offer installation, not update, for v2.
+  const retryOwner = "synthetic-owner-b";
+  const failed = makePackage(retryOwner);
+  const failedRow = store.register("crm-request-1", failed);
+  store.recordVerification(retryOwner, failed.appId, 1, {
+    format: "myapps.verification.reference.v1",
+    appDigest: failedRow.digest,
+    candidateId: failed.source.candidateId,
+    verifier: "synthetic-independent-verifier",
+    status: "FAIL",
+    cleanupConfirmed: true,
+    claims: [],
+  });
+  const repaired = makePackage(retryOwner, 2, null);
+  verified(store, repaired);
+  const retryPreview = store.createPreview(retryOwner, failed.appId, 2);
+  candidates.push({
+    ownerId: retryOwner,
+    appId: failed.appId,
+    version: 2,
+    previewId: retryPreview.id,
+  });
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  await click("Apps");
+  await click("Preview App");
+  await page
+    .getByRole("heading", { name: "Preview Lead CRM", exact: true })
+    .waitFor();
+  await click("Review installation");
+  await page
+    .getByRole("heading", { name: "Install Lead CRM", exact: true })
+    .waitFor();
+  await click("Install App");
+  await click("Open Lead CRM");
+  await waitText("Open pipeline");
+  assert.equal(
+    store.session(principal(retryOwner)).get(failed.appId).installedVersion,
+    2,
+  );
+  assert.equal(
+    store.session(principal(retryOwner)).version(failed.appId, 1).proof.result
+      .status,
+    "FAIL",
+  );
   assert.deepEqual(errors, []);
   writeFileSync(
     join(output, "qualification.json"),
@@ -327,6 +458,9 @@ try {
         consoleErrors: errors,
         uiAgentConsistency: "PASS",
         ownerIsolation: "PASS",
+        sameBrowserOwnerSwitch: "PASS",
+        staleOwnerResponses: ["query", "render", "preview"],
+        initialCandidateRecovery: "PASS",
         reconnect: "PASS",
         lostResponseRetry: "PASS",
         visualComparisons,
