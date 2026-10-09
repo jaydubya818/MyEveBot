@@ -1,0 +1,18 @@
+name: MyApps deterministic reference
+on:
+  push:
+    branches: [codex/myapps-foundation]
+    paths: ['packages/myapps/**', '.github/workflows/myapps-reference.yml']
+  pull_request:
+    paths: ['packages/myapps/**', '.github/workflows/myapps-reference.yml']
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test packages/myapps/test/*.test.mjs
