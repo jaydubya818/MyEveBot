@@ -39,6 +39,8 @@ export class ReferenceStore {
   }
   close() { this.#db.close(); }
   #atomic<T>(fn: () => T): T {
+    // Host-only composition keeps resolution, action and response receipt in one transaction.
+    if (this.#db.isTransaction) return fn();
     this.#db.exec('BEGIN IMMEDIATE');
     try { const result = fn(); this.#db.exec('COMMIT'); return result; }
     catch (error) { this.#db.exec('ROLLBACK'); throw error; }
@@ -134,6 +136,17 @@ export class ReferenceStore {
   controls(enabled: boolean, mutations: boolean) {
     requireValue(typeof enabled === 'boolean' && typeof mutations === 'boolean');
     this.#atomic(() => this.#db.prepare('UPDATE controls SET enabled=?,mutations=? WHERE id=1').run(Number(enabled), Number(mutations)));
+  }
+  conversation<T>(principal: Principal, requestId: string, request: string, handler: () => T): T {
+    this.#permission(principal, 'apps.read'); text(requestId); text(request, 1000);
+    return this.#atomic(() => {
+      const hash = digest({ request, actor: principal.actorId, kind: principal.kind });
+      const prior = this.#db.prepare('SELECT request,response FROM receipts WHERE owner=? AND app=? AND key=?').get(principal.ownerId, '@conversation', requestId);
+      if (prior) { requireValue(prior.request === hash, 'IDEMPOTENCY_CONFLICT'); return JSON.parse(String(prior.response)); }
+      const result = handler();
+      this.#db.prepare('INSERT INTO receipts VALUES(?,?,?,?,?)').run(principal.ownerId, '@conversation', requestId, hash, canonical(result));
+      return result;
+    });
   }
   revoke(owner: string, id: string, version: number) {
     return this.#atomic(() => {
