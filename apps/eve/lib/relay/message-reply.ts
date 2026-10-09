@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import { generateText, gateway } from "ai";
 import { recordTaskModelStep } from "../task-runs.ts";
 import type { Envelope } from "./transport.ts";
@@ -15,6 +16,7 @@ export async function answerPeerMessage(input: {
   costLimit: number;
   revalidate: () => Promise<void>;
 }) {
+  denyExternalAlphaPaidPath("relay-peer-reply");
   if (!input.settings.enabled) return { acknowledged: true as const };
   const { envelope } = input;
   if (envelope.capability !== "message.send") throw new Error("Not a message.");

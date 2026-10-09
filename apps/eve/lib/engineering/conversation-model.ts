@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import {selectedAlphaWork} from './alpha-selected-work.ts';
 import {assertAlphaConversationAuthority} from './alpha-conversation-authority.ts';
 import {FACTORY_START_PROPOSAL_CONTRACT,ALPHA_FACTORY_ADMISSION_INSTRUCTIONS} from "./factory-proposal-contract.ts";
@@ -92,6 +93,7 @@ export function normalizeAlphaConversationResponse(
 export function engineeringConversationModel(input:{store:WorkStore;workId:string;sessionId:string;stepKey:string;modelId:string;productive:boolean},
   dependencies: {authority?:NativeRouteAuthority;budget?:EngineeringConversationBudget;catalog?:typeof gateway.getAvailableModels;
     phase?:()=>Promise<ConversationPhase>;model?:(phase:ConversationPhase)=>Model}={}):Model {
+  denyExternalAlphaPaidPath("engineering-conversation-model");
   const authority=dependencies.authority??new NativeRouteAuthority(input.store,engineeringConversationConfig);
   const budget=dependencies.budget??new EngineeringConversationBudget(input.store,authority);
   async function generate(options:Options) {

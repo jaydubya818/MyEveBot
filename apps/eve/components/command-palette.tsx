@@ -14,7 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { productDestinations } from "@/components/owner/destinations";
+import { useDestinationAllowed, useVisibleDestinations } from "@/components/owner/destination-gate";
 
 // Navigation command palette (Cmd+K): jump to threads, start a new chat,
 // open the manage panel, toggle notifications. Complements the composer's
@@ -116,6 +116,8 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const { hits, searching } = useFullTextSearch(query);
+  const productDestinations = useVisibleDestinations();
+  const destinationAllowed = useDestinationAllowed();
 
   useEffect(() => {
     if (!open) return;
@@ -179,7 +181,7 @@ export function CommandPalette({
           onClose();
         },
       },
-      ...(goalsAvailable
+      ...(goalsAvailable && destinationAllowed("/goals")
         ? [
             {
               key: "action:goals",
@@ -194,7 +196,7 @@ export function CommandPalette({
             },
           ]
         : []),
-      ...(goalsAvailable
+      ...(goalsAvailable && destinationAllowed("/weekly")
         ? [
             {
               key: "action:review",
@@ -209,18 +211,22 @@ export function CommandPalette({
             },
           ]
         : []),
-      {
-        key: "action:manage",
-        kind: "action",
-        label: "Open manage page",
-        detail: "Reminders, triggers, memory, connections, skills",
-        icon: <GearSixIcon className="size-4" />,
-        run: () => {
-          onOpenManage();
-          onClose();
-        },
-      },
-      ...(pushStatus === "on" || pushStatus === "off" || pushStatus === "denied"
+      ...(destinationAllowed("/manage")
+        ? [
+            {
+              key: "action:manage",
+              kind: "action" as const,
+              label: "Open manage page",
+              detail: "Reminders, triggers, memory, connections, skills",
+              icon: <GearSixIcon className="size-4" />,
+              run: () => {
+                onOpenManage();
+                onClose();
+              },
+            },
+          ]
+        : []),
+      ...(destinationAllowed("/channels") && (pushStatus === "on" || pushStatus === "off" || pushStatus === "denied")
         ? [
             {
               key: "action:push",
@@ -293,6 +299,8 @@ export function CommandPalette({
     hits,
     pushStatus,
     goalsAvailable,
+    productDestinations,
+    destinationAllowed,
     onNewChat,
     onOpenGoals,
     onOpenReview,

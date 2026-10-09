@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import {blockExternalWrite,requireReadOnlyTransport} from "../../lib/external-write-policy.ts";
 // A persistent cloud desktop for the agent, backed by Orgo (https://orgo.ai).
 //
@@ -1042,6 +1043,7 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
     maxSteps?: number;
     signal?: AbortSignal;
   }): Promise<TaskResult & { computer: Computer }> {
+    denyExternalAlphaPaidPath("orgo-hosted-model");
     const computer = await activeComputer(input.signal, profile);
     const model = input.model ?? (await orgoTaskModel());
     const gatewayId = gatewayModelId(model);

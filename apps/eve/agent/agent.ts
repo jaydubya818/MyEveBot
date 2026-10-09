@@ -1,3 +1,5 @@
+import {externalAlphaInstallation} from '../lib/external-alpha/policy.ts';
+import {externalAlphaModel} from '../lib/external-alpha/model.ts';
 import {selectedAlphaWork} from "../lib/engineering/alpha-selected-work.ts";
 import {retainedSummaryBinding,retainedWorkSummaryModel} from './lib/retained-work-summary.ts';
 import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
@@ -66,6 +68,10 @@ export default defineAgent({
           if(!agent?.isPrimary)throw Error('RETAINED_SUMMARY_PRIMARY_AGENT');
           return {model:retainedWorkSummaryModel(binding),modelContextWindowTokens:200_000};
         }
+        if(externalAlphaInstallation()){
+          if('parent' in ctx.session&&ctx.session.parent)throw Error('EXTERNAL_ALPHA_DELEGATION_DISABLED');
+          return {model:externalAlphaModel({ownerId:ctx.session.auth.current?.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true,stepKey:ownerModelStepKey(_event)}),modelContextWindowTokens:32000};
+        }
         if(process.env.MYEVE_ALPHA_OWNER_BINDING){
           const current=ctx.session.auth.current,selected=selectedAlphaWork(current?.attributes.myeveEngineeringWorkId);
           if(!selected||current?.authenticator!=='myeve-web-session'||current.principalType!=='user'||current.principalId!==selected.binding.ownerScope||current.attributes.owner!=='true'||current.attributes.role==='guest'||current.attributes.myeveRoleId||('parent' in ctx.session&&ctx.session.parent))throw Error('ALPHA_SELECTED_WORK_REQUIRED');
@@ -109,7 +115,10 @@ export default defineAgent({
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
         };
-        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected; return typeof value==='string'?gateway(value):value; };
+        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected;
+          // agent-model-selection: an external-alpha installation can only dispatch through its budgeted model (or the deterministic evidence summary).
+          if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
+          return typeof value==='string'?gateway(value):value; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
           doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
           doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},modelContextWindowTokens:200_000};

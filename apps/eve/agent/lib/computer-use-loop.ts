@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { ToolLoopAgent, isStepCount, tool } from "ai";
 import { z } from "zod";
 
@@ -83,6 +84,7 @@ export async function runComputerUseLoop(input: {
   readonly timeoutMessage: string;
   readonly signal?: AbortSignal;
 }): Promise<ComputerUseLoopResult> {
+  denyExternalAlphaPaidPath("computer-use-loop");
   const controller = new AbortController();
   const stopOnCancel = (): void => controller.abort(input.signal?.reason);
   if (input.signal?.aborted === true) stopOnCancel();

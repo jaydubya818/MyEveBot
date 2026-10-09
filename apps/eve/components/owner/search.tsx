@@ -10,7 +10,7 @@ import type {
 import { ProductShell, ResourceState } from "./product-shell";
 import { useProductResource } from "./resource";
 import { Card, State, date } from "./primitives";
-import { productDestinations } from "./destinations";
+import { useVisibleDestinations } from "./destination-gate";
 import {
   searchArtifacts,
   searchAgents,
@@ -21,6 +21,7 @@ import {
 } from "./search-model";
 
 export function ProductSearch() {
+  const productDestinations = useVisibleDestinations();
   const [query, setQuery] = useState("");
   const [settled, setSettled] = useState("");
   useEffect(() => {

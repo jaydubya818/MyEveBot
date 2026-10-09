@@ -3,10 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useId, useRef } from "react";
 import { CommandPalette } from "@/components/command-palette";
-import { productDestinations } from "./destinations";
+import { useVisibleDestinations } from "./destination-gate";
 
 export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
+  const productDestinations = useVisibleDestinations();
   const navigationId=useId();
   const menuButton=useRef<HTMLButtonElement>(null);
   const [menuOpen,setMenuOpen]=useState(false);

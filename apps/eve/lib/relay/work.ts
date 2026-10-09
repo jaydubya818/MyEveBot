@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import { insertFederationArtifact } from "../qualification/artifact-storage.ts";
 import { qualificationEnabled, qualificationModel, qualifyArtifact } from "../qualification/client.ts";
 import { generateText, gateway } from "ai";
@@ -267,6 +268,7 @@ export async function executeExternalWork(
             Date.parse(envelope.expiresAt) - Date.now(),
           );
           if (remaining <= 0) throw new Error("Work expired.");
+          denyExternalAlphaPaidPath("relay-work-model");
           const response = qualificationEnabled() ? await qualificationModel(store.ownerId, envelope.id, `${system}\n${prompt}`, AbortSignal.timeout(remaining)) : await generateText({
             model: gateway(modelId),
             system,
