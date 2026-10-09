@@ -28,6 +28,7 @@ export interface EngineeringWorkerProjection {
   workVersion: number;
   workGeneration: number;
   criteriaVersion: number;
+  criteria?: Work["criteria"];
   lifecycle: Work["lifecycle"];
   control: Work["control"];
   workContract: {
@@ -494,6 +495,7 @@ export class EngineeringWorkerProjectionStore {
         failures: externalAlpha.result.proof.evidence.filter(e => e.state === "FAIL").map(e => e.criterionId), evidenceCount: externalAlpha.result.proof.evidence.length }] : candidateHistory,
       completionStatus, nativeExecution, executionController,
       workId: work.id,
+      criteria: work.criteria,
       title: work.title,
       objective: work.objective,
       workVersion: work.version,

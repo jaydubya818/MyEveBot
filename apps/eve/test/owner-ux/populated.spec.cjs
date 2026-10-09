@@ -26,3 +26,31 @@ for(const width of [1440,390])test(`durable populated Today and Work at ${width}
  await page.addScriptTag({content:axe});const findings=await page.evaluate(()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));expect(findings.violations.filter(v=>['critical','serious'].includes(v.impact))).toEqual([]);
  await page.addStyleTag({content:'nextjs-portal {display:none!important}'});await page.screenshot({path:test.info().outputPath(`work-detail-stopped-${width}.png`),fullPage:true});
 });
+// UI contract fixtures derived from a real owner-scoped projection. These do not
+// claim execution or verifier qualification; the composed journey is separate.
+for(const width of [1440,390])test(`Work state, Proof and reconnect presentation at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ expect((await page.request.post('/api/auth/login',{data:{password:'synthetic-ux-owner-a'}})).ok()).toBeTruthy();
+ const original=await (await page.request.get(`/api/beta/work?workId=${ids[0]}`)).json();
+ const base=original.canonical.projection;const criterion=base.criteria[0];
+ const result={id:'fixture-result',current:true,contentHash:'synthetic',proof:{workId:base.workId,workVersion:base.workVersion,criteriaVersion:base.criteriaVersion,resultRevision:'synthetic-candidate',outcome:'PARTIAL',limitations:['The change remains private and has not been published.'],artifactRefs:[],evidence:[{criterionId:criterion.id,resultRevision:'synthetic-candidate',state:'PASS',sourceRef:'Synthetic acceptance check'}]}};
+ let readFails=false; let current={...base,runTruth:{...base.runTruth,activeRun:{id:'synthetic-run'}}};
+ await page.route('**/api/beta/work?workId=*',route=>readFails ? route.fulfill({status:503,json:{error:'Work cannot be refreshed right now.'}}) : route.fulfill({json:{...original,canonical:{...original.canonical,projection:current}}}));
+ await page.goto(`/work?kind=work&id=${ids[0]}`);await expect(page.locator('.owner-status')).toHaveText('Working');
+ for(const state of ['Verifying','Verified candidate','Outcome unconfirmed','Couldn’t complete']) {
+  current={...base,...(state==='Verifying'?{nativeDevelopment:{current:true,phase:'VERIFICATION_REQUESTED'}}:{nativeResult:result,verification:{...base.verification,status:'PASS',candidateSha:'synthetic-candidate'},externalAlpha:{current:true,authorityId:'fixture-authority',requestId:'fixture-request',accounting:{ceilingMicrousd:1300000,settledMicrousd:0,reservedMicrousd:0,unknownMicrousd:0},state:state==='Outcome unconfirmed'?'UNKNOWN':'COMPLETED',factoryOutcome:state==='Couldn’t complete'?'FAILED':null,result:{...result,resultId:result.id,candidateSha:'synthetic-candidate',verdict:'PASS',producerOutcome:'COMPLETED',producerChecks:'PASS',settlementState:'SETTLED'}}})};
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+  await expect(page.locator('.owner-status')).toHaveText(state);await expect(page.locator(`[data-work-id="${ids[0]}"]`)).toHaveCount(1);
+  if(state==='Verified candidate') {await expect(page.getByText('1 of 1 recorded checks passed.',{exact:true})).toBeVisible();await page.getByText('View proof',{exact:true}).click();await expect(page.getByText('Synthetic acceptance check',{exact:true})).toBeVisible();await expect(page.getByText('Technical details',{exact:true})).toBeVisible();}
+  if(state==='Outcome unconfirmed')await expect(page.getByRole('button',{name:/retry|resume/i})).toHaveCount(0);
+  await page.addScriptTag({content:axe});const audit=await page.evaluate(()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));expect(audit.violations.filter(v=>['critical','serious'].includes(v.impact))).toEqual([]);
+  await page.addStyleTag({content:'nextjs-portal{display:none!important}'});await page.screenshot({path:test.info().outputPath(`${state.replaceAll(' ','-')}-${width}.png`),fullPage:true});
+ }
+ readFails=true;await page.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(page.getByRole('alert')).toBeVisible();await expect(page.locator('.owner-work-summary')).toHaveCount(0);readFails=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.locator('.owner-status')).toHaveText('Couldn’t complete');
+ await page.reload();await expect(page.locator('.owner-status')).toHaveText('Couldn’t complete');
+ // The same read-only card follows the conversation, including repeated reads.
+ await page.route('**/api/work-thread?*',route=>route.fulfill({json:{works:[{projection:current}],nextOffset:null}}));
+ await page.goto('/chat');await expect(page.locator('.owner-work-summary')).toHaveCount(1);await expect(page.locator('.owner-work-summary')).toContainText('Couldn’t complete');
+ await page.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(page.locator('.owner-work-summary')).toHaveCount(1);
+ await page.addStyleTag({content:'nextjs-portal{display:none!important}'});await page.screenshot({path:test.info().outputPath(`sofie-inline-work-${width}.png`),fullPage:true});
+});

@@ -16,8 +16,8 @@ export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerW
   const result = work.nativeResult;
   const currentResult = result?.current === true && result.proof.workId === work.workId && result.proof.workVersion === work.workVersion && result.proof.criteriaVersion === work.criteriaVersion;
   const evidence = currentResult ? result.proof.evidence.filter(e => e.resultRevision === result.proof.resultRevision) : [];
-  const criteria = [...new Set(evidence.map(e => e.criterionId))];
-  const checksPassed = criteria.filter(id => evidence.filter(e => e.criterionId === id).every(e => e.state === 'PASS')).length;
+  const criteria = currentResult ? work.criteria?.map(c => c.id) ?? [...new Set(evidence.map(e => e.criterionId))] : [];
+  const checksPassed = criteria.filter(id => { const checks = evidence.filter(e => e.criterionId === id); return checks.length > 0 && checks.every(e => e.state === 'PASS'); }).length;
   const checksTotal = criteria.length;
   const verified = currentResult && work.verification.candidateSha === result.proof.resultRevision && work.verification.status === 'PASS' && checksTotal > 0 && checksPassed === checksTotal;
   const base = { verified, checksPassed, checksTotal, currentResult };

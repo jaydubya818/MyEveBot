@@ -1,4 +1,5 @@
 import { OwnerExperience } from "@/components/owner/experience";
+import { WorkDetail } from "@/components/owner/work-detail";
 
 export default async function Page({
   searchParams,
@@ -6,6 +7,7 @@ export default async function Page({
   searchParams: Promise<{ id?: string; kind?: string }>;
 }) {
   const { id, kind } = await searchParams;
+  if (id && kind === "work") return <WorkDetail workId={id}/>;
   return (
     <OwnerExperience
       view="work"
