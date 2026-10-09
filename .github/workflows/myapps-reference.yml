@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: d779b997ed4296c8a54dec8b9a5df01fe29f5123
+          ref: f63578fcb91c9e2ad549ade739c39bea16c41d2f
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
