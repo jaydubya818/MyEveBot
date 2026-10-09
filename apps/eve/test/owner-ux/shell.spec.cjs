@@ -2,6 +2,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const path=require('node:path');
 const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
+const {capture}=require('./visual.cjs');
 async function login(page,password='synthetic-ux-owner-a') {
   await page.clock.setFixedTime(new Date('2026-10-09T01:00:00Z'));
   await page.goto('/login');
@@ -49,4 +50,19 @@ test('appearance selection supports radio keyboard navigation and persists acros
  await expect(page.getByRole('radio',{name:/Light/})).toBeFocused();await expect(page.getByRole('radio',{name:/Light/})).toHaveAttribute('aria-checked','true');
  await page.keyboard.press('ArrowRight');await expect(page.getByRole('radio',{name:/Dark/})).toBeFocused();await expect(page.locator('html')).toHaveAttribute('data-mode','dark');
  await page.getByRole('navigation',{name:'Primary',exact:true}).getByRole('link',{name:'Today',exact:true}).click();await stable(page);await expect(page.locator('html')).toHaveAttribute('data-mode','dark');
+});
+test('session read failure offers recovery without mounting private content',async({page})=>{
+ await login(page);await page.route('**/api/auth/status',route=>route.abort());await page.goto('/today');
+ await expect(page.getByRole('alert').filter({hasText:'Could not verify your session.'})).toBeVisible();await expect(page.locator('.owner-shell')).toHaveCount(0);
+ await page.unroute('**/api/auth/status');await page.getByRole('button',{name:'Try again',exact:true}).click();await stable(page);
+});
+for(const width of [1440,390])test(`dark appearance remains consistent and accessible at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await login(page);await page.goto('/settings');await stable(page);
+ await page.getByRole('radio',{name:/Dark/}).click();
+ for(const [route,name] of [['/today','today'],['/chat','sofie'],['/settings','settings']]){
+  await page.goto(route);await stable(page);await expect(page).toHaveTitle(/MyEve/);await expect(page.locator('html')).toHaveAttribute('data-mode','dark');
+  if(route==='/chat')await expect(page.getByRole('textbox',{name:/message/i})).toBeVisible();
+  await page.addScriptTag({content:axe});const audit=await page.evaluate(()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));expect(audit.violations.filter(v=>['critical','serious'].includes(v.impact))).toEqual([]);
+  await capture(page,`${name}-dark-${width}.png`);
+ }
 });

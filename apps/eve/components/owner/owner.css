@@ -665,3 +665,5 @@
 .owner-file-info h2 { font-size: 16px; margin: 0 0 6px; overflow-wrap: anywhere; }
 .owner-file-info p { margin: 0; font-size: 13px; }
 @media (max-width: 600px) { .owner-file-list > li { flex-wrap: wrap; gap: 12px; } .owner-file-list > li > .owner-actions { width: 100%; padding-left: 60px; } }
+
+.owner-page button[role="tab"][aria-selected="true"] { background: var(--color-kumo-tint); border-color: var(--owner-accent); box-shadow: inset 0 0 0 1px var(--owner-accent); }

@@ -13,7 +13,7 @@ import {
   NotePencilIcon,
   PlusIcon,
 } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useId } from "react";
 
 import type {
   ArtifactComment,
@@ -113,6 +113,7 @@ export function ArtifactWorkspace({
   onArtifactChange?: (artifactId: string | null) => void;
 }) {
   const sharingAllowed = useExternalLinksAllowed();
+  const viewId = useId();
   const [scope, setScope] = useState<ArtifactScope>(
     initialArtifactId || !threadId ? "all" : "thread",
   );
@@ -606,13 +607,12 @@ export function ArtifactWorkspace({
     <div className="flex min-h-0 flex-1 flex-col md:flex-row">
       {!hideLibrary && <section className="flex max-h-64 w-full shrink-0 flex-col border-e border-kumo-hairline md:max-h-none md:w-48">
         <div className="flex items-center gap-1 border-b border-kumo-hairline p-2">
-          <div role="tablist" aria-label="Artifact scope" className="flex min-w-0 flex-1 gap-1">
+          <div role="group" aria-label="File scope" className="flex min-w-0 flex-1 gap-1">
             {(threadId ? ["thread", "all"] as const : ["all"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
-                role="tab"
-                aria-selected={scope === value}
+                aria-pressed={scope === value}
                 aria-label={
                   value === "thread"
                     ? "Show artifacts from this chat"
@@ -763,6 +763,16 @@ export function ArtifactWorkspace({
                       type="button"
                       role="tab"
                       aria-selected={viewMode === value}
+                      id={`${viewId}-${value}`}
+                      aria-controls={`${viewId}-panel`}
+                      tabIndex={viewMode === value ? 0 : -1}
+                      onKeyDown={event => {
+                        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                        event.preventDefault();
+                        const next = event.key === "Home" ? "preview" : event.key === "End" ? "edit" : value === "preview" ? "edit" : "preview";
+                        setViewMode(next);
+                        document.getElementById(`${viewId}-${next}`)?.focus();
+                      }}
                       className={cn(
                         "rounded-md px-2 py-1 text-xs capitalize",
                         viewMode === value
@@ -780,15 +790,15 @@ export function ArtifactWorkspace({
                 onClick={() => window.open(`${contentUrl}&download=1`, "_blank", "noopener")}>Download</button>
               {sharingAllowed && <button type="button" aria-label="Share this revision for seven days" disabled={busy}
                 onClick={() => void share()}>Share</button>}
-              {editingCurrent ? (viewMode === "edit" && <Button
-                  size="xs"
-                  variant="primary"
+              {editingCurrent ? (viewMode === "edit" && <button
+                  type="button"
+                  className="primary"
                   disabled={busy || editorText === savedText}
                   onClick={() => void saveTextRevision()}
                 >
                   <FloppyDiskIcon />
                   Save revision
-                </Button>
+                </button>
               ) : (
                 <>
                   <Button
@@ -827,7 +837,7 @@ export function ArtifactWorkspace({
                 {error}
               </div>
             )}
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div role={editingCurrent ? "tabpanel" : undefined} id={`${viewId}-panel`} aria-labelledby={editingCurrent ? `${viewId}-${viewMode}` : undefined} className="flex min-h-0 flex-1 flex-col">
               {editingCurrent && viewMode === "edit" ? (
                 <div className="flex min-h-0 flex-1 flex-col">
                   <textarea
