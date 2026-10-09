@@ -106,7 +106,7 @@ const fixture=createServer(async(req,res)=>{
    }
    send({content,usage,warnings:[],finishReason:{unified:tool?'tool-calls':'stop',raw:tool?'tool_calls':'stop'},providerMetadata:{gateway:{cost:0}}});return;
   }
-  if(req.url==='/fixture/status'){send({owner:e.owner,modelCalls,contextSizes,dispatches:factory.posts,executions:factory.consumed.size,workCount:await e.count('engineering_work'),authorities:await e.count('external_alpha_work_authority'),results:await e.count('external_alpha_work_result')});return;}
+  if(req.url==='/fixture/status'){send({owner:e.owner,modelCalls,contextSizes,dispatches:factory.posts,executions:factory.consumed.size,workCount:await e.count('engineering_work'),authorities:await e.count('external_alpha_work_authority'),results:await e.count('external_alpha_work_result'),acceptances:await e.count('engineering_owner_decisions',"action='accept_private'"),publications:await e.count('engineering_candidate_publications'),unresolved:await e.count('external_alpha_operation',"state IN('PREPARED','DISPATCHED','UNKNOWN')")});return;}
   // A real canonical decision fixture before admission. This is explicitly not
   // model-authored acceptance of a candidate or permission for publication.
   if(req.url==='/fixture/decision'){

@@ -7,6 +7,7 @@ import {
 } from "../../agent/lib/session-settings.ts";
 import { externalAlphaPolicy } from "./policy.ts";
 import { ExternalAlphaAllowance } from "./allowance.ts";
+import { canonicalConversationReply } from "./conversation-readback.ts";
 import { EXTERNAL_ALPHA_CONTEXT_BYTES, EXTERNAL_ALPHA_OUTPUT_TOKENS, EXTERNAL_ALPHA_INSTRUCTIONS, externalAlphaContextBinding, omitUnavailableSkillCatalog } from "./context.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
 type Model = ReturnType<typeof gateway>;
@@ -111,6 +112,10 @@ export function externalAlphaModel(
         throw Error("EXTERNAL_ALPHA_POLICY_CONTEXT_REQUIRED");
     }
     requirePolicy(agent);
+    const retainedReply=await canonicalConversationReply(db() as ExecutionDatabase,{ownerId:policy.ownerId,agentId:agent.id,sessionId:input.sessionId,
+      threadId:current.attributes.webThreadId,turnId:turn},options.prompt);
+    if(retainedReply!==null)return {content:[{type:"text",text:retainedReply}],warnings:[],finishReason:{unified:"stop",raw:"stop"},
+      usage:{inputTokens:{total:0,noCache:0,cacheRead:0,cacheWrite:0},outputTokens:{total:0,text:0,reasoning:0}}};
     // A conversation explicitly bound to Work does not need Agent/Goal management
     // schemas. This narrows model visibility only; tool authority is unchanged.
     const scoped = externalAlphaPrompt(options, typeof current.attributes?.myeveEngineeringWorkId === "string");
@@ -179,6 +184,8 @@ export function externalAlphaModel(
       await budget.assertActive(allowance.id);
       return op.result as Result;
     }
+    let providerStarted = false;
+    let providerSettled = false;
     try {
       await budget.assertActive(allowance.id);
       const dispatchAgent = await resolveSessionAgent(input);
@@ -195,6 +202,8 @@ export function externalAlphaModel(
       if (!Number.isFinite(dispatchRemaining) || dispatchRemaining <= 0)
         throw Error("EXTERNAL_ALPHA_DEADLINE");
       options.abortSignal?.throwIfAborted();
+      await budget.claimDispatch(op);
+      providerStarted = true;
       const response = await gateway(policy.model).doGenerate({
         ...scoped,
         abortSignal: AbortSignal.any([
@@ -223,6 +232,7 @@ export function externalAlphaModel(
           : response.content.filter((p) => p.type !== "reasoning"),
       };
       await budget.settle(op, Math.ceil(cost * 1e6), clean);
+      providerSettled = true;
       if (bad) throw Error("EXTERNAL_ALPHA_TOOL_DENIED");
       await budget.assertActive(allowance.id);
       const freshAgent = await resolveSessionAgent(input);
@@ -235,7 +245,8 @@ export function externalAlphaModel(
         throw Error("EXTERNAL_ALPHA_AGENT_REVOKED");
       return clean;
     } catch (e) {
-      await budget.unknown(op);
+      if (!providerStarted) await budget.cancelPrepared(op);
+      else if (!providerSettled) await budget.unknown(op);
       throw e;
     }
   }

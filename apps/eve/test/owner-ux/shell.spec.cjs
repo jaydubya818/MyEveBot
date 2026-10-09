@@ -16,6 +16,7 @@ for(const width of [1440,1024,768,390]) {
   const failures=[];
   for(const [route,name] of [['/today','today'],['/chat','sofie'],['/work','work'],['/needs-you','needs-you'],['/workspace','files'],['/settings','settings']]) {
    await page.goto(route); await stable(page);
+   await expect(page).toHaveTitle(/MyEve/);
    if(route==='/chat') await expect(page.getByRole('textbox',{name:/message/i})).toBeVisible();
    expect(await page.locator('.owner-shell').count()).toBe(1);
    expect(await page.locator('nav[aria-label="Primary"]').count()).toBe(1);

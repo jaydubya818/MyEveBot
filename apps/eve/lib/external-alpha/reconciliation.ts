@@ -3,6 +3,7 @@ import { WorkStore } from "../engineering/store.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { db } from "../../agent/lib/receipts-db.ts";
 import { externalAlphaPolicy } from "./policy.ts";
+import { sharedAlphaAccounting } from "./shared-accounting.ts";
 import { assertExternalAlphaWorkBinding, externalAlphaWorkConfig } from "./work-config.ts";
 import { ExternalAlphaWorkAuthority, WorkAuthoritySigner } from "./work-authority.ts";
 import { ExternalAlphaWorkController, HttpExternalAlphaFactoryClient, receiptKeys, type ExternalAlphaFactoryClient } from "./work-controller.ts";
@@ -46,8 +47,11 @@ export async function runExternalAlphaReconciliation(deps: { env?: NodeJS.Proces
   if (!policy || !config) return { checked: 0, inactive: true as const };
   assertExternalAlphaWorkBinding(policy, config, env);
   const database = deps.database ?? (db() as ExecutionDatabase);
+  let accountingRepair: "RECONCILED" | "UNAVAILABLE" = "RECONCILED";
+  try { await sharedAlphaAccounting(database, env).reconcile(database, policy); }
+  catch { accountingRepair = "UNAVAILABLE"; }
   const authority = new ExternalAlphaWorkAuthority(database, policy, deps.signer ?? WorkAuthoritySigner.fromEnv(env));
   const controller = new ExternalAlphaWorkController(authority,
     deps.factory ?? new HttpExternalAlphaFactoryClient(config, { projectId: policy.projectId }, { env }), config, receiptKeys(config));
-  return reconcileExternalAlphaAuthorities(controller, new WorkStore({ scopeKind: "personal", scopeId: policy.ownerId, actorId: policy.ownerId }, database));
+  return { ...await reconcileExternalAlphaAuthorities(controller, new WorkStore({ scopeKind: "personal", scopeId: policy.ownerId, actorId: policy.ownerId }, database)), accountingRepair };
 }

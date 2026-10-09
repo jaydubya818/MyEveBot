@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   reserve: vi.fn(),
   settle: vi.fn(),
   unknown: vi.fn(),
+  claim: vi.fn(),
+  cancel: vi.fn(),
   agent: vi.fn(),
   policy: vi.fn(),
 }));
@@ -23,9 +25,12 @@ vi.mock("./allowance.ts", () => ({
     reserve = mocks.reserve;
     settle = mocks.settle;
     unknown = mocks.unknown;
+    claimDispatch = mocks.claim;
+    cancelPrepared = mocks.cancel;
   },
 }));
 vi.mock("../../agent/lib/receipts-db.ts", () => ({ db: () => ({}) }));
+vi.mock("./conversation-readback.ts",()=>({canonicalConversationReply:async()=>null}));
 vi.mock("../../agent/lib/session-settings.ts", () => ({
   resolveSessionAgent: mocks.agent,
 }));
@@ -119,7 +124,7 @@ it("rejects changed Agent policy after reservation without dispatch", async () =
   });
   await expect(externalAlphaModel(identity()).doGenerate(options())).rejects.toThrow("POLICY_CONTEXT_REQUIRED");
   expect(mocks.generate).not.toHaveBeenCalled();
-  expect(mocks.unknown).toHaveBeenCalledOnce();
+  expect(mocks.cancel).toHaveBeenCalledOnce();
 });
 it("requires exact owner, canonical authentication and active Agent before any provider selection", async () => {
   for (const modify of [

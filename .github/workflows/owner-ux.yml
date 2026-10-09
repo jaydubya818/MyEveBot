@@ -36,10 +36,12 @@ jobs:
         working-directory: apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
-        run: npx vitest run lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts
+        run: npx vitest run lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
       - name: Context failure recovery
         working-directory: apps/eve
-        run: node --import tsx --test test/chat-turn-failure.test.mjs
+        run: |
+          npx vitest run lib/external-alpha/reconciliation.test.ts
+          node --import tsx --test test/chat-turn-failure.test.mjs
       - name: Initialize disposable database and server
         working-directory: apps/eve
         run: |
@@ -60,7 +62,7 @@ jobs:
           path: |
             output/owner-ux
             /tmp/owner-ux-server.log
-  owner-journey-boundary:
+  owner-golden-journey:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -90,7 +92,7 @@ jobs:
           for attempt in $(seq 1 90); do grep -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log && break; sleep 2; done
           grep -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log
           curl --max-time 90 -fsS http://127.0.0.1:3183/api/auth/status >/dev/null
-      - name: Known Golden Journey blocker reproduction and canonical readback
+      - name: Private acceptance, completion, and same-conversation readback
         working-directory: apps/eve
         env:
           MYEVE_OWNER_JOURNEY: '1'

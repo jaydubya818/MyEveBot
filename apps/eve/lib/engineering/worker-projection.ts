@@ -481,7 +481,8 @@ export class EngineeringWorkerProjectionStore {
         : externalAlpha.factoryOutcome ? `Factory outcome: ${externalAlpha.factoryOutcome}. No candidate Result or Proof was produced; authenticated cleanup and accounting settled.`
         : `External-alpha authority: ${externalAlpha.state}. Retained state does not establish fresh Factory liveness.`,
       nextStep: externalAlpha.state === "UNKNOWN" ? "Reconcile the existing request and retained exposure. No paid retry or new writer is allowed."
-        : externalAlpha.result ? "Review the retained Result and Proof. Publication and owner acceptance are not established."
+        : externalAlpha.acceptance ? "You accepted this private Result. Work is completed; publication remains disabled."
+        : externalAlpha.result ? "Review the retained Result and Proof and decide whether to accept it privately. Publication remains disabled."
         : externalAlpha.factoryOutcome ? "Review the retained terminal outcome. No new authority is implied."
         : "Reconcile the exact retained Factory request. Do not create or send a second dispatch.",
     } : null;
@@ -530,7 +531,7 @@ export class EngineeringWorkerProjectionStore {
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
         : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
         : routeActivity?.nextStep) ?? noExecutionNextStep(work, !!(nativeResult || result))),
-      readiness: externalAlpha ? { ready: false, reasons: [externalAlpha.result ? `Independent verifier: ${externalAlpha.result.verdict}; Result: ${externalAlpha.result.proof.outcome}. Publication and owner acceptance are not established.` : "No independently verified candidate Result is retained."] } : truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
+      readiness: externalAlpha ? { ready: false, reasons: [externalAlpha.acceptance ? "Private Result accepted; Work completed. Publication remains disabled and is not part of private completion." : externalAlpha.result ? `Independent verifier: ${externalAlpha.result.verdict}; Result: ${externalAlpha.result.proof.outcome}. Publication and owner acceptance are not established.` : "No independently verified candidate Result is retained."] } : truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
         ? [`${nativeRow?.producer==="MYFACTORY"?"Factory candidate / MyEve":"Native"} protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },
       currentRun: runTruth.activeRun ? {id:runTruth.activeRun.id,status:runTruth.activeRun.storedStatus,

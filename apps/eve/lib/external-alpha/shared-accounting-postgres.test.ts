@@ -14,6 +14,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
   async function make(activate = true) {
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
     const cohortId = randomUUID();
     const a = await Env.create(true, { cohortId }); envs.push(a);
     const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);
@@ -33,6 +34,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
   it("installing the shared schema creates no enrolled or activated spending authority", async () => {
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
     for (const table of ["external_alpha_cohort", "external_alpha_cohort_member", "external_alpha_cohort_admission", "external_alpha_cohort_dispatch"])
       expect(await central.count(table)).toBe(0);
   });
@@ -48,6 +50,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const { central, cohortId, a, b, chat, budget, amount } = await make();
     const allowance = await chat(a, "before-revocation");
     const operation = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "revoked:0", requestSha256: digest("operation"), microusd: 80000 });
+    await budget(a).claimDispatch(operation);
     await central.pool.query("UPDATE external_alpha_cohort SET revoked_at=clock_timestamp() WHERE id=$1", [cohortId]);
     for (const e of [a, b]) await expect(chat(e, "after-revocation")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
     await expect(budget(a).assertActive(allowance.id)).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
@@ -58,7 +61,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     await expect(chat(b, "still-revoked")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
     await expect(central.pool.query("UPDATE external_alpha_cohort SET revoked_at=NULL WHERE id=$1", [cohortId])).rejects.toThrow(/immutable/);
   });
-  it("a lost dispatch acknowledgment never permits provider redispatch or a second owner admission", async () => {
+  it("a lost pre-provider lease acknowledgment cancels the unsent operation without redispatch or refund", async () => {
     const { central, a, b, chat, budget, amount } = await make();
     const allowance = await chat(a, "dispatch-ack-loss");
     let lose = true;
@@ -71,15 +74,17 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     await expect(budget(a).reserve(input)).rejects.toThrow("EXTERNAL_ALPHA_SHARED_UNAVAILABLE");
     await expect(budget(a).reserve(input)).rejects.toThrow(/No replay of ambiguous|EXTERNAL_ALPHA_NO_REDISPATCH/);
     await a.db.externalAlphaAccounting.reconcile(a.db, a.policy);
-    await expect(chat(b, "blocked-by-dispatch")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
     expect(await a.count("external_alpha_operation")).toBe(1);
-    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "DISPATCHED" }]);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "NOT_DISPATCHED" }]);
     expect(await amount()).toBe(100000);
+    await expect(chat(b, "after-no-send")).resolves.toBeTruthy();
+    expect(await amount()).toBe(200000);
   });
   it("UNKNOWN is irrevocable even with an authenticated late settlement and retained known response", async () => {
     const { central, a, b, budget, chat, amount } = await make();
     const allowance = await chat(a, "irreversible-unknown");
     const operation = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "unknown:0", requestSha256: digest("operation"), microusd: 80000 });
+    await budget(a).claimDispatch(operation);
     await budget(a).unknown(operation);
     await expect(a.db.externalAlphaAccounting!.settle(a.db, a.policy, allowance.id, "sofie:unknown:0")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_DENIED");
     await expect(budget(a).settle(operation, 10000, { text: "late" })).rejects.toThrow();
@@ -139,6 +144,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const { central, a, b, budget, chat, amount } = await make();
     const allowance = await chat(a, "unknown");
     const op = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "unknown:0", requestSha256: digest("op"), microusd: 80000 });
+    await budget(a).claimDispatch(op);
     a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
       if (JSON.parse(p![0] as string).mode === "fence") throw Error("unreachable");
       return central.db.query(q, p);
@@ -156,6 +162,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const { central, a, b, budget, chat, amount } = await make();
     const allowance = await chat(a, "settled");
     const op = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "settled:0", requestSha256: digest("op"), microusd: 80000 });
+    await budget(a).claimDispatch(op);
     a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
       if (JSON.parse(p![0] as string).mode === "settle") throw Error("unreachable");
       return central.db.query(q, p);

@@ -14,7 +14,8 @@ export interface OwnerWorkPresentation {
  * outcome, or an admitted request is never promoted to successful execution. */
 export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerWorkPresentation {
   const result = work.nativeResult;
-  const currentResult = result?.current === true && result.proof.workId === work.workId && result.proof.workVersion === work.workVersion && result.proof.criteriaVersion === work.criteriaVersion;
+  const accepted = work.lifecycle==='accepted' && work.externalAlpha?.acceptance?.resultId===result?.id && work.externalAlpha?.acceptance?.completedVersion===work.workVersion && work.externalAlpha?.acceptance?.completedGeneration===work.workGeneration;
+  const currentResult = result?.current === true && result.proof.workId === work.workId && (result.proof.workVersion === work.workVersion || accepted) && result.proof.criteriaVersion === work.criteriaVersion;
   const evidence = currentResult ? result.proof.evidence.filter(e => e.resultRevision === result.proof.resultRevision) : [];
   const criteria = currentResult ? work.criteria?.map(c => c.id) ?? [...new Set(evidence.map(e => e.criterionId))] : [];
   const checksPassed = criteria.filter(id => { const checks = evidence.filter(e => e.criterionId === id); return checks.length > 0 && checks.every(e => e.state === 'PASS'); }).length;
@@ -28,9 +29,12 @@ export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerW
     return state('Stopped', 'neutral', work.lifecycle === 'superseded' ? 'This Work was replaced. Its history is preserved.' : 'This Work has stopped or is stopping. Its history is preserved.');
   if (work.lifecycle === 'failed' || work.externalAlpha?.factoryOutcome === 'FAILED' || work.nativeResult?.current && work.nativeResult.proof.outcome === 'FAILED')
     return state('Couldn’t complete', 'warning', 'Sofie could not complete this Work. The result and available evidence are preserved.');
+  if (accepted) return state('Completed', 'success', 'You accepted this verified private Result. Nothing was published.');
   if (work.attention || work.pendingDecisions.length)
     return state('Needs You', 'attention', 'Sofie needs your judgment before this Work can move forward.');
-  if (work.lifecycle === 'accepted') return state('Completed', 'success', 'You accepted this outcome. Publication is recorded separately.');
+  if (work.lifecycle === 'accepted') return work.externalAlpha
+    ? state('Outcome unconfirmed', 'warning', 'The saved completion does not match a current private acceptance. Review the retained evidence.')
+    : state('Completed', 'success', 'You accepted this outcome. Publication is recorded separately.');
   if (verified) return state('Verified candidate', 'success', work.externalAlpha?.result?.current ? 'The change was verified and remains private. Nothing was published.' : 'The candidate passed its recorded checks. Review the result and any remaining limitations.');
   if (currentResult) return state('Needs You', 'attention', 'A result is available, with checks or limitations that need review.');
   if (work.control === 'paused') return state('Stopped', 'neutral', 'This Work is paused. Ask Sofie when you are ready to continue.');

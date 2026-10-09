@@ -7,6 +7,13 @@ function fixture(overrides: Partial<EngineeringWorkerProjection> = {}) {
 }
 const result = {id:'result-a',current:true,contentHash:'hash',proof:{workId:'work-a',workVersion:1,criteriaVersion:1,resultRevision:'candidate-a',outcome:'PARTIAL',evidence:[{criterionId:'criterion-a',resultRevision:'candidate-a',state:'PASS'}]}} as NonNullable<EngineeringWorkerProjection['nativeResult']>;
 describe('owner Work presentation never upgrades authority or stale evidence',()=>{
+ it.each([null,{resultId:'other',completedVersion:2,completedGeneration:2}])('requires exact acceptance before showing external completion',acceptance=>{
+  expect(ownerWorkPresentation(fixture({workVersion:2,workGeneration:2,lifecycle:'accepted',nativeResult:result,externalAlpha:{state:'COMPLETED',acceptance} as any})).status).toBe('Outcome unconfirmed');
+ });
+ it('shows accepted private completion without rewriting the original Proof',()=>{
+  const work=fixture({workVersion:2,workGeneration:2,lifecycle:'accepted',nativeResult:result,externalAlpha:{state:'COMPLETED',acceptance:{resultId:'result-a',completedVersion:2,completedGeneration:2}} as any});
+  expect(ownerWorkPresentation(work)).toMatchObject({status:'Completed',verified:true,currentResult:true});expect(work.nativeResult?.proof.outcome).toBe('PARTIAL');
+ });
  it('keeps a verified partial candidate distinct from completion',()=>{const p=ownerWorkPresentation(fixture({nativeResult:result}));expect(p.status).toBe('Verified candidate');expect(p.checksPassed).toBe(1);expect(p.currentResult).toBe(true);});
  it.each([{current:false},{proof:{...result.proof,workVersion:2}},{proof:{...result.proof,workId:'other-work'}},{proof:{...result.proof,criteriaVersion:2}}])('does not verify a stale or foreign Result',override=>{expect(ownerWorkPresentation(fixture({nativeResult:{...result,...override}})).verified).toBe(false);});
  it('does not reuse verification for a different candidate',()=>expect(ownerWorkPresentation(fixture({nativeResult:result,verification:{status:'PASS',candidateSha:'other'} as any})).verified).toBe(false));

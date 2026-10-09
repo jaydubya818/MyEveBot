@@ -423,6 +423,7 @@ function record(row: Record<string, any>): WorkAuthorityRecord {
     receipt: row.receipt ?? null,
   };
 }
+export { record as readWorkAuthorityRecord };
 
 export interface FactoryOperationReport {
   operationId: string;

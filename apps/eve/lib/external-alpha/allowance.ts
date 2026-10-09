@@ -15,7 +15,7 @@ export interface AlphaAllowance {
 export interface AlphaOperation {
   id: string;
   allowance_id: string;
-  state: "DISPATCHED" | "SETTLED" | "UNKNOWN";
+  state: "PREPARED" | "NOT_DISPATCHED" | "DISPATCHED" | "SETTLED" | "UNKNOWN";
   request_sha256: string;
   result: unknown;
   reserved_microusd: string;
@@ -29,7 +29,7 @@ export class ExternalAlphaAllowance {
     readonly policy: ExternalAlphaPolicy,
   ) {}
   private async call<T>(
-    name: "admit" | "model_reserve" | "model_finish",
+    name: "admit" | "model_reserve" | "model_finish" | "model_transition",
     payload: Record<string, unknown>,
   ): Promise<T> {
     const [row] = await this.database.query(
@@ -91,12 +91,29 @@ export class ExternalAlphaAllowance {
     if (row.state === "SETTLED") {
       await sharedAlphaAccounting(this.database).settle(this.database, this.policy, input.allowanceId, "sofie:" + input.stepKey);
     } else {
-      // Local durable reservation precedes the shared dispatch lease. If this
-      // acknowledgment fails, no provider call occurs and the local DISPATCHED
-      // row conservatively fences this owner until reconciliation.
-      await sharedAlphaAccounting(this.database).dispatch(this.database, this.policy, input.allowanceId, "sofie:" + input.stepKey);
+      try {
+        await sharedAlphaAccounting(this.database).dispatch(this.database, this.policy, input.allowanceId, "sofie:" + input.stepKey);
+      } catch (error) {
+        // No provider claimant exists yet. Retain the no-send fact even if the
+        // remote cancellation acknowledgment is lost; scheduled repair retries it.
+        await this.cancelPrepared(row);
+        throw error;
+      }
     }
     return row;
+  }
+  async claimDispatch(op: AlphaOperation) {
+    const row = await this.call<AlphaOperation & { claimed: boolean }>("model_transition", {
+      allowanceId: op.allowance_id, operationId: op.id, requestSha256: op.request_sha256, state: "DISPATCHED",
+    });
+    if (!row.claimed) throw Error("EXTERNAL_ALPHA_NO_REDISPATCH");
+  }
+  async cancelPrepared(op: AlphaOperation) {
+    const row = await this.call<AlphaOperation>("model_transition", {
+      allowanceId: op.allowance_id, operationId: op.id, requestSha256: op.request_sha256, state: "NOT_DISPATCHED",
+    });
+    if (row.state === "NOT_DISPATCHED")
+      await sharedAlphaAccounting(this.database).cancelUnsent(this.database, this.policy, row.allowance_id, "sofie:" + row.step_key);
   }
   async settle(op: AlphaOperation, microusd: number, result: unknown) {
     if (
@@ -117,16 +134,17 @@ export class ExternalAlphaAllowance {
     return settled;
   }
   async unknown(op: AlphaOperation) {
-    // Preserve the local UNKNOWN even if the remote acknowledgment is lost.
-    try {
-      await sharedAlphaAccounting(this.database).fence(this.database, this.policy, op.allowance_id);
-    } finally {
-      await this.call<AlphaOperation>("model_finish", {
+    // A lost shared settlement acknowledgment must not poison known durable
+    // usage. The locked local transition preserves SETTLED and true UNKNOWN.
+    const retained = await this.call<AlphaOperation>("model_finish", {
         allowanceId: op.allowance_id,
         operationId: op.id,
         requestSha256: op.request_sha256,
         state: "UNKNOWN",
       });
-    }
+    if (retained.state === "UNKNOWN")
+      await sharedAlphaAccounting(this.database).fence(this.database, this.policy, op.allowance_id);
+    else if (retained.state === "SETTLED")
+      await sharedAlphaAccounting(this.database).settle(this.database, this.policy, op.allowance_id, "sofie:" + op.step_key);
   }
 }

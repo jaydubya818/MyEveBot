@@ -53,8 +53,10 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     const { budget } = await make();
     const a = await chat(budget, 1);
     const first = await budget.reserve({ allowanceId: a.id, stepKey: "s:1", requestSha256: h("a"), microusd: 50000 });
+    await budget.claimDispatch(first);
     await budget.settle(first, 10000, { ok: 1 });
     const second = await budget.reserve({ allowanceId: a.id, stepKey: "s:2", requestSha256: h("b"), microusd: 90000 });
+    await budget.claimDispatch(second);
     await budget.settle(second, 90000, { ok: 2 });
     await expect(budget.reserve({ allowanceId: a.id, stepKey: "s:3", requestSha256: h("c"), microusd: 1000 })).rejects.toThrow(/budget exhausted/);
     const b = await chat(budget, 2);
@@ -77,6 +79,7 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     const { e, budget } = await make();
     const a = await chat(budget, 1);
     const op = await budget.reserve({ allowanceId: a.id, stepKey: "s:1", requestSha256: h("x"), microusd: 40000 });
+    await budget.claimDispatch(op);
     const settled = await Promise.allSettled([budget.settle(op, 30000, { r: 1 }), budget.settle(op, 20000, { r: 2 })]);
     expect(settled.filter((r) => r.status === "fulfilled")).toHaveLength(1);
     const row = (await e.pool.query("SELECT spent_microusd,result FROM external_alpha_operation WHERE id=$1", [op.id])).rows[0];
@@ -87,6 +90,7 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     // UNKNOWN: stays charged at its reservation; settle cannot revive it; the cohort is fenced.
     const b = await chat(budget, 2);
     const unknownOp = await budget.reserve({ allowanceId: b.id, stepKey: "s:1", requestSha256: h("y"), microusd: 70000 });
+    await budget.claimDispatch(unknownOp);
     await budget.unknown(unknownOp);
     await expect(budget.settle(unknownOp, 0, {})).rejects.toThrow(/incremental settlement/);
     await expect(budget.reserve({ allowanceId: b.id, stepKey: "s:2", requestSha256: h("z"), microusd: 10 })).rejects.toThrow(/fenced|EXTERNAL_ALPHA_SHARED_FENCED/);

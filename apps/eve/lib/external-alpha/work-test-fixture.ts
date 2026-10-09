@@ -100,6 +100,7 @@ export class Env {
     const token = "e".repeat(64);
     if (installAccountingFixture) {
       await e.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await e.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
       await e.pool.query("INSERT INTO external_alpha_cohort(id)VALUES($1)", [e.policy.cohortId]);
       await e.pool.query("INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)VALUES($1,$2,$3,$4,encode(sha256(convert_to($5,'UTF8')),'hex'))", [e.policy.cohortId, e.policy.slot, e.owner, digest(e.policy), token]);
     }

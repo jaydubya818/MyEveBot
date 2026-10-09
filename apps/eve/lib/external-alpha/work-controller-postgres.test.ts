@@ -328,6 +328,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const budget = new ExternalAlphaAllowance(e.db, e.policy);
     const sofie = async (n: number, microusd = 100000) => {
       const op = await budget.reserve({ allowanceId: out.authority.allowanceId, stepKey: `sess:${n}`, requestSha256: sha256Hex("s" + n), microusd });
+    await budget.claimDispatch(op);
       return budget.settle(op, microusd, { ok: n });
     };
     await sofie(1);
@@ -642,6 +643,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
   async function sharedPair() {
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
     const cohortId = randomUUID();
     const a = await Env.create(true, { cohortId }); envs.push(a);
     const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);

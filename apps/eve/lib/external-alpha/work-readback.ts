@@ -36,6 +36,7 @@ interface Custody {
   manifest: ResultManifest;
   artifacts: SignedResult["artifacts"];
   current: boolean;
+  acceptance: { decisionId: string; acceptedAt: string; resultId: string; completedVersion: number; completedGeneration: number } | null;
 }
 
 async function resultCustody(database: ExecutionDatabase, ownerId: string, work: Work,
@@ -67,11 +68,20 @@ async function resultCustody(database: ExecutionDatabase, ownerId: string, work:
       || document.work.version !== Number(row.work_version) || document.work.generation !== Number(row.work_generation)
       || !["PARTIAL", "FAILED"].includes(proof.outcome)) throw integrity();
     externalAlphaEvidence(manifest, envelope.artifacts);
+    const [decision] = await database.query(`SELECT * FROM engineering_owner_decisions WHERE owner_id=$1 AND work_id=$2 AND result_id=$3 AND action='accept_private'`,[ownerId,work.id,row.result_id]);
+    const binding=z.record(z.string(),z.unknown()).nullable().parse(decision?.binding ?? null);
+    const accepted=Boolean(decision && binding && work.lifecycle==='accepted' && digest(binding)===decision.binding_hash
+      && binding.ownerId===ownerId && binding.workId===work.id && binding.resultId===row.result_id
+      && binding.proofHash===row.content_hash && binding.candidateSha===row.candidate_sha
+      && binding.manifestDigest===row.manifest_digest && binding.authorityId===row.authority_id
+      && binding.workVersion===Number(row.work_version) && binding.workGeneration===Number(row.work_generation)
+      && binding.completedVersion===work.version && binding.completedGeneration===work.generation && binding.criteriaVersion===work.criteriaVersion);
     return { retained: { authorityId: String(row.authority_id), resultId: String(row.result_id), candidateSha: String(row.candidate_sha),
       verdict: z.enum(["PASS", "FAIL", "PARTIAL"]).parse(row.verdict), cleanupConfirmed: row.cleanup_confirmed === true,
       settlementState: z.enum(["PENDING", "SETTLED"]).parse(row.settlement_state), replay: true },
       proof, contentHash: String(row.content_hash), manifest, artifacts: envelope.artifacts,
-      current: Number(row.work_version) === work.version && Number(row.work_generation) === work.generation && proof.criteriaVersion === work.criteriaVersion };
+      acceptance: accepted ? {decisionId:String(decision.id),acceptedAt:new Date(String(decision.created_at)).toISOString(),resultId:String(row.result_id),completedVersion:work.version,completedGeneration:work.generation} : null,
+      current: accepted || Number(row.work_version) === work.version && Number(row.work_generation) === work.generation && proof.criteriaVersion === work.criteriaVersion };
   } catch { throw integrity(); }
 }
 
@@ -82,6 +92,7 @@ export async function retainedExternalAlphaResult(database: ExecutionDatabase, p
 }
 
 export interface ExternalAlphaWorkReadback {
+  acceptance?: Custody["acceptance"];
   authorityId: string;
   requestId: string;
   state: AuthorityState;
@@ -122,7 +133,7 @@ export async function readExternalAlphaWork(store: WorkStore, work: Work): Promi
   const evidence = custody?.manifest.evidence ?? [];
   const producerChecks: "PASS" | "FAIL" | "NOT_RUN" = evidence.some(e => e.status === "failed" || (e.exitCode !== null && e.exitCode !== 0))
     ? "FAIL" : evidence.length > 0 && evidence.every(e => e.status === "passed" && e.exitCode === 0) ? "PASS" : "NOT_RUN";
-  return { authorityId: String(row.id), requestId: String(row.request_id), state: row.state as AuthorityState,
+  return { acceptance: custody?.acceptance ?? null, authorityId: String(row.id), requestId: String(row.request_id), state: row.state as AuthorityState,
     current: Number(row.work_version) === work.version && Number(row.work_generation) === work.generation,
     factoryOutcome, accounting: { ceilingMicrousd: Number(ledger?.ceiling_microusd ?? 0), settledMicrousd: Number(ledger?.settled ?? 0), reservedMicrousd: Number(ledger?.reserved ?? 0), unknownMicrousd: Number(ledger?.unknown ?? 0) }, result: custody ? { ...custody.retained, proof: custody.proof, contentHash: custody.contentHash, current: custody.current, producerOutcome: custody.manifest.status, producerChecks } : null };
 }

@@ -8,7 +8,7 @@ import './work-thread.css';
 
 /** One observation per Work. Polling only refreshes canonical state; it never
  * starts, resumes or approves execution. Unmount does not stop durable Work. */
-export function WorkThread({ threadId }: { threadId: string }) {
+export function WorkThread({ threadId, onCreatedWork }: { threadId: string; onCreatedWork?: (work: {workId:string;title:string}) => void }) {
   const destinationAllowed = useDestinationAllowed();
   const [data, setData] = useState<WorkThreadView | null>(null);
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ export function WorkThread({ threadId }: { threadId: string }) {
       const current = new AbortController(); controller = current;
       try {
         const response = await fetch(`/api/work-thread?threadId=${encodeURIComponent(threadId)}&offset=${offset}`, { cache: 'no-store', signal: current.signal });
-        if (response.status === 404) { if (!disposed) { setData({works:[],nextOffset:null}); setError(''); } return; }
+        if (response.status === 404) { if (!disposed) { setData({works:[],nextOffset:null,createdWork:null}); setError(''); } return; }
         if (!response.ok) throw Error('Work progress could not be refreshed.');
         const body = await response.json() as WorkThreadView;
         if (!disposed && !current.signal.aborted) { setData(body); setError(''); }
@@ -36,6 +36,7 @@ export function WorkThread({ threadId }: { threadId: string }) {
     void load(); window.addEventListener('online', refresh); document.addEventListener('visibilitychange', visible);
     return () => { disposed = true; clearTimeout(timer); controller?.abort(); window.removeEventListener('online', refresh); document.removeEventListener('visibilitychange', visible); };
   }, [threadId, offset, revision]);
+  useEffect(()=>{if(data?.createdWork && !error)onCreatedWork?.(data.createdWork);},[data,error,onCreatedWork]);
   if (!data && !error) return <p className="text-xs text-kumo-subtle" role="status">Checking saved Work…</p>;
   if (!error && !data?.works.length && offset === 0) return null;
   return <section className="work-thread" aria-label="Work in this conversation" data-thread-id={threadId}>

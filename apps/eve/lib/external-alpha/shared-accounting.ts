@@ -105,9 +105,27 @@ export class SharedAlphaAccounting {
     if (!local) throw Error("EXTERNAL_ALPHA_SHARED_LOCAL_BINDING_REQUIRED");
     return this.call(policy, { mode: "fence", id: local.admission_id });
   }
+  async cancelUnsent(database: ExecutionDatabase, policy: ExternalAlphaPolicy, allowanceId: string, operationKey: string) {
+    const [unsent] = await database.query(`SELECT o.id FROM external_alpha_operation o JOIN external_alpha_allowance a ON a.id=o.allowance_id
+      WHERE a.id=$1 AND a.owner_id=$2 AND a.policy_sha256=$3 AND o.source='SOFIE' AND o.state='NOT_DISPATCHED' AND 'sofie:'||o.step_key=$4`,[allowanceId,policy.ownerId,digest(policy),operationKey]);
+    if (!unsent) throw Error("EXTERNAL_ALPHA_SHARED_NO_SEND_FACT_REQUIRED");
+    const [local] = await database.query("SELECT admission_id FROM external_alpha_shared_binding WHERE allowance_id=$1 AND cohort_id=$2", [allowanceId, policy.cohortId]);
+    if (!local) throw Error("EXTERNAL_ALPHA_SHARED_LOCAL_BINDING_REQUIRED");
+    return this.call(policy, { mode: "cancel_unsent", id: local.admission_id, allowanceId, operationSha256: digest(operationKey) });
+  }
   /** Restart repair only records facts already durable locally. It never
    * dispatches, creates allowance/authority, refunds charge, or clears UNKNOWN. */
   async reconcile(database: ExecutionDatabase, policy: ExternalAlphaPolicy) {
+    // Only preparations created by 0091 can be cancelled after a restart. A
+    // concurrent provider claim and cancellation serialize on the same row.
+    const prepared = await database.query(`SELECT o.* FROM external_alpha_operation o
+      JOIN external_alpha_allowance a ON a.id=o.allowance_id
+      WHERE a.owner_id=$1 AND a.policy_sha256=$2 AND o.source='SOFIE'
+      AND o.state='PREPARED' AND o.created_at<clock_timestamp()-interval '60 seconds'`, [policy.ownerId, digest(policy)]);
+    for (const op of prepared) await database.query("SELECT external_alpha_model_transition($1::jsonb)", [JSON.stringify({
+      ownerId: policy.ownerId, policySha256: digest(policy), allowanceId: op.allowance_id,
+      operationId: op.id, requestSha256: op.request_sha256, state: "NOT_DISPATCHED",
+    })]);
     const rows = await database.query(`SELECT a.id,a.state,au.id AS authority_id,au.state AS authority_state,au.consumed_at,au.terminal_reason,
       r.settlement_state,r.exposure_unknown
       FROM external_alpha_allowance a JOIN external_alpha_shared_binding b ON b.allowance_id=a.id
@@ -128,6 +146,7 @@ export class SharedAlphaAccounting {
       for (const op of operations) {
         if (op.state === "UNKNOWN") await this.fence(database, policy, row.id as string);
         else if (op.state === "SETTLED") await this.settle(database, policy, row.id as string, "sofie:" + op.step_key);
+        else if (op.state === "NOT_DISPATCHED") await this.cancelUnsent(database, policy, row.id as string, "sofie:" + op.step_key);
       }
     }
     // 0090 adds an immutable authenticated no-candidate settlement fact. Older

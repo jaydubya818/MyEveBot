@@ -2516,7 +2516,13 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
-                {!ownerConflict && <WorkThread key={threadId} threadId={threadId} />}
+                {!ownerConflict && <WorkThread key={threadId} threadId={threadId} onCreatedWork={work=>{
+                  // The server confirms this exact Work was created in this
+                  // owner's conversation. Never replace an existing selection.
+                  if(workSelectionRef.current || roleId) return;
+                  const selection={...work,intent:'observe' as const};
+                  workSelectionRef.current=selection;setWorkSelection(selection);persistLive();
+                }}/>}
                 {!ownerConflict && <TaskRunCard threadId={threadId} />}
                 {!ownerConflict && showThinking && (
                   <MessageScrollerItem messageId="thinking">

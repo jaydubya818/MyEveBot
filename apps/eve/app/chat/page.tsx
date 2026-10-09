@@ -1,4 +1,7 @@
 import { Chat } from "../chat";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Sofie — MyEve" };
 export default async function ChatPage({
   searchParams,
 }: {

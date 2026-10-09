@@ -1,4 +1,5 @@
 import { externalAlphaInstallation } from "../external-alpha/policy.ts";
+import { PrivateResultAcceptance } from "../external-alpha/private-acceptance.ts";
 import { readExternalAlphaProofEvidence } from "../external-alpha/work-readback.ts";
 import { FactoryEvidenceStore } from "../engineering/factory-evidence-store.ts";
 import { currentPublicationReadback } from '../engineering/publication-contract.ts';
@@ -355,6 +356,7 @@ export class BetaIntegration {
       accept: async (r) => {
         if (r.status === "STALE")
           return { status: "stale", receipt: `goal-response-stale:${r.id}` };
+        if (r.workId && !r.goal && r.action.id.startsWith("private-result:")) return new PrivateResultAcceptance(this).accept(r);
         if (r.workId && !r.goal) return new CanonicalBetaWork(this).accept(r);
         const receipt = await consumer.accept({ ...r, status: r.status });
         return {
@@ -473,6 +475,9 @@ export async function betaRequest(
         },
       })(request);
     if (resource === "inbox") {
+      // Existing decisions remain readable when no execution policy is installed.
+      // Creating or accepting private Result decisions still requires a valid policy.
+      if (request.method === "GET" && externalAlphaInstallation() && process.env.MYEVE_EXTERNAL_ALPHA_POLICY) await new PrivateResultAcceptance(beta).refresh(owner);
       const response = await createInboxApi({
         repository: beta.repository(),
         authenticate: signedGoalAuthenticator(),

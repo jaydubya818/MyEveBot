@@ -4,6 +4,7 @@ import { Env, connection } from "../external-alpha/work-test-fixture.ts";
 import { ExternalAlphaAllowance } from "../external-alpha/allowance.ts";
 import { BetaIntegration } from "../beta-integration/runtime.ts";
 import { readWorkThread } from "./work-thread.ts";
+import { canonicalConversationReply } from "../external-alpha/conversation-readback.ts";
 
 it.skipIf(!connection)("associates completed tool-created Work only through the exact owner, Agent, session and thread", async () => {
   const e = await Env.create();
@@ -28,6 +29,14 @@ it.skipIf(!connection)("associates completed tool-created Work only through the 
     const result = await readWorkThread(beta,e.owner,"thread-a");
     expect(result.works).toHaveLength(1);
     expect(result.works[0].projection.workId).toBe(work.id);
+    expect(result.createdWork).toBeNull(); // A read result is not a creation handoff.
+    const readbackInput={ownerId:e.owner,agentId:'agent-a',sessionId:'session-a',threadId:'thread-a',turnId:'turn-a'};
+    const question=[{role:'user' as const,content:[{type:'text' as const,text:'What did you change?'}]}];
+    expect(await canonicalConversationReply(e.db,readbackInput,question)).toContain('No canonical Result');
+    for(const changed of [{ownerId:'foreign-owner'},{agentId:'other-agent'},{sessionId:'other-session'},{threadId:'thread-b'}])
+      expect(await canonicalConversationReply(e.db,{...readbackInput,...changed},question)).toBeNull();
+    await e.pool.query("UPDATE external_alpha_tool_effect SET result=result||'{\"created\":true}'::jsonb WHERE call_id='valid'");
+    expect((await readWorkThread(beta,e.owner,'thread-a')).createdWork?.workId).toBe(work.id);
     await expect(readWorkThread(beta,e.owner,"thread-b")).rejects.toMatchObject({status:404});
     await expect(readWorkThread(beta,"foreign-owner","thread-a")).rejects.toMatchObject({status:404});
   } finally { await e.close(); }

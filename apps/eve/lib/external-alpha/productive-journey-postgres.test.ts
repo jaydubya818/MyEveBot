@@ -62,6 +62,7 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const a = await Env.create(true, { repository: initial.source.repository, baseSha: commit, treeSha: tree, sourceDigest, factoryVersion }); environments.push(a);
   const central = await Env.create(false, {}, false); environments.push(central);
   await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
   const accountingToken = "1".repeat(64);
   await central.pool.query("INSERT INTO external_alpha_cohort(id,activated_at)VALUES($1,clock_timestamp())", [a.policy.cohortId]);
   await central.pool.query("INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)VALUES($1,'1',$2,$3,encode(sha256(convert_to($4,'UTF8')),'hex'))", [a.policy.cohortId, a.owner, digest(a.policy), accountingToken]);

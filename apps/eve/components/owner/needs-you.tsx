@@ -84,7 +84,7 @@ function AttentionDecisionCard({ item, history, recorded, onDecision, onRefresh 
     {projection && <p><Link href={`/work?kind=work&id=${encodeURIComponent(projection.workId)}`}>{projection.title}</Link></p>}
     <p>{item.source.system === "work" && item.correlationId.startsWith("work-choice:") ? history ? "Your choice is retained with this Work." : "Sofie needs your choice before continuing this Work." : item.summary}</p>
     {item.action?.approval && <section><h3>If you allow this action</h3><ul>{item.action.approval.effects.map(effect => <li key={effect}>{effect}</li>)}</ul><p>Declining withholds permission for this action.</p></section>}
-    {!history && <p className="owner-muted">Your answer applies to this request. It does not confirm that the Work has been completed.</p>}
+    {!history && <p className="owner-muted">{item.action?.id.startsWith('private-result:') ? 'Acceptance completes this Work only after its exact verification and accounting are checked again. Nothing is published.' : 'Your answer applies to this request. It does not confirm that the Work has been completed.'}</p>}
     {item.workId && <><ResourceState {...work}/>{projection && <p><Link href={`/work?kind=work&id=${encodeURIComponent(item.workId)}`}>View Result and Proof →</Link></p>}</>}
     {history && <><p>Your answer: <strong>{recorded?.answer ?? "No answer recorded"}</strong></p><p className="owner-muted">{historyStatus}<time className="block" dateTime={recorded?.at ?? item.resolvedAt ?? item.updatedAt}>{date(recorded?.at ?? item.resolvedAt ?? item.updatedAt)}</time></p></>}
     {!history && stale && !work.loading && !work.error && <p role="status">This Work has changed. Reopen the current decision before answering.</p>}
