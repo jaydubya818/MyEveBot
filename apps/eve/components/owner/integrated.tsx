@@ -19,9 +19,9 @@ import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
 import { Responsibilities } from "./responsibilities";
-import { AgentOverview } from "./agent-overview";
+import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
-import { OwnerNavigation } from "./navigation";
+import { ProductShell } from "./product-shell";
 
 type CanonicalWork = Awaited<
   ReturnType<
@@ -79,6 +79,8 @@ export function IntegratedExperience({
   selectedId?: string;
   selectedKind?: "goal" | "work";
 }) {
+  const destinationAllowed = useDestinationAllowed();
+  const advancedAvailable = destinationAllowed("/manage");
   const [today, setToday] = useState<Today | null>(null),
     [works, setWorks] = useState<Work[]>([]),
     [results, setResults] = useState<Result[]>([]),
@@ -393,7 +395,7 @@ export function IntegratedExperience({
             <p className="owner-muted">
               Candidate: {r.candidate_sha ?? r.proof.resultRevision}
             </p>
-            {r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS") && <p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></p>}
+            {advancedAvailable && r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS") && <p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></p>}
             <p>
               Work revision {r.proof.workVersion} · Criteria revision{" "}
               {r.proof.criteriaVersion}
@@ -422,7 +424,7 @@ export function IntegratedExperience({
             </details>
             <div className="owner-actions">
               <Link href={`/work?kind=work&id=${r.work_id}`}>Open Work</Link>
-              <label>
+              {destinationAllowed("/memory") && <><label>
                 Learning scope
                 <select
                   value={feedbackScope}
@@ -469,7 +471,7 @@ export function IntegratedExperience({
               >
                 Prefer source citations
               </button>
-              <Link href={`/memory?workId=${r.work_id}`}>Review learning</Link>
+              <Link href={`/memory?workId=${r.work_id}`}>Review learning</Link></>}
             </div>
           </Card>
         ))
@@ -480,33 +482,7 @@ export function IntegratedExperience({
     );
   }
   return (
-    <div className="owner-shell">
-      <a className="owner-skip" href="#owner-content">
-        Skip to content
-      </a>
-      <header className="owner-top">
-        <Link href="/today" className="owner-brand">
-          MyEve<span className="owner-muted"> / Sofie</span>
-        </Link>
-        <OwnerNavigation />
-      </header>
-      <main id="owner-content" tabIndex={-1} className="owner-content">
-        <header className="owner-heading">
-          <div>
-            <span className="owner-eyebrow">Your outcomes, in focus</span>
-            <h1>{titles[view]}</h1>
-            <p className="owner-muted">
-              Goals, decisions, evidence, and progress in one place.
-            </p>
-          </div>
-          <div className="owner-actions">
-            <button onClick={refresh} disabled={loading}>
-              Refresh
-            </button>
-            <Link href="/work/new">New Goal</Link>
-          </div>
-        </header>
-        <details className="owner-muted"><summary>Private-alpha availability</summary><p>Open each Work for its admitted execution and Proof. General cloud background execution remains under qualification.</p></details>
+    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : "Your work, in context."}>
         {loading && <p role="status">Checking your current state…</p>}
         {!!errors.length && (
           <div className="owner-notice" role="alert">
@@ -514,7 +490,7 @@ export function IntegratedExperience({
             {errors.map((e) => (
               <p key={e}>{e}</p>
             ))}
-            <Link href="/login">Sign in</Link>
+            <button onClick={refresh}>Try again</button>
           </div>
         )}
         {notice && (
@@ -563,12 +539,16 @@ export function IntegratedExperience({
             )}
             {view === "today" && (
               <>
+                <section className="owner-today-welcome" aria-label="Ask Sofie">
+                  <h2>{!works.length && !goals.length && !needs.length && !errors.length ? "Welcome to MyEve" : "What would you like to accomplish?"}</h2>
+                  <p className="owner-muted">Sofie is ready. Bring her an idea, a question, or something you need done.</p>
+                  <Link className="owner-ask" href="/chat"><span>Ask Sofie…</span><span aria-hidden="true">↗</span></Link>
+                </section>
                 <WorkInbox overview />
                 {needs.length>0&&<Card title="Owner attention"><ul className="owner-list">{needs.slice(0,3).map(item=><li key={item.id}><strong>{item.title}</strong><p>{item.summary}</p></li>)}</ul><Link href="/needs-you">Review all decisions and approvals</Link></Card>}
-                <AgentOverview />
-                <Responsibilities />
-                <div className="owner-grid">
-                  <Card title="Current Goals">
+
+                {goals.length > 0 && <div className="owner-grid">
+                  <Card title="Goals">
                     {goalList()}
                     {today?.nextCursor && (
                       <button
@@ -579,7 +559,7 @@ export function IntegratedExperience({
                       </button>
                     )}
                   </Card>
-                </div>
+                </div>}
               </>
             )}
             {view === "brief" && (
@@ -700,7 +680,7 @@ export function IntegratedExperience({
                         </p>
                       )}
                       <div className="owner-actions">
-                        {selectedWork.lifecycle === "active" &&
+                        {advancedAvailable && selectedWork.lifecycle === "active" &&
                           ["start", "reconcile", "stop", "takeover"].map(
                             (operation) => (
                               <button
@@ -733,7 +713,7 @@ export function IntegratedExperience({
                           )}
                       </div>
                       <div className="owner-actions">
-                        {selectedWork.lifecycle === "active" &&
+                        {advancedAvailable && selectedWork.lifecycle === "active" &&
                           (selectedWork.control === "paused"
                             ? ["resume", "admit"]
                             : ["pause", "admit"]
@@ -764,7 +744,7 @@ export function IntegratedExperience({
                                   : "Pause Work"}
                             </button>
                           ))}
-                        {selectedWork.lifecycle === "active" &&
+                        {advancedAvailable && selectedWork.lifecycle === "active" &&
                           selectedWork.control === "paused" &&
                           canonical?.continuations
                             .filter(
@@ -801,9 +781,7 @@ export function IntegratedExperience({
                           <li key={c.id}>{c.statement}</li>
                         ))}
                       </ul>
-                      <Link href={`/memory?workId=${selectedWork.id}`}>
-                        Memory used for this Work
-                      </Link>
+                      {destinationAllowed("/memory") && <Link href={`/memory?workId=${selectedWork.id}`}>Memory used for this Work</Link>}
                     </Card>
                     {resultCards()}
                   </>
@@ -839,7 +817,7 @@ export function IntegratedExperience({
                         </ul>
                       ) : (
                         <Empty title="No Work yet">
-                          A Goal and Task create a durable Work intent.
+                          Ask Sofie to get something done. Its progress and results will appear here.
                         </Empty>
                       )}
                     </Card>
@@ -892,8 +870,8 @@ export function IntegratedExperience({
                   </Card>
                 ))
               ) : (
-                <Empty title="Nothing needs your judgment">
-                  Resolved decisions remain in the durable Inbox history.
+                <Empty title="You’re all caught up">
+                  Sofie will bring decisions here when she needs you.
                 </Empty>
               ))}
             {view === "needs-you" && inboxCursor && (
@@ -901,7 +879,7 @@ export function IntegratedExperience({
                 Load more Inbox items
               </button>
             )}
-            {view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
+            {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">
@@ -1143,7 +1121,6 @@ export function IntegratedExperience({
             )}
           </>
         )}
-      </main>
-    </div>
+    </ProductShell>
   );
 }

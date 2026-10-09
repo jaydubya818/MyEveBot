@@ -67,7 +67,7 @@ import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
-import { OwnerNavigation } from "@/components/owner/navigation";
+
 import { useDestinationAllowed, useExternalLinksAllowed } from "@/components/owner/destination-gate";
 import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
@@ -773,6 +773,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }, []);
 
   useEffect(() => {
+    if (!externalLinksAllowed) return;
     void fetch("/api/models")
       .then((response) => (response.ok ? response.json() : null))
       .then((body: { models?: ModelOption[] } | null) => {
@@ -1027,8 +1028,10 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         setCommandPaletteOpen((prev) => !prev);
       }
     }
+    const openCommands = () => setCommandPaletteOpen(true);
+    window.addEventListener("myeve:commands", openCommands);
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => { window.removeEventListener("keydown", onKeyDown); window.removeEventListener("myeve:commands", openCommands); };
   }, []);
 
   // Deep link from the /manage page: /?thread=<id> opens that thread. The
@@ -1272,7 +1275,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }
 
   return (
-    <div className="flex h-dvh w-full">
+    <div className="owner-conversation flex h-dvh w-full">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
@@ -1283,7 +1286,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
       <aside
         ref={sidebarRef}
-        aria-label="App navigation"
+        aria-label="Conversations"
         className={cn(
           "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
           sidebarOpen && "visible translate-x-0",
@@ -1301,7 +1304,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           </button>
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
-          <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
+          {destinationAllowed("/manage") && <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
             {goalsIncluded && <Button
               variant="ghost"
@@ -1412,9 +1415,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               onClick={newThread}
             />
           </div>
-          </details>
+          </details>}
         </div>
-        <OwnerNavigation compact />
         <Button variant="secondary" className="mx-3 mb-3 min-h-11" icon={PlusIcon} onClick={newThread}>New conversation</Button>
         {externalLinksAllowed && process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
           <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
@@ -2432,7 +2434,7 @@ function ChatThread({
             persistLive();
           }}
         />}
-        <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+        <OwnerChatNotice state={capabilityNotice} onReview={onReviewSystem} />
 
         {ownerConflict && (
           <div role="status" className="mx-10 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
@@ -2458,8 +2460,8 @@ function ChatThread({
                         : agentId
                         ? `${agentName} can use only the capabilities assigned on its Agent record.`
                         : capabilityNotice.kind === "ready"
-                        ? "Ask me anything — I have your memory, a browser, and all your connected apps."
-                        : "Ask me anything — available capabilities stay active while setup is completed."}
+                        ? "What would you like to accomplish?"
+                        : "Bring me an idea, a question, or something you need done."}
                     </p>
                   </div>
                 )}
@@ -2684,8 +2686,7 @@ function ChatThread({
                 onClick={() => fileInputRef.current?.click()}
               />
               <div className="ms-auto flex items-center gap-1">
-                <ReasoningPicker reasoning={reasoning} onSelect={onReasoningChange} />
-                <ModelPicker model={model} models={models} onSelect={onModelChange} />
+                <QualifiedModelControls model={model} models={models} onModelChange={onModelChange} reasoning={reasoning} onReasoningChange={onReasoningChange} />
                 {speechSupported && (
                   <Button
                     type="button"
@@ -2826,6 +2827,18 @@ function ReasoningPicker({
       )}
     </div>
   );
+}
+
+function OwnerChatNotice(props: { state: CapabilityNoticeState; onReview: () => void }) {
+  const allowed = useDestinationAllowed();
+  if (!allowed("/manage")) return props.state.kind === "unavailable" ? <p role="status" className="px-5 py-3 text-sm text-kumo-subtle">Service status could not be checked. Your saved conversations remain available.</p> : null;
+  return <CapabilityNotice {...props} />;
+}
+
+function QualifiedModelControls(props: { model: string; models: ModelOption[]; onModelChange: (id: string) => void; reasoning: ReasoningId; onReasoningChange: (value: ReasoningId) => void }) {
+  const allowed = useDestinationAllowed();
+  if (!allowed("/manage")) return null;
+  return <><ReasoningPicker reasoning={props.reasoning} onSelect={props.onReasoningChange} /><ModelPicker model={props.model} models={props.models} onSelect={props.onModelChange} /></>;
 }
 
 function ModelPicker({

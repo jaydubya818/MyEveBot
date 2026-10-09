@@ -20,7 +20,8 @@ export function useDestinationAllowed(): (href: string) => boolean {
 }
 export function useVisibleDestinations() {
   const hrefs = useContext(Gate);
-  return productDestinations.filter((item) => hrefAllowed(hrefs, item.href));
+  const alphaDestinations = new Set(["/today", "/chat", "/work", "/needs-you", "/workspace", "/results", "/settings", "/privacy", "/search"]);
+  return productDestinations.filter((item) => hrefAllowed(hrefs, item.href) && (hrefs === null || alphaDestinations.has(item.href)));
 }
 /** True outside an installation. External links are not part of the alpha. */
 export function useExternalLinksAllowed(): boolean {

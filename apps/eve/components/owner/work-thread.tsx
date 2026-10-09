@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import type { WorkThreadView } from '@/lib/product/work-thread';
+import { useDestinationAllowed } from "./destination-gate";
 import { CurrentWorkTruth } from '../engineering/current-work-truth';
 import { OwnerCandidateDecision } from './candidate-decision';
 import './work-thread.css';
@@ -8,6 +9,7 @@ import './work-thread.css';
 /** One observation per Work. Polling only refreshes canonical state; it never
  * starts, resumes or approves execution. Unmount does not stop durable Work. */
 export function WorkThread({ threadId }: { threadId: string }) {
+  const destinationAllowed = useDestinationAllowed();
   const [data, setData] = useState<WorkThreadView | null>(null);
   const [error, setError] = useState('');
   const [revision, setRevision] = useState(0);
@@ -44,7 +46,7 @@ export function WorkThread({ threadId }: { threadId: string }) {
       {work.latestResult && <section aria-label="Result"><h3>Result</h3><p>{work.latestResult.summary}</p></section>}
       <p className="text-sm text-kumo-subtle">{work.nextStep}</p>
       <details><summary>Proof of Work / Advanced</summary><CurrentWorkTruth projection={work}/></details>
-      {work.nativeDevelopment?.phase === 'VERIFICATION_PASSED' && work.nativeResult?.current && work.factoryWriter && !error &&
+      {destinationAllowed("/manage") && work.nativeDevelopment?.phase === 'VERIFICATION_PASSED' && work.nativeResult?.current && work.factoryWriter && !error &&
         <OwnerCandidateDecision key={`${work.workId}:${work.workVersion}:${work.workGeneration}:${work.latestResult?.id ?? work.nativeResult?.id}`} workId={work.workId} embedded />}
       <a href={`/work?kind=work&id=${encodeURIComponent(work.workId)}`}>Work details</a>
     </article>)}

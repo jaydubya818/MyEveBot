@@ -1,0 +1,48 @@
+# Owner route inventory
+
+Snapshot of canonical page routes at Checkpoint A. Disabled pages are preserved; alpha route access is classified by `lib/external-alpha/features.ts`.
+
+- `/activity`
+- `/agents`
+- `/approvals`
+- `/apps`
+- `/beta-preview`
+- `/brief`
+- `/business`
+- `/capsules`
+- `/channels`
+- `/chat`
+- `/computer`
+- `/email`
+- `/files`
+- `/goals`
+- `/imessage`
+- `/inbox`
+- `/knowledge`
+- `/knowledge-record`
+- `/learning`
+- `/login`
+- `/manage/[section]`
+- `/manage`
+- `/memory`
+- `/needs-you`
+- `/`
+- `/privacy`
+- `/product-preview`
+- `/results`
+- `/review`
+- `/rooms`
+- `/search`
+- `/settings`
+- `/share/[token]`
+- `/sofie`
+- `/team`
+- `/today`
+- `/weekly`
+- `/welcome`
+- `/work/[id]/decision`
+- `/work/new`
+- `/work`
+- `/work-canvas`
+- `/workspace/[id]`
+- `/workspace`

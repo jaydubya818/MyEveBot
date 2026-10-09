@@ -132,7 +132,7 @@ add("SHARING", ["/api/shared/[token]/content", "/api/artifacts/[id]/shares", "/a
 add("ADMIN", ["/api/control", "/api/operations", "/api/owner-data", "/api/beta/feedback"]);
 
 // ---- Pages (app/**/page.tsx) ----------------------------------------------
-add("CORE", ["/", "/login", "/privacy", "/welcome"]);
+add("CORE", ["/", "/login", "/privacy", "/welcome", "/settings"]);
 add("CHAT", ["/chat", "/sofie", "/search"]);
 add("PERSISTENT_AGENTS", ["/agents", "/team"]);
 add("TODAY_WORK", ["/today", "/needs-you", "/inbox", "/approvals", "/activity", "/work", "/work-canvas"]);

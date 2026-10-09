@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { OwnerNavigation } from "./navigation";
 import "./owner.css";
 export function ProductShell({
   title,
@@ -11,39 +10,12 @@ export function ProductShell({
   description: string;
   children: ReactNode;
 }) {
-  return (
-    <div className="owner-shell">
-      <a className="owner-skip" href="#owner-content">
-        Skip to content
-      </a>
-      <header className="owner-top">
-        <Link className="owner-brand" href="/today">
-          MyEve
-        </Link>
-        <OwnerNavigation />
-      </header>
-      <main id="owner-content" tabIndex={-1} className="owner-content">
-        <header className="owner-heading">
-          <div>
-            <Link className="owner-eyebrow" href="/privacy">
-              Private unless explicitly shared
-            </Link>
-            <h1>{title}</h1>
-            <p className="owner-muted">{description}</p>
-          </div>
-        </header>
-        {children}
-      </main>
-      <footer className="owner-content owner-actions">
-        <Link href="/brief">Daily Brief</Link>
-        <Link href="/weekly">Weekly Review</Link>
-        <Link href="/privacy">Privacy & boundaries</Link>
-        <Link href="/business">Our business</Link>
-        <Link href="/manage">Advanced</Link>
-      </footer>
-    </div>
-  );
+  return <main className="owner-content owner-page">
+    <header className="owner-heading"><div><h1>{title}</h1><p className="owner-muted">{description}</p></div></header>
+    {children}
+  </main>;
 }
+
 export function ResourceState({
   loading,
   error,

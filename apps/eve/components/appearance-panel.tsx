@@ -67,7 +67,7 @@ export function AppearancePanel() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold">Theme</h3>
-            <p className="mt-0.5 text-xs text-kumo-subtle">Applied across chat and Manage.</p>
+            <p className="mt-0.5 text-xs text-kumo-subtle">Applied throughout MyEve.</p>
           </div>
           <span
             className={cn(
@@ -87,6 +87,16 @@ export function AppearancePanel() {
                 type="button"
                 role="radio"
                 aria-checked={selected}
+                tabIndex={selected ? 0 : -1}
+                onKeyDown={(event) => {
+                  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+                  event.preventDefault();
+                  const current = options.findIndex(item => item.value === option.value);
+                  const next = event.key === "Home" ? 0 : event.key === "End" ? options.length - 1 : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + options.length) % options.length;
+                  chooseTheme(options[next].value);
+                  const radios = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+                  radios?.[next]?.focus();
+                }}
                 className={cn(
                   "flex min-h-20 items-start justify-between rounded-xl border p-3 text-start transition-colors",
                   selected

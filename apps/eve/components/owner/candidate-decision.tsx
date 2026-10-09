@@ -3,7 +3,7 @@ import { useCallback,useEffect,useState,useId } from "react";
 import Link from "next/link";
 import type { OwnerPublication } from "@/lib/engineering/owner-publication";
 import type { OwnerAction } from "@/lib/engineering/publication-contract";
-import { OwnerNavigation } from "./navigation";
+
 import "./owner.css";
 type View=Awaited<ReturnType<OwnerPublication['view']>>;
 const choices:{id:OwnerAction;label:string;effect:string}[]=[
@@ -59,5 +59,5 @@ export function OwnerCandidateDecision({workId,embedded=false}:{workId:string;em
  </>}
  </section></>}
  </>;
- return embedded ? <div className="work-thread-decision">{content}</div> : <div className="owner-shell"><OwnerNavigation/><main id="owner-content" className="owner-content" style={{maxWidth:850,margin:'auto',padding:24,overflowWrap:'anywhere'}}>{content}</main></div>;
+ return embedded ? <div className="work-thread-decision">{content}</div> : <main className="owner-content owner-page" style={{maxWidth:850,margin:'auto',padding:24,overflowWrap:'anywhere'}}>{content}</main>;
 }
