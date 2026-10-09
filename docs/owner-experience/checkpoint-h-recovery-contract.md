@@ -36,4 +36,6 @@ Original historical screenshots remain references with provenance **UNKNOWN**. T
 
 New authoritative screenshots must record the exact candidate source SHA, fixture revision, synthetic owner identity, browser/version, viewport and feature policy. Screenshot fixtures must contain no tester data. Local exact-pixel comparison and hosted accessibility are distinct gates; accessibility cannot pass while the hosted run fails.
 
+The first two hosted attempts for `ce2a5ac5` could not initialize PostgreSQL because Docker Hub timed out/rate-limited its public pull. Qualification now pins Docker's official PostgreSQL 17 image from [its public ECR repository](https://gallery.ecr.aws/docker/library/postgres) by immutable manifest digest. No database credential or production access was added; each hosted job remains bounded to 20 minutes and uses a disposable service database.
+
 The implementation touches accounting, acceptance, readback and their UI consumers because this is one end-to-end lifecycle. Existing ordinary publication contracts, frozen migrations and tester evidence remain preserved. New app migrations 0091/0092 and the standalone shared accounting upgrade are additive release-impact items and require coordinated rollout only after explicit adoption authorization.
