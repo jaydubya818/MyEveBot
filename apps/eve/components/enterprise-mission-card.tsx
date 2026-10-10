@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ownerReviewLink } from "@/lib/missioncontrol/owner-review-link";
-import { enterpriseInput, enterpriseResult, proposeResponse, readResponse, submitResponse } from "@/lib/missioncontrol/contracts";
+import { enterpriseInput, enterpriseResult, hasConsistentEnterpriseResult, proposeResponse, readResponse, submitResponse } from "@/lib/missioncontrol/contracts";
 
 /** Only structured tool evidence is presented here; assistant narrative is never a status source. */
 export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unknown; output: unknown; onRefresh?: (message: string) => void }) {
@@ -58,12 +58,15 @@ export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unk
   }
   if (request.operation === "enterprise.result") {
     const result = enterpriseResult.safeParse(receipt.response);
-    if (!result.success || result.data.missionId !== request.missionId || result.data.plan.planDigest !== request.expectedPlanDigest) return null;
+    if (!result.success || result.data.missionId !== request.missionId || result.data.plan.planDigest !== request.expectedPlanDigest
+      || !hasConsistentEnterpriseResult(result.data) || result.data.observedAt > now
+      || (receipt.projectId !== undefined && receipt.projectId !== result.data.projectId)) return null;
     const r = result.data, expired = now >= r.freshUntil;
     return <section aria-label="Enterprise Result and Proof" className={shell}>
       <h3 className="font-semibold">Result / Proof</h3><p className="break-all">Mission {r.missionId}</p>
-      <p role="status">{expired ? "This observation has expired. Refresh before making a decision." : r.status === "AVAILABLE" ? "Current observed Quality Gate: PASS" : "Result is not available. No enterprise PASS is established."}</p>
-      <p>Plan revision {r.plan.planRevision}. Owner acceptance: {r.ownerAcceptance}.</p>
+      <p role="status">{expired ? "This observation has expired. Refresh before making a decision." : r.status === "AVAILABLE" ? "Recorded Quality Gate: PASS. Current verification is required." : "Result is not available. No enterprise PASS is established."}</p>
+      <p>Saved conversation observations are not current verified proof. Open MissionControl to verify the Result and owner acceptance before deciding.</p>
+      <p>Plan revision {r.plan.planRevision}. Recorded owner acceptance: {r.ownerAcceptance}.</p>
       <p>Observed {new Date(r.observedAt).toLocaleString()}. Valid until {new Date(r.freshUntil).toLocaleString()}.</p>
       {r.reasons.map(reason => <p key={reason}>{reason}</p>)}
       <details><summary>Exact verification evidence ({r.workOrders.length} WorkOrders)</summary><ul className="space-y-3">{r.workOrders.map(w => <li key={w.workOrderId} className="break-all"><p>WorkOrder: {w.workOrderId}</p><p>Candidate: {w.candidate}</p><p>Independent verifier: {w.verificationAttemptId}</p><p>Evidence: {w.evidenceSetDigest}</p><p>Proof: {w.proofDigest}</p></li>)}</ul></details>

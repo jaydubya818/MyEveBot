@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
-import { enterpriseInput, enterpriseResult, authenticationSchema, envelopeSchema, readResponse, proposeResponse, submitResponse, id, text, type EnterpriseInput } from './contracts.ts';
+import { enterpriseInput, enterpriseResult, hasConsistentEnterpriseResult, authenticationSchema, envelopeSchema, readResponse, proposeResponse, submitResponse, id, text, type EnterpriseInput } from './contracts.ts';
 export { enterpriseInput, enterpriseResult, type EnterpriseInput } from './contracts.ts';
 
 export const APPLICATION = 'myeve-sofie-readiness-v1';
@@ -51,13 +51,8 @@ export function validateResponse(config:EnterpriseConfig,input:EnterpriseInput,v
     const r=enterpriseResult.parse(envelope.response);
     if(r.missionId!==input.missionId || r.plan.missionId!==input.missionId || r.plan.planDigest!==input.expectedPlanDigest
       || r.ownerId!==config.missionControlOwnerId || r.projectId!==config.projectId || r.tenantId!==config.tenantId
-      || r.qualityContract.revision!==r.plan.planRevision || r.observedAt>envelope.observedAt || r.freshUntil<=now
-      || authentication.expiresAt>r.freshUntil || r.workOrders.some(w=>w.sourceAttemptId===w.verificationAttemptId || w.producerInvocationId===w.verifierInvocationId || w.qualityContractDigest!==r.qualityContract.digest
-        || (w.provider==='isolated-container' ? !w.runtimeImage || !w.verifierFactoryDefinitionVersionId || !w.verifierSettlementDigest
-          : w.runtimeImage!==null || w.verifierFactoryDefinitionVersionId!==null || w.verifierSettlementDigest!==null || w.verifierFactoryVersion!==w.factoryVersion))
-      || new Set(r.workOrders.map(w=>w.workOrderId)).size!==r.workOrders.length)throw Error('ENTERPRISE_RESULT_BINDING');
-    if(r.status==='AVAILABLE' ? r.enterpriseQualityGate!=='PASS' || !r.workOrders.length || !r.assertions.length || r.reasons.length!==0
-      : r.enterpriseQualityGate!=='NOT_ESTABLISHED' || r.workOrders.length!==0 || r.assertions.length!==0 || !r.reasons.length)throw Error('ENTERPRISE_RESULT_BINDING');
+      || r.observedAt>envelope.observedAt || r.freshUntil<=now || authentication.expiresAt>r.freshUntil
+      || !hasConsistentEnterpriseResult(r))throw Error('ENTERPRISE_RESULT_BINDING');
   } else if(input.operation==='enterprise.inspect') {
     const r=z.object({proposal:z.object({id,intentKey:id,digest:z.string().regex(/^sha256:[a-f0-9]{64}$/),authorized:z.boolean(),missionId:id.nullable()}).strict().nullable(),executionAuthority:z.literal('NONE')}).strict().parse(envelope.response);
     if((input.proposalId && r.proposal?.id!==input.proposalId) || (input.intentKey && r.proposal && r.proposal.intentKey!==input.intentKey))throw Error('ENTERPRISE_PROPOSAL_BINDING');
@@ -93,6 +88,7 @@ export async function sendEnterpriseCommand(config:EnterpriseConfig,input:Enterp
 /** Evidence-derived wording; never promote producer narratives into enterprise PASS. */
 export function explainEnterpriseResult(value:unknown):string {
   const result=enterpriseResult.parse(value);
+  if(!hasConsistentEnterpriseResult(result))throw Error('ENTERPRISE_RESULT_BINDING');
   if(result.status!=='AVAILABLE')return 'Enterprise Result is not currently available: '+result.reasons.join(', ')+'. No enterprise PASS is established.';
   return `Mission ${result.missionId}, Plan revision ${result.plan.planRevision}: the isolated enterprise Quality Gate is PASS for ${result.workOrders.length} exact independently verified WorkOrders with settled accounting. Owner acceptance: ${result.ownerAcceptance}. This observation expires at ${new Date(result.freshUntil).toISOString()}; reconnect requires a fresh read. No production or execution authority is granted.`;
 }

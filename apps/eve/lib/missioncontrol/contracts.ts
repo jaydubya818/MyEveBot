@@ -37,5 +37,26 @@ export const enterpriseResult=z.object({schema:z.literal('enterprise-result-proj
   enterpriseQualityGate:z.enum(['PASS','NOT_ESTABLISHED']),ownerAcceptance:z.enum(['ACCEPTED','PENDING']),observedAt:z.number().int(),freshUntil:z.number().int(),
   assertions:z.array(z.object({assertionId:id,workOrderId:id,verificationReceiptId:id,verificationAttemptId:id}).strict()).max(100),reasons:z.array(text(500)).max(200),workOrders:z.array(resultWorkOrder).max(100),executionAuthority:z.literal('NONE'),explanation:text(500)}).strict();
 export const authenticationSchema=z.object({commandId:id,requestDigest:z.string().regex(/^sha256=[a-f0-9]{64}$/),expiresAt:z.number().int(),signature:digest}).strict();
+/** Structural consistency only. Authenticity and current owner authority remain server checks. */
+export function hasConsistentEnterpriseResult(result: z.infer<typeof enterpriseResult>): boolean {
+  if (result.plan.missionId !== result.missionId || result.qualityContract.revision !== result.plan.planRevision
+    || result.freshUntil <= result.observedAt) return false;
+  const orders = new Map(result.workOrders.map(order => [order.workOrderId, order]));
+  if (orders.size !== result.workOrders.length || new Set(result.assertions.map(assertion => assertion.assertionId)).size !== result.assertions.length) return false;
+  if (result.workOrders.some(order => order.sourceAttemptId === order.verificationAttemptId
+    || order.producerInvocationId === order.verifierInvocationId || order.qualityContractDigest !== result.qualityContract.digest
+    || (order.provider === 'isolated-container'
+      ? !order.runtimeImage || !order.verifierFactoryDefinitionVersionId || !order.verifierSettlementDigest
+      : order.runtimeImage !== null || order.verifierFactoryDefinitionVersionId !== null || order.verifierSettlementDigest !== null || order.verifierFactoryVersion !== order.factoryVersion))) return false;
+  if (result.assertions.some(assertion => {
+    const order = orders.get(assertion.workOrderId);
+    // Assertion receipts can differ from the WorkOrder gate receipt. The canonical
+    // backend verifies their candidate, evidence and execution binding before signing.
+    return !order || order.verificationAttemptId !== assertion.verificationAttemptId;
+  })) return false;
+  return result.status === 'AVAILABLE'
+    ? result.enterpriseQualityGate === 'PASS' && orders.size > 0 && result.assertions.length > 0 && result.reasons.length === 0
+    : result.enterpriseQualityGate === 'NOT_ESTABLISHED' && orders.size === 0 && result.assertions.length === 0 && result.reasons.length > 0;
+}
 export const envelopeSchema=z.object({schema:z.literal('sofie-enterprise-response/v1'),applicationId:z.literal(APPLICATION),connectionId:id,
   projectId:id,ownerId:id,observedAt:z.number().int().positive(),responseDigest:digest,response:z.unknown(),authentication:authenticationSchema.optional()}).strict();
