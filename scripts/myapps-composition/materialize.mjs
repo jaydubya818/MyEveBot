@@ -9,6 +9,8 @@ import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
 import {applyGovernanceOverlay} from './governance-overlay.mjs';
+import {applyFixturesOverlay} from './fixtures-overlay.mjs';
+import {applyComposerOverlay} from './composer-overlay.mjs';
 const [eve, factory, output] = process.argv.slice(2).map(p => resolve(p));
 assert(eve && factory && output, 'Usage: materialize.mjs MYEVE_SOURCE MYFACTORY_SOURCE ABSENT_OUTPUT');
 assert(!existsSync(output), 'Output must not exist; no checkout may be overwritten');
@@ -34,6 +36,16 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   const indexGit=(args,options={})=>git(repo,args,{env,...options});
   const reconciledSources=new Map();
   const put=(path,content)=>{reconciledSources.set(path,content);const hash=git(repo,['hash-object','-w','--stdin'],{input:content});indexGit(['update-index','--add','--cacheinfo',`100644,${hash},${path}`]);};
+  const read=(sha,path)=>{
+    const result=spawnSync('git',['-C',repo,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
+    if(result.status!==0){
+      assert.equal(result.status,128,`Unable to inspect canonical source: ${path}`);
+      assert(/does not exist in|exists on disk, but not in/.test(result.stderr),result.stderr);
+      return null;
+    }
+    return result.stdout;
+  };
+  const readComposed=(path)=>reconciledSources.get(path)??read(initialTree,path);
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
@@ -94,16 +106,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       const inventoryPath='apps/eve/scripts/executor-inventory.json';
       const inventory=JSON.parse(show(repo,integration,inventoryPath));
       const governance=applyGovernanceOverlay({
-        integration,source:pins.myeve.governance,inventory,put,
-        read:(sha,path)=>{
-          const result=spawnSync('git',['-C',repo,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
-          if(result.status!==0){
-            assert.equal(result.status,128,`Unable to inspect governance source: ${path}`);
-            assert(result.stderr.includes('does not exist in'),result.stderr);
-            return null;
-          }
-          return result.stdout;
-        },
+        integration,source:pins.myeve.governance,inventory,put,read,readComposed,
       });
       evidence.governance=governance;
       const preparationInventory=JSON.parse(show(repo,head,inventoryPath));
@@ -145,8 +148,10 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       featureEntry.sha256=digest(features);
       featureEntry.reason+=' MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family; the allowlist is unchanged.';
       put(inventoryPath,JSON.stringify(inventory,null,2)+'\n');
-
     }
+    evidence.qualificationFixtures??={};
+    evidence.qualificationFixtures[name]=applyFixturesOverlay({name,integration,source:pins[name].qualificationFixtures,read,readComposed,put});
+    if(name==='myeve')evidence.composer=applyComposerOverlay({name,integration,source:pins.myeve.composer,read,readComposed,put});
     const tree=indexGit(['write-tree']);
     const snapshot=git(repo,['commit-tree',tree],{input:`MyApps offline composition rehearsal\nPreparation: ${head}\nIntegration snapshot: ${integration}\nNot an adopted release; no branch merge.\n`,env:{...process.env,GIT_AUTHOR_NAME:'MyApps Qualification',GIT_AUTHOR_EMAIL:'qualification@example.invalid',GIT_COMMITTER_NAME:'MyApps Qualification',GIT_COMMITTER_EMAIL:'qualification@example.invalid',GIT_AUTHOR_DATE:'2026-10-09T00:00:00Z',GIT_COMMITTER_DATE:'2026-10-09T00:00:00Z'}});
     const target=join(output,name);

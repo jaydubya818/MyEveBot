@@ -235,5 +235,18 @@
       "sourceRecordSha256": "0ccc6a1a875f7f3886dd0b95667f514e65001ffee24629e629a83d7c613d3d0e",
       "sourceSha256": "149c1a8c684a4e71941afa34d63886fe2ea8be4ece68b9b335fb00a2277b5525"
     }
+  },
+  "builderManifest": {
+    "path": "apps/builder/lib/manifest.ts",
+    "integrationSha256": "335dc828fa34592ee2000d68741340b7b9436ece402f46c355585d63ba4120d1",
+    "sourceSha256": "7797b7421b967b20c79adf69a0ac9b39a17e48c4013ce80b13b8f21fe57a4ab2",
+    "composedSha256": "ed601159245c49e6d2ab948f10b4bda5b8c860d100282d6735b9533074330725",
+    "outputSha256": "b58d9dadaab5abd325824ff7f2df623f82a321aa682273afcab69392646c46f4",
+    "renames": [
+      "browser",
+      "connection-reporting",
+      "jev",
+      "knowledge"
+    ]
   }
 }

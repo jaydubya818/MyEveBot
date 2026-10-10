@@ -13,15 +13,16 @@ const read=(sha,path)=>{
 function fixture(){
   const inventory=JSON.parse(read(manifest.integration,'apps/eve/scripts/executor-inventory.json'));
   const writes=new Map();
-  return {inventory,writes,args:{integration:manifest.integration,source:manifest.source,inventory,read,put:(path,bytes)=>writes.set(path,bytes)}};
+  const readComposed=path=>read(path===manifest.builderManifest.path?'HEAD':manifest.integration,path);
+  return {inventory,writes,args:{integration:manifest.integration,source:manifest.source,inventory,read,readComposed,put:(path,bytes)=>writes.set(path,bytes)}};
 }
 
 test('exact canonical overlay resolves 41 findings and binds the required Proof assembly fix without touching unrelated entries',()=>{
   const {inventory,writes,args}=fixture(),before=structuredClone(inventory);
   const result=applyGovernanceOverlay(args);
   assert.equal(result.inventorySources.length,42);
-  assert.equal(writes.size,5);
-  assert.deepEqual([...writes.keys()].filter(path=>!path.endsWith('.test.ts')).sort(),[
+  assert.equal(writes.size,6);
+  assert.deepEqual([...writes.keys()].filter(path=>path.startsWith('apps/eve/')&&!path.endsWith('.test.ts')).sort(),[
     'apps/eve/agent/lib/context-assembly.ts','apps/eve/lib/external-alpha/bounded-context.ts',
   ]);
   for(const [path,entry] of Object.entries(before.executors))
@@ -29,6 +30,16 @@ test('exact canonical overlay resolves 41 findings and binds the required Proof 
   assert(!writes.has('apps/eve/lib/external-alpha/allowance.ts'));
   assert(!writes.has('apps/eve/lib/external-alpha/shared-accounting.ts'));
   assert(!writes.has('apps/eve/scripts/check-executor-governance.ts'));
+  assert(writes.get(manifest.builderManifest.path).includes('agent/tools/installed_apps.ts'));
+});
+
+test('cleanly merged preparation changes are never silently overwritten or reclassified',()=>{
+  for(const path of ['apps/eve/lib/external-alpha/bounded-context.ts','apps/eve/lib/external-alpha/allowance.ts','apps/eve/lib/external-alpha/qe-014-context-limitations.test.ts',manifest.builderManifest.path]){
+    const {inventory,writes,args}=fixture(),before=structuredClone(inventory);
+    const readComposed=file=>file===path?(args.readComposed(file)??'')+'\n// separately prepared source\n':args.readComposed(file);
+    assert.throws(()=>applyGovernanceOverlay({...args,readComposed}),/Changed composed/);
+    assert.equal(writes.size,0);assert.deepEqual(inventory,before);
+  }
 });
 
 test('changed pins or canonical bytes fail before any output is written',()=>{

@@ -7,17 +7,36 @@ const digest = (value) => value === null ? null : createHash('sha256').update(va
 const recordDigest = (entry) => entry === undefined ? null : digest(JSON.stringify(entry));
 
 /** Copy exact reviewed canonical bytes, never regenerate fingerprints from output. */
-export function applyGovernanceOverlay({integration, source, inventory, read, put}) {
+export function applyGovernanceOverlay({integration, source, inventory, read, readComposed, put}) {
   assert.equal(integration, reviewedGovernance.integration, 'Unreviewed governance integration');
   assert.equal(source, reviewedGovernance.source, 'Unreviewed governance source');
   const canonical = JSON.parse(read(source, 'apps/eve/scripts/executor-inventory.json'));
   const outputs = new Map();
   for (const [path, expected] of Object.entries(reviewedGovernance.files)) {
     assert.equal(digest(read(integration, path)), expected.integrationSha256, `Changed governance input: ${path}`);
+    assert.equal(digest(readComposed(path)), expected.integrationSha256, `Changed composed governance source: ${path}`);
     const bytes = read(source, path);
     assert.equal(digest(bytes), expected.sourceSha256, `Unreviewed canonical source bytes: ${path}`);
     outputs.set(path, bytes);
   }
+  const builder = reviewedGovernance.builderManifest;
+  const originalBuilder = read(integration, builder.path), canonicalBuilder = read(source, builder.path);
+  assert.equal(digest(originalBuilder), builder.integrationSha256);
+  assert.equal(digest(canonicalBuilder), builder.sourceSha256);
+  const renameInstructions = (text) => {
+    for (const name of builder.renames) {
+      const from = `agent/instructions/${name}.md`, to = `agent/instructions/${name}.ts`;
+      assert.equal(text.split(from).length, 2, `Changed builder instruction ownership: ${name}`);
+      text = text.replace(from, to);
+    }
+    return text;
+  };
+  assert.equal(renameInstructions(originalBuilder), canonicalBuilder, 'Builder patch differs from canonical ownership correction');
+  const composedBuilder = readComposed(builder.path);
+  assert.equal(digest(composedBuilder), builder.composedSha256, 'Changed composed builder ownership');
+  const resultingBuilder = renameInstructions(composedBuilder);
+  assert.equal(digest(resultingBuilder), builder.outputSha256);
+  outputs.set(builder.path, resultingBuilder);
   const entries = new Map();
   for (const [path, expected] of Object.entries(reviewedGovernance.inventory)) {
     const original = inventory.executors[path], entry = canonical.executors[path];
@@ -27,7 +46,9 @@ export function applyGovernanceOverlay({integration, source, inventory, read, pu
       assert.equal(entry.classification, original.classification, `Changed source classification: ${path}`);
       assert.equal(entry.disposition, original.disposition, `Changed source disposition: ${path}`);
     }
-    const resultingSource = outputs.get('apps/eve/' + path) ?? read(integration, 'apps/eve/' + path);
+    const file = 'apps/eve/' + path;
+    assert.equal(readComposed(file), read(integration, file), `Changed composed inventory source: ${path}`);
+    const resultingSource = outputs.get(file) ?? readComposed(file);
     assert.equal(digest(resultingSource), expected.sourceSha256, `Canonical record does not match resulting source: ${path}`);
     assert.equal(entry.sha256, expected.sourceSha256);
     entries.set(path, structuredClone(entry));

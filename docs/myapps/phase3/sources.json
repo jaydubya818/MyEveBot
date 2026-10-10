@@ -9,7 +9,9 @@
     "missioncontrolConsumer": "4b8cacce64f260b0816ff615222a3cac621d749b",
     "phase3Preparation": "615f9209c37f656b14723747e556c03a45a85544",
     "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
-    "governance": "f896153b6787bb9ab557a782058b04760a9e291f"
+    "governance": "f896153b6787bb9ab557a782058b04760a9e291f",
+    "qualificationFixtures": "977438094ad830f6cb80523a890ca9188f32febe",
+    "composer": "c7b9e948454cbb7eb7d5fc92f4bbc65918b56ab5"
   },
   "myfactory": {
     "main": "030b1a51017f3159436b93817ed2d5bf6ae18288",
@@ -17,7 +19,8 @@
     "engineeringBase": "2eb5f04f5824dc6957d0732fc7abf35a4d831537",
     "engineering": "fa48a820ba185eb9b891130c78166463b61cba74",
     "phase3Preparation": "4c6e540b40e1db226eefda763e615dfe7cb02e3c",
-    "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c"
+    "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c",
+    "qualificationFixtures": "b12031ea65fa5c2e0a03763b931003ab78017580"
   },
   "migration": {
     "original": "0085_myapps_runtime.sql",

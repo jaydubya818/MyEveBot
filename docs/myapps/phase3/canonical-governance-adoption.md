@@ -7,7 +7,8 @@ matching canonical mandatory Proof-context correction so it does not introduce a
 intermediate lineage with the known duplicate-Proof context defect.
 
 The complete allowlist is `governance-source.json`: five exact canonical source
-files and 42 exact inventory records. Two runtime files change:
+files, four exact builder ownership substitutions and 42 exact inventory records.
+Two MyEve runtime files change:
 
 - `lib/external-alpha/bounded-context.ts` retains bounded canonical limitations,
   marks omitted/truncated/unavailable evidence explicitly, preserves canonical
@@ -23,10 +24,14 @@ inventory repairs plus the changed context-assembly record are copied from the
 same canonical source; fingerprints are not generated from output. Existing
 classifications/dispositions cannot change. MyApps-only records and the previously
 qualified local inbox, schema-catalog, denied-route and disabled-catalog transforms
-remain owned by the existing composition logic.
+remain owned by the existing composition logic. The canonical builder correction
+changes four instruction ownership suffixes from `.md` to `.ts`, matching the
+existing canonical files. It preserves the MyApps `installed_apps.ts` owner and
+every feature assignment; whole-file replacement would lose that preparation work.
 
 The overlay verifies the exact integration/source SHAs, original record hashes,
-canonical record hashes, original source hashes and resulting source hashes before
+canonical record hashes, original source hashes, current merged source preimages
+and resulting source hashes before
 writing any output. Any stale pin, unexpected source or changed record stops
 materialization. Unrelated files and inventory entries are untouched. The full
 source trees and all pins are retained in composition/identity evidence; a changed
@@ -40,5 +45,7 @@ Source review and qualification do not release any merge or deployment hold.
 
 Validation must include overlay mutation tests, unchanged full executor governance,
 complete MyEve types, canonical context regressions, all 208 composition tests and
-independent review of the exact composed source. Final source receipt and hosted
+independent review of the exact composed source. Separately pinned qualified fixture
+and composer overlays are documented in `fixture-composer-integration.md`; their
+source pins are consumed and recorded by the same composition recipe. Final source receipt and hosted
 CI must be generated after all source/fixture overlays are fixed.
