@@ -17,13 +17,19 @@ test('canonical rejection diagnostics classify exact backend markers without cha
     assert.equal(response({status:'success',value}),value);assert.deepEqual(logs,[]);
     for(const [message,code] of [
       ['[Request ID: REVIEW_SECRET_SENTINEL] Server Error\nFunction execution timed out (maximum duration: 1s)\n','CONVEX_FUNCTION_TIMEOUT_1S'],
+      ['Uncaught Error: Uncaught Error: Function execution timed out (maximum duration: 1s)','CONVEX_FUNCTION_TIMEOUT_1S'],
+      ['[Request ID: REVIEW_SECRET_SENTINEL] Server Error\nUncaught Error: Uncaught Error: ENTERPRISE_RESULT_BINDING\n','ENTERPRISE_RESULT_BINDING'],
+      ['Uncaught Error: MISSION_UNAVAILABLE','MISSION_UNAVAILABLE'],
+      ['Uncaught Error: ENTERPRISE_ACCESS_DENIED_REVIEW_SECRET_SENTINEL','UNCLASSIFIED_BACKEND_ERROR'],
       ['ENTERPRISE_ACCESS_DENIED','ENTERPRISE_ACCESS_DENIED'],['ENTERPRISE_PLAN_STALE','ENTERPRISE_PLAN_STALE'],
       ['Function execution timed out (maximum duration: 2s)','UNCLASSIFIED_BACKEND_ERROR'],
-      ['REVIEW_SECRET_SENTINEL Function execution timed out (maximum duration: 1s)','UNCLASSIFIED_BACKEND_ERROR'],
+      ['REVIEW_SECRET_SENTINEL Function execution timed out (maximum duration: 1s)','CONVEX_FUNCTION_TIMEOUT_1S_MARKER_PRESENT'],
       ['REVIEW_SECRET_SENTINEL','UNCLASSIFIED_BACKEND_ERROR'],
     ]) {
       assert.throws(()=>response({status:'error',errorMessage:message}),{message:'ENTERPRISE_COMMAND_DENIED'});
-      assert.deepEqual(JSON.parse(logs.at(-1).slice('[enterprise-fixture-diagnostic] '.length)),{phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null});
+      const report=JSON.parse(logs.at(-1).slice('[enterprise-fixture-diagnostic] '.length));
+      assert.ok(Number.isSafeInteger(report.failedAt));assert.ok(report.failedAt<=Date.now());
+      assert.deepEqual({...report,failedAt:null},{phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null,startedAt:null,failedAt:null});
     }
     let reads=0,coercions=0;
     assert.throws(()=>response({status:'error',get errorMessage(){reads++;return reads===1?'ENTERPRISE_ACCESS_DENIED':'REVIEW_SECRET_SENTINEL';}}),{message:'ENTERPRISE_COMMAND_DENIED'});
@@ -54,7 +60,7 @@ test('diagnostic overlay preserves original error and logs only an allowlisted c
   const error=new Error('ENTERPRISE_RESULT_AUTHENTICATION');error.signature='secret-signature';
   await assert.rejects(()=>module.sendEnterpriseCommand(error,true),caught=>caught===error);
   const report=JSON.parse(logs[0].slice('[enterprise-fixture-diagnostic] '.length));
-  assert.deepEqual(Object.keys(report).sort(),['code','elapsedMs','outcome','phase']);assert.equal(report.code,'ENTERPRISE_RESULT_AUTHENTICATION');assert.ok(report.elapsedMs>=0);
+  assert.deepEqual(Object.keys(report).sort(),['code','elapsedMs','failedAt','outcome','phase','startedAt']);assert.equal(report.code,'ENTERPRISE_RESULT_AUTHENTICATION');assert.ok(report.elapsedMs>=0);assert.ok(Number.isSafeInteger(report.startedAt));assert.ok(Number.isSafeInteger(report.failedAt));assert.ok(report.startedAt<=report.failedAt && report.failedAt<=Date.now());
   assert.equal(logs.join('').includes('secret-signature'),false);
 }));
 test('unclassified messages, error properties and non-Error values never leak',async()=>fixture(async(module,logs)=>{
@@ -129,7 +135,8 @@ export class Gateway {
     await assert.rejects(()=>gateway.run(failure),error=>error===module.outward);
     assert.deepEqual(gateway.records,[['secret-owner','secret-action','result_unknown',{}]]);
     assert.equal(logs.length,1);assert.equal(logs[0].includes('secret'),false);
-    assert.deepEqual(JSON.parse(logs[0].slice('[enterprise-fixture-diagnostic] '.length)),{phase:'ActionGateway.run',outcome:'FAIL',code:'POSTGRES_23505',elapsedMs:null});
+    const report=JSON.parse(logs[0].slice('[enterprise-fixture-diagnostic] '.length));assert.ok(Number.isSafeInteger(report.failedAt));
+    assert.deepEqual({...report,failedAt:null},{phase:'ActionGateway.run',outcome:'FAIL',code:'POSTGRES_23505',elapsedMs:null,startedAt:null,failedAt:null});
     assert.throws(()=>instrumentActionGateway(instrumentActionGateway(source)));
   } finally {console.error=original;await rm(root,{recursive:true,force:true});}
 });

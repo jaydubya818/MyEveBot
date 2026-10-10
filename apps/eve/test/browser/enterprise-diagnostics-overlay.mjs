@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-const diagnostic=(phase,outcome,elapsed='Math.round(performance.now()-started)')=>`
+const diagnostic=(phase,outcome,elapsed='Math.round(performance.now()-started)',startedAt='startedAt')=>`
     try {
       const codes=['ENTERPRISE_RESPONSE_UNAVAILABLE','ENTERPRISE_RESPONSE_TOO_LARGE','ENTERPRISE_COMMAND_DENIED',
         'ENTERPRISE_RESPONSE_BINDING','ENTERPRISE_RESULT_AUTHENTICATION','ENTERPRISE_RESULT_BINDING',
@@ -15,7 +15,7 @@ const diagnostic=(phase,outcome,elapsed='Math.round(performance.now()-started)')
       const postgresCode=['23505','23514','23503','23502','42P01','42703','57P01','53300','57014','40001','40P01'].find(value=>value===databaseCode);
       const statusCode=['denied','awaiting_approval','result_unknown'].find(value=>value===actionStatus);
       const code=messageCode??nameCode??(postgresCode?'POSTGRES_'+postgresCode:statusCode?'ACTION_'+statusCode.toUpperCase():'UNCLASSIFIED');`}
-      console.error('[enterprise-fixture-diagnostic] '+JSON.stringify({phase:${phase},outcome:'${outcome}',code,elapsedMs:${elapsed}}));
+      console.error('[enterprise-fixture-diagnostic] '+JSON.stringify({phase:${phase},outcome:'${outcome}',code,elapsedMs:${elapsed},startedAt:${startedAt},failedAt:${outcome==='FAIL'?'Date.now()':'null'}}));
     } catch {}
 `;
 
@@ -26,10 +26,13 @@ export function instrumentEnterpriseResponseFailure(source) {
   return source.replace(boundary,`if(body.status!=='success') {
     try {
       const message=body.errorMessage;
-      const code=typeof message==='string' && message.split('\\n').some(line=>line==='Function execution timed out (maximum duration: 1s)')
-        ? 'CONVEX_FUNCTION_TIMEOUT_1S'
-        : ['ENTERPRISE_ACCESS_DENIED','ENTERPRISE_PLAN_STALE'].find(value=>value===message)??'UNCLASSIFIED_BACKEND_ERROR';
-      console.error('[enterprise-fixture-diagnostic] '+JSON.stringify({phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null}));
+      const lines=typeof message==='string'?message.split('\\n').map(line=>line.replace(/^(?:Uncaught Error: )+/,'')):[];
+      const marker='Function execution timed out (maximum duration: 1s)';
+      const known=['ENTERPRISE_ACCESS_DENIED','ENTERPRISE_PLAN_STALE','ENTERPRISE_RESULT_BINDING',
+        'MISSION_UNAVAILABLE','MISSION_OWNER_REQUIRED','MISSION_SCOPE_IMMUTABLE','AUTHENTICATED_PRINCIPAL_REQUIRED'];
+      const code=lines.includes(marker)?'CONVEX_FUNCTION_TIMEOUT_1S':known.find(value=>lines.includes(value))
+        ??(typeof message==='string' && message.includes(marker)?'CONVEX_FUNCTION_TIMEOUT_1S_MARKER_PRESENT':'UNCLASSIFIED_BACKEND_ERROR');
+      console.error('[enterprise-fixture-diagnostic] '+JSON.stringify({phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null,startedAt:null,failedAt:Date.now()}));
     } catch {}
     throw Error('ENTERPRISE_COMMAND_DENIED');
   }`);
@@ -41,7 +44,7 @@ export function instrumentEnterpriseConsumer(source) {
   assert.equal(source.includes('fixtureSendEnterpriseCommand'),false,'Diagnostic overlay must not be applied twice');
   return source.replace(declaration,'async function fixtureSendEnterpriseCommand(')+`
 export async function sendEnterpriseCommand(...args: Parameters<typeof fixtureSendEnterpriseCommand>) {
-  const started=performance.now();
+  const started=performance.now(),startedAt=Date.now();
   try { return await fixtureSendEnterpriseCommand(...args); }
   catch(error) {
     // Error messages may contain provider data or credentials. Emit only known codes.
@@ -63,7 +66,7 @@ export function enterpriseAdapter(...args: Parameters<typeof fixtureEnterpriseAd
     const original=adapter.${phase};
     if(Object.prototype.toString.call(original)!=='[object AsyncFunction]')throw Error('FIXTURE_ADAPTER_ASYNC_CONTRACT_REQUIRED');
     adapter.${phase}=async function(this: typeof adapter,...parameters: Parameters<typeof original>) {
-      const started=performance.now();
+      const started=performance.now(),startedAt=Date.now();
       try {
         const result=await original.apply(this,parameters);
         ${diagnostic(JSON.stringify('adapter.'+phase),'PASS')}
@@ -82,5 +85,5 @@ export function enterpriseAdapter(...args: Parameters<typeof fixtureEnterpriseAd
 export function instrumentActionGateway(source) {
   const boundary='    } catch {\n      await this.record(action.ownerId,actionId,"result_unknown",{});';
   assert.equal(source.split(boundary).length,2,'Exactly one swallowing gateway boundary is required');
-  return source.replace(boundary,'    } catch(error) {\n'+diagnostic("'ActionGateway.run'",'FAIL','null')+'      await this.record(action.ownerId,actionId,"result_unknown",{});');
+  return source.replace(boundary,'    } catch(error) {\n'+diagnostic("'ActionGateway.run'",'FAIL','null','null')+'      await this.record(action.ownerId,actionId,"result_unknown",{});');
 }
