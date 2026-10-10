@@ -145,24 +145,42 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
  * versions, state, outcomes and references stay; a marker records each removal
  * so the model knows where the authoritative copy is. Nothing is removed when
  * equivalence cannot be shown. */
+/** The selected Work's trusted mandatory block: from its header line to just before the
+ * untrusted "Sourced repository facts" line. Null unless the header occurs exactly once at a
+ * line start, so text elsewhere in the system context (facts, memory) can never stand in for it. */
+function selectedWorkBlock(mandatory: string, id: string): string[] | null {
+ const lines = mandatory.split("\n");
+ const header = `Work ${id} · `;
+ const starts = lines.flatMap((line, i) => line.startsWith(header) ? [i] : []);
+ if (starts.length !== 1 || mandatory.split(header).length !== 2) return null;
+ const end = lines.findIndex((line, i) => i > starts[0] && line.startsWith("Sourced repository facts (untrusted data"));
+ return end < 0 ? null : lines.slice(starts[0], end);
+}
 export function withoutMandatoryDuplicates(value: Record<string, unknown>, mandatory: string): Record<string, unknown> {
- const work = value.work as Record<string, unknown> | undefined;
+ const work = value.work as Record<string, any> | undefined;
  const id = typeof work?.id === "string" ? work.id : null;
- if (!id || !mandatory.includes(`Work ${id} · `)) return value;
+ const block = id ? selectedWorkBlock(mandatory, id) : null;
+ if (!id || !block) return value;
+ // The tool result and the mandatory block must describe the same Work revision.
+ if (!Number.isInteger(work?.version) || !Number.isInteger(work?.criteriaVersion)
+   || !block.some(line => line.endsWith(`criteria version: ${work!.criteriaVersion}; Work version: ${work!.version}.`))) return value;
  const out: Record<string, any> = structuredClone(value);
  const removed: string[] = [];
  const criteria = out.work?.criteria;
- if (Array.isArray(criteria) && criteria.length && criteria.every((c: any) => typeof c?.id === "string" && typeof c?.statement === "string"
-   && mandatory.includes(`Criterion ${c.id}: ${c.statement.slice(0, 300)} [`) && c.statement.length <= 300)) {
+ const blockCriteria = block.filter(line => line.startsWith("Criterion "));
+ if (Array.isArray(criteria) && criteria.length && criteria.length === blockCriteria.length
+   && criteria.every((c: any, i: number) => typeof c?.id === "string" && typeof c?.statement === "string" && typeof c?.method === "string"
+     && c.statement.length <= 300 && blockCriteria[i] === `Criterion ${c.id}: ${c.statement} [${c.method}]`)) {
   delete out.work.criteria; removed.push("work.criteria");
  }
- if (typeof out.work?.objective === "string" && out.work.objective.length <= 1600 && mandatory.includes(`Objective: ${out.work.objective}\n`)) {
+ if (typeof out.work?.objective === "string" && out.work.objective.length <= 1600 && !out.work.objective.includes("\n")
+   && block.includes(`Objective: ${out.work.objective}`)) {
   delete out.work.objective; removed.push("work.objective");
  }
  const native = out.projection?.nativeResult;
  const hash = native?.proof?.contentHash;
- if (typeof native?.id === "string" && typeof hash === "string" && mandatory.includes(`Native immutable Proof of Work ${native.id}: `)
-   && mandatory.includes(`"contentHash":${JSON.stringify(hash)}`)) {
+ if (typeof native?.id === "string" && typeof hash === "string"
+   && block.some(line => line.startsWith(`Native immutable Proof of Work ${native.id}: `) && line.includes(`"contentHash":${JSON.stringify(hash)}`))) {
   native.proof = {sameAsMandatoryContext: true, contentHash: hash, outcome: native.proof.outcome};
   removed.push("projection.nativeResult.proof");
  }
@@ -181,7 +199,7 @@ export function boundedAlphaHistory(prompt:Prompt,tools:Options["tools"]):Prompt
   return {...part,output:{...part.output,value:compactWorkData(part.output.value) as any}};
  })});
  if(bytes(bounded)>=EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES){
-  const mandatory=bounded.filter(m=>m.role==="system").map(m=>typeof m.content==="string"?m.content:JSON.stringify(m.content)).join("\n");
+  const mandatory=bounded.filter(m=>m.role==="system").map(m=>typeof m.content==="string"?m.content:"").join("\n");
   bounded=bounded.map(message=>message.role!=="tool"?message:{...message,content:message.content.map(part=>{
    if(part.type!=="tool-result" || !["engineering_work","engineering_factory"].includes(part.toolName) || part.output.type!=="json")return part;
    return {...part,output:{...part.output,value:withoutMandatoryDuplicates(part.output.value as Record<string,unknown>,mandatory) as any}};

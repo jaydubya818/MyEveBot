@@ -616,6 +616,7 @@ export async function betaRequest(
               responseId: z.string().min(1).max(255),
             })
             .strict(),
+          binding.extend({ operation: z.literal("stop") }).strict(),
           binding
             .extend({
               operation: z.literal("request_decision"),
@@ -625,6 +626,22 @@ export async function betaRequest(
             .strict(),
         ])
         .parse(await boundedJson(new Response(request.body), 16000));
+      if (input.operation === "stop") {
+        // Alpha owner stop (zero-gap fencing makes every paid chat turn wait while a
+        // Work runs, so stopping must not require one). No model call, no new
+        // authority: the same authenticated Factory stop + reconcile as Sofie's tool,
+        // with the same owner-scope and Work version/generation checks.
+        if (!externalAlphaInstallation())
+          throw new WorkError("work_operation_unsupported", "Stop is only available for alpha Work.", 400);
+        const { externalAlphaFactoryAction } = await import("../external-alpha/work-action.ts");
+        const result = await externalAlphaFactoryAction(
+          new WorkStore({ scopeKind: "personal", scopeId: owner, actorId: owner }),
+          input.workId,
+          { operation: "stop", expectedWorkVersion: input.expectedVersion, expectedWorkGeneration: input.expectedGeneration },
+          { sessionId: "owner-work-controls", callId: crypto.randomUUID() },
+        );
+        return Response.json(result, { headers });
+      }
       const canonical = new CanonicalBetaWork(beta);
       if (input.operation === "request_decision")
         return Response.json(

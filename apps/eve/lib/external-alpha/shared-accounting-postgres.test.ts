@@ -144,14 +144,24 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
   it("serializes concurrent chat plus Work admissions from both app DBs at the $4.60 daily ceiling", async () => {
     const { a, b, chat, amount, central, cohortId } = await make();
     const wa = await a.seedWork(), wb = await b.seedWork();
-    // One active Work per cohort (Decision A): concurrent Work issue acquires the single slot exactly once.
-    const works = await Promise.allSettled([a.svc.issue(wa, files), b.svc.issue(wb, files)]);
+    // Race both owners' Work issue against both owners' chats. One active Work per cohort (Decision A):
+    // the single slot is acquired exactly once; an admitted, not-yet-dispatched Work is already active,
+    // so no chat is admitted after it (zero-gap, Decision D). Every denial is explicit.
+    const race = await Promise.allSettled([a.svc.issue(wa, files), b.svc.issue(wb, files),
+      ...Array.from({ length: 8 }, (_, i) => chat(i % 2 ? a : b, `race:${i}`))]);
+    const works = race.slice(0, 2);
     expect(works.filter((r) => r.status === "fulfilled")).toHaveLength(1);
     expect(String((works.find((r) => r.status === "rejected") as PromiseRejectedResult).reason)).toMatch(/EXTERNAL_ALPHA_SHARED_CAPACITY/);
+    for (const r of race.slice(2)) if (r.status === "rejected") expect(String(r.reason)).toMatch(/EXTERNAL_ALPHA_SHARED_FENCED/);
+    const raced = race.slice(2).filter((r) => r.status === "fulfilled").length;
+    const order = (await central.pool.query("SELECT kind FROM external_alpha_cohort_admission WHERE cohort_id=$1 ORDER BY created_at", [cohortId])).rows.map((r: any) => r.kind);
+    expect(order.slice(order.indexOf("WORK") + 1)).toEqual([]);             // nothing admitted after the Work
+    expect(await amount()).toBe(1300000 + raced * 100000);
     await expireWorkAdmissions(central);
     if (works[0].status === "rejected") await a.svc.issue(wa, files); else await b.svc.issue(wb, files);
+    await expireWorkAdmissions(central);
     const outcomes = await Promise.allSettled(Array.from({ length: 24 }, (_, i) => chat(i % 2 ? a : b, `turn:${i}`)));
-    expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(20);
+    expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(20 - raced);
     expect(await amount()).toBe(4600000);
     const rows = (await central.pool.query("SELECT owner_id,sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission WHERE cohort_id=$1 GROUP BY owner_id", [cohortId])).rows;
     expect(rows.map((r: any) => r.amount)).toEqual(["2300000", "2300000"]);

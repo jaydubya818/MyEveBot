@@ -55,6 +55,20 @@ describe.skipIf(!connection)("shared accounting zero-gap upgrade (real PostgreSQ
     await expect(c.reserve("B", "WORK", "work-b")).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_CAPACITY/);
   });
 
+  it("fresh install: an admitted, undispatched Work fences other admissions and their dispatch until it dispatches or expires", async () => {
+    const c = await central("full");
+    const chatB = await c.reserve("B", "CHAT", "early-chat");                     // admitted before the Work
+    const chatAllowance = randomUUID();
+    await c.call("B", { mode: "bind", id: chatB.id, allowanceId: chatAllowance });
+    const work = await c.reserve("A", "WORK", "pending-work");
+    const workAllowance = randomUUID();
+    await c.call("A", { mode: "bind", id: work.id, allowanceId: workAllowance });
+    await expect(c.reserve("B", "CHAT", "late-chat")).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_FENCED/);
+    await expect(c.call("B", { mode: "dispatch", id: chatB.id, allowanceId: chatAllowance, operationSha256: digest("sofie:turn:1") })).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_FENCED/);
+    await c.call("A", { mode: "dispatch", id: work.id, allowanceId: workAllowance, operationSha256: digest("work:pending") });   // the Work itself dispatches
+    expect((await c.db.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_dispatch WHERE state='DISPATCHED'")).rows[0].n).toBe(1);
+  });
+
   it("upgrade over live pre-upgrade state preserves every row, switches behaviour, and is idempotent", async () => {
     const c = await central("pre");
     const { admission, allowanceId } = await c.runningWork();

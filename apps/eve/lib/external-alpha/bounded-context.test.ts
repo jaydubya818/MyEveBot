@@ -42,7 +42,7 @@ it("discloses a bounded omitted count for pathological arrays and never changes 
  // Decision B: one hard 2,000-byte allocation including the disclosure; the leading
  // (canonical, highest-priority) statement stays whole; the rest are excerpted or omitted, all counted.
  expect(Buffer.byteLength(JSON.stringify({limitations:proof.limitations,limitationsReadback:proof.limitationsReadback}))).toBeLessThanOrEqual(2000);
- expect(proof.limitations[0]).toBe(original.projection.nativeResult.proof.limitations[0]);
+ expect(proof.limitations[0]).toBe((original.projection.nativeResult.proof.limitations as string[])[0]);
  expect(proof.limitations.slice(1).every((item:string)=>item.endsWith("[truncated excerpt]"))).toBe(true);
  expect(proof.limitationsReadback.status).toBe("INCOMPLETE");
  expect(proof.limitations.length+proof.limitationsReadback.omittedCount).toBe(100);

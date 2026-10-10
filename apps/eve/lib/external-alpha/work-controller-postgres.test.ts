@@ -1001,13 +1001,15 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.kind='CHAT' AND d.state<>'NOT_DISPATCHED'")).rows[0].n).toBe(0);
     expect(await ceilings(p.central)).toBe(1400000);
   }, 90000);
-  it("CAP-1: an undispatched Work reservation holds the single slot until its deadline; chat without a lease is unaffected", async () => {
+  it("CAP-1: an undispatched Work reservation holds the single slot and fences new chat admission until its deadline", async () => {
     const p = await sharedPair();
     await sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "cap1", requestSha256: digest("cap1") });
     await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "cap1-b", requestSha256: digest("cap1-b") })).rejects.toThrow(/SHARED_CAPACITY/);
-    await expect(p.chat("no-lease-chat")).resolves.toMatchObject({ kind: "CHAT" });
+    await expect(p.chat("pending-work-chat")).rejects.toThrow(/SHARED_FENCED/);   // not charged for a call that could not dispatch
+    expect(await ceilings(p.central)).toBe(1300000);
     // Owner disconnect: A never dispatches. Capacity returns only after the deadline (dispatch is then impossible).
     await centralDeadlinePassed(p.central, "WORK");
+    await expect(p.chat("after-deadline-chat")).resolves.toMatchObject({ kind: "CHAT" });
     await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "cap1-b2", requestSha256: digest("cap1-b2") })).resolves.toMatchObject({ kind: "WORK" });
   }, 90000);
   it("CAP-2: concurrent Work admission from both owners acquires the slot exactly once", async () => {
@@ -1084,5 +1086,72 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(appB.factory.posts).toBe(0);
     expect(await p.b.count("external_alpha_work_authority")).toBe(0);
     expect(await ceilings(p.central)).toBe(before);
+  }, 90000);
+  it("STOP-1: the owner stops a running alpha Work without a paid turn; the fence clears only from the authenticated terminal fact", async () => {
+    const p = await runningPair();
+    const env = {
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: p.a.policy.projectId, MYEVE_OWNER_ID: p.a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(p.a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(p.a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(p.app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: p.app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(p.a.policy, p.app.config),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+    } as unknown as NodeJS.ProcessEnv;
+    await expect(p.chat("while-running")).rejects.toThrow(/SHARED_FENCED/);          // paid turns are fenced
+    const ownChat = (id: string) => new ExternalAlphaAllowance(p.a.db, p.a.policy).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
+    await expect(ownChat("own-while-running")).rejects.toThrow(/SHARED_FENCED/);
+    const before = await ceilings(p.central), opsBefore = await p.a.count("external_alpha_operation");
+    const work = await p.a.store.get(p.w.id);
+    // Same entry the owner route uses: no model operation, no new authority, owner scope + exact version.
+    await expect(externalAlphaFactoryAction(p.a.store, work.id, { operation: "stop", expectedWorkVersion: work.version + 1, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "stale" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer })).rejects.toThrow(/Reload the current Work/);
+    expect(p.app.factory.stops).toEqual([]);
+    const out = await externalAlphaFactoryAction(p.a.store, work.id, { operation: "stop", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "stop" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer });
+    expect(out.state).toBe("CANCELLED");
+    expect(p.app.factory.stops).toEqual([p.s.authority.requestId]);
+    expect(p.app.factory.posts).toBe(1);                                               // never redispatched
+    expect(await p.a.count("external_alpha_work_authority")).toBe(1);
+    expect(await p.a.count("external_alpha_operation")).toBe(opsBefore);              // no paid model operation
+    expect(await p.a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "SETTLED" }]);
+    await expect(p.chat("after-stop")).resolves.toMatchObject({ kind: "CHAT" });      // fence released
+    expect(await ceilings(p.central)).toBe(before + 100000);                           // only the new chat admission
+    // The Work still holds the single slot until its admission window ends (one Work per cohort).
+    const appB = await setup(true, p.b);
+    await expect(appB.controller.start(await p.b.seedWork())).rejects.toThrow(/SHARED_CAPACITY/);
+  }, 90000);
+  it("RACE-1: a chat admitted before the Work cannot dispatch between the Work's reservation and its dispatch; the Work still runs", async () => {
+    const p = await sharedPair();
+    const bAllow = new ExternalAlphaAllowance(p.b.db, p.b.policy);
+    const early = await bAllow.admit({ kind: "CHAT", bindingId: "race1", requestSha256: digest("race1") });   // no lease yet
+    const w = await p.a.seedWork();
+    const issued = await p.a.svc.issue(w, files);                                                            // A's Work reserved+bound, not dispatched
+    await expect(bAllow.reserve({ allowanceId: early.id, stepKey: "turn:1", requestSha256: digest("race1-op"), microusd: 50000 })).rejects.toThrow(/SHARED_FENCED/);
+    const claim = await p.a.svc.claim(issued);
+    expect(claim.claimed).toBe(true);
+    expect((await p.central.pool.query("SELECT a.kind,d.state FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE d.state<>'NOT_DISPATCHED'")).rows).toEqual([{ kind: "WORK", state: "DISPATCHED" }]);
+  }, 90000);
+  it("RACE-2: a definitive central dispatch refusal cancels the claimed authority before any Factory call (never DISPATCHING→UNKNOWN)", async () => {
+    const p = await sharedPair();
+    const chat = await new ExternalAlphaAllowance(p.b.db, p.b.policy).admit({ kind: "CHAT", bindingId: "race2", requestSha256: digest("race2") });
+    const w = await p.a.seedWork();
+    const issued = await p.a.svc.issue(w, files);
+    // Fixture-only: a conflicting unresolved lease (e.g. one written by a pre-upgrade function) so the
+    // Work's central dispatch is definitively refused inside its own rolled-back transaction.
+    const c = await p.central.pool.connect();
+    try { await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+      await c.query("INSERT INTO external_alpha_cohort_dispatch(admission_id,operation_sha256,state) SELECT id,$1,'DISPATCHED' FROM external_alpha_cohort_admission WHERE kind='CHAT'", [digest("race2-op")]);
+      await c.query("COMMIT"); } catch (error) { await c.query("ROLLBACK"); throw error; } finally { c.release(); }
+    void chat;
+    await expect(p.app.controller.start(w)).rejects.toThrow(/SHARED_FENCED/);
+    expect(p.app.factory.posts).toBe(0);
+    const [auth] = (await p.a.pool.query("SELECT state,terminal_reason FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows;
+    expect(auth).toEqual({ state: "CANCELLED", terminal_reason: "SHARED_DISPATCH_DENIED" });
+    expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.kind='WORK'")).rows[0].n).toBe(0);
+    // A retry never re-claims or sends; the sweep never turns it into UNKNOWN.
+    await expect(p.app.controller.start(w)).resolves.toMatchObject({ sent: false });
+    await p.a.svc.sweep();
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows[0].state).toBe("CANCELLED");
+    expect(p.app.factory.posts).toBe(0);
   }, 90000);
 });

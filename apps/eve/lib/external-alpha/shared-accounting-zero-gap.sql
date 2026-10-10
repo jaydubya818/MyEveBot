@@ -78,6 +78,12 @@ BEGIN
    IF p->>'operationSha256' IS NULL OR p->>'operationSha256' !~ '^[a-f0-9]{64}$' THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
    IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('DISPATCHED','RUNNING','FENCED','SETTLED')) THEN RETURN to_jsonb(prior); END IF;
    IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND (d.state IN('UNKNOWN','FENCED') OR (d.state IN('DISPATCHED','RUNNING') AND a.id<>prior.id))) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+   -- An admitted Work that has not dispatched yet is already the active Work: another
+   -- admission's paid call cannot slip in between the Work's reservation and its dispatch
+   -- (that would fence the Work's own dispatch after it was charged). Ends at dispatch or deadline.
+   IF EXISTS(SELECT 1 FROM external_alpha_cohort_admission w WHERE w.cohort_id=c.id AND w.kind='WORK' AND w.id<>prior.id
+     AND w.state IN('RESERVED','BOUND') AND w.deadline>n
+     AND NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d WHERE d.admission_id=w.id)) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
    INSERT INTO external_alpha_cohort_dispatch(admission_id,operation_sha256,state) VALUES(prior.id,p->>'operationSha256','DISPATCHED');
   END IF;
   RETURN to_jsonb(prior);
@@ -120,6 +126,11 @@ BEGIN
  -- known) releases the fence; no reservation is refunded. Checked last so a
  -- Work request blocked by the active Work is told CAPACITY; every path denies.
  IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND d.state IN('UNKNOWN','DISPATCHED','RUNNING','FENCED')) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+ -- Likewise an admitted, not-yet-dispatched Work fences new admissions, so no owner is
+ -- charged for a call that could not dispatch while that Work is active.
+ IF EXISTS(SELECT 1 FROM external_alpha_cohort_admission w WHERE w.cohort_id=c.id AND w.kind='WORK'
+   AND w.state IN('RESERVED','BOUND') AND w.deadline>n
+   AND NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d WHERE d.admission_id=w.id)) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
  INSERT INTO external_alpha_cohort_admission(id,cohort_id,owner_id,policy_sha256,kind,binding_sha256,request_sha256,day_index,ceiling_microusd,deadline)
  VALUES((p->>'id')::uuid,c.id,m.owner_id,m.policy_sha256,p->>'kind',p->>'bindingSha256',p->>'requestSha256',day,amount,
   LEAST(n+(CASE WHEN p->>'kind'='CHAT' THEN interval '180 seconds' ELSE interval '300 seconds' END),c.activated_at+interval '120 hours')) RETURNING * INTO prior;
