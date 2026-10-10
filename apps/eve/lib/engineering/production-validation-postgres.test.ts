@@ -33,7 +33,52 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const migrations=await loadMigrations();await runMigrations(database(pool),migrations,()=>{});
   await runMigrations(database(upgrade),migrations.filter(m => m.name <= '0081_factory_validation_lifecycle.sql'),()=>{});
  },120000);
- afterAll(async()=>{await pool?.end();await upgrade?.end();if(admin){for(const name of names)await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}},30000);
+ // Pool.end can resolve before PostgreSQL observes every owned socket close.
+ async function dropOwnedDatabase(name:string){
+  expect(names).toContain(name);
+  let remaining:{pid:number}[]=[];
+  for(let attempt=0;attempt<100;attempt++){
+   remaining=(await admin.query('SELECT pid FROM pg_stat_activity WHERE datname=$1',[name])).rows;
+   if(remaining.length===0)break;
+   await new Promise(resolve=>setTimeout(resolve,25));
+  }
+  expect(remaining,'Owned fixture sessions must close before database cleanup').toEqual([]);
+  await admin.query('DROP DATABASE IF EXISTS '+name);
+ }
+ async function terminateOwnedConnection(connection:any,terminate:()=>Promise<unknown>){
+  const errors:any[]=[];const capture=(error:any)=>errors.push(error);
+  let timer:ReturnType<typeof setTimeout>;
+  let onEnd!:()=>void;
+  const ended=new Promise<void>((resolve,reject)=>{onEnd=resolve;connection.raw.once('end',onEnd);timer=setTimeout(()=>reject(Error('OWNED_CONNECTION_END_TIMEOUT')),5000);});
+  connection.raw.on('error',capture);
+  try{
+   await Promise.all([ended,terminate()]);
+   expect(errors.some(error=>error.code==='57P01')).toBe(true);
+   expect(errors.every(error=>error.code==='57P01'||error.message==='Connection terminated unexpectedly')).toBe(true);
+  }finally{clearTimeout(timer!);connection.raw.off('error',capture);connection.raw.off('end',onEnd);connection.discard();}
+ }
+ afterAll(async()=>{await pool?.end();await upgrade?.end();if(admin){for(const name of names)await dropOwnedDatabase(name);await admin.end();}},30000);
+ it('fixture cleanup refuses to kill a held backend and drops only after it closes',async()=>{
+  const name='validation_cleanup_'+randomUUID().replaceAll('-','');names.push(name);await admin.query('CREATE DATABASE '+name);
+  const url=new URL(connection!);url.pathname='/'+name;const held=new pg.Pool({connectionString:url.href,max:1});
+  try{
+   await held.query('SELECT 1');
+   await expect(dropOwnedDatabase(name)).rejects.toThrow('Owned fixture sessions must close');
+   expect((await held.query('SELECT 1 AS alive')).rows[0].alive).toBe(1);
+  }finally{await held.end();await dropOwnedDatabase(name);}
+ });
+ it('terminated fixture checkout remains owned until its delayed fatal message and end are observed',async()=>{
+  const url=new URL(connection!);url.pathname='/'+names[0];const owned=new pg.Pool({connectionString:url.href,max:1});
+  const client=await owned.connect();const pid=(await client.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  let killed!:()=>void;const acknowledged=new Promise<void>(resolve=>killed=resolve);
+  let discarded=false;client.connection.stream.pause();
+  const finished=terminateOwnedConnection({raw:client,discard:()=>{discarded=true;client.release(true);}},async()=>{await admin.query('SELECT pg_terminate_backend($1)',[pid]);killed();});
+  try{
+   await Promise.race([acknowledged,finished]);expect(discarded).toBe(false);expect(owned.totalCount).toBe(1);expect(owned.idleCount).toBe(0);
+   client.connection.stream.resume();await finished;
+   expect(discarded).toBe(true);expect(owned.totalCount).toBe(0);expect(owned.idleCount).toBe(0);
+  }finally{client.connection.stream.resume();try{await finished;}finally{await owned.end();}}
+ });
  async function fixture(options:{db?:any;legacy?:boolean;duration?:number;save?:boolean;repository?:string;factoryVersion?:string;owner?:string;maxCost?:number;noDecision?:boolean}={}){
   const p=options.db??pool,owner=options.owner??'disposable-validation-owner',store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database(p));
   const created=await store.create({title:'Immutable preparation regression',objective:'Offline model-free PostgreSQL qualification',repository:options.repository??'fixture/normalizer',criteria:[{id:randomUUID(),statement:'Preserve preparation',method:'test'}],maxCostUsd:options.maxCost??1,maxDurationSeconds:180,idempotencyKey:randomUUID()});
@@ -194,8 +239,8 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
  it.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('composed actual Factory authority: valid intake once; revocation during claim denies intake and execution',async()=>{
   const root=process.env.MYFACTORY_SOURCE_ROOT!;
   const load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
-  const [{productionAuthority},{PostgresDispatchStore},{PostgresSpendLedger},{CloudWorkControl},plan,{productionSpendPlan}]=await Promise.all([
-   load('apps/cloud-control/src/production-authority.mjs'),load('apps/cloud-control/src/postgres-dispatch.mjs'),load('apps/cloud-control/src/postgres-spend.mjs'),load('apps/cloud-control/src/cloud-work-control.mjs'),load('apps/cloud-control/src/production-validation-plan.mjs'),load('apps/cloud-control/src/production-execution-plan.mjs')]);
+  const [{productionAuthority},{PostgresDispatchStore},{PostgresSpendLedger},{CloudWorkControl},plan,{syntheticAdmissionSpendPlan},{capabilityPolicyFixture}]=await Promise.all([
+   load('apps/cloud-control/src/production-authority.mjs'),load('apps/cloud-control/src/postgres-dispatch.mjs'),load('apps/cloud-control/src/postgres-spend.mjs'),load('apps/cloud-control/src/cloud-work-control.mjs'),load('apps/cloud-control/src/production-validation-plan.mjs'),load('apps/cloud-control/test/fixtures/admission-spend-plan.mjs'),load('apps/cloud-control/test/fixtures/capability-policy.mjs')]);
   const schema='validation_factory_'+randomUUID().replaceAll('-','');await pool.query('CREATE SCHEMA '+schema);
   const rewrite=(sql:string)=>sql.replace(/\bfactory\.(production_work_authority|protect_production_authority|work_spend_budgets|work_spend_operations|intake_receipts|delivery_intents|verification_resources|execution_resources|candidate_custody|work_orders|runs|events)\b/g,schema+'.$1').replace(/IN SCHEMA factory\b/g,'IN SCHEMA '+schema);
   const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args),isolated={connect:async()=>{const c=await pool.connect();return{query:(sql:string,args?:unknown[])=>c.query(rewrite(sql),args),release:()=>c.release()};}};
@@ -203,13 +248,19 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const configuration=plan.validationConfiguration,grant=plan.validationSourceGrant,sourceDigest='a'.repeat(64),configurationDigest=digest(configuration),factoryVersion=digest({sourceDigest,configurationDigest}),installation={ownerScope:'disposable-validation-owner'};
   const assertAuthority=productionAuthority({installation,sourceDigest,configuration,contractSha256:plan.validationContractSha256,clientId:grant.clientId,candidateSha256:plan.validationCandidateSha256});
   const {productionVerifierPolicy:policy,productionVerifierPolicySha256:policySha256}=await load('apps/cloud-control/src/production-verifier-policy.mjs');
-  const factory=new PostgresDispatchStore(isolated,{custodyPrefix:'factory/production',assertAuthority,verificationPolicySha256:policySha256}),spend=new PostgresSpendLedger(isolated);
-  const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:productionSpendPlan,verificationPolicy:{policy,policySha256}});
+  const capability=await capabilityPolicyFixture(pool,schema,isolated,{[grant.clientId]:installation.ownerScope});
+  try {
+  const factory=new PostgresDispatchStore(capability.pool,{capabilityBindings:capability.bindings,custodyPrefix:'factory/production',assertAuthority,verificationPolicySha256:policySha256}),spend=new PostgresSpendLedger(capability.pool);
+
   for(const revoked of [false,true]){
    const f=await fixture({repository:grant.source.repository,factoryVersion}),r=f.preparation.request;
+   // Synthetic intake/authority qualification only; PostgreSQL keeps its real clock.
+   const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:syntheticAdmissionSpendPlan(r.deadline),verificationPolicy:{policy,policySha256}});
    const request={protocol:'MYFACTORY_EXECUTION_V2',...r,source:grant.source,maxSpendUsd:1,input:{title:'Disposable lifecycle',description:'Actual production authority, no providers',kind:'feature',acceptanceCriteria:['Bounded'],allowedPaths:grant.allowedPaths,checkCommands:grant.commands}};
    const manifest={version:1,clientId:grant.clientId,ownerScope:installation.ownerScope,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.validationContractSha256,candidateSha256:plan.validationCandidateSha256,environment:'CLOUD_PRODUCTION',publication:false,request};
    await query("INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state) VALUES($1,$2,$3,$4,$5,'AUTHORIZED')",[r.requestId,r.workId,grant.clientId,manifest,digest(manifest)]);
+   await expect(new PostgresDispatchStore(isolated).prepare({...grant,ownerScope:installation.ownerScope},request,()=>({}))).rejects.toThrow('CAPABILITY_INSTALLATION_UNQUALIFIED');
+   await expect(factory.prepare({...grant,ownerScope:'foreign-owner'},request,()=>({}))).rejects.toThrow('CAPABILITY_INSTALLATION_UNQUALIFIED');
    let prepared:any;
    const prepare=async()=>{if(revoked)await query("UPDATE factory.production_work_authority SET state='REVOKED' WHERE request_id=$1",[r.requestId]);prepared=await control.prepare(request);throw Error('OFFLINE_STOP_AFTER_AUTHORIZED_INTAKE');};
    vi.spyOn(f.driver,'adapterFor').mockReturnValue({prepare} as never);
@@ -223,7 +274,11 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    }
    expect(await f.bytes()).toBe(f.original);expect((await f.lifecycle.read()).state).toBe('HALTED');
   }
+  const expiredWork=randomUUID();
+  await expect(spend.createBudget({workId:expiredWork,workGeneration:1,requestId:randomUUID(),workOrderId:randomUUID()},1000000,new Date(Date.now()+60000).toISOString(),syntheticAdmissionSpendPlan(new Date(0).toISOString()))).rejects.toThrow('Qualified pricing has expired');
+  expect((await query('SELECT count(*) FROM factory.work_spend_budgets WHERE work_id=$1',[expiredWork])).rows[0].count).toBe('0');
   expect((await query('SELECT count(*) FROM factory.execution_resources')).rows[0].count).toBe('0');expect((await query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('0');
+  } finally {await capability.cleanup();}
  });
 
 
@@ -296,7 +351,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
     request:{protocol:'MYFACTORY_EXECUTION_V2',...r,source:plan.validationSourceGrant.source,requestId:null,deadline:null}};
    const approval={canonicalSpendPlan:spendPlan,workVersion:f.work.version,configurationHash:preparation.configurationHash,environmentBinding:preparation.environment.binding,criteria:f.work.criteria,manifestTemplate,installation,historicalGrants:[] as {requestId:string;workId:string;manifestSha256:string}[]};
    const evidence:any[]=[],clients:any[]=[];
-   async function connection(factory=false){const c=await pool.connect();clients.push(c);return {query:(sql:string,args?:unknown[])=>c.query(factory?rewrite(sql):sql,args),raw:c};}
+   async function connection(factory=false){const c=await pool.connect();clients.push(c);return {query:(sql:string,args?:unknown[])=>c.query(factory?rewrite(sql):sql,args),raw:c,discard:()=>{clients.splice(clients.indexOf(c),1);c.release(true);}};}
    const owner=await connection(),factory=await connection(true);
    async function wait(){const claim=await f.lifecycle.claim();if(claim.state!=='CLAIMED')throw Error('claim');await f.lifecycle.finish(claim.claim,'WAITING_GRANT');}
    async function run(audit:(event:any)=>Promise<void>=async()=>{},bounds={maxAttempts:20,maxWaitMs:5000,waitMs:1},o:any=owner,g:any=factory){return materializeValidationGrant(o,g,approval,async event=>{evidence.push(event);operatorEvidence.push(event);await audit(event);},bounds);}
@@ -360,8 +415,10 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    const f=await operatorFixture();try{await f.wait();await f.run();await f.query("UPDATE factory.production_work_authority SET state='REVOKED'");await expect(f.run()).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');await f.check(1);expect((await f.query('SELECT state FROM factory.production_work_authority')).rows[0].state).toBe('REVOKED');}finally{f.close();}
   });
   it('connection loss after durable claim cannot activate the controller',async()=>{
-   const f=await operatorFixture();try{
-    await f.wait();await expect(f.run(async e=>{if(e.event==='CLAIM_DURABLE'){const pid=(await f.owner.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;f.owner.raw.on('error',()=>{});await pool.query('SELECT pg_terminate_backend($1)',[pid]);}})).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');
+   const f=await operatorFixture();let termination:Promise<void>|undefined;try{
+    await f.wait();await expect(f.run(async e=>{if(e.event==='CLAIM_DURABLE'){const pid=(await f.owner.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;termination=terminateOwnedConnection(f.owner,()=>pool.query('SELECT pg_terminate_backend($1)',[pid]));await termination;}})).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');
+    // The materializer translates callback errors; assert fixture disposal outside it too.
+    expect(termination).toBeDefined();await termination;
     expect((await f.lifecycle.claim()).state).toBe('BUSY');await f.check(0);
     const next=await f.connection();await expect(f.run(undefined,{maxAttempts:1,maxWaitMs:1,waitMs:1},next)).rejects.toThrow('WAIT_BOUND_EXHAUSTED');await f.lifecycle.halt('DISPOSABLE_CLEANUP');await f.check(0);
    }finally{f.close();}
