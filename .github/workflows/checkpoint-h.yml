@@ -49,6 +49,7 @@ jobs:
           GHCR_READ_TOKEN: ${{ github.token }}
         run: printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
       - name: Recover exact runtime and qualify component controls
+        id: runtime
         working-directory: .qualification/missioncontrol
         run: |
           node scripts/enterprise-golden-journey/recover-ghcr-runtime.mjs "$RUNNER_TEMP/checkpoint-h/runtime"
@@ -56,6 +57,9 @@ jobs:
             node --import tsx scripts/qualification/unpublished-verifier-controls.mts "$RUNNER_TEMP/checkpoint-h/runtime/bundles" "$RUNNER_TEMP/checkpoint-h/runtime/image.txt" "$RUNNER_TEMP/checkpoint-h/runtime/registered-controls" "$MC_GOLDEN_DOCKER" "$RUNNER_TEMP/checkpoint-h/runtime/artifact/image-binding.json" 3
             printf 'MC_GOLDEN_RUNTIME_BUILD=%s\n' "$RUNNER_TEMP/checkpoint-h/runtime" >> "$GITHUB_ENV"
             sudo install -d -m 1777 /private/tmp
+          else
+            echo "Exact runtime recovery did not pass; required qualification is blocked."
+            exit 1
           fi
       - name: Authenticated enterprise proposal and canonical owner isolation
         env:
@@ -65,12 +69,13 @@ jobs:
         run: |
           node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
           node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
-      - name: Complete Result consumer security with a separate fresh hybrid Mission
+      - name: Complete Result consumer security with two fresh hybrid cohorts
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
         run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 88337b38cf797661c06e38eae830590d52000b23
       - name: Composed authenticated Result with exact execution runtime
+        if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'

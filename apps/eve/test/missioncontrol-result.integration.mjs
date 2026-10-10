@@ -8,14 +8,16 @@ import {Pool} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,sendEnterpriseCommand,validateResponse,contentDigest,signedCommand} from '../lib/missioncontrol/consumer.ts';
+import {resultSecurityChecks,safeUnavailableObservation} from './result-security-evidence.mjs';
 import {qualifyResultObservations} from './result-observations.mjs';
 
 /** Called by the canonical native-successor hybrid runner while its actual evidence is current. */
 export async function prepareCompletedResultConsumer(db) {
+  const cohort=process.env.MYEVE_RESULT_SECURITY_COHORT,selected=resultSecurityChecks(cohort,process.env.MYEVE_CHECKPOINT_H_BROWSER==='1');
   const sourceRoot=fileURLToPath(new URL('../../../',import.meta.url));
-  const checks=[],result={schema:'sofie-completed-result-qualification/v1',checks,
+  const checks=[],result={cohort,schema:'sofie-completed-result-qualification/v1',checks,
     myeveSourceSha:execFileSync('git',['rev-parse','HEAD'],{cwd:sourceRoot,encoding:'utf8'}).trim(),myeveDirty:!!execFileSync('git',['status','--porcelain'],{cwd:sourceRoot,encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',executableProductionGrants:0};
-  const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS result '+name);};
+  const check=async(name,fn)=>{if(!selected.includes(name))return;await fn();checks.push(name);console.log('PASS result '+name);};
   const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
   let pool,container=false;
   async function stop(){if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
@@ -69,6 +71,17 @@ export async function prepareCompletedResultConsumer(db) {
       expected:{missionId,planDigest:input.expectedPlanDigest,ownerId:s.operatorId,tenantId:s.tenantId,projectId:s.projectId},
       writeProgress:async progress=>{result.directObservations=progress;if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'direct-result-observations.json'),JSON.stringify(progress,null,2)+'\n');}});
     const completed=observed.completed;
+    let lastValidatedDeadline=completed.receipt.response.freshUntil;
+    const available=async(read,stage)=>{
+      const startedAt=Date.now(),reply=await read(),response=reply.receipt.response;
+      if(response.status!=='AVAILABLE') {
+        const diagnostic=safeUnavailableObservation(response,stage,startedAt,lastValidatedDeadline);
+        result.readbackFailure=diagnostic;
+        if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'security-readback-failure.json'),JSON.stringify(diagnostic,null,2)+'\n');
+      }
+      assert.equal(response.status,'AVAILABLE',`Current Result required at ${stage}`);
+      lastValidatedDeadline=response.freshUntil;return reply;
+    };
     await check('authenticated-transport-reads-real-Result',async()=>assert.equal(observed.progress.observations.filter(value=>value.kind==='transport').length,1));
     await check('three-required-direct-tool-observations-of-one-exact-Result',async()=>{assert.equal(observed.progress.observations.filter(value=>value.kind==='tool').length,3);assert.match(completed.explanation,/Quality Gate is PASS/);});
     await check('required-observations-never-dispatch-or-settle',async()=>assert.equal(contentDigest(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'})),contentDigest(beforeRuns)));
@@ -95,16 +108,18 @@ export async function prepareCompletedResultConsumer(db) {
       await assert.rejects(()=>sendEnterpriseCommand(config,{...input,missionId:s.otherProjectId}));
       await assert.rejects(()=>sendEnterpriseCommand(config,{...input,expectedPlanDigest:'sha256:'+'0'.repeat(64)}));
     });
-    const sameContext=context();const first=await call(sameContext);
+    const sameContext=context();
     await check('concurrent-reconnect-always-observes-current-Result',async()=>{
-      const replies=await Promise.all([call(sameContext),call(sameContext)]);assert.ok(replies.every(r=>r.receipt.response.status==='AVAILABLE'));
+      const first=await available(()=>call(sameContext),'concurrent-reconnect');
+      const replies=await Promise.all([available(()=>call(sameContext),'concurrent-reconnect'),available(()=>call(sameContext),'concurrent-reconnect')]);
       assert.equal(new Set([first,...replies].map(r=>r.receipt.authentication.commandId)).size,3);
     });
     const binding=completed.receipt.response.workOrders[0],wo=await inspect(binding.workOrderId),evidence=await inspect(binding.evidenceIds[0]),source=await inspect(binding.sourceAttemptId);
     async function changedRecord(label,id,patch,restore,denial=false){
+      if(!selected.includes(label))return;
       await fault(id,patch);
       try{await check(label,async()=>{if(denial){try{assert.equal((await call(sameContext)).receipt.response.status,'NOT_AVAILABLE');}catch(e){assert.ok(['denied','result_unknown'].includes(e.status),String(e));}}else assert.equal((await call(sameContext)).receipt.response.status,'NOT_AVAILABLE');});}
-      finally{await fault(id,restore);assert.equal((await call()).receipt.response.status,'AVAILABLE','Fault restoration must recover the actual current Result');}
+      finally{await fault(id,restore);await available(()=>call(),'fault-restoration');}
     }
     await changedRecord('stale-revision-never-replays-cached-PASS',wo._id,{currentRevisionNumber:wo.currentRevisionNumber+1},{currentRevisionNumber:wo.currentRevisionNumber});
     await changedRecord('wrong-candidate-denied',source._id,{verificationSubject:{...source.verificationSubject,candidateSha:'f'.repeat(40)}},{verificationSubject:source.verificationSubject});
@@ -127,19 +142,21 @@ export async function prepareCompletedResultConsumer(db) {
     await check('anonymous-owner-gate-evaluation-denied',()=>assert.rejects(()=>mutate('factory/enterpriseQualification:evaluate',{workOrderId:delegated.workOrderId,idempotencyKey:'anonymous-result-no-execution'},db.anonymous)));
     await changedRecord('production-environment-denied',s.environmentId,{type:'prod'},{type:'dev'},true);
     const mission=await inspect(missionId);
-    await fault(missionId,{ownerOperatorId:s.peerId});
-    try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext)));}
-    finally{await fault(missionId,{ownerOperatorId:mission.ownerOperatorId});}
+    if(selected.includes('same-tenant-Mission-owner-change-denied')) {
+      await fault(missionId,{ownerOperatorId:s.peerId});
+      try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext)));}
+      finally{await fault(missionId,{ownerOperatorId:mission.ownerOperatorId});}
+    }
     const plan=await inspect(connection.resultScope.planId);
     await changedRecord('changed-approved-Plan-denied',plan._id,{summary:plan.summary+' changed'},{summary:plan.summary},true);
     await changedRecord('changed-Quality-Contract-denied',wo._id,{qualityContractDigest:'sha256:'+'0'.repeat(64)},{qualityContractDigest:wo.qualityContractDigest});
-    await check('restart-durable-readback-without-redispatch',async()=>{await db.restart();assert.equal((await call()).receipt.response.status,'AVAILABLE');});
+    await check('restart-durable-readback-without-redispatch',async()=>{await db.restart();await available(()=>call(),'restart-readback');});
     await check('lost-read-ack-reconciles-with-new-read-only-observation',async()=>{
       const original=globalThis.fetch,ctx=context();let lose=true;
       globalThis.fetch=async(url,options)=>{const reply=await original(url,options);if(lose&&String(url).endsWith('/api/action')){lose=false;await reply.arrayBuffer();throw Error('LOST_RESULT_ACK');}return reply;};
-      try{await assert.rejects(()=>call(ctx));assert.equal((await call(ctx)).receipt.response.status,'AVAILABLE');}finally{globalThis.fetch=original;}
+      try{await assert.rejects(()=>call(ctx));await available(()=>call(ctx),'lost-ack-readback');}finally{globalThis.fetch=original;}
     });
-    await mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,decision:'REVOKE'});
+    if(selected.includes('revocation-denies-reconnect'))await mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,decision:'REVOKE'});
     await check('revocation-denies-reconnect',()=>assert.rejects(()=>call(sameContext)));
     await check('consumer-never-dispatches-or-settles',async()=>assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'}),beforeRuns));
     result.actions=(await pool.query('SELECT status,count(*)::int AS count FROM action_requests GROUP BY status ORDER BY status')).rows;
