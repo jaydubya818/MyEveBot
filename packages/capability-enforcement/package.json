@@ -1,1 +1,17 @@
-{"name":"@myeve/capability-enforcement","version":"0.1.0","private":true,"type":"module","exports":"./src/postgres.ts","dependencies":{"@mission-control/capability-control":"*","zod":"4.4.3"}}
+{
+  "name": "@myeve/capability-enforcement",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/postgres.ts",
+    "./decisions": "./src/decisions.ts"
+  },
+  "dependencies": {
+    "@mission-control/capability-control": "*",
+    "zod": "4.4.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts"
+  }
+}
