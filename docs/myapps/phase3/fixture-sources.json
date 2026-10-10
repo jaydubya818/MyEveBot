@@ -1,0 +1,110 @@
+{
+  "format": "myapps.qualified-test-overlays.v1",
+  "myeve": {
+    "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
+    "source": "977438094ad830f6cb80523a890ca9188f32febe",
+    "files": {
+      "apps/eve/lib/engineering/production-validation-postgres.test.ts": {
+        "composedSha256": "2a0fca6ba05658248bf3a3ac2c80b2d191c5ece0fc73817e6751c1d6b5312c2b",
+        "sourceSha256": "b7259005abbd92f1ab9dc08bdd9949ef2058cbfa847a60b4ca1f2dc0e4eba4f3",
+        "preserveLedger": {
+          "from": "  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0092_private_result_acceptance.sql');",
+          "to": "  // Verify the complete applied lineage, including checksums, on both paths.\n  const expectedLedger=(await loadMigrations()).map(({name,checksum})=>({name,checksum}));\n  for(const migrated of [pool,upgrade])\n   expect((await migrated.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows).toEqual(expectedLedger);"
+        },
+        "outputSha256": "2a0fca6ba05658248bf3a3ac2c80b2d191c5ece0fc73817e6751c1d6b5312c2b"
+      },
+      "apps/eve/lib/external-alpha/productive-journey-postgres.test.ts": {
+        "composedSha256": "3d69c4a571b6a9c36558b1b449b6cd84867f2e68747a3b638e7fca3ff30ac3fa",
+        "sourceSha256": "d348c8c2207f48b41071e13cb683a82f59ed1febc7e165602aaa51f4abce3847",
+        "outputSha256": "d348c8c2207f48b41071e13cb683a82f59ed1febc7e165602aaa51f4abce3847"
+      },
+      "apps/eve/lib/external-alpha/productive-pricing-test-fixture.test.ts": {
+        "composedSha256": null,
+        "sourceSha256": "17178d1bbe7ab296bfaf268733ae519ee54d32332e45ac0cfb183a282beaff1d",
+        "outputSha256": "17178d1bbe7ab296bfaf268733ae519ee54d32332e45ac0cfb183a282beaff1d"
+      },
+      "apps/eve/test/fixtures/productive-pricing.ts": {
+        "composedSha256": null,
+        "sourceSha256": "d8879e890a27dac670266e0b184de84de1cf58758da2081e070ec6063941c3d2",
+        "outputSha256": "d8879e890a27dac670266e0b184de84de1cf58758da2081e070ec6063941c3d2"
+      }
+    }
+  },
+  "myfactory": {
+    "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c",
+    "source": "b12031ea65fa5c2e0a03763b931003ab78017580",
+    "files": {
+      "apps/cloud-control/test/admission-spend-plan.test.mjs": {
+        "composedSha256": "894c6e02e5617a2e67e0f43a2d37b3f24e2f324251d4942e9abaf6a88b8f34c5",
+        "sourceSha256": "894c6e02e5617a2e67e0f43a2d37b3f24e2f324251d4942e9abaf6a88b8f34c5",
+        "outputSha256": "894c6e02e5617a2e67e0f43a2d37b3f24e2f324251d4942e9abaf6a88b8f34c5"
+      },
+      "apps/cloud-control/test/alpha-owner-postgres.test.mjs": {
+        "composedSha256": "529866744a12c38db39345f48d3307a48a91919e99cc6bc538eff618cef72c9b",
+        "sourceSha256": "529866744a12c38db39345f48d3307a48a91919e99cc6bc538eff618cef72c9b",
+        "outputSha256": "529866744a12c38db39345f48d3307a48a91919e99cc6bc538eff618cef72c9b"
+      },
+      "apps/cloud-control/test/external-alpha-authority-postgres.test.mjs": {
+        "composedSha256": "8f596cb31dbfdd4b1c65db05fd48c9a1f3ad93953ee8d95df543aaedb0745e42",
+        "sourceSha256": "312e9d11e3bc1f8aad0729ecdb49e854ec5e46da4b1a139a2c9376fc171c9e69",
+        "outputSha256": "312e9d11e3bc1f8aad0729ecdb49e854ec5e46da4b1a139a2c9376fc171c9e69"
+      },
+      "apps/cloud-control/test/external-alpha-delivery-postgres.test.mjs": {
+        "composedSha256": "10acd9cb6e664d974fe2c5d476558fd674cba3509d06a3a11f069b3c388f805d",
+        "sourceSha256": "8254e20890f087208fa773b4a15f42848d4747b7d217218ae608509e8d5bb3d2",
+        "outputSha256": "8254e20890f087208fa773b4a15f42848d4747b7d217218ae608509e8d5bb3d2"
+      },
+      "apps/cloud-control/test/fixtures/admission-spend-plan.mjs": {
+        "composedSha256": "5c3002874c390513e7e82cd49e73147f16424ac9fea1e1edf164d05a2852fe61",
+        "sourceSha256": "5c3002874c390513e7e82cd49e73147f16424ac9fea1e1edf164d05a2852fe61",
+        "outputSha256": "5c3002874c390513e7e82cd49e73147f16424ac9fea1e1edf164d05a2852fe61"
+      },
+      "apps/cloud-control/test/successor-intake-postgres.test.mjs": {
+        "composedSha256": "9a563290b19fc8567b2b42051898b3cac4bf6a5e84b5761fe049a2c13b51e065",
+        "sourceSha256": "9a563290b19fc8567b2b42051898b3cac4bf6a5e84b5761fe049a2c13b51e065",
+        "outputSha256": "9a563290b19fc8567b2b42051898b3cac4bf6a5e84b5761fe049a2c13b51e065"
+      }
+    },
+    "inventory": {
+      "path": "docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json",
+      "records": {
+        "packages/hosted-routing/src/result.ts": {
+          "before": {
+            "classification": "NOT_APPLICABLE",
+            "authorityBoundary": "Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Strict legacy snapshot V1 unchanged. Optional cloud-only independent verification is signature-bound, exact-shaped, candidate/policy/resource/chronology checked, and grants no readiness or publication by itself. Fabric boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory.",
+            "sha256": "9f3ad70fad6310d9c46f9393db03e63c9af9a79b7ee0d55412916a6870209369"
+          },
+          "after": {
+            "classification": "NOT_APPLICABLE",
+            "authorityBoundary": "Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Strict legacy snapshot V1 unchanged. Optional cloud-only independent verification is signature-bound, exact-shaped, candidate/policy/resource/chronology checked, and grants no readiness or publication by itself. Fabric boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. QE-002 criterion-evidence review: signed optional reportSha256 is accepted only as an exact additional check field with SHA-256 validation; duplicate IDs, outcomes, isolation, candidate/policy identity and chronology checks remain intact. Legacy checks without a digest remain parse-compatible; production acceptance still requires its exact pinned successor policy. No new execution, approval or publication authority. Evidence: hosted-routing protocol and signed criterion-evidence PostgreSQL regressions.",
+            "sha256": "9935c61e8c2684d2288ea5a483d804607e901985b71daa56612138720d32cf17"
+          }
+        },
+        "apps/cloud-control/src/postgres-verification.mjs": {
+          "before": {
+            "sha256": "df52aa07e6adfd42ab66354240d70681f96ea4a698faa88ce772e264039b45ff",
+            "classification": "CLOUD_PROTECTED_VERIFICATION",
+            "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant."
+          },
+          "after": {
+            "sha256": "069add839624515d0b2bc3c02bace2e85e4273e169f8c7eae016a5db482b40b8",
+            "classification": "CLOUD_PROTECTED_VERIFICATION",
+            "authorityBoundary": "Independent release-gate review: exact production source/config/Work authority; separate operator zero-model validation client; canonical lifecycle, spend, custody, verifier, signed Result and scoped Proof transport. No general Work, model fallback or publication grant. QE-002 criterion-evidence review: optional digest has exact lowercase SHA-256 shape; the reportDigest policy requires every ordered expected check to carry the same digest, and the pinned aggregate must agree with all individual outcomes. Existing exact run/lease/authority CAS, cancellation, deadline, producer-cleanup and verifier-cleanup gates remain unchanged. Evidence: local PostgreSQL criterion-evidence rejection, concurrency, cancellation and cleanup qualification."
+          }
+        },
+        "apps/cloud-control/src/external-alpha-verifier.mjs": {
+          "before": {
+            "sha256": "a8940afa6cacb38c310b119240233564cc27c61f4eae002b4cd3e17b401e9002",
+            "classification": "INDEPENDENT_ACCEPTANCE_ADAPTER",
+            "authorityBoundary": "Cloud adapter for the Alpha Tasks acceptance policy as the protected verifier. Production mode requires a host-built isolation attestation for an allow-listed runner; every missing, unattested, inconsistent or PARTIAL outcome throws VERIFIER_PARTIAL so the Run can never be accepted. PASS is the only path to a PASS check."
+          },
+          "after": {
+            "sha256": "b69237ba935e9971e4e234e4b5ccdfec5c8b454c336ccda17e60cac81a303a96",
+            "classification": "INDEPENDENT_ACCEPTANCE_ADAPTER",
+            "authorityBoundary": "Cloud adapter for the Alpha Tasks acceptance policy as the protected verifier. Production mode requires a host-built isolation attestation for an allow-listed runner; every missing, unattested, inconsistent or PARTIAL outcome throws VERIFIER_PARTIAL so the Run can never be accepted. PASS is the only path to a PASS check. QE-002 criterion-evidence review: ten exact unique canonical criterion IDs plus aggregate; unknown, missing, duplicate or contradictory outcomes remain PARTIAL. Every check binds one full protected report digest; fixed host identity, isolation attestation, hidden-suite/policy pins and pre/post authority checks are unchanged. Evidence: external-alpha-verifier tests and local PostgreSQL criterion-evidence qualification."
+          }
+        }
+      }
+    }
+  }
+}

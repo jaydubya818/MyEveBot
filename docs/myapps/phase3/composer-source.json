@@ -1,0 +1,55 @@
+{
+  "format": "myapps.composer-patch.v1",
+  "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
+  "source": "c7b9e948454cbb7eb7d5fc92f4bbc65918b56ab5",
+  "base": "977438094ad830f6cb80523a890ca9188f32febe",
+  "path": "apps/eve/app/chat.tsx",
+  "baseSha256": "93c94d0576b832b689fa66c927f302b470b298ce997e03e2ba24f99eb95cb7ed",
+  "sourceSha256": "f4c3709fe76cec4c6d1ed6011ecbf47a718a57a2c9ba5f7f0159596a6a874c3d",
+  "composedSha256": "93c94d0576b832b689fa66c927f302b470b298ce997e03e2ba24f99eb95cb7ed",
+  "outputSha256": "f4c3709fe76cec4c6d1ed6011ecbf47a718a57a2c9ba5f7f0159596a6a874c3d",
+  "changes": [
+    {
+      "from": "  UsersThreeIcon,\n  XIcon,\n} from \"@phosphor-icons/react\";\nimport { useEffect, useMemo, useRef, useState } from \"react\";\n\nimport { persistChatUpload, inspectChatUploads } from \"@/lib/chat-file-client\";\nimport type { ChatFileView } from \"@/lib/files-api\";\n",
+      "to": "  UsersThreeIcon,\n  XIcon,\n} from \"@phosphor-icons/react\";\nimport { useEffect, useLayoutEffect, useMemo, useRef, useState } from \"react\";\n\nimport { persistChatUpload, inspectChatUploads } from \"@/lib/chat-file-client\";\nimport type { ChatFileView } from \"@/lib/files-api\";\n"
+    },
+    {
+      "from": "function chatKey(threadId: string): string {\n  return `eve-web-chat:${threadId}`;\n}\n\ninterface SavedChat {\n  workSelection?: ChatWorkSelection;\n",
+      "to": "function chatKey(threadId: string): string {\n  return `eve-web-chat:${threadId}`;\n}\n\ntype ComposerFocus = { threadId: string; start: number; end: number; direction: \"forward\" | \"backward\" | \"none\" };\n\ninterface SavedChat {\n  workSelection?: ChatWorkSelection;\n"
+    },
+    {
+      "from": "  const [pendingDraft, setPendingDraft] = useState<{ threadId: string; text: string } | null>(\n    null,\n  );\n  // Threads with a turn still running, so background threads get a dot.\n  const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());\n  const [conflictedThreadIds, setConflictedThreadIds] = useState<ReadonlySet<string>>(() => new Set());\n",
+      "to": "  const [pendingDraft, setPendingDraft] = useState<{ threadId: string; text: string } | null>(\n    null,\n  );\n  // A server refresh remounts ChatThread. Retain focus only for its active composer.\n  const focusedComposerThread = useRef<ComposerFocus | null>(null);\n  useLayoutEffect(() => () => { focusedComposerThread.current = null; }, [index.activeId]);\n  useEffect(() => {\n    const clearOtherFocus = (event: FocusEvent) => {\n      if (!(event.target instanceof HTMLElement) || !event.target.hasAttribute(\"data-thread-composer\")) {\n        focusedComposerThread.current = null;\n      }\n    };\n    document.addEventListener(\"focusin\", clearOtherFocus);\n    return () => document.removeEventListener(\"focusin\", clearOtherFocus);\n  }, []);\n  // Threads with a turn still running, so background threads get a dot.\n  const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());\n  const [conflictedThreadIds, setConflictedThreadIds] = useState<ReadonlySet<string>>(() => new Set());\n"
+    },
+    {
+      "from": "            pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined\n          }\n          onDraftChange={text => setPendingDraft({threadId:index.activeId,text})}\n          onTitle={(title) => setThreadTitle(index.activeId, title)}\n          onActivity={(title) => touchThread(index.activeId, title)}\n          onPersist={(chat) => persistChat(index.activeId, chat)}\n",
+      "to": "            pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined\n          }\n          onDraftChange={text => setPendingDraft({threadId:index.activeId,text})}\n          composerFocus={focusedComposerThread}\n          onComposerFocus={element => { focusedComposerThread.current = element ? { threadId: index.activeId, start: element.selectionStart, end: element.selectionEnd, direction: element.selectionDirection } : null; }}\n          onTitle={(title) => setThreadTitle(index.activeId, title)}\n          onActivity={(title) => touchThread(index.activeId, title)}\n          onPersist={(chat) => persistChat(index.activeId, chat)}\n"
+    },
+    {
+      "from": "  initialChat: savedInitialChat,\n  initialDraft,\n  onDraftChange,\n  onTitle,\n  onActivity,\n  onPersist,\n",
+      "to": "  initialChat: savedInitialChat,\n  initialDraft,\n  onDraftChange,\n  composerFocus,\n  onComposerFocus,\n  onTitle,\n  onActivity,\n  onPersist,\n"
+    },
+    {
+      "from": "  /** Composer prefill, used when a fork was started from an edit. */\n  initialDraft?: string;\n  onDraftChange: (text:string) => void;\n  onTitle: (title: string) => void;\n  onActivity: (title?: string) => void;\n  onPersist: (chat: SavedChat) => void;\n",
+      "to": "  /** Composer prefill, used when a fork was started from an edit. */\n  initialDraft?: string;\n  onDraftChange: (text:string) => void;\n  composerFocus: { current: ComposerFocus | null };\n  onComposerFocus: (element: HTMLTextAreaElement | null) => void;\n  onTitle: (title: string) => void;\n  onActivity: (title?: string) => void;\n  onPersist: (chat: SavedChat) => void;\n"
+    },
+    {
+      "from": "    draftRef.current=value;setDraftState(value);onDraftChange(value);\n  }\n  const composerRef = useRef<HTMLTextAreaElement>(null);\n  // One-turn transcript context for threads forked from a message: eve\n  // sessions are append-only, so the fork starts a fresh session and this\n  // rides along on its first send only.\n",
+      "to": "    draftRef.current=value;setDraftState(value);onDraftChange(value);\n  }\n  const composerRef = useRef<HTMLTextAreaElement>(null);\n  useLayoutEffect(() => {\n    const savedFocus = composerFocus.current, composer = composerRef.current;\n    if (composerReady && composer && savedFocus?.threadId === threadId) {\n      composer.focus({ preventScroll: true });\n      composer.setSelectionRange(savedFocus.start, savedFocus.end, savedFocus.direction);\n    }\n  }, [composerReady, composerFocus, threadId]);\n  // One-turn transcript context for threads forked from a message: eve\n  // sessions are append-only, so the fork starts a fresh session and this\n  // rides along on its first send only.\n"
+    },
+    {
+      "from": "              value={draft}\n              aria-label={`Message ${activeLabel}`}\n              placeholder={`Message ${activeLabel}... (/ for commands)`}\n              autoResize\n              minRows={1}\n              maxRows={7}\n              className=\"w-full rounded-none bg-transparent px-1 text-sm ring-0 focus:ring-0\"\n              onChange={(event) => {\n                setDraft(event.target.value);\n                setPaletteDismissed(false);\n              }}\n",
+      "to": "              value={draft}\n              aria-label={`Message ${activeLabel}`}\n              placeholder={`Message ${activeLabel}... (/ for commands)`}\n              data-thread-composer={threadId}\n              onFocus={event => onComposerFocus(event.currentTarget)}\n              onSelect={event => onComposerFocus(event.currentTarget)}\n              onBlur={() => onComposerFocus(null)}\n              autoResize\n              minRows={1}\n              maxRows={7}\n              className=\"w-full rounded-none bg-transparent px-1 text-sm ring-0 focus:ring-0\"\n              onChange={(event) => {\n                onComposerFocus(event.currentTarget);\n                setDraft(event.target.value);\n                setPaletteDismissed(false);\n              }}\n"
+    }
+  ],
+  "files": {
+    "apps/eve/test/owner-ux/composer-refresh.spec.cjs": {
+      "composedSha256": null,
+      "sourceSha256": "d978a3b2fae143b5c32cd3a12a661c3802951806840044f5a5a45264edae4352"
+    },
+    "docs/qualification/composer-refresh.md": {
+      "composedSha256": null,
+      "sourceSha256": "e83eab62eb9ea088910f3daf8370c7c46310f711716dedc422e18e0f8b70ade7"
+    }
+  }
+}
