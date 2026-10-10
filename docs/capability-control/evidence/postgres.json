@@ -1,0 +1,30 @@
+{
+  "passed": 22,
+  "checks": [
+    "migration rollback leaves no schema",
+    "synthetic platform defaults enable all 36 preferences without execution",
+    "organization reassignment invalidates an existing platform binding",
+    "ordinary owner enterprise default is disabled",
+    "16 concurrent duplicate commands commit one change and one audit event",
+    "changed payload and stale revision fail with conflict",
+    "Settings and Sofie share state; MissionControl changes preserve MyFactory and Native",
+    "owner and installation isolate identical request IDs",
+    "concurrent distinct commands at one revision have one winner",
+    "budget changes persist without spending or grants",
+    "pause and revoke stay pending and cannot be cleared by enable",
+    "application role cannot forge platform bindings or policy evidence",
+    "database RLS denies unscoped reads and cross-owner writes",
+    "audit and idempotency history are immutable even to administrative DML",
+    "expired and revoked bindings remove platform defaults",
+    "Relay administrator denial and expired evidence remain unavailable",
+    "preferences and audit survive new pool connections",
+    "HTTP identity requires a valid signature on localhost and enforces origin",
+    "production and unconfigured environments fail closed",
+    "Sofie rejects guests, subagents, role-pack agents, and unknown owners",
+    "registered Sofie handlers share durable state and always require mutation approval",
+    "preserved MissionControl package matches every pinned file hash"
+  ],
+  "realOwnerBinding": "NOT_QUALIFIED",
+  "paidOperations": 0,
+  "productionIntegration": "NOT_RUN"
+}

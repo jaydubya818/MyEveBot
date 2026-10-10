@@ -1,0 +1,18 @@
+{
+  "passed": 10,
+  "checks": [
+    "all 36 synthetic platform defaults and seven categories disclose unavailable readiness",
+    "disable persists through reload and preserves MyFactory and Sofie Native",
+    "re-enable persists through canonical command",
+    "lost response retry commits once and retains one audit event",
+    "budget and pause controls save while disclosing pending backend acknowledgement",
+    "real HTTP route refuses unsigned, cross-origin, malformed and oversized commands",
+    "capability panel passes automated WCAG 2 A/AA and 2.1 AA checks",
+    "MissionControl card renders identical pixels after reload",
+    "keyboard refresh and mobile viewport avoid horizontal overflow",
+    "storage outage is disclosed and refresh recovers without discarding preferences"
+  ],
+  "realOwnerGoldenJourney": "NOT_QUALIFIED",
+  "visualRegression": "REPEAT_RENDER_PASS; APPROVED_BASELINE_PENDING",
+  "paidOperations": 0
+}

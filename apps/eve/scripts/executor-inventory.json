@@ -2012,8 +2012,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed.",
-      "sha256": "d37e595d2f9a89f2828e7f8ff6999b3101d2eb4c39bc17ad442bfae234542d16"
+      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Owner capability tools declare read and always-approved preference mutation only; no execution authority.",
+      "sha256": "f55e125e4849bc8a0abeb746a690e5e46cd81517908d2a8dba6ae56a703ab7ed"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -4058,6 +4058,41 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained data reads. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
       "sha256": "c542acbb56c2781a1886d653445071e59a32091a3c93e0902e0ed86a03d2b780"
+    },
+    "agent/tools/change_capability.ts": {
+      "classification": "ENFORCED",
+      "reason": "Isolated owner-preference mutation only. Eve always-approval; direct configured authenticated owner guard; no subagents; canonical revision/idempotency transaction. No provider execution or authority issuance. Qualification: scripts/qualify-capability-control.mjs and qualify-capability-browser.mjs; independent review pending.",
+      "sha256": "386c072d807ac2b34ddc9076c57b7c26c9a539f25474384bbb598fd4b5da71bc"
+    },
+    "agent/tools/show_capabilities.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Direct authenticated owner inspection only; subagents excluded. Canonical scoped store exposes explicit unavailable backend integration; no execution grants. Qualification: scripts/qualify-capability-control.mjs.",
+      "sha256": "28d7c5b38fc6b83081d462beb4eb4eb87a22621b2fb19f1b5e756b4fe27f5db1"
+    },
+    "lib/capability-control/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Strict owner-preference command and receipt schemas; no executable effects.",
+      "sha256": "85bcfde22703addd40d18f313f12e7fc6ae7209f477df40a921f7bc23a88a09b"
+    },
+    "lib/capability-control/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. No production deployment or execution. Qualification: scripts/qualify-capability-control.mjs.",
+      "sha256": "88a8bb57949c3e371b9de3031e1eb2dc0ff30371bd202f74f9cb47b2972e901d"
+    },
+    "lib/capability-control/sofie.ts": {
+      "classification": "ENFORCED",
+      "reason": "Direct owner guard excludes delegated, guest and role-pack callers. Canonical scoped preferences only; tool mutation separately requires always-approval. Qualification: scripts/qualify-capability-control.mjs.",
+      "sha256": "9207a60ea344ae4b9f763470d9292229b2b97c41bf45f60fe9cd3070de8cd9bf"
+    },
+    "lib/capability-control/store.ts": {
+      "classification": "ENFORCED",
+      "reason": "Restricted database role, owner/installation RLS, revision lock, idempotency receipt and immutable audit. Cannot forge identity or availability evidence. Controls remain PENDING_BACKEND and admissionEligible false. Real PostgreSQL concurrency/isolation/revocation qualification: scripts/qualify-capability-control.mjs. Independent security review pending.",
+      "sha256": "67edaf77bb479edcbd00945420ad036cb4d289bb17041bbeed86d92c38b9ebe8"
+    },
+    "app/api/capability-control/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Signed owner principal and same-origin mutation through bounded strict commands. No body-selected owner. Uses canonical scoped store; no execution authority. Real HTTP browser checks in scripts/qualify-capability-browser.mjs.",
+      "sha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236"
     }
   }
 }
