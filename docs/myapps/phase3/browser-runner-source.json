@@ -3,7 +3,7 @@
   "source": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
   "path": "apps/eve/test/owner-journey/runner-prod.ts",
   "beforeSha256": "80dfab1ecedfcc6f11434cb59998ccd5a00e8bd3405ae83ed063caf705f9c7a5",
-  "afterSha256": "bed0dad1b8a6fec34b7873372dab58225d2feafbd468c95a329a60e9f669dd9f",
+  "afterSha256": "bec2aca119165484fab742e1537b436a2f702dcecb820c44142c03983d18e6e4",
   "hunks": [
     {
       "from": "import {createServer} from 'node:http';",
@@ -17,9 +17,42 @@
       "from": "join(root,'node_modules/next/dist/bin/next')",
       "to": "nextCli",
       "occurrences": 2
+    },
+    {
+      "from": "import {createRequire} from 'node:module';",
+      "to": "import {createRequire} from 'node:module';\nimport {runOwnedBrowserFixture} from '../../../../scripts/myapps-composition/owned-browser-fixture.mjs';"
+    },
+    {
+      "from": "const e=await Env.create();\n",
+      "to": "const e=await Env.create();\nawait runOwnedBrowserFixture(()=>e.close(),async owned=>{\n"
+    },
+    {
+      "from": "const fixture=createServer(",
+      "to": "const fixture=owned.server(createServer("
+    },
+    {
+      "from": "});\nawait new Promise<void>(r=>fixture.listen(3184,'127.0.0.1',r));",
+      "to": "}));\nawait new Promise<void>((r,reject)=>{fixture.once('error',reject);fixture.listen(3184,'127.0.0.1',r);});"
+    },
+    {
+      "from": "const eve=spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'});",
+      "to": "owned.child(spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'}));"
+    },
+    {
+      "from": "const next=spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'});",
+      "to": "owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'}));"
+    },
+    {
+      "from": "let closing=false;\nasync function stop(){if(closing)return;closing=true;next.kill('SIGTERM');eve.kill('SIGTERM');fixture.close();await e.close();}\nprocess.on('SIGTERM',()=>void stop());process.on('SIGINT',()=>void stop());",
+      "to": "});"
     }
   ],
   "scope": "QUALIFICATION_HARNESS_ONLY",
   "production": "NOT_RUN",
-  "assertions": "UNCHANGED"
+  "assertions": "UNCHANGED",
+  "cleanup": {
+    "helper": "scripts/myapps-composition/owned-browser-fixture.mjs",
+    "sha256": "b873c207448a7162d78feafec02cb9c78f6562769152c19a9c60aae563db07af",
+    "scope": "Only registered child/server handles and existing generated Env.close; original failure rethrown"
+  }
 }

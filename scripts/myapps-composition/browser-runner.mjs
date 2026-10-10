@@ -8,6 +8,7 @@ const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 export function applyBrowserRunnerPackaging({source,read,readComposed,put}){
  const m=reviewedBrowserRunner;
  assert.equal(source,m.source,'Unreviewed browser runner source');
+ assert.equal(hash(readComposed(m.cleanup.helper)),m.cleanup.sha256,'Changed browser cleanup helper');
  const before=readComposed(m.path);
  for(const bytes of [read(source,m.path),before])assert.equal(hash(bytes),m.beforeSha256,'Changed browser runner preimage');
  let after=before;

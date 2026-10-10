@@ -190,6 +190,11 @@ jobs:
         run: |
           node packages/myapps/browser/journey.mjs
           node packages/myapps/browser/performance.mjs
+      - name: Browser fixture startup failure and owned cleanup regressions
+        working-directory: /tmp/myapps-composition/myeve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+        run: node --import tsx --test scripts/myapps-composition/browser-cleanup.postgres.mjs
       - name: Composed composer refresh and unchanged E2 browser journey
         working-directory: /tmp/myapps-composition/myeve/apps/eve
         env:
