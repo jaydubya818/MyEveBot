@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
+import {applyGovernanceOverlay} from './governance-overlay.mjs';
 const [eve, factory, output] = process.argv.slice(2).map(p => resolve(p));
 assert(eve && factory && output, 'Usage: materialize.mjs MYEVE_SOURCE MYFACTORY_SOURCE ABSENT_OUTPUT');
 assert(!existsSync(output), 'Output must not exist; no checkout may be overwritten');
@@ -92,6 +93,19 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       // inventory from arbitrary source. Unrelated canonical records stay intact.
       const inventoryPath='apps/eve/scripts/executor-inventory.json';
       const inventory=JSON.parse(show(repo,integration,inventoryPath));
+      const governance=applyGovernanceOverlay({
+        integration,source:pins.myeve.governance,inventory,put,
+        read:(sha,path)=>{
+          const result=spawnSync('git',['-C',repo,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
+          if(result.status!==0){
+            assert.equal(result.status,128,`Unable to inspect governance source: ${path}`);
+            assert(result.stderr.includes('does not exist in'),result.stderr);
+            return null;
+          }
+          return result.stdout;
+        },
+      });
+      evidence.governance=governance;
       const preparationInventory=JSON.parse(show(repo,head,inventoryPath));
       const newSources=['agent/tools/installed_apps.ts','lib/myapps/api.ts','lib/myapps/hosting.ts','lib/myapps/runtime.ts','lib/myapps/workflow.ts','app/api/myapps/[...path]/route.ts'];
       const transformedSources=['lib/database-schema.ts','lib/beta-integration/runtime.ts','lib/capability-registry.ts'];

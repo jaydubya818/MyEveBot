@@ -43,13 +43,20 @@ jobs:
         with:
           node-version: 24
       - name: Materialize pinned offline source rehearsal
-        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-composition
+        run: |
+          node --test scripts/myapps-composition/*.test.mjs
+          node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-composition
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: /tmp/myapps-composition/myeve
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: /tmp/myapps-composition/myfactory
       - run: node node_modules/playwright/cli.js install --with-deps chromium
         working-directory: /tmp/myapps-composition/myeve
+      - name: Canonical governance, types and Proof context regressions
+        working-directory: /tmp/myapps-composition/myeve
+        run: |
+          npm run typecheck --workspace apps/eve
+          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/bounded-context.test.ts apps/eve/lib/external-alpha/qe-014-context-limitations.test.ts apps/eve/lib/external-alpha/context.test.ts apps/eve/agent/lib/context-assembly.test.ts apps/eve/lib/private-owner-boundary.test.ts
       - name: Exact composed FactoryVersion identity receipt
         working-directory: /tmp/myapps-composition/myfactory
         run: |
