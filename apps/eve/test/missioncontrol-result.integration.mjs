@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {readFile,readdir} from 'node:fs/promises';
+import {readFile,readdir,writeFile,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {Pool} from 'pg';
@@ -16,7 +16,7 @@ export async function prepareCompletedResultConsumer(db) {
   const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS result '+name);};
   const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
   let pool,container=false;
-  async function stop(){neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
+  async function stop(){if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
   try {
     execFileSync('docker',['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
     pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'postgres',max:8});
@@ -36,6 +36,13 @@ export async function prepareCompletedResultConsumer(db) {
     db.setEnvironment('MC_SOFIE_APPLICATION_OWNER_ID',s.operatorId);db.setEnvironment('MC_SOFIE_APPLICATION_KEY_ID','result-fixture-1');
     await pool.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,risk_ceiling,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES($1,$2,'sofie','Sofie','Primary','Synthetic Result consumer',true,'active','high',100,3600,1)",[agent,owner]);
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
+      // Warm with a real draft-only connection. It cannot read Result evidence.
+      const pending=await db.owner.mutation('sofieEnterprise:connect',{projectId:s.projectId,ownerMemberId:s.memberId,owningTeamId:s.teamId,expiresAt:Date.now()+600000},{skipQueue:true});
+      Object.assign(process.env,{MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT}`,MYEVE_MISSIONCONTROL_SECRET:secret,
+        MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:pending.connectionId});
+    }
+    process.env.EVE_ENABLED_FEATURES='missioncontrol-readiness';
+    if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
       const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
       await warmSofieBrowser({source:sourceRoot,owner});
     }
@@ -49,6 +56,7 @@ export async function prepareCompletedResultConsumer(db) {
     Object.assign(process.env,{EVE_ENABLED_FEATURES:'missioncontrol-readiness',MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
       MYEVE_MISSIONCONTROL_SECRET:secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,
       MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:connection.connectionId});
+    if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') await writeFile(new URL('../../../runtime-browser-config.json',import.meta.url),JSON.stringify(Object.fromEntries(Object.entries(process.env).filter(([key])=>key.startsWith('MYEVE_MISSIONCONTROL_')))),{mode:0o600});
     const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
     const context=()=>({callId:randomUUID(),session:{id:'synthetic-result-session',auth:{current:principal,initiator:principal}}});
     const input={operation:'enterprise.result',missionId,expectedPlanDigest:connection.resultScope.planDigest},config=enterpriseConfig();

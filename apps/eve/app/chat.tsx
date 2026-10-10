@@ -2329,6 +2329,7 @@ function ChatThread({
     if (isBusy || text.length === 0 || preparingSend.current) return;
     preparingSend.current = true;
     setSavingConversation(true);
+    setUploadError(null);
     try { await onPrepareSend(); }
     catch {
       setUploadError("Your conversation could not be saved. Try again when it is available.");

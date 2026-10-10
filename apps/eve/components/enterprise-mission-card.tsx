@@ -42,6 +42,7 @@ export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unk
       <h3 className="font-semibold">{s.mission.title}</h3><p>Observed status: {s.mission.state}</p>
       <p>{s.plan ? `Plan revision ${s.plan.revision}: ${s.plan.status}` : "A Plan has not been prepared yet."}</p>
       {s.needsYou && <p><strong>Needs You:</strong> {s.needsYou}</p>}
+      {s.workOrders.length === 0 && <p>No WorkOrders have been created yet.</p>}
       <ul className="space-y-2">{s.workOrders.map(w => <li key={w.id}><strong>{w.title}</strong>: {w.state}{w.blockingIssue && <p>{w.blockingIssue}</p>}</li>)}</ul>
       {s.blockers.map(b => <p key={b}>{b}</p>)}{s.truncated && <p>Some work is omitted from this bounded view.</p>}
       <p>Recorded observation. Refresh to check current status.</p>
