@@ -2012,8 +2012,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed.",
-      "sha256": "d37e595d2f9a89f2828e7f8ff6999b3101d2eb4c39bc17ad442bfae234542d16"
+      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Reviewed MyApps canonical packaging 2026-10-10: Declarative ownership metadata only; MyApps resolves disabled/unconfigured unconditionally. No capability assignment, activation or execution grant.",
+      "sha256": "2d34c928fb62cf6702a8705216683a3051394c39e516c99a67fe2bb9b3d9c9bd"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Three-owner rollout: latest migration 0084; configured alpha requires 0084, existing durable-session installations retain 0083 until explicit installation.",
-      "sha256": "2f2c1a92d211ef3592348361b626f3524a9230415898ccc28f5a3cb5ad06e525"
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Three-owner rollout: latest migration 0084; configured alpha requires 0084, existing durable-session installations retain 0083 until explicit installation. Reviewed MyApps canonical packaging 2026-10-10: Latest source catalog includes additive MyApps migration 0085; configured installations retain existing 0084/0083/0082 requirements. Declaration performs no migration or activation.",
+      "sha256": "f73eaed62b33a3aab8d5cc67cc446347bbcd050e38a0c8240b1431a7c11f967a"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3204,8 +3204,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "152979e1078c6185e60cd032fd37f4eea6b689575900a0f81b93ad7411f1b03a"
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed MyApps canonical packaging 2026-10-10: Retained owner inbox response optionally enters the local-only MyApps consumer, which rechecks canonical approval/Work bindings; other existing consumers and production restrictions remain.",
+      "sha256": "d28b8ee4fd0bf653142cd8e31cc508e87390253d2109cea2249ffdc73833e991"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -4058,6 +4058,36 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained data reads. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
       "sha256": "c542acbb56c2781a1886d653445071e59a32091a3c93e0902e0ed86a03d2b780"
+    },
+    "agent/tools/installed_apps.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Explicit local-only host and authenticated owner gates; rechecks caller identity, denies guests/roles/subagents, removes installation permission, and delegates only canonical CRM operations.",
+      "sha256": "ef0080435ee79bd3fa923ede14274e4aacc6616ed370f14f50779c516795ca53"
+    },
+    "lib/myapps/api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Trusted host enablement, authenticated owner-bound policy, same-origin POST, bounded strict inputs and operation allowlists; installation requires human permission and exact retained approval.",
+      "sha256": "312f5e2c812056624fc9000d9d88edbecfeb4e0461c05cb0bfb000b940358970"
+    },
+    "lib/myapps/hosting.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Denies production/Vercel/missing opt-in; explicit trusted binding only. Authenticated owner-scoped asset/API access with private headers; retained inbox responses re-enter canonical installation checks.",
+      "sha256": "7dee504b1bb46e7d92fb5719a70fe1546b24601d0b2e224bc8255eadd258d8eb"
+    },
+    "lib/myapps/runtime.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Host/operation checks, owner-scoped serialized transactions, exact active Work/admission binding, authenticated Result/cleanup verification, immutable candidates and exact human installation approval; no general provider/publication authority.",
+      "sha256": "fe0b0d877529334f14b86c272e151bbf0c7aab50ce0eb12aa79c98d625f740e9"
+    },
+    "lib/myapps/workflow.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Coordinates trusted canonical Work preparation, injected Factory build/verification, Result retention and preview; no direct installation, publication or deployment. Relies on canonical runtime and Factory authorization checks.",
+      "sha256": "ac0a6da7bb90fa2a37d47d947f8da9c764ec0ff7f6f567fc4b56beb506e29ddd"
+    },
+    "app/api/myapps/[...path]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Thin GET/POST adapter delegating exclusively to the existing local-only authenticated hosting boundary; introduces no alternate authority path.",
+      "sha256": "079d7c1dbd730fe0a8ad2c10f734582705c3f706eabdfec3094881ceae6fcfe9"
     }
   }
 }

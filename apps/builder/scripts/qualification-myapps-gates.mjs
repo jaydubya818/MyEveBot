@@ -6,6 +6,7 @@ const root = process.argv[2];
 assert.ok(root && path.isAbsolute(root));
 const load = (file) => import(pathToFileURL(path.join(root, file)).href);
 const { localAppsAllowed, bindLocalApps, handleInstalledApps } = await load('lib/myapps/hosting.ts');
+const { getCapability, getAvailableCapabilities } = await load('lib/capability-registry.ts');
 const { default: dynamic } = await load('agent/tools/installed_apps.ts');
 const owner = { principalType:'user', principalId:'owner-a', attributes:{owner:'true'} };
 const context = (current, parent) => ({session:{id:'offline',auth:{current},parent}});
@@ -17,6 +18,8 @@ for (const env of [
 ]) {
   Object.assign(process.env, env);
   assert.equal(localAppsAllowed(),false);
+  assert.equal(getCapability("tool.installed_apps").availability.status,"disabled");
+  assert.ok(!getAvailableCapabilities().some((entry)=>entry.id==="tool.installed_apps"));
   assert.throws(()=>bindLocalApps({}), /APP_PRODUCTION_DISABLED/);
   assert.equal(await dynamic.events['step.started']({}, context(owner)),null);
   for (const asset of ['ui','app.js','app.css']) {

@@ -110,6 +110,7 @@ jobs:
           node-version: 24
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm test --workspace apps/builder
+      - run: npm run test --workspace apps/eve -- lib/myapps-packaging.test.ts
       - run: npm run typecheck --workspace apps/builder
       - run: npm run build --workspace apps/builder
       - name: Export canonical source without deployment

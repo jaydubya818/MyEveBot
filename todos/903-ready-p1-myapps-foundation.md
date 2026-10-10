@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "001"
+issue_id: "903"
 tags: [myapps, foundation]
 dependencies: []
 ---
@@ -43,3 +43,7 @@ Complete checkpoints A–I in existing repositories, then propose a separate pro
 2026-10-08: fresh canonical clones in isolated branches. Initial contracts, SQLite
 reference registry, typed CRM and nine tests pass, including separate-connection
 concurrency. Production and external alpha untouched. Skills remain read-only.
+
+2026-10-10: assigned unique work-order ID 903 after general CI detected an inherited
+collision with the completed Sofie operations-hub ID 001. Scope, status and
+acceptance criteria are unchanged; all MyApps release holds remain in force.

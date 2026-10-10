@@ -444,6 +444,8 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("bash", { description: "Run a bounded read-only diagnostic command in the active Agent computer sandbox.", permissions: ["terminal.execute"], risk: "medium", riskCategories: ["code-execution", "sandbox-data"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["terminal.execute"], keywords: ["terminal", "diagnostic", "command"] }),
   tool("read_file", { description: "Read a file from the active Agent computer workspace.", permissions: ["files.read"], configuration: ["DATABASE_URL"], dependencies: ["files.read"], keywords: ["file", "read", "workspace"] }),
   tool("write_file", { description: "Write a bounded file in the active Agent computer workspace.", permissions: ["files.write"], risk: "medium", riskCategories: ["sandbox-data"], configuration: ["DATABASE_URL"], dependencies: ["files.write"], keywords: ["file", "write", "workspace"] }),
+  // Source inventory only: trusted local composition owns MyApps activation.
+  tool("installed_apps", { description: "Read or update the current owner's locally installed CRM through its canonical runtime. No installation, publication, deployment, Skills or Work authority.", permissions: ["apps.query", "apps.command"], risk: "medium", riskCategories: ["durable-data"], approval: "owner_policy", keywords: ["apps", "crm", "local"] }),
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
   tool("engineering_factory", { description: FACTORY_START_PROPOSAL_CONTRACT, permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG or MYEVE_FACTORY_WORKER_ENABLED"], keywords: ["engineering", "factory", "work", "recovery"] }),
   tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
@@ -574,6 +576,11 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  // Packaging does not make the local-only adapter generally discoverable or
+  // grant activation. Its existing owner/local binding gates remain canonical.
+  if (definition.id === "tool.installed_apps") {
+    return { status: "disabled", configured: false, reason: "MyApps requires separately authorized trusted local composition." };
+  }
   // Discovery is gated; execution retains the canonical owner, Work and provider fences.
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
       (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {
