@@ -26,8 +26,9 @@ import { productivePricingFixture, bindProductivePricingFixture } from "../../te
 const root = process.env.MYFACTORY_SOURCE_ROOT;
 const enabled = !!connection && !!root && process.env.MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE === "1";
 const privateCustodyAvailable = !!process.env.FACTORY_VERIFIER_CUSTODY_DIR;
+const capabilities: { cleanup: () => Promise<void> }[] = [];
 const environments: Env[] = [], transports: ProductiveSandboxFixture[] = [], dockerApis: any[] = [];
-afterEach(async () => { await Promise.all(dockerApis.splice(0).map(api => api.cleanup())); await Promise.all(transports.splice(0).map(t => t.close())); await Promise.all(environments.splice(0).map(e => e.close())); });
+afterEach(async () => { await Promise.all(dockerApis.splice(0).map(api => api.cleanup())); await Promise.all(transports.splice(0).map(t => t.close())); for (const capability of capabilities.splice(0)) await capability.cleanup(); await Promise.all(environments.splice(0).map(e => e.close())); });
 const imported = (path: string): Promise<any> => import(/* @vite-ignore */ pathToFileURL(join(root!, path)).href);
 // Diagnosis reports only controlled status, stages and counts, never envelope,
 // source, identity, Result/Proof, private custody or provider exception content.
@@ -73,8 +74,19 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   await central.pool.query("INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)VALUES($1,'1',$2,$3,encode(sha256(convert_to($4,'UTF8')),'hex'))", [a.policy.cohortId, a.owner, digest(a.policy), accountingToken]);
   a.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, accountingToken);
   const factoryDb = await Env.create(false, {}, false); environments.push(factoryDb);
-  await factoryDb.pool.query("CREATE SCHEMA factory");
-  for (const name of ["002-canonical-execution-ledger", "004-canonical-dispatch", "005-cloud-custody", "006-cloud-verification", "009-paid-operation-release", "011-external-alpha-work-authority"]) await factoryDb.pool.query(await readFile(join(root!, "apps/cloud-control/migrations/" + name + ".sql"), "utf8"));
+  // Reuse canonical synthetic capability provisioning beside this owned Factory
+  // schema. Runtime transactions use its restricted role; Env retains cleanup authority.
+  const factorySchema = "productive_factory_" + randomUUID().replaceAll("-", "");
+  await factoryDb.pool.query("CREATE SCHEMA " + factorySchema);
+  const rewriteFactory = (sql: string) => sql.replace(/(?<!')\bfactory\./g, factorySchema + ".").replace(/IN SCHEMA factory\b/g, "IN SCHEMA " + factorySchema);
+  const factoryPool = {
+    query: (sql: string, args?: unknown[]) => factoryDb.pool.query(rewriteFactory(sql), args),
+    connect: async () => {
+      const client = await factoryDb.pool.connect();
+      return { query: (sql: string, args?: unknown[]) => client.query(rewriteFactory(sql), args), release: () => client.release() };
+    },
+  };
+  for (const name of ["002-canonical-execution-ledger", "004-canonical-dispatch", "005-cloud-custody", "006-cloud-verification", "009-paid-operation-release", "011-external-alpha-work-authority"]) await factoryPool.query(await readFile(join(root!, "apps/cloud-control/migrations/" + name + ".sql"), "utf8"));
   const token = "generic-factory-test-token-only", claims = { project_id: a.policy.projectId, owner_id: "team_Fixture1", environment: "production", iss: "https://oidc.vercel.com/fixture-team", aud: "https://vercel.com/fixture-team", sub: "owner:fixture-team:project:fixture:environment:production", exp: Math.floor(Date.now() / 1000) + 600 };
   const oidc = "fixture." + Buffer.from(JSON.stringify(claims)).toString("base64url") + ".fixture";
   const installationConfig = { ...initial, factoryVersion, cohortId: a.policy.cohortId, slot: "1", ownerId: a.owner, policySha256: digest(a.policy), application: { clientId: a.policy.clientId, projectId: a.policy.projectId },
@@ -89,7 +101,10 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const docker = m.docker.protectedDockerSandboxApi(); dockerApis.push(docker);
   const queued: any[] = [], queue = { send: async (topic: string, payload: any) => { queued.push({ topic, payload }); if (kind === "QUEUE_UNKNOWN" && topic === m.delivery.externalAlphaWorkTopic) throw Error("ACK_LOST"); return { messageId: "fixture-message-" + queued.length }; } };
   let corruptSource = false;
-  const deps = { pool: factoryDb.pool, installation, queue, signing, sourceDigest, deploymentId: "dpl_fixture", registry: { "slot-1": entry }, snapshots: { "slot-1": { repository: initial.source.repository, commit, tree, path: `factory/private-source/slot-1/${snapshot.sha256}.json`, bytes: snapshot.bytes.length, sha256: snapshot.sha256 } }, sourceCustody: { read: async () => ({ bytes: corruptSource ? Buffer.from(snapshot.bytes.toString().replace("Alpha Tasks", "Other Tasks")) : Buffer.from(snapshot.bytes), sha256: snapshot.sha256 }) }, signReceipt: m.authority.receiptSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })), signReadback: m.readback.readbackSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })),
+  const { capabilityPolicyFixture } = await imported("apps/cloud-control/test/fixtures/capability-policy.mjs");
+  const capability = await capabilityPolicyFixture(factoryDb.pool, factorySchema, factoryPool, { [installation.application.clientId]: installation.ownerId });
+  capabilities.push(capability);
+  const deps = { pool: capability.pool, capabilityBindings: capability.bindings, installation, queue, signing, sourceDigest, deploymentId: "dpl_fixture", registry: { "slot-1": entry }, snapshots: { "slot-1": { repository: initial.source.repository, commit, tree, path: `factory/private-source/slot-1/${snapshot.sha256}.json`, bytes: snapshot.bytes.length, sha256: snapshot.sha256 } }, sourceCustody: { read: async () => ({ bytes: corruptSource ? Buffer.from(snapshot.bytes.toString().replace("Alpha Tasks", "Other Tasks")) : Buffer.from(snapshot.bytes), sha256: snapshot.sha256 }) }, signReceipt: m.authority.receiptSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })), signReadback: m.readback.readbackSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })),
     providerFactory: ({ spend, plan, privateSource }: any) => m.provider.cloudWorkProvider({ ledger: spend, plan, privateSource, custodyPrefix: "factory/production", sandboxApi: transport.api, blobPut: transport.blobPut, blobGet: transport.blobGet, modelProviderForRow: transport.modelProvider }),
     hostInstallation: { projectId: "prj_fixtureVerifier" }, verifierProfile: { id: "alpha-tasks-node-json-v1", kind: "PRODUCT", tree }, verification: { deps: { ...(kind === "NO_CUSTODY" ? { loadHidden: async () => { throw Error("VERIFIER_CUSTODY_UNAVAILABLE"); } } : {}), sandboxApi: docker, providerOptions: async () => ({ projectId: "prj_fixtureVerifier" }) } } };
   const makeRuntime = () => bindProductivePricingFixture(m.runtime.externalAlphaRuntimeComponents(deps), productionSpendPlan, pricing);
@@ -108,7 +123,7 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
   const start = () => externalAlphaFactoryAction(a.store, work.id, input, { sessionId: "fixture-owner-session", callId: randomUUID() }, actions);
   const deliver = (payload = queued.find(q => q.topic === m.delivery.externalAlphaWorkTopic)?.payload) => m.delivery.consumeExternalAlphaDelivery(factoryEnv, payload, { topicName: m.delivery.externalAlphaWorkTopic, region: "iad1", messageId: "fixture-message-1" }, false, { withRuntime: async (_e: any, _i: any, action: any) => action(runtime) });
-  return { a, central, factoryDb, m, transport, config, work, paused, input, actions, client, controller, start, deliver, queued, faults, corruptSource: () => { corruptSource = true; }, restart: () => { runtime = makeRuntime(); }, runtime: () => runtime, reads: () => httpReads, posts: () => httpPosts };
+  return { a, central, factoryDb: { pool: factoryPool }, m, transport, config, work, paused, input, actions, client, controller, start, deliver, queued, faults, corruptSource: () => { corruptSource = true; }, restart: () => { runtime = makeRuntime(); }, runtime: () => runtime, reads: () => httpReads, posts: () => httpPosts };
 }
 
 describe.skipIf(!enabled)("actual canonical Sofie/Factory productive journey (offline transport qualification)", () => {

@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: e2610239c0a52ffa69ff4e341b0aa74dedb7606d
+          ref: 92299fbd88004cc1da9178d52664bd0a9cd28647
           path: .qualification/myfactory
           persist-credentials: false
       - uses: actions/checkout@v4
