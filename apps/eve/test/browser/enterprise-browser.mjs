@@ -77,7 +77,13 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
     } else {report.proposalVisible=true;assert.ok(actions.every(a=>a.provider_receipt.response.proposal?.title===input.proposal.title));}
     report.accessibility=await audit();await page.setViewportSize({width:390,height:844});await page.screenshot({path:join(output,'result-mobile.png'),fullPage:true});
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));report.checks.push('mobile-horizontal-reflow');
-    report.status=report.accessibility.violations.length||!(report.completedResultVisible||report.proposalVisible)?'PARTIAL':'PASS';
+    report.mobileAccessibility=await audit();
+    const ownerLink=page.getByRole('link',{name:'Review in MissionControl with owner login'}).last();
+    await page.getByRole('textbox',{name:'Message Sofie',exact:true}).focus();
+    let ownerLinkReached=false;
+    for(let n=0;n<80;n++) {await page.keyboard.press('Tab');if(await ownerLink.evaluate(link=>link===document.activeElement)){ownerLinkReached=true;break;}}
+    assert.ok(ownerLinkReached,'Owner review link must be reachable by keyboard without granting authority');report.checks.push('mobile-owner-handoff-keyboard-accessible');
+    report.status=report.accessibility.violations.length||report.mobileAccessibility.violations.length||!(report.completedResultVisible||report.proposalVisible)?'PARTIAL':'PASS';
   } catch(error){report.status='FAIL';report.error=String(error);if(state?.page){report.failureText=await state.page.locator('body').innerText().catch(()=>'');report.accessibility=await audit().catch(()=>({status:'NOT_RUN'}));await state.page.screenshot({path:join(output,'failure.png'),fullPage:true}).catch(()=>{});}}
   finally {report.sessionRequests=state?.posts??[];await close(state);await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');}
   return report;

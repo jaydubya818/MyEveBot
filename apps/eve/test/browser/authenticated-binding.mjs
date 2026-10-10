@@ -17,6 +17,10 @@ const app=join(source,'apps/eve');await copyFile(join(root,'apps/eve/test/browse
 const docker=process.env.MC_GOLDEN_DOCKER||'docker',name='checkpoint-h-'+randomUUID(),port=55539,webPort=3081,owner='checkpoint-h-owner';
 const report={schema:'checkpoint-h-binding/v1',source:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),sourceDirty:!!execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),sourceTreeDigest:createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),checks:[],status:'IN_PROGRESS',paidOperations:0,productionIntegration:'NOT_RUN',sourceCopy:source};
 let pool,server,browser,page,log,container=false;
+const audit=async()=>{
+ await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
+ return page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return {violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),passes:r.passes.length};});
+};
 try {
  execFileSync(docker,['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_DB=blocker_fixes','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
  pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'blocker_fixes'});
@@ -49,9 +53,16 @@ try {
  await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});
  await page.waitForTimeout(1500);
  await page.screenshot({path:join(output,'first-reply.png'),fullPage:true});
+ report.desktopAccessibility=await audit();assert.deepEqual(report.desktopAccessibility.violations,[],'Desktop conversation accessibility');
+ await page.setViewportSize({width:390,height:844});
  await page.reload();await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:45000});
  await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('fixture follow-up');await page.getByRole('button',{name:'Send',exact:true}).click();
  await page.waitForFunction(()=>document.body.innerText.split('Migration fixture reply.').length===3,{},{timeout:90000});assert.equal(report.sessionPosts.filter(p=>p==='/eve/v1/session').length,1);report.checks.push('same session follow-up after reconnect');
+ await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'Mobile conversation must reflow without horizontal scrolling');
+ report.mobileAccessibility=await audit();assert.deepEqual(report.mobileAccessibility.violations,[],'Mobile conversation accessibility');
+ await page.screenshot({path:join(output,'mobile-follow-up.png'),fullPage:true});report.checks.push('mobile same-session follow-up and accessible reflow');
+ await page.getByRole('button',{name:'Open threads',exact:true}).click();
  await page.getByRole('button',{name:'New conversation',exact:true}).click();await page.route('**/api/threads/*',async route=>{if(route.request().method()==='PUT')await route.fulfill({status:503,body:'Unavailable'});else await route.continue();});
  const before=report.sessionPosts.length;await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('retain this draft');await page.getByRole('button',{name:'Send',exact:true}).click();await page.getByRole('alert').filter({hasText:'conversation'}).waitFor();assert.equal(report.sessionPosts.length,before);assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue(),'retain this draft');report.checks.push('failed save retains draft and prevents execution');
  report.status='PASS';
