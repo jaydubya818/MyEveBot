@@ -15,11 +15,14 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.phase2,name));
  }
- for(const path of ['policy.ts','allowance.ts','shared-accounting.ts','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
+ for(const path of ['policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
-  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.ux,name));
+  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.integration,name));
  }
- expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled['codex/myapps-phase3-readiness']).toBe(false);
+ for(const branch of ['codex/myapps-phase3-readiness',pins.preparationBranch])
+  expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
+ expect(readFileSync('.gitignore','utf8')).toContain('/output/owner-ux/');
+ expect(readFileSync('.gitignore','utf8')).toContain('/output/playwright/myapps/');
  const {externalAlphaIngress,externalAlphaCapabilityAllowed,ALLOWED_FAMILIES}=await import('../../../apps/eve/lib/external-alpha/features.ts');
  expect(ALLOWED_FAMILIES).not.toContain('MYAPPS');
  for(const method of ['GET','POST','PUT','DELETE'])for(const path of ['/apps/installed','/api/myapps/ui','/api/myapps/app','/api/myapps/agent','/api/myapps/unknown/deeper'])
@@ -28,7 +31,7 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
  expect(requiredDatabaseMigration({MYEVE_EXTERNAL_ALPHA_POLICY:'{}'} as any)).toBe(pins.migration.externalAlphaRequired);
  const env={...process.env};
  try {process.env.NODE_ENV='production';process.env.MYAPPS_LOCAL_INTEGRATION='1';expect(localAppsAllowed()).toBe(false);}
- finally {process.env.NODE_ENV=env.NODE_ENV;if(env.MYAPPS_LOCAL_INTEGRATION===undefined)delete process.env.MYAPPS_LOCAL_INTEGRATION;else process.env.MYAPPS_LOCAL_INTEGRATION=env.MYAPPS_LOCAL_INTEGRATION;}
+ finally {if(env.NODE_ENV===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=env.NODE_ENV;if(env.MYAPPS_LOCAL_INTEGRATION===undefined)delete process.env.MYAPPS_LOCAL_INTEGRATION;else process.env.MYAPPS_LOCAL_INTEGRATION=env.MYAPPS_LOCAL_INTEGRATION;}
 });
 test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without activating policy or changing Work',async()=>{
  const connection=process.env.MYAPPS_POSTGRES_URL;

@@ -1,21 +1,30 @@
 {
-  "format": "myapps.composition-rehearsal.v1",
+  "format": "myapps.composition-rehearsal.v2",
   "myeve": {
     "main": "2ef364024bc1cdd3e10ec28f3d340119c6f87d41",
     "phase2": "500f17a463682b6e4a2c445f99a04fcf77eaea74",
     "engineeringBase": "c2db7ae413665b55441cfdec558659ffa186809b",
     "engineering": "8338309582d6806829dec1ae1beef301d6b52425",
     "ux": "474bd465c2773bf55536b1914045c646deaa644f",
-    "missioncontrolConsumer": "4b8cacce64f260b0816ff615222a3cac621d749b"
+    "missioncontrolConsumer": "4b8cacce64f260b0816ff615222a3cac621d749b",
+    "phase3Preparation": "615f9209c37f656b14723747e556c03a45a85544",
+    "integration": "c640f255fe2b8d1aeecc4c4c99bb28675b2ee5e8"
   },
   "myfactory": {
     "main": "030b1a51017f3159436b93817ed2d5bf6ae18288",
     "phase2": "0e22176fbeaaeca54f268af6e1b8b00cf9fe528b",
     "engineeringBase": "2eb5f04f5824dc6957d0732fc7abf35a4d831537",
-    "engineering": "fa48a820ba185eb9b891130c78166463b61cba74"
+    "engineering": "fa48a820ba185eb9b891130c78166463b61cba74",
+    "phase3Preparation": "4c6e540b40e1db226eefda763e615dfe7cb02e3c",
+    "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c"
   },
-  "migration": { "original": "0085_myapps_runtime.sql", "rehearsal": "0093_myapps_runtime.sql", "externalAlphaRequired": "0092_private_result_acceptance.sql" },
+  "migration": {
+    "original": "0085_myapps_runtime.sql",
+    "rehearsal": "0093_myapps_runtime.sql",
+    "externalAlphaRequired": "0092_private_result_acceptance.sql"
+  },
   "production": "NOT_RUN",
   "publication": "DISABLED",
-  "paidOperations": 0
+  "paidOperations": 0,
+  "preparationBranch": "codex/myapps-phase3b-reconciliation"
 }

@@ -1,0 +1,42 @@
+# MyApps Phase 3B — candidate compatibility and authorization envelope
+
+**NOT_READY. Production integration NOT_RUN.** This is an isolated compatibility rehearsal, not adoption of either candidate. Preserve Phase 2, the 79 historical evidence hashes, and accepted Phase 3 preparation MyEve `615f9209c37f656b14723747e556c03a45a85544` / Factory `4c6e540b40e1db226eefda763e615dfe7cb02e3c`.
+
+## Exact inputs and changes
+
+MyEve candidate: `c640f255fe2b8d1aeecc4c4c99bb28675b2ee5e8`. Factory candidate: `18e59dbedbe04275858327ca47d2bd7ec01a407c`. The earlier UX/engineering pins remain in `sources.json` as historical references; `integration` selects the new candidates. Canonical mains remain `2ef364024bc1cdd3e10ec28f3d340119c6f87d41` and `030b1a51017f3159436b93817ed2d5bf6ae18288` at reconciliation. Exact preparation, composed snapshot and tree identities are recorded by the materializer.
+
+Four MyEve text conflicts are resolved: `.gitignore` retains both synthetic MyApps and QE browser evidence exclusions; canonical Inbox runtime retains the MyApps local-only consumer before private Result acceptance; schema catalog/test preserve alpha's required 0092 while proposing MyApps at 0093. Factory is textually clean. All other unexpected conflicts stop materialization. No branch merge or main update occurs.
+
+The accepted persistent MyApps runtime/controller/custody/Result implementation is unchanged. QE authority, shared accounting code/SQL, private acceptance and Result ingestion are copied unchanged from the pinned candidate and checked by byte-identity assertions. External-alpha route/capability allowlists remain closed to MyApps. MySkills remains disabled and MissionControl is not a dependency of direct Sofie → MyFactory execution.
+
+## Contract compatibility and regression scope
+
+- Work authority: candidate Work control distinguishes initial dispatch, known running work and held termination; cancellation/expiry/settlement must retain conservative exposure. MyApps' deterministic authority must not replace the production issuer or borrow alpha allowances.
+- Shared accounting: candidate central SQL introduces RUNNING/FENCED handling and recovery. It is outside the numbered app migration catalog. Exact checksums and separate target-specific authorization are required; no cohort, member or spending authority is provisioned here.
+- Result/Proof: producer/consumer schemas jointly accept criterion report digests; alpha verification produces individual criterion outcomes. Missing evidence stays UNKNOWN. No aggregate-only historical Result is upgraded by relabeling. Retained Proof, private acceptance and app installation remain distinct.
+- Candidate custody: immutable owner/candidate/run bindings and producer/verifier separation remain required. The local PostgreSQL Factory QE checks cover criterion bindings, admission, fencing and cleanup without provider allocation.
+- Installation, storage, updates and rollback: shared owner-bound runtime remains unchanged; real DB and browser journeys exercise install approval, owner isolation, UI/Sofie state, restart, compatible update and newly approved rollback retaining stored fields.
+- FactoryVersion: combining MyApps with the already repinned QE Factory candidate changes source identity again. The guard must refuse the inherited identity. Derive and qualify a successor from final source, executor/verifier/custody configuration and approved model/pricing records later. No installed identity or source-identity JSON is rewritten.
+
+The complete original composition file set is retained. QE adds cases to those files, so its resulting count may exceed 203; no old cases are intentionally filtered or skipped. A separate supplemental config covers new criterion evidence, work control, context/readback, recovery and Relay concurrency. Baseline allowance tests run on the untouched exact QE commit. The two previously failing cases and their required SQL transition are unchanged in candidate source; actual results determine whether they remain failures. Do not skip them, weaken settlement, or repair unrelated alpha source in this preparation.
+
+## Exact non-executable authorization envelope
+
+Each materialization writes `authorization-envelope.json`: exact preparation/integration/snapshot/tree SHAs; ordered SQL paths with SHA-256 for all app and Factory migrations; separate central accounting base/recovery SQL hashes; lockfile hashes; explicit ordering and rollback; all permissions false. It is a review artifact, never an executable grant. It binds the proposed source but grants no dependency adoption, merge, migration, deployment, activation or paid operation.
+
+Target IDs, existing ledger fingerprints, backup/restore receipts, non-superuser role, FactoryVersion, verifier/custody/signer configuration and production bootstrap remain unselected/unqualified and are represented as null, not guessed. Therefore this envelope cannot authorize production. Before requesting production approval, fill and independently verify those exact fields, resolve all composition failures, qualify the candidate dependencies and production adapters, and obtain separately scoped authorization for each target/action. Current external-alpha installations are explicitly excluded.
+
+For a new separately authorized central database, qualify `shared-accounting.sql` then `shared-accounting-recovery.sql`. For an existing database, never replay CREATE TABLE base SQL: first verify its exact baseline/backup and review the recovery upgrade against retained exposure. Factory migration ordering follows its explicit manifest; app ordering is existing canonical schema through 0092 then byte-identical additive MyApps 0093. Databases already recording Phase 2 MyApps 0085 require their own data-preserving ledger transfer; no automatic rename/replay is allowed.
+
+Rollback disables new admission, fences/reconciles in-flight original resources and UNKNOWN exposure, retains data/custody/Proof and restores compatible application code. App behavior rollback remains a separately approved verified successor. Destructive table rollback, evidence rewrite, refunds of uncertain spend and reuse of tester authority are excluded.
+
+## Deployment prevention and qualification
+
+Both existing Phase 3 and new Phase 3B branch rules explicitly disable Vercel Git deployment before the first Phase 3B push. Tests require both blocks in the composed tree. These controls do not authorize manual deployment and are not a global block for arbitrary future branches. Check branch triggers, project root and exact commit deployment status before/after publication. No runtime environment files or credentials are copied into fixtures.
+
+Run contracts, types/build, migration uniqueness, full composition with PostgreSQL, browser Golden Journey, owner isolation, updates/rollback/recovery, supplemental QE checks and Factory criteria/custody/accounting checks. Fresh clones and hosted CI must regenerate exact composed trees and envelope hashes. Keep known failures visible; `if: always()` continues diagnostic suites without turning failed gates green. Reuse the authorized independent Phase 3 read-only reviewer for all resulting preparation changes and any corrections.
+
+Production observability/rollout remains a later gate: assign an operator/window, correlate owner/Work/candidate/FactoryVersion without secrets, stop admission on isolation/Proof/authority failures, retain UNKNOWN exposure, and prove backup/restore and rollback before activation. This preparation has no intended production effects.
+
+References: repository candidate contracts and migration/test source; [Vercel branch deployment control](https://vercel.com/docs/project-configuration/git-configuration#git.deploymentenabled); [GitHub conditional steps](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsif). Qualification results and exact authorization-envelope artifact are recorded in the workspace Phase 3B report.

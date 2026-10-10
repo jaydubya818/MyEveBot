@@ -3,7 +3,8 @@
  * All source repositories and an absent output directory must be supplied explicitly.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdtempSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
@@ -16,11 +17,11 @@ const show = (repo, sha, path) => execFileSync('git',['-C',repo,'show',`${sha}:$
 const replacement = (text, from, to) => { assert.equal(text.split(from).length,2,`Expected one exact source anchor: ${from}`);return text.replace(from,to); };
 const evidence = { format:pins.format, pins, snapshots:{}, production:'NOT_RUN', adoption:'NOT_AUTHORIZED' };
 mkdirSync(output);
-for (const [name, repo, integration] of [['myeve',eve,pins.myeve.ux],['myfactory',factory,pins.myfactory.engineering]]) {
+for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['myfactory',factory,pins.myfactory.integration]]) {
   const head = git(repo,['rev-parse','HEAD']);
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
-  const expected = name==='myeve' ? ['apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts'].sort() : [];
+  const expected = name==='myeve' ? ['.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts'].sort() : [];
   const attempt = spawnSync('git',['-C',repo,'merge-tree','--write-tree','--name-only',head,integration],{encoding:'utf8'});
   assert([0,1].includes(attempt.status),attempt.stderr);
   const sections=attempt.stdout.trimEnd().split('\n\n');
@@ -34,6 +35,9 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.ux],['myfactory
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
+      const ignores=show(repo,integration,'.gitignore');
+      assert(!ignores.includes('/output/playwright/myapps/'));
+      put('.gitignore',ignores+'\n# Synthetic MyApps reference qualification output.\n/output/playwright/myapps/\n');
       const runtimePath='apps/eve/lib/beta-integration/runtime.ts';
       const phase2Runtime=show(repo,pins.myeve.phase2,runtimePath);
       const hook=phase2Runtime.slice(phase2Runtime.indexOf('        // Local-only MyApps'),phase2Runtime.indexOf('        if (r.workId && !r.goal) return new CanonicalBetaWork'));
@@ -66,4 +70,28 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.ux],['myfactory
   } finally {rmSync(temp,{recursive:true,force:true});}
 }
 writeFileSync(join(output,'composition.json'),JSON.stringify(evidence,null,2)+'\n');
+const fileRecord=(name,path)=>({path,sha256:createHash('sha256').update(readFileSync(join(output,name,path))).digest('hex')});
+const migrations=(name,path)=>readdirSync(join(output,name,path)).filter(file=>file.endsWith('.sql')).sort().map(file=>fileRecord(name,path+'/'+file));
+const envelope={
+  format:'myapps.production-authorization-draft.v1',executable:false,authorization:'NOT_GRANTED',readiness:'NOT_READY',
+  sources:Object.fromEntries(Object.entries(evidence.snapshots).map(([name,{path,...identity}])=>[name,identity])),
+  candidateAdoption:'NOT_AUTHORIZED',
+  targets:{myeveProject:null,applicationDatabase:null,factoryInstallation:null,factoryDatabase:null,accountingDatabase:null,custodyStore:null},
+  configuration:{factoryVersion:null,verifierPolicy:null,signerKeyIds:[],databaseRole:null,MYAPPS_LOCAL_INTEGRATION:'UNSET',productionGate:'DENIED'},
+  applicationMigrations:migrations('myeve','apps/eve/migrations'),
+  factoryMigrations:migrations('myfactory','apps/cloud-control/migrations'),
+  centralAccountingSql:['shared-accounting.sql','shared-accounting-recovery.sql'].map(file=>fileRecord('myeve','apps/eve/lib/external-alpha/'+file)),
+  lockfiles:['myeve','myfactory'].map(name=>({repository:name,...fileRecord(name,'package-lock.json')})),
+  ordering:[
+    'Verify exact approved non-alpha targets, current ledgers/checksums, roles and tested backups; reject missing identity.',
+    'Qualify empty-target central accounting base then recovery SQL separately; existing-target upgrade requires an exact baseline and its own approval. Never apply base SQL over existing accounting history.',
+    'Reconcile Factory migration ledger in manifest order without installation registration, production grants or source-identity reuse.',
+    'Reconcile application migrations through 0092, then additive 0093; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
+    'Keep all execution disabled; qualify successor FactoryVersion, bootstrap, custody/signers, rollback and owner isolation before separate activation approval.'
+  ],
+  rollback:'Disable admission, fence in-flight Work, reconcile original UNKNOWN resources, retain data/evidence and restore compatible code. Never drop app tables or refund uncertain spend.',
+  blockers:['Full composition and independent security gates must pass','Candidate dependency acceptance','Exact target and ledger identities','Successor FactoryVersion and configuration','Production bootstrap/admission/transport/custody/signers','Backup/restore and operational rollback'],
+  permissions:{merge:false,deploy:false,migrate:false,activate:false,paidExecution:false,productionGrants:false,externalAlphaChanges:false}
+};
+writeFileSync(join(output,'authorization-envelope.json'),JSON.stringify(envelope,null,2)+'\n');
 console.log(JSON.stringify(evidence,null,2));
