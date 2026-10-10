@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
 
       - run: node scripts/protocol-convergence/check-contract.mjs
 
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: f8fc5177ff6f914311e991a69fe64610fff50506
+          ref: d5d097e0ea00142b71e9ea391dd05499616edbd9
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
