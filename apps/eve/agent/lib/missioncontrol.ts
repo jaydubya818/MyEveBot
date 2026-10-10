@@ -1,14 +1,16 @@
+import { randomUUID } from 'node:crypto';
 import { getCapability } from '../../lib/capability-registry.ts';
 import type { ToolContext } from 'eve/tools';
 import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAuthority, type ActionAdapter } from '../../lib/action-gateway.ts';
-import { CAPABILITY, enterpriseConfig, enterpriseInput, sendEnterpriseCommand, validateResponse, type EnterpriseConfig, type EnterpriseInput } from '../../lib/missioncontrol/consumer.ts';
+import { CAPABILITY, enterpriseConfig, enterpriseInput, sendEnterpriseCommand, validateResponse, explainEnterpriseResult, type EnterpriseConfig, type EnterpriseInput } from '../../lib/missioncontrol/consumer.ts';
 import { toolActionRequest } from './action-context.ts';
 
 type Response = Awaited<ReturnType<typeof sendEnterpriseCommand>>;
 export function enterpriseAdapter(config:EnterpriseConfig,input:EnterpriseInput):ActionAdapter<Response> {
+  const observationId=input.operation==='enterprise.result'?randomUUID():null;
   return {
     async resolveTarget(){return {provider:'missioncontrol',account:config.missionControlOwnerId,
-      resource:`${config.projectId}/${config.connectionId}`,environment:'ISOLATED_DETERMINISTIC'};},
+      resource:`${config.projectId}/${config.connectionId}${observationId ? '/result-observation/'+observationId : ''}`,environment:'ISOLATED_DETERMINISTIC'};},
     async execute(parameters,authority){
       await consumeActionAuthority(authority,parameters,CAPABILITY);
       await consumeProviderAuthority(authority,parameters,CAPABILITY);
@@ -28,10 +30,11 @@ export async function executeEnterpriseTool(raw:EnterpriseInput,ctx:Pick<ToolCon
       || principal.principalId!==config.ownerId || principal.attributes.owner!=='true' || principal.attributes.role==='guest'
       || principal.attributes.myeveRoleId || ctx.session.parent)throw new ActionBlocked('denied','enterprise_owner_session_required');
   }
-  const action=await toolActionRequest(ctx,{capabilityId:CAPABILITY,actionClass:['enterprise.read','enterprise.inspect'].includes(input.operation)?'read':'create',parameters:input});
+  const action=await toolActionRequest(ctx,{capabilityId:CAPABILITY,actionClass:['enterprise.read','enterprise.inspect','enterprise.result'].includes(input.operation)?'read':'create',parameters:input});
   if(action.ownerId!==config.ownerId || action.trigger.kind!=='owner_chat' || action.executor.kind!=='primary-agent')throw new ActionBlocked('denied','enterprise_owner_session_required');
   // Revalidate live remote access even when the gateway would replay a historical receipt.
   // An unapproved submit is denied before Action admission, not recorded as an uncertain write.
+  if(input.operation!=='enterprise.result') {
   const inspection=await sendEnterpriseCommand(config,input.operation==='enterprise.propose'
     ? {operation:'enterprise.inspect',intentKey:input.intentKey,proposalId:null}
     : input.operation==='enterprise.inspect' ? input : {operation:'enterprise.inspect',intentKey:null,proposalId:input.proposalId},ctx.abortSignal);
@@ -39,9 +42,12 @@ export async function executeEnterpriseTool(raw:EnterpriseInput,ctx:Pick<ToolCon
   if(input.operation==='enterprise.submit' && (!observed?.authorized || observed.digest!==input.proposalDigest))
     throw new ActionBlocked('denied','enterprise_owner_approval_required');
   if(input.operation==='enterprise.read' && observed?.missionId!==input.missionId)throw new ActionBlocked('denied','enterprise_mission_binding');
+  }
+  // Each Result observation is a new read. Historical Action receipts cannot establish current evidence.
+  if(input.operation==='enterprise.result')action.actionKey += ':observation:'+randomUUID();
   const result=await new ActionGateway().execute(action,enterpriseAdapter(config,input),ctx.abortSignal);
   // Completed Action replays bypass adapter.verify. Never expose an expired,
   // altered or redacted observation as its original authenticated response.
   validateResponse(config,input,result.receipt);
-  return result;
+  return input.operation==='enterprise.result' ? {...result,explanation:explainEnterpriseResult(result.receipt.response)} : result;
 }

@@ -47,3 +47,23 @@ test('cross-owner, guest, child, non-web and changed initiator deny before datab
   await assert.rejects(()=>executeEnterpriseTool(input,{callId:'call',session:{id:'session',parent:{sessionId:'parent'},auth:{current:p,initiator:p}}}),e=>e.status==='denied');
   for(const key of Object.keys(env))delete process.env[key];
 });
+test('Result protocol requires keyed response authentication and exact request, owner, Plan, tenant and freshness',()=>{
+  const d='sha256:'+'1'.repeat(64),now=Date.now();
+  const input={operation:'enterprise.result',missionId:'mission',expectedPlanDigest:d};
+  const payload={schema:'enterprise-result-projection/v1',scope:'ISOLATED_DETERMINISTIC',missionId:'mission',ownerId:'operator',tenantId:'tenant',projectId:'project',
+    plan:{missionId:'mission',planId:'plan',planRevision:1,planDigest:d},qualityContract:{revision:1,digest:d},status:'NOT_AVAILABLE',enterpriseQualityGate:'NOT_ESTABLISHED',
+    ownerAcceptance:'PENDING',observedAt:now,freshUntil:now+60000,reasons:['CURRENT_INDEPENDENT_VERIFICATION_REQUIRED'],assertions:[],workOrders:[],executionAuthority:'NONE',explanation:'Not established.'};
+  function sign(body=payload){const r=response(body);r.observedAt=now;const p=signedCommand(config,input,'result-command',now);
+    const authentication={commandId:p.envelope.commandId,requestDigest:p.envelope.payloadDigest,expiresAt:now+60000};
+    return {...r,authentication:{...authentication,signature:'sha256:'+createHmac('sha256',config.secret).update(contentDigest({...r,authentication})).digest('hex')}};}
+  assert.equal(validateResponse(config,input,sign(),now).response.status,'NOT_AVAILABLE');
+  assert.throws(()=>validateResponse(config,input,response(payload),now));
+  for(const patch of [{ownerId:'foreign'},{tenantId:'foreign'},{projectId:'foreign'},{missionId:'foreign'},
+    {status:'AVAILABLE',enterpriseQualityGate:'PASS',reasons:[]},{enterpriseQualityGate:'PASS'},{freshUntil:now-1},{qualityContract:{revision:2,digest:d}}])
+    assert.throws(()=>validateResponse(config,input,sign({...payload,...patch}),now));
+  const forged=sign();forged.response.explanation='Narrative PASS';forged.responseDigest=contentDigest(forged.response);
+  assert.throws(()=>validateResponse(config,input,forged,now),/AUTHENTICATION/);
+  assert.throws(()=>validateResponse({...config,secret:'other-secret'},input,sign(),now),/AUTHENTICATION/);
+  assert.throws(()=>validateResponse(config,{...input,expectedPlanDigest:'sha256:'+'2'.repeat(64)},sign(),now));
+  assert.throws(()=>validateResponse(config,input,sign(),now+60001));
+});

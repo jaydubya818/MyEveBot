@@ -22,6 +22,6 @@ Run unit contracts with `node --import tsx --test apps/eve/test/missioncontrol-c
 
 Golden Journey owns canonical Mission isolation/grants, the execution runner and browser evidence. This branch owns the inactive MyEve consumer; the readiness branch owns only the narrow MissionControl app projection. Do not adopt Golden Journey's unqualified working tree or replace existing MyFactory Result consumption.
 
-Completed enterprise Result/Proof remains NOT_AVAILABLE. Qualification must use actual completed Golden Journey evidence after independently qualified isolation adoption. Factory success, a handoff reference or an eligible WorkOrder gate alone cannot establish enterprise completion. Do not seed a fake completed Result to close this item.
+Completed enterprise Result consumption is now an additive isolated candidate described in SOFIE_COMPLETED_RESULT.md. It uses actual deterministic hybrid execution evidence through the canonical runner. Composed browser and release-gate qualification still belongs to Golden Journey. Factory success, a handoff reference or an eligible WorkOrder gate alone cannot establish enterprise completion. Do not seed a fake completed Result to close this item.
 
 Production integration NOT_RUN; paid model operations 0; external-alpha changes 0; executable production grants 0. No dependency merge or deployment is part of this checkpoint. Retention-lock enforcement remains open; exact private runtime distribution is accepted and closed.

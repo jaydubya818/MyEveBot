@@ -9,11 +9,11 @@ import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,signedCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
-assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'3576cea2a98422ae0699f0563592e7297fca3b5a','Use the exact reviewed MC compatibility source');
+assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'c0ba5a97087a50feb36bb1a788f9cf065890e328','Use the exact reviewed MC compatibility source');
 const mcDirty=!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim();
 assert.equal(mcDirty,false,'Pinned MC source must be clean');
 const output=resolve(process.argv[2]??'/tmp/myeve-enterprise-'+randomUUID());await mkdir(output,{recursive:true});
-const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'3576cea2a98422ae0699f0563592e7297fca3b5a',
+const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'c0ba5a97087a50feb36bb1a788f9cf065890e328',
   missionControlDirty:mcDirty,myeveDirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),myeveSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0,executableProductionGrants:0};
 const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS '+name);};
 const pgName='mc-sofie-'+randomUUID(),port=55519;
@@ -103,7 +103,7 @@ try {
   await mutate('sofieEnterprise:decide',{...decision,decision:'REVOKE'});
   await check('revocation-denies-fresh-status-cached-replay-and-submit',async()=>{await assert.rejects(()=>call(read,sameContext));await assert.rejects(()=>call(read));await assert.rejects(()=>call(submit));});
   await check('no-execution-accounting-or-delegation-created',async()=>{for(const table of ['workflowRuns','workOrders','inferenceReservations','factoryProviderReservations','factoryDelegationTrials'])assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);});
-  receipt.status='PASS';receipt.finalObservation=status.receipt;receipt.completedResultConsumption='NOT_QUALIFIED';receipt.ownerDecisionSurface='Canonical MissionControl authenticated mutation; MyEve browser handoff remains unqualified';
+  receipt.status='PASS';receipt.finalObservation=status.receipt;receipt.completedResultConsumption='NOT_EXERCISED_DRAFT_REGRESSION_ONLY';receipt.ownerDecisionSurface='Canonical MissionControl authenticated mutation; MyEve browser handoff remains unqualified';
   receipt.actions=(await pool.query('SELECT status,count(*)::int AS count FROM action_requests GROUP BY status ORDER BY status')).rows;
   console.log(JSON.stringify({status:'PASS',checks:checks.length,output}));
 } catch(e){receipt.status='FAIL';receipt.failure=String(e.message);throw e;}
