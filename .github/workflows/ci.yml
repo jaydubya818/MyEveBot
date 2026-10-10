@@ -17,6 +17,8 @@ jobs:
           node-version: 24
 
       - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
 
       - run: node scripts/protocol-convergence/check-contract.mjs
 
@@ -51,12 +53,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: d5d097e0ea00142b71e9ea391dd05499616edbd9
+          ref: 18fda16843257a673ea040195ce0ca145a447e6c
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
       - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
       - name: Real PostgreSQL lifecycle and exact Factory authority
         env:

@@ -16,6 +16,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
       - run: npm exec --workspace=eve-agent -- tsc --noEmit
       - run: npm run typecheck --workspace=@myeve/capability-enforcement
       - run: npm test --workspace=@mission-control/capability-control
