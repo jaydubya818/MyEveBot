@@ -1,7 +1,7 @@
 name: Owner UX
 on:
   push:
-    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009]
+    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010]
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
         working-directory: apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
-        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
+        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
       - name: Context failure recovery
         working-directory: apps/eve
         run: |
