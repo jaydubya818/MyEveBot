@@ -76,7 +76,8 @@ export async function assertCapabilityAdmission(connection:PolicyConnection, raw
     if(budgets[item.id]!==undefined&&request.budgetMicros>budgets[item.id])deny(`BUDGET_EXCEEDED:${item.id}`);
   }
   return {registryVersion:capabilityRegistry.version,policyRevision:Number(state.revision),agentRevision:Number(state.agent_revision),
-    capabilityId:request.capabilityId,workId:request.workId,workGeneration:request.workGeneration,transactionId};
+    capabilityId:request.capabilityId,workId:request.workId,workGeneration:request.workGeneration,transactionId,
+    requiredCapabilities:[...required].sort()};
 }
 
 /** Invoke inside BEGIN/COMMIT; a failure rolls back the backend admission with policy checks. */

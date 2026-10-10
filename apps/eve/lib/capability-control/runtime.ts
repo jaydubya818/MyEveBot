@@ -1,3 +1,5 @@
+import { propagateCapabilityPolicy } from '../../../../packages/capability-enforcement/src/ordering-transport.ts';
+import type { PolicyKey } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import pg from 'pg';
 import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
@@ -33,7 +35,12 @@ export function capabilityStore(actor: CapabilityActor): CapabilityStore {
       statement_timeout: 5000, idle_in_transaction_session_timeout: 5000 });
     pool.on('error', () => { console.error('Capability database idle connection failed.'); });
   }
-  return new CapabilityStore(pool, config, actor);
+  const delivery = process.env.MYEVE_CAPABILITY_PROPAGATION_JSON;
+  const transport = delivery ? JSON.parse(delivery) as { signer: PolicyKey; relayEndpoint: string } : undefined;
+  return new CapabilityStore(pool, config, actor, transport ? organizationId =>
+    propagateCapabilityPolicy(pool!, { ownerId: actor.ownerId, installationId: config.id,
+      organizationId, environment: config.environment, agentId: 'policy-propagation' },
+      transport.signer, transport.relayEndpoint) : undefined);
 }
 
 export async function capabilityPrincipal(request: Request) {

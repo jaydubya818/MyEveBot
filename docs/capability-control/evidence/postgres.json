@@ -1,5 +1,5 @@
 {
-  "passed": 38,
+  "passed": 44,
   "checks": [
     "migration rollback leaves no schema",
     "synthetic platform defaults enable all 36 preferences without execution",
@@ -38,7 +38,13 @@
     "real routed Work admits once and retains exact capability evidence",
     "legacy execution cannot bypass capability disable",
     "pending pause and revoke block new Work without fabricating a backend stop",
-    "MyEve admission wrapper denies a pool or foreign principal before backend writes"
+    "MyEve admission wrapper denies a pool or foreign principal before backend writes",
+    "ordered source stages a monotonic frozen change and prevents permits before exact acknowledgment",
+    "ordered source rejects forged acknowledgments and preserves pending state across connection loss",
+    "exact duplicate acknowledgments complete once and signed permits deduplicate concurrent retries",
+    "disable fences the next version and old acknowledgments cannot complete it",
+    "an unavailable receiver cannot prevent a newer disable intent",
+    "key replacement or enrollment changes cannot stand in for a required acknowledgment"
   ],
   "realOwnerBinding": "NOT_QUALIFIED",
   "paidOperations": 0,

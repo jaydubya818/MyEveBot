@@ -7,7 +7,7 @@ const challengeSchema = z.object({ schema: z.literal('myeve.policy-challenge.v1'
   backendId: text, installationId: text, ownerId: text, organizationId: text, agentId: text,
   keyId: text, capabilityId: text, workId: text, workGeneration: z.number().int().positive(),
   budgetMicros: z.number().int().nonnegative().max(1e12), actionDigest: z.string().regex(/^[a-f0-9]{64}$/),
-  nonce: z.string().uuid(), issuedAt: z.number().int().positive(), expiresAt: z.number().int().positive(),
+  nonce: z.string().uuid(), issuedAt: z.number().int().positive(), expiresAt: z.number().int().positive(), missionId: text.optional(),
 }).strict();
 export type PolicyChallenge = z.infer<typeof challengeSchema>;
 export interface DecisionBinding { scope: AdmissionScope; backendId: string; keyId: string; publicKeyPem: string }
@@ -19,7 +19,7 @@ export function policyChallengeMaterial(value: unknown) {
 }
 function deny(reason: string): never { throw new CapabilityAdmissionError(reason); }
 
-function authenticate(value: unknown, signature: string, binding: DecisionBinding, now: number) {
+export function authenticatePolicyChallenge(value: unknown, signature: string, binding: DecisionBinding, now: number) {
   const challenge = challengeSchema.parse(value);
   for (const field of ['ownerId', 'organizationId', 'installationId', 'agentId'] as const)
     if (challenge[field] !== binding.scope[field]) deny('DECISION_SCOPE_MISMATCH');
@@ -35,7 +35,7 @@ function authenticate(value: unknown, signature: string, binding: DecisionBindin
 export async function issuePolicyDecision(connection: PolicyConnection, value: unknown, signature: string,
   binding: DecisionBinding, signer: DecisionSigner) {
   const [{ now }] = (await connection.query('SELECT floor(extract(epoch FROM clock_timestamp())*1000)::float8 AS now')).rows;
-  const challenge = authenticate(value, signature, binding, Number(now));
+  const challenge = authenticatePolicyChallenge(value, signature, binding, Number(now));
   const request: AdmissionRequest = { capabilityId: challenge.capabilityId, workId: challenge.workId,
     workGeneration: challenge.workGeneration, budgetMicros: challenge.budgetMicros };
   const evidence = await assertCapabilityAdmission(connection, binding.scope, request);

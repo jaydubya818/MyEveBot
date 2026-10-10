@@ -45,7 +45,9 @@ export function CapabilitySettings() {
       const receipt = body as CapabilityReceipt;
       setRetry(null);
       await load();
-      setNotice(receipt.status === 'PENDING_BACKEND'
+      setNotice(receipt.status === 'PENDING_PROPAGATION'
+        ? 'Preference saved. The change is awaiting backend acknowledgement and is not yet effective everywhere.'
+        : receipt.status === 'PENDING_BACKEND'
         ? 'Control request saved. Backend acknowledgement is pending; active Work has not been confirmed stopped.'
         : 'Preference saved. Existing Work is preserved. Execution still requires backend approval.');
     } catch (failure) {
@@ -75,6 +77,9 @@ export function CapabilitySettings() {
       <section aria-label="Policy status" className="space-y-2 rounded-xl border border-kumo-hairline bg-kumo-tint p-4 text-sm">
         <p>{view.platformOwner ? 'Platform-owner testing defaults are enabled.' : 'Standard owner defaults apply.'} Policy revision {view.revision}.</p>
         <p>{view.activeWork.message}</p>
+        {view.propagation && <p role="status">Policy propagation: {view.propagation.status} · revision {view.propagation.revision}.
+          {view.propagation.status === 'PENDING_PROPAGATION' && ' Backend acknowledgement is pending. The change is not yet effective everywhere.'}</p>}
+        {view.pendingCommand && <button className={button} disabled={busy} onClick={() => void send(view.pendingCommand!)}>Retry policy propagation</button>}
         <p>Backend integration is awaiting qualification. These controls save preferences; they do not grant execution or confirm that active Work has stopped.</p>
         {view.evidenceStatus !== 'CURRENT' && <p>Current availability evidence is unavailable. Capabilities remain non-operational until verified.</p>}
       </section>

@@ -5,13 +5,15 @@
   "type": "module",
   "exports": {
     ".": "./src/postgres.ts",
-    "./decisions": "./src/decisions.ts"
+    "./decisions": "./src/decisions.ts",
+    "./ordering": "./src/ordering-source.ts",
+    "./ordering-wire": "./src/ordering-wire.ts"
   },
   "dependencies": {
     "@mission-control/capability-control": "*",
     "zod": "4.4.3"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts"
+    "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts src/ordering-source.ts src/ordering-transport.ts"
   }
 }

@@ -17,7 +17,7 @@ export interface CapabilityReceipt {
   revision: number;
   capabilityId: string;
   operation: CapabilityCommand['operation'];
-  status: 'SAVED' | 'PENDING_BACKEND';
+  status: 'SAVED' | 'PENDING_BACKEND' | 'PENDING_PROPAGATION';
   existingWork: 'PRESERVED' | 'CONTROL_REQUESTED';
 }
 export class CapabilityError extends Error {

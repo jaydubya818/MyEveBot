@@ -20,7 +20,7 @@ const factsSchema = z.record(z.string(), z.object({
 }).strict());
 
 export class CapabilityStore {
-  constructor(readonly pool: CapabilityPool, readonly installation: CapabilityInstallation, readonly actor: CapabilityActor) {
+  constructor(readonly pool: CapabilityPool, readonly installation: CapabilityInstallation, readonly actor: CapabilityActor, readonly deliver?: (organizationId: string) => Promise<unknown>) {
     if (!actor.ownerId.trim()) throw new CapabilityError('authentication_required', 'Sign in to manage capabilities.', 401);
   }
 
@@ -80,9 +80,20 @@ export class CapabilityStore {
         } } : {}),
       };
       const resolved = resolveCapabilities(capabilityRegistry, snapshot, now);
+      const { rows: [propagation] } = await connection.query(`SELECT revision,status FROM capability_control.policy_changes
+        WHERE installation_id=$1 AND owner_id=$2 ORDER BY revision DESC LIMIT 1`, scope);
       const { rows: audit } = await connection.query('SELECT revision,request_id,source,capability_id,operation,previous,current,created_at FROM capability_control.audit WHERE installation_id=$1 AND owner_id=$2 ORDER BY revision DESC LIMIT 50', scope);
+      const pendingAudit = propagation?.status === 'PENDING_PROPAGATION'
+        ? audit.find(item => Number(item.revision) === Number(propagation.revision)) : undefined;
+      const pendingCommand = pendingAudit ? capabilityCommandSchema.parse({
+        requestId: pendingAudit.request_id, expectedRevision: Number(pendingAudit.revision) - 1,
+        capabilityId: pendingAudit.capability_id, operation: pendingAudit.operation,
+        ...(pendingAudit.operation === 'set_budget' ? { limitMicros: (pendingAudit.current as { limitMicros: number }).limitMicros } : {}),
+      }) : null;
       return {
+        pendingCommand,
         registryVersion: capabilityRegistry.version, revision,
+        propagation: propagation ? { revision: Number(propagation.revision), status: String(propagation.status) } : null,
         platformOwner: !!binding, evidenceStatus: evidenceCurrent ? 'CURRENT' : 'UNAVAILABLE',
         activeWork: { status: 'UNKNOWN' as const, message: 'Active Work inventory is not connected. Disabling a preference preserves existing Work. Pause and revoke require backend acknowledgement.' },
         capabilities: resolved.map((resolution, index) => ({ ...capabilityRegistry.capabilities[index], ...resolution,
@@ -99,7 +110,9 @@ export class CapabilityStore {
     if (!capabilityRegistry.capabilities.some(item => item.id === command.capabilityId))
       throw new CapabilityError('unknown_capability', 'This capability is not registered.', 400);
     const fingerprint = createHash('sha256').update(JSON.stringify(command)).digest('hex');
-    return this.transaction(async connection => {
+    let organization = '';
+    const receipt = await this.transaction(async (connection, organizationId) => {
+      organization = organizationId;
       const scope = [this.installation.id, this.actor.ownerId];
       await connection.query('INSERT INTO capability_control.owner_state(installation_id,owner_id) VALUES($1,$2) ON CONFLICT DO NOTHING', scope);
       const { rows: [state] } = await connection.query('SELECT * FROM capability_control.owner_state WHERE installation_id=$1 AND owner_id=$2 FOR UPDATE', scope);
@@ -109,6 +122,8 @@ export class CapabilityStore {
         return saved.receipt as unknown as CapabilityReceipt;
       }
       if (Number(state.revision) !== command.expectedRevision) throw new CapabilityError('revision_conflict', 'Capabilities changed in another session. Reload before saving.');
+      const { rows: [destination] } = await connection.query(`SELECT 1 FROM capability_control.policy_destinations
+        WHERE installation_id=$1 AND owner_id=$2 LIMIT 1`, scope);
       const preferences = preferencesSchema.parse(state.preferences);
       const budgets = budgetsSchema.parse(state.budgets);
       const controls = controlsSchema.parse(state.controls);
@@ -124,7 +139,7 @@ export class CapabilityStore {
       const revision = Number(state.revision) + 1;
       const controlRequested = command.operation === 'pause' || command.operation === 'revoke';
       const receipt: CapabilityReceipt = { requestId: command.requestId, revision, capabilityId: id, operation: command.operation,
-        status: controlRequested ? 'PENDING_BACKEND' : 'SAVED', existingWork: controlRequested ? 'CONTROL_REQUESTED' : 'PRESERVED' };
+        status: destination ? 'PENDING_PROPAGATION' : controlRequested ? 'PENDING_BACKEND' : 'SAVED', existingWork: controlRequested ? 'CONTROL_REQUESTED' : 'PRESERVED' };
       await connection.query('UPDATE capability_control.owner_state SET revision=$3,preferences=$4,budgets=$5,controls=$6 WHERE installation_id=$1 AND owner_id=$2', [...scope, revision, preferences, budgets, controls]);
       await connection.query('INSERT INTO capability_control.commands(installation_id,owner_id,request_id,fingerprint,receipt) VALUES($1,$2,$3,$4,$5)', [...scope, command.requestId, fingerprint, receipt]);
       await connection.query('INSERT INTO capability_control.audit(installation_id,owner_id,revision,request_id,actor_id,source,capability_id,operation,previous,current) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
@@ -134,6 +149,10 @@ export class CapabilityStore {
         [...scope, command.requestId, id, revision, command.operation]);
       return receipt;
     });
+    if (this.deliver && receipt.status === 'PENDING_PROPAGATION') {
+      try { await this.deliver(organization); } catch { /* Persisted intent remains pending for retry. */ }
+    }
+    return receipt;
   }
 }
 export type CapabilityView = Awaited<ReturnType<CapabilityStore['inspect']>>;
