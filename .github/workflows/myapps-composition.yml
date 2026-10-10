@@ -100,3 +100,36 @@ jobs:
             /tmp/myapps-composition/*.json
             /tmp/myapps-composition/myeve/output/playwright/myapps/
           retention-days: 14
+  standalone-packaging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test --workspace apps/builder
+      - run: npm run typecheck --workspace apps/builder
+      - run: npm run build --workspace apps/builder
+      - name: Export canonical source without deployment
+        run: node --import tsx apps/builder/scripts/qualification-myapps.ts /tmp/myapps-standalone --check-traces
+      - name: Fresh standalone installation
+        working-directory: /tmp/myapps-standalone
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Reproduce generated dependency lock and build
+        working-directory: /tmp/myapps-standalone
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Generated application authority and asset gates
+        working-directory: /tmp/myapps-standalone
+        run: node --import tsx "$GITHUB_WORKSPACE/apps/builder/scripts/qualification-myapps-gates.mjs" /tmp/myapps-standalone
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inactive-myapps-standalone
+          path: |
+            /tmp/myapps-standalone.json
+            /tmp/myapps-standalone/package-lock.json
+          retention-days: 14

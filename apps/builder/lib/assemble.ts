@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
+import { SHARED_MYAPPS_FILES, readSharedMyAppsFile, relocateMyAppsReferences, assertUniqueOutputPaths } from "./shared-myapps";
+
 import type { CustomSchedule, FeatureId } from "./config";
 import { allowedPrunableFiles, isExcluded, isPrunable } from "./manifest";
 import { generateScheduleFile, scheduleSlug } from "./schedule-codegen";
@@ -139,6 +141,11 @@ export function templateInfo(): Promise<TemplateInfo> {
         hash.update("\0");
         hash.update(await readTemplateFile(root, relative));
       }
+      for (const file of SHARED_MYAPPS_FILES) {
+        hash.update(file);
+        hash.update("\0");
+        hash.update(await readSharedMyAppsFile(root, file));
+      }
       const releaseRaw = (await readFile(path.join(root, TEMPLATE_RELEASE_FILE), "utf8")).trim();
       const release = Number.parseInt(releaseRaw, 10);
       if (!Number.isFinite(release) || release < 1) {
@@ -239,7 +246,13 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
 `);
     }
 
+    data = relocateMyAppsReferences(relative, data);
     out.push({ file: relative, data: data.toString("base64"), encoding: "base64" });
+  }
+
+  for (const file of SHARED_MYAPPS_FILES) {
+    const data = await readSharedMyAppsFile(root, file);
+    out.push({ file, data: data.toString("base64"), encoding: "base64" });
   }
 
   const usedSlugs = new Set<string>();
@@ -301,5 +314,6 @@ export const TEMPLATE_STAMP = {
   if (primaryIndex >= 0) out[primaryIndex] = primaryBootstrapPayload;
   else out.push(primaryBootstrapPayload);
 
+  assertUniqueOutputPaths(out);
   return out;
 }

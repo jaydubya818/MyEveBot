@@ -62,6 +62,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   // Internal engineering tools stay dormant behind their existing owner/runtime gates.
   "agent/tools/engineering_work.ts",
+  // Canonical MyApps source ships, but activation remains owner + local-only.
+  "agent/tools/installed_apps.ts",
   "agent/tools/engineering_direct.ts",
   "agent/tools/engineering_factory.ts",
   // Claimed for source completeness; isExcluded still removes tests from deployments.
