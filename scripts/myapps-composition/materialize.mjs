@@ -57,7 +57,10 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.ux],['myfactory
     const tree=indexGit(['write-tree']);
     const snapshot=git(repo,['commit-tree',tree],{input:`MyApps offline composition rehearsal\nPreparation: ${head}\nIntegration snapshot: ${integration}\nNot an adopted release; no branch merge.\n`,env:{...process.env,GIT_AUTHOR_NAME:'MyApps Qualification',GIT_AUTHOR_EMAIL:'qualification@example.invalid',GIT_COMMITTER_NAME:'MyApps Qualification',GIT_COMMITTER_EMAIL:'qualification@example.invalid',GIT_AUTHOR_DATE:'2026-10-09T00:00:00Z',GIT_COMMITTER_DATE:'2026-10-09T00:00:00Z'}});
     const target=join(output,name);
-    git(repo,['worktree','add','--detach',target,snapshot]);
+    git(repo,['worktree','add','--no-checkout','--detach',target,snapshot]);
+    // Historical browser evidence includes oversized archive fixtures. Keep the
+    // complete Git tree identity but materialize only source; tests emit fresh evidence.
+    git(target,['sparse-checkout','set','--no-cone','/*','!/output/']);
     evidence.snapshots[name]={preparation:head,integration,conflicts:expected,tree,snapshot,path:target};
   } finally {rmSync(temp,{recursive:true,force:true});}
 }

@@ -37,6 +37,8 @@ The offline `scripts/myapps-composition/materialize.mjs` rehearsal:
 6. Classifies the two MyApps routes under an existing **denied** family in the disposable snapshot only. The external-alpha allowed families/capabilities are unchanged; nested unknown routes remain denied.
 7. Records both input SHAs, composed tree IDs and parentless snapshot commit IDs in `composition.json`; creates only detached disposable checkouts. It updates no branch refs and creates no adoption merge.
 
+Disposable checkouts exclude tracked historical `output/` artifacts using Git sparse checkout; complete source tree identities remain recorded and tests generate fresh evidence. This prevents old oversized archive fixtures from exhausting the qualification host.
+
 This preparation changes no app runtime implementation. The rehearsal checks the runtime's exact Phase 2 bytes and key alpha authority/accounting/Proof bytes. The snapshots are test artifacts, never release candidates or installed source.
 
 ## Change impact and compatibility requirements
