@@ -590,8 +590,24 @@ test.skipIf(!connection || !factoryRoot)(
         viewport: { width: 1280, height: 960 },
       });
       page.setDefaultTimeout(10000);
+      // Exercise delayed render data so submissions cannot reuse a stale form.
+      await page.route("**/api/apps", async (route) => {
+        const response = await route.fetch();
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        await route.fulfill({ response });
+      });
       const click = (name: string) =>
         page.getByRole("button", { name, exact: true }).click();
+      const submitAndWaitForRender = async (name: string, selector: string) => {
+        const form = await page.locator(selector).elementHandle();
+        if (!form) throw Error("Expected the form being submitted");
+        try {
+          await click(name);
+          await page.waitForFunction((submitted) => !submitted.isConnected, form);
+        } finally {
+          await form.dispose();
+        }
+      };
       await page.goto(server.origin);
       await page.getByLabel("Fixture owner").selectOption("synthetic-owner-b");
       await click("Enter workspace");
@@ -616,11 +632,11 @@ test.skipIf(!connection || !factoryRoot)(
         await page.getByLabel(label, { exact: true }).fill(value);
       await click("Create lead");
       await page.getByLabel("Pipeline stage").selectOption("Qualified");
-      await click("Save stage");
+      await submitAndWaitForRender("Save stage", "#stage");
       await page
         .getByLabel("Your request", { exact: true })
         .fill("Show me my CRM.");
-      await click("Ask Sofie");
+      await submitAndWaitForRender("Ask Sofie", "#sofie");
       const b = {
         ...human,
         ownerId: "synthetic-owner-b",
@@ -637,7 +653,7 @@ test.skipIf(!connection || !factoryRoot)(
       await page
         .getByLabel("Your request", { exact: true })
         .fill("Move Acme to Proposal.");
-      await click("Ask Sofie");
+      await submitAndWaitForRender("Ask Sofie", "#sofie");
       await page.waitForFunction(
         () =>
           document.querySelector<HTMLSelectElement>('select[name="stage"]')
@@ -646,7 +662,7 @@ test.skipIf(!connection || !factoryRoot)(
       await page
         .getByLabel("Your request", { exact: true })
         .fill("Add a priority field.");
-      await click("Ask Sofie");
+      await submitAndWaitForRender("Ask Sofie", "#sofie");
       await page
         .getByText(
           "Your verified CRM candidate is ready to preview. Installation needs your approval.",
