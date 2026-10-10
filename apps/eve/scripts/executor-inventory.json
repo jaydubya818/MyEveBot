@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "ede8d96bf5bc40f63f6cec3c8357c2227ba147717acebd13ab498e0356562a24"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Current context-headroom review: Selected alpha Work uses the bounded read-only Proof projection; mandatory owner/Agent policy, Work bindings, limits and canonical Proof hash remain. Non-alpha context stays unchanged. Evidence: context-assembly alpha regression and unchanged Golden Journey v2.",
+      "sha256": "91b02cc568c056696cd55a2d44022f2f14142f78445504d6d2436c51251aadd7"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -4206,8 +4206,8 @@
     },
     "lib/external-alpha/bounded-context.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "4f79718871a86c1c72a6062732e0907a2c34ee3f301880f7e48ecabe7dced851"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Current context-headroom review: Bounded Proof limitations preserved with explicit incomplete/unavailable disclosure. Common revision/producer/time fields factored without altering exact criterion states or distinct hashes; reconstruction tests verify identity. Shared projection used by mandatory alpha context and tool results; 32000-byte hard limit unchanged.",
+      "sha256": "9cb86fefa77aaa2f960c8a5bdbe938339e1750223093da13009400c9999c0135"
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",

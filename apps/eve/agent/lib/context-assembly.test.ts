@@ -175,3 +175,26 @@ describe("opt-in Engineering Work context", () => {
     expect(ordinary.markdown).not.toContain("Current Engineering Work");
   });
 });
+
+it("bounds alpha mandatory Proof data while retaining policy, identity and material limitations", async()=>{
+ const {EngineeringWorkerProjectionStore}=await import("../../lib/engineering/worker-projection.ts");
+ const {WorkStore}=await import("../../lib/engineering/store.ts");
+ const {digest}=await import("../../lib/engineering/contract.ts");
+ const current=await mocks.getWork();
+ const base=await new EngineeringWorkerProjectionStore(new WorkStore({scopeId:ownerId,scopeKind:"personal",actorId:ownerId}),agentId).get(current.id);
+ const proof={workId:current.id,workVersion:current.version,criteriaVersion:1,outcome:"PARTIAL",resultRevision:"a".repeat(40),
+  historicalDescription:"Archived verification detail ".repeat(1000),
+  limitations:["Independent verifier unavailable; no acceptance is established.","One criterion failed; publication remains disabled."],
+  evidence:[{criterionId:"criterion-a",state:"PASS",contentHash:"hash-a"},{criterionId:"criterion-b",state:"FAIL",contentHash:"hash-b"}]};
+ const before=structuredClone(proof);
+ const spy=vi.spyOn(EngineeringWorkerProjectionStore.prototype,"get").mockResolvedValue({...base,projection:{...base.projection,nativeResult:{id:"retained-result",proof,contentHash:digest(proof),current:true}}} as any);
+ try{
+  const full=await assembleContext(input(current.id));
+  vi.stubEnv("EVE_PROJECT_NAME","myeve-alpha-tester-1");
+  const bounded=await assembleContext(input(current.id));
+  expect(Buffer.byteLength(bounded.markdown)).toBeLessThan(Buffer.byteLength(full.markdown)-10000);
+  for(const exact of ["retained-result",current.id,"Independent verifier unavailable; no acceptance is established.","One criterion failed; publication remains disabled.","criterion-a","criterion-b","hash-a","hash-b",digest(proof),"Recheck current authority at each action boundary."])expect(bounded.markdown).toContain(exact);
+  expect(bounded.markdown).toContain('"state":"FAIL"');expect(bounded.markdown).toContain('"status":"COMPLETE"');
+  expect(proof).toEqual(before);
+ }finally{spy.mockRestore();}
+});

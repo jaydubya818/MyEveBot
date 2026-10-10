@@ -1,3 +1,5 @@
+import { compactProofData } from "../../lib/external-alpha/bounded-context.ts";
+import { externalAlphaInstallation } from "../../lib/external-alpha/policy.ts";
 import {selectedEngineeringWorkEnabled} from "../../lib/engineering/alpha-selected-work.ts";
 import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import { BusinessScopes } from "../../lib/business-scopes.ts";
@@ -239,6 +241,11 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     projection.source.executionRef, projection.source.routingRef, projection.source.resultRef,
     ...facts.flatMap(fact => [`engineering-knowledge:${fact.id}`, `knowledge-source:${fact.source.id}`])
   ].filter((ref): ref is string => !!ref);
+  // Mandatory policies and Work references stay intact. The selected Work's
+  // Proof is data: use the same bounded projection as tool results so a full
+  // historical Proof is not duplicated into every provider request.
+  const proofContext = externalAlphaInstallation() && projection.nativeResult
+    ? compactProofData(projection.nativeResult.proof) : projection.nativeResult?.proof;
   const content = [
     `Work ${work.id} · ${work.title}`,
     `Objective: ${work.objective.slice(0, 1600)}`,
@@ -262,7 +269,7 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     projection.repositoryObservation ? `Repository observation: ${projection.repositoryObservation.status}; observed at ${projection.repositoryObservation.observedAt ?? "never"}.` : "Repository observation: unavailable.",
     (execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha)
       ? `Current candidate: ${execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha}.` : "Current candidate: none.",
-    projection.nativeResult ? `Native immutable Proof of Work ${projection.nativeResult.id}: ${JSON.stringify(projection.nativeResult.proof)}. Hash ${projection.nativeResult.contentHash}.` : "",
+    projection.nativeResult ? `Native immutable Proof of Work ${projection.nativeResult.id}: ${JSON.stringify(proofContext)}. Hash ${projection.nativeResult.contentHash}.` : "",
     projection.conversationRuntime ? `Common Work model accounting and reconciliation state: ${JSON.stringify(projection.conversationRuntime)}.` : "",
     projection.nativeRuntime ? `Historical native model accounting (do not add to common total): ${JSON.stringify(projection.nativeRuntime)}.` : "",
     projection.latestResult ? `Latest retained Result: version ${projection.latestResult.version}, candidate ${projection.latestResult.candidate}; ${projection.latestResult.summary}.` : "Latest retained Result: none.",

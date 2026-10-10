@@ -35,7 +35,7 @@ function boundedLimitations(value: unknown) {
  return {limitations, limitationsReadback: {
   status: !available ? "UNAVAILABLE" : omittedCount || truncatedCount ? "INCOMPLETE" : "COMPLETE",
   omittedCount, truncatedCount,
-  note: "Truncated excerpts and omitted or unavailable Proof are not verification. An excerpt may omit a qualification or negation; read the canonical Proof for the complete limitations before drawing conclusions.",
+  ...(!available || omittedCount || truncatedCount ? {note: "Truncated excerpts may omit qualifications or negation. Omitted or unavailable Proof is not verification; read canonical Proof before drawing conclusions."} : {}),
  }};
 }
 
@@ -44,6 +44,29 @@ const pick=(value: unknown, keys: string[]): Record<string,unknown> => {
  const source=value as Record<string,unknown>;
  return Object.fromEntries(keys.filter(key=>source[key]!==undefined).map(key=>[key,source[key]]));
 };
+/** Bounded read-only Proof projection shared by mandatory context and tool
+ * results. Canonical Proof bytes remain retained; hashes identify that original. */
+export function compactProofData(original: unknown): Record<string, unknown> {
+ const source=original as Record<string, unknown>|null;
+ if(!source || typeof source!=="object" || Array.isArray(source))return {};
+ const evidence=Array.isArray(source.evidence)?source.evidence.map((e:unknown)=>pick(e,["criterionId","resultRevision","state","producer","contentHash","observedAt"])):[];
+ const commonEvidenceBinding: Record<string, unknown> = {};
+ // Factor only identical, present binding fields. Criterion identity, outcome
+ // and distinct content hashes remain explicit for every criterion.
+ for(const key of ["resultRevision","producer","observedAt"]) {
+  const first=evidence[0]?.[key];
+  if(typeof first!=="string" || !evidence.every(item=>item[key]===first))continue;
+  commonEvidenceBinding[key]=first;
+  for(const item of evidence)delete item[key];
+ }
+ return {...pick(source,["workId","workVersion","criteriaVersion","outcome","resultRevision","createdAt"]),
+  ...boundedLimitations(source.limitations), contentHash:digest(original),
+  evidence, ...(Object.keys(commonEvidenceBinding).length?{commonEvidenceBinding}:{}),
+  artifactRefs:Array.isArray(source.artifactRefs)?source.artifactRefs.filter((ref:unknown)=>typeof ref==="string" && /^(factory-evidence:|factory-manifest:|factory-version:|external-alpha-authority:|changed-source:)/.test(ref)):[],
+  details:"Common evidence bindings apply to every criterion. Read canonical Proof for full references; this projection grants no authority.",
+ };
+}
+
 /** A data projection, never a permission token. Keep current identities,
  * versions, criterion outcomes and Proof references; omit duplicated event logs. */
 export function compactWorkData(value: unknown): Record<string,unknown> {
@@ -52,15 +75,8 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
  const work=pick(source.work??source,["id","scopeId","scopeKind","title","objective","version","generation","criteriaVersion","criteria","lifecycle","control"]);
  const projection=pick(source.projection,["status","currentTruth","lastChange","nextStep","readiness","needsYou","lifecycle","currentCandidate","currentAuthority"]);
  const native=pick((source.projection as any)?.nativeResult,["id","resultId","authorityId","candidateSha","contentHash","workVersion","workGeneration","verdict","cleanupConfirmed","settlementState","current"]);
- const proof=pick((source.projection as any)?.nativeResult?.proof,["workId","workVersion","criteriaVersion","outcome","resultRevision","createdAt"]);
  const original=(source.projection as any)?.nativeResult?.proof;
- if(original){
-  Object.assign(proof, boundedLimitations(original.limitations));
-  proof.contentHash=digest(original);
-  proof.evidence=Array.isArray(original.evidence)?original.evidence.map((e:unknown)=>pick(e,["criterionId","resultRevision","state","producer","contentHash","observedAt"])):[];
-  proof.artifactRefs=Array.isArray(original.artifactRefs)?original.artifactRefs.filter((ref:unknown)=>typeof ref==="string" && /^(factory-evidence:|factory-manifest:|factory-version:|external-alpha-authority:|changed-source:)/.test(ref)):[];
-  proof.details="Open this Work's retained Result and Proof for full historical references and limitations; this projection grants no authority.";
- }
+ const proof=original ? compactProofData(original) : {};
  if(Object.keys(proof).length)native.proof=proof;
  if(Object.keys(native).length)projection.nativeResult=native;
  return {dataOnly:true,sourceSha256:digest(value),work,projection,

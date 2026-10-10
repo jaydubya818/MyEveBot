@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { boundedAlphaHistory, compactWorkData, EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES } from "./bounded-context.ts";
+import { boundedAlphaHistory, compactWorkData, compactProofData, EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES } from "./bounded-context.ts";
 import { digest } from "../engineering/contract.ts";
 const system = {role: "system", content: "Mandatory: owner isolation, UNKNOWN denial, no publication, exact Work authority."};
 const user = (text: string) => ({role:"user",content:[{type:"text",text}]});
@@ -83,4 +83,19 @@ it("targets headroom below the hard cap, but preserves an indivisible mandatory 
  expect(boundedAlphaHistory(mandatory as any,[])).toEqual(mandatory);
  expect(()=>boundedAlphaHistory([system,user("x".repeat(32000))] as any,[])).toThrow("CONTEXT_BOUND");
  expect(()=>boundedAlphaHistory([system,latest] as any,[{type:"function",name:"engineering_work",inputSchema:{description:"x".repeat(32000)}}] as any)).toThrow("CONTEXT_BOUND");
+});
+
+it("factors identical evidence bindings without losing mixed criterion outcomes or distinct signed hashes",()=>{
+ const entries=Array.from({length:10},(_,i)=>({criterionId:`criterion-${i}`,resultRevision:"r".repeat(40),state:i===9?"FAIL":"PASS",producer:"trusted-verifier",contentHash:`hash-${i}`,observedAt:"2026-10-10T00:00:00Z"}));
+ const original={workId:"work-a",workVersion:2,criteriaVersion:1,resultRevision:"r".repeat(40),outcome:"PARTIAL",limitations:["One criterion failed; this Result is not accepted."],evidence:entries};
+ const before=structuredClone(original),compact=compactProofData(original) as any;
+ expect(compact.evidence.map((e:any)=>({...compact.commonEvidenceBinding,...e}))).toEqual(entries);
+ expect(compact.evidence.map((e:any)=>e.state)).toEqual([...Array(9).fill("PASS"),"FAIL"]);
+ expect(new Set(compact.evidence.map((e:any)=>e.contentHash)).size).toBe(10);
+ expect(compact.contentHash).toBe(digest(original));expect(original).toEqual(before);
+});
+it("keeps distinct evidence producer, timestamp and revision bindings explicit",()=>{
+ const entries=[{criterionId:"a",state:"PASS",resultRevision:"r1",producer:"verifier-1",observedAt:"2026-10-10T00:00:00Z",contentHash:"h1"},{criterionId:"b",state:"FAIL",resultRevision:"r2",producer:"verifier-2",observedAt:"2026-10-10T00:01:00Z",contentHash:"h2"}];
+ const compact=compactProofData({limitations:["Distinct verifier observations."],evidence:entries}) as any;
+ expect(compact.commonEvidenceBinding).toBeUndefined();expect(compact.evidence).toEqual(entries);
 });
