@@ -21,7 +21,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   const head = git(repo,['rev-parse','HEAD']);
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
-  const expected = name==='myeve' ? ['.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
+  const expected = name==='myeve' ? ['.github/workflows/ci.yml','.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
   const attempt = spawnSync('git',['-C',repo,'merge-tree','--write-tree','--name-only',head,integration],{encoding:'utf8'});
   assert([0,1].includes(attempt.status),attempt.stderr);
   const sections=attempt.stdout.trimEnd().split('\n\n');
@@ -35,6 +35,11 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
+      // Keep canonical CI coverage, resolving only the exact companion-fixture pin.
+      const ciPath='.github/workflows/ci.yml',factoryHead=git(factory,['rev-parse','HEAD']);
+      assert(show(repo,head,ciPath).includes(`ref: ${factoryHead}`),'Factory preparation must match the CI fixture pin');
+      const ciConflict=`<<<<<<< ${head}\n          ref: ${factoryHead}\n=======\n          ref: 388232c3053cdd3f55e9e309b72a9d9d95ded55f\n>>>>>>> ${integration}`;
+      put(ciPath,replacement(show(repo,initialTree,ciPath),ciConflict,`          ref: ${factoryHead}`));
       // Both inputs used a fixed last-migration name. Checkpoint 4 verifies
       // every applied name/checksum instead, without rewriting any migration.
       const validationPath='apps/eve/lib/engineering/production-validation-postgres.test.ts';
