@@ -48,7 +48,7 @@ import {
   UsersThreeIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { persistChatUpload, inspectChatUploads } from "@/lib/chat-file-client";
 import type { ChatFileView } from "@/lib/files-api";
@@ -188,6 +188,8 @@ function loadSavedModel(): string {
 function chatKey(threadId: string): string {
   return `eve-web-chat:${threadId}`;
 }
+
+type ComposerFocus = { threadId: string; start: number; end: number; direction: "forward" | "backward" | "none" };
 
 interface SavedChat {
   workSelection?: ChatWorkSelection;
@@ -713,6 +715,18 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [pendingDraft, setPendingDraft] = useState<{ threadId: string; text: string } | null>(
     null,
   );
+  // A server refresh remounts ChatThread. Retain focus only for its active composer.
+  const focusedComposerThread = useRef<ComposerFocus | null>(null);
+  useLayoutEffect(() => () => { focusedComposerThread.current = null; }, [index.activeId]);
+  useEffect(() => {
+    const clearOtherFocus = (event: FocusEvent) => {
+      if (!(event.target instanceof HTMLElement) || !event.target.hasAttribute("data-thread-composer")) {
+        focusedComposerThread.current = null;
+      }
+    };
+    document.addEventListener("focusin", clearOtherFocus);
+    return () => document.removeEventListener("focusin", clearOtherFocus);
+  }, []);
   // Threads with a turn still running, so background threads get a dot.
   const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
   const [conflictedThreadIds, setConflictedThreadIds] = useState<ReadonlySet<string>>(() => new Set());
@@ -1620,6 +1634,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
           }
           onDraftChange={text => setPendingDraft({threadId:index.activeId,text})}
+          composerFocus={focusedComposerThread}
+          onComposerFocus={element => { focusedComposerThread.current = element ? { threadId: index.activeId, start: element.selectionStart, end: element.selectionEnd, direction: element.selectionDirection } : null; }}
           onTitle={(title) => setThreadTitle(index.activeId, title)}
           onActivity={(title) => touchThread(index.activeId, title)}
           onPersist={(chat) => persistChat(index.activeId, chat)}
@@ -1836,6 +1852,8 @@ function ChatThread({
   initialChat: savedInitialChat,
   initialDraft,
   onDraftChange,
+  composerFocus,
+  onComposerFocus,
   onTitle,
   onActivity,
   onPersist,
@@ -1864,6 +1882,8 @@ function ChatThread({
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
   onDraftChange: (text:string) => void;
+  composerFocus: { current: ComposerFocus | null };
+  onComposerFocus: (element: HTMLTextAreaElement | null) => void;
   onTitle: (title: string) => void;
   onActivity: (title?: string) => void;
   onPersist: (chat: SavedChat) => void;
@@ -1912,6 +1932,13 @@ function ChatThread({
     draftRef.current=value;setDraftState(value);onDraftChange(value);
   }
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const savedFocus = composerFocus.current, composer = composerRef.current;
+    if (composerReady && composer && savedFocus?.threadId === threadId) {
+      composer.focus({ preventScroll: true });
+      composer.setSelectionRange(savedFocus.start, savedFocus.end, savedFocus.direction);
+    }
+  }, [composerReady, composerFocus, threadId]);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
   // rides along on its first send only.
@@ -2668,11 +2695,16 @@ function ChatThread({
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
+              data-thread-composer={threadId}
+              onFocus={event => onComposerFocus(event.currentTarget)}
+              onSelect={event => onComposerFocus(event.currentTarget)}
+              onBlur={() => onComposerFocus(null)}
               autoResize
               minRows={1}
               maxRows={7}
               className="w-full rounded-none bg-transparent px-1 text-sm ring-0 focus:ring-0"
               onChange={(event) => {
+                onComposerFocus(event.currentTarget);
                 setDraft(event.target.value);
                 setPaletteDismissed(false);
               }}
