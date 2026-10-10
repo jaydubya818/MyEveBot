@@ -1,6 +1,6 @@
 import {test,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
-import {execFileSync} from 'node:child_process';
+import {execFileSync,spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {randomUUID} from 'node:crypto';
 import {resolve} from 'node:path';
@@ -56,4 +56,11 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
    expect((await pool.query('SELECT count(*) n FROM '+table)).rows[0].n).toBe('0');
   expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(pins.migration.rehearsal);
  }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+});
+
+test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
+ const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
+ const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
+ expect(check.status).toBe(1);
+ expect(check.stderr).toContain('SOURCE_IDENTITY_CHANGED_REVIEW_AND_REPIN');
 });

@@ -29,6 +29,10 @@ jobs:
           ref: 4c6e540b40e1db226eefda763e615dfe7cb02e3c
           fetch-depth: 0
           path: .qualification/myfactory
+      - uses: actions/checkout@v4
+        with:
+          ref: 474bd465c2773bf55536b1914045c646deaa644f
+          path: .qualification/ux-baseline
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -59,8 +63,17 @@ jobs:
           MYAPPS_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
-        run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts
+        run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile=/tmp/myapps-composition/composed-tests.json
+      - name: Reproduce inherited allowance failures on untouched UX source
+        if: always()
+        working-directory: .qualification/ux-baseline
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/allowance-postgres.test.ts --reporter=default --reporter=json --outputFile=/tmp/myapps-composition/baseline-allowance-tests.json
       - name: Existing browser and performance regressions
+        if: always()
         working-directory: /tmp/myapps-composition/myeve
         run: |
           node packages/myapps/browser/journey.mjs
@@ -70,6 +83,6 @@ jobs:
         with:
           name: inactive-myapps-composition
           path: |
-            /tmp/myapps-composition/composition.json
+            /tmp/myapps-composition/*.json
             /tmp/myapps-composition/myeve/output/playwright/myapps/
           retention-days: 14

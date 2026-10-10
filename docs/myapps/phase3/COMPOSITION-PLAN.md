@@ -94,3 +94,11 @@ Before production READY, separately qualify the real bootstrap/targets/role/sign
 Monitoring plan for a future rollout: correlate owner/Work/version/generation/app/candidate/runtime/target/Result ids without secrets; watch denied stale/cross-owner grants, pending Inbox decisions, migration readiness, transaction failures, orphaned custody, lease/cleanup deadlines and UNKNOWN accounting. On isolation breach, signature/binding mismatch, unexpected paid admission or lost cleanup, disable admission immediately and reconcile original resources. Assign operator and validation window before activation.
 
 References: local canonical source/tests at the pinned revisions; [Git tree-level rehearsal semantics](https://git-scm.com/docs/git-merge-tree); [PostgreSQL row-security role and FORCE behavior](https://www.postgresql.org/docs/17/ddl-rowsecurity.html). See the workspace Phase 3 report for final SHAs, test evidence, hosted runs and independent review.
+
+## Observed qualification holds
+
+The first composed run passed 200/202 tests. Two `allowance-postgres.test.ts` cases failed with `Bounded incremental settlement required`; both reproduce on untouched UX `474bd465` (5 pass, 2 fail). Their direct SQL settlement skips the now-required dispatch transition. These are inherited test/contract incompatibilities, not evidence that the MyApps change caused a regression. They remain failures, are not skipped or relabeled PASS, and the workflow separately replays the untouched baseline. Repair belongs to the separately gated alpha/QE workstream. The remaining shared-accounting, authority, Result ingestion and private-acceptance cases passed. This narrow result does not supersede alpha's broader QE hold.
+
+The combined Factory tree also trips `apps/cloud-control/scripts/cloud-source-identity.mjs` with `SOURCE_IDENTITY_CHANGED_REVIEW_AND_REPIN`. A dedicated test requires that fail-closed result. No source-identity record or installed FactoryVersion is rewritten by this preparation.
+
+MySkills compatibility reference was remotely verified at `c7c53a261552297d9398b00e822d7cfaf7c63fff` (`codex/myskills-initial-qualification`, draft/HOLD). No Skill is executed or imported. Active branch inventories and unpublished QE status are retained in workspace reconciliation evidence.
