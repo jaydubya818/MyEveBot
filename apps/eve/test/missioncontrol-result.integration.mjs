@@ -3,10 +3,12 @@ import {execFileSync} from 'node:child_process';
 import {readFile,readdir,writeFile,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
+import {join} from 'node:path';
 import {Pool} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,sendEnterpriseCommand,validateResponse,contentDigest,signedCommand} from '../lib/missioncontrol/consumer.ts';
+import {qualifyResultObservations} from './result-observations.mjs';
 
 /** Called by the canonical native-successor hybrid runner while its actual evidence is current. */
 export async function prepareCompletedResultConsumer(db) {
@@ -62,9 +64,14 @@ export async function prepareCompletedResultConsumer(db) {
     const input={operation:'enterprise.result',missionId,expectedPlanDigest:connection.resultScope.planDigest},config=enterpriseConfig();
     const call=(ctx=context())=>executeEnterpriseTool(input,ctx);
     const beforeRuns=await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'});
-    await check('authenticated-transport-reads-real-Result',async()=>assert.equal((await sendEnterpriseCommand(config,input)).response.status,'AVAILABLE'));
-    let completed;
-    await check('actual-tool-consumes-executed-hybrid-Result',async()=>{completed=await call();assert.equal(completed.receipt.response.status,'AVAILABLE',JSON.stringify(completed.receipt.response));assert.equal(completed.receipt.response.workOrders.length,3);assert.equal(completed.receipt.response.ownerAcceptance,'PENDING');assert.match(completed.explanation,/Quality Gate is PASS/);});
+    const observed=await qualifyResultObservations({readTransport:()=>sendEnterpriseCommand(config,input),readTool:()=>call(),
+      validate:value=>validateResponse(config,input,value),stableDigest:contentDigest,sourceSha:result.myeveSourceSha,missionControlSourceSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+      expected:{missionId,planDigest:input.expectedPlanDigest,ownerId:s.operatorId,tenantId:s.tenantId,projectId:s.projectId},
+      writeProgress:async progress=>{result.directObservations=progress;if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'direct-result-observations.json'),JSON.stringify(progress,null,2)+'\n');}});
+    const completed=observed.completed;
+    await check('authenticated-transport-reads-real-Result',async()=>assert.equal(observed.progress.observations.filter(value=>value.kind==='transport').length,1));
+    await check('three-required-direct-tool-observations-of-one-exact-Result',async()=>{assert.equal(observed.progress.observations.filter(value=>value.kind==='tool').length,3);assert.match(completed.explanation,/Quality Gate is PASS/);});
+    await check('required-observations-never-dispatch-or-settle',async()=>assert.equal(contentDigest(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'})),contentDigest(beforeRuns)));
     result.completed=completed;
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
       const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
