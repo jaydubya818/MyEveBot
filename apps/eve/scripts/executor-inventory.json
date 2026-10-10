@@ -24,8 +24,8 @@
     },
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "d1c27a0b39434118212f65715333380b09daf2561e29735fc9e3cea1f2c3ce55"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+      "sha256": "f86f603da0f99db979cde42ced74ba0b3b19363c2c09ee46c45fe166aec361c5"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -4076,13 +4076,13 @@
     },
     "lib/capability-control/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. No production deployment or execution. Qualification: scripts/qualify-capability-control.mjs.",
-      "sha256": "88a8bb57949c3e371b9de3031e1eb2dc0ff30371bd202f74f9cb47b2972e901d"
+      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. No production deployment or execution. Qualification: scripts/qualify-capability-control.mjs. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+      "sha256": "b84784886878696c9757d52cfdd7b4a671702015e89057dbb12e39c293b20318"
     },
     "lib/capability-control/sofie.ts": {
       "classification": "ENFORCED",
-      "reason": "Direct owner guard excludes delegated, guest and role-pack callers. Canonical scoped preferences only; tool mutation separately requires always-approval. Qualification: scripts/qualify-capability-control.mjs.",
-      "sha256": "9207a60ea344ae4b9f763470d9292229b2b97c41bf45f60fe9cd3070de8cd9bf"
+      "reason": "Direct owner guard excludes delegated, guest and role-pack callers. Canonical scoped preferences only; tool mutation separately requires always-approval. Qualification: scripts/qualify-capability-control.mjs. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+      "sha256": "76c1548280cccc507d8d921025363ee59a73d48b8d04af685e318d8419777487"
     },
     "lib/capability-control/store.ts": {
       "classification": "ENFORCED",

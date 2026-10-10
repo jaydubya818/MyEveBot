@@ -4,7 +4,7 @@ Approved ownership: MyEve preferences and owner-facing eligibility; Relay organi
 
 Implemented in an isolated branch:
 
-- Exact existing signed owner session binding for HTTP and direct authenticated Sofie tool callers; explicit nonproduction installation/origin/database gate.
+- Exact existing signed owner session binding for HTTP and direct authenticated Sofie tool callers, including a server-minted channel marker that excludes local-development fallback; explicit nonproduction installation/origin/database gate.
 - PostgreSQL owner/installation scoped preferences, optimistic revisions, duplicate-safe commands, immutable audit and durable pending pause/revoke requests.
 - Server-owned, organization-bound identity/evidence records. Platform defaults expire or revoke without granting execution authority; ordinary enterprise defaults remain off.
 - Manage / Settings → Capabilities, seven groups, 36 descriptors, toggles, readiness/availability badges, dependencies, permissions, budgets, diagnostics link, unknown Work disclosure, and audit history.
@@ -12,7 +12,7 @@ Implemented in an isolated branch:
 - Canonical registry/resolver copied byte-for-byte from MissionControl `04770b83844b036080e59c9e6ea8ebb565383534`, checked by SHA-256 manifest.
 - Explicit compatibility contracts and branch-specific deployment prevention.
 
-Local qualification: 59 registry/resolver tests, 22 real disposable PostgreSQL/service checks, 10 real API/browser checks, six existing authentication tests, nine existing capability tests, TypeScript, capability-registry coverage, and executor-governance checks. Automated accessibility found zero WCAG 2 A/AA or 2.1 AA violations within the new panel. Repeated MissionControl-card screenshots match after reload; an approved visual baseline and manual assistive-technology qualification remain pending.
+Local qualification: 59 registry/resolver tests, 23 real disposable PostgreSQL/service checks, 10 real API/browser checks, 26 existing authentication, retained-session and persistent-agent tests, nine existing capability tests, TypeScript, capability-registry coverage, and executor-governance checks. Automated accessibility found zero WCAG 2 A/AA or 2.1 AA violations within the new panel. Repeated MissionControl-card screenshots match after reload; an approved visual baseline and manual assistive-technology qualification remain pending.
 
 The actual platform owner has **not** been bound or activated. The existing local owner label is insufficient evidence of authenticated platform administration. A canonical administration/membership/installation record and isolated environment must be resolved before real-owner qualification. No duplicate account or email privilege rule was added.
 

@@ -28,8 +28,11 @@ export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
 
 export function capabilityStore(actor: CapabilityActor): CapabilityStore {
   const config = capabilityConfiguration();
-  pool ??= new pg.Pool({ connectionString: config.databaseUrl, max: 4, connectionTimeoutMillis: 5000,
-    statement_timeout: 5000, idle_in_transaction_session_timeout: 5000 });
+  if (!pool) {
+    pool = new pg.Pool({ connectionString: config.databaseUrl, max: 4, connectionTimeoutMillis: 5000,
+      statement_timeout: 5000, idle_in_transaction_session_timeout: 5000 });
+    pool.on('error', () => { console.error('Capability database idle connection failed.'); });
+  }
   return new CapabilityStore(pool, config, actor);
 }
 
@@ -41,4 +44,10 @@ export async function capabilityPrincipal(request: Request) {
     || request.headers.get('sec-fetch-site') === 'cross-site'))
     throw new CapabilityError('same_origin_required', 'Use a same-origin capability request.', 403);
   return principal.id;
+}
+
+/** Drain the isolated service pool during process shutdown or qualification cleanup. */
+export async function closeCapabilityDatabase() {
+  const current = pool; pool = undefined;
+  await current?.end();
 }

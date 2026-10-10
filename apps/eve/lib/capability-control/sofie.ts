@@ -7,6 +7,8 @@ import { CapabilityError } from './contracts.ts';
 export function capabilityToolOwner(ctx: Pick<ToolContext, 'session'>) {
   const caller = ctx.session.auth.current;
   if (!caller || caller.principalType !== 'user' || caller.attributes.owner !== 'true'
+    || caller.authenticator !== 'myeve-web-session' || caller.issuer !== 'myeve'
+    || caller.attributes.myeveCapabilityOwner !== 'signed-session'
     || caller.attributes.role === 'guest' || caller.attributes.myeveRoleId
     || ctx.session.parent || executionIdentityFromAuth(ctx.session.auth)
     || !configuredOwnerIds().includes(caller.principalId))

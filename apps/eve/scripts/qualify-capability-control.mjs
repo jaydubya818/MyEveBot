@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { CapabilityStore } from '../lib/capability-control/store.ts';
-import { capabilityConfiguration, capabilityPrincipal } from '../lib/capability-control/runtime.ts';
+import { capabilityConfiguration, capabilityPrincipal, closeCapabilityDatabase } from '../lib/capability-control/runtime.ts';
 import { createWebSessionToken } from '../lib/web-auth.ts';
 import { capabilityToolOwner } from '../lib/capability-control/sofie.ts';
 import { capabilityRegistry } from '@mission-control/capability-control';
@@ -159,14 +159,25 @@ try {
     assert.throws(() => capabilityConfiguration({}), /isolated/);
   });
   await check('Sofie rejects guests, subagents, role-pack agents, and unknown owners', async () => {
-    const session = { auth: { current: { principalId: 'synthetic-platform-owner', principalType: 'user', attributes: { owner: 'true' } } } };
+    const session = { auth: { current: { principalId: 'synthetic-platform-owner', principalType: 'user', authenticator: 'myeve-web-session', issuer: 'myeve', attributes: { owner: 'true', myeveCapabilityOwner: 'signed-session' } } } };
     assert.equal(capabilityToolOwner({ session }), 'synthetic-platform-owner');
     for (const modified of [{ ...session, parent: {} }, { auth: { current: { ...session.auth.current, attributes: { owner: 'true', role: 'guest' } } } },
       { auth: { current: { ...session.auth.current, attributes: { owner: 'true', myeveRoleId: 'researcher' } } } },
       { auth: { current: { ...session.auth.current, principalId: 'unknown-owner' } } }]) assert.throws(() => capabilityToolOwner({ session: modified }), /direct authenticated/);
   });
+  await check('real channel distinguishes signed owner sessions from local fallback and forged headers', async () => {
+    const { ownerSession } = await import('../agent/channels/eve.ts');
+    const authenticate = ownerSession();
+    const unsigned = await authenticate(new Request('http://localhost/eve/v1/session', { method:'POST', headers:{origin:'http://localhost', 'x-myeve-capability-owner':'signed-session'} }));
+    assert.equal(unsigned.attributes.myeveCapabilityOwner, undefined);
+    assert.throws(()=>capabilityToolOwner({session:{auth:{current:unsigned}}}), /direct authenticated/);
+    const signed = await authenticate(new Request('http://localhost/eve/v1/session', { method:'POST', headers:{origin:'http://localhost',cookie:`myeve_session=${token}`} }));
+    assert.equal(capabilityToolOwner({session:{auth:{current:signed}}}), 'synthetic-platform-owner');
+    const crossSite = await authenticate(new Request('http://localhost/eve/v1/session', { method:'POST', headers:{origin:'https://attacker.invalid',cookie:`myeve_session=${token}`} }));
+    assert.equal(crossSite.attributes.myeveCapabilityOwner, undefined);
+  });
   await check('registered Sofie handlers share durable state and always require mutation approval', async () => {
-    const ctx = { session: { auth: { current: { principalId: 'synthetic-platform-owner', principalType: 'user', attributes: { owner: 'true' } } } } };
+    const ctx = { session: { auth: { current: { principalId: 'synthetic-platform-owner', principalType: 'user', authenticator: 'myeve-web-session', issuer: 'myeve', attributes: { owner: 'true', myeveCapabilityOwner: 'signed-session' } } } } };
     assert.equal(await changeCapability.approval({}), 'user-approval');
     assert.equal(showCapabilities.availableInSubagents, false); assert.equal(changeCapability.availableInSubagents, false);
     const before = await showCapabilities.execute({}, ctx);
@@ -188,6 +199,7 @@ try {
     await qualifyBrowser({ token: createWebSessionToken(), output });
   }
 } finally {
+  await closeCapabilityDatabase();
   if (runtime) await runtime.end(); if (admin) await admin.end();
   if (started) await execFile(join(bin, 'pg_ctl'), ['-D', join(directory, 'data'), '-m', 'immediate', '-w', 'stop']);
   await rm(directory, { recursive: true, force: true });

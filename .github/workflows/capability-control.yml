@@ -20,7 +20,7 @@ jobs:
       - run: npm test --workspace=@mission-control/capability-control
       - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
       - run: node --import tsx apps/eve/scripts/check-executor-governance.ts
-      - run: npm run test --workspace=eve-agent -- lib/web-auth.test.ts lib/web-session-revocation.test.ts
+      - run: npm run test --workspace=eve-agent -- lib/web-auth.test.ts lib/web-session-revocation.test.ts agent/lib/retained-work-session.test.ts agent/instructions/persistent-agent.test.ts
       - run: node --import tsx --test apps/eve/test/capability-registry.test.mjs apps/eve/test/capability-notice.test.mjs
       - run: npx playwright install --with-deps chromium
       - name: Disposable PostgreSQL, real HTTP, browser, and accessibility
