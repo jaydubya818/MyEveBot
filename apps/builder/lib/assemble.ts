@@ -183,8 +183,20 @@ export async function templateFiles(features: readonly FeatureId[]): Promise<str
   }).sort();
 }
 
+/** Trusted internal options, separate from the deployment request/wizard input. */
+export interface AssemblyOptions {
+  /** Offline qualification may bind metadata to the exact source commit time. */
+  timestamp?: string;
+}
+
 /** Assembles the complete deployment file set for the Vercel API. */
-export async function assembleDeployment(input: AssembleInput): Promise<DeployFile[]> {
+export async function assembleDeployment(input: AssembleInput, options: AssemblyOptions = {}): Promise<DeployFile[]> {
+  const timestamp = options.timestamp;
+  if (timestamp !== undefined && (typeof timestamp !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(timestamp) ||
+    !Number.isFinite(Date.parse(timestamp)) || new Date(timestamp).toISOString() !== timestamp)) {
+    throw new Error("Invalid assembly timestamp: expected canonical UTC ISO time");
+  }
   const root = await templateRoot();
   const paths = await templateFiles(input.features);
   const out: DeployFile[] = [];
@@ -273,7 +285,7 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
     templateRelease: info.release,
     features: [...input.features],
     projectName: input.projectName,
-    deployedAt: new Date().toISOString(),
+    deployedAt: timestamp ?? new Date().toISOString(),
   };
   out.push({
     file: BUILDER_MANIFEST_FILE,

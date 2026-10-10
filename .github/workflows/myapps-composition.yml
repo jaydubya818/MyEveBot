@@ -236,6 +236,10 @@ jobs:
       - run: npm run build --workspace apps/builder
       - name: Export canonical source without deployment
         run: node --import tsx apps/builder/scripts/qualification-myapps.ts /tmp/myapps-standalone --check-traces
+      - name: Verify reproducible raw source export
+        run: |
+          node --import tsx apps/builder/scripts/qualification-myapps.ts /tmp/myapps-standalone-repeat --check-traces
+          node apps/builder/scripts/qualification-reproducible.mjs /tmp/myapps-standalone /tmp/myapps-standalone-repeat /tmp/myapps-standalone-reproducible.json
       - name: Fresh standalone installation
         working-directory: /tmp/myapps-standalone
         run: npm install --ignore-scripts --no-audit --no-fund
@@ -254,5 +258,9 @@ jobs:
           path: |
             /tmp/myapps-packaging-composition/*.json
             /tmp/myapps-standalone.json
+            /tmp/myapps-standalone-repeat.json
+            /tmp/myapps-standalone-reproducible.json
+            /tmp/myapps-standalone/eve-builder.json
+            /tmp/myapps-standalone-repeat/eve-builder.json
             /tmp/myapps-standalone/package-lock.json
           retention-days: 14
