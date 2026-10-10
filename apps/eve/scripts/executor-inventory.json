@@ -3174,8 +3174,8 @@
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "70de382f5d3c2913731b40b0db3a5b85d0ce996bf50bb4f288b44bce1e12e14c"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "3295cbeca23595f398c0eb8d571a32babd70c650b5db805c229e5f328ca4f83a"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3324,8 +3324,8 @@
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "49149f91f3d54c6341cb444e6d8a95b5a66f03feef809ea7a2a83abffa8d1401"
     },
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
@@ -3449,8 +3449,8 @@
     },
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
-      "sha256": "5151368e3aeb4f4117e88f4f94ec073364b4cec62e6d05320273cefc8004a0c9"
+      "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "8f4e8227ab64bb11cdfa7e31c3e9d74cbdbdf5a34f6de3be1eceee9c31f2e31e"
     },
     "lib/engineering/routing-store.ts": {
       "classification": "INTERNAL",
@@ -4093,6 +4093,11 @@
       "classification": "ENFORCED",
       "reason": "Signed owner principal and same-origin mutation through bounded strict commands. No body-selected owner. Uses canonical scoped store; no execution authority. Real HTTP browser checks in scripts/qualify-capability-browser.mjs.",
       "sha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236"
+    },
+    "lib/capability-control/admission.ts": {
+      "classification": "INTERNAL",
+      "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
     }
   }
 }

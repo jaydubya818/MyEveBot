@@ -1,5 +1,5 @@
 {
-  "passed": 23,
+  "passed": 35,
   "checks": [
     "migration rollback leaves no schema",
     "synthetic platform defaults enable all 36 preferences without execution",
@@ -23,7 +23,19 @@
     "Sofie rejects guests, subagents, role-pack agents, and unknown owners",
     "real channel distinguishes signed owner sessions from local fallback and forged headers",
     "registered Sofie handlers share durable state and always require mutation approval",
-    "preserved MissionControl package matches every pinned file hash"
+    "preserved MissionControl package matches every pinned file hash",
+    "enforcement admits qualified preferences only within one restricted transaction",
+    "enforcement isolates owner organization installation and agent",
+    "disabled preference rejects new admission and keeps committed Work evidence",
+    "disabling MissionControl preserves independent Factory and Native admission",
+    "dependencies and bounded owner budgets constrain new admissions",
+    "Relay denial qualification and revocation cannot be overridden by enabled preferences",
+    "policy expiry during backend admission rolls back the backend write",
+    "concurrent disable waits for admission and denies every subsequent new admission",
+    "real routed Work admits once and retains exact capability evidence",
+    "legacy execution cannot bypass capability disable",
+    "pending pause and revoke block new Work without fabricating a backend stop",
+    "MyEve admission wrapper denies a pool or foreign principal before backend writes"
   ],
   "realOwnerBinding": "NOT_QUALIFIED",
   "paidOperations": 0,

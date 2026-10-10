@@ -191,6 +191,8 @@ try {
   await check('preserved MissionControl package matches every pinned file hash', async () => {
     for (const [file, expected] of Object.entries(lock.files)) assert.equal(createHash('sha256').update(await readFile(`../../packages/capability-control/${file}`)).digest('hex'), expected);
   });
+  const { qualifyEnforcement } = await import('./qualify-capability-enforcement.mjs');
+  await qualifyEnforcement({ admin, runtime, check });
   await writeFile(join(output, 'postgres.json'), JSON.stringify({ passed: checks.length, checks, realOwnerBinding: 'NOT_QUALIFIED', paidOperations: 0, productionIntegration: 'NOT_RUN' }, null, 2)+'\n');
   if (process.argv.includes('--browser')) {
     const { qualifyBrowser } = await import('./qualify-capability-browser.mjs');

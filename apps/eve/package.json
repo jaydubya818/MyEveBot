@@ -79,7 +79,8 @@
     "tailwind-merge": "^3.6.0",
     "web-push": "^3.6.7",
     "ws": "^8.21.0",
-    "zod": "4.4.3"
+    "zod": "4.4.3",
+    "@myeve/capability-enforcement": "*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
