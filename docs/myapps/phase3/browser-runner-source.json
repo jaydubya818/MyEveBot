@@ -1,0 +1,25 @@
+{
+  "format": "myapps.browser-runner-packaging.v1",
+  "source": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
+  "path": "apps/eve/test/owner-journey/runner-prod.ts",
+  "beforeSha256": "80dfab1ecedfcc6f11434cb59998ccd5a00e8bd3405ae83ed063caf705f9c7a5",
+  "afterSha256": "bed0dad1b8a6fec34b7873372dab58225d2feafbd468c95a329a60e9f669dd9f",
+  "hunks": [
+    {
+      "from": "import {createServer} from 'node:http';",
+      "to": "import {createServer} from 'node:http';\nimport {createRequire} from 'node:module';"
+    },
+    {
+      "from": "const root=resolve('../..');",
+      "to": "const root=resolve('../..');\n// Resolve the workspace's locked Next CLI, whether npm hoists it or nests it.\nconst appRequire=createRequire(join(root,'apps/eve/package.json'));\nconst nextPackagePath=appRequire.resolve('next/package.json');\nconst nextCli=join(dirname(nextPackagePath),appRequire('next/package.json').bin.next);"
+    },
+    {
+      "from": "join(root,'node_modules/next/dist/bin/next')",
+      "to": "nextCli",
+      "occurrences": 2
+    }
+  ],
+  "scope": "QUALIFICATION_HARNESS_ONLY",
+  "production": "NOT_RUN",
+  "assertions": "UNCHANGED"
+}
