@@ -1,7 +1,7 @@
 name: Owner UX
 on:
   push:
-    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010]
+    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010, codex/myapps-canonical-composer-20261010]
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,6 +24,9 @@ jobs:
       MYEVE_TEST_DATABASE_URL: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24.18.1
@@ -35,6 +38,7 @@ jobs:
         run: npx vitest run lib/external-alpha/context.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           repository: jaydubya818/relay
           ref: 8a8678d675adc8ac7f799d7660071de2256bb231
           path: .qualification/relay
@@ -114,6 +118,9 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24.18.1
