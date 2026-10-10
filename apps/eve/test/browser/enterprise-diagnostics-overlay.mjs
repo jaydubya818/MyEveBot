@@ -20,6 +20,21 @@ const diagnostic=(phase,outcome,elapsed='Math.round(performance.now()-started)')
 `;
 
 // Applied only to the disposable browser fixture, never the production consumer.
+export function instrumentEnterpriseResponseFailure(source) {
+  const boundary="if(body.status!=='success')throw Error('ENTERPRISE_COMMAND_DENIED');";
+  assert.equal(source.split(boundary).length,2,'Exactly one canonical response denial is required');
+  return source.replace(boundary,`if(body.status!=='success') {
+    try {
+      const message=body.errorMessage;
+      const code=typeof message==='string' && message.split('\\n').some(line=>line==='Function execution timed out (maximum duration: 1s)')
+        ? 'CONVEX_FUNCTION_TIMEOUT_1S'
+        : ['ENTERPRISE_ACCESS_DENIED','ENTERPRISE_PLAN_STALE'].find(value=>value===message)??'UNCLASSIFIED_BACKEND_ERROR';
+      console.error('[enterprise-fixture-diagnostic] '+JSON.stringify({phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null}));
+    } catch {}
+    throw Error('ENTERPRISE_COMMAND_DENIED');
+  }`);
+}
+
 export function instrumentEnterpriseConsumer(source) {
   const declaration='export async function sendEnterpriseCommand(';
   assert.equal(source.split(declaration).length,2,'Exactly one canonical command export is required');

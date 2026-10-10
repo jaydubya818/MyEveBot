@@ -5,7 +5,38 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {pathToFileURL,fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
-import {instrumentEnterpriseConsumer,instrumentEnterpriseAdapter,instrumentActionGateway} from './browser/enterprise-diagnostics-overlay.mjs';
+import {instrumentEnterpriseConsumer,instrumentEnterpriseResponseFailure,instrumentEnterpriseAdapter,instrumentActionGateway} from './browser/enterprise-diagnostics-overlay.mjs';
+
+test('canonical rejection diagnostics classify exact backend markers without changing denial or exposing bodies',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'enterprise-response-diagnostic-')),path=join(root,'response.ts');
+  const source="export function response(body: any) { if(body.status!=='success')throw Error('ENTERPRISE_COMMAND_DENIED'); return body.value; }";
+  await writeFile(path,instrumentEnterpriseResponseFailure(source));
+  const original=console.error,logs=[];console.error=value=>logs.push(String(value));
+  try {
+    const {response}=await import(pathToFileURL(path).href),value={secret:'REVIEW_SECRET_SENTINEL'};
+    assert.equal(response({status:'success',value}),value);assert.deepEqual(logs,[]);
+    for(const [message,code] of [
+      ['[Request ID: REVIEW_SECRET_SENTINEL] Server Error\nFunction execution timed out (maximum duration: 1s)\n','CONVEX_FUNCTION_TIMEOUT_1S'],
+      ['ENTERPRISE_ACCESS_DENIED','ENTERPRISE_ACCESS_DENIED'],['ENTERPRISE_PLAN_STALE','ENTERPRISE_PLAN_STALE'],
+      ['Function execution timed out (maximum duration: 2s)','UNCLASSIFIED_BACKEND_ERROR'],
+      ['REVIEW_SECRET_SENTINEL Function execution timed out (maximum duration: 1s)','UNCLASSIFIED_BACKEND_ERROR'],
+      ['REVIEW_SECRET_SENTINEL','UNCLASSIFIED_BACKEND_ERROR'],
+    ]) {
+      assert.throws(()=>response({status:'error',errorMessage:message}),{message:'ENTERPRISE_COMMAND_DENIED'});
+      assert.deepEqual(JSON.parse(logs.at(-1).slice('[enterprise-fixture-diagnostic] '.length)),{phase:'canonicalResponse',outcome:'FAIL',code,elapsedMs:null});
+    }
+    let reads=0,coercions=0;
+    assert.throws(()=>response({status:'error',get errorMessage(){reads++;return reads===1?'ENTERPRISE_ACCESS_DENIED':'REVIEW_SECRET_SENTINEL';}}),{message:'ENTERPRISE_COMMAND_DENIED'});
+    assert.equal(reads,1);
+    assert.throws(()=>response({status:'error',errorMessage:{toString(){coercions++;return 'REVIEW_SECRET_SENTINEL';}}}),{message:'ENTERPRISE_COMMAND_DENIED'});
+    assert.equal(coercions,0);assert.equal(logs.join('').includes('REVIEW_SECRET_SENTINEL'),false);
+    assert.throws(()=>response({status:'error',get errorMessage(){throw Error('REVIEW_SECRET_SENTINEL');}}),{message:'ENTERPRISE_COMMAND_DENIED'});
+    console.error=()=>{throw Error('REVIEW_SECRET_SENTINEL');};
+    assert.throws(()=>response({status:'error',errorMessage:'ENTERPRISE_ACCESS_DENIED'}),{message:'ENTERPRISE_COMMAND_DENIED'});
+    assert.throws(()=>instrumentEnterpriseResponseFailure(''));assert.throws(()=>instrumentEnterpriseResponseFailure(source+source));
+    assert.throws(()=>instrumentEnterpriseResponseFailure(instrumentEnterpriseResponseFailure(source)));
+  } finally {console.error=original;await rm(root,{recursive:true,force:true});}
+});
 
 async function fixture(fn) {
   const root=await mkdtemp(join(tmpdir(),'enterprise-diagnostic-test-'));
