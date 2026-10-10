@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: f36140713a9aab118d848256cc58c0b9504c3868
+          ref: 88337b38cf797661c06e38eae830590d52000b23
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -65,6 +65,11 @@ jobs:
         run: |
           node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
           node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
+      - name: Complete Result consumer security with a separate fresh hybrid Mission
+        env:
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MC_COMPATIBILITY_PORT: '3476'
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 88337b38cf797661c06e38eae830590d52000b23
       - name: Composed authenticated Result with exact execution runtime
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol

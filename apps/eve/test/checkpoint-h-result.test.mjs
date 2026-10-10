@@ -15,13 +15,15 @@ test('required Result runtime absence retains NOT_RUN evidence and fails the hos
     const mc=join(root,'mc'),output=join(root,'output'),preload=join(root,'source-identity-fixture.mjs');await mkdir(mc);
     // Only source metadata is stubbed. No runtime, backend, transport, or proof exists in this prerequisite test.
     await writeFile(preload,`import cp from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';
-cp.execFileSync=(command,args)=>{if(command!=='git'||JSON.stringify(args)!==JSON.stringify(['rev-parse','HEAD']))throw Error('Unexpected command in missing-runtime test');return ${JSON.stringify(expected+'\n')};};syncBuiltinESMExports();`);
+cp.execFileSync=(command,args)=>{if(command==='git'&&JSON.stringify(args)===JSON.stringify(['status','--porcelain']))return '';if(command!=='git'||JSON.stringify(args)!==JSON.stringify(['rev-parse','HEAD']))throw Error('Unexpected command in missing-runtime test');return ${JSON.stringify(expected+'\n')};};syncBuiltinESMExports();`);
     const env={...process.env,MISSIONCONTROL_SOURCE_ROOT:mc};delete env.MC_GOLDEN_RUNTIME_BUILD;
-    const result=spawnSync(process.execPath,['--import',preload,script,output],{cwd:resolve(root),env,encoding:'utf8'});
-    assert.equal(result.status,1,result.stderr);
-    const report=JSON.parse(await readFile(join(output,'report.json'),'utf8'));
-    assert.equal(report.status,'NOT_RUN');assert.equal(report.fullJourney,'NOT_RUN');assert.equal(report.paidOperations,0);
-    assert.match(report.reason,/Exact locked native runtime package unavailable/);
-    assert.equal(report.browser,undefined);assert.equal(report.nativeControls,undefined);
+    for(const [runner,destination,args] of [[script,output,[]],[fileURLToPath(new URL('./checkpoint-h-result-security.mjs',import.meta.url)),join(root,'security-output'),[expected]]]) {
+      const result=spawnSync(process.execPath,['--import',preload,runner,destination,...args],{cwd:resolve(root),env,encoding:'utf8'});
+      assert.equal(result.status,1,result.stderr);
+      const report=JSON.parse(await readFile(join(destination,'report.json'),'utf8'));
+      assert.equal(report.status,'NOT_RUN');assert.equal(report.fullJourney??report.fullOwnerJourney,'NOT_RUN');assert.equal(report.paidOperations,0);
+      assert.match(report.reason,/Exact locked native runtime/);
+      assert.equal(report.browser,undefined);assert.equal(report.nativeControls,undefined);assert.equal(report.consumer,undefined);
+    }
   } finally {await rm(root,{recursive:true,force:true});}
 });

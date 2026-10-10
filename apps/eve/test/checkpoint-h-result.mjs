@@ -7,7 +7,7 @@ import {pathToFileURL} from 'node:url';
 const root=process.cwd(),output=resolve(process.argv[2]);await mkdir(output,{recursive:true});
 const mc=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
 const sha=path=>execFileSync('git',['rev-parse','HEAD'],{cwd:path,encoding:'utf8'}).trim();
-assert.equal(sha(mc),'f36140713a9aab118d848256cc58c0b9504c3868');
+assert.equal(sha(mc),'88337b38cf797661c06e38eae830590d52000b23');
 const report={schema:'checkpoint-h-result-browser/v1',myEveSha:sha(root),missionControlSha:sha(mc),status:'IN_PROGRESS',releaseGate:'ADVISORY',fullJourney:'NOT_RUN',paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0};
 try {
  if(!process.env.MC_GOLDEN_RUNTIME_BUILD) {report.status='NOT_RUN';report.reason='Exact locked native runtime package unavailable; no substitute or expiry extension allowed.';}
@@ -19,13 +19,15 @@ try {
   await writeFile(join(output,'native-controls.log'),(controls.stdout??'')+(controls.stderr??''));
   assert.equal(controls.status,0,'Separate native fault and gate controls must pass before the positive linked journey');
   const controlJourney=JSON.parse(await readFile(join(output,'native-controls/journey.json'),'utf8'));
-  const {validateNativeControls}=await import(pathToFileURL(join(mc,'scripts/enterprise-golden-journey/evidence.mjs')).href);
-  report.nativeControls=validateNativeControls(controlJourney,sha(mc));
+  const {validateNativeControls,validateHybrid}=await import(pathToFileURL(join(mc,'scripts/enterprise-golden-journey/evidence.mjs')).href);
+  report.nativeControls=validateNativeControls(controlJourney,report.missionControlSha);
   const scratch=await mkdtemp(join(tmpdir(),'checkpoint-h-result-')),fixture=join(scratch,'source');
   execFileSync(process.execPath,['apps/eve/test/browser/prepare-enterprise.mjs',root,fixture],{stdio:'pipe',env:{...process.env,MC_COMPOSED_BROWSER_OUTPUT:join(output,'browser')}});
   const log=spawnSync(process.execPath,['--import','tsx','scripts/qualification/native-successor-journey.mts',process.env.MC_GOLDEN_RUNTIME_BUILD,process.env.MC_GOLDEN_DOCKER,join(output,'hybrid'),'hybrid'],{cwd:mc,encoding:'utf8',maxBuffer:32*1024*1024,env:{...process.env,MC_SOFIE_RESULT_CONSUMER_ROOT:fixture,MYEVE_CHECKPOINT_H_BROWSER:'1',MC_COMPOSED_BROWSER_OUTPUT:join(output,'browser')}});
   await writeFile(join(output,'hybrid.log'),(log.stdout??'')+(log.stderr??''));
   const journey=JSON.parse(await readFile(join(output,'hybrid/journey.json'),'utf8'));
+  const records=JSON.parse(await readFile(join(output,'hybrid/durable-records.json'),'utf8'));
+  report.proof=validateHybrid(journey,records,report.missionControlSha);
   report.browser=journey.stages.completedEnterpriseResultConsumer?.browser??{status:'NOT_RUN'};
   report.execution={native:journey.nativeExecution,hybrid:journey.hybridMission,accounting:journey.nativeDelegatedAccounting};
   report.status=log.status===0&&report.browser.status==='PASS'?'PASS':'FAIL';
