@@ -22,7 +22,7 @@ try {
   const {validateNativeControls}=await import(pathToFileURL(join(mc,'scripts/enterprise-golden-journey/evidence.mjs')).href);
   report.nativeControls=validateNativeControls(controlJourney,sha(mc));
   const scratch=await mkdtemp(join(tmpdir(),'checkpoint-h-result-')),fixture=join(scratch,'source');
-  execFileSync(process.execPath,['apps/eve/test/browser/prepare-enterprise.mjs',root,fixture],{stdio:'pipe'});
+  execFileSync(process.execPath,['apps/eve/test/browser/prepare-enterprise.mjs',root,fixture],{stdio:'pipe',env:{...process.env,MC_COMPOSED_BROWSER_OUTPUT:join(output,'browser')}});
   const log=spawnSync(process.execPath,['--import','tsx','scripts/qualification/native-successor-journey.mts',process.env.MC_GOLDEN_RUNTIME_BUILD,process.env.MC_GOLDEN_DOCKER,join(output,'hybrid'),'hybrid'],{cwd:mc,encoding:'utf8',maxBuffer:32*1024*1024,env:{...process.env,MC_SOFIE_RESULT_CONSUMER_ROOT:fixture,MYEVE_CHECKPOINT_H_BROWSER:'1',MC_COMPOSED_BROWSER_OUTPUT:join(output,'browser')}});
   await writeFile(join(output,'hybrid.log'),(log.stdout??'')+(log.stderr??''));
   const journey=JSON.parse(await readFile(join(output,'hybrid/journey.json'),'utf8'));
@@ -32,4 +32,4 @@ try {
  }
 } catch(error){report.status='FAIL';report.error=String(error);}
 await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
-if(report.status==='FAIL')process.exitCode=1;
+if(report.status!=='PASS')process.exitCode=1;

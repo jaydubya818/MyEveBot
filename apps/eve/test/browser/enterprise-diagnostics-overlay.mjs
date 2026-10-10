@@ -61,10 +61,11 @@ export function enterpriseAdapter(...args: Parameters<typeof fixtureEnterpriseAd
   const adapter=fixtureEnterpriseAdapter(...args);
   ${['execute','verify'].map(phase=>`{
     const original=adapter.${phase};
-    adapter.${phase}=async function(...parameters: Parameters<typeof original>) {
+    if(Object.prototype.toString.call(original)!=='[object AsyncFunction]')throw Error('FIXTURE_ADAPTER_ASYNC_CONTRACT_REQUIRED');
+    adapter.${phase}=async function(this: typeof adapter,...parameters: Parameters<typeof original>) {
       const started=performance.now();
       try {
-        const result=await original.apply(adapter,parameters);
+        const result=await original.apply(this,parameters);
         ${diagnostic(JSON.stringify('adapter.'+phase),'PASS')}
         return result;
       } catch(error) {

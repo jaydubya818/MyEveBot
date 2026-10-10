@@ -94,9 +94,16 @@ test('adapter diagnostics preserve arguments, receiver, results and verification
     const adapter={execute:async function(p,a){assert.equal(this,adapter);assert.equal(p,parameters);assert.equal(a,authority);return receipt;},verify:async function(r){assert.equal(this,adapter);assert.equal(r,receipt);throw error;}};
     assert.equal(module.enterpriseAdapter(adapter),adapter);
     assert.equal(await adapter.execute(parameters,authority),receipt);
+    const other={execute:adapter.execute,verify:adapter.verify};
+    const dynamic=module.enterpriseAdapter({execute:async function(){return this;},verify:async function(){return this;}});
+    assert.equal(await dynamic.execute.call(other),other);assert.equal(await dynamic.verify.call(other),other);
+    for(const method of ['execute','verify']) {
+      const incompatible={execute:async()=>receipt,verify:async()=>receipt,[method]:()=>receipt};
+      assert.throws(()=>module.enterpriseAdapter(incompatible),{message:'FIXTURE_ADAPTER_ASYNC_CONTRACT_REQUIRED'});
+    }
     await assert.rejects(()=>adapter.verify(receipt),caught=>caught===error);
     const reports=logs.map(log=>JSON.parse(log.slice('[enterprise-fixture-diagnostic] '.length)));
-    assert.deepEqual(reports.map(({phase,outcome,code})=>({phase,outcome,code})),[{phase:'adapter.execute',outcome:'PASS',code:'NONE'},{phase:'adapter.verify',outcome:'FAIL',code:'ENTERPRISE_RESULT_BINDING'}]);
+    assert.deepEqual(reports.map(({phase,outcome,code})=>({phase,outcome,code})),[{phase:'adapter.execute',outcome:'PASS',code:'NONE'},{phase:'adapter.execute',outcome:'PASS',code:'NONE'},{phase:'adapter.verify',outcome:'PASS',code:'NONE'},{phase:'adapter.verify',outcome:'FAIL',code:'ENTERPRISE_RESULT_BINDING'}]);
     assert.equal(logs.join('').includes('-token'),false);
   } finally {console.error=original;await rm(root,{recursive:true,force:true});}
 });

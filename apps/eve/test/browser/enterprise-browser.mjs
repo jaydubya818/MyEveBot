@@ -19,7 +19,7 @@ async function start({source,owner,databaseUrl='postgresql://postgres@localhost:
   const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>/^(PATH|HOME|TMPDIR|NODE_PATH|EVE_ENABLED_FEATURES|MYEVE_MISSIONCONTROL_.*)$/.test(key)));
   Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,
-    NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
+    NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
     MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),MC_COMPOSED_BROWSER_INPUT:join(output,'tool-input.json'),
     MC_COMPOSED_BROWSER_CONFIG_FILE:join(source,'runtime-browser-config.json'),NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'});
   const log=await open(join(output,'server.log'),'wx');
@@ -48,6 +48,7 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
   try {
     state=warmed??await start({source,owner,databaseUrl});warmed=undefined;const {page}=state;report.checks.push(...state.checks);
     await page.getByRole('button',{name:'New conversation',exact:true}).click();
+    await page.getByRole('heading',{name:'Hey Qualification Owner',exact:true}).waitFor();report.checks.push('fixture-owner-display-identity-matches');
     const send=async text=>{await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill(text);await page.getByRole('button',{name:'Send',exact:true}).click();};
     const marker='Deterministic Sofie readback from the actual tool:';
     await send(input.operation==='enterprise.propose'?'Build an Agentic HR platform':'Read the completed enterprise Result and its Proof for this Mission.');
