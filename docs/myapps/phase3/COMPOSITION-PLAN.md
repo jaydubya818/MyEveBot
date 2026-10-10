@@ -1,6 +1,6 @@
 # MyApps Phase 3 production composition plan
 
-**Production composition: NOT_READY. Production integration: NOT_RUN.** This reviewed preparation plan authorizes no merge, installation, deployment, paid operation, production grant or feature exposure. The qualified Phase 1/2 candidates and evidence remain immutable.
+**Production composition: NOT_READY. Production integration: NOT_RUN.** This preparation plan authorizes no merge, installation, deployment, paid operation, production grant or feature exposure. The qualified Phase 1/2 candidates and evidence remain immutable.
 
 ## Exact source and adoption order
 
