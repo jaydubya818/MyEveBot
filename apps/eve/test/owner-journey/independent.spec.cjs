@@ -102,8 +102,12 @@ test('independent Golden Journey qualification',async({page,context})=>{
  const midFailCount=midFail.length;
  // 6. Duplicate start attempt must not redispatch
  await page.getByLabel('Request type').selectOption('continue').catch(()=>{});
- await send(page,'Start this Work.');await page.waitForTimeout(15000);
- s=await status(page);note('DUPLICATE_START_NO_REDISPATCH',s.dispatches===1&&s.executions<=1,{dispatches:s.dispatches,executions:s.executions});
+ const callsBeforeDup=s.modelCalls;await send(page,'Start this Work.');await page.waitForTimeout(15000);
+ s=await status(page);
+ // Still during the running Work: zero-gap fencing (Decision D) denies this paid turn before any model call.
+ const dupFail=(await failures(page)).slice(midFailCount);
+ note('DUPLICATE_START_NO_REDISPATCH',s.dispatches===1&&s.executions<=1&&s.modelCalls===callsBeforeDup&&dupFail.every(f=>JSON.stringify(f).includes('EXTERNAL_ALPHA_SHARED_FENCED')),{dispatches:s.dispatches,executions:s.executions,modelCallsDelta:s.modelCalls-callsBeforeDup,turnFailures:dupFail});
+ const preCompletionFailCount=midFailCount+dupFail.length;
  // 7. Factory completion (SYNTHETIC boundary: FakeFactory + buildSignedResult) and reconciliation
  start('completion_projection');
  expect((await page.request.post(FIX+'/fixture/complete')).ok()).toBeTruthy();
@@ -127,7 +131,7 @@ test('independent Golden Journey qualification',async({page,context})=>{
  await expect.poll(async()=> (await status(page)).modelCalls,{timeout:90000}).toBeGreaterThan(callsBeforeNat);
  const natOk=true;await expect.poll(()=>page.getByText('The saved result is accepted private Result; this Work is completed.',{exact:false}).count(),{timeout:120000}).toBeGreaterThan(beforeNaturalReplies);
  stop('paid_followup_after_completion');
- s=await status(page);const natFail=(await failures(page)).slice(midFailCount);
+ s=await status(page);const natFail=(await failures(page)).slice(preCompletionFailCount);
  note('PAID_NATURAL_FOLLOWUP_AFTER_COMPLETION',natOk&&natFail.length===0,{modelCallsDelta:s.modelCalls-callsBeforeNat,turnFailures:natFail});
  await expect(page.getByRole('textbox',{name:'Message Sofie',exact:true})).toBeEnabled();
  // 10. Canonical zero-cost readback
@@ -169,9 +173,11 @@ test('independent Golden Journey qualification',async({page,context})=>{
  expect(acct.publications).toEqual([{n:0}]);
  expect(acct.operations.every(o=>o.state==="SETTLED")).toBe(true);
  expect(findings.filter(f=>!f.ok)).toEqual([]);
- // The only failed turn is the explained, uncharged denial of chat during the running Work (Decision D).
+ // The only failed turns are the explained denials of paid chat while the Work ran (Decision D):
+ // the mid-Work question and, if it reached the server, the duplicate start. Nothing fails after completion.
  expect(midFail).toHaveLength(1);expect(JSON.stringify(midFail)).toContain('EXTERNAL_ALPHA_SHARED_FENCED');
- expect(natFail).toEqual([]);expect(allFailures).toEqual(midFail);
+ expect(dupFail.length).toBeLessThanOrEqual(1);expect(dupFail.every(f=>JSON.stringify(f).includes('EXTERNAL_ALPHA_SHARED_FENCED'))).toBe(true);
+ expect(natFail).toEqual([]);expect(allFailures).toEqual([...midFail,...dupFail]);
  expect(final.contextSizes.every(bytes=>bytes<=32000)).toBe(true);
  expect(bypass).toEqual([]);
  expect(a11y.flatMap(a=>Object.values(a).filter(v=>v&&typeof v==='object'&&Array.isArray(v.serious)).flatMap(v=>v.serious))).toEqual([]);
