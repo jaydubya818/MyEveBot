@@ -1,10 +1,12 @@
 import { propagateCapabilityPolicy } from '../../../../packages/capability-enforcement/src/ordering-transport.ts';
+import { reconcileBackendControls } from '../../../../packages/capability-enforcement/src/lifecycle-transport.ts';
 import type { PolicyKey } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import pg from 'pg';
 import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
 import { CapabilityError, type CapabilityActor } from './contracts.ts';
 import { CapabilityStore } from './store.ts';
+import { configuredRecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
 
 const configuration = z.object({
   id: z.string().min(1).max(200),
@@ -25,6 +27,8 @@ export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
     environment: env.MYEVE_CAPABILITY_ENVIRONMENT, databaseUrl: env.MYEVE_CAPABILITY_DATABASE_URL,
     origin: env.MYEVE_CAPABILITY_ORIGIN });
   if (!result.success) throw new CapabilityError('capabilities_setup_required', 'Capability controls have not been configured for this installation.', 503);
+  if (result.data.environment === 'development' && !configuredRecoveryWitness(env))
+    throw new CapabilityError('recovery_setup_required', 'This installation requires its independently retained recovery witness.', 503);
   return result.data;
 }
 
@@ -36,11 +40,13 @@ export function capabilityStore(actor: CapabilityActor): CapabilityStore {
     pool.on('error', () => { console.error('Capability database idle connection failed.'); });
   }
   const delivery = process.env.MYEVE_CAPABILITY_PROPAGATION_JSON;
-  const transport = delivery ? JSON.parse(delivery) as { signer: PolicyKey; relayEndpoint: string } : undefined;
-  return new CapabilityStore(pool, config, actor, transport ? organizationId =>
-    propagateCapabilityPolicy(pool!, { ownerId: actor.ownerId, installationId: config.id,
-      organizationId, environment: config.environment, agentId: 'policy-propagation' },
-      transport.signer, transport.relayEndpoint) : undefined);
+  const transport = delivery ? JSON.parse(delivery) as { signer: PolicyKey; relayEndpoint: string; lifecycleEndpoints?: Record<string, string> } : undefined;
+  return new CapabilityStore(pool, config, actor, transport ? async organizationId => {
+    const scope = { ownerId: actor.ownerId, installationId: config.id, organizationId,
+      environment: config.environment, agentId: 'policy-propagation' } as const;
+    await propagateCapabilityPolicy(pool!, scope, transport.signer, transport.relayEndpoint);
+    if (transport.lifecycleEndpoints) await reconcileBackendControls(pool!, scope, transport.lifecycleEndpoints, transport.signer);
+  } : undefined);
 }
 
 export async function capabilityPrincipal(request: Request) {

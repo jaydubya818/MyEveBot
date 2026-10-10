@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { CapabilityStore } from '../lib/capability-control/store.ts';
+import { signLifecycleReceipt } from '../../../packages/capability-enforcement/src/lifecycle-wire.ts';
 import { spawn } from 'node:child_process';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -6,7 +8,7 @@ import { join, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const require = createRequire(import.meta.url);
-export async function qualifyBrowser({ token, output }) {
+export async function qualifyBrowser({ token, output, admin, runtime }) {
   const port = 3317;
   const origin = `http://127.0.0.1:${port}`;
   // Deliberate allowlist: never inherit model, production database, or integration credentials.
@@ -114,6 +116,33 @@ export async function qualifyBrowser({ token, output }) {
     await page.getByRole('button',{name:'Refresh capabilities'}).click();
     await page.getByRole('alert').filter({hasText:'Synthetic storage outage'}).waitFor({state:'hidden'});
     pass('storage outage is disclosed and refresh recovers without discarding preferences');
+    const pair = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign','verify']);
+    const signing = { keyId: 'browser-backend', jwk: await crypto.subtle.exportKey('jwk', pair.privateKey) };
+    await admin.query('INSERT INTO capability_control.policy_destinations VALUES($1,$2,$3,$4,1,$5,$6)',
+      ['qualification-1', 'synthetic-browser-owner', 'browser-backend', 'browser-epoch', signing.keyId, await crypto.subtle.exportKey('jwk', pair.publicKey)]);
+    await mission.getByText('Setup, permissions, and controls',{exact:true}).click();
+    await mission.getByRole('button',{name:'Request revocation'}).click();
+    await mission.getByText('REVOKE_REQUESTED · PENDING_BACKEND',{exact:true}).waitFor();
+    await mission.getByRole('button',{name:'Refresh backend acknowledgments'}).click();
+    await mission.getByText('REVOKE_REQUESTED · PENDING_BACKEND',{exact:true}).waitFor();
+    const store = new CapabilityStore(runtime, { id: 'qualification-1', environment: 'qualification' }, { ownerId: 'synthetic-browser-owner', source: 'settings' });
+    const change = (await admin.query("SELECT * FROM capability_control.policy_changes WHERE owner_id='synthetic-browser-owner' ORDER BY revision DESC LIMIT 1")).rows[0];
+    const observed = { schema: 'capability-control.lifecycle.v1', kind: 'CONTROL_ACK', authority: 'myeve',
+      ownerId: 'synthetic-browser-owner', organizationId: 'organization-1', installationId: 'qualification-1',
+      backendId: 'browser-backend', incarnation: 'browser-epoch', enrollmentVersion: 1,
+      version: change.revision, policyId: change.policy_id, capabilityId: 'missioncontrol', operation: 'revoke',
+      sequence: 1, observedAt: Date.now(), state: 'STOP_UNKNOWN', inventoryComplete: false,
+      evidenceDigest: 'a'.repeat(64), inventoryDigest: 'b'.repeat(64) };
+    await store.acknowledgeControl('browser-backend', await signLifecycleReceipt(observed, signing));
+    await page.reload(); await mission.getByText('browser-backend: STOP UNKNOWN.', { exact: false }).waitFor();
+    assert.equal(await mission.getByRole('switch').isDisabled(), true);
+    await store.acknowledgeControl('browser-backend', await signLifecycleReceipt({ ...observed, sequence: 2, observedAt: Date.now(), state: 'CLEANUP_CONFIRMED', inventoryComplete: true }, signing));
+    await page.reload(); await mission.getByText('REVOKE_REQUESTED · ACKNOWLEDGED', { exact: true }).waitFor();
+    await mission.getByRole('button',{name:'Enable new Work after confirmed control'}).click();
+    await mission.getByRole('switch',{checked:true}).waitFor();
+    await page.reload(); await mission.getByRole('switch',{checked:true}).waitFor();
+    assert.equal((await store.inspect()).audit.find(item => item.operation === 'enable').previous.control, 'REVOKE_REQUESTED');
+    pass('signed backend UNKNOWN and cleanup observations survive reconnect; re-enable requires explicit owner command');
     await writeFile(join(output,'browser.json'),JSON.stringify({passed:checks.length,checks,realOwnerGoldenJourney:'NOT_QUALIFIED',visualRegression:'REPEAT_RENDER_PASS; APPROVED_BASELINE_PENDING',paidOperations:0},null,2)+'\n');
   } finally {
     if (page) { await writeFile(join(artifacts,'final-page.txt'),await page.locator('body').innerText().catch(()=>'')); }

@@ -7,13 +7,17 @@
     ".": "./src/postgres.ts",
     "./decisions": "./src/decisions.ts",
     "./ordering": "./src/ordering-source.ts",
-    "./ordering-wire": "./src/ordering-wire.ts"
+    "./ordering-wire": "./src/ordering-wire.ts",
+    "./lifecycle-wire": "./src/lifecycle-wire.ts",
+    "./lifecycle": "./src/lifecycle-source.ts",
+    "./lifecycle-transport": "./src/lifecycle-transport.ts",
+    "./recovery-witness": "./src/recovery-witness.ts"
   },
   "dependencies": {
     "@mission-control/capability-control": "*",
     "zod": "4.4.3"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts src/ordering-source.ts src/ordering-transport.ts"
+    "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts src/ordering-source.ts src/ordering-transport.ts src/lifecycle-wire.ts src/lifecycle-source.ts src/lifecycle-transport.ts src/recovery-witness.ts"
   }
 }

@@ -2,6 +2,9 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { capabilityRegistry, resolveCapabilities, type PolicySnapshot, type CapabilityFacts } from '@mission-control/capability-control';
 import { capabilityCommandSchema, CapabilityError, type CapabilityActor, type CapabilityInstallation, type CapabilityReceipt } from './contracts.ts';
+import { acknowledgeBackendControl, controlAcknowledgments } from '../../../../packages/capability-enforcement/src/lifecycle-source.ts';
+import type { SignedLifecycleReceipt } from '../../../../packages/capability-enforcement/src/lifecycle-wire.ts';
+import { assertRecoveryEnrollment, configuredRecoveryWitness, recoveryHead, assertRecoveryHead, advanceRecoveryWitness, type RecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
 
 export interface CapabilityConnection {
   query(sql: string, values?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
@@ -20,7 +23,7 @@ const factsSchema = z.record(z.string(), z.object({
 }).strict());
 
 export class CapabilityStore {
-  constructor(readonly pool: CapabilityPool, readonly installation: CapabilityInstallation, readonly actor: CapabilityActor, readonly deliver?: (organizationId: string) => Promise<unknown>) {
+  constructor(readonly pool: CapabilityPool, readonly installation: CapabilityInstallation, readonly actor: CapabilityActor, readonly deliver?: (organizationId: string) => Promise<unknown>, readonly recovery: RecoveryWitness | undefined = configuredRecoveryWitness()) {
     if (!actor.ownerId.trim()) throw new CapabilityError('authentication_required', 'Sign in to manage capabilities.', 401);
   }
 
@@ -41,7 +44,13 @@ export class CapabilityStore {
         'SELECT organization_id FROM capability_control.installations WHERE id=$1 AND environment=$2 AND active=true',
         [this.installation.id, this.installation.environment]);
       if (!installation) throw new CapabilityError('installation_unavailable', 'This capability installation is unavailable.', 503);
+      const scope = { ownerId: this.actor.ownerId, installationId: this.installation.id, organizationId: String(installation.organization_id) };
+      if (this.recovery) await connection.query('SELECT capability_control.lock_admission_policy($1,$2,$3)', [scope.installationId, scope.ownerId, 'policy-propagation']);
+      await assertRecoveryEnrollment(connection, scope, this.recovery);
+      const before = this.recovery ? await recoveryHead(connection, scope, this.recovery) : undefined;
+      if (before) await assertRecoveryHead(this.recovery!, before);
       const result = await operation(connection, String(installation.organization_id));
+      if (before) await advanceRecoveryWitness(this.recovery!, before, await recoveryHead(connection, scope, this.recovery!));
       await connection.query('COMMIT');
       return result;
     } catch (error) {
@@ -90,7 +99,9 @@ export class CapabilityStore {
         capabilityId: pendingAudit.capability_id, operation: pendingAudit.operation,
         ...(pendingAudit.operation === 'set_budget' ? { limitMicros: (pendingAudit.current as { limitMicros: number }).limitMicros } : {}),
       }) : null;
+      const backendControls = await controlAcknowledgments(connection, this.installation.id, this.actor.ownerId);
       return {
+        backendControls,
         pendingCommand,
         registryVersion: capabilityRegistry.version, revision,
         propagation: propagation ? { revision: Number(propagation.revision), status: String(propagation.status) } : null,
@@ -98,11 +109,18 @@ export class CapabilityStore {
         activeWork: { status: 'UNKNOWN' as const, message: 'Active Work inventory is not connected. Disabling a preference preserves existing Work. Pause and revoke require backend acknowledgement.' },
         capabilities: resolved.map((resolution, index) => ({ ...capabilityRegistry.capabilities[index], ...resolution,
           control: controls[resolution.id] ?? null, limitMicros: budgets[resolution.id] ?? null,
+          backendControl: backendControls.find(item => item.capabilityId === resolution.id) ?? null,
           admissionEligible: false as const,
           enforcement: 'BACKEND_COMPATIBILITY_REQUIRED' as const,
         })), audit,
       };
     }, true);
+  }
+
+  async acknowledgeControl(backendId: string, envelope: SignedLifecycleReceipt) {
+    return this.transaction((connection, organizationId) => acknowledgeBackendControl(connection,
+      { ownerId: this.actor.ownerId, organizationId, installationId: this.installation.id,
+        environment: this.installation.environment, agentId: 'policy-propagation' }, backendId, envelope));
   }
 
   async command(value: unknown): Promise<CapabilityReceipt> {
@@ -128,9 +146,14 @@ export class CapabilityStore {
       const budgets = budgetsSchema.parse(state.budgets);
       const controls = controlsSchema.parse(state.controls);
       const id = command.capabilityId;
-      if (command.operation === 'enable' && controls[id]) throw new CapabilityError('control_pending', 'Backend control must be reconciled before this capability can be enabled.');
-      if (controls[id] === 'REVOKE_REQUESTED' && command.operation === 'pause') throw new CapabilityError('revocation_pending', 'A pending revocation cannot be replaced with a pause.');
       const previous = { preference: preferences[id] ?? null, limitMicros: budgets[id] ?? null, control: controls[id] ?? null };
+      if (command.operation === 'enable' && controls[id]) {
+        const completed = (await controlAcknowledgments(connection, this.installation.id, this.actor.ownerId))
+          .find(item => item.capabilityId === id);
+        if (!completed?.complete) throw new CapabilityError('control_pending', 'Backend control must be reconciled before this capability can be enabled.');
+        delete controls[id];
+      }
+      if (controls[id] === 'REVOKE_REQUESTED' && command.operation === 'pause') throw new CapabilityError('revocation_pending', 'A pending revocation cannot be replaced with a pause.');
       if (command.operation === 'enable') preferences[id] = 'ENABLED';
       if (command.operation === 'disable' || command.operation === 'revoke') preferences[id] = 'DISABLED';
       if (command.operation === 'pause') controls[id] = 'PAUSE_REQUESTED';

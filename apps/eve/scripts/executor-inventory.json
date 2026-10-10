@@ -4076,8 +4076,8 @@
     },
     "lib/capability-control/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. Server-only configuration can deliver signed policy fences after commit, but creates no execution authority. Hosted/production configuration is rejected. Qualification: scripts/qualify-capability-control.mjs and scripts/qualify-capability-ordering.mjs. Direct primary-owner signed-session requirements and channel bypass checks remain enforced.",
-      "sha256": "86a7cddd1f84044c3919ec8ddd541c433d8d0958a505adbd9ea04aa5dfdadb90"
+      "reason": "Explicit isolated installation/database gate; signed owner authentication and same-origin mutations. Trusted configuration delivers signed policy and lifecycle observations after commit; development requires independently retained recovery witness. No execution authority or automatic enrollment. Real PostgreSQL recovery/HTTP lifecycle and signed-session bypass qualification pass; production/hosted remains rejected.",
+      "sha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669"
     },
     "lib/capability-control/sofie.ts": {
       "classification": "ENFORCED",
@@ -4086,8 +4086,8 @@
     },
     "lib/capability-control/store.ts": {
       "classification": "ENFORCED",
-      "reason": "Restricted database role, owner/installation RLS, revision lock, idempotency receipt and immutable audit. New commands durably stage exact-version propagation; retries use the same canonical command. Delivery occurs only after commit and failures remain pending. Cannot forge identity, enrollment or availability evidence. Pause/revoke remain pending backend acknowledgment and admissionEligible false. Real PostgreSQL concurrency/isolation/revocation and ordering qualification: scripts/qualify-capability-control.mjs and scripts/qualify-capability-ordering.mjs. Independent read-only security review passed within the isolated candidate scope.",
-      "sha256": "7eeeffa33e4ad436a4f60111f67807ef2048b4ab395b1e1cc4467b89160b4636"
+      "reason": "Restricted role, exact owner/installation RLS, canonical revision locking, durable idempotency and immutable audit. Witness-enrolled owners fail closed on missing configuration, stale authority digest or uncertain commit. Backend observations require frozen enrolled signatures, monotonic exact control identity and complete native inventory; only explicit owner enable after confirmed control clears the request. New admissions retain all backend checks and UNKNOWN accounting. Qualified by real PostgreSQL lifecycle/recovery/concurrency/owner tests and signed cleanup browser reconnect, with independent security review.",
+      "sha256": "16db8cdd25623d0a9c26f77b93a9fab55a9f55fa2bd1280178d23004c831dfb0"
     },
     "app/api/capability-control/route.ts": {
       "classification": "ENFORCED",

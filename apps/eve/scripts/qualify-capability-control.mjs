@@ -32,6 +32,7 @@ try {
   await check('migration rollback leaves no schema', async () => assert.equal((await admin.query("SELECT to_regnamespace('capability_control') AS schema")).rows[0].schema, null));
   await admin.query(migration);
   await admin.query(await readFile('../../docs/capability-control/ordering.sql', 'utf8'));
+  await admin.query(await readFile('../../docs/capability-control/lifecycle.sql', 'utf8'));
   await admin.query('CREATE ROLE capability_runtime LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS');
   await admin.query('GRANT USAGE ON SCHEMA capability_control TO capability_runtime');
   await admin.query('GRANT SELECT ON ALL TABLES IN SCHEMA capability_control TO capability_runtime');
@@ -196,12 +197,16 @@ try {
   await qualifyEnforcement({ admin, runtime, check });
   const { qualifyOrdering } = await import('./qualify-capability-ordering.mjs');
   await qualifyOrdering({ admin, runtime, check });
+  const { qualifyLifecycle } = await import('./qualify-capability-lifecycle.mjs');
+  await qualifyLifecycle({ admin, runtime, check });
+  const { qualifyRecovery } = await import('./qualify-capability-recovery.mjs');
+  await qualifyRecovery({ admin, runtime, check, bin, socket, port, directory });
   await writeFile(join(output, 'postgres.json'), JSON.stringify({ passed: checks.length, checks, realOwnerBinding: 'NOT_QUALIFIED', paidOperations: 0, productionIntegration: 'NOT_RUN' }, null, 2)+'\n');
   if (process.argv.includes('--browser')) {
     const { qualifyBrowser } = await import('./qualify-capability-browser.mjs');
     process.env.MYEVE_OWNER_ID = 'synthetic-browser-owner';
     await admin.query("INSERT INTO capability_control.platform_owner_bindings VALUES ('qualification-1','organization-1','synthetic-browser-owner','binding-browser',1,'synthetic-auth','synthetic-admin','synthetic-membership','synthetic-installation','synthetic-audit','ACTIVE',clock_timestamp()+interval '1 hour')");
-    await qualifyBrowser({ token: createWebSessionToken(), output });
+    await qualifyBrowser({ token: createWebSessionToken(), output, admin, runtime });
   }
 } finally {
   await closeCapabilityDatabase();

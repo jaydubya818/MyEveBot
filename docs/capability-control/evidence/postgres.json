@@ -1,5 +1,5 @@
 {
-  "passed": 47,
+  "passed": 59,
   "checks": [
     "migration rollback leaves no schema",
     "synthetic platform defaults enable all 36 preferences without execution",
@@ -47,7 +47,19 @@
     "disable fences the next version and old acknowledgments cannot complete it",
     "an unavailable receiver cannot prevent a newer disable intent",
     "superseded restrictive intent remains in the exact signed latest delivery",
-    "key replacement or enrollment changes cannot stand in for a required acknowledgment"
+    "key replacement or enrollment changes cannot stand in for a required acknowledgment",
+    "signed lifecycle evidence never treats fence or stop request as completed cleanup",
+    "lifecycle rejects foreign owner installation policy enrollment and forged signatures",
+    "lifecycle retry is idempotent and sequence conflicts cannot overwrite history",
+    "all frozen backends must confirm cleanup before explicit owner re-enable; old control remains auditable",
+    "HTTP cleanup retry reaches older unresolved control beyond 100 later changes and lost delivery",
+    "controller restart preserves independent policy witness and revoked preferences",
+    "real PostgreSQL restore cannot resurrect policy behind independently retained revoke witness",
+    "changed incarnation and missing external witness fail closed without automatic enrollment",
+    "enrolled owner cannot bypass witness by removing both process settings",
+    "privileged policy input rollback is detected without an owner revision change",
+    "witness-enabled backend admission preserves SELECT-only policy role",
+    "crash after witness advance before database commit quarantines rather than rolling authority back"
   ],
   "realOwnerBinding": "NOT_QUALIFIED",
   "paidOperations": 0,

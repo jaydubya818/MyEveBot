@@ -98,9 +98,18 @@ export function CapabilitySettings() {
             </div>
             <div className="flex flex-wrap gap-2 text-kumo-subtle"><span className={badge}>{item.preference}</span>
               <span className={badge}>{item.readiness}</span><span className={badge}>{item.availability}</span>
-              {item.control && <span className={badge}>{item.control} · PENDING_BACKEND</span>}
+              {item.control && <span className={badge}>{item.control} · {item.backendControl?.complete ? 'ACKNOWLEDGED' : 'PENDING_BACKEND'}</span>}
               {item.experimental && <span className={badge}>Experimental</span>}
             </div>
+            {item.control && item.backendControl && !item.backendControl.complete && <button className={button} disabled={busy}
+              onClick={() => void send({ requestId: item.backendControl!.requestId, expectedRevision: item.backendControl!.revision - 1,
+                capabilityId: item.id, operation: item.backendControl!.operation as 'pause' | 'revoke' })}>Refresh backend acknowledgments</button>}
+            {item.control && item.backendControl?.complete && <button className={button} disabled={busy}
+              onClick={() => change(item.id, 'enable')}>Enable new Work after confirmed control</button>}
+            {item.backendControl?.backends.map(backend => <p className="text-sm text-kumo-subtle" key={backend.backendId}>
+              {backend.backendId}: {backend.state.replaceAll('_', ' ')}.
+              {!backend.inventoryComplete && ' Active Work inventory remains incomplete.'}
+            </p>)}
             <details className="text-sm">
               <summary className="cursor-pointer rounded py-2 font-medium text-kumo-strong">Setup, permissions, and controls</summary>
               <div className="mt-2 space-y-3 text-kumo-subtle">
