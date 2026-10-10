@@ -2,21 +2,21 @@
   "format": "myapps.qualified-test-overlays.v1",
   "myeve": {
     "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
-    "source": "74d1358345f6cf9bb3d0e380bd7e5ebc486522fa",
+    "source": "fb6b052d0c3ad353a1e4171f0cb25c63780a1d9b",
     "files": {
       "apps/eve/lib/engineering/production-validation-postgres.test.ts": {
         "composedSha256": "2a0fca6ba05658248bf3a3ac2c80b2d191c5ece0fc73817e6751c1d6b5312c2b",
-        "sourceSha256": "ab6484c330877e39401334cacc0ca2891595a312f2f3efd1d7949291649caf65",
+        "sourceSha256": "95c8bd3b307d8994356077ac3249e230bec411b26a9499f59c555f2649185afd",
         "preserveLedger": {
           "from": "  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0092_private_result_acceptance.sql');",
           "to": "  // Verify the complete applied lineage, including checksums, on both paths.\n  const expectedLedger=(await loadMigrations()).map(({name,checksum})=>({name,checksum}));\n  for(const migrated of [pool,upgrade])\n   expect((await migrated.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows).toEqual(expectedLedger);"
         },
-        "outputSha256": "1769880c0ada1e24d5ab2330a75fceb469ee9f55db27e88066c920b5329ed938"
+        "outputSha256": "11cf6a20f9a51dfe9005118f52c437537aa03928321e8247ee6a4b791c064a5b"
       },
       "apps/eve/lib/external-alpha/productive-journey-postgres.test.ts": {
         "composedSha256": "3d69c4a571b6a9c36558b1b449b6cd84867f2e68747a3b638e7fca3ff30ac3fa",
-        "sourceSha256": "d348c8c2207f48b41071e13cb683a82f59ed1febc7e165602aaa51f4abce3847",
-        "outputSha256": "d348c8c2207f48b41071e13cb683a82f59ed1febc7e165602aaa51f4abce3847"
+        "sourceSha256": "7e02744a987a5e4d570ca4537c84d8b1be1554346f315f606744d15822e7ae97",
+        "outputSha256": "7e02744a987a5e4d570ca4537c84d8b1be1554346f315f606744d15822e7ae97"
       },
       "apps/eve/lib/external-alpha/productive-pricing-test-fixture.test.ts": {
         "composedSha256": null,

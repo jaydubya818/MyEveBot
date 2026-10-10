@@ -84,8 +84,9 @@ test('producer metadata requires exact unchanged runtime and preserves its class
   }
 });
 
-test('superseded Eve fixture approval cannot replace the qualified cleanup source',()=>{
+test('superseded Eve fixture approvals cannot replace qualified cleanup and capability bindings',()=>{
   const {writes,args}=fixture('myeve');
-  assert.throws(()=>applyFixturesOverlay({...args,source:'977438094ad830f6cb80523a890ca9188f32febe'}),/Unreviewed fixture source/);
+  for(const source of ['977438094ad830f6cb80523a890ca9188f32febe','74d1358345f6cf9bb3d0e380bd7e5ebc486522fa'])
+    assert.throws(()=>applyFixturesOverlay({...args,source}),/Unreviewed fixture source/);
   assert.equal(writes.size,0);
 });

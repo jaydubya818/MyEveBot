@@ -65,6 +65,9 @@ test('Eve main capability denials coexist with canonical cleanup and the complet
   const result=writes.get(path);assert.equal(digest(result),entry.outputSha256);
   assert(result.includes(baseline.files[path].preserveLedger.to));
   assert(result.includes('terminateOwnedConnection'));assert(result.includes('capabilityPolicyFixture'));
+  assert.equal(entry.preimageHunks.length,4);
+  assert.equal(entry.outputHunks.length,0,'Canonical source already owns the reviewed main capability assertions');
+  for(const hunk of entry.preimageHunks)assert.equal(result.split(hunk.to).length,2,'Main capability assertions retained exactly once');
  }
  current.set(Object.keys(manifest.files)[0],current.get(Object.keys(manifest.files)[0])+'\n');writes.clear();
  assert.throws(()=>applyFixturesOverlay(args),/Changed main composed fixture/);assert.equal(writes.size,0);
