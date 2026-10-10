@@ -34,6 +34,9 @@ jobs:
           ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           fetch-depth: 0
           path: .qualification/myfactory
+      - name: Fetch exact independently reviewed capability compatibility source
+        working-directory: ${{ github.workspace }}
+        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -226,6 +229,9 @@ jobs:
           ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           fetch-depth: 0
           path: .qualification/myfactory
+      - name: Fetch exact independently reviewed capability compatibility source
+        working-directory: ${{ github.workspace }}
+        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -286,6 +292,9 @@ jobs:
           ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           fetch-depth: 0
           path: .qualification/myfactory
+      - name: Fetch exact independently reviewed capability compatibility source
+        working-directory: ${{ github.workspace }}
+        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/setup-node@v4
         with:
           node-version: 24

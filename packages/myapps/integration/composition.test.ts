@@ -81,8 +81,9 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  expect(successor.sourceDigest).not.toBe(successor.predecessorSourceDigest);
  // A self-consistent identity is not a grant. Run the canonical exact-current
  // positive control and historical source/contract rejection cases unchanged.
- const factoryUnion=JSON.parse(readFileSync(resolve('docs/myapps/phase3/factory-main-sources.json'),'utf8'));
- expect(createHash('sha256').update(readFileSync(resolve(root!,'apps/cloud-control/test/source-identity-qualification.test.mjs'))).digest('hex')).toBe(factoryUnion.identity.testAfterSha256);
+ const factoryAdapter=JSON.parse(readFileSync(resolve('docs/myapps/phase3/factory-capability-compatibility.json'),'utf8'));
+ expect(factoryAdapter.source).toBe(pins.myfactory.capabilityCompatibility);
+ expect(createHash('sha256').update(readFileSync(resolve(root!,'apps/cloud-control/test/source-identity-qualification.test.mjs'))).digest('hex')).toBe(factoryAdapter.files['apps/cloud-control/test/source-identity-qualification.test.mjs'].sourceSha256);
  const grants=spawnSync(process.execPath,['--test','--test-reporter=tap','apps/cloud-control/test/source-identity-qualification.test.mjs'],{cwd:root,encoding:'utf8'});
  expect(grants.status,grants.stderr+grants.stdout).toBe(0);
  expect(grants.stdout).toContain('coherent historical source or contract grants cannot consume successor authority');

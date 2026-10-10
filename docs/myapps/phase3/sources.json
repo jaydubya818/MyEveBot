@@ -20,7 +20,8 @@
     "engineering": "fa48a820ba185eb9b891130c78166463b61cba74",
     "phase3Preparation": "4c6e540b40e1db226eefda763e615dfe7cb02e3c",
     "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c",
-    "qualificationFixtures": "b12031ea65fa5c2e0a03763b931003ab78017580"
+    "qualificationFixtures": "b12031ea65fa5c2e0a03763b931003ab78017580",
+    "capabilityCompatibility": "92299fbd88004cc1da9178d52664bd0a9cd28647"
   },
   "migration": {
     "original": "0085_myapps_runtime.sql",

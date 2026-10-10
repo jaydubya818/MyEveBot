@@ -12,6 +12,7 @@ import {applyGovernanceOverlay} from './governance-overlay.mjs';
 import {applyFixturesOverlay} from './fixtures-overlay.mjs';
 import {applyComposerOverlay} from './composer-overlay.mjs';
 import {applyFactoryMain,factoryMainConflicts} from './factory-main.mjs';
+import {applyFactoryCapabilityCompatibility} from './factory-capability-compatibility.mjs';
 import {retainMainCatalog,retainMainInventory,verifyMainPreserved,verifyMainSource} from './current-main.mjs';
 const [eve, factory, output] = process.argv.slice(2).map(p => resolve(p));
 assert(eve && factory && output, 'Usage: materialize.mjs MYEVE_SOURCE MYFACTORY_SOURCE ABSENT_OUTPUT');
@@ -175,6 +176,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
     evidence.qualificationFixtures??={};
     const mainManifest=JSON.parse(readFileSync(new URL(`../../docs/myapps/phase3/${name==='myeve'?'myeve':'factory'}-main-fixture-sources.json`,import.meta.url)));
     evidence.qualificationFixtures[name]=applyFixturesOverlay({name,integration,source:pins[name].qualificationFixtures,main:pins[name].main,mainManifest,read,readComposed,put});
+    if(name==='myfactory')evidence.factoryCapabilityCompatibility=applyFactoryCapabilityCompatibility({source:pins.myfactory.capabilityCompatibility,main:pins.myfactory.main,integration,read,readComposed,put});
     if(name==='myeve')evidence.composer=applyComposerOverlay({name,integration,source:pins.myeve.composer,read,readComposed,put});
     if(name==='myeve')evidence.currentMain=verifyMainPreserved({main:pins.myeve.main,readRaw,readComposedRaw});
     const tree=indexGit(['write-tree']);
