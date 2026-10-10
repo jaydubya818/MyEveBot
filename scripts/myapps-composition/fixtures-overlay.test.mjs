@@ -18,7 +18,9 @@ function fixture(name) {
   const current=new Map();
   for(const [path,expected] of Object.entries(manifest.files)) {
     const canonical=read(manifest.source,path);
-    const possibilities=[null,read(manifest.integration,path),canonical];
+    // Preparation retains the reviewed preimage when the canonical fixture advances.
+    // Every candidate still has to match the unchanged composed SHA exactly.
+    const possibilities=[null,read('HEAD',path),read(manifest.integration,path),canonical];
     if(expected.preserveLedger)possibilities.push(canonical.replace(expected.preserveLedger.from,expected.preserveLedger.to));
     const matching=possibilities.find(value=>digest(value)===expected.composedSha256);
     assert.notEqual(matching,undefined,`Missing exact composed fixture input: ${path}`);
@@ -75,4 +77,10 @@ test('producer metadata requires exact unchanged runtime and preserves its class
     assert.throws(()=>applyFixturesOverlay(args),/Changed producer record|Changed composed producer/);
     assert.equal(writes.size,0);
   }
+});
+
+test('superseded Eve fixture approval cannot replace the qualified cleanup source',()=>{
+  const {writes,args}=fixture('myeve');
+  assert.throws(()=>applyFixturesOverlay({...args,source:'977438094ad830f6cb80523a890ca9188f32febe'}),/Unreviewed fixture source/);
+  assert.equal(writes.size,0);
 });

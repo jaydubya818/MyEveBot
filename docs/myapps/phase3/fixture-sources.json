@@ -2,16 +2,16 @@
   "format": "myapps.qualified-test-overlays.v1",
   "myeve": {
     "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
-    "source": "977438094ad830f6cb80523a890ca9188f32febe",
+    "source": "74d1358345f6cf9bb3d0e380bd7e5ebc486522fa",
     "files": {
       "apps/eve/lib/engineering/production-validation-postgres.test.ts": {
         "composedSha256": "2a0fca6ba05658248bf3a3ac2c80b2d191c5ece0fc73817e6751c1d6b5312c2b",
-        "sourceSha256": "b7259005abbd92f1ab9dc08bdd9949ef2058cbfa847a60b4ca1f2dc0e4eba4f3",
+        "sourceSha256": "ab6484c330877e39401334cacc0ca2891595a312f2f3efd1d7949291649caf65",
         "preserveLedger": {
           "from": "  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0092_private_result_acceptance.sql');",
           "to": "  // Verify the complete applied lineage, including checksums, on both paths.\n  const expectedLedger=(await loadMigrations()).map(({name,checksum})=>({name,checksum}));\n  for(const migrated of [pool,upgrade])\n   expect((await migrated.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows).toEqual(expectedLedger);"
         },
-        "outputSha256": "2a0fca6ba05658248bf3a3ac2c80b2d191c5ece0fc73817e6751c1d6b5312c2b"
+        "outputSha256": "1769880c0ada1e24d5ab2330a75fceb469ee9f55db27e88066c920b5329ed938"
       },
       "apps/eve/lib/external-alpha/productive-journey-postgres.test.ts": {
         "composedSha256": "3d69c4a571b6a9c36558b1b449b6cd84867f2e68747a3b638e7fca3ff30ac3fa",

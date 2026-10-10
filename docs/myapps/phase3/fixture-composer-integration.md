@@ -17,11 +17,16 @@ The manifests pin immutable full SHAs and before/after SHA-256 values. Existing
 runtime integration pins remain MyEve `afa65bd4` and Factory `18e59dbe`. No wholesale
 successor source adoption occurs.
 
-- MyEve's four fixture files come from `977438094ad830f6cb80523a890ca9188f32febe`.
+- MyEve's four fixture files come from `74d1358345f6cf9bb3d0e380bd7e5ebc486522fa`.
   The production-validation test retains the complete applied migration ledger
   and checksum assertion in place of the canonical fixed final-migration name.
-  After that exact transformation, this file already matches the preparation.
-  Only the productive fixture/helper/regression add new test behavior.
+  The reviewed cleanup correction drains owned PostgreSQL sessions before an
+  unforced database drop and observes an intentionally terminated connection's
+  end before discarding it. Two regressions cover held-backend cleanup and delayed
+  fatal-message delivery. Unexpected errors remain failures. The composed input
+  hash and complete-ledger transformation are unchanged; the other three fixture
+  files retain their existing exact hashes. Failed hosted run `38088286997` remains
+  historical evidence of the cleanup race, not a waived or suppressed check.
 - Factory's six fixture files come from
   `b12031ea65fa5c2e0a03763b931003ab78017580`. The admission helper and three earlier
   admission tests are already identical. Only the authority/delivery fault setup
@@ -65,7 +70,7 @@ MYFACTORY_SOURCE_ROOT=/absolute/path/to/qualified-factory \
   scripts/myapps-composition/composer-overlay.test.mjs
 ```
 
-Seven overlay cases cover exact source transformations, preserved migration and
+Eight fixture/composer overlay cases cover exact source transformations, preserved migration and
 unrelated records, substituted pins, changed test bytes, stale runtime metadata
 and changed lifecycle code. This is source-bound validation, not a substitute for
 the resulting candidate's full composition, PostgreSQL, build, browser, identity,
