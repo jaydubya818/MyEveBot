@@ -43,6 +43,19 @@ oversized, inconsistent and already-mutated bindings.
 
 ## Qualification and external gates
 
+The paired Factory fixture candidate retains the canonical owner of
+`test/fixtures/admission-spend-plan.mjs`. Its helper, negative regression and
+alpha-owner/successor-intake test corrections are copied exactly from the
+previously reviewed MyApps Factory fixtures. The separate MyEve admission-only
+test consumes that helper unchanged, including expired-plan denial and zero
+paid-operation/resource assertions. It does not use the new productive helper.
+CI pins the exact Factory fixture candidate; no unrelated MyApps source is adopted.
+
+Both primary CI checkouts select the exact proposed head with persisted checkout
+credentials disabled. The proposal branch has an explicit Vercel deployment
+exclusion, preserving every existing exclusion. Factory retains its global Git
+deployment denial. These checks do not authorize merging or deployment.
+
 The original eight productive-journey assertions are unchanged. Five formerly
 expiry-blocked cases pass using the actual Factory control/spend/harness/custody
 code, deterministic local producer and disposable PostgreSQL; three protected

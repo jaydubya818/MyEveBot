@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -22,7 +25,7 @@ jobs:
 
       - run: npm run test --workspace=eve-agent -- lib/relay
 
-      - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
+      - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts lib/external-alpha/productive-pricing-test-fixture.test.ts
 
       - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
 
@@ -50,16 +53,21 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 18e59dbedbe04275858327ca47d2bd7ec01a407c
+          ref: e2610239c0a52ffa69ff4e341b0aa74dedb7606d
           path: .qualification/myfactory
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay
           ref: 8a8678d675adc8ac7f799d7660071de2256bb231
           path: .qualification/relay
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24

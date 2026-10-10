@@ -23,7 +23,8 @@
       "codex/external-alpha-qe-remediation-20261009": false,
       "codex/external-alpha-allowance-reconciliation-20261010": false,
       "codex/external-alpha-release-blockers-20261010": false,
-      "codex/external-alpha-final-qe-20261010": false
+      "codex/external-alpha-final-qe-20261010": false,
+      "codex/myapps-canonical-pricing-fixture-20261010": false
     }
   },
   "functions": {
