@@ -36,7 +36,7 @@ const root = new URL('../../../', import.meta.url);
 test('sprintf mitigation rejects amplification before invoking argument callbacks', async () => {
   const { sprintf } = require('../../../patches/sprintf-js-1.1.3.js');
   let invoked = false;
-  for (const format of ['%999999999999s', '%.999999999999s', '%.101f', '%.101e', '%.101g']) {
+  for (const format of ['%999999999999s', '%.999999999999s', '%.101f', '%.101e', '%.101g', '%.0g']) {
     assert.throws(() => sprintf(format, () => { invoked = true; return 1; }), /limit exceeded/);
   }
   assert.equal(invoked, false);
@@ -60,12 +60,17 @@ test('installed node and browser sprintf entries match the reviewed patch', asyn
 test('the actual just-bash printf consumer retains formatting and bounds malicious width', async () => {
   const { Bash } = await import('just-bash');
   const bash = new Bash();
+  const zeroGeneral = await bash.exec("printf '%.0g' 1");
+  assert.equal(zeroGeneral.exitCode, 0); // Shell printf normalizes zero general precision independently.
+  assert.equal(zeroGeneral.stdout, '1');
   const normal = await bash.exec("printf '%04d %s' 12 ok");
   assert.equal(normal.exitCode, 0);
   assert.equal(normal.stdout, '0012 ok');
-  const hostile = await bash.exec("printf '%99999999999s' x");
-  assert.notEqual(hostile.exitCode, 0);
-  assert.ok(hostile.stdout.length + hostile.stderr.length < 4096);
+  for (const command of ["printf '%99999999999s' x", "printf '%.101f' 1"]) {
+    const hostile = await bash.exec(command);
+    assert.notEqual(hostile.exitCode, 0);
+    assert.ok(hostile.stdout.length + hostile.stderr.length < 4096);
+  }
 });
 
 test('all installed legacy UUID copies reject writes past the supplied output buffer', async () => {

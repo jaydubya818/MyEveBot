@@ -170,7 +170,8 @@
             else if ((match = re.placeholder.exec(_fmt)) !== null) {
                 // Validate during parsing, before callbacks and repeat/toFixed allocations.
                 if (Number(match[6] || 0) > max_output ||
-                    Number(match[7] || 0) > (/[efg]/.test(match[8]) ? 100 : max_output)) {
+                    Number(match[7] || 0) > (/[efg]/.test(match[8]) ? 100 : max_output) ||
+                    (match[8] === 'g' && match[7] !== undefined && Number(match[7]) < 1)) {
                     throw new RangeError('[sprintf] width or precision limit exceeded')
                 }
                 if (match[2]) {
