@@ -1,3 +1,9 @@
+# Explicit source identity reconciliation follow-up
+
+The owner-authorized isolated Factory source correction is now pinned at `f8fc5177ff6f914311e991a69fe64610fff50506`. It preserves historical source bytes and pricing, updates only the generated current identity, and verifies the exact computed FactoryVersion `fed1724f60a7783a2dc5155928bd7f4df5a34970d9de3be53cdacc4dd0a9c30b`. No MyEve runtime source or installation is changed. Composed real PostgreSQL49/49 passes; fresh local installation and production/owner/activation gates remain held. Earlier mismatch/pending labels below are historical.
+
+[Connected-tool receiving contract and remaining Composio dependency](COMPOSIO-RECEIVING-CONTRACT.md).
+
 # Successor adoption update — 2026-10-10
 
 **Engineering-only adoption approved. PR #70 remains HOLD.** Its isolated PostgreSQL CI checkout now pins independently reviewed Factory `6994fbd938afcf2b81a21cb986ccb4dda7adc7b8`, preserving `ff8d464` as ancestor. No installed dependency, production grant, spending ceiling or other workstream pin changes.
