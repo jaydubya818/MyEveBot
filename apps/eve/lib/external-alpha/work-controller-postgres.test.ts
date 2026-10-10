@@ -659,6 +659,58 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     return { central, a, b, app, chat };
   }
 
+  it("QE-017: two owners' authenticated Work may overlap within the two-slot capacity and every charged ceiling", async () => {
+    const { central, a, b, app } = await sharedPair();
+    const appB = await setup(true, b);
+    const wa = await a.seedWork(), wb = await b.seedWork();
+    const sa = await app.controller.start(wa);
+    expect(sa.sent).toBe(true);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{state:"RUNNING"}]);
+    const sb = await appB.controller.start(wb);
+    expect(sb.sent).toBe(true);
+    if (!sa.sent || !sb.sent) throw Error("expected both Works to start");
+    expect(sa.authority.state).toBe("CONSUMED"); expect(sb.authority.state).toBe("CONSUMED");
+    expect(sa.authority.envelope.document.ownerId).toBe(a.owner); expect(sb.authority.envelope.document.ownerId).toBe(b.owner);
+    expect(sa.authority.workId).toBe(wa.id); expect(sb.authority.workId).toBe(wb.id);
+    expect(sa.authority.documentSha256).not.toBe(sb.authority.documentSha256);
+    const dispatches = (await central.pool.query("SELECT a.owner_id,a.kind,d.state FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id")).rows;
+    expect(dispatches).toHaveLength(2);
+    expect(dispatches).toEqual(expect.arrayContaining([{owner_id:a.owner,kind:"WORK",state:"RUNNING"},{owner_id:b.owner,kind:"WORK",state:"RUNNING"}]));
+    const charges = (await central.pool.query("SELECT owner_id,sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission GROUP BY owner_id")).rows;
+    expect(charges).toHaveLength(2);
+    for (const charge of charges) expect(Number(charge.amount)).toBe(1300000);
+    expect(charges.reduce((total: number, charge: {amount: string}) => total + Number(charge.amount), 0)).toBe(2600000);
+    expect(charges.reduce((total: number, charge: {amount: string}) => total + Number(charge.amount), 0)).toBeLessThanOrEqual(4600000);
+    await app.controller.start(wa); await appB.controller.start(wb);
+    expect(app.factory.posts).toBe(1); expect(appB.factory.posts).toBe(1);
+    // One Work per owner/day: neither slot can acquire a third concurrent Work.
+    await expect(app.controller.start(await a.seedWork())).rejects.toThrow(/SHARED_EXHAUSTED/);
+    await expect(appB.controller.start(await b.seedWork())).rejects.toThrow(/SHARED_EXHAUSTED/);
+    expect(app.factory.posts).toBe(1); expect(appB.factory.posts).toBe(1);
+    await expect(new ExternalAlphaAllowance(a.db,a.policy).admit({kind:"CHAT",bindingId:"own-chat",requestSha256:digest("own-chat")})).resolves.toMatchObject({kind:"CHAT"});
+    await expect(new ExternalAlphaAllowance(b.db,b.policy).admit({kind:"CHAT",bindingId:"other-chat",requestSha256:digest("other-chat")})).resolves.toMatchObject({kind:"CHAT"});
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission")).rows[0].amount)).toBe(2800000);
+  }, 90000);
+
+  it.each(["UNKNOWN","FENCED","OVERDUE"] as const)("QE-017: %s Work exposure denies another owner's Work before any Factory call", async exposure => {
+    const { central, a, b, app } = await sharedPair();
+    await app.controller.start(await a.seedWork());
+    if (exposure === "OVERDUE") {
+      const c = await central.pool.connect();
+      try {
+        await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+        await c.query("UPDATE external_alpha_cohort_admission SET deadline=clock_timestamp()-interval '1 second' WHERE kind='WORK'");
+        await c.query("COMMIT");
+      } catch (error) { await c.query("ROLLBACK"); throw error; }
+      finally { c.release(); }
+    } else await central.pool.query("UPDATE external_alpha_cohort_dispatch SET state=$1",[exposure]);
+    const appB = await setup(true,b);
+    await expect(appB.controller.start(await b.seedWork())).rejects.toThrow(/SHARED_FENCED/);
+    expect(appB.factory.posts).toBe(0);
+    expect(await b.count("external_alpha_work_authority")).toBe(0);
+    expect((await central.pool.query("SELECT count(*)::integer count FROM external_alpha_cohort_dispatch")).rows[0].count).toBe(1);
+  }, 60000);
+
   it("the actual shared lease stays fenced for a bare consumed cancellation but clears from the exact authenticated terminal fact", async () => {
     const unproved = await sharedPair();
     const work = await unproved.a.seedWork();

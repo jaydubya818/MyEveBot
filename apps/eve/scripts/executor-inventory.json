@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: configured tester deployments use only the owner-bound allowance model; absent/invalid policy fails closed, with no default model fallback. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
-      "sha256": "c53e8c38f97950c114a2c216b643f72f07d089130515f9fd75974d782dbf4917"
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions.",
+      "sha256": "7f21269b0274b26acee22916aebadc95d4612d73bdc60ac0002fd122c3113b14"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -127,8 +127,8 @@
     },
     "agent/instructions/computer-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Local Mac companion: Distinguishes local companion from cloud sandbox.",
-      "sha256": "02126e3d7252563edb61573597eabe9ce3412a5e093e30aa684501e7dcf0da40"
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "b7c05d4a81d615cd35cb291bc06867ad09e2cfbe0ab814762598c46bf4fc7708"
     },
     "agent/instructions/computer.ts": {
       "classification": "INTERNAL",
@@ -142,8 +142,8 @@
     },
     "agent/instructions/delegation.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "aae319fad4c8da08cb344d89bf658da22a09cf9dd3183553d8f8ee8de75a5996"
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "4563577a2d1a483bb9e7ff1dafbf49e46efc76e5c15c678651efc1ff8b8db171"
     },
     "agent/instructions/goals.ts": {
       "classification": "INTERNAL",
@@ -152,8 +152,8 @@
     },
     "agent/instructions/installed-skills.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8ab46408cda2f96292715ab405c005f043d74b4119d866cfeb9263bafdb851e9"
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "9f6236af58c29ad23efb21c48cb86e405df5cdde4c421f58e246f38f035709be"
     },
     "agent/instructions/local-computer.ts": {
       "classification": "INTERNAL",
@@ -167,13 +167,13 @@
     },
     "agent/instructions/outcomes.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2e414924fb09332bff9f1949d0d58049fc96d1d732971378f41b055f42d2799f"
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "98044e6066983a0a6dfe3d6e91c12f6a88c5616bcd27c15be9cb7f7ba791c1c6"
     },
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "83564a9b352cde213c8b99d244598ef64b2e4b7da97054059fa11cfa89c9cce8"
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "5a257752ceb18ae5beec02f799a0d41fdf30a35e10d4ab7ddca2a3ffb3d7a0cf"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "ede8d96bf5bc40f63f6cec3c8357c2227ba147717acebd13ab498e0356562a24"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Current context-headroom review: Selected alpha Work uses the bounded read-only Proof projection; mandatory owner/Agent policy, Work bindings, limits and canonical Proof hash remain. Non-alpha context stays unchanged. Evidence: context-assembly alpha regression and unchanged Golden Journey v2.",
+      "sha256": "91b02cc568c056696cd55a2d44022f2f14142f78445504d6d2436c51251aadd7"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -437,8 +437,8 @@
     },
     "agent/lib/session-settings.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes.",
-      "sha256": "a1c3522a39fc69603b9da9ae35207ccc6fe70e59028314f4606e24f8ed3e6c5e"
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions.",
+      "sha256": "5ecab9a6e037545c1ad7f9a696c119ab29601847ca5f3888246a194b46294eff"
     },
     "agent/lib/settings-db.ts": {
       "classification": "INTERNAL",
@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained.",
-      "sha256": "97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd"
+      "reason": "Fresh schema pin includes prepared 0092 private acceptance; existing rollout requirements remain explicit. No migration is applied by this constant. Evidence: database-schema and migration-history checks; installed migrations remain held.",
+      "sha256": "ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2267,18 +2267,18 @@
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label. Closed candidate readback replays the exact authority/policy/owner-bound immutable accepted Result and Proof; no Factory read, accounting mutation or dispatch occurs. Direct HTTP client destination is checked against the independent installation origin pin before token retrieval, OIDC acquisition or fetch; existing application/project/team/environment identity checks remain exact.",
-      "sha256": "50b3bdbb4d9310369363dbc0612bb72c4775d444529b2dd1079e4311440be7eb"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "23df1dd69fb7ab6c0ba8a88b06c541fd5e47df02e46e4512a9f52e938a5350b3"
     },
     "lib/external-alpha/work-readback.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped accepted external-alpha Result/Proof and terminal-fact observation only. Exact authority/owner/policy/Work/version/generation/request and immutable authority/envelope/manifest/Proof/artifact digests checked. Exports only exact Proof-linked DiffEvidence and producer/verifier TestEvidence; foreign owner/actor/reference denied. No provider, reservation, dispatch, credential, publication or writer mutation. Canonical separate-PostgreSQL reconnect/restart and custody tests passed.",
-      "sha256": "97d67bc2aa1c430960f8a85e52bfa4eb8eb0d12a41eeb1c5b6f267dc9ec32abc"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "69ffae6a294623bcb226e2cde22b040eea56ed9f9eb44b3953b6b9dad0ad334d"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Test support for disposable localhost PostgreSQL scenarios; never imported by runtime code. Injects disposable shared-accounting dependencies; no production identities or credentials.",
-      "sha256": "255efc68c73afa6675049e4a25891829fd7947f197d5d337489dff9e20bb4e1d"
+      "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification.",
+      "sha256": "3a88ced1a443e3ab4713187a3c85a09752dd4b59b47082ddad8d1ade13400579"
     },
     "lib/external-write-policy.ts": {
       "classification": "INTERNAL",
@@ -2472,8 +2472,8 @@
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated owner operations enroll and publish; message grants use an encrypted, exact-Agent and peer-bound seven-day Relay delegation with hourly rate limit, while other grants retain owner-cookie authority. Revocation and retirement fence local access and revoke saved delegations before disabling Agent credentials. External-alpha installation: linking or rotating an existing Relay Agent credential requires the owner confirmation before any network call.",
-      "sha256": "9d8f7d27ce10542e0ca5f64a65e82721ac21955fed7ecca0435ea6d77a901c5f"
+      "reason": "Reviewed QE-007 per-owner PostgreSQL connection lock, exact returned connection row and newly-created losing-credential compensation; retained canonical Agent credential/rotation denial checks unchanged. No extra scope/grant from linking. Evidence: complete Relay suite, connect-concurrency PostgreSQL and 26 connection/security tests.",
+      "sha256": "e2adf45780f278e820302272804b68b808cea63b757d09703d255f2ac8d42e21"
     },
     "lib/relay/projection.ts": {
       "classification": "READ_ONLY",
@@ -2487,8 +2487,8 @@
     },
     "lib/relay/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped adapter persistence, atomic delivery claims and fenced publication reader; no canonical private read capability.",
-      "sha256": "72ea4bebd9118c6b87294beddf2c73b95e4a1037eaff784cc49241dc34634c17"
+      "reason": "Reviewed QE-007 per-owner PostgreSQL connection lock, exact returned connection row and newly-created losing-credential compensation; retained canonical Agent credential/rotation denial checks unchanged. No extra scope/grant from linking. Evidence: complete Relay suite, connect-concurrency PostgreSQL and 26 connection/security tests.",
+      "sha256": "94dd2d0aaeb242f9f415ee7c362c68cb21045475f234f8c18a1374c21de1d805"
     },
     "lib/relay/transport.ts": {
       "classification": "INTERNAL",
@@ -3139,8 +3139,8 @@
     },
     "lib/universal-inbox/contracts.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict attention and response schemas and types only; no provider effects or authority.",
-      "sha256": "fb74550b339b57c70442e9c18abe6eb65250a34953b38c962c7863fe3c4f0a01"
+      "reason": "Adds bounded owner-filtered decision-history read query/schema only; fixed SQL field names and bound values, no dispatch or decision acceptance from query. Evidence: inbox/integration/query regression suites.",
+      "sha256": "6fac92f648e61b285a078e5ae44121cc14928d046cb43d18572d5cdcc8325eeb"
     },
     "lib/universal-inbox/continuation-fixture.ts": {
       "classification": "INTERNAL",
@@ -3174,8 +3174,8 @@
     },
     "lib/universal-inbox/query.ts": {
       "classification": "INTERNAL",
-      "reason": "Validated bounded owner-scoped cursor/window/filter query construction with constant SQL field names; no execution effects.",
-      "sha256": "980d3f87daa0be1df1d58619226cd1a8a537cdcfdb2fa1983285b07b0dcb6c35"
+      "reason": "Adds bounded owner-filtered decision-history read query/schema only; fixed SQL field names and bound values, no dispatch or decision acceptance from query. Evidence: inbox/integration/query regression suites.",
+      "sha256": "149c1a8c684a4e71941afa34d63886fe2ea8be4ece68b9b335fb00a2277b5525"
     },
     "lib/universal-inbox/domain.ts": {
       "classification": "INTERNAL",
@@ -3239,8 +3239,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. External-alpha evidence reads require exact owner Work/Result/Proof reference and verified immutable envelope/artifact digests; external-alpha foreign-owner evidence is denied. Existing canary reader remains the non-external fallback.",
-      "sha256": "4517fa79301dee0cf7e7ee1602ecda7eaabdc88eb6c03dea4b10d92bc2d5b131"
+      "reason": "Reviewed canonical owner CAS and stored private Result decision integration; generic control denies outstanding external authority under same Work lock. Inbox readback preserves exact owner decision linkage; response does not create execution or publication authority. Evidence: work-controller, private-acceptance, owner isolation and inbox regressions.",
+      "sha256": "b9967ef2646550deef25c98ec592df6313cddced39844af2f145bf3a3374e576"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3379,8 +3379,8 @@
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
-      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects. Consolidated boundary: Strict signed Result validation; legacy V1 unchanged. Optional cloud-only verification binds candidate, policy, distinct resources and cleanup; attestation alone cannot grant owner/publication authority. Consolidated boundary: Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
-      "sha256": "97aae7704f9ce78ea912f8f4dc7aa3d5d62f8302adbfc6c3fd702244d898d2d1"
+      "reason": "Pure signed manifest validation accepts optional per-check reportSha256 only when well-formed; exact fields, chronology, outcomes, isolation, hashes and signatures preserved. Evidence: QE-002 mixed per-criterion signed Result ingestion/tamper regressions; MyFactory successor remains separately pinned.",
+      "sha256": "d090d45fed214b949a0a4e8a4ffc369b97b70c3cb0b68febe18af96f9c9e634d"
     },
     "lib/engineering/factory-producer-signature.ts": {
       "classification": "INTERNAL",
@@ -3504,8 +3504,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions. External-alpha Work projection reads exact owner-bound accepted Result/Proof and terminal settlement independently of native workspaces, retains historical revision truth, and never grants native writer or readiness authority.",
-      "sha256": "fd043d9db1044a14e115f81ba85063861c61144d0cf8843bb0bc0dd2a3978a1d"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "e258bbff032a4842d4af04bbb19ae47d9adf393aa324485798c43eac8e135ee6"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3519,8 +3519,8 @@
     },
     "lib/beta-integration/canonical-work.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical owner Work CAS, Inbox continuation binding and admission preserved; Factory production profile denies automatic native fallback. External-alpha owner Resume returns observe-only SOFIE_REQUIRED before canary/native admission; only guarded owner Sofie start may consume an exact external-alpha Work authority. Real PostgreSQL canonical owner-control journey proves legacy authority code unreachable.",
-      "sha256": "7a1adefcbd94a2e124abbff96371b5563340de8aac4a3968c69a166b89c00570"
+      "reason": "Reviewed canonical owner CAS and stored private Result decision integration; generic control denies outstanding external authority under same Work lock. Inbox readback preserves exact owner decision linkage; response does not create execution or publication authority. Evidence: work-controller, private-acceptance, owner isolation and inbox regressions.",
+      "sha256": "b7ed93bbfb4e7ea04f9745bf1f8512be1cd3e6d3c609a0cb20ff2c1aaf1411f3"
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",
@@ -3705,8 +3705,8 @@
     },
     "lib/private-owner-boundary.ts": {
       "classification": "ENFORCED",
-      "reason": "Defaults partner legacy routes and tools to denial; audited Memory/Knowledge/Files/thread routes retain owner filtering. Negative tests in private-owner-boundary.test.ts.",
-      "sha256": "7358801eaf8c0abc6ed1825b52a749cd6dea508be386e318081e80cc4a2654a0"
+      "reason": "Alpha installations additionally omit deployment-owner instructions; existing partner private-route/tool denial preserved. Evidence: private-owner-boundary and owner isolation suites.",
+      "sha256": "37b87805eae3a63f9bc225e6f0a4b695d3f0253b783e827e8fd7022c7590caad"
     },
     "lib/owner-browser-storage.ts": {
       "classification": "ENFORCED",
@@ -3896,8 +3896,8 @@
     },
     "lib/product/work-thread.ts": {
       "classification": "READ_ONLY",
-      "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
-      "sha256": "e0c4e291b2367685cee1d65afb07dc386696d39578cefa6c119c5c984e0e7fe7"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "ebe4122e3ecdb697c48a62bd10b59c78b2c6db32daabe0e3d1c8a9f946366f3b"
     },
     "app/api/work-thread/route.ts": {
       "classification": "READ_ONLY",
@@ -3946,18 +3946,18 @@
     },
     "lib/product/work-state.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
-      "sha256": "7015b3f5d30afd863cd73e376c29fda491a26bfc5de875daef6d681048f6fb95"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "8d64f792331fecb584b42661a09e7db631c64a26ed63f5efde2ac0f5b3011484"
     },
     "lib/product/work-inbox.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
-      "sha256": "e0df0071e0125ba4d1826223cc3d695242e8f20aa40f869e4adc74b14dd23a74"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "c3c3b69d32b34af46dd158ebe1c574e90ac2e9b9225c585dbec1138d4a14926c"
     },
     "app/api/work-inbox/route.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
-      "sha256": "3b0405546533f09093df236152e3ff346eed6b10e584f93ca9a82f1ae9c6431a"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "e6eba8a13e2482359b37f2df3f13c8817898784026db12a724fc1b2616681912"
     },
     "lib/product/groups.ts": {
       "classification": "INTERNAL",
@@ -4101,13 +4101,13 @@
     },
     "lib/external-alpha/allowance.ts": {
       "classification": "ENFORCED",
-      "reason": "Owned local admissions require authoritative shared cohort full-allowance reservation and exact local binding. Paid Sofie dispatch requires local reservation plus durable shared dispatch lease; known local settlement clears the lease without refund. UNKNOWN persists locally even when remote acknowledgment fails; replays never dispatch. Qualified with real PostgreSQL concurrency and cross-database acknowledgment-loss tests.",
-      "sha256": "adf8e5a01b2950310bd8068f7507c8be2c3ba21aa07b56b8fe03bdba56c7e0b7"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "9daa67a86c6219f4b0b28c5128e94a77bc24b4595440ca3afafd99e58056c55f"
     },
     "lib/external-alpha/model.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch. Gate 4 review: Release model tools exclude Memory and Knowledge operations; fixed owner-bound provider allowance and settlement remain enforced.",
-      "sha256": "a4080915a9235ca0f053664625202668577a7d7dc562b8bfeff134ff349c30c0"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "f3948a52ad8b1cac26e3e72da1b17c948c617093dd5761bee23ce372103c95e0"
     },
     "lib/external-alpha/tool-authority.ts": {
       "classification": "ENFORCED",
@@ -4121,13 +4121,13 @@
     },
     "lib/external-alpha/work-authority.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact signed single-use Work admission requires shared cohort reservation and one immutable local binding before dispatch. Local claims plus shared durable dispatch leases prevent redispatch across lost acknowledgments. Factory usage preserves full remaining UNKNOWN envelope. Sweep synchronizes only durable known settlement or UNKNOWN; no provider call, grant replacement or refund. Real PostgreSQL single consumption, concurrency, identity and fault tests qualify the boundary.",
-      "sha256": "bf47d31b22bf81259ac1f66ecaae47ccd2ad6b821940b45e664c13aab41ded15"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "43927bdd9c5559e2cc8e2ccf26316f63de7844626daa2a6fd489bf7d5f5dffbf"
     },
     "lib/external-alpha/features.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied.",
-      "sha256": "8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4136,13 +4136,13 @@
     },
     "lib/external-alpha/result-ingestion.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticates distinct external-alpha signed Result family against durable first prepare digest, signed readback run, one attempt, consumed authority, owner and reviewed pins. Atomically refreshes current Work revision and agent control before immutable Result/Proof retention. Failed/cancelled useful candidates remain FAIL/PARTIAL; never final completion. Settlement occurs once and UNKNOWN remains charged. No dispatch, publication or grant. Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant. Cleanup-confirmed local settlement synchronizes the exact shared Work dispatch lease; ambiguous exposure fences the shared cohort. Remote failure leaves local settlement durable for reconciliation and never refunds allowance. Accepted Result Proof additionally binds exact candidate DiffEvidence and separately preserved signed producer/verifier TestEvidence digest references. Independent UNKNOWN stays PARTIAL even when Factory execution status is FAILED; execution labels cannot invent a verifier FAIL.",
-      "sha256": "2e5a0a97870675fbda06729502493bf33e7c60b3d150d4d049802a70144cff0f"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "b290f0a368a0d60795946aa52555110a77f59d15ba710c51065becf2c9c10b7e"
     },
     "lib/external-alpha/result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Synthetic signed external-alpha Result fixtures with generated keys and explicit admitted prepare/run binding. Never imported by runtime code.",
-      "sha256": "b58ff455832bab450dfea7538c902b7221dde57f2f3728442bdb83cd02186e29"
+      "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification.",
+      "sha256": "374d2397687cc39ef2439c9bf190343344d54de7c63427e0839674bf56322f36"
     },
     "lib/external-alpha/dispatch-readback.ts": {
       "classification": "ENFORCED",
@@ -4151,13 +4151,13 @@
     },
     "lib/external-alpha/reconciliation.ts": {
       "classification": "ENFORCED",
-      "reason": "Bounded durable sweep uses only retained owner/policy authority identities. Reads exact Factory requests, retains/settles Result once, stops stale/cancelled/taken-over exact requests, and sweeps expiry to UNKNOWN. No issue, claim, mint, redispatch, model invocation or activation path. Concurrent and restart PostgreSQL qualification passed.",
-      "sha256": "de52b96f2a456dc4c20e12a1557030ae9bda506d95f5750fa23482b080c5b2be"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "16cab8d1f640ffe8a9d07d156fee05d74e252907154b86a2a0c0b33c699a3440"
     },
     "lib/external-alpha/shared-accounting.ts": {
       "classification": "ENFORCED",
-      "reason": "Server-only authoritative two-slot PostgreSQL cohort accounting, authenticated owner/slot/policy and token binding, transactional owner/global day/trial whole-allowance reservations, exact local allowance mirror and dispatch leases. Fails closed on missing configuration or ambiguity, sanitizes credential-bearing errors, retains all charges, and reconciles durable known/UNKNOWN facts without any provider call, refund, replacement authority or activation. Qualified across two isolated app DBs plus shared DB, restricted roles, concurrency, outage/acknowledgment-loss and restart tests. Gate1 no-candidate settlement is accepted only from the optional immutable exact-Work known-accounting/cleanup fact; terminal labels alone remain fenced.",
-      "sha256": "df56de2e0204a105c5511b48b6a847850b4c7354e6ffeb7aebb232a21fa4c74d"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
+      "sha256": "b846267e034e05691deccbf35843616d25dd637cb7ff23bdb7804fce60ad9b17"
     },
     "lib/external-alpha/productive-sandbox-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4168,6 +4168,66 @@
       "classification": "READ_ONLY",
       "reason": "Explicit server-only installation audit validates an independently pinned private reuse plan and source-owner AES-GCM custody. Enforces read-only transactions on legacy MyEve, canonical Relay and reserved target resources; validates exact live account, Agent credential, operator membership and scope digests. Returns only bounded identity/provenance/auth-status metadata. No HTTP/auth helper, credential reseal/import/update, target mutation, recovery, route/model entry or activation. Real PostgreSQL tests use all 29 migrations from exact deployed Relay source and synthetic credentials; expired grants remain unauthoritative.",
       "sha256": "f712b1f9cb5315b035707de9cfc329e20becc63c4f3a6c54a1c8216a4a5420ea"
+    },
+    "agent/lib/optional-deployment-instructions.ts": {
+      "classification": "INTERNAL",
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "2e720cc08ad6574160b66054d80dc68b6ccb1d83d571a311a21ee5bc09ba69ef"
+    },
+    "agent/instructions/browser.ts": {
+      "classification": "INTERNAL",
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "d094d3242c8cce60dc5a05a5401465fa38061853c324d700fe8b7beac00b08e5"
+    },
+    "agent/instructions/connection-reporting.ts": {
+      "classification": "INTERNAL",
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "dc6180c30784d1e10c328cb6e158792fac667b5bf25b709348c5cfbfc98f5b61"
+    },
+    "agent/instructions/jev.ts": {
+      "classification": "INTERNAL",
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "45fb2caebe73d6ba37d89205fd28c9de5ee1b62380978abc839fc849ab114015"
+    },
+    "agent/instructions/knowledge.ts": {
+      "classification": "INTERNAL",
+      "reason": "Alpha instruction assembly omits unavailable optional procedures; preserves exact authenticated Agent policy and canonical owner/session/turn/Work binding. Instructions grant no effects. Evidence: persistent-agent, context, model and paid-path regression tests.",
+      "sha256": "b9532836eddb6f5586a0fdc7e738dce2dcd00b7d2b0d0f97535fc2ce20a57f19"
+    },
+    "lib/artifact-upload.ts": {
+      "classification": "INTERNAL",
+      "reason": "Client-side private artifact upload orchestration; bounded file types/size, normalized path and SHA-256, exact generated artifact/version references. The separately governed authenticated upload/token and artifact APIs enforce owner custody; client payload is never authority. Evidence: artifact-api, artifact-client, artifact-workspace-state and owner-browser isolation suites.",
+      "sha256": "6fb1caa94aead421333579220956c2da6aea7353440c956058c4b15670921e4a"
+    },
+    "lib/product/owner-work.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "59c0b043039f2a2618ca41c17847ed6e4c5c53eefaf19f2c0160e03cf3f53d00"
+    },
+    "lib/external-alpha/bounded-context.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Current context-headroom review: Bounded Proof limitations preserved with explicit incomplete/unavailable disclosure. Common revision/producer/time fields factored without altering exact criterion states or distinct hashes; reconstruction tests verify identity. Shared projection used by mandatory alpha context and tool results; 32000-byte hard limit unchanged.",
+      "sha256": "9cb86fefa77aaa2f960c8a5bdbe938339e1750223093da13009400c9999c0135"
+    },
+    "lib/external-alpha/context.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure assembly binding and exact optional skill-catalog removal; 32,000-byte hard cap, mandatory owner/Agent/turn policy preserved. Never removes arbitrary policy or grants a capability. Evidence: context, model and persistent-agent regression suites.",
+      "sha256": "bd7a177908341bb4e5e1d54cf6058dee20745c40aa36f89192774e1c59ad5adc"
+    },
+    "lib/external-alpha/conversation-readback.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
+      "sha256": "37e57685c022912166ffd7c2ea09b1db5f842d2bd29600006fac2277a201852c"
+    },
+    "lib/external-alpha/factory-test-fixture.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification.",
+      "sha256": "2df16335600f4ccf2d3d215e1f53706a44dd8d79298aface3acff362e45dec78"
+    },
+    "lib/external-alpha/private-acceptance.ts": {
+      "classification": "ENFORCED",
+      "reason": "Exact authenticated owner private decision over consumed signed Result; canonical policy/Work locks, current version/generation, criteria, Proof/hash and stored attention/response binding, settlement/cleanup/UNKNOWN checks. CAS completion is idempotent; immutable Proof unchanged; no producer/model/publication authority. Evidence: private-acceptance PostgreSQL and production-mode E1/E2/E3.",
+      "sha256": "23c280fc910e77a46ffb67b4ab7dda037a569f4ef5f7bbbf46c738e0176fb059"
     }
   }
 }

@@ -3,6 +3,14 @@ const fs=require('node:fs');
 const path=require('node:path');
 const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
 const {capture}=require('./visual.cjs');
+const ownerRoutes = [
+ ['/today', 'today', 'Today — MyEve'],
+ ['/chat', 'sofie', 'Sofie — MyEve'],
+ ['/work', 'work', 'Work — MyEve'],
+ ['/needs-you', 'needs-you', 'Needs You — MyEve'],
+ ['/workspace', 'files', 'Files — MyEve'],
+ ['/settings', 'settings', 'Settings — MyEve'],
+];
 async function login(page,password='synthetic-ux-owner-a') {
   await page.clock.setFixedTime(new Date('2026-10-09T01:00:00Z'));
   await page.goto('/login');
@@ -14,9 +22,9 @@ for(const width of [1440,1024,768,390]) {
  test(`clean owner shell at ${width}px`,async({page})=>{
   await page.setViewportSize({width,height:900}); await login(page);
   const failures=[];
-  for(const [route,name] of [['/today','today'],['/chat','sofie'],['/work','work'],['/needs-you','needs-you'],['/workspace','files'],['/settings','settings']]) {
+  for(const [route,name,title] of ownerRoutes) {
    await page.goto(route); await stable(page);
-   await expect(page).toHaveTitle(/MyEve/);
+   await expect(page).toHaveTitle(title);
    await expect(page.locator('h1')).toHaveCount(1);
    if(route==='/chat') await expect(page.getByRole('textbox',{name:/message/i})).toBeVisible();
    expect(await page.locator('.owner-shell').count()).toBe(1);
@@ -37,6 +45,18 @@ for(const width of [1440,1024,768,390]) {
   expect(failures).toEqual([]);
  });
 }
+test('canonical Files and Settings titles survive alias navigation, reload and browser history',async({page})=>{
+ await login(page);
+ await page.goto('/files');await stable(page);
+ await expect(page).toHaveURL(/\/workspace$/);
+ await expect(page).toHaveTitle('Files — MyEve');
+ await page.reload();await stable(page);await expect(page).toHaveTitle('Files — MyEve');
+ await page.getByRole('navigation',{name:'Primary',exact:true}).getByRole('link',{name:'Settings',exact:true}).click();
+ await stable(page);await expect(page).toHaveTitle('Settings — MyEve');
+ await page.reload();await stable(page);await expect(page).toHaveTitle('Settings — MyEve');
+ await page.goBack();await stable(page);await expect(page).toHaveTitle('Files — MyEve');
+ await page.goForward();await stable(page);await expect(page).toHaveTitle('Settings — MyEve');
+});
 test('alpha disabled direct routes fail closed',async({page})=>{
  await login(page);
  for(const route of ['/memory','/capsules','/rooms','/apps','/computer','/manage','/api/memories','/api/connections','/api/beta/owner-decision'])expect((await page.request.get(route)).status(),route).toBe(404);

@@ -73,7 +73,7 @@ const env:NodeJS.ProcessEnv={PATH:process.env.PATH,HOME:process.env.HOME,USER:pr
 };
 let modelCalls=0;
 if(hostedFactoryQueue(env)||!externalAlphaWorkEnabled(env))throw Error('Only the qualified synthetic external-alpha path may be enabled');
-const contextSizes:number[]=[];
+const contextSizes:number[]=[];const contextHasLimitations:boolean[]=[];const minimumContextSizes:number[]=[];
 const usage={inputTokens:{total:0,noCache:0,cacheRead:0,cacheWrite:0},outputTokens:{total:0,text:0,reasoning:0}};
 const fixture=createServer(async(req,res)=>{
  const send=(body:unknown,status=200)=>{res.writeHead(status,{'content-type':'application/json'});res.end(JSON.stringify(body));};
@@ -84,6 +84,11 @@ const fixture=createServer(async(req,res)=>{
    if(!body.prompt.some((m:any)=>m.role==='system'&&m.content.includes(EXTERNAL_ALPHA_INSTRUCTIONS)))throw Error('Mandatory alpha policy missing');
    modelCalls++;
    contextSizes.push(Buffer.byteLength(JSON.stringify({prompt:body.prompt,tools:body.tools})));
+   contextHasLimitations.push(/have not been established|Independent verifier verdict/.test(JSON.stringify(body.prompt)));
+   // Read-only probe: systems plus the last complete owner/tool exchange are
+   // indivisible under Decision B. This measures headroom without altering input.
+   const latestUser=body.prompt.findLastIndex((message:any)=>message.role==='user');
+   minimumContextSizes.push(Buffer.byteLength(JSON.stringify({prompt:body.prompt.filter((message:any,index:number)=>message.role==='system'||index>=latestUser),tools:body.tools})));
    console.log('Offline model context bytes:',contextSizes.at(-1));
    const last=body.prompt.at(-1),user=JSON.stringify(body.prompt.findLast((m:any)=>m.role==='user')?.content??'');
    let content:any[],tool=false;
@@ -106,7 +111,7 @@ const fixture=createServer(async(req,res)=>{
    }
    send({content,usage,warnings:[],finishReason:{unified:tool?'tool-calls':'stop',raw:tool?'tool_calls':'stop'},providerMetadata:{gateway:{cost:0}}});return;
   }
-  if(req.url==='/fixture/status'){send({owner:e.owner,database:e.name,modelCalls,contextSizes,dispatches:factory.posts,executions:factory.consumed.size,workCount:await e.count('engineering_work'),authorities:await e.count('external_alpha_work_authority'),results:await e.count('external_alpha_work_result'),acceptances:await e.count('engineering_owner_decisions',"action='accept_private'"),publications:await e.count('engineering_candidate_publications'),unresolved:await e.count('external_alpha_operation',"state IN('PREPARED','DISPATCHED','UNKNOWN')")});return;}
+  if(req.url==='/fixture/status'){send({owner:e.owner,database:e.name,modelCalls,contextSizes,contextHasLimitations,minimumContextSizes,dispatches:factory.posts,executions:factory.consumed.size,workCount:await e.count('engineering_work'),authorities:await e.count('external_alpha_work_authority'),results:await e.count('external_alpha_work_result'),acceptances:await e.count('engineering_owner_decisions',"action='accept_private'"),publications:await e.count('engineering_candidate_publications'),unresolved:await e.count('external_alpha_operation',"state IN('PREPARED','DISPATCHED','UNKNOWN')")});return;}
   // A real canonical decision fixture before admission. This is explicitly not
   // model-authored acceptance of a candidate or permission for publication.
   if(req.url==='/fixture/decision'){

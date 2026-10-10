@@ -96,3 +96,62 @@ describe.skipIf(!connection||!relayRoot)("installation-only Relay reuse audit (c
     await expect(validateRelayReusePlan(f.plan,f.audit)).rejects.toThrow("TARGET_UNAVAILABLE");
   },30000);
 });
+
+/** Synthetic immutable snapshots exercise the audit without a canonical Relay
+ * checkout. The migration-backed cases above remain separately gated. */
+function deterministicFixture() {
+ const key=Buffer.alloc(32,7),credential="synthetic-agent-credential",session="synthetic_session";
+ const row={owner_id:"source-owner",local_agent_id:"source-agent",relay_owner_id:"account",relay_agent_id:"native-agent",address:"relay://account/native-agent",issuer:"https://relay.example.invalid",signing_key_id:"fixture",signing_public_key:"fixture",status:"active",local_work_policy:{research:"approval"},agent_credential_encrypted:sealed("source-owner",credential,key),owner_session_encrypted:sealed("source-owner","__Host-relay_session="+session,key)};
+ const scope={registration:{agentId:"native-agent"},availability:"ONLINE",grants:[],federationGrants:[],delegations:[]};
+ const plan:RelayReusePlan={kind:"RELAY_READ_ONLY_REUSE_PLAN_V1",expiresAt:"2099-01-01T00:00:00.000Z",source:{databaseRefSha256:hash("source-ref"),ownerId:row.owner_id,localAgentId:row.local_agent_id,connectionSha256:digest(relayConnectionBinding(row)),credentialCiphertextSha256:hash(row.agent_credential_encrypted),ownerSessionCiphertextSha256:hash(row.owner_session_encrypted),encryptionKeySha256:hash(key.toString("hex"))},relay:{databaseRefSha256:hash("relay-ref"),accountId:"account",operatorId:"operator",principalId:"principal",agentId:"native-agent",credentialId:"credential",origin:row.issuer,address:row.address,scopeSha256:digest(scope)},target:{databaseRefSha256:hash("target-ref"),slot:"2",projectId:"prj_synthetic",ownerId:"target-owner",localAgentId:"target-agent"}};
+ const sql:string[]=[],clients:ReturnType<typeof vi.fn>[]=[];
+ let readOnly="on",sessionUnexpired=true;
+ const pool=(kind:string)=>({connect:vi.fn(async()=>{
+  const release=vi.fn();clients.push(release);
+  return {release,query:async(q:string)=>{
+   sql.push(q);if(!/^(SELECT|BEGIN|SET LOCAL|COMMIT|ROLLBACK)/.test(q))throw Error("MUTATION_FORBIDDEN");
+   if(q.includes("current_setting"))return{rows:[{mode:readOnly}]};
+   if(q.includes("SELECT c.*"))return{rows:[row]};
+   if(kind==="relay"&&q.includes("FROM agent_credentials"))return{rows:[{id:"credential",...scope,address:row.address,revoked_at:null,unexpired:true}]};
+   if(q.includes("SELECT p.id"))return{rows:[{id:"principal"}]};
+   if(q.includes("FROM user_sessions"))return{rows:[{id:"operator",revoked_at:null,unexpired:sessionUnexpired}]};
+   if(kind==="target"&&q.includes("SELECT id FROM agents"))return{rows:[{id:"target-agent"}]};
+   return{rows:[]};
+  }};
+ })});
+ const audit:RelayReadOnlyInstallationAudit={mode:"INSTALLATION_READ_ONLY",expectedPlanSha256:digest(plan),source:{pool:pool("source"),databaseReference:"source-ref",encryptionKey:key},relay:{pool:pool("relay"),databaseReference:"relay-ref"},target:{pool:pool("target"),databaseReference:"target-ref",projectId:plan.target.projectId,ownerId:plan.target.ownerId,localAgentId:plan.target.localAgentId}};
+ return{plan,audit,row,sql,clients,credential,session,key,repin:()=>{audit.expectedPlanSha256=digest(plan);},setReadOnly:(v:string)=>{readOnly=v;},expireSession:()=>{sessionUnexpired=false;}};
+}
+describe("deterministic installation-only Relay audit (synthetic snapshots)",()=>{
+ it("reads three snapshots without mutation, network, authority creation or secret disclosure",async()=>{
+  const f=deterministicFixture();vi.stubGlobal("fetch",vi.fn(()=>{throw Error("NETWORK_FORBIDDEN");}));
+  expect(await validateRelayReusePlan(f.plan,f.audit)).toMatchObject({credentialStatus:"VALID",ownerSessionStatus:"VALID",mutationPerformed:false,activationPerformed:false,scopeAuthorizationEstablished:false});
+  expect(f.sql.filter(q=>q.startsWith("BEGIN"))).toHaveLength(3);
+  expect(f.sql.filter(q=>q==="COMMIT")).toHaveLength(3);
+  expect(f.clients.every(release=>release.mock.calls.length===1)).toBe(true);
+  expect(fetch).not.toHaveBeenCalled();
+  const out=JSON.stringify(await validateRelayReusePlan(f.plan,f.audit));expect(out).not.toContain(f.credential);expect(out).not.toContain(f.session);
+ });
+ it.each(["digest","expiry","project","owner","database","identity"])("denies %s mismatches before any database access",async(change)=>{
+  const f=deterministicFixture();
+  if(change==="digest")f.audit.expectedPlanSha256="0".repeat(64);
+  if(change==="expiry"){f.plan.expiresAt="2000-01-01T00:00:00.000Z";f.repin();}
+  if(change==="project")f.audit.target.projectId="wrong-project";
+  if(change==="owner")f.audit.target.ownerId="wrong-owner";
+  if(change==="database")f.audit.target.databaseReference="source-ref";
+  if(change==="identity"){f.plan.relay.address="relay://other/native-agent";f.repin();}
+  await expect(validateRelayReusePlan(f.plan,f.audit)).rejects.toThrow("RELAY_REUSE_");expect(f.sql).toEqual([]);
+ });
+ it("rolls back and releases a connection that is not read-only",async()=>{
+  const f=deterministicFixture();f.setReadOnly("off");await expect(validateRelayReusePlan(f.plan,f.audit)).rejects.toThrow("NOT_READ_ONLY");
+  expect(f.sql.at(-1)).toBe("ROLLBACK");expect(f.clients[0]).toHaveBeenCalledOnce();expect(f.audit.relay.pool.connect).not.toHaveBeenCalled();
+ });
+ it("denies owner-AAD substitution even if its ciphertext digest is repinned",async()=>{
+  const f=deterministicFixture();f.row.agent_credential_encrypted=sealed("foreign-owner",f.credential,f.key);
+  f.plan.source.credentialCiphertextSha256=hash(f.row.agent_credential_encrypted);f.repin();
+  await expect(validateRelayReusePlan(f.plan,f.audit)).rejects.toThrow("SEALED_SECRET_INVALID");expect(f.audit.relay.pool.connect).not.toHaveBeenCalled();
+ });
+ it("reports expiry without authenticating or extending a session",async()=>{
+  const f=deterministicFixture();f.expireSession();expect(await validateRelayReusePlan(f.plan,f.audit)).toMatchObject({credentialStatus:"VALID",ownerSessionStatus:"EXPIRED",ownerAuthentication:"OWNER_AUTH_REQUIRED",mutationPerformed:false});
+ });
+});

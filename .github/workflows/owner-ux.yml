@@ -1,7 +1,7 @@
 name: Owner UX
 on:
   push:
-    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009]
+    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010]
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,11 +33,28 @@ jobs:
       - name: Focused policy and owner-boundary contracts
         working-directory: apps/eve
         run: npx vitest run lib/external-alpha/context.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/relay
+          ref: 8a8678d675adc8ac7f799d7660071de2256bb231
+          path: .qualification/relay
+      - name: Keep pinned fixture source outside the qualified application checkout
+        run: mv .qualification/relay "$RUNNER_TEMP/external-alpha-canonical-relay"
+      - name: Complete Relay and context-budget regression
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+          MYRELAY_SOURCE_ROOT: ${{ runner.temp }}/external-alpha-canonical-relay
+          MYEVE_OWNER_CHANNEL_TESTS: '1'
+          MYEVE_OWNER_TEST_PORT: '55491'
+          USER: ux_fixture
+          PGPASSWORD: local-only
+        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/relay lib/external-alpha/relay-link.test.ts lib/external-alpha/bounded-context.test.ts lib/external-alpha/qe-014-context-limitations.test.ts agent/lib/context-assembly.test.ts
       - name: PostgreSQL authority and thread isolation
         working-directory: apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
-        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
+        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
       - name: Context failure recovery
         working-directory: apps/eve
         run: |
@@ -47,6 +64,7 @@ jobs:
       - name: Initialize disposable database and server
         working-directory: apps/eve
         run: |
+          test -z "$(git status --porcelain)"
           node --import tsx test/owner-ux/setup.ts
           MYEVE_OWNER_UX_BUILD=1 node test/owner-ux/local-server.cjs > /tmp/owner-ux-server.log 2>&1 &
           echo $! > /tmp/owner-ux-fixture.pid

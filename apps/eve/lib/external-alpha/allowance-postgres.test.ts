@@ -165,7 +165,7 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
         (x) => x.status === "fulfilled",
       ) as PromiseFulfilledResult<any>
     ).value;
-    await call("model_finish", {
+    const settlement = {
       ownerId: owner,
       allowanceId: a.id,
       operationId: op.id,
@@ -173,7 +173,31 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
       state: "SETTLED",
       microusd: 1000,
       result: { text: "retained" },
+    };
+    // Reservation alone is not provider ownership: migration 0091 requires
+    // the same dispatch claim that the runtime makes before the provider call.
+    expect(op.state).toBe("PREPARED");
+    await expect(call("model_finish", settlement)).rejects.toThrow(
+      "Bounded incremental settlement required",
+    );
+    expect(
+      (
+        await pool.query(
+          "SELECT state,spent_microusd,result FROM external_alpha_operation WHERE id=$1",
+          [op.id],
+        )
+      ).rows[0],
+    ).toEqual({ state: "PREPARED", spent_microusd: null, result: null });
+    const dispatch = { ...p, operationId: op.id, state: "DISPATCHED" };
+    expect(await call("model_transition", dispatch)).toMatchObject({
+      state: "DISPATCHED",
+      claimed: true,
     });
+    expect(await call("model_transition", dispatch)).toMatchObject({
+      state: "DISPATCHED",
+      claimed: false,
+    });
+    await call("model_finish", settlement);
     expect((await call("model_reserve", p)).result).toEqual({
       text: "retained",
     });
@@ -182,6 +206,14 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
       id: randomUUID(),
       stepKey: "turn:1",
     });
+    expect(op2.state).toBe("PREPARED");
+    expect(
+      await call("model_transition", {
+        ...p,
+        operationId: op2.id,
+        state: "DISPATCHED",
+      }),
+    ).toMatchObject({ state: "DISPATCHED", claimed: true });
     await call("model_finish", {
       ownerId: owner,
       allowanceId: a.id,
@@ -365,7 +397,7 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
         microusd: 30000,
       };
       const op = await invoke("model_reserve", reservation);
-      await invoke("model_finish", {
+      const settlement = {
         ...reservation,
         operationId: op.id,
         state: "SETTLED",
@@ -384,7 +416,19 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
             },
           ],
         },
-      });
+      };
+      expect(op.state).toBe("PREPARED");
+      await expect(invoke("model_finish", settlement)).rejects.toThrow(
+        "Bounded incremental settlement required",
+      );
+      expect(
+        await invoke("model_transition", {
+          ...reservation,
+          operationId: op.id,
+          state: "DISPATCHED",
+        }),
+      ).toMatchObject({ state: "DISPATCHED", claimed: true });
+      await invoke("model_finish", settlement);
       const effect = {
         ownerId: owner,
         policySha256: policyHash,
