@@ -21,7 +21,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   const head = git(repo,['rev-parse','HEAD']);
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
-  const expected = name==='myeve' ? ['.github/workflows/ci.yml','.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
+  const expected = name==='myeve' ? ['.github/workflows/ci.yml','.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/capability-registry.ts','apps/eve/scripts/executor-inventory.json','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
   const attempt = spawnSync('git',['-C',repo,'merge-tree','--write-tree','--name-only',head,integration],{encoding:'utf8'});
   assert([0,1].includes(attempt.status),attempt.stderr);
   const sections=attempt.stdout.trimEnd().split('\n\n');
@@ -31,7 +31,8 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   const temp=mkdtempSync(join(tmpdir(),'myapps-index-'));
   const env={...process.env,GIT_INDEX_FILE:join(temp,'index')};
   const indexGit=(args,options={})=>git(repo,args,{env,...options});
-  const put=(path,content)=>{const hash=git(repo,['hash-object','-w','--stdin'],{input:content});indexGit(['update-index','--add','--cacheinfo',`100644,${hash},${path}`]);};
+  const reconciledSources=new Map();
+  const put=(path,content)=>{reconciledSources.set(path,content);const hash=git(repo,['hash-object','-w','--stdin'],{input:content});indexGit(['update-index','--add','--cacheinfo',`100644,${hash},${path}`]);};
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
@@ -71,6 +72,66 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       let features=show(repo,integration,'apps/eve/lib/external-alpha/features.ts');
       features=replacement(features,'// ---- Pages (app/**/page.tsx)', 'add("EMAIL_CONNECTED_APPS", ["/api/myapps/[...path]", "/apps/installed"]);\n\n// ---- Pages (app/**/page.tsx)');
       put('apps/eve/lib/external-alpha/features.ts',features);
+      // Carry only the reviewed dormant catalog entry into canonical discovery;
+      // preserve the integration's external-alpha filters and all other entries.
+      const catalogPath='apps/eve/lib/capability-registry.ts';
+      const preparationCatalog=show(repo,head,catalogPath);
+      const digest=(source)=>createHash('sha256').update(source).digest('hex');
+      const declaration=preparationCatalog.match(/^  tool\("installed_apps",[^\n]+\n/gm);
+      assert.equal(declaration?.length,1,'Expected one reviewed MyApps catalog declaration');
+      assert.equal(digest(declaration[0]),'04bab499e91a82c5faf79c2afc66995ad76ef1dd3bd72bb938357bca3d0fc0b9','Unreviewed MyApps declaration');
+      const gate=preparationCatalog.match(/  \/\/ Packaging does not make[\s\S]*?\n  }\n/g);
+      assert.equal(gate?.length,1,'Expected one disabled MyApps gate');
+      assert.equal(digest(gate[0]),'bf7a86af305175d7a796f26ca6d2cd3226ca820d37e34c739be5751c8767dc6d','Unreviewed MyApps gate');
+      let catalog=show(repo,integration,catalogPath);
+      assert(!catalog.includes('tool("installed_apps"'));
+      catalog=replacement(catalog,'  tool("engineering_work",',declaration[0]+'  tool("engineering_work",');
+      catalog=replacement(catalog,'  // Discovery is gated; execution retains',gate[0]+'  // Discovery is gated; execution retains');
+      put(catalogPath,catalog);
+      // Reconcile exact reviewed source metadata, never regenerate the full
+      // inventory from arbitrary source. Unrelated canonical records stay intact.
+      const inventoryPath='apps/eve/scripts/executor-inventory.json';
+      const inventory=JSON.parse(show(repo,integration,inventoryPath));
+      const preparationInventory=JSON.parse(show(repo,head,inventoryPath));
+      const newSources=['agent/tools/installed_apps.ts','lib/myapps/api.ts','lib/myapps/hosting.ts','lib/myapps/runtime.ts','lib/myapps/workflow.ts','app/api/myapps/[...path]/route.ts'];
+      const transformedSources=['lib/database-schema.ts','lib/beta-integration/runtime.ts','lib/capability-registry.ts'];
+      // The pinned integration carries stale historical fingerprints for three
+      // of these files. Bind independently reviewed input bytes explicitly;
+      // never use this reconciliation to refresh unrelated canonical records.
+      assert.equal(integration,'afa65bd4c2d3ce26691a07132030cad1a1ef140e','Packaging reconciliation requires the independently reviewed canonical input');
+      const reviewedCanonical={
+        'lib/database-schema.ts':'ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead',
+        'lib/beta-integration/runtime.ts':'b9967ef2646550deef25c98ec592df6313cddced39844af2f145bf3a3374e576',
+        'lib/capability-registry.ts':'afda126015b8540a26572af2c2964b2d0cf3974aa0650c8e4c3bca8544b5cb0b',
+        'lib/external-alpha/features.ts':'d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979',
+      };
+      for(const file of [...newSources,...transformedSources]) {
+        const entry=preparationInventory.executors[file];
+        assert(entry && entry.reason.includes('Reviewed MyApps canonical packaging 2026-10-10:'),`Missing independent source classification: ${file}`);
+        assert.equal(entry.sha256,digest(show(repo,head,'apps/eve/'+file)),`Stale preparation review: ${file}`);
+        if(newSources.includes(file)) {
+          assert(!inventory.executors[file],`Duplicate canonical source ownership: ${file}`);
+          assert.equal(show(repo,initialTree,'apps/eve/'+file),show(repo,head,'apps/eve/'+file));
+          assert.equal(show(repo,head,'apps/eve/'+file),show(repo,pins.myeve.phase2,'apps/eve/'+file),'Qualified lifecycle source must remain unchanged');
+          inventory.executors[file]=entry;
+        } else {
+          const canonicalEntry=inventory.executors[file];
+          assert.equal(canonicalEntry.classification,entry.classification);
+          assert.equal(reviewedCanonical[file],digest(show(repo,integration,'apps/eve/'+file)),`Unreviewed canonical input: ${file}`);
+          const source=reconciledSources.get('apps/eve/'+file);
+          assert(source,`Missing exact composition transformation: ${file}`);
+          if(canonicalEntry.sha256!==reviewedCanonical[file]) canonicalEntry.reason+=` Stale pinned canonical inventory fingerprint ${canonicalEntry.sha256} reconciled against independently reviewed source ${reviewedCanonical[file]}.`;
+          canonicalEntry.sha256=digest(source);
+          canonicalEntry.reason+=' Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change.';
+        }
+      }
+      const featureEntry=inventory.executors['lib/external-alpha/features.ts'];
+      assert.equal(reviewedCanonical['lib/external-alpha/features.ts'],digest(show(repo,integration,'apps/eve/lib/external-alpha/features.ts')));
+      featureEntry.reason+=` Stale pinned canonical inventory fingerprint ${featureEntry.sha256} reconciled against independently reviewed source ${reviewedCanonical['lib/external-alpha/features.ts']}.`;
+      featureEntry.sha256=digest(features);
+      featureEntry.reason+=' MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family; the allowlist is unchanged.';
+      put(inventoryPath,JSON.stringify(inventory,null,2)+'\n');
+
     }
     const tree=indexGit(['write-tree']);
     const snapshot=git(repo,['commit-tree',tree],{input:`MyApps offline composition rehearsal\nPreparation: ${head}\nIntegration snapshot: ${integration}\nNot an adopted release; no branch merge.\n`,env:{...process.env,GIT_AUTHOR_NAME:'MyApps Qualification',GIT_AUTHOR_EMAIL:'qualification@example.invalid',GIT_COMMITTER_NAME:'MyApps Qualification',GIT_COMMITTER_EMAIL:'qualification@example.invalid',GIT_AUTHOR_DATE:'2026-10-09T00:00:00Z',GIT_COMMITTER_DATE:'2026-10-09T00:00:00Z'}});
