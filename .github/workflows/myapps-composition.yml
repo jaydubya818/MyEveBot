@@ -3,7 +3,7 @@ on:
   push:
     branches: [codex/myapps-phase3b-reconciliation]
   pull_request:
-    paths: ['scripts/myapps-composition/**', 'docs/myapps/phase3/**', 'packages/myapps/composition*.config.ts', 'packages/myapps/integration/composition.test.ts', '.github/workflows/myapps-composition.yml']
+    paths: ['scripts/myapps-composition/**', 'docs/myapps/phase3/**', 'packages/myapps/composition*.config.ts', 'packages/myapps/integration/composition.test.ts', 'packages/myapps/qualification/**', '.github/workflows/myapps-composition.yml']
 permissions:
   contents: read
 jobs:
