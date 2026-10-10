@@ -62,6 +62,8 @@ This preparation changes no app runtime implementation. The rehearsal checks the
 
 ## Configuration, targets, dependencies and secrets
 
+The preparation branch explicitly disables Vercel Git deployments. An initial push unexpectedly created one preview deployment before that guard was added; it was removed. No production target or external-alpha installation was changed. The workspace incident evidence records the exact preview identity and cleanup.
+
 Keep `MYAPPS_LOCAL_INTEGRATION` unset in every deployment. The current runtime additionally denies production NODE_ENV and Vercel; do not remove these gates as part of readiness work. Local rehearsal explicitly injects the pool, authenticated policy, runtime id, target and Result verifier. New production bootstrap/flag semantics require a separate implementation authorization.
 
 The intended logical host is the existing canonical MyEve web/agent runtime plus its canonical PostgreSQL store, and the existing MyFactory control plane/verifier/custody services. No standalone MyApps service is required. **Exact production project, database, custody store, region, role and release target identities remain unselected/unverified**; do not substitute current tester installations. No deployment variables, secrets, identities or grants are created here.
@@ -104,3 +106,7 @@ The first composed run passed 200/202 tests. Two `allowance-postgres.test.ts` ca
 The combined Factory tree also trips `apps/cloud-control/scripts/cloud-source-identity.mjs` with `SOURCE_IDENTITY_CHANGED_REVIEW_AND_REPIN`. A dedicated test requires that fail-closed result. No source-identity record or installed FactoryVersion is rewritten by this preparation.
 
 MySkills compatibility reference was remotely verified at `c7c53a261552297d9398b00e822d7cfaf7c63fff` (`codex/myskills-initial-qualification`, draft/HOLD). No Skill is executed or imported. Active branch inventories and unpublished QE status are retained in workspace reconciliation evidence.
+
+## Later reconciliation update
+
+While this pinned rehearsal ran, the separate QE workstream published MyEve `c640f255fe2b8d1aeecc4c4c99bb28675b2ee5e8` and MyFactory `18e59dbedbe04275858327ca47d2bd7ec01a407c`. They supersede the earlier unpublished-status description, but are not adopted by this rehearsal. MyEve adds a fourth conflict in `.gitignore`; Factory remains textually clean. They change criterion-level signed Result evidence, successor verifier policy/source identity, central accounting SQL and running/held Work transitions. No numbered MyEve migrations change. Their own independent qualification and explicit adoption must precede refreshing the rehearsal pins and repeating the full suite. The current rehearsal is not evidence for these later QE sources. See workspace `RECONCILIATION-UPDATE.md` for exact impacts.

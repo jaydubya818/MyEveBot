@@ -19,6 +19,7 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   const name='apps/eve/lib/external-alpha/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.ux,name));
  }
+ expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled['codex/myapps-phase3-readiness']).toBe(false);
  const {externalAlphaIngress,externalAlphaCapabilityAllowed,ALLOWED_FAMILIES}=await import('../../../apps/eve/lib/external-alpha/features.ts');
  expect(ALLOWED_FAMILIES).not.toContain('MYAPPS');
  for(const method of ['GET','POST','PUT','DELETE'])for(const path of ['/apps/installed','/api/myapps/ui','/api/myapps/app','/api/myapps/agent','/api/myapps/unknown/deeper'])

@@ -3,6 +3,7 @@
   "outputDirectory": null,
   "git": {
     "deploymentEnabled": {
+      "codex/myapps-phase3-readiness": false,
       "main": false,
       "codex/peer-message-answers": false,
       "codex/federation-request-deadline": false,
