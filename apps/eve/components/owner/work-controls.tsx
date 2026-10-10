@@ -14,7 +14,7 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
  const operation=work.lifecycle==='active'&&!work.externalAlpha&&view.status!=='Outcome unconfirmed'&&!view.currentResult&&!work.attention&&!work.pendingDecisions.length
   ? work.control==='paused'?'resume':work.control==='agent'?'pause':null
   // Alpha: a running Work fences paid chat turns, so the owner stops it here, without a Sofie turn.
-  : work.lifecycle==='active'&&work.externalAlpha&&!work.externalAlpha.result&&!work.externalAlpha.factoryOutcome&&['ISSUED','DISPATCHING','CONSUMED'].includes(work.externalAlpha.state)?'stop':null;
+  : work.lifecycle==='active'&&work.externalAlpha&&!work.externalAlpha.result&&!work.externalAlpha.factoryOutcome&&work.externalAlpha.state==='CONSUMED'?'stop':null;
  async function change(){
   if(!operation||lock.current)return;
   lock.current=true;setBusy(true);setError('');setMessage('');

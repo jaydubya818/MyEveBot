@@ -33,7 +33,8 @@ describe("alpha owner Work stop (non-paid)", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ state: "CANCELLED" });
     expect(mocks.action).toHaveBeenCalledOnce();
-    const [store, workId, input] = mocks.action.mock.calls[0];
+    const [store, workId, input, , deps] = mocks.action.mock.calls[0];
+    expect(deps).toEqual({ ownerDirectStop: true });                     // running-only stop; never cancels a start in flight
     expect(store.principal).toEqual({ scopeKind: "personal", scopeId: OWNER, actorId: OWNER });
     expect(workId).toBe(WORK);
     expect(input).toEqual({ operation: "stop", expectedWorkVersion: 3, expectedWorkGeneration: 2 });

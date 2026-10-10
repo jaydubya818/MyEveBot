@@ -180,7 +180,10 @@ export function withoutMandatoryDuplicates(value: Record<string, unknown>, manda
  const native = out.projection?.nativeResult;
  const hash = native?.proof?.contentHash;
  if (typeof native?.id === "string" && typeof hash === "string"
-   && block.some(line => line.startsWith(`Native immutable Proof of Work ${native.id}: `) && line.includes(`"contentHash":${JSON.stringify(hash)}`))) {
+   && typeof native.contentHash === "string"
+   && block.filter(line => line.startsWith("Native immutable Proof of Work ")).length === 1
+   && block.some(line => line.startsWith(`Native immutable Proof of Work ${native.id}: `) && line.includes(`"contentHash":${JSON.stringify(hash)}`)
+     && line.endsWith(`. Hash ${native.contentHash}.`))) {
   native.proof = {sameAsMandatoryContext: true, contentHash: hash, outcome: native.proof.outcome};
   removed.push("projection.nativeResult.proof");
  }

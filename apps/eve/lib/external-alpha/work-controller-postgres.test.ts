@@ -1120,6 +1120,31 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const appB = await setup(true, p.b);
     await expect(appB.controller.start(await p.b.seedWork())).rejects.toThrow(/SHARED_CAPACITY/);
   }, 90000);
+  it("STOP-2: the owner page never cancels a Work that is still starting, so a concurrent claim cannot be overwritten", async () => {
+    const p = await sharedPair();
+    const env = {
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: p.a.policy.projectId, MYEVE_OWNER_ID: p.a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(p.a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(p.a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(p.app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: p.app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(p.a.policy, p.app.config),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+    } as unknown as NodeJS.ProcessEnv;
+    const work = await p.a.seedWork();
+    const ownerStop = (w: { id: string; version: number; generation: number }) => externalAlphaFactoryAction(p.a.store, w.id,
+      { operation: "stop", expectedWorkVersion: w.version, expectedWorkGeneration: w.generation },
+      { sessionId: "owner-work-controls", callId: randomUUID() }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer, ownerDirectStop: true });
+    await expect(ownerStop(work)).resolves.toMatchObject({ state: "NONE" });              // nothing to stop, nothing created
+    expect(await p.a.count("external_alpha_work_authority")).toBe(0);
+    const issued = await p.a.svc.issue(work, files);
+    await expect(ownerStop(await p.a.store.get(work.id))).rejects.toMatchObject({ code: "EXTERNAL_ALPHA_WORK_STARTING", status: 409 });
+    await p.a.svc.claim(issued);                                                           // DISPATCHING
+    await expect(ownerStop(await p.a.store.get(work.id))).rejects.toMatchObject({ code: "EXTERNAL_ALPHA_WORK_STARTING" });
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows[0].state).toBe("DISPATCHING");
+    expect(p.app.factory.stops).toEqual([]);
+    // Owner mode accepts stop only.
+    await expect(externalAlphaFactoryAction(p.a.store, work.id, { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "x" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer, ownerDirectStop: true })).rejects.toMatchObject({ status: 400 });
+  }, 90000);
   it("RACE-1: a chat admitted before the Work cannot dispatch between the Work's reservation and its dispatch; the Work still runs", async () => {
     const p = await sharedPair();
     const bAllow = new ExternalAlphaAllowance(p.b.db, p.b.policy);

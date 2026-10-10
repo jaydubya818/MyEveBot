@@ -639,6 +639,7 @@ export async function betaRequest(
           input.workId,
           { operation: "stop", expectedWorkVersion: input.expectedVersion, expectedWorkGeneration: input.expectedGeneration },
           { sessionId: "owner-work-controls", callId: crypto.randomUUID() },
+          { ownerDirectStop: true },
         );
         return Response.json(result, { headers });
       }
