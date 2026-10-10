@@ -24,8 +24,8 @@
     },
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "d1c27a0b39434118212f65715333380b09daf2561e29735fc9e3cea1f2c3ce55"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+      "sha256": "f86f603da0f99db979cde42ced74ba0b3b19363c2c09ee46c45fe166aec361c5"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -2012,8 +2012,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed.",
-      "sha256": "d37e595d2f9a89f2828e7f8ff6999b3101d2eb4c39bc17ad442bfae234542d16"
+      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Owner capability tools declare read and always-approved preference mutation only; no execution authority.",
+      "sha256": "f55e125e4849bc8a0abeb746a690e5e46cd81517908d2a8dba6ae56a703ab7ed"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3174,8 +3174,8 @@
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "70de382f5d3c2913731b40b0db3a5b85d0ce996bf50bb4f288b44bce1e12e14c"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "3295cbeca23595f398c0eb8d571a32babd70c650b5db805c229e5f328ca4f83a"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3324,8 +3324,8 @@
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "49149f91f3d54c6341cb444e6d8a95b5a66f03feef809ea7a2a83abffa8d1401"
     },
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
@@ -3449,8 +3449,8 @@
     },
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
-      "sha256": "5151368e3aeb4f4117e88f4f94ec073364b4cec62e6d05320273cefc8004a0c9"
+      "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "8f4e8227ab64bb11cdfa7e31c3e9d74cbdbdf5a34f6de3be1eceee9c31f2e31e"
     },
     "lib/engineering/routing-store.ts": {
       "classification": "INTERNAL",
@@ -4058,6 +4058,46 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained data reads. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
       "sha256": "c542acbb56c2781a1886d653445071e59a32091a3c93e0902e0ed86a03d2b780"
+    },
+    "agent/tools/change_capability.ts": {
+      "classification": "ENFORCED",
+      "reason": "Isolated owner-preference mutation only. Eve always-approval; direct configured authenticated owner guard; no subagents; canonical revision/idempotency transaction. No provider execution or authority issuance. Qualification: scripts/qualify-capability-control.mjs and qualify-capability-browser.mjs; independent review pending.",
+      "sha256": "386c072d807ac2b34ddc9076c57b7c26c9a539f25474384bbb598fd4b5da71bc"
+    },
+    "agent/tools/show_capabilities.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Direct authenticated owner inspection only; subagents excluded. Canonical scoped store exposes explicit unavailable backend integration; no execution grants. Qualification: scripts/qualify-capability-control.mjs.",
+      "sha256": "28d7c5b38fc6b83081d462beb4eb4eb87a22621b2fb19f1b5e756b4fe27f5db1"
+    },
+    "lib/capability-control/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Strict owner-preference command and receipt schemas, including PENDING_PROPAGATION; no executable effects.",
+      "sha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802"
+    },
+    "lib/capability-control/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Explicit isolated installation/database gate; signed owner authentication and same-origin mutations. Trusted configuration delivers signed policy and lifecycle observations after commit; development requires independently retained recovery witness. No execution authority or automatic enrollment. Real PostgreSQL recovery/HTTP lifecycle and signed-session bypass qualification pass; production/hosted remains rejected.",
+      "sha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669"
+    },
+    "lib/capability-control/sofie.ts": {
+      "classification": "ENFORCED",
+      "reason": "Direct owner guard excludes delegated, guest and role-pack callers. Canonical scoped preferences only; tool mutation separately requires always-approval. Qualification: scripts/qualify-capability-control.mjs. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+      "sha256": "76c1548280cccc507d8d921025363ee59a73d48b8d04af685e318d8419777487"
+    },
+    "lib/capability-control/store.ts": {
+      "classification": "ENFORCED",
+      "reason": "Restricted role, exact owner/installation RLS, canonical revision locking, durable idempotency and immutable audit. Witness-enrolled owners fail closed on missing configuration, stale authority digest or uncertain commit. Backend observations require frozen enrolled signatures, monotonic exact control identity and complete native inventory; only explicit owner enable after confirmed control clears the request. New admissions retain all backend checks and UNKNOWN accounting. Qualified by real PostgreSQL lifecycle/recovery/concurrency/owner tests and signed cleanup browser reconnect, with independent security review.",
+      "sha256": "16db8cdd25623d0a9c26f77b93a9fab55a9f55fa2bd1280178d23004c831dfb0"
+    },
+    "app/api/capability-control/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Signed owner principal and same-origin mutation through bounded strict commands. No body-selected owner. Uses canonical scoped store; no execution authority. Real HTTP browser checks in scripts/qualify-capability-browser.mjs.",
+      "sha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236"
+    },
+    "lib/capability-control/admission.ts": {
+      "classification": "INTERNAL",
+      "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+      "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
     }
   }
 }

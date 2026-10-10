@@ -24,6 +24,8 @@ jobs:
           node-version: 24
       - name: Install locked test dependencies without qualification credentials
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
       - name: Install browser before loading operator credentials
         run: npx playwright install --with-deps chrome
       - name: One bounded deterministic Work through real Eve browser endpoint
