@@ -170,13 +170,14 @@ jobs:
           PGDATABASE: blocker_fixes
         run: |
           mkdir -p "$QE_EVIDENCE_DIR"
-          export QE_SOURCE_SHA="$(git rev-parse HEAD)"
+          QE_SOURCE_SHA="$(git rev-parse HEAD)"
+          export QE_SOURCE_SHA
           psql -Atc "SELECT datname FROM pg_database WHERE datname LIKE 'ea_work_%' ORDER BY datname" > "$QE_EVIDENCE_DIR/databases-before.txt"
           node --import tsx test/owner-journey/runner-prod.ts > "$QE_EVIDENCE_DIR/server.log" 2>&1 &
           fixture_pid=$!
           cleanup() {
             kill -TERM "$fixture_pid" 2>/dev/null || true
-            for attempt in $(seq 1 30); do
+            for _attempt in $(seq 1 30); do
               kill -0 "$fixture_pid" 2>/dev/null || break
               sleep 1
             done
@@ -185,7 +186,7 @@ jobs:
             diff -u "$QE_EVIDENCE_DIR/databases-before.txt" "$QE_EVIDENCE_DIR/databases-after.txt" || exit 1
           }
           trap cleanup EXIT
-          for attempt in $(seq 1 600); do
+          for _attempt in $(seq 1 600); do
             grep -q 'server listening at http://127.0.0.1:3185/' "$QE_EVIDENCE_DIR/server.log" && break
             kill -0 "$fixture_pid" || { cat "$QE_EVIDENCE_DIR/server.log"; exit 1; }
             sleep 2
