@@ -39,7 +39,18 @@ describe.skipIf(!connection)("PostgreSQL session revocation", () => {
   }, 60_000);
   afterAll(async () => {
     await pool?.end();
-    if (admin) { await admin.query('DROP DATABASE "' + schema + '" WITH (FORCE)'); await admin.end(); }
+    if (admin) {
+      // Pool.end() can resolve before PostgreSQL observes the clients' disconnects.
+      // Wait for graceful closure instead of racing FORCE against an ending client.
+      await vi.waitFor(async () => {
+        const remaining = (await admin.query(
+          "SELECT count(*) AS connections FROM pg_stat_activity WHERE datname=$1", [schema],
+        )).rows[0].connections;
+        expect(Number(remaining)).toBe(0);
+      }, { timeout: 5_000, interval: 10 });
+      await admin.query('DROP DATABASE "' + schema + '"');
+      await admin.end();
+    }
     vi.unstubAllEnvs();
   });
   it("preserves revocation across connections, independent sessions, and operator reruns", async () => {
