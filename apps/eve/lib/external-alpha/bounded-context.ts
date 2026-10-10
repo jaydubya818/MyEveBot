@@ -7,26 +7,23 @@ export const EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES = 28_000;
 const LIMITATIONS_BYTES = 2_048;
 const LIMITATIONS_COUNT = 8;
 
-/** Preserve exact prefixes at Unicode boundaries, with explicit incompleteness.
+/** Preserve whole statements, with explicit incompleteness.
  * Missing limitations are unavailable, never evidence of verification. */
 function boundedLimitations(value: unknown) {
  const limitations: string[] = [];
- let used = 0, truncatedCount = 0;
+ let used = 0;
  const available = Array.isArray(value) && value.every(item => typeof item === "string");
- if (available) for (const limitation of value.slice(0, LIMITATIONS_COUNT)) {
-  let prefix = "";
-  for (const character of limitation) {
-   const size = Buffer.byteLength(JSON.stringify(character)) - 2;
-   if (used + size > LIMITATIONS_BYTES) break;
-   prefix += character; used += size;
-  }
-  if (prefix !== limitation) truncatedCount++;
-  limitations.push(prefix);
+ if (available) for (const limitation of value) {
+  const size = Buffer.byteLength(JSON.stringify(limitation));
+  // A clipped sentence could lose a negation or qualification. Omit the
+  // entire statement instead and expose the omission count below.
+  if (limitations.length >= LIMITATIONS_COUNT || used + size > LIMITATIONS_BYTES) continue;
+  limitations.push(limitation); used += size;
  }
  const omittedCount = available ? Math.max(0, value.length - limitations.length) : null;
  return {limitations, limitationsReadback: {
-  status: !available ? "UNAVAILABLE" : truncatedCount || omittedCount ? "INCOMPLETE" : "COMPLETE",
-  omittedCount, truncatedCount,
+  status: !available ? "UNAVAILABLE" : omittedCount ? "INCOMPLETE" : "COMPLETE",
+  omittedCount,
   note: "Limitations describe retained Proof only; missing or omitted Proof is not verified. Read the canonical Proof for complete details.",
  }};
 }
