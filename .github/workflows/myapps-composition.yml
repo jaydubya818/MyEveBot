@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 025a06e58200333f2df32a3910b235e7ffaff0b7
+          ref: 7579c056834d6564ef7600b9ba348174af6e0e8e
           fetch-depth: 0
           path: .qualification/myfactory
       - uses: actions/checkout@v4
