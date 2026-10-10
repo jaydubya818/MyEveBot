@@ -38,11 +38,13 @@ jobs:
           repository: jaydubya818/relay
           ref: 8a8678d675adc8ac7f799d7660071de2256bb231
           path: .qualification/relay
+      - name: Keep pinned fixture source outside the qualified application checkout
+        run: mv .qualification/relay "$RUNNER_TEMP/external-alpha-canonical-relay"
       - name: Complete Relay and context-budget regression
         working-directory: apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
-          MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+          MYRELAY_SOURCE_ROOT: ${{ runner.temp }}/external-alpha-canonical-relay
           MYEVE_OWNER_CHANNEL_TESTS: '1'
           MYEVE_OWNER_TEST_PORT: '55491'
           USER: ux_fixture
@@ -62,6 +64,7 @@ jobs:
       - name: Initialize disposable database and server
         working-directory: apps/eve
         run: |
+          test -z "$(git status --porcelain)"
           node --import tsx test/owner-ux/setup.ts
           MYEVE_OWNER_UX_BUILD=1 node test/owner-ux/local-server.cjs > /tmp/owner-ux-server.log 2>&1 &
           echo $! > /tmp/owner-ux-fixture.pid
