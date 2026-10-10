@@ -45,6 +45,12 @@ export function retainMainInventory({main,read,readRaw,readComposed,inventory}) 
 }
 
 /** Bind every upstream changed path, including exact reviewed reconciliations. */
+export function verifyPackagingPreserved(readComposedRaw) {
+  for(const [path,sha256] of Object.entries(reviewedMain.packaging.files))
+    assert.equal(digest(readComposedRaw(path)),sha256,`Changed reviewed standalone packaging source: ${path}`);
+  return reviewedMain.packaging;
+}
+
 export function verifyMainPreserved({main,readRaw,readComposedRaw}) {
   verifyMainSource(main,readRaw);
   const mismatches=[];
@@ -54,5 +60,6 @@ export function verifyMainPreserved({main,readRaw,readComposedRaw}) {
       mismatches.push({path,expected:outputSha256,actual});
   }
   assert.deepEqual(mismatches,[],'Current-main output changed or unqualified reconciliation');
-  return {source:main,previousMain:reviewedMain.previousMain,files:Object.keys(reviewedMain.files),scope:'EXACT_CURRENT_MAIN_PRESERVATION'};
+  const packaging=verifyPackagingPreserved(readComposedRaw);
+  return {source:main,previousMain:reviewedMain.previousMain,files:Object.keys(reviewedMain.files),packaging,scope:'EXACT_CURRENT_MAIN_PRESERVATION'};
 }

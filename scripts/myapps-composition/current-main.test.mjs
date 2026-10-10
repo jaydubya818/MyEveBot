@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {reviewedMain,verifyMainSource,retainMainCatalog,retainMainInventory,verifyMainPreserved} from './current-main.mjs';
+import {reviewedMain,verifyMainSource,retainMainCatalog,retainMainInventory,verifyMainPreserved,verifyPackagingPreserved} from './current-main.mjs';
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const read=(sha,path)=>{const r=spawnSync('git',['-C',root,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});assert.equal(r.status,0,r.stderr);return r.stdout;};
 
@@ -36,4 +36,16 @@ test('main pin and source mutation cannot inherit previous qualification',()=>{
  const file='packages/capability-enforcement/src/recovery-witness.ts';
  assert.throws(()=>verifyMainSource(reviewedMain.main,(sha,path)=>Buffer.concat([readRaw(sha,path),Buffer.from(path===file?'\n':'')])),/Changed current-main source/);
  assert.throws(()=>verifyMainPreserved({main:reviewedMain.main,readRaw,readComposedRaw:path=>Buffer.concat([readRaw('HEAD',path),Buffer.from('\n')])}),/Unqualified current-main reconciliation|Current-main output changed/);
+});
+
+test('reviewed standalone source and trace metadata reject missing or substituted inputs',()=>{
+ const readComposedRaw=path=>{
+  let bytes=readRaw('HEAD',path);
+  if(path==='apps/builder/lib/manifest.ts')for(const name of ['browser','connection-reporting','jev','knowledge'])
+   bytes=Buffer.from(bytes.toString().replace(`agent/instructions/${name}.md`,`agent/instructions/${name}.ts`));
+  return bytes;
+ };
+ assert.equal(verifyPackagingPreserved(readComposedRaw).source,'bc9d595b130d72e51d738ecb18898406f31940f7');
+ for(const changed of Object.keys(reviewedMain.packaging.files))for(const missing of [false,true])
+  assert.throws(()=>verifyPackagingPreserved(path=>path===changed?(missing?null:Buffer.concat([readComposedRaw(path),Buffer.from('\n')])):readComposedRaw(path)),/Changed reviewed standalone packaging source/);
 });

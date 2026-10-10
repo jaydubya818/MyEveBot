@@ -240,8 +240,8 @@
     "path": "apps/builder/lib/manifest.ts",
     "integrationSha256": "335dc828fa34592ee2000d68741340b7b9436ece402f46c355585d63ba4120d1",
     "sourceSha256": "7797b7421b967b20c79adf69a0ac9b39a17e48c4013ce80b13b8f21fe57a4ab2",
-    "composedSha256": "7eb0237a5889bbce1036d5a0b1368148c2da80e2dfe1f15482cdcbe307f52222",
-    "outputSha256": "baa1103cd1ccb009452323da3e92f251cd673040765b09453d169c1f15383889",
+    "composedSha256": "7c20d12c2ee951d92941d7fd445a8a2825ed7e23302bcc87b2bc8b1322907cdb",
+    "outputSha256": "bfff831c27cb931bf1307f01b05cd35d0d84db6f3a107a6472bfe983252400f1",
     "renames": [
       "browser",
       "connection-reporting",
