@@ -9,11 +9,11 @@ import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,signedCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
-assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'ba5dc587adfa1199c959a2b4b11c1b064b7fea8b','Use the exact pinned MC owner-review candidate');
+assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'550490719f5c88dd0a0c14e8a5c0390e11d9674d','Use the exact pinned MC owner-review candidate');
 const mcDirty=!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim();
 assert.equal(mcDirty,false,'Pinned MC source must be clean');
 const output=resolve(process.argv[2]??'/tmp/myeve-enterprise-'+randomUUID());await mkdir(output,{recursive:true});
-const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'ba5dc587adfa1199c959a2b4b11c1b064b7fea8b',
+const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'550490719f5c88dd0a0c14e8a5c0390e11d9674d',
   missionControlDirty:mcDirty,myeveDirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),myeveSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0,executableProductionGrants:0};
 const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS '+name);};
 const pgName='mc-sofie-'+randomUUID(),port=55519;
