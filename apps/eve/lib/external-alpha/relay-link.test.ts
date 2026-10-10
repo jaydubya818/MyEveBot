@@ -70,8 +70,18 @@ describe("linking never silently rotates the Agent credential", () => {
     vi.unstubAllGlobals();
   });
   const link = { email: "owner@example.invalid", password: "pw", localAgentId: "local-1" };
-  const store = (existing: unknown[]) =>
-    ({ ownerId: "o1", database: { query: vi.fn(async () => existing) } }) as never;
+  const store = (existing: unknown[]) => {
+    let tail = Promise.resolve();
+    return ({ ownerId: "o1", database: { query: vi.fn(async () => existing) },
+      withOwnerConnectLock: async (run: () => Promise<unknown>) => {
+        const previous = tail;
+        let release!: () => void;
+        tail = new Promise<void>(resolve => { release = resolve; });
+        await previous;
+        try { return await run(); } finally { release(); }
+      },
+    }) as never;
+  };
   const existing = [{ relay_agent_id: "agent-one", relay_owner_id: "owner-one", local_agent_id: "local-1" }];
 
   it("pure guard: discloses the rotation and binds the confirmation to the exact Agent", () => {

@@ -3,6 +3,33 @@ import { digest } from "../engineering/contract.ts";
 import { EXTERNAL_ALPHA_CONTEXT_BYTES } from "./context.ts";
 type Options=Parameters<ReturnType<typeof gateway>["doGenerate"]>[0];
 type Prompt=Options["prompt"];
+export const EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES = 28_000;
+const LIMITATIONS_BYTES = 2_048;
+const LIMITATIONS_COUNT = 8;
+
+/** Preserve exact prefixes at Unicode boundaries, with explicit incompleteness.
+ * Missing limitations are unavailable, never evidence of verification. */
+function boundedLimitations(value: unknown) {
+ const limitations: string[] = [];
+ let used = 0, truncatedCount = 0;
+ const available = Array.isArray(value) && value.every(item => typeof item === "string");
+ if (available) for (const limitation of value.slice(0, LIMITATIONS_COUNT)) {
+  let prefix = "";
+  for (const character of limitation) {
+   const size = Buffer.byteLength(JSON.stringify(character)) - 2;
+   if (used + size > LIMITATIONS_BYTES) break;
+   prefix += character; used += size;
+  }
+  if (prefix !== limitation) truncatedCount++;
+  limitations.push(prefix);
+ }
+ const omittedCount = available ? Math.max(0, value.length - limitations.length) : null;
+ return {limitations, limitationsReadback: {
+  status: !available ? "UNAVAILABLE" : truncatedCount || omittedCount ? "INCOMPLETE" : "COMPLETE",
+  omittedCount, truncatedCount,
+  note: "Limitations describe retained Proof only; missing or omitted Proof is not verified. Read the canonical Proof for complete details.",
+ }};
+}
 
 const pick=(value: unknown, keys: string[]): Record<string,unknown> => {
  if(!value || typeof value!=="object" || Array.isArray(value))return {};
@@ -20,6 +47,7 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
  const proof=pick((source.projection as any)?.nativeResult?.proof,["workId","workVersion","criteriaVersion","outcome","resultRevision","createdAt"]);
  const original=(source.projection as any)?.nativeResult?.proof;
  if(original){
+  Object.assign(proof, boundedLimitations(original.limitations));
   proof.contentHash=digest(original);
   proof.evidence=Array.isArray(original.evidence)?original.evidence.map((e:unknown)=>pick(e,["criterionId","resultRevision","state","producer","contentHash","observedAt"])):[];
   proof.artifactRefs=Array.isArray(original.artifactRefs)?original.artifactRefs.filter((ref:unknown)=>typeof ref==="string" && /^(factory-evidence:|factory-manifest:|factory-version:|external-alpha-authority:|changed-source:)/.test(ref)):[];
@@ -36,12 +64,12 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
  * An oversized mandatory/current payload still fails closed at 32,000 bytes. */
 export function boundedAlphaHistory(prompt:Prompt,tools:Options["tools"]):Prompt {
  const bytes=(p:Prompt)=>Buffer.byteLength(JSON.stringify({prompt:p,tools}));
- if(bytes(prompt)<=EXTERNAL_ALPHA_CONTEXT_BYTES)return prompt;
+ if(bytes(prompt)<EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES)return prompt;
  let bounded:Prompt=prompt.map(message=>message.role!=="tool"?message:{...message,content:message.content.map(part=>{
   if(part.type!=="tool-result" || !["engineering_work","engineering_factory"].includes(part.toolName) || part.output.type!=="json")return part;
   return {...part,output:{...part.output,value:compactWorkData(part.output.value) as any}};
  })});
- while(bytes(bounded)>EXTERNAL_ALPHA_CONTEXT_BYTES){
+ while(bytes(bounded)>=EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES){
   const users=bounded.flatMap((m,i)=>m.role==="user"?[i]:[]);
   if(users.length<2)break;
   const next=users[1];

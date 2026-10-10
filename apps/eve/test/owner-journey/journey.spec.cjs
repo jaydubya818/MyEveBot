@@ -53,6 +53,7 @@ test('completes one private Work with owner acceptance and same-conversation Res
  await expect(page.locator('[data-thread-id]')).toHaveAttribute('data-thread-id',threadId);await send(page,'What did you change?');
  await expect(page.getByText('You accepted this verified private Result. This Work is completed.',{exact:false})).toBeVisible({timeout:90000});
  await expect(page.getByText('The retained candidate changed:',{exact:false})).toBeVisible();
+ expect((await (await page.request.get('http://127.0.0.1:3184/fixture/status')).json()).modelCalls).toBe(callsBefore);
  expect(await retainedFailures(page)).toBe('[]');
  for(const followup of ['What changed?','Is anything else needed?','Can you explain the result?','Thanks — anything else to review?']){
   const beforeReplies=await page.getByText('The saved result is accepted private Result; this Work is completed.',{exact:false}).count();
