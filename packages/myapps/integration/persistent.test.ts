@@ -1164,7 +1164,9 @@ test.skipIf(!connection || !factoryRoot)(
       await pool.query(
         "DROP TRIGGER myapps_queue_failure ON myapps_audit; DROP FUNCTION myapps_queue_failure()",
       );
-      expect(await beta.deliver(b.ownerId)).toBe(1);
+      // Response IDs are hashes; retry may also drain stale responses ordered after the failed install.
+      expect(await beta.deliver(b.ownerId)).toBeGreaterThanOrEqual(1);
+      expect(await beta.deliver(b.ownerId)).toBe(0);
       for (const invalid of [staleWork, revoked]) {
         expect(
           (await runtime.inbox(b.ownerId).get(invalid.attention.id)).status,
