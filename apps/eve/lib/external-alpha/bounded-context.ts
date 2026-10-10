@@ -4,27 +4,38 @@ import { EXTERNAL_ALPHA_CONTEXT_BYTES } from "./context.ts";
 type Options=Parameters<ReturnType<typeof gateway>["doGenerate"]>[0];
 type Prompt=Options["prompt"];
 export const EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES = 28_000;
-const LIMITATIONS_BYTES = 2_048;
-const LIMITATIONS_COUNT = 8;
+const LIMITATIONS_BYTES = 2_000;
+const LIMITATIONS_COUNT = 32;
+const EXCERPT_SUFFIX = "… [truncated excerpt]";
 
-/** Preserve whole statements, with explicit incompleteness.
- * Missing limitations are unavailable, never evidence of verification. */
-function boundedLimitations(value: unknown) {
- const limitations: string[] = [];
- let used = 0;
- const available = Array.isArray(value) && value.every(item => typeof item === "string");
- if (available) for (const limitation of value) {
-  const size = Buffer.byteLength(JSON.stringify(limitation));
-  // A clipped sentence could lose a negation or qualification. Omit the
-  // entire statement instead and expose the omission count below.
-  if (limitations.length >= LIMITATIONS_COUNT || used + size > LIMITATIONS_BYTES) continue;
-  limitations.push(limitation); used += size;
+function limitationExcerpt(value: string, budget: number): string {
+ if (Buffer.byteLength(JSON.stringify(value)) <= budget) return value;
+ const characters = Array.from(value);
+ let low = 0, high = characters.length;
+ while (low < high) {
+  const middle = Math.ceil((low + high) / 2);
+  if (Buffer.byteLength(JSON.stringify(characters.slice(0, middle).join("") + EXCERPT_SUFFIX)) <= budget) low = middle;
+  else high = middle - 1;
  }
- const omittedCount = available ? Math.max(0, value.length - limitations.length) : null;
+ return characters.slice(0, low).join("") + EXCERPT_SUFFIX;
+}
+
+/** Retain canonical statements in order. Oversized statements become explicitly
+ * incomplete excerpts, which cannot establish verification or absence of limits. */
+function boundedLimitations(value: unknown) {
+ const available = Array.isArray(value) && value.every(item => typeof item === "string");
+ const source: string[] = available ? value : [];
+ const selected = source.slice(0, LIMITATIONS_COUNT);
+ const fullBytes = Buffer.byteLength(JSON.stringify(selected));
+ // Reserve JSON brackets and commas before dividing the bounded excerpt space.
+ const perStatement = Math.floor((LIMITATIONS_BYTES - 2 - Math.max(0, selected.length - 1)) / Math.max(1, selected.length));
+ const limitations = fullBytes <= LIMITATIONS_BYTES ? selected : selected.map(item => limitationExcerpt(item, perStatement));
+ const omittedCount = available ? source.length - selected.length : null;
+ const truncatedCount = selected.filter((item, index) => item !== limitations[index]).length;
  return {limitations, limitationsReadback: {
-  status: !available ? "UNAVAILABLE" : omittedCount ? "INCOMPLETE" : "COMPLETE",
-  omittedCount,
-  note: "Limitations describe retained Proof only; missing or omitted Proof is not verified. Read the canonical Proof for complete details.",
+  status: !available ? "UNAVAILABLE" : omittedCount || truncatedCount ? "INCOMPLETE" : "COMPLETE",
+  omittedCount, truncatedCount,
+  note: "Truncated excerpts and omitted or unavailable Proof are not verification. An excerpt may omit a qualification or negation; read the canonical Proof for the complete limitations before drawing conclusions.",
  }};
 }
 

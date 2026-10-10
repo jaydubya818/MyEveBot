@@ -23,16 +23,28 @@ it("retains exact mixed outcomes, identity and accurate Proof limitations withou
  expect(compact.projection.nativeResult.proof.contentHash).toBe(digest(original.projection.nativeResult.proof));
  expect(original).toEqual(before);
 });
-it("bounds Unicode and escaped limitations without clipping away qualifications",()=>{
+it("bounds Unicode and escaped limitations while disclosing incomplete excerpts",()=>{
  const retained="🙂 Independent verifier unavailable; this is not verified.";
  const original=data("a",1,[...Array.from({length:20},(_,i)=>`${i}:`+'🙂"\n'.repeat(1500)),retained,...Array.from({length:10},(_,i)=>`Limitation ${i}.`)]);
  const proof=(compactWorkData(original) as any).projection.nativeResult.proof;
- expect(proof.limitations.length).toBe(8);
- expect(Buffer.byteLength(JSON.stringify(proof.limitations))).toBeLessThan(2100);
- expect(proof.limitationsReadback).toMatchObject({status:"INCOMPLETE",omittedCount:23});
+ expect(proof.limitations).toHaveLength(31);
+ expect(Buffer.byteLength(JSON.stringify(proof.limitations))).toBeLessThanOrEqual(2000);
+ expect(proof.limitationsReadback).toMatchObject({status:"INCOMPLETE",omittedCount:0,truncatedCount:20});
  expect(proof.limitations[0]).not.toContain("\uFFFD");
- expect(proof.limitations[0]).toBe(retained);
- expect(proof.limitationsReadback.note).toContain("not verified");
+ expect(proof.limitations[20]).toBe(retained);
+ expect(proof.limitationsReadback.note).toContain("not verification");
+ expect(proof.limitationsReadback.note).toContain("negation");
+});
+it("discloses a bounded omitted count for pathological arrays and never changes the retained Proof",()=>{
+ const original=data("a",1,Array.from({length:100},(_,i)=>`Limitation ${i}: `+"x".repeat(1000)+"; not verified."));
+ const before=structuredClone(original);
+ const proof=(compactWorkData(original) as any).projection.nativeResult.proof;
+ expect(proof.limitations).toHaveLength(32);
+ expect(Buffer.byteLength(JSON.stringify(proof.limitations))).toBeLessThanOrEqual(2000);
+ expect(proof.limitationsReadback).toMatchObject({status:"INCOMPLETE",omittedCount:68,truncatedCount:32});
+ expect(proof.limitations[0]).toContain("[truncated excerpt]");
+ expect(proof.contentHash).toBe(digest(original.projection.nativeResult.proof));
+ expect(original).toEqual(before);
 });
 it.each([undefined,null,"unavailable",["valid",null]])("reports absent or malformed limitations as UNAVAILABLE (%j)",limitations=>{
  const raw=data("a",1,limitations);
