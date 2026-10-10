@@ -13,7 +13,7 @@
     "db:migrations:check": "npm run db:migrations:check --workspace=eve-agent",
     "dev": "turbo run dev",
     "test": "node --import tsx --test apps/eve/test/*.test.mjs apps/eve/scripts/*.test.mjs",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck --filter='!@mission-control/capability-control' && tsc --project packages/capability-control/tsconfig.json"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
