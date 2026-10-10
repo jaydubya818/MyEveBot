@@ -48,7 +48,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/capabilities.ts",
   "agent/instructions/channel.ts",
   "agent/instructions/computer-runtime.ts",
-  "agent/instructions/connection-reporting.md",
+  "agent/instructions/connection-reporting.ts",
   "agent/instructions/delegation.ts",
   "agent/instructions/installed-skills.ts",
   "agent/instructions/persistent-agent.ts",
@@ -103,8 +103,8 @@ export const CORE_PRUNABLE_FILES = [
 /** Feature → the prunable files it owns. */
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   knowledge: [
-    "agent/instructions/knowledge.md",
-    "agent/instructions/jev.md",
+    "agent/instructions/knowledge.ts",
+    "agent/instructions/jev.ts",
     "agent/tools/evaluate_with_jev.ts",
     "agent/tools/record_fact.ts",
     "agent/tools/record_observation.ts",
@@ -215,7 +215,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/verify_card_code.ts",
   ],
   browser: [
-    "agent/instructions/browser.md",
+    "agent/instructions/browser.ts",
     "agent/tools/browser__click.ts",
     "agent/tools/browser__close.ts",
     "agent/tools/browser__fill.ts",
