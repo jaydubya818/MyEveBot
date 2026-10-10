@@ -22,6 +22,8 @@ Hosted runtime and Result browser are **NOT_RUN** despite the green job. The pri
 
 ## Deployment blockers and correction
 
+PR CI exposed an unclaimed `agent/tools/mission_control.ts` in the builder manifest and a shared PostgreSQL cluster role-creation race between test files. The follow-up registers the existing owner-gated tool without changing its authority or configuration, and serializes files in the dedicated PostgreSQL job. Concurrent acceptance, duplicate dispatch and session revocation assertions inside those files remain active. Migration SQL and production behavior are unchanged; this does not claim concurrent cross-database production migrations are qualified.
+
 GitHub deployment `6983672591` records a successful Vercel Preview for `76c15a0e…`. The earlier no-deployment description was too broad. This follow-up disables Vercel Git deployment for the checkpoint and its dependency-base branch in `apps/eve/vercel.json`, retaining the existing main disable and all other branch rules. See [Vercel's configuration contract](https://vercel.com/docs/project-configuration/git-configuration). No application logic or external project settings change.
 
 A main merge should not trigger the checked-in Vercel Git deployment path while the existing main disable remains effective. Dashboard overrides, other integrations and manual production deployment still need separate verification and explicit authorization. Existing previews are not the approved owner test target and were not changed. Production integration and external-alpha rollout remain NOT_RUN.
