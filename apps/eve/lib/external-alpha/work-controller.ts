@@ -1,3 +1,4 @@
+import { sharedAlphaAccounting } from "./shared-accounting.ts";
 import { createPublicKey, verify as verifySignature, type KeyObject } from "node:crypto";
 import { retainedExternalAlphaResult } from "./work-readback.ts";
 import { z } from "zod";
@@ -244,6 +245,7 @@ export async function settleTerminalReadback(authority: ExternalAlphaWorkAuthori
   if (!readback.quiescent || !["FAILED", "CANCELLED", "NOT_DISPATCHED"].includes(readback.state) || readback.verdict !== "NONE"
     || spend.status !== "KNOWN" || !spend.accountingComplete || spend.retainedMicrousd !== 0 || spend.unknownExposureMicrousd !== 0)
     throw Error("EXTERNAL_ALPHA_TERMINAL_UNPROVED");
+  await sharedAlphaAccounting(authority.database).workPhase(authority.database,authority.policy,record.allowanceId,record.id,"hold_work");
   const signed = raw as { readbackAttestation: unknown; readbackSignature: unknown };
   const envelope = { readbackAttestation: signed.readbackAttestation, readbackSignature: signed.readbackSignature,
     authorityReceipt: readback.authorityReceipt, authorityReceiptSignature: readback.authorityReceiptSignature };
@@ -370,6 +372,8 @@ export class ExternalAlphaWorkController {
     const observed = readback.state === "UNKNOWN"
       ? await this.authority.finish(record.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" })
       : consumed;
+    if (observed.state==="CONSUMED" && workSpendV2Schema.parse(readback.spend).status==="KNOWN")
+      await sharedAlphaAccounting(this.authority.database).workPhase(this.authority.database,this.authority.policy,observed.allowanceId,observed.id,"running_work");
     return { sent: true, authority: observed, readback };
   }
 
@@ -498,6 +502,7 @@ export class ExternalAlphaWorkController {
     if (!["CONSUMED", "DISPATCHING"].includes(record.state)) return { state: record.state };
     const challenge = readbackChallenge();
     const binding = await dispatchBinding(this.authority.database, record);
+    await sharedAlphaAccounting(this.authority.database).workPhase(this.authority.database,this.authority.policy,record.allowanceId,record.id,"hold_work");
     const raw = await this.factory.stop(record.requestId, challenge);
     try { verifyReadback(raw, record, this.keys, binding, challenge, this.clock()); }
     catch {

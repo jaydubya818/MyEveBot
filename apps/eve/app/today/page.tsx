@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Today — MyEve" };
 import { OwnerExperience } from "@/components/owner/experience";
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ id?: string }> }) {

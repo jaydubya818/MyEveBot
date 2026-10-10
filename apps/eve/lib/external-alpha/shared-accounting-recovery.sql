@@ -1,13 +1,13 @@
 -- Standalone shared-accounting upgrade; apply only with separately authorized installation.
 -- No reservations are refunded or UNKNOWN/legacy exposure reclassified.
 ALTER TABLE external_alpha_cohort_dispatch DROP CONSTRAINT external_alpha_cohort_dispatch_state_check;
-ALTER TABLE external_alpha_cohort_dispatch ADD CONSTRAINT external_alpha_cohort_dispatch_state_check CHECK(state IN('DISPATCHED','SETTLED','UNKNOWN','NOT_DISPATCHED'));
+ALTER TABLE external_alpha_cohort_dispatch ADD CONSTRAINT external_alpha_cohort_dispatch_state_check CHECK(state IN('DISPATCHED','RUNNING','FENCED','SETTLED','UNKNOWN','NOT_DISPATCHED'));
 CREATE OR REPLACE FUNCTION external_alpha_cohort_guard() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'External alpha accounting history is immutable'; END IF;
  IF TG_TABLE_NAME='external_alpha_cohort_dispatch' THEN
   IF (to_jsonb(NEW)-'state') IS DISTINCT FROM (to_jsonb(OLD)-'state')
-   OR (NEW.state IS DISTINCT FROM OLD.state AND NOT(OLD.state='DISPATCHED' AND NEW.state IN('SETTLED','UNKNOWN','NOT_DISPATCHED')))
+   OR (NEW.state IS DISTINCT FROM OLD.state AND NOT((OLD.state='DISPATCHED' AND NEW.state IN('RUNNING','FENCED','SETTLED','UNKNOWN','NOT_DISPATCHED')) OR (OLD.state='RUNNING' AND NEW.state IN('FENCED','SETTLED','UNKNOWN')) OR (OLD.state='FENCED' AND NEW.state IN('SETTLED','UNKNOWN'))))
   THEN RAISE EXCEPTION 'External alpha accounting dispatch is immutable'; END IF;
  ELSIF TG_TABLE_NAME='external_alpha_cohort_admission' THEN
   IF (to_jsonb(NEW)-ARRAY['state','local_allowance_id']) IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['state','local_allowance_id'])
@@ -34,10 +34,27 @@ BEGIN
  IF NOT FOUND THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
  SELECT * INTO STRICT c FROM external_alpha_cohort WHERE id=m.cohort_id FOR UPDATE;
  mode=p->>'mode'; n=clock_timestamp();
+ -- RUNNING is an authenticated known Work observation, never an allocation
+ -- retry. Initial dispatch, cancellation, expired observation and UNKNOWN fence.
+ IF mode IN('running_work','hold_work') THEN
+  SELECT * INTO prior FROM external_alpha_cohort_admission WHERE owner_id=m.owner_id AND id=(p->>'id')::uuid;
+  IF NOT FOUND OR prior.kind<>'WORK' OR prior.local_allowance_id IS DISTINCT FROM (p->>'allowanceId')::uuid
+   OR p->>'operationSha256' IS NULL OR p->>'operationSha256' !~ '^[a-f0-9]{64}$' THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
+  IF mode='running_work' THEN
+   IF prior.state<>'BOUND' OR prior.deadline<=n OR c.activated_at IS NULL OR c.revoked_at IS NOT NULL
+    OR n>=c.activated_at+interval '120 hours' THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+   UPDATE external_alpha_cohort_dispatch SET state='RUNNING' WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state='DISPATCHED';
+   IF NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state='RUNNING') THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+  ELSE
+   UPDATE external_alpha_cohort_dispatch SET state='FENCED' WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('DISPATCHED','RUNNING');
+   IF NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('FENCED','SETTLED','UNKNOWN')) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
+  END IF;
+  RETURN to_jsonb(prior);
+ END IF;
  IF mode='fence' THEN
   UPDATE external_alpha_cohort_admission SET state='UNKNOWN' WHERE owner_id=m.owner_id AND id=(p->>'id')::uuid RETURNING * INTO prior;
   IF NOT FOUND THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
-  UPDATE external_alpha_cohort_dispatch SET state='UNKNOWN' WHERE admission_id=prior.id AND state='DISPATCHED';
+  UPDATE external_alpha_cohort_dispatch SET state='UNKNOWN' WHERE admission_id=prior.id AND state IN('DISPATCHED','RUNNING','FENCED');
   RETURN to_jsonb(prior);
  END IF;
  -- Proven local settlement can be recorded after revocation/deadline. Expiry
@@ -57,7 +74,7 @@ BEGIN
  IF mode='settle' THEN
   SELECT * INTO prior FROM external_alpha_cohort_admission WHERE owner_id=m.owner_id AND id=(p->>'id')::uuid;
   IF NOT FOUND OR prior.local_allowance_id IS DISTINCT FROM (p->>'allowanceId')::uuid THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
-  UPDATE external_alpha_cohort_dispatch SET state='SETTLED' WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state='DISPATCHED';
+  UPDATE external_alpha_cohort_dispatch SET state='SETTLED' WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('DISPATCHED','RUNNING','FENCED');
   IF NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state='SETTLED')
    THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
   RETURN to_jsonb(prior);
@@ -75,8 +92,8 @@ BEGIN
   IF mode='dispatch' THEN
    IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state='NOT_DISPATCHED') THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_NOT_DISPATCHED'; END IF;
    IF p->>'operationSha256' IS NULL OR p->>'operationSha256' !~ '^[a-f0-9]{64}$' THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
-   IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('DISPATCHED','SETTLED')) THEN RETURN to_jsonb(prior); END IF;
-   IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND (d.state='UNKNOWN' OR (d.state='DISPATCHED' AND a.id<>prior.id))) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+   IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch WHERE admission_id=prior.id AND operation_sha256=p->>'operationSha256' AND state IN('DISPATCHED','RUNNING','FENCED','SETTLED')) THEN RETURN to_jsonb(prior); END IF;
+   IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND (d.state IN('UNKNOWN','FENCED') OR (d.state='DISPATCHED' AND a.id<>prior.id) OR (d.state='RUNNING' AND a.deadline<=n))) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
    INSERT INTO external_alpha_cohort_dispatch(admission_id,operation_sha256,state) VALUES(prior.id,p->>'operationSha256','DISPATCHED');
   END IF;
   RETURN to_jsonb(prior);
@@ -89,7 +106,10 @@ BEGIN
    THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_BINDING_CHANGED'; END IF;
   RETURN to_jsonb(prior);
  END IF;
- IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND d.state IN('DISPATCHED','UNKNOWN')) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+ IF EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=c.id AND (d.state IN('UNKNOWN','DISPATCHED','FENCED') OR (d.state='RUNNING' AND a.deadline<=n))) THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_FENCED'; END IF;
+ -- Only authenticated RUNNING Work can coexist with chat, while its full
+ -- ceiling stays charged. Initial dispatch, held cancellation, expired Work
+ -- observation and UNKNOWN fence the cohort; no reservation is refunded.
  day=floor(extract(epoch FROM n)/86400); amount=CASE WHEN p->>'kind'='CHAT' THEN 100000 ELSE 1300000 END;
  SELECT COALESCE(sum(ceiling_microusd) FILTER(WHERE owner_id=m.owner_id AND day_index=day),0),
   COALESCE(sum(ceiling_microusd) FILTER(WHERE owner_id=m.owner_id),0),

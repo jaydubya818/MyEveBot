@@ -31,6 +31,44 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const amount = async () => Number((await central.pool.query("SELECT COALESCE(sum(ceiling_microusd),0)::bigint s FROM external_alpha_cohort_admission WHERE cohort_id=$1", [cohortId])).rows[0].s);
     return { central, cohortId, a, b, budget, chat, amount };
   }
+  it("QE-008 admits both owners' chat while owner A Work is in flight within retained ceilings", async () => {
+    const { central, a, b, budget, chat, amount } = await make();
+    const authority = await a.svc.issue(await a.seedWork(), files);
+    await a.svc.claim(authority);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "DISPATCHED" }]);
+    await expect(chat(b,"not-yet-observed")).rejects.toThrow("SHARED_FENCED");
+    // Synthetic durable consumed receipt stands in for the authenticated Factory
+    // observation; controller tests exercise the signed readback path itself.
+    await a.svc.finish(authority.id,"CONSUMED",{receipt:{authorityId:authority.id,authoritySha256:authority.documentSha256,requestId:authority.requestId,workOrderId:randomUUID(),consumedAt:new Date().toISOString()}});
+    await a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"running_work");
+    const allowances = await Promise.all([chat(a, "during-work:a"), chat(b, "during-work:b")]);
+    for (const [i,e] of [a,b].entries()) {
+      const operation = await budget(e).reserve({allowanceId:allowances[i].id,stepKey:"during-work:0",requestSha256:digest("op"),microusd:80000});
+      await budget(e).claimDispatch(operation);
+      await budget(e).settle(operation,10000,{text:"Work remains in progress"});
+    }
+    expect(await amount()).toBe(1500000);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch ORDER BY state")).rows).toEqual([
+      { state: "RUNNING" }, { state: "SETTLED" }, { state: "SETTLED" },
+    ]);
+    expect(await amount()).toBe(1500000);
+    await a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"hold_work");
+    await expect(chat(b,"held-work")).rejects.toThrow("SHARED_FENCED");
+    await expect(a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"running_work")).rejects.toThrow("SHARED_FENCED");
+  });
+  it("retains durable Work UNKNOWN when shared fencing is temporarily unavailable", async () => {
+    const {central,a,b,chat,amount}=await make();
+    const authority=await a.svc.issue(await a.seedWork(),files);
+    await a.svc.claim(authority);
+    await a.svc.finish(authority.id,"CONSUMED",{receipt:{authorityId:authority.id,authoritySha256:authority.documentSha256,requestId:authority.requestId,workOrderId:randomUUID(),consumedAt:new Date().toISOString()}});
+    a.db.externalAlphaAccounting=new SharedAlphaAccounting({query:async()=>{throw Error("unreachable");}},"1".repeat(64));
+    expect((await a.svc.finish(authority.id,"UNKNOWN",{reason:"AUTHENTICATED_FACTORY_UNKNOWN"})).state).toBe("UNKNOWN");
+    await expect(chat(b,"unknown-work")).rejects.toThrow("SHARED_FENCED");
+    a.db.externalAlphaAccounting=new SharedAlphaAccounting(central.db,"1".repeat(64));
+    await a.db.externalAlphaAccounting.reconcile(a.db,a.policy);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{state:"UNKNOWN"}]);
+    expect(await amount()).toBe(1300000);
+  });
   it("installing the shared schema creates no enrolled or activated spending authority", async () => {
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));

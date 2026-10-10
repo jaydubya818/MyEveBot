@@ -1,3 +1,4 @@
+import { currentPublicationReadback, type PublicationBinding } from "../engineering/publication-contract.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { WorkStore } from "../engineering/store.ts";
 import { readExternalAlphaWork } from "./work-readback.ts";
@@ -22,6 +23,25 @@ export async function canonicalConversationReply(database:ExecutionDatabase,inpu
  }
  const user=prompt.findLast(message=>message.role==='user');
  if(!user || user.content.some(part=>part.type!=='text') || !/^\s*what did you change\?\s*$/i.test(user.content.map(part=>part.type==='text'?part.text:'').join('\n')) || typeof input.threadId!=='string')return null;
+ const found=await canonicalConversationWork(database,input);
+ if(!found)return null;
+ const {work,readback}=found,result=readback?.result;
+ if(!result)return 'No canonical Result is retained for this Work yet. Open Work to check its current progress.';
+ const files=result.proof.artifactRefs.filter(ref=>ref.startsWith('changed-source:')).map(ref=>ref.slice('changed-source:'.length));
+ const [publication]=await database.query("SELECT state,remote FROM engineering_candidate_publications WHERE owner_id=$1 AND result_id=$2",[input.ownerId,result.resultId]);
+ const publicationText=conversationPublicationText(publication,{owner:input.ownerId,workId:work.id,resultId:result.resultId,resultHash:result.contentHash,version:work.version,generation:work.generation,candidate:result.candidateSha});
+ const checks=result.proof.evidence.filter(e=>e.state==='PASS'&&e.resultRevision===result.candidateSha).length;
+ return [`Work objective: ${work.objective}`,`The retained candidate changed: ${files.join(', ')||'see the retained patch'}.`,
+  `Independent verification: ${result.verdict}; ${checks} of ${result.proof.evidence.length} recorded checks passed.`,
+  readback?.acceptance ? 'You accepted this verified private Result. This Work is completed.' : 'Owner acceptance is not recorded. This Work is not completed.',
+  `The original Proof was recorded before owner acceptance and remains unchanged. ${publicationText}`,
+  `[View Result and Proof](/work?kind=work&id=${work.id})`].join('\n\n');
+}
+
+/** Resolve only durable owner/Agent/session/thread associations. Transcript ids
+ * never establish a Work binding or execution authority. */
+export async function canonicalConversationWork(database:ExecutionDatabase,input:{ownerId:string;agentId:string;sessionId:string;threadId?:unknown}) {
+ if(typeof input.threadId!=="string")return null;
  const works=await database.query(`WITH associated AS (
    SELECT w.id FROM external_alpha_tool_effect e JOIN agent_runs r ON r.owner_id=e.owner_id AND r.agent_id=e.agent_id AND r.session_id=e.session_id
    JOIN web_chat_threads t ON t.owner_id=e.owner_id AND t.id=r.thread_id
@@ -35,13 +55,16 @@ export async function canonicalConversationReply(database:ExecutionDatabase,inpu
  ) SELECT id FROM associated LIMIT 2`,[input.ownerId,input.agentId,input.sessionId,input.threadId]);
  if(works.length!==1)return null;
  const store=new WorkStore({scopeId:input.ownerId,scopeKind:'personal',actorId:input.ownerId},database),work=await store.get(String(works[0].id));
- const readback=await readExternalAlphaWork(store,work),result=readback?.result;
- if(!result)return 'No canonical Result is retained for this Work yet. Open Work to check its current progress.';
- const files=result.proof.artifactRefs.filter(ref=>ref.startsWith('changed-source:')).map(ref=>ref.slice('changed-source:'.length));
- const checks=result.proof.evidence.filter(e=>e.state==='PASS'&&e.resultRevision===result.candidateSha).length;
- return [`Work objective: ${work.objective}`,`The retained candidate changed: ${files.join(', ')||'see the retained patch'}.`,
-  `Independent verification: ${result.verdict}; ${checks} of ${result.proof.evidence.length} recorded checks passed.`,
-  readback?.acceptance ? 'You accepted this verified private Result. This Work is completed.' : 'Owner acceptance is not recorded. This Work is not completed.',
-  `The original Proof remains ${result.proof.outcome} as historical evidence. Nothing was published.`,
-  `[View Result and Proof](/work?kind=work&id=${work.id})`].join('\n\n');
+ const readback=await readExternalAlphaWork(store,work);
+ return {work,readback};
+
+}
+
+/** A publication row prevents an unconditional private-only claim. Only an
+ * exact current canonical readback confirms the external PR observation. */
+export function conversationPublicationText(publication:{state?:unknown;remote?:unknown}|undefined,expected:Pick<PublicationBinding,"owner"|"workId"|"resultId"|"resultHash"|"version"|"generation"|"candidate">) {
+ if(!publication)return "Nothing was published.";
+ const observed=publication.state==="PR_OPEN"?currentPublicationReadback(publication.remote,expected):null;
+ return observed ? `Canonical publication readback records one draft pull request: ${observed.prUrl}. CI and independent review remain separate from owner acceptance.`
+  : "A publication record exists; its final external outcome is not confirmed by current canonical readback.";
 }

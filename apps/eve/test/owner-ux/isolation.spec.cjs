@@ -5,7 +5,7 @@ const owner='22222222-2222-4222-8222-222222222222';
 const marker='Synthetic historical engineering qualification';
 let pool;const ids={work:randomUUID(),goal:randomUUID(),thread:randomUUID(),file:randomUUID()};
 test.beforeAll(async()=>{
- pool=new Pool({connectionString:'postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes'});
+ pool=new Pool({connectionString:require('./database.cjs').connectionString});
  await pool.query('INSERT INTO goals(id,owner_id,title) VALUES($1,$2,$3)',[ids.goal,owner,marker]);
  await pool.query('INSERT INTO web_chat_threads(id,owner_id,title,updated_at) VALUES($1,$2,$3,$4)',[ids.thread,owner,marker,Date.now()]);
  await pool.query("INSERT INTO engineering_work(id,scope_id,scope_kind,created_by,title,objective,repository,max_cost_usd,max_duration_seconds,idempotency_key,request_hash) VALUES($1,$2,'personal',$2,$3,$3,'synthetic/alpha-tasks',1,180,$1,'synthetic')",[ids.work,owner,marker]);

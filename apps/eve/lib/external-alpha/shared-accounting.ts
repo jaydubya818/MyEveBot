@@ -95,6 +95,15 @@ export class SharedAlphaAccounting {
     if (!local) throw Error("EXTERNAL_ALPHA_SHARED_LOCAL_BINDING_REQUIRED");
     return this.call(policy, { mode: "dispatch", id: local.admission_id, allowanceId, operationSha256: digest(operationKey) });
   }
+  async workPhase(database: ExecutionDatabase, policy: ExternalAlphaPolicy, allowanceId: string, authorityId: string, phase: "running_work" | "hold_work") {
+    if(phase==="running_work") {
+      const [known]=await database.query("SELECT 1 FROM external_alpha_work_authority WHERE id=$1 AND owner_id=$2 AND allowance_id=$3 AND state='CONSUMED' AND receipt IS NOT NULL",[authorityId,policy.ownerId,allowanceId]);
+      if(!known)throw Error("EXTERNAL_ALPHA_SHARED_KNOWN_WORK_REQUIRED");
+    }
+    const [local] = await database.query("SELECT admission_id FROM external_alpha_shared_binding WHERE allowance_id=$1 AND cohort_id=$2", [allowanceId, policy.cohortId]);
+    if (!local) throw Error("EXTERNAL_ALPHA_SHARED_LOCAL_BINDING_REQUIRED");
+    return this.call(policy, {mode:phase,id:local.admission_id,allowanceId,operationSha256:digest("work:"+authorityId)});
+  }
   async settle(database: ExecutionDatabase, policy: ExternalAlphaPolicy, allowanceId: string, operationKey: string) {
     const [local] = await database.query("SELECT admission_id FROM external_alpha_shared_binding WHERE allowance_id=$1 AND cohort_id=$2", [allowanceId, policy.cohortId]);
     if (!local) throw Error("EXTERNAL_ALPHA_SHARED_LOCAL_BINDING_REQUIRED");

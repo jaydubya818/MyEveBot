@@ -1,10 +1,14 @@
 import pg from 'pg';
 import { loadMigrations, runMigrations } from '../../scripts/migration-runner.ts';
 const connectionString = process.env.MYEVE_TEST_DATABASE_URL;
-if (!connectionString || !/^postgresql:\/\/ux_fixture:local-only@localhost:55491\/blocker_fixes$/.test(connectionString)) throw Error('Dedicated local UX database required');
+if (!connectionString || !/^postgresql:\/\/ux_fixture:local-only@localhost:(55491|55591)\/blocker_fixes$/.test(connectionString)) throw Error('Dedicated local UX database required');
 const client = new pg.Client({ connectionString });
 await client.connect();
 try {
+  // This exact guarded localhost fixture is disposable. Reset before migration
+  // so interrupted browser runs cannot leak synthetic records into the next run.
+  await client.query('DROP SCHEMA public CASCADE');
+  await client.query('CREATE SCHEMA public');
   await runMigrations({
     query: async (sql, params) => (await client.query(sql, params)).rows,
     transaction: async statements => {

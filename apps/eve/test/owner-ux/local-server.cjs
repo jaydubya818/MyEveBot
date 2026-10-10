@@ -38,6 +38,18 @@ const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMP
   VERCEL_BLOB_API_URL:'http://127.0.0.1:3174',NEXT_PUBLIC_VERCEL_BLOB_API_URL:'http://127.0.0.1:3174',
   BLOB_READ_WRITE_TOKEN:'vercel_blob_rw_fixture_'+randomBytes(24).toString('hex'),
   NODE_OPTIONS:'--require='+path.join(__dirname,'local-transport.cjs')};
-const child=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port','3173'],{cwd:path.resolve(__dirname,'../..'),env,stdio:'inherit'});
-function stop(){child.kill('SIGTERM');fixture.close();}
-process.on('SIGTERM',stop);process.on('SIGINT',stop);child.on('exit',()=>{fixture.close();process.exitCode=0;});
+let child;
+function stop(){child?.kill('SIGTERM');fixture.close();}
+process.on('SIGTERM',stop);process.on('SIGINT',stop);
+async function start(){
+ const next=require.resolve('next/dist/bin/next'),cwd=path.resolve(__dirname,'../..');
+ if(process.env.MYEVE_OWNER_UX_BUILD==='1'){
+  await new Promise((resolve,reject)=>{
+   child=spawn(process.execPath,[next,'build','--webpack'],{cwd,env,stdio:'inherit'});
+   child.on('exit',code=>code===0?resolve():reject(Error('Fixture production build failed')));
+  });
+ }
+ child=spawn(process.execPath,[next,(process.env.MYEVE_OWNER_UX_BUILD==='1'||process.env.MYEVE_OWNER_UX_MODE==='production')?'start':'dev',...((process.env.MYEVE_OWNER_UX_BUILD==='1'||process.env.MYEVE_OWNER_UX_MODE==='production')?[]:['--webpack']),'--hostname','127.0.0.1','--port','3173'],{cwd,env,stdio:'inherit'});
+ child.on('exit',()=>{fixture.close();process.exitCode=0;});
+}
+start().catch(error=>{console.error(error.message);stop();process.exitCode=1;});

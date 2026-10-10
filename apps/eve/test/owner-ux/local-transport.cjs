@@ -2,7 +2,7 @@
 const { Pool } = require('pg');
 const { Agent, Dispatcher, setGlobalDispatcher } = require('undici');
 const configured = new URL(process.env.MYEVE_TEST_DATABASE_URL || '');
-if (!['localhost', '127.0.0.1'].includes(configured.hostname) || configured.port !== '55491' || configured.pathname !== '/blocker_fixes') throw new Error('Use the isolated local blocker_fixes database.');
+if (!['localhost', '127.0.0.1'].includes(configured.hostname) || !['55491','55591'].includes(configured.port) || configured.pathname !== '/blocker_fixes') throw new Error('Use the isolated local blocker_fixes database.');
 const pool = new Pool({connectionString: configured.href, max:8});
 const originalFetch = globalThis.fetch;
 const fixtureOrigin = 'http://127.0.0.1:3174';

@@ -137,8 +137,17 @@ const fixture=createServer(async(req,res)=>{
  }catch(error){console.error('Fixture request failed:',error instanceof Error?error.message:'unknown');send({error:'Fixture request failed'},500);}
 });
 await new Promise<void>(r=>fixture.listen(3184,'127.0.0.1',r));
-const eve=spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'dev','--no-ui','--port','3185'],{cwd:app,env,stdio:'inherit'});
-const next=spawn(process.execPath,[join(root,'node_modules/next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'});
+// QE harness: production-mode builds (sequential) instead of dev servers. Product source unchanged.
+const buildEnv={...env,HTTPS_PROXY:process.env.HTTPS_PROXY,HTTP_PROXY:process.env.HTTP_PROXY,NO_PROXY:'127.0.0.1,localhost',NODE_OPTIONS:'--max-old-space-size=5120 '+env.NODE_OPTIONS,NEXT_TELEMETRY_DISABLED:'1'};
+console.log('QE build eve start',new Date().toISOString());
+const eveBuildEnv={...buildEnv,NITRO_PRESET:'node-server'};delete eveBuildEnv.VERCEL;
+execFileSync(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'build'],{cwd:app,env:eveBuildEnv,stdio:'inherit'});
+if(!existsSync(join(app,'.output/server/index.mjs')))throw Error('QE: eve node-server build output missing');
+console.log('QE build next start',new Date().toISOString());
+execFileSync(process.execPath,[join(root,'node_modules/next/dist/bin/next'),'build','--webpack'],{cwd:app,env:buildEnv,stdio:'inherit'});
+console.log('QE builds done',new Date().toISOString());
+const eve=spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'});
+const next=spawn(process.execPath,[join(root,'node_modules/next/dist/bin/next'),'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'});
 console.log('Offline owner journey fixture started. Source copy:',isolated);
 let closing=false;
 async function stop(){if(closing)return;closing=true;next.kill('SIGTERM');eve.kill('SIGTERM');fixture.close();await e.close();}

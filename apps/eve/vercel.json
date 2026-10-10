@@ -19,7 +19,8 @@
       "codex/peer-conversation-ui": false,
       "codex/telegram-current-integration": false,
       "codex/cloud-execution": false,
-      "codex/myeve-owner-experience": false
+      "codex/myeve-owner-experience": false,
+      "codex/external-alpha-qe-remediation-20261009": false
     }
   },
   "functions": {

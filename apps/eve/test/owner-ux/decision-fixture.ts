@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {BetaIntegration} from '../../lib/beta-integration/runtime.ts';
 import {CanonicalBetaWork} from '../../lib/beta-integration/canonical-work.ts';
 const url=process.env.MYEVE_TEST_DATABASE_URL;
-if(url!=='postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes')throw Error('Dedicated local UX database required');
+if(!/^postgresql:\/\/ux_fixture:local-only@localhost:(55491|55591)\/blocker_fixes$/.test(url??''))throw Error('Dedicated local UX database required');
 const pool=new pg.Pool({connectionString:url});
 const owner='11111111-1111-4111-8111-111111111111';
 const beta=new BetaIntegration(pool,{repository:'synthetic/alpha-tasks',maxCostUsd:1.3,maxDurationSeconds:180});

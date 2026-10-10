@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Work — MyEve" };
 import { OwnerExperience } from "@/components/owner/experience";
 import { WorkDetail } from "@/components/owner/work-detail";
 

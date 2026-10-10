@@ -522,6 +522,10 @@ export class ExternalAlphaWorkAuthority {
     state: "CONSUMED" | "UNKNOWN" | "COMPLETED" | "CANCELLED" | "EXPIRED" | "REVOKED",
     extra: { receipt?: unknown; reason?: string } = {},
   ) {
+    if (["CANCELLED","EXPIRED","REVOKED"].includes(state)) {
+      const [held] = await this.database.query("SELECT allowance_id FROM external_alpha_work_authority WHERE id=$1 AND owner_id=$2 AND state='CONSUMED'", [authorityId,this.policy.ownerId]);
+      if (held) await sharedAlphaAccounting(this.database).workPhase(this.database,this.policy,String(held.allowance_id),authorityId,"hold_work");
+    }
     if (state === "UNKNOWN") {
       const [row] = await this.database.query("SELECT allowance_id FROM external_alpha_work_authority WHERE id=$1 AND owner_id=$2", [authorityId, this.policy.ownerId]);
       if (row) {

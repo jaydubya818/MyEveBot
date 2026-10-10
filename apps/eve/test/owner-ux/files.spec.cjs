@@ -6,7 +6,7 @@ const {capture:visualCapture}=require('./visual.cjs');
 const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
 const owner='11111111-1111-4111-8111-111111111111';
 let artifactIds=[],threadId,fileId,pool;
-test.beforeEach(()=>{artifactIds=[];threadId=randomUUID();fileId=randomUUID();pool=new Pool({connectionString:'postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes'});});
+test.beforeEach(()=>{artifactIds=[];threadId=randomUUID();fileId=randomUUID();pool=new Pool({connectionString:require('./database.cjs').connectionString});});
 test.afterEach(async({request})=>{
  expect((await request.post('/api/auth/login',{data:{password:'synthetic-ux-owner-a'}})).ok()).toBeTruthy();
  for(const id of artifactIds){const removed=await request.delete(`/api/artifacts/${id}`);expect(removed.status(),await removed.text()).toBe(200);}

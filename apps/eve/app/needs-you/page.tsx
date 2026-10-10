@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Needs You — MyEve" };
 import { NeedsYou } from "@/components/owner/needs-you";
 import { externalAlphaInstallation } from "@/lib/external-alpha/policy";
 import { externalAlphaCapabilityAllowlist } from "@/lib/external-alpha/features";

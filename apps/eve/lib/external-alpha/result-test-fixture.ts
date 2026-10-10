@@ -164,7 +164,7 @@ export function buildSignedResult(input: {
           producerSessionId: "sbx_producer1",
           cleanupConfirmed: true as const,
           outcome,
-          checks: outcome === "UNKNOWN" ? [] : [{ id: "exact-artifact", result: outcome === "PASS" ? "PASS" : "FAIL" }],
+          checks: outcome === "UNKNOWN" ? [] : Array.from({length:10},(_,i)=>({ id: `alpha-tasks-criterion-${i+1}`, result: outcome === "PASS" ? "PASS" as const : "FAIL" as const })),
           startedAt: at(35),
           finishedAt: at(40),
           ...o.verifier,

@@ -65,3 +65,15 @@ it("defers optional deployment instructions only for external alpha", async () =
   vi.stubEnv("EVE_PROJECT_NAME", "ordinary-deployment");
   expect(await definition.events["turn.started"]!({} as never, {} as never)).toEqual(expect.objectContaining({ markdown: "Optional computer procedure" }));
 });
+
+it.each(["What changed?","What did you change?","Is anything else needed?","Can you explain the result?","Thanks — anything else to review?"])("bounds verbose Work history for natural follow-up %s without discarding policy",followup=>{
+ const system={role:"system" as const,content:mandatory+"\n"+EXTERNAL_ALPHA_INSTRUCTIONS};
+ const raw={work:{id:"work-a",scopeId:"owner-a",version:3,generation:1,criteriaVersion:1,objective:"Add Priority"},projection:{title:"Priority",nativeResult:{id:"result-a",proof:{workId:"work-a",outcome:"PARTIAL",resultRevision:"a".repeat(40),evidence:[{criterionId:"criterion-a",state:"PASS",contentHash:"sha256:"+"b".repeat(64)}]}}},events:Array.from({length:1000},()=>({text:"Repeated prior event"}))};
+ const prompt=[system,{role:"user",content:[{type:"text",text:"Create this Work"}]},{role:"assistant",content:[{type:"tool-call",toolCallId:"old",toolName:"engineering_work",input:{operation:"get"}}]},{role:"tool",content:[{type:"tool-result",toolCallId:"old",toolName:"engineering_work",output:{type:"json",value:raw}}]},{role:"user",content:[{type:"text",text:followup}]}] as any;
+ const scoped=externalAlphaPrompt({prompt,tools:[]});
+ expect(scoped.prompt[0]).toEqual(system);
+ expect(scoped.prompt.at(-1)).toEqual(prompt.at(-1));
+ expect(JSON.stringify(scoped.prompt)).toContain("result-a");
+ expect(JSON.stringify(scoped.prompt)).toContain("criterion-a");
+ expect(Buffer.byteLength(JSON.stringify({prompt:scoped.prompt,tools:scoped.tools}))).toBeLessThanOrEqual(32000);
+});

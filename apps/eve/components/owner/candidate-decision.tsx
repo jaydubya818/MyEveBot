@@ -35,8 +35,8 @@ export function OwnerCandidateDecision({workId,embedded=false}:{workId:string;em
  <details><summary>Proof of Work</summary>
  <p>Candidate: {data.binding.candidate}<br/>Verified tree: {data.binding.verifiedTree}</p>
  <p>Sofie: {money(data.accounting.sofieMicrousd)} · Factory: {money(data.accounting.factoryMicrousd)}</p>
- <p>Historical Result: {data.proof.outcome}. Owner acceptance: NOT_RUN.</p>
- {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}): PASS · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>Current Result: PARTIAL. Owner acceptance remains NOT_RUN.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
+ <p>The original Proof is retained. Owner acceptance is a separate decision.</p>
+ {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}): PASS · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>The candidate has recorded review evidence. Owner acceptance remains a separate decision.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
  <p>The historical Proof is an immutable snapshot. Current accounting above includes the final explanation.</p>
  <ul>{data.proof.evidence.map(e=><li key={e.criterionId}>{e.state} — {e.producer}: {e.sourceRef}</li>)}</ul>
  <details><summary>Canonical evidence references</summary><ul>{[...new Set(data.proof.artifactRefs)].map(s=><li key={s}>{s.startsWith("factory-evidence:sha256:") ? <a href={`/api/beta/evidence?workId=${encodeURIComponent(workId)}&resultId=${encodeURIComponent(data.binding.resultId)}&reference=${encodeURIComponent(s)}`}>Download retained Factory evidence</a> : s}{data.proof.artifactRefs.filter(ref=>ref===s).length>1?` — referenced by ${data.proof.artifactRefs.filter(ref=>ref===s).length} checks`:''}</li>)}</ul></details>

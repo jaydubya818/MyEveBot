@@ -55,7 +55,11 @@ import type { ChatFileView } from "@/lib/files-api";
 
 import { CommandPalette } from "@/components/command-palette";
 import { ChannelsWorkspace } from "@/components/channels-workspace";
-import { ComputerWorkspace } from "@/components/computer-workspace";
+import dynamic from "next/dynamic";
+const ComputerWorkspace = dynamic(() => import("@/components/computer-workspace").then(module => module.ComputerWorkspace), {
+  ssr: false,
+  loading: () => <p role="status">Opening Computer…</p>,
+});
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
 import {
@@ -1615,6 +1619,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
           }
+          onDraftChange={text => setPendingDraft({threadId:index.activeId,text})}
           onTitle={(title) => setThreadTitle(index.activeId, title)}
           onActivity={(title) => touchThread(index.activeId, title)}
           onPersist={(chat) => persistChat(index.activeId, chat)}
@@ -1830,6 +1835,7 @@ function ChatThread({
   roleName,
   initialChat: savedInitialChat,
   initialDraft,
+  onDraftChange,
   onTitle,
   onActivity,
   onPersist,
@@ -1857,6 +1863,7 @@ function ChatThread({
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
+  onDraftChange: (text:string) => void;
   onTitle: (title: string) => void;
   onActivity: (title?: string) => void;
   onPersist: (chat: SavedChat) => void;
@@ -1896,7 +1903,14 @@ function ChatThread({
     };
   }
   const activeLabel = roleName ?? agentName;
-  const [draft, setDraft] = useState(initialDraft ?? "");
+  const [draft, setDraftState] = useState(initialDraft ?? "");
+  const draftRef=useRef(draft);
+  const [composerReady,setComposerReady]=useState(false);
+  useEffect(()=>setComposerReady(true),[]);
+  function setDraft(next:string|((previous:string)=>string)) {
+    const value=typeof next==="function"?next(draftRef.current):next;
+    draftRef.current=value;setDraftState(value);onDraftChange(value);
+  }
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
@@ -2096,6 +2110,7 @@ function ChatThread({
   }, [agent.data.messages, events, resumedEvents]);
   const failedTurn = useMemo(() => latestTurnFailed(events), [events]);
   const contextLimit = useMemo(() => latestTurnContextLimit(events), [events]);
+  const accountingFence = useMemo(()=>JSON.stringify(events.findLast(event=>event.type==="turn.failed")??{}).includes("EXTERNAL_ALPHA_SHARED_FENCED"),[events]);
 
   // Backfill titles for threads restored from storage (e.g. the migrated
   // pre-threads chat) whose meta still has the placeholder title.
@@ -2418,6 +2433,7 @@ function ChatThread({
         void addFiles(event.dataTransfer.files);
       }}
     >
+      <h1 className="sr-only">{activeLabel}</h1>
       {dragging && (
         <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-kumo-canvas/80 backdrop-blur-sm">
           <div className="flex items-center gap-2 rounded-xl border-2 border-dashed border-kumo-interact px-8 py-6 text-sm font-medium">
@@ -2539,7 +2555,7 @@ function ChatThread({
                     <Bubble variant="destructive">
                       <BubbleContent role="alert">
                         <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
-                        <p>{contextLimit ? "This conversation contains more context than Sofie can safely use. Start a new conversation with a shorter request. For existing Work, open it and choose Discuss with Sofie to keep its saved context." : "Review the selected model and system status, then retry or send a new message."}</p>
+                        <p>{contextLimit ? "This conversation contains more context than Sofie can safely use. Start a new conversation with a shorter request. For existing Work, open it and choose Discuss with Sofie to keep its saved context." : accountingFence ? "An earlier operation has an unresolved accounting or availability condition. Review Work and system status before retrying; this does not grant another execution." : "Review the selected model and system status, then retry or send a new message."}</p>
                         {contextLimit ? <Button className="mt-3" size="sm" variant="secondary" onClick={onNewThread}>New conversation</Button> : <><Button
                           className="mt-3 me-2"
                           size="sm"
@@ -2613,6 +2629,7 @@ function ChatThread({
             }}
           >
             {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
+            {!composerReady && <p role="status">Preparing your conversation…</p>}
             {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
             {attachments.length > 0 && (
               <AttachmentGroup className="px-1 pb-2">
@@ -2647,7 +2664,7 @@ function ChatThread({
             )}
             <InputArea
               ref={composerRef}
-              disabled={uploading}
+              disabled={uploading || !composerReady}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
@@ -2753,7 +2770,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
+                    disabled={!composerReady || uploading || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>

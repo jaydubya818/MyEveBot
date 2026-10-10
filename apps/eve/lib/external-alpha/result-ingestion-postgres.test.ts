@@ -104,6 +104,21 @@ describe.skipIf(!connection)("external alpha Result/Proof ingestion (real Postgr
     expect(proof.artifactRefs).not.toContain("external-alpha-verdict:PASS");
   });
 
+  it.each(["missing", "legacy", "wrong-id"])("does not accept aggregate PASS with %s criterion evidence", async kind => {
+    const s = await make();
+    const built = s.result({mutate: m => {
+      const checks=m.verification!.checks;
+      if(kind==="missing") checks.pop();
+      else if(kind==="legacy") m.verification!.checks=[{id:"alpha-tasks-priority-behavior",result:"PASS"}];
+      else checks[0].id="unbound-criterion";
+    }});
+    const out=await ingestExternalAlphaResult(s.ctx(built.signed));
+    expect(out.verdict).toBe("PARTIAL");
+    const proof=proofOfWorkSchema.parse((await s.readback())[0].proof);
+    expect(proof.evidence.some(e=>e.state==="UNKNOWN")).toBe(true);
+    expect(proof.evidence.map(e=>e.criterionId)).toEqual(s.work.criteria.map(c=>c.id));
+  });
+
   it("an unsigned readback hint can only lower trust", async () => {
     expect(worstVerdict("PASS", "PARTIAL")).toBe("PARTIAL");
     expect(worstVerdict("PARTIAL", "PASS")).toBe("PARTIAL");

@@ -17,6 +17,7 @@ for(const width of [1440,1024,768,390]) {
   for(const [route,name] of [['/today','today'],['/chat','sofie'],['/work','work'],['/needs-you','needs-you'],['/workspace','files'],['/settings','settings']]) {
    await page.goto(route); await stable(page);
    await expect(page).toHaveTitle(/MyEve/);
+   await expect(page.locator('h1')).toHaveCount(1);
    if(route==='/chat') await expect(page.getByRole('textbox',{name:/message/i})).toBeVisible();
    expect(await page.locator('.owner-shell').count()).toBe(1);
    expect(await page.locator('nav[aria-label="Primary"]').count()).toBe(1);
@@ -66,4 +67,18 @@ for(const width of [1440,390])test(`dark appearance remains consistent and acces
   await page.addScriptTag({content:axe});const audit=await page.evaluate(()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));expect(audit.violations.filter(v=>['critical','serious'].includes(v.impact))).toEqual([]);
   await capture(page,`${name}-dark-${width}.png`);
  }
+});
+
+test('CPU-throttled late hydration preserves the first owner draft',async({page})=>{
+ await login(page);
+ const cdp=await page.context().newCDPSession(page);
+ await cdp.send('Emulation.setCPUThrottlingRate',{rate:6});
+ // Type immediately when the hydrated composer is ready; retain the draft
+ // while late thread and owner-context effects settle.
+ await page.goto('/chat');const input=page.getByRole('textbox',{name:'Message Sofie',exact:true});
+ await expect(input).toBeEnabled();await input.fill('Keep this first owner draft exactly.');
+ await page.waitForTimeout(1500);
+ await expect(input).toHaveValue('Keep this first owner draft exactly.');
+ await expect(page.getByRole('button',{name:'Send',exact:true})).toBeEnabled();
+ await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
 });

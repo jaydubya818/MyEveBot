@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { randomUUID } from "node:crypto";
 import { db } from "../../agent/lib/receipts-db.ts";
 import {
@@ -24,6 +25,26 @@ export class FederationStore {
     readonly ownerId: string,
     readonly database: Database = db() as Database,
   ) {}
+  /** Session-held advisory transaction lock across the remote first-link calls.
+   * A query-scoped HTTP lock would be released before the remote side effect.
+   * This performs no schema change and does not grant Relay capabilities. */
+  async withOwnerConnectLock<T>(run:()=>Promise<T>):Promise<T> {
+    if(!process.env.DATABASE_URL)throw Error("Relay linking storage is unavailable.");
+    const pg=createRequire(import.meta.url)("pg");
+    const client=new pg.Client({connectionString:process.env.DATABASE_URL,connectionTimeoutMillis:5000});
+    let locked=false;
+    try {
+      await client.connect();await client.query("BEGIN");
+      await client.query("SET LOCAL lock_timeout='5s'");
+      await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",["myeve-relay-connect:"+this.ownerId]);
+      locked=true;
+      const result=await run();await client.query("COMMIT");return result;
+    } catch(error) {
+      await client.query("ROLLBACK").catch(()=>{});
+      if(!locked)throw Error("Relay linking is busy or unavailable. Retry after the current link has finished.");
+      throw error;
+    } finally {await client.end().catch(()=>{});}
+  }
   async connection(): Promise<Connection> {
     const [row] = await this.database.query(
       "SELECT * FROM myeve_relay_connections WHERE owner_id=$1 AND status='active'",

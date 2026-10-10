@@ -30,7 +30,7 @@ vi.mock("./allowance.ts", () => ({
   },
 }));
 vi.mock("../../agent/lib/receipts-db.ts", () => ({ db: () => ({}) }));
-vi.mock("./conversation-readback.ts",()=>({canonicalConversationReply:async()=>null}));
+vi.mock("./conversation-readback.ts",()=>({canonicalConversationReply:async()=>null,canonicalConversationWork:async()=>null}));
 vi.mock("../../agent/lib/session-settings.ts", () => ({
   resolveSessionAgent: mocks.agent,
 }));

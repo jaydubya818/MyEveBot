@@ -206,15 +206,18 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
   const patchBytes = artifacts.find((a) => a.id === candidate.patchArtifactId);
   const scope = patchScope(patchBytes ? Buffer.from(patchBytes.base64, "base64").toString("utf8") : "", doc.source.allowedFiles);
   if (scope.violations.length) reasons.push("The candidate changes files outside the authorized set.");
-  const verdict = worstVerdict(signedVerdict, ctx.verdictHint, ["FAILED", "CANCELLED"].includes(manifest.status) ? "PARTIAL" : undefined, scope.violations.length ? "FAIL" : undefined, cleanupConfirmed ? undefined : "PARTIAL");
+  let verdict = worstVerdict(signedVerdict, ctx.verdictHint, ["FAILED", "CANCELLED"].includes(manifest.status) ? "PARTIAL" : undefined, scope.violations.length ? "FAIL" : undefined, cleanupConfirmed ? undefined : "PARTIAL");
   if (ctx.verdictHint !== undefined && worstVerdict(ctx.verdictHint) !== "PASS" && verdict !== signedVerdict)
     reasons.push("The Factory readback reported " + worstVerdict(ctx.verdictHint) + ".");
 
   const criteria = work.criteria;
   if (criteria.length !== alphaTasksCriteria.length) reject("EXTERNAL_ALPHA_RESULT_OWNER");
   const observedAt = v?.finishedAt ?? manifest.issuedAt;
-  const state = verdict === "PASS" ? "PASS" : verdict === "FAIL" ? "FAIL" : "UNKNOWN";
-  const checkDigest = `sha256:${digest(v?.checks ?? [])}`;
+  const criterionChecks = criteria.map((_, i) => v?.checks.find(check => check.id === `alpha-tasks-criterion-${i+1}`));
+  if (verdict === "PASS" && criterionChecks.some(check => check?.result !== "PASS")) {
+    verdict = "PARTIAL";
+    reasons.push("The signed Result does not establish every required acceptance criterion.");
+  }
   const proof = proofOfWorkSchema.parse({
     contractVersion: 2,
     workId: work.id,
@@ -224,13 +227,13 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
     outcome: verdict === "FAIL" ? "FAILED" : "PARTIAL",
     resultRevision: candidate.commit,
     createdAt: manifest.issuedAt,
-    evidence: criteria.map((c) => ({
+    evidence: criteria.map((c, i) => ({
       criterionId: c.id,
       resultRevision: candidate.commit,
-      state,
+      state: criterionChecks[i]?.result ?? "UNKNOWN",
       producer: "trusted-verifier",
       sourceRef: `external-alpha-verification:${authority.id}:${candidate.commit}:${c.id}`,
-      contentHash: checkDigest,
+      contentHash: `sha256:${digest({manifestDigest:digest(manifest),candidate:candidate.commit,criterionId:c.id,check:criterionChecks[i]??null})}`,
       observedAt,
     })),
     artifactRefs: [
@@ -395,6 +398,7 @@ export async function settleExternalAlphaResult(
   input: { quiescent: boolean; operations: readonly FactoryOperationReport[] },
 ): Promise<SettlementOutcome> {
   try {
+    await sharedAlphaAccounting(database).workPhase(database,policy,authority.allowanceId,authority.id,"hold_work");
     const [row] = await database.query(`SELECT external_alpha_result_settle($1::jsonb) AS r`, [
       JSON.stringify({
         ownerId: policy.ownerId,

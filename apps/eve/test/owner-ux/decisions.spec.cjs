@@ -3,7 +3,7 @@ const {execFileSync}=require('node:child_process');
 const fs=require('node:fs');
 const {capture}=require('./visual.cjs');
 const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
-const env={...process.env,MYEVE_TEST_DATABASE_URL:'postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes'};
+const env={...process.env,MYEVE_TEST_DATABASE_URL:require('./database.cjs').connectionString};
 let fixture;
 test.beforeEach(()=>{fixture=JSON.parse(execFileSync(process.execPath,['--import','tsx','test/owner-ux/decision-fixture.ts','seed'],{env,encoding:'utf8'}));});
 test.afterEach(()=>{if(fixture)execFileSync(process.execPath,['--import','tsx','test/owner-ux/decision-fixture.ts','cleanup',fixture.workId],{env});});

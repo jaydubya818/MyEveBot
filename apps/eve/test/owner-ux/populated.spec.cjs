@@ -7,7 +7,7 @@ const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
 const owner='11111111-1111-4111-8111-111111111111';
 const ids=[randomUUID(),randomUUID()];let pool;
 test.beforeAll(async()=>{
- pool=new Pool({connectionString:'postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes'});
+ pool=new Pool({connectionString:require('./database.cjs').connectionString});
  for(const [index,id] of ids.entries()) {
   await pool.query("INSERT INTO engineering_work(id,scope_id,scope_kind,created_by,title,objective,repository,max_cost_usd,max_duration_seconds,idempotency_key,request_hash,control) VALUES($1,$2,'personal',$2,$3,$4,'synthetic/alpha-tasks',1,180,$1,'synthetic',$5)",[id,owner,index?'Organize launch notes':'Add Priority to Alpha Tasks','Keep the requested outcome clear and privately reviewable.',index?'paused':'agent']);
   await pool.query("INSERT INTO engineering_work_criteria(scope_id,scope_kind,work_id,version,items,created_by) VALUES($1,'personal',$2,1,$3,$1)",[owner,id,JSON.stringify([{id:randomUUID(),statement:'The requested outcome is reviewable'}])]);

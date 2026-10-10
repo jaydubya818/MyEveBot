@@ -664,24 +664,24 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const work = await unproved.a.seedWork();
     const started = await unproved.app.controller.start(work);
     if (!started.sent) throw Error("sent");
-    await expect(unproved.chat("before-proof")).rejects.toThrow(/SHARED_FENCED/);
+    await expect(unproved.chat("before-proof")).resolves.toMatchObject({kind:"CHAT"});
     await unproved.a.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
     await unproved.a.svc.sweep();
     await expect(unproved.chat("after-label")).rejects.toThrow(/SHARED_FENCED/);
     expect(await unproved.a.count("external_alpha_work_terminal_settlement")).toBe(0);
     const centralState = (await unproved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state;
-    expect(centralState).toBe("DISPATCHED");
+    expect(centralState).toBe("FENCED");
     // Isolated second scenario: one singleton central database per fixture.
     const proved = await sharedPair();
     const w = await proved.a.seedWork();
     await proved.app.controller.start(w);
-    await expect(proved.chat("before-known-proof")).rejects.toThrow(/SHARED_FENCED/);
+    await expect(proved.chat("before-known-proof")).resolves.toMatchObject({kind:"CHAT"});
     proved.app.factory.state = "FAILED"; proved.app.factory.quiescent = true; proved.app.factory.verdict = "NONE";
     await proved.app.controller.reconcile(w.id, { work: w });
     expect(await proved.a.count("external_alpha_work_terminal_settlement")).toBe(1);
     expect((await proved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
     await expect(proved.chat("after-known-proof")).resolves.toMatchObject({ kind: "CHAT" });
-    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
+    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1500000);
   }, 30000);
 
   it("central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch", async () => {
