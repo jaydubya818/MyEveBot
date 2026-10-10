@@ -28,7 +28,7 @@ it("bounds Unicode and escaped limitations while disclosing incomplete excerpts"
  const original=data("a",1,[...Array.from({length:20},(_,i)=>`${i}:`+'🙂"\n'.repeat(1500)),retained,...Array.from({length:10},(_,i)=>`Limitation ${i}.`)]);
  const proof=(compactWorkData(original) as any).projection.nativeResult.proof;
  expect(proof.limitations).toHaveLength(31);
- expect(Buffer.byteLength(JSON.stringify(proof.limitations))).toBeLessThanOrEqual(2000);
+ expect(Buffer.byteLength(JSON.stringify({limitations:proof.limitations,limitationsReadback:proof.limitationsReadback}))).toBeLessThanOrEqual(2000);
  expect(proof.limitationsReadback).toMatchObject({status:"INCOMPLETE",omittedCount:0,truncatedCount:20});
  expect(proof.limitations[0]).not.toContain("\uFFFD");
  expect(proof.limitations[20]).toBe(retained);
@@ -39,10 +39,14 @@ it("discloses a bounded omitted count for pathological arrays and never changes 
  const original=data("a",1,Array.from({length:100},(_,i)=>`Limitation ${i}: `+"x".repeat(1000)+"; not verified."));
  const before=structuredClone(original);
  const proof=(compactWorkData(original) as any).projection.nativeResult.proof;
- expect(proof.limitations).toHaveLength(32);
- expect(Buffer.byteLength(JSON.stringify(proof.limitations))).toBeLessThanOrEqual(2000);
- expect(proof.limitationsReadback).toMatchObject({status:"INCOMPLETE",omittedCount:68,truncatedCount:32});
- expect(proof.limitations[0]).toContain("[truncated excerpt]");
+ // Decision B: one hard 2,000-byte allocation including the disclosure; the leading
+ // (canonical, highest-priority) statement stays whole; the rest are excerpted or omitted, all counted.
+ expect(Buffer.byteLength(JSON.stringify({limitations:proof.limitations,limitationsReadback:proof.limitationsReadback}))).toBeLessThanOrEqual(2000);
+ expect(proof.limitations[0]).toBe(original.projection.nativeResult.proof.limitations[0]);
+ expect(proof.limitations.slice(1).every((item:string)=>item.endsWith("[truncated excerpt]"))).toBe(true);
+ expect(proof.limitationsReadback.status).toBe("INCOMPLETE");
+ expect(proof.limitations.length+proof.limitationsReadback.omittedCount).toBe(100);
+ expect(proof.limitationsReadback.truncatedCount).toBe(proof.limitations.length-1);
  expect(proof.contentHash).toBe(digest(original.projection.nativeResult.proof));
  expect(original).toEqual(before);
 });

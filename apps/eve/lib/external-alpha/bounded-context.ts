@@ -4,39 +4,94 @@ import { EXTERNAL_ALPHA_CONTEXT_BYTES } from "./context.ts";
 type Options=Parameters<ReturnType<typeof gateway>["doGenerate"]>[0];
 type Prompt=Options["prompt"];
 export const EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES = 28_000;
-const LIMITATIONS_BYTES = 2_000;
+/** Hard cap (Decision B, 2026-10-10): the serialized UTF-8 bytes of
+ * {"limitations":[...],"limitationsReadback":{...}} — statements AND the
+ * omission/truncation disclosure together — never exceed 2,000 bytes. */
+export const LIMITATIONS_ALLOCATION_BYTES = 2_000;
 const LIMITATIONS_COUNT = 32;
 const EXCERPT_SUFFIX = "… [truncated excerpt]";
+const LIMITATIONS_NOTE = "Truncated excerpts may omit qualifications or negation. Omitted or unavailable Proof is not verification; read canonical Proof before drawing conclusions.";
+const jsonBytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value));
 
-function limitationExcerpt(value: string, budget: number): string {
- if (Buffer.byteLength(JSON.stringify(value)) <= budget) return value;
+/** Longest code-point prefix (preferring a word boundary) whose JSON string,
+ * suffix included, fits `budget` bytes. Never splits a surrogate pair or an
+ * escape; returns null when not even a minimal excerpt fits. */
+function limitationExcerpt(value: string, budget: number): string | null {
+ if (jsonBytes(value) <= budget) return value;
  const characters = Array.from(value);
  let low = 0, high = characters.length;
  while (low < high) {
   const middle = Math.ceil((low + high) / 2);
-  if (Buffer.byteLength(JSON.stringify(characters.slice(0, middle).join("") + EXCERPT_SUFFIX)) <= budget) low = middle;
+  if (jsonBytes(characters.slice(0, middle).join("") + EXCERPT_SUFFIX) <= budget) low = middle;
   else high = middle - 1;
  }
- return characters.slice(0, low).join("") + EXCERPT_SUFFIX;
+ if (low < 8) return null;
+ const prefix = characters.slice(0, low).join("");
+ const space = prefix.search(/\s\S*$/);
+ const cut = space >= Math.floor(prefix.length * 0.6) ? prefix.slice(0, space) : prefix;
+ return cut + EXCERPT_SUFFIX;
 }
 
-/** Retain canonical statements in order. Oversized statements become explicitly
- * incomplete excerpts, which cannot establish verification or absence of limits. */
+/** Retain canonical statements in their original order inside one hard byte
+ * budget. Exact duplicates are removed first (redundancy before information);
+ * leading canonical statements (verifier verdict, scope restriction) stay whole
+ * while they fit; later statements share the remaining space, short ones whole
+ * first (water-filling). Anything that cannot be represented is counted and
+ * disclosed, never silently dropped. */
 function boundedLimitations(value: unknown) {
  const available = Array.isArray(value) && value.every(item => typeof item === "string");
- const source: string[] = available ? value : [];
- const selected = source.slice(0, LIMITATIONS_COUNT);
- const fullBytes = Buffer.byteLength(JSON.stringify(selected));
- // Reserve JSON brackets and commas before dividing the bounded excerpt space.
- const perStatement = Math.floor((LIMITATIONS_BYTES - 2 - Math.max(0, selected.length - 1)) / Math.max(1, selected.length));
- const limitations = fullBytes <= LIMITATIONS_BYTES ? selected : selected.map(item => limitationExcerpt(item, perStatement));
- const omittedCount = available ? source.length - selected.length : null;
- const truncatedCount = selected.filter((item, index) => item !== limitations[index]).length;
- return {limitations, limitationsReadback: {
-  status: !available ? "UNAVAILABLE" : omittedCount || truncatedCount ? "INCOMPLETE" : "COMPLETE",
-  omittedCount, truncatedCount,
-  ...(!available || omittedCount || truncatedCount ? {note: "Truncated excerpts may omit qualifications or negation. Omitted or unavailable Proof is not verification; read canonical Proof before drawing conclusions."} : {}),
+ if (!available) {
+  return {limitations: [] as string[], limitationsReadback: {status: "UNAVAILABLE", omittedCount: null, truncatedCount: 0, duplicateCount: 0, note: LIMITATIONS_NOTE}};
+ }
+ const unique = [...new Set(value as string[])];
+ const duplicateCount = (value as string[]).length - unique.length;
+ const selected = unique.slice(0, LIMITATIONS_COUNT);
+ let omittedCount = unique.length - selected.length;
+ // Budget the array against the largest possible disclosure for this input.
+ const worstReadback = {status: "INCOMPLETE", omittedCount: unique.length, truncatedCount: selected.length, duplicateCount, note: LIMITATIONS_NOTE};
+ const overhead = jsonBytes({limitations: [], limitationsReadback: worstReadback}) - 2;
+ const arrayBudget = LIMITATIONS_ALLOCATION_BYTES - overhead;
+ let kept: (string | null)[] = [...selected];
+ if (jsonBytes(selected) > arrayBudget) {
+  // Priority is canonical order: ingestion records the verifier verdict and the
+  // scope restriction first. Leading statements stay whole while they fit; the
+  // rest share the remaining space (water-filling) or are omitted and counted.
+  kept = new Array(selected.length).fill(null);
+  let remaining = arrayBudget - 2;
+  let lead = 0;
+  for (; lead < selected.length; lead++) {
+   const cost = jsonBytes(selected[lead]) + (lead ? 1 : 0);
+   if (cost > remaining) break;
+   kept[lead] = selected[lead]; remaining -= cost;
+  }
+  const rest = selected.slice(lead).map((item, offset) => ({index: lead + offset, size: jsonBytes(item)})).sort((a, b) => a.size - b.size || a.index - b.index);
+  remaining -= rest.length && lead ? rest.length : Math.max(0, rest.length - 1); // separators
+  for (let position = 0; position < rest.length; position++) {
+   const {index, size} = rest[position];
+   const share = Math.floor(Math.max(0, remaining) / (rest.length - position));
+   const excerpt = size <= share ? selected[index] : limitationExcerpt(selected[index], share);
+   kept[index] = excerpt;
+   if (excerpt !== null) remaining -= jsonBytes(excerpt);
+  }
+ }
+ const limitations: string[] = [];
+ let truncatedCount = 0;
+ kept.forEach((item, index) => {
+  if (item === null) { omittedCount++; return; }
+  if (item !== selected[index]) truncatedCount++;
+  limitations.push(item);
+ });
+ const incomplete = omittedCount > 0 || truncatedCount > 0;
+ const result = {limitations, limitationsReadback: {
+  status: incomplete ? "INCOMPLETE" : "COMPLETE", omittedCount, truncatedCount, duplicateCount,
+  ...(incomplete ? {note: LIMITATIONS_NOTE} : {}),
  }};
+ // Fail closed rather than exceed the hard cap (unreachable by construction).
+ while (jsonBytes(result) > LIMITATIONS_ALLOCATION_BYTES && result.limitations.length) {
+  result.limitations.pop(); result.limitationsReadback.omittedCount++;
+  result.limitationsReadback.status = "INCOMPLETE"; (result.limitationsReadback as Record<string, unknown>).note = LIMITATIONS_NOTE;
+ }
+ return result;
 }
 
 const pick=(value: unknown, keys: string[]): Record<string,unknown> => {
