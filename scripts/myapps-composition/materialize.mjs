@@ -61,6 +61,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.ux],['myfactory
     // Historical browser evidence includes oversized archive fixtures. Keep the
     // complete Git tree identity but materialize only source; tests emit fresh evidence.
     git(target,['sparse-checkout','set','--no-cone','/*','!/output/']);
+    git(target,['read-tree','-mu','HEAD']);
     evidence.snapshots[name]={preparation:head,integration,conflicts:expected,tree,snapshot,path:target};
   } finally {rmSync(temp,{recursive:true,force:true});}
 }
