@@ -9,7 +9,7 @@ permissions:
 jobs:
   rehearsal:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:17
@@ -121,6 +121,27 @@ jobs:
         env:
           FACTORY_LOCAL_QE_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: node --test apps/cloud-control/test/external-alpha-verifier.test.mjs apps/cloud-control/test/postgres-alpha-criteria-local.test.mjs apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs apps/cloud-control/test/external-alpha-model-provider.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs packages/hosted-routing/test/protocol.test.mjs
+      - name: Provision offline verifier image
+        run: docker pull node:24-bookworm
+      - name: Composed Factory authority, delivery and deterministic fixture regressions
+        working-directory: /tmp/myapps-composition/myfactory
+        env:
+          FACTORY_PAID_TEST_DATABASE_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+          DATABASE_URL_UNPOOLED: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+          FACTORY_POSTGRES_TEST: '1'
+        run: |
+          npm run check:producer-governance
+          node --test apps/cloud-control/test/successor-intake-postgres.test.mjs apps/cloud-control/test/cloud-startup-postgres.test.mjs apps/cloud-control/test/paid-ambiguity-postgres.test.mjs apps/cloud-control/test/alpha-owner-postgres.test.mjs apps/cloud-control/test/external-alpha-authority-postgres.test.mjs apps/cloud-control/test/external-alpha-myeve-conformance-postgres.test.mjs apps/cloud-control/test/external-alpha-delivery-postgres.test.mjs apps/cloud-control/test/external-alpha-host-database-postgres.test.mjs
+          node --test apps/cloud-control/test/admission-spend-plan.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs
+      - name: Composed MyEve admission, productive journeys and deterministic fixtures
+        working-directory: /tmp/myapps-composition/myeve
+        env:
+          MYEVE_VALIDATION_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
+          MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
+          FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/external-alpha/productive-pricing-test-fixture.test.ts lib/external-alpha/productive-sandbox-test-fixture.test.ts
       - name: Check approved allowance correction on untouched canonical source
         if: always()
         working-directory: .qualification/qe-baseline
@@ -135,6 +156,44 @@ jobs:
         run: |
           node packages/myapps/browser/journey.mjs
           node packages/myapps/browser/performance.mjs
+      - name: Composed composer refresh and unchanged E2 browser journey
+        working-directory: /tmp/myapps-composition/myeve/apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+          MYEVE_OWNER_JOURNEY: '1'
+          MYEVE_COMPOSER_TEST_PASSWORD: synthetic-journey-owner
+          QE_EVIDENCE_DIR: /tmp/myapps-composition/composer-browser
+          PGHOST: localhost
+          PGPORT: '55591'
+          PGUSER: ux_fixture
+          PGPASSWORD: local-only
+          PGDATABASE: blocker_fixes
+        run: |
+          mkdir -p "$QE_EVIDENCE_DIR"
+          export QE_SOURCE_SHA="$(git rev-parse HEAD)"
+          psql -Atc "SELECT datname FROM pg_database WHERE datname LIKE 'ea_work_%' ORDER BY datname" > "$QE_EVIDENCE_DIR/databases-before.txt"
+          node --import tsx test/owner-journey/runner-prod.ts > "$QE_EVIDENCE_DIR/server.log" 2>&1 &
+          fixture_pid=$!
+          cleanup() {
+            kill -TERM "$fixture_pid" 2>/dev/null || true
+            for attempt in $(seq 1 30); do
+              kill -0 "$fixture_pid" 2>/dev/null || break
+              sleep 1
+            done
+            kill -KILL "$fixture_pid" 2>/dev/null || true
+            psql -Atc "SELECT datname FROM pg_database WHERE datname LIKE 'ea_work_%' ORDER BY datname" > "$QE_EVIDENCE_DIR/databases-after.txt"
+            diff -u "$QE_EVIDENCE_DIR/databases-before.txt" "$QE_EVIDENCE_DIR/databases-after.txt" || exit 1
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 600); do
+            grep -q 'server listening at http://127.0.0.1:3185/' "$QE_EVIDENCE_DIR/server.log" && break
+            kill -0 "$fixture_pid" || { cat "$QE_EVIDENCE_DIR/server.log"; exit 1; }
+            sleep 2
+          done
+          grep -q 'server listening at http://127.0.0.1:3185/' "$QE_EVIDENCE_DIR/server.log"
+          curl --max-time 90 -fsS http://127.0.0.1:3183/api/auth/status >/dev/null
+          npx playwright test -c ../../scripts/myapps-composition/composer-browser.config.cjs
+          npx playwright test -c test/owner-journey/independent.config.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -142,18 +201,33 @@ jobs:
           path: |
             /tmp/myapps-composition/*.json
             /tmp/myapps-composition/myeve/output/playwright/myapps/
+            /tmp/myapps-composition/composer-browser/
           retention-days: 14
   standalone-packaging:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: /tmp/myapps-packaging-composition/myeve
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          repository: jaydubya818/MyFactory
+          ref: e3ad57c33c7cb774f0ff5c8c5fc278d40c874d5a
+          fetch-depth: 0
+          path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Materialize exact composed packaging source
+        working-directory: ${{ github.workspace }}
+        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-packaging-composition
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm test --workspace apps/builder
       - run: npm run test --workspace apps/eve -- lib/myapps-packaging.test.ts
@@ -171,12 +245,13 @@ jobs:
           npm run build
       - name: Generated application authority and asset gates
         working-directory: /tmp/myapps-standalone
-        run: node --import tsx "$GITHUB_WORKSPACE/apps/builder/scripts/qualification-myapps-gates.mjs" /tmp/myapps-standalone
+        run: node --import tsx /tmp/myapps-packaging-composition/myeve/apps/builder/scripts/qualification-myapps-gates.mjs /tmp/myapps-standalone
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: inactive-myapps-standalone
           path: |
+            /tmp/myapps-packaging-composition/*.json
             /tmp/myapps-standalone.json
             /tmp/myapps-standalone/package-lock.json
           retention-days: 14
