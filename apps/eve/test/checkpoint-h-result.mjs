@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os';
 const root=process.cwd(),output=resolve(process.argv[2]);await mkdir(output,{recursive:true});
 const mc=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
 const sha=path=>execFileSync('git',['rev-parse','HEAD'],{cwd:path,encoding:'utf8'}).trim();
-assert.equal(sha(mc),'bb65b40ca8fb3e9f92258eff6054c17d7702b520');
+assert.equal(sha(mc),'b5bdbd0694bbb31d7adfeda1a6df415aec3ecaac');
 const report={schema:'checkpoint-h-result-browser/v1',myEveSha:sha(root),missionControlSha:sha(mc),status:'IN_PROGRESS',releaseGate:'ADVISORY',fullJourney:'NOT_RUN',paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0};
 try {
  if(!process.env.MC_GOLDEN_RUNTIME_BUILD) {report.status='NOT_RUN';report.reason='Exact locked native runtime package unavailable; no substitute or expiry extension allowed.';}
