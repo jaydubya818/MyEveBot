@@ -1,0 +1,75 @@
+name: MyApps inactive composition readiness
+on:
+  push:
+    branches: [codex/myapps-phase3-readiness]
+  pull_request:
+    paths: ['scripts/myapps-composition/**', 'docs/myapps/phase3/**', 'packages/myapps/composition.config.ts', 'packages/myapps/integration/composition.test.ts', '.github/workflows/myapps-composition.yml']
+permissions:
+  contents: read
+jobs:
+  rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/MyFactory
+          ref: 4c6e540b40e1db226eefda763e615dfe7cb02e3c
+          fetch-depth: 0
+          path: .qualification/myfactory
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Materialize pinned offline source rehearsal
+        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-composition
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: /tmp/myapps-composition/myeve
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: /tmp/myapps-composition/myfactory
+      - run: node node_modules/playwright/cli.js install --with-deps chromium
+        working-directory: /tmp/myapps-composition/myeve
+      - name: Contracts, migration catalog and shared runtime types
+        working-directory: /tmp/myapps-composition/myeve
+        run: |
+          node --test packages/myapps/test/*.test.mjs
+          npm run db:migrations:check
+          npm run build --workspace @myeve/myapps-reference
+          node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
+      - name: Factory custody and Result contracts
+        working-directory: /tmp/myapps-composition/myfactory
+        env:
+          MYEVE_SOURCE_ROOT: /tmp/myapps-composition/myeve
+        run: node --test packages/app-builder/test/*.test.mjs apps/cloud-control/test/cloud-verification.test.mjs
+      - name: Real database, browser, Proof, isolation, accounting and recovery
+        working-directory: /tmp/myapps-composition/myeve
+        env:
+          MYAPPS_COMPOSITION_REHEARSAL: '1'
+          MYAPPS_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
+        run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts
+      - name: Existing browser and performance regressions
+        working-directory: /tmp/myapps-composition/myeve
+        run: |
+          node packages/myapps/browser/journey.mjs
+          node packages/myapps/browser/performance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inactive-myapps-composition
+          path: |
+            /tmp/myapps-composition/composition.json
+            /tmp/myapps-composition/myeve/output/playwright/myapps/
+          retention-days: 14
