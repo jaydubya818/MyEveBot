@@ -1,0 +1,45 @@
+name: MissionControl isolated consumer
+on:
+  push:
+    branches: [codex/missioncontrol-enterprise-consumer]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --import tsx --test apps/eve/test/missioncontrol-consumer.test.mjs apps/eve/test/myfactory-protocol.test.mjs apps/eve/test/factory-evidence.test.mjs
+      - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+      - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: jaydubya818/MissionControl
+          ref: 3576cea2a98422ae0699f0563592e7297fca3b5a
+          path: .qualification/missioncontrol
+          persist-credentials: false
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+        with:
+          version: '9.0.0'
+          package_json_file: .qualification/missioncontrol/package.json
+      - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+        working-directory: .qualification/missioncontrol
+      - name: Fetch exact test storage and checksum-qualified backend
+        run: |
+          docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+          curl --fail --location --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+          echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+          unzip "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+          chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+      - name: Actual tool, transactional storage, concurrency and lost acknowledgment
+        env:
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/sofie-consumer"

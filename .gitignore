@@ -22,3 +22,5 @@ node_modules
 
 # Credential-scanned CLOUD P0 evidence is published by its isolated test runner.
 /output/playwright/cloud/
+
+.qualification/
