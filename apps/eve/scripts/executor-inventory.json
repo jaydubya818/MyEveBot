@@ -4072,13 +4072,13 @@
     },
     "lib/missioncontrol/consumer.ts": {
       "classification": "INTERNAL",
-      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Does not authorize owner decisions; canonical MissionControl rechecks grants. Eight missioncontrol-consumer tests and hosted parity/revocation/recovery checks cover boundaries; production endpoints remain denied.",
-      "sha256": "def627000c6e9407496dbe2755f5fe194d3ff23e6a9493a663ee6569572a063a"
+      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Shared integrity validation binds each assertion to its WorkOrder and verification Attempt; assertion and WorkOrder gate receipt IDs may differ, with canonical MissionControl authenticating receipt/evidence custody. Cached UI is recorded observation, not current proof or owner authority. Canonical MissionControl rechecks grants. Consumer negative tests cover forged PASS, foreign bindings, stale evidence and cross-WorkOrder assertions; production endpoints remain denied.",
+      "sha256": "2d1a401979455cd9658a1b096e5506d812dc433f72f29c477ecc1255261e891c"
     },
     "lib/missioncontrol/contracts.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Pure strict input/response schemas for isolated zero-budget drafts and exact Result evidence; no IO. No owner identity, approval or execution grant input is accepted. Signed consumer protocol tests reject identity overrides, paid budgets, forged PASS, wrong Plan and stale evidence.",
-      "sha256": "3a1157f58cdc10ab809994b81583e4f2f2277cd79b690768668d77eba96ac062"
+      "reason": "Pure strict input/response schemas and shared Result integrity validation for isolated zero-budget drafts and exact recorded evidence; no IO. No owner identity, approval or execution grant input is accepted. Assertion WorkOrder and verification Attempt relationships are checked without requiring equality of legitimately distinct gate receipt IDs. Signed consumer and card regressions reject forged PASS, wrong Plan, foreign WorkOrder/Attempt bindings and stale observations; only authenticated fresh consumer reads establish current evidence.",
+      "sha256": "569dc832f79bfb159c7126c49924fb453ead2dffc5510a23ea4e6cb4214216ff"
     },
     "lib/missioncontrol/owner-review-link.ts": {
       "classification": "NOT_APPLICABLE",
