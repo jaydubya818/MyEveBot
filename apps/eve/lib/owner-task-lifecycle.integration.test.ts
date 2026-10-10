@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-// @ts-expect-error Optional integration driver has no workspace declaration package.
 import { Client, Pool } from "pg";
 import { loadMigrations, runMigrations } from "../scripts/migration-runner.ts";
 const state = vi.hoisted(() => ({ database: null as any }));

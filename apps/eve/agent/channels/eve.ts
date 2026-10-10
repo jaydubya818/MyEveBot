@@ -8,6 +8,7 @@ import { eveChannel } from "eve/channels/eve";
 import { getAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { authenticateWebPrincipal } from "../../lib/web-auth.ts";
+import { capabilityPrincipal } from "../../lib/capability-control/runtime.ts";
 import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
 import { ENGINEERING_WORK_ID_HEADER,ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts";
@@ -82,9 +83,11 @@ export function ownerSession(): AuthFn<Request> {
     if (agentHeader !== null && (!requestedAgentId || requestedAgentId.length > 100)) {
       throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent binding is invalid." });
     }
+    let primaryAgent = !requestedAgentId;
     if (requestedAgentId) {
       const agent = await getAgent(principal.id, requestedAgentId);
       if (!agent) throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent does not belong to the current owner." });
+      primaryAgent = agent.isPrimary;
       if (agent.status !== "active") throw new ForbiddenError({ code: "inactive_agent_binding", message: `${agent.name} is ${agent.status} and cannot execute new work.` });
       if (requestedWorkId && !agent.isPrimary) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "Engineering Work requires the primary Agent." });
     }
@@ -100,9 +103,17 @@ export function ownerSession(): AuthFn<Request> {
     if (requestedAgentId && requestedRoleId) {
       throw new ForbiddenError({ code: "conflicting_executor_binding", message: "Choose either a persistent Agent or an on-demand Role." });
     }
+    // Local-development owner fallback never authorizes capability management.
+    // The marker is minted from this request, never accepted from caller headers.
+    let signedCapabilityOwner = false;
+    if (process.env.MYEVE_CAPABILITY_CONTROL_ENABLED === "true" && primaryAgent && !requestedRoleId && !requestedWorkId) {
+      try { signedCapabilityOwner = await capabilityPrincipal(request) === principal.id; }
+      catch { /* Ordinary channel behavior is preserved; capability tools deny. */ }
+    }
     return {
       attributes: {
         owner: "true",
+        ...(signedCapabilityOwner ? { myeveCapabilityOwner: "signed-session" } : {}),
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
         ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),

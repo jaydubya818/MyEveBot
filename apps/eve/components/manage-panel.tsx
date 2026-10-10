@@ -1,6 +1,7 @@
 "use client";
 import { DecisionIntelligencePanel } from "@/components/decision-intelligence-panel";
 import { RoutinesPanel } from "@/components/routines-panel";
+import { CapabilitySettings } from "@/components/capability-settings";
 
 import { RelayPanel } from "./relay-panel";
 import { Badge, Button, DropdownMenu, Input, Loader } from "@cloudflare/kumo";
@@ -472,7 +473,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = "documentation" | "decision-intelligence" | "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = "capabilities" | "documentation" | "decision-intelligence" | "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -492,6 +493,7 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         icon: CheckIcon,
       },
       { id: "documentation", label: "Documentation", description: "Setup guides and everyday help", icon: BookOpenIcon },
+      { id: "capabilities", label: "Capabilities", description: "Owner preferences, eligibility, and audit history", icon: ShieldCheckIcon },
 
       {
         id: "review-delivery" as const,
@@ -820,7 +822,7 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "documentation" || id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "capabilities" || id === "documentation" || id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
@@ -860,7 +862,9 @@ export function ManagePanel({
   const focusedWorkspace = activeSection === "skills";
 
   let sectionContent: React.ReactNode;
-  if (activeSection === "documentation") {
+  if (activeSection === "capabilities") {
+    sectionContent = <CapabilitySettings />;
+  } else if (activeSection === "documentation") {
     sectionContent = <DocumentationPanel />;
   } else if (activeSection === "getting-started") {
     sectionContent = <ActivationPanel capabilities={capabilities ?? []} onNavigate={selectSection} onStartPrompt={onStartPrompt} />;

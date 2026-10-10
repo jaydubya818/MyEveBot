@@ -1,3 +1,4 @@
+import { admitCapabilityWork } from "../capability-control/admission.ts";
 import {cloudRoutingEvidenceSchema,assertCloudRoutingWork} from './cloud-environment-routing.ts';
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
@@ -130,7 +131,12 @@ export class RouteAdmissionService {
     const decisionId = input.decisionId;
     const transitionId = randomUUID();
     const { scopeId, scopeKind } = this.workStore.principal;
-    const rows = await this.workStore.database.query(
+    const capabilityId = { DIRECT: 'sofie.native', DEEP_AGENT: 'deepagents', EXECUTOR: 'development-tools',
+      MYFACTORY: 'myfactory', RELAY: 'agent-communication' }[input.request.route];
+    const rows = await admitCapabilityWork(this.workStore, work, capabilityId, contract.coordinatingAgentId,
+      contract.budgetUsd, async (database, capabilityEvidence) => {
+      const admittedSnapshot = { ...authoritySnapshot, capabilityEvidence };
+      return database.query(
       `WITH locked_work AS MATERIALIZED (
          SELECT w.scope_id,w.scope_kind,w.id,w.version,w.generation
          FROM engineering_work w
@@ -203,11 +209,11 @@ export class RouteAdmissionService {
         decisionId, input.request.route, binding.id, String(binding.version), contract.budgetUsd,
         contract.deadline, facts.observedAt, qualification.expiresAt, context.assembledAt,
         admissionReason, facts.routePolicy.id, facts.routePolicy.version, JSON.stringify(input.request),
-        JSON.stringify(context), JSON.stringify(authoritySnapshot),
-        digest(context), digest(authoritySnapshot), transitionId, runId,
+        JSON.stringify(context), JSON.stringify(admittedSnapshot),
+        digest(context), digest(admittedSnapshot), transitionId, runId,
         snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null, input.expectedWorkGeneration ?? work.generation, completion?.sessionId ?? null,
       ],
-    ).catch((error: unknown) => {
+    ); }).catch((error: unknown) => {
       if (error && typeof error==="object" && "message" in error && String(error.message).startsWith("INSUFFICIENT_COMPLETION_BUDGET:"))
         throw new WorkError("INSUFFICIENT_COMPLETION_BUDGET",String(error.message),409);
       throw error;

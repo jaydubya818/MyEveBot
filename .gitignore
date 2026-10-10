@@ -25,3 +25,6 @@ node_modules
 
 # Synthetic MyApps reference qualification output.
 /output/playwright/myapps/
+
+# Capability browser artifacts are uploaded separately by isolated CI.
+/output/playwright/capability-control/

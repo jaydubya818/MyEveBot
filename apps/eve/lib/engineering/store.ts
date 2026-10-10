@@ -1,3 +1,4 @@
+import { capabilityWorkDatabase } from "../capability-control/admission.ts";
 import { assertBusinessEffect } from "../business-effects.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "../../agent/lib/receipts-db.ts";
@@ -44,7 +45,7 @@ function work(row: Record<string, any>): Work {
 export class WorkStore {
   constructor(
     readonly principal: WorkPrincipal,
-    readonly database: WorkDatabase = db(),
+    readonly database: WorkDatabase = process.env.MYEVE_CAPABILITY_CONTROL_ENABLED === "true" ? capabilityWorkDatabase() : db(),
   ) {}
   private scope() {
     return [this.principal.scopeId, this.principal.scopeKind];

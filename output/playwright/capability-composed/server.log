@@ -1,0 +1,58 @@
+▲ Next.js 16.3.5 (Turbopack)
+- Local:         http://127.0.0.1:3318
+- Network:       http://127.0.0.1:3318
+✓ Ready in 219ms
+✓ Running next.config.ts took 22ms
+[eve:dev] ../../node_modules/@vercel/otel/dist/node/index.js (23:28893) [33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+[eve:dev]  - Use of direct `eval` here. in ../../node_modules/@vercel/otel/dist/node/index.js at 254579..254583
+[eve:dev]  [38;5;240m │[0m 
+[eve:dev]  [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+[eve:dev] server listening at http://127.0.0.1:51182/
+
+ GET /api/capability-control 401 in 244ms (next.js: 77ms, proxy.ts: 145ms, application-code: 22ms)
+ GET /login?returnTo=/manage/capabilities 200 in 143ms (next.js: 44ms, proxy.ts: 1.8ms, application-code: 97ms)
+ POST /api/auth/login 200 in 23ms (next.js: 15ms, proxy.ts: 1.7ms, application-code: 6ms)
+ GET /manage/capabilities 200 in 359ms (next.js: 205ms, proxy.ts: 1.7ms, application-code: 152ms)
+ GET /api/auth/status 200 in 16ms (next.js: 13ms, proxy.ts: 1.3ms, application-code: 2ms)
+ GET /api/auth/status 200 in 5ms (next.js: 2ms, proxy.ts: 1.7ms, application-code: 1.2ms)
+ GET /api/capabilities 200 in 64ms (next.js: 48ms, proxy.ts: 3ms, application-code: 14ms)
+ GET /api/agents 503 in 78ms (next.js: 69ms, proxy.ts: 6ms, application-code: 1.8ms)
+ GET /api/commands 200 in 132ms (next.js: 112ms, proxy.ts: 7ms, application-code: 13ms)
+ GET /api/threads 503 in 146ms (next.js: 137ms, proxy.ts: 7ms, application-code: 2ms)
+ GET /api/capabilities 200 in 24ms (next.js: 17ms, proxy.ts: 5ms, application-code: 2ms)
+ GET /api/capabilities 200 in 27ms (next.js: 20ms, proxy.ts: 5ms, application-code: 1.8ms)
+ GET /api/agents 503 in 25ms (next.js: 6ms, proxy.ts: 17ms, application-code: 1.0ms)
+ GET /api/commands 200 in 6ms (next.js: 3ms, proxy.ts: 1.9ms, application-code: 1.4ms)
+ GET /api/threads 503 in 7ms (next.js: 4ms, proxy.ts: 2ms, application-code: 1.1ms)
+ GET /api/capability-control 200 in 16ms (next.js: 0.7ms, proxy.ts: 1.7ms, application-code: 14ms)
+ GET /api/capability-control 200 in 12ms (next.js: 1.6ms, proxy.ts: 1.2ms, application-code: 10ms)
+ POST /api/capability-control 200 in 29ms (next.js: 0.9ms, proxy.ts: 1.4ms, application-code: 26ms)
+ GET /api/capability-control 200 in 5ms (next.js: 0.8ms, proxy.ts: 1.0ms, application-code: 3ms)
+ GET /api/capability-control 200 in 6ms (next.js: 0.9ms, proxy.ts: 1.2ms, application-code: 4ms)
+ POST /api/capability-control 200 in 26ms (next.js: 0.9ms, proxy.ts: 1.9ms, application-code: 23ms)
+ GET /api/capability-control 200 in 5ms (next.js: 0.8ms, proxy.ts: 1.0ms, application-code: 4ms)
+ GET /api/capability-control 200 in 10ms (next.js: 0.9ms, proxy.ts: 1.3ms, application-code: 8ms)
+ GET /api/threads/b7387c8a-9883-4e46-9efc-61e732a20515 503 in 606ms (next.js: 595ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /api/threads/b7387c8a-9883-4e46-9efc-61e732a20515 503 in 426ms (next.js: 419ms, proxy.ts: 3ms, application-code: 3ms)
+ POST /api/capability-control 200 in 24ms (next.js: 0.9ms, proxy.ts: 1.4ms, application-code: 22ms)
+ GET /api/capability-control 200 in 5ms (next.js: 0.8ms, proxy.ts: 0.9ms, application-code: 3ms)
+ GET /api/capability-control 200 in 5ms (next.js: 0.8ms, proxy.ts: 1.2ms, application-code: 3ms)
+ GET /manage/capabilities 200 in 16ms (next.js: 3ms, proxy.ts: 1.2ms, application-code: 12ms)
+ GET /api/auth/status 200 in 4ms (next.js: 1.4ms, proxy.ts: 1.6ms, application-code: 1.2ms)
+ GET /api/auth/status 200 in 4ms (next.js: 2ms, proxy.ts: 1.3ms, application-code: 0.9ms)
+ GET /api/capabilities 200 in 7ms (next.js: 3ms, proxy.ts: 2ms, application-code: 1.5ms)
+ GET /api/agents 503 in 8ms (next.js: 4ms, proxy.ts: 3ms, application-code: 0.9ms)
+ GET /api/commands 200 in 10ms (next.js: 5ms, proxy.ts: 3ms, application-code: 1.4ms)
+ GET /api/threads 503 in 11ms (next.js: 7ms, proxy.ts: 3ms, application-code: 1.0ms)
+ GET /api/threads/b7387c8a-9883-4e46-9efc-61e732a20515 503 in 17ms (next.js: 13ms, proxy.ts: 3ms, application-code: 1.6ms)
+ GET /api/capabilities 200 in 11ms (next.js: 7ms, proxy.ts: 3ms, application-code: 1.7ms)
+ GET /api/capabilities 200 in 12ms (next.js: 6ms, proxy.ts: 5ms, application-code: 1.3ms)
+ GET /api/agents 503 in 13ms (next.js: 7ms, proxy.ts: 6ms, application-code: 0.8ms)
+ GET /api/commands 200 in 11ms (next.js: 1.9ms, proxy.ts: 8ms, application-code: 1.3ms)
+ GET /api/threads 503 in 7ms (next.js: 4ms, proxy.ts: 2ms, application-code: 0.9ms)
+ GET /api/threads/b7387c8a-9883-4e46-9efc-61e732a20515 503 in 13ms (next.js: 8ms, proxy.ts: 4ms, application-code: 1.1ms)
+ GET /api/capability-control 200 in 8ms (next.js: 1.1ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /api/capability-control 200 in 9ms (next.js: 1.8ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /api/capability-control 200 in 6ms (next.js: 0.9ms, proxy.ts: 1.3ms, application-code: 4ms)
+ GET /api/capability-control 200 in 6ms (next.js: 1.0ms, proxy.ts: 1.3ms, application-code: 4ms)
+[?25h
