@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { SHARED_MYAPPS_FILES, readSharedMyAppsFile, relocateMyAppsReferences, assertUniqueOutputPaths } from "./shared-myapps";
+import { STANDALONE_SHARED_FILES, STANDALONE_SOURCE_INPUTS, readStandaloneSourceFile, relocateMyAppsReferences, relocateCapabilityReferences, standalonePackageManifest, assertUniqueOutputPaths } from "./shared-myapps";
 
 import type { CustomSchedule, FeatureId } from "./config";
 import { allowedPrunableFiles, isExcluded, isPrunable } from "./manifest";
@@ -141,10 +141,10 @@ export function templateInfo(): Promise<TemplateInfo> {
         hash.update("\0");
         hash.update(await readTemplateFile(root, relative));
       }
-      for (const file of SHARED_MYAPPS_FILES) {
+      for (const file of STANDALONE_SOURCE_INPUTS) {
         hash.update(file);
         hash.update("\0");
-        hash.update(await readSharedMyAppsFile(root, file));
+        hash.update(await readStandaloneSourceFile(root, file));
       }
       const releaseRaw = (await readFile(path.join(root, TEMPLATE_RELEASE_FILE), "utf8")).trim();
       const release = Number.parseInt(releaseRaw, 10);
@@ -208,6 +208,7 @@ export async function assembleDeployment(input: AssembleInput, options: Assembly
       data = Buffer.from(input.instructions, "utf8");
     } else if (relative === "package.json") {
       const parsed = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
+      standalonePackageManifest(parsed, JSON.parse((await readStandaloneSourceFile(root, "package.json")).toString("utf8")));
       parsed.name = input.projectName;
       if (!input.features.includes("browser")) delete (parsed.scripts as Record<string, unknown>)["computer:prewarm"];
       data = Buffer.from(`${JSON.stringify(parsed, null, 2)}\n`, "utf8");
@@ -258,12 +259,12 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
 `);
     }
 
-    data = relocateMyAppsReferences(relative, data);
+    data = relocateCapabilityReferences(relative, relocateMyAppsReferences(relative, data));
     out.push({ file: relative, data: data.toString("base64"), encoding: "base64" });
   }
 
-  for (const file of SHARED_MYAPPS_FILES) {
-    const data = await readSharedMyAppsFile(root, file);
+  for (const file of STANDALONE_SHARED_FILES) {
+    const data = await readStandaloneSourceFile(root, file);
     out.push({ file, data: data.toString("base64"), encoding: "base64" });
   }
 

@@ -32,6 +32,14 @@ export const EXCLUDED = [
   "tsconfig.tsbuildinfo",
   "test/",
   "scripts/qualification-",
+  // Canonical capability qualification uses fixture authorities and repository paths.
+  "scripts/qualify-capability-browser.mjs",
+  "scripts/qualify-capability-composed-browser.mjs",
+  "scripts/qualify-capability-control.mjs",
+  "scripts/qualify-capability-enforcement.mjs",
+  "scripts/qualify-capability-lifecycle.mjs",
+  "scripts/qualify-capability-ordering.mjs",
+  "scripts/qualify-capability-recovery.mjs",
 ] as const;
 
 /** Directories whose files must all be claimed by some feature (or core). */

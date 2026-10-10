@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { SHARED_MYAPPS_FILES } from "./lib/shared-myapps";
+import { STANDALONE_SOURCE_INPUTS } from "./lib/shared-myapps";
 
 import type { NextConfig } from "next";
 
@@ -36,7 +36,7 @@ const templateIncludes = [
   "../eve/test/**",
   "../eve/tsconfig.json",
   "../eve/vercel.json",
-  ...SHARED_MYAPPS_FILES.map((file) => `../../${file}`),
+  ...STANDALONE_SOURCE_INPUTS.map((file) => `../../${file}`),
 ];
 const templateExcludes = [
   "../eve/node_modules/**",
