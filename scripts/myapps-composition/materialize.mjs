@@ -21,7 +21,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   const head = git(repo,['rev-parse','HEAD']);
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
-  const expected = name==='myeve' ? ['.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts'].sort() : [];
+  const expected = name==='myeve' ? ['.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
   const attempt = spawnSync('git',['-C',repo,'merge-tree','--write-tree','--name-only',head,integration],{encoding:'utf8'});
   assert([0,1].includes(attempt.status),attempt.stderr);
   const sections=attempt.stdout.trimEnd().split('\n\n');
@@ -35,6 +35,15 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
+      // Both inputs used a fixed last-migration name. Checkpoint 4 verifies
+      // every applied name/checksum instead, without rewriting any migration.
+      const validationPath='apps/eve/lib/engineering/production-validation-postgres.test.ts';
+      const ledgerAssertion=`  // Verify the complete applied lineage, including checksums, on both paths.
+  const expectedLedger=(await loadMigrations()).map(({name,checksum})=>({name,checksum}));
+  for(const migrated of [pool,upgrade])
+   expect((await migrated.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows).toEqual(expectedLedger);`;
+      const conflict=`<<<<<<< ${head}\n${ledgerAssertion}\n=======\n  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0090_external_alpha_terminal_settlement.sql');\n>>>>>>> ${integration}`;
+      put(validationPath,replacement(show(repo,initialTree,validationPath),conflict,ledgerAssertion));
       const ignores=show(repo,integration,'.gitignore');
       assert(!ignores.includes('/output/playwright/myapps/'));
       put('.gitignore',ignores+'\n# Synthetic MyApps reference qualification output.\n/output/playwright/myapps/\n');
