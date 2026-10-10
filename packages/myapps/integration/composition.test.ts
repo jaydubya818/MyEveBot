@@ -15,11 +15,11 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.phase2,name));
  }
- for(const path of ['policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
+ for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.integration,name));
  }
- for(const branch of ['codex/myapps-phase3-readiness',pins.preparationBranch])
+ for(const branch of ['codex/myapps-phase3-readiness','codex/myapps-phase3b-reconciliation',pins.preparationBranch])
   expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
  expect(readFileSync('.gitignore','utf8')).toContain('/output/owner-ux/');
  expect(readFileSync('.gitignore','utf8')).toContain('/output/playwright/myapps/');

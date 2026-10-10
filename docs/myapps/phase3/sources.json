@@ -8,7 +8,7 @@
     "ux": "474bd465c2773bf55536b1914045c646deaa644f",
     "missioncontrolConsumer": "4b8cacce64f260b0816ff615222a3cac621d749b",
     "phase3Preparation": "615f9209c37f656b14723747e556c03a45a85544",
-    "integration": "c640f255fe2b8d1aeecc4c4c99bb28675b2ee5e8"
+    "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e"
   },
   "myfactory": {
     "main": "030b1a51017f3159436b93817ed2d5bf6ae18288",
@@ -26,5 +26,5 @@
   "production": "NOT_RUN",
   "publication": "DISABLED",
   "paidOperations": 0,
-  "preparationBranch": "codex/myapps-phase3b-reconciliation"
+  "preparationBranch": "codex/myapps-allowance-successor-20261010"
 }

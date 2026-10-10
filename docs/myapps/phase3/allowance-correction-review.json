@@ -1,0 +1,15 @@
+{
+  "exactCorrection": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
+  "reviewer": "Claude Opus 5.5 (independent; read-only against product source and production)",
+  "archive": "/Users/jaywest/Downloads/myeve-qe-codex-handoff-qe012-017-572053a9.tar.gz",
+  "archiveSha256": "6d5e66654470c613534d06926d26b5fce8591166777b648d9066f0b36f7ab4c0",
+  "manifestEntries": 43,
+  "mismatches": [],
+  "boundedCorrectionVerdict": {
+    "id": "REQ-4",
+    "text": "Reconcile outdated allowance tests against afa65bd4.",
+    "status": "Independently PASS at afa65bd4: allowance-postgres 7/7; diff strengthens (asserts finish-before-dispatch is rejected without state change)."
+  },
+  "gateDecision": "Bounded correction independently PASS; condition met for source-only preparation. No overall release approval inferred.",
+  "remainingSafetyHold": "UNKNOWN partition fencing remains FAIL; preserve production and merge holds."
+}
