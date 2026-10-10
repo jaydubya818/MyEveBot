@@ -3,6 +3,7 @@
   "outputDirectory": null,
   "git": {
     "deploymentEnabled": {
+      "codex/myapps-allowance-successor-20261010": false,
       "codex/myapps-phase3b-reconciliation": false,
       "codex/myapps-phase3-readiness": false,
       "main": false,
@@ -20,8 +21,7 @@
       "codex/relay-grant-expiry-settings": false,
       "codex/peer-conversation-ui": false,
       "codex/telegram-current-integration": false,
-      "codex/cloud-execution": false,
-      "codex/myapps-allowance-successor-20261010": false
+      "codex/cloud-execution": false
     }
   },
   "functions": {
