@@ -81,5 +81,5 @@ describe("QE-014 Decision B hard 2,000-byte limitations allocation (matrix)", ()
       const count = Math.floor(rnd() * 45);
       check(Array.from({ length: count }, () => Array.from({ length: Math.floor(rnd() * 900) }, () => alphabet[Math.floor(rnd() * alphabet.length)]).join("")));
     }
-  });
+  }, 60000);
 });

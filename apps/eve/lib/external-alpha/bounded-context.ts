@@ -138,6 +138,38 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
   receipt:pick(source.receipt,["state","requestId","workOrderId","authorityId","authoritySha256"])};
 }
 
+/** Remove from a compacted Work tool result only what the mandatory
+ * selected-Work context provably already carries for the SAME Work: identical
+ * criterion statements and the same canonical Proof (equal content hash of the
+ * original, rendered by the same compactProofData projection). Identity,
+ * versions, state, outcomes and references stay; a marker records each removal
+ * so the model knows where the authoritative copy is. Nothing is removed when
+ * equivalence cannot be shown. */
+export function withoutMandatoryDuplicates(value: Record<string, unknown>, mandatory: string): Record<string, unknown> {
+ const work = value.work as Record<string, unknown> | undefined;
+ const id = typeof work?.id === "string" ? work.id : null;
+ if (!id || !mandatory.includes(`Work ${id} · `)) return value;
+ const out: Record<string, any> = structuredClone(value);
+ const removed: string[] = [];
+ const criteria = out.work?.criteria;
+ if (Array.isArray(criteria) && criteria.length && criteria.every((c: any) => typeof c?.id === "string" && typeof c?.statement === "string"
+   && mandatory.includes(`Criterion ${c.id}: ${c.statement.slice(0, 300)} [`) && c.statement.length <= 300)) {
+  delete out.work.criteria; removed.push("work.criteria");
+ }
+ if (typeof out.work?.objective === "string" && out.work.objective.length <= 1600 && mandatory.includes(`Objective: ${out.work.objective}\n`)) {
+  delete out.work.objective; removed.push("work.objective");
+ }
+ const native = out.projection?.nativeResult;
+ const hash = native?.proof?.contentHash;
+ if (typeof native?.id === "string" && typeof hash === "string" && mandatory.includes(`Native immutable Proof of Work ${native.id}: `)
+   && mandatory.includes(`"contentHash":${JSON.stringify(hash)}`)) {
+  native.proof = {sameAsMandatoryContext: true, contentHash: hash, outcome: native.proof.outcome};
+  removed.push("projection.nativeResult.proof");
+ }
+ if (removed.length) out.mandatoryContextDuplicates = {removed, note: "Identical to the selected Work in the mandatory context above; read it there."};
+ return out;
+}
+
 /** Preserve every system message, exact latest owner request and the complete
  * current tool exchange. Window older whole turns, never orphan tool results.
  * An oversized mandatory/current payload still fails closed at 32,000 bytes. */
@@ -148,6 +180,13 @@ export function boundedAlphaHistory(prompt:Prompt,tools:Options["tools"]):Prompt
   if(part.type!=="tool-result" || !["engineering_work","engineering_factory"].includes(part.toolName) || part.output.type!=="json")return part;
   return {...part,output:{...part.output,value:compactWorkData(part.output.value) as any}};
  })});
+ if(bytes(bounded)>=EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES){
+  const mandatory=bounded.filter(m=>m.role==="system").map(m=>typeof m.content==="string"?m.content:JSON.stringify(m.content)).join("\n");
+  bounded=bounded.map(message=>message.role!=="tool"?message:{...message,content:message.content.map(part=>{
+   if(part.type!=="tool-result" || !["engineering_work","engineering_factory"].includes(part.toolName) || part.output.type!=="json")return part;
+   return {...part,output:{...part.output,value:withoutMandatoryDuplicates(part.output.value as Record<string,unknown>,mandatory) as any}};
+  })});
+ }
  while(bytes(bounded)>=EXTERNAL_ALPHA_CONTEXT_TARGET_BYTES){
   const users=bounded.flatMap((m,i)=>m.role==="user"?[i]:[]);
   if(users.length<2)break;
