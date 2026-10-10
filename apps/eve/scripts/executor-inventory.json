@@ -2012,8 +2012,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed.",
-      "sha256": "d37e595d2f9a89f2828e7f8ff6999b3101d2eb4c39bc17ad442bfae234542d16"
+      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Reviewed isolated mission_control declaration: explicit missioncontrol-readiness feature and eight configuration keys, draft/read effects only; disabled by default. Declaration grants no owner decision, execution or spending authority. Consumer denial tests verify default-disabled configuration.",
+      "sha256": "9fa5e3029b39409c845094c14fd64414548ad6afb4f082c11e2a2c22e6ed9444"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2602,8 +2602,8 @@
     },
     "lib/thread-owner-conflict.ts": {
       "classification": "INTERNAL",
-      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers.",
-      "sha256": "279a736ce844106f140a4bdb4ca66b531c9e2f28c3f54f364304ad3eab2f94a9"
+      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers. Reviewed awaited-save boolean: true only after successful authenticated response; errors/conflicts/disconnect return false so chat retains its draft and does not start an unbound Agent session. Eight focused tests and authenticated delayed-save/reconnect browser cover this boundary.",
+      "sha256": "941ead25300513cac817910e08bed742d7eb8d505939998ebc7aced926a06b95"
     },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
@@ -4058,6 +4058,32 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained data reads. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
       "sha256": "c542acbb56c2781a1886d653445071e59a32091a3c93e0902e0ed86a03d2b780"
+    },
+    "agent/tools/mission_control.ts": {
+      "classification": "ENFORCED",
+      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation.",
+      "sha256": "dc37f2dead6b99fafe9739dc3d9e6d1f4b74c49482d259873cc1e5eedba02f07"
+    },
+    "agent/lib/missioncontrol.ts": {
+      "classification": "ENFORCED",
+      "disposition": "gateway",
+      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority.",
+      "sha256": "8ccb3ab5d2fa43ac1ab64c7473e3237a62216b5ba14d1ba69785f06f6d90c634"
+    },
+    "lib/missioncontrol/consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Does not authorize owner decisions; canonical MissionControl rechecks grants. Eight missioncontrol-consumer tests and hosted parity/revocation/recovery checks cover boundaries; production endpoints remain denied.",
+      "sha256": "def627000c6e9407496dbe2755f5fe194d3ff23e6a9493a663ee6569572a063a"
+    },
+    "lib/missioncontrol/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure strict input/response schemas for isolated zero-budget drafts and exact Result evidence; no IO. No owner identity, approval or execution grant input is accepted. Signed consumer protocol tests reject identity overrides, paid budgets, forged PASS, wrong Plan and stale evidence.",
+      "sha256": "3a1157f58cdc10ab809994b81583e4f2f2277cd79b690768668d77eba96ac062"
+    },
+    "lib/missioncontrol/owner-review-link.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure identifier-only URL construction, no IO or credentials. HTTPS or loopback HTTP origin only; userinfo, paths, query and fragments denied. Three owner-review-link tests cover exact proposal/Result Mission references and unsafe destination denial. URL supplies no owner authority.",
+      "sha256": "b4c6f1f730ba32790fc2e74d3f0820cd6121d1c12ea9588b67c9c4f4ce6b6015"
     }
   }
 }
