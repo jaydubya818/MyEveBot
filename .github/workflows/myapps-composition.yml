@@ -1,7 +1,7 @@
 name: MyApps inactive QE composition readiness
 on:
   push:
-    branches: [codex/myapps-allowance-successor-20261010]
+    branches: [main, codex/myapps-allowance-successor-20261010]
   pull_request:
     paths: ['scripts/myapps-composition/**', 'docs/myapps/phase3/**', 'packages/myapps/composition*.config.ts', 'packages/myapps/integration/composition.test.ts', 'packages/myapps/qualification/**', '.github/workflows/myapps-composition.yml']
 permissions:
@@ -24,15 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: d958c9e609c7ec6ed95acb90493f781940feac2a
+          ref: e3ad57c33c7cb774f0ff5c8c5fc278d40c874d5a
           fetch-depth: 0
           path: .qualification/myfactory
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: afa65bd4c2d3ce26691a07132030cad1a1ef140e
           path: .qualification/qe-baseline
       - uses: actions/setup-node@v4
@@ -46,6 +50,11 @@ jobs:
         working-directory: /tmp/myapps-composition/myfactory
       - run: node node_modules/playwright/cli.js install --with-deps chromium
         working-directory: /tmp/myapps-composition/myeve
+      - name: Exact composed FactoryVersion identity receipt
+        working-directory: /tmp/myapps-composition/myfactory
+        run: |
+          node packages/app-builder/scripts/qualify-myapps-identity.mjs create /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/factoryversion-identity.json
+          node packages/app-builder/scripts/qualify-myapps-identity.mjs verify /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/factoryversion-identity.json
       - name: Contracts, migration catalog and shared runtime types
         working-directory: /tmp/myapps-composition/myeve
         run: |
@@ -53,6 +62,22 @@ jobs:
           npm run db:migrations:check
           npm run build --workspace @myeve/myapps-reference
           node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
+      - name: PostgreSQL 17 backup and restore tools
+        run: |
+          if [ ! -x /usr/lib/postgresql/17/bin/pg_dump ]; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client-17
+          fi
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+      - name: Disposable migration interruption and real restore qualification
+        working-directory: /tmp/myapps-composition/myeve
+        env:
+          MYAPPS_MIGRATION_REHEARSAL: '1'
+          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
+          MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+        run: |
+          node --import tsx packages/myapps/qualification/migration-recovery.mjs /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/migration-recovery.json
+          node --test packages/myapps/qualification/migration-recovery-failure.test.mjs
       - name: Factory custody and Result contracts
         working-directory: /tmp/myapps-composition/myfactory
         env:
@@ -105,6 +130,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24

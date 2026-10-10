@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
@@ -11,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -48,10 +53,14 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: d958c9e609c7ec6ed95acb90493f781940feac2a
+          ref: e3ad57c33c7cb774f0ff5c8c5fc278d40c874d5a
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
