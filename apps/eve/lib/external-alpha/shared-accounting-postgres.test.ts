@@ -15,6 +15,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
       await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-zero-gap.sql", import.meta.url), "utf8"));
     const cohortId = randomUUID();
     const a = await Env.create(true, { cohortId }); envs.push(a);
     const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);
@@ -31,8 +32,15 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const amount = async () => Number((await central.pool.query("SELECT COALESCE(sum(ceiling_microusd),0)::bigint s FROM external_alpha_cohort_admission WHERE cohort_id=$1", [cohortId])).rows[0].s);
     return { central, cohortId, a, b, budget, chat, amount };
   }
-  it("QE-008 admits both owners' chat while owner A Work is in flight within retained ceilings", async () => {
-    const { central, a, b, budget, chat, amount } = await make();
+  async function expireWorkAdmissions(central: Env) {
+    // Fixture-only clock movement on the disposable central DB: Work admissions past their dispatch deadline.
+    const c = await central.pool.connect();
+    try { await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+      await c.query("UPDATE external_alpha_cohort_admission SET deadline=clock_timestamp()-interval '1 second' WHERE kind='WORK'"); await c.query("COMMIT"); }
+    catch (error) { await c.query("ROLLBACK"); throw error; } finally { c.release(); }
+  }
+  it("zero-gap: an authenticated RUNNING Work still fences every owner's chat and model dispatch; ceilings retained (Decision D)", async () => {
+    const { central, a, b, chat, amount } = await make();
     const authority = await a.svc.issue(await a.seedWork(), files);
     await a.svc.claim(authority);
     expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "DISPATCHED" }]);
@@ -41,20 +49,15 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     // observation; controller tests exercise the signed readback path itself.
     await a.svc.finish(authority.id,"CONSUMED",{receipt:{authorityId:authority.id,authoritySha256:authority.documentSha256,requestId:authority.requestId,workOrderId:randomUUID(),consumedAt:new Date().toISOString()}});
     await a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"running_work");
-    const allowances = await Promise.all([chat(a, "during-work:a"), chat(b, "during-work:b")]);
-    for (const [i,e] of [a,b].entries()) {
-      const operation = await budget(e).reserve({allowanceId:allowances[i].id,stepKey:"during-work:0",requestSha256:digest("op"),microusd:80000});
-      await budget(e).claimDispatch(operation);
-      await budget(e).settle(operation,10000,{text:"Work remains in progress"});
-    }
-    expect(await amount()).toBe(1500000);
-    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch ORDER BY state")).rows).toEqual([
-      { state: "RUNNING" }, { state: "SETTLED" }, { state: "SETTLED" },
-    ]);
-    expect(await amount()).toBe(1500000);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "RUNNING" }]);
+    // RUNNING is an observation, not evidence that exposure is still known: no owner is admitted.
+    await expect(chat(a, "during-work:a")).rejects.toThrow("SHARED_FENCED");
+    await expect(chat(b, "during-work:b")).rejects.toThrow("SHARED_FENCED");
+    expect(await amount()).toBe(1300000);
     await a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"hold_work");
     await expect(chat(b,"held-work")).rejects.toThrow("SHARED_FENCED");
     await expect(a.db.externalAlphaAccounting!.workPhase(a.db,a.policy,authority.allowanceId,authority.id,"running_work")).rejects.toThrow("SHARED_FENCED");
+    expect(await amount()).toBe(1300000);
   });
   it("retains durable Work UNKNOWN when shared fencing is temporarily unavailable", async () => {
     const {central,a,b,chat,amount}=await make();
@@ -73,6 +76,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
       await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-zero-gap.sql", import.meta.url), "utf8"));
     for (const table of ["external_alpha_cohort", "external_alpha_cohort_member", "external_alpha_cohort_admission", "external_alpha_cohort_dispatch"])
       expect(await central.count(table)).toBe(0);
   });
@@ -140,11 +144,14 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
   it("serializes concurrent chat plus Work admissions from both app DBs at the $4.60 daily ceiling", async () => {
     const { a, b, chat, amount, central, cohortId } = await make();
     const wa = await a.seedWork(), wb = await b.seedWork();
-    const outcomes = await Promise.allSettled([
-      ...Array.from({ length: 24 }, (_, i) => chat(i % 2 ? a : b, `turn:${i}`)),
-      a.svc.issue(wa, files), b.svc.issue(wb, files),
-    ]);
-    expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(22);
+    // One active Work per cohort (Decision A): concurrent Work issue acquires the single slot exactly once.
+    const works = await Promise.allSettled([a.svc.issue(wa, files), b.svc.issue(wb, files)]);
+    expect(works.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    expect(String((works.find((r) => r.status === "rejected") as PromiseRejectedResult).reason)).toMatch(/EXTERNAL_ALPHA_SHARED_CAPACITY/);
+    await expireWorkAdmissions(central);
+    if (works[0].status === "rejected") await a.svc.issue(wa, files); else await b.svc.issue(wb, files);
+    const outcomes = await Promise.allSettled(Array.from({ length: 24 }, (_, i) => chat(i % 2 ? a : b, `turn:${i}`)));
+    expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(20);
     expect(await amount()).toBe(4600000);
     const rows = (await central.pool.query("SELECT owner_id,sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission WHERE cohort_id=$1 GROUP BY owner_id", [cohortId])).rows;
     expect(rows.map((r: any) => r.amount)).toEqual(["2300000", "2300000"]);
@@ -272,8 +279,13 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
     }
     expect(await amount()).toBe(18400000);
     await Promise.all([a, b].flatMap((e) => Array.from({ length: 10 }, (_, i) => chat(e, `last:${i}`))));
-    const wa = await a.svc.issue(await a.seedWork(), files), wb = await b.svc.issue(await b.seedWork(), files);
-    await a.svc.finish(wa.id, "CANCELLED"); await b.svc.finish(wb.id, "EXPIRED");
+    const wa = await a.svc.issue(await a.seedWork(), files);
+    await a.svc.finish(wa.id, "CANCELLED");
+    // An undispatched cancelled Work keeps the single active-Work slot until its dispatch deadline passes.
+    await expect(b.svc.issue(await b.seedWork(), files)).rejects.toThrow("EXTERNAL_ALPHA_SHARED_CAPACITY");
+    await expireWorkAdmissions(central);
+    const wb = await b.svc.issue(await b.seedWork(), files);
+    await b.svc.finish(wb.id, "EXPIRED");
     expect(await amount()).toBe(23000000);
     // Simulated next UTC day in disposable data: the lifetime ceiling still
     // denies after daily counters have rolled over. This cannot run in runtime.

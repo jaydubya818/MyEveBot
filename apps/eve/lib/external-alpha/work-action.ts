@@ -95,7 +95,13 @@ export async function externalAlphaFactoryAction(
   );
   if (input.operation === "start") {
     await assertBusinessEffect(store, workId, { operation: "execute_factory" });
-    const out = await controller.start(work, effect);
+    const out = await controller.start(work, effect).catch((error: unknown) => {
+      // One active Work per cohort (QE-017): explicit, non-retryable-until-free capacity denial.
+      // The shared reservation was refused before any charge, authority or Factory call.
+      if (error instanceof Error && /\bEXTERNAL_ALPHA_SHARED_CAPACITY\b/.test(error.message))
+        throw new WorkError("EXTERNAL_ALPHA_WORK_CAPACITY", "EXTERNAL_ALPHA_WORK_CAPACITY: another alpha Work is active. Only one Work can run at a time in this alpha; nothing was charged and no Work was started. Try again after the active Work finishes.", 409);
+      throw error;
+    });
     return {
       state: out.sent ? "STARTED" : "ALREADY_" + out.authority.state,
       authority: out.authority.state,
