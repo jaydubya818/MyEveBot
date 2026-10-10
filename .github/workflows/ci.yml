@@ -98,7 +98,7 @@ jobs:
           assert.equal(image.Os, 'linux');
           assert.equal(image.Architecture, 'arm64');
           assert.ok(image.RepoDigests.includes(process.env.PROTECTED_VERIFIER_IMAGE));
-          console.log(JSON.stringify({image:process.env.PROTECTED_VERIFIER_IMAGE,configDigest:image.Id,os:image.Os,architecture:image.Architecture}));
+          console.log(JSON.stringify({image:process.env.PROTECTED_VERIFIER_IMAGE,imageId:image.Id,os:image.Os,architecture:image.Architecture}));
           NODE
       - name: Offline protected positive and failed-review controls
         env:
