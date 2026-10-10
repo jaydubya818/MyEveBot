@@ -19,6 +19,20 @@ fixture database; generated application, central accounting, restore and Factory
 databases are distinct. Fixture-only NOLOGIN roles test restored RLS and are
 removed after their databases. No credentials are created or changed.
 
+PostgreSQL subprocesses receive only explicit fixture connection environment
+variables after all inherited `PG*` settings are removed. Password-bearing URLs
+never enter subprocess arguments. Failed subprocess output is withheld from
+exceptions and receipts. The failure-path security regression injects a failing
+`pg_dump`, hostile inherited libpq routing, and password-bearing child output:
+
+```sh
+MYAPPS_MIGRATION_REHEARSAL=1 \
+MYAPPS_POSTGRES_URL=postgresql://myapps_fixture@127.0.0.1:55793/myapps_fixture \
+MYEVE_SOURCE_ROOT=/absolute/composed/myeve \
+MYFACTORY_SOURCE_ROOT=/absolute/composed/myfactory \
+node --test packages/myapps/qualification/migration-recovery-failure.test.mjs
+```
+
 ## Canonical recovery contract
 
 `docs/final-migration-integration-decision.md`,

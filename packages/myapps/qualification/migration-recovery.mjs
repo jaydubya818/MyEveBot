@@ -54,6 +54,24 @@ const admin = new Client({ connectionString: url.href });
 const clients = new Set(), names = [], roles = [], temporary = mkdtempSync(join(tmpdir(), 'myapps-restore-'));
 const check = (name, detail = {}) => { result.checks.push({ name, status: 'PASS', ...detail }); console.log(`PASS ${name}`); };
 const fixtureUrl = name => { const next = new URL(url); next.pathname = '/' + name; return next.href; };
+// PostgreSQL tools must never receive a password-bearing URL in argv. Child
+// failure objects contain captured stdout/stderr and command text, so replace
+// those errors before they can reach receipts or CI logs.
+const postgres = (binary, args, database) => {
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('PG')));
+  Object.assign(env, {
+    PGHOST: url.hostname.replace(/^\[|\]$/g, ''), PGPORT: url.port || '5432',
+    PGUSER: decodeURIComponent(url.username), PGPASSWORD: decodeURIComponent(url.password),
+    PGDATABASE: database, PGCONNECT_TIMEOUT: '10',
+  });
+  try { return execFileSync(binary, args, { env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, stdio: 'pipe' }); }
+  catch (error) { throw new Error(`${binary} qualification failed (exit ${Number.isInteger(error.status) ? error.status : 'unavailable'}); child output withheld`); }
+};
+const safeError = error => {
+  let value = error.stack || String(error);
+  for (const secret of [url.href, url.password, decodeURIComponent(url.password)].filter(Boolean)) value = value.replaceAll(secret, '[redacted]');
+  return value;
+};
 const connect = async name => {
   const client = new Client({ connectionString: fixtureUrl(name) });
   await client.connect(); clients.add(client); return client;
@@ -76,7 +94,7 @@ const driver = (client, beforeStatement = async () => {}) => ({
 });
 const migrate = (client, source = migrations, before) => runMigrations(driver(client, before), source, () => {});
 const ledger = async client => (await client.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows;
-const schema = name => execFileSync('pg_dump', ['--schema-only', '--no-owner', fixtureUrl(name)], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+const schema = name => postgres('pg_dump', ['--schema-only', '--no-owner'], name)
   .split('\n').filter(line => !/^\\(?:un)?restrict /.test(line)).join('\n');
 const snapshot = async client => {
   const tables = (await client.query("SELECT schemaname,tablename FROM pg_tables WHERE schemaname IN ('public','factory') ORDER BY 1,2")).rows;
@@ -250,8 +268,8 @@ try {
   for (const original of [fresh, central]) {
     const target = await create('restore');
     const backup = join(temporary, original.name + '.dump');
-    execFileSync('pg_dump', ['--format=custom', '--no-owner', '--file', backup, fixtureUrl(original.name)], { stdio: 'pipe' });
-    execFileSync('pg_restore', ['--exit-on-error', '--single-transaction', '--no-owner', '--dbname', fixtureUrl(target.name), backup], { stdio: 'pipe' });
+    postgres('pg_dump', ['--format=custom', '--no-owner', '--file', backup], original.name);
+    postgres('pg_restore', ['--exit-on-error', '--single-transaction', '--no-owner', '--dbname', target.name, backup], target.name);
     assert.equal(schema(target.name), schema(original.name));
     assert.deepEqual(await snapshot(target.client), await snapshot(original.client));
     if (original === fresh) {
@@ -276,10 +294,10 @@ try {
   }
   result.status = 'PASS';
 } catch (error) {
-  result.status = 'FAIL'; result.error = error.stack; throw error;
+  result.status = 'FAIL'; result.error = safeError(error); throw new Error(result.error);
 } finally {
   const cleanupErrors = [];
-  const cleanup = async action => { try { await action(); } catch (error) { cleanupErrors.push(error.message); } };
+  const cleanup = async action => { try { await action(); } catch (error) { cleanupErrors.push(safeError(error)); } };
   for (const client of clients) await cleanup(() => close(client));
   let removed = 0;
   for (const name of names.reverse()) await cleanup(async () => { await admin.query(`DROP DATABASE "${name}"`); removed++; });
