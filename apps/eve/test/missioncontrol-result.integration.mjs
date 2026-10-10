@@ -10,9 +10,9 @@ import {enterpriseConfig,sendEnterpriseCommand,validateResponse,contentDigest,si
 
 /** Called by the canonical native-successor hybrid runner while its actual evidence is current. */
 export async function prepareCompletedResultConsumer(db) {
-  const source=fileURLToPath(new URL('../../../',import.meta.url));
+  const sourceRoot=fileURLToPath(new URL('../../../',import.meta.url));
   const checks=[],result={schema:'sofie-completed-result-qualification/v1',checks,
-    myeveSourceSha:execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),myeveDirty:!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',executableProductionGrants:0};
+    myeveSourceSha:execFileSync('git',['rev-parse','HEAD'],{cwd:sourceRoot,encoding:'utf8'}).trim(),myeveDirty:!!execFileSync('git',['status','--porcelain'],{cwd:sourceRoot,encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',executableProductionGrants:0};
   const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS result '+name);};
   const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
   let pool,container=false;
@@ -34,6 +34,11 @@ export async function prepareCompletedResultConsumer(db) {
     const s=db.seed,secret=randomBytes(32).toString('hex'),owner='synthetic-result-owner',agent='synthetic-result-primary';
     db.setEnvironment('MC_SOFIE_READINESS_ENVIRONMENT_ID',s.environmentId);db.setEnvironment('MC_SOFIE_APPLICATION_SECRET',secret);
     db.setEnvironment('MC_SOFIE_APPLICATION_OWNER_ID',s.operatorId);db.setEnvironment('MC_SOFIE_APPLICATION_KEY_ID','result-fixture-1');
+    await pool.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,risk_ceiling,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES($1,$2,'sofie','Sofie','Primary','Synthetic Result consumer',true,'active','high',100,3600,1)",[agent,owner]);
+    if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
+      const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
+      await warmSofieBrowser({source:sourceRoot,owner});
+    }
     return { stop, qualify: async(missionId)=>{
     const mutate=(name,args,client=db.owner)=>client.mutation(name,args,{skipQueue:true});
     const inspect=id=>db.owner.query('nativeFixture:inspectRecord',{id});
@@ -44,7 +49,6 @@ export async function prepareCompletedResultConsumer(db) {
     Object.assign(process.env,{EVE_ENABLED_FEATURES:'missioncontrol-readiness',MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
       MYEVE_MISSIONCONTROL_SECRET:secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,
       MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:connection.connectionId});
-    await pool.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,risk_ceiling,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES($1,$2,'sofie','Sofie','Primary','Synthetic Result consumer',true,'active','high',100,3600,1)",[agent,owner]);
     const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
     const context=()=>({callId:randomUUID(),session:{id:'synthetic-result-session',auth:{current:principal,initiator:principal}}});
     const input={operation:'enterprise.result',missionId,expectedPlanDigest:connection.resultScope.planDigest},config=enterpriseConfig();
@@ -54,6 +58,13 @@ export async function prepareCompletedResultConsumer(db) {
     let completed;
     await check('actual-tool-consumes-executed-hybrid-Result',async()=>{completed=await call();assert.equal(completed.receipt.response.status,'AVAILABLE',JSON.stringify(completed.receipt.response));assert.equal(completed.receipt.response.workOrders.length,3);assert.equal(completed.receipt.response.ownerAcceptance,'PENDING');assert.match(completed.explanation,/Quality Gate is PASS/);});
     result.completed=completed;
+    if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
+      const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
+      result.browser=await qualifySofieBrowser({source:sourceRoot,pool,input,owner,db});
+      result.status=result.browser.status;
+      result.boundary='Authenticated browser Result qualification; security fault controls retained in the separate completed consumer suite.';
+      return result;
+    }
     await check('authenticated-response-tamper-denied',async()=>{
       const changed=structuredClone(completed.receipt);changed.response.ownerAcceptance='ACCEPTED';changed.responseDigest=contentDigest(changed.response);
       assert.throws(()=>validateResponse(config,input,changed),/AUTHENTICATION/);
@@ -101,9 +112,9 @@ export async function prepareCompletedResultConsumer(db) {
     await check('anonymous-owner-gate-evaluation-denied',()=>assert.rejects(()=>mutate('factory/enterpriseQualification:evaluate',{workOrderId:delegated.workOrderId,idempotencyKey:'anonymous-result-no-execution'},db.anonymous)));
     await changedRecord('production-environment-denied',s.environmentId,{type:'prod'},{type:'dev'},true);
     const mission=await inspect(missionId);
-    await fault(missionId,{owner:s.peerId},['ownerMemberId']);
+    await fault(missionId,{ownerOperatorId:s.peerId});
     try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext)));}
-    finally{await fault(missionId,{owner:mission.owner,ownerMemberId:mission.ownerMemberId});}
+    finally{await fault(missionId,{ownerOperatorId:mission.ownerOperatorId});}
     const plan=await inspect(connection.resultScope.planId);
     await changedRecord('changed-approved-Plan-denied',plan._id,{summary:plan.summary+' changed'},{summary:plan.summary},true);
     await changedRecord('changed-Quality-Contract-denied',wo._id,{qualityContractDigest:'sha256:'+'0'.repeat(64)},{qualityContractDigest:wo.qualityContractDigest});

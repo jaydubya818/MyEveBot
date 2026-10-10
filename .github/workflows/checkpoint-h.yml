@@ -1,0 +1,64 @@
+name: Checkpoint H authenticated Sofie
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/checkpoint-h-authenticated-enterprise]
+permissions:
+  contents: read
+# Advisory. Green jobs never establish the full cross-system owner journey.
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+      - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+      - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx
+        working-directory: apps/eve
+      - name: Actual password login, delayed persistence, reconnect and failed save
+        run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: jaydubya818/MissionControl
+          ref: 74ccd15b5693a96f74e558eb4882f1849c4cd741
+          path: .qualification/missioncontrol
+          persist-credentials: false
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+        with:
+          version: '9.0.0'
+          package_json_file: .qualification/missioncontrol/package.json
+      - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+        working-directory: .qualification/missioncontrol
+      - name: Resolve locked execution dependencies
+        env:
+          MC_GOLDEN_RUNTIME_PACKAGE_URL: ${{ vars.MC_GOLDEN_RUNTIME_PACKAGE_URL }}
+        run: node scripts/enterprise-golden-journey/prepare-hosted.mjs hybrid-mission
+        working-directory: .qualification/missioncontrol
+      - name: Authenticated enterprise proposal and canonical owner isolation
+        env:
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MYEVE_CHECKPOINT_H_BROWSER: '1'
+          MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/checkpoint-h/proposal/browser
+        run: |
+          node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
+          node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
+      - name: Composed authenticated Result with exact execution runtime
+        env:
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MC_COMPATIBILITY_PORT: '3476'
+        run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: checkpoint-h-evidence
+          path: ${{ runner.temp }}/checkpoint-h
+          if-no-files-found: error
+          retention-days: 90
