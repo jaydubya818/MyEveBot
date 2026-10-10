@@ -51,13 +51,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 53b97f0223afc1c00db4dc3c1a442da628d9b7ec
+          ref: f8fc5177ff6f914311e991a69fe64610fff50506
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
       - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
+      - name: Canonical pricing freshness and historical approval denials
+        run: node --test apps/cloud-control/test/pricing-qualification.test.mjs
+        working-directory: .qualification/myfactory
       - name: Real PostgreSQL lifecycle and exact Factory authority
         env:
           MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
