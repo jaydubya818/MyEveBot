@@ -23,6 +23,10 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
  expect(readFileSync('.gitignore','utf8')).toContain('/output/owner-ux/');
  expect(readFileSync('.gitignore','utf8')).toContain('/output/playwright/myapps/');
+ const envelope=JSON.parse(readFileSync('../authorization-envelope.json','utf8'));
+ expect(envelope.executable).toBe(false);expect(envelope.authorization).toBe('NOT_GRANTED');
+ expect(Object.values(envelope.permissions).every(value=>value===false)).toBe(true);
+ expect(Object.values(envelope.targets).every(value=>value===null)).toBe(true);
  const {externalAlphaIngress,externalAlphaCapabilityAllowed,ALLOWED_FAMILIES}=await import('../../../apps/eve/lib/external-alpha/features.ts');
  expect(ALLOWED_FAMILIES).not.toContain('MYAPPS');
  for(const method of ['GET','POST','PUT','DELETE'])for(const path of ['/apps/installed','/api/myapps/ui','/api/myapps/app','/api/myapps/agent','/api/myapps/unknown/deeper'])

@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 export default defineConfig({
  resolve:{alias:{'@':fileURLToPath(new URL('../../apps/eve/',import.meta.url))}},
  test:{fileParallelism:false,testTimeout:60000,hookTimeout:120000,include:[
+  'packages/myapps/qualification/accounting-upgrade.test.ts',
   'apps/eve/lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts',
   'apps/eve/lib/external-alpha/work-controller-postgres.test.ts',
   'apps/eve/lib/external-alpha/chat-recovery-postgres.test.ts',
