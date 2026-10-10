@@ -9,10 +9,11 @@ import {
   text,
 } from "./contracts.ts";
 import type { Stage } from "./contracts.ts";
-import { ReferenceStore } from "./store.ts";
+import type { ReferenceStore } from "./store.ts";
 import type { Principal, AppRow } from "./store.ts";
 export interface Lead {
   id: string;
+  priority?: string | null;
   name: string;
   company: string;
   contact: string;
@@ -28,6 +29,7 @@ export interface Lead {
   revision: number;
 }
 export interface LeadPatch {
+  priority?: string | null;
   name?: string;
   company?: string;
   contact?: string;
@@ -106,9 +108,9 @@ function lead(app: AppRow, id: unknown): Lead {
 }
 const closed = (l: Lead) => l.stage === "Won" || l.stage === "Lost";
 export class Crm {
-  #store: ReferenceStore;
+  #store: Pick<ReferenceStore, "operate">;
   #principal: Principal;
-  constructor(store: ReferenceStore, principal: Principal) {
+  constructor(store: Pick<ReferenceStore, "operate">, principal: Principal) {
     this.#store = store;
     this.#principal = structuredClone(principal);
   }
@@ -163,6 +165,7 @@ export class Crm {
             updatedAt: now,
             closedAt: null,
             revision: 1,
+            ...(app.data.schemaVersion === 2 ? { priority: null } : {}),
           };
           app.data.leads[result.id] = result;
           return result;
@@ -187,11 +190,20 @@ export class Crm {
             keys(
               input.patch,
               [],
-              ["name", "company", "contact", "source", "valueCents"],
+              [
+                "name",
+                "company",
+                "contact",
+                "source",
+                "valueCents",
+                ...(app.data.schemaVersion === 2 ? ["priority"] : []),
+              ],
             );
             requireValue(Object.keys(input.patch).length > 0);
             for (const [key, value] of Object.entries(input.patch)) {
-              if (key === "valueCents") result.valueCents = cents(value);
+              if (key === "priority")
+                result.priority = value === null ? null : text(value);
+              else if (key === "valueCents") result.valueCents = cents(value);
               else
                 result[key as "name" | "company" | "contact" | "source"] =
                   text(value);

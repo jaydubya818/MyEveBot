@@ -1,10 +1,10 @@
 name: MyApps deterministic reference
 on:
   push:
-    branches: [codex/myapps-foundation]
-    paths: ['packages/myapps/**', '.github/workflows/myapps-reference.yml']
+    branches: [codex/myapps-foundation, codex/myapps-phase2]
+    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
   pull_request:
-    paths: ['packages/myapps/**', '.github/workflows/myapps-reference.yml']
+    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
 permissions:
   contents: read
 jobs:
@@ -39,6 +39,8 @@ jobs:
         with:
           node-version: 24
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run db:migrations:check
+      - run: node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
       - run: node node_modules/playwright/cli.js install --with-deps chromium
       - run: npm run build --workspace @myeve/myapps-reference
       - run: node packages/myapps/browser/journey.mjs

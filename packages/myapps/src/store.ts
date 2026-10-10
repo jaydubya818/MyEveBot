@@ -33,7 +33,7 @@ export interface AppRow {
   installedDigest: string | null;
   enabled: boolean;
   revision: number;
-  data: { schemaVersion: 1; leads: Record<string, Lead> };
+  data: { schemaVersion: 1 | 2; leads: Record<string, Lead> };
 }
 export interface Verification {
   format: "myapps.verification.reference.v1";
@@ -509,7 +509,12 @@ export class ReferenceStore {
             app.data.schemaVersion === candidate.package.migration.fromSchema,
             "MIGRATION_FAILED",
           );
-          // The only admitted migration is an identity migration. Data and installation commit together.
+          // Reviewed additive migration and installation commit together; rollback retains newer fields.
+          if (candidate.package.migration.kind === "add-priority") {
+            for (const lead of Object.values(app.data.leads))
+              lead.priority = null;
+            app.data.schemaVersion = 2;
+          }
           app.installedVersion = approval.version;
           app.installedDigest = approval.digest;
           app.enabled = true;

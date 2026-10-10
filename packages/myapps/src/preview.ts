@@ -1,5 +1,5 @@
 import { ReferenceStore } from "./store.ts";
-import type { Principal } from "./store.ts";
+import type { Principal, VersionRow } from "./store.ts";
 import { Crm } from "./crm.ts";
 import { digest } from "./contracts.ts";
 /** One request's disposable demonstration state. Never reads or writes installed owner data. */
@@ -14,9 +14,44 @@ export function previewSnapshot(
   const session = store.session(principal),
     preview = session.preview(appId, previewId);
   const source = session.version(appId, preview.version);
+  return candidatePreview(
+    source,
+    preview,
+    principal,
+    creationIntent,
+    session.get(appId).installedVersion,
+    asOf,
+  );
+}
+/** Exact candidate metadata with disposable synthetic data; no installed records are read. */
+export function candidatePreview(
+  source: VersionRow,
+  preview: any,
+  principal: Principal,
+  creationIntent: string,
+  installation: number | null,
+  asOf: string,
+) {
+  const appId = source.package.appId;
   const sandbox = new ReferenceStore(":memory:", () => asOf + "T12:00:00.000Z");
   try {
-    const pkg = { ...source.package, version: 1, base: null };
+    const pkg = {
+      ...source.package,
+      version: 1,
+      base: null,
+      migration:
+        source.package.spec.schema.version === 2
+          ? {
+              kind: "add-priority" as const,
+              fromSchema: 1 as const,
+              toSchema: 2 as const,
+            }
+          : {
+              kind: "identity" as const,
+              fromSchema: 1 as const,
+              toSchema: 1 as const,
+            },
+    };
     const hash = digest(pkg);
     sandbox.register(creationIntent, pkg);
     sandbox.recordVerification(principal.ownerId, appId, 1, {
@@ -72,7 +107,9 @@ export function previewSnapshot(
           leadId: lead.id,
           expectedRevision: lead.revision,
           stage: ["Qualified", "Proposal", "New"][index] as
-            "Qualified" | "Proposal" | "New",
+            | "Qualified"
+            | "Proposal"
+            | "New",
         },
         `stage-${index}`,
       );
@@ -89,7 +126,7 @@ export function previewSnapshot(
       preview,
       spec: pkg.spec,
       proof: source.proof,
-      installation: session.get(appId).installedVersion,
+      installation,
       leads: crm.query(appId, 1, hash, "listLeads", {}),
       pipeline: crm.query(appId, 1, hash, "getPipeline", {}),
       metrics: crm.query(appId, 1, hash, "getMetrics", {

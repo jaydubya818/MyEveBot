@@ -201,7 +201,7 @@ export interface AppSpec {
   purpose: string;
   ownerId: string;
   domain: "crm";
-  schema: { version: 1; resources: Record<string, Record<string, string>> };
+  schema: { version: 1 | 2; resources: Record<string, Record<string, string>> };
   queries: Operation[];
   actions: Operation[];
   ui: { host: "lead-crm.v1"; views: string[]; navigation: string[] };
@@ -215,7 +215,11 @@ export interface AppSpec {
   runtime: "trusted-declarative-reference.v1";
   installation: "explicit-owner-decision";
 }
-export function leadCrmSpec(ownerId: string, sourceReport = false): AppSpec {
+export function leadCrmSpec(
+  ownerId: string,
+  sourceReport = false,
+  priorityField = false,
+): AppSpec {
   return {
     format: "myeve.app-spec.reference.v1",
     name: "Lead CRM",
@@ -223,7 +227,7 @@ export function leadCrmSpec(ownerId: string, sourceReport = false): AppSpec {
     ownerId: text(ownerId),
     domain: "crm",
     schema: {
-      version: 1,
+      version: priorityField ? 2 : 1,
       resources: {
         leads: {
           id: "uuid",
@@ -240,6 +244,7 @@ export function leadCrmSpec(ownerId: string, sourceReport = false): AppSpec {
           updatedAt: "timestamp",
           closedAt: "timestamp|null",
           revision: "integer",
+          ...(priorityField ? { priority: "string|null" } : {}),
         },
       },
     },
@@ -288,9 +293,12 @@ export function validateSpec(value: unknown): AppSpec {
   canonical(value);
   keys(value, Object.keys(leadCrmSpec("fixture")));
   text(value.ownerId);
-  const valid = [false, true].some(
-    (report) =>
-      canonical(value) === canonical(leadCrmSpec(value.ownerId, report)),
+  const valid = [false, true].some((report) =>
+    [false, true].some(
+      (priority) =>
+        canonical(value) ===
+        canonical(leadCrmSpec(value.ownerId, report, priority)),
+    ),
   );
   requireValue(valid, "APP_SPEC_UNSUPPORTED");
   return structuredClone(value) as AppSpec;
@@ -308,7 +316,11 @@ export interface AppPackage {
   };
   factoryVersion: { sourceCommit: string; configurationDigest: string };
   base: { version: number; digest: string } | null;
-  migration: { kind: "identity"; fromSchema: 1; toSchema: 1 };
+  migration: {
+    kind: "identity" | "add-priority";
+    fromSchema: 1 | 2;
+    toSchema: 1 | 2;
+  };
 }
 export function validatePackage(value: unknown): AppPackage {
   keys(value, [
@@ -357,8 +369,12 @@ export function validatePackage(value: unknown): AppPackage {
     );
   }
   requireValue(
-    canonical(value.migration) ===
-      canonical({ kind: "identity", fromSchema: 1, toSchema: 1 }),
+    [
+      { kind: "identity", fromSchema: 1, toSchema: 1 },
+      { kind: "identity", fromSchema: 2, toSchema: 2 },
+      { kind: "add-priority", fromSchema: 1, toSchema: 2 },
+    ].some((m) => canonical(value.migration) === canonical(m)) &&
+      value.migration.toSchema >= spec.schema.version,
   );
   canonical(value);
   return structuredClone(value) as AppPackage;

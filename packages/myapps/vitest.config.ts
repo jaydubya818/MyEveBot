@@ -5,7 +5,8 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL("../../apps/eve/", import.meta.url)) },
   },
   test: {
-    include: ["packages/myapps/integration/*.test.ts"],
+    fileParallelism: false,
+    include: ["packages/myapps/integration/*.test.ts", "apps/eve/lib/database-schema.test.ts"],
     testTimeout: 30000,
     hookTimeout: 120000,
   },

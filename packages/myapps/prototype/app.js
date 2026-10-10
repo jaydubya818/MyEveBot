@@ -1,4 +1,5 @@
 const root = document.querySelector("#root");
+const nativeOwner = root.dataset.owner;
 const stages = [
   "New",
   "Contacted",
@@ -39,7 +40,8 @@ let owner,
   asOf = "2026-10-08",
   generation = 0,
   ownerGeneration = 0,
-  notice = "";
+  notice = "",
+  priorityField = false;
 async function api(path, body = {}) {
   const scope = ownerGeneration;
   const assertOwner = () => {
@@ -47,11 +49,14 @@ async function api(path, body = {}) {
       throw new DOMException("The fixture owner changed.", "AbortError");
   };
   try {
-    const response = await fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const response = await fetch(
+      nativeOwner ? path.replace("/api/", "/api/myapps/") : path,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    );
     const data = await response.json();
     assertOwner();
     if (!response.ok)
@@ -90,7 +95,7 @@ function fail(error) {
   }
 }
 function shell(content) {
-  return `<div class="layout"><aside class="sidebar"><p class="wordmark">MyEve<span class="muted">.</span></p><nav aria-label="MyEve"><span class="placeholder">Today</span><span class="placeholder">Chat</span><span class="placeholder">Work</span><span class="placeholder">Files</span><button class="active" id="home">Apps</button><span class="placeholder">Needs You</span></nav><p class="fixture">Isolated reference<br>Synthetic data only<br>No external effects</p></aside><main id="main" class="main"><div class="topline"><span class="muted">Your workspace / Apps</span><button id="switch">Switch fixture owner</button></div><div id="notice" class="notice" role="status" aria-live="polite">${escape(notice)}</div>${content}</main></div>`;
+  return `<div class="layout"><aside class="sidebar"><p class="wordmark">MyEve<span class="muted">.</span></p><nav aria-label="MyEve"><span class="placeholder">Today</span><span class="placeholder">Chat</span><span class="placeholder">Work</span><span class="placeholder">Files</span><button class="active" id="home">Apps</button><span class="placeholder">Needs You</span></nav><p class="fixture">Isolated reference<br>Synthetic data only<br>No external effects</p></aside><main id="main" class="main"><div class="topline"><span class="muted">Your workspace / Apps</span>${nativeOwner ? "" : '<button id="switch">Switch fixture owner</button>'}</div><div id="notice" class="notice" role="status" aria-live="polite">${escape(notice)}</div>${content}</main></div>`;
 }
 function login() {
   // A browser session can switch fixtures while an earlier response is pending.
@@ -141,12 +146,13 @@ async function render() {
   const inventory = await api("/api/apps");
   if (revision !== generation) return;
   apps = inventory.apps;
+  const buildEnabled = inventory.buildEnabled;
   candidates = inventory.candidates;
   asOf = inventory.asOf;
   if (selected) selected = apps.find((a) => a.appId === selected.appId);
   let content;
   if (!selected) {
-    content = `<p class="eyebrow">Persistent tools for your work</p><h1>Your Apps</h1><p class="muted">Use them here, or ask Sofie to work with the same information.</p><label class="search">Search Apps<input id="app-search" type="search" placeholder="Find an App"></label><div id="app-list" class="section-title">${
+    content = `${buildEnabled ? '<section class="panel"><h2>Ask Sofie to build an App</h2><form id="build-app"><label>App request<input name="request" value="Build me a CRM to track leads." required maxlength="1000"></label><button>Send app request</button></form></section>' : ""}<p class="eyebrow">Persistent tools for your work</p><h1>Your Apps</h1><p class="muted">Use them here, or ask Sofie to work with the same information.</p><label class="search">Search Apps<input id="app-search" type="search" placeholder="Find an App"></label><div id="app-list" class="section-title">${
       apps.length
         ? apps
             .map(
@@ -172,6 +178,9 @@ async function render() {
       {},
       { version: selected.installedVersion ?? 1 },
     );
+    priorityField =
+      metadata.version.package.spec.schema.resources.leads.priority !==
+      undefined;
     let body;
     if (tab === "App details") body = detailsView(metadata);
     else if (!selected.enabled)
@@ -234,7 +243,7 @@ function leadDetail(l) {
   if (!l) return '<p class="empty">Lead unavailable.</p>';
   const input = (label, name, value, type = "text") =>
     `<label>${label}<input name="${name}" value="${escape(value)}" type="${type}" ${type === "number" ? 'min="0" step="0.01"' : ""} required></label>`;
-  return `<div class="row"><button id="back">Back to leads</button><h2>${escape(l.company)}</h2></div><div class="split"><section class="panel"><form id="edit"><h2>Contact and opportunity</h2><div class="form-grid">${input("Lead name", "name", l.name)}${input("Company", "company", l.company)}${input("Contact information", "contact", l.contact)}${input("Source", "source", l.source)}${input("Pipeline value ($)", "valueCents", l.valueCents / 100, "number")}</div><button>Save details</button></form><hr><form id="stage"><label>Pipeline stage<select name="stage" aria-label="Pipeline stage">${stages.map((s) => `<option ${s === l.stage ? "selected" : ""}>${s}</option>`).join("")}</select></label><button>Save stage</button></form><hr><form id="followup"><label>Next follow-up<input name="date" type="date" value="${escape(l.followup)}"></label><button>Save follow-up</button></form></section><section class="panel"><h2>Acquisition spend</h2><p>${money(l.spendCents)} total</p><form id="spend"><label>Add spend ($)<input type="number" min="0" step="0.01" name="amountCents" required></label><button>Record spend</button></form><h2 class="section-title">Notes</h2><ul class="notes">${l.notes.map((n) => `<li>${escape(n.text)}<br><small>${escape(n.createdAt.slice(0, 10))}</small></li>`).join("") || "<li>No notes yet.</li>"}</ul><form id="note"><label>Add a note<textarea name="note" maxlength="2000" required></textarea></label><button>Add note</button></form></section></div>`;
+  return `<div class="row"><button id="back">Back to leads</button><h2>${escape(l.company)}</h2></div><div class="split"><section class="panel"><form id="edit"><h2>Contact and opportunity</h2><div class="form-grid">${input("Lead name", "name", l.name)}${input("Company", "company", l.company)}${input("Contact information", "contact", l.contact)}${input("Source", "source", l.source)}${priorityField ? `<label>Priority<input name="priority" value="${escape(l.priority)}" maxlength="160"></label>` : ""}${input("Pipeline value ($)", "valueCents", l.valueCents / 100, "number")}</div><button>Save details</button></form><hr><form id="stage"><label>Pipeline stage<select name="stage" aria-label="Pipeline stage">${stages.map((s) => `<option ${s === l.stage ? "selected" : ""}>${s}</option>`).join("")}</select></label><button>Save stage</button></form><hr><form id="followup"><label>Next follow-up<input name="date" type="date" value="${escape(l.followup)}"></label><button>Save follow-up</button></form></section><section class="panel"><h2>Acquisition spend</h2><p>${money(l.spendCents)} total</p><form id="spend"><label>Add spend ($)<input type="number" min="0" step="0.01" name="amountCents" required></label><button>Record spend</button></form><h2 class="section-title">Notes</h2><ul class="notes">${l.notes.map((n) => `<li>${escape(n.text)}<br><small>${escape(n.createdAt.slice(0, 10))}</small></li>`).join("") || "<li>No notes yet.</li>"}</ul><form id="note"><label>Add a note<textarea name="note" maxlength="2000" required></textarea></label><button>Add note</button></form></section></div>`;
 }
 function wireForm(selector, action) {
   const form = document.querySelector(selector);
@@ -265,7 +274,8 @@ function bindLeadLinks() {
   );
 }
 function bind() {
-  document.querySelector("#switch").onclick = login;
+  if (document.querySelector("#switch"))
+    document.querySelector("#switch").onclick = login;
   document.querySelector("#home").onclick = () => {
     selected = null;
     notice = "";
@@ -303,6 +313,28 @@ function bind() {
               .toLowerCase()
               .includes(appSearch.value.toLowerCase())),
         );
+  const build = document.querySelector("#build-app");
+  if (build) {
+    const requestId = crypto.randomUUID();
+    build.onsubmit = async (event) => {
+      event.preventDefault();
+      const button = build.querySelector("button");
+      button.disabled = true;
+      notice = "Sofie is preparing and verifying your App.";
+      document.querySelector("#notice").textContent = notice;
+      try {
+        const result = await api("/api/agent", {
+          requestId,
+          request: new FormData(build).get("request"),
+        });
+        notice = result.message;
+        await render();
+      } catch (error) {
+        fail(error);
+        button.disabled = false;
+      }
+    };
+  }
   if (!selected) return;
   document.querySelector("#refresh").onclick = () => {
     notice = "App refreshed.";
@@ -366,7 +398,15 @@ function bind() {
   wireForm("#edit", (d, k) =>
     mutate(
       "updateLead",
-      { patch: { ...d, valueCents: dollars(d.valueCents) } },
+      {
+        patch: {
+          ...d,
+          ...(Object.hasOwn(d, "priority")
+            ? { priority: d.priority || null }
+            : {}),
+          valueCents: dollars(d.valueCents),
+        },
+      },
       k,
     ),
   );
@@ -489,6 +529,13 @@ async function preview(data) {
             appId: data.id,
             operation: "approveInstall",
             approvalId: approval.id,
+            ...(approval.binding
+              ? {
+                  approvalBinding: approval.binding,
+                  approvalRevision: approval.revision,
+                  approvalAction: approval.actionId,
+                }
+              : {}),
           });
           confirm.close();
           notice = updating
@@ -507,4 +554,7 @@ async function preview(data) {
     }
   };
 }
-login();
+if (nativeOwner) {
+  owner = nativeOwner;
+  render().catch(fail);
+} else login();

@@ -29,6 +29,7 @@ const assets = new Map([
 export async function startPrototype({
   store,
   candidates = [],
+  adapter,
   port = 0,
   asOf = "2026-10-08",
 }) {
@@ -89,8 +90,9 @@ export async function startPrototype({
           owner,
           path === "/api/agent" ? "agent" : "human",
         ),
-        session = store.session(principal),
-        crm = new Crm(store, principal);
+        session = adapter ? null : store.session(principal),
+        crm = adapter ? null : new Crm(store, principal);
+      if (adapter) return send(200, await adapter(principal, path, body));
       if (path === "/api/apps") {
         keys(body, []);
         const apps = session.list();

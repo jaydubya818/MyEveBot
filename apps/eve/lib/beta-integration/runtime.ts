@@ -353,6 +353,12 @@ export class BetaIntegration {
       accept: async (r) => {
         if (r.status === "STALE")
           return { status: "stale", receipt: `goal-response-stale:${r.id}` };
+        // Local-only MyApps consumer rechecks retained owner decisions; production remains disabled.
+        if (r.action.id.startsWith("sha256:")) {
+          const { consumeInstalledAppResponse } = await import("../myapps/hosting.ts");
+          const installed = await consumeInstalledAppResponse(r);
+          if (installed) return installed;
+        }
         if (r.workId && !r.goal) return new CanonicalBetaWork(this).accept(r);
         const receipt = await consumer.accept({ ...r, status: r.status });
         return {

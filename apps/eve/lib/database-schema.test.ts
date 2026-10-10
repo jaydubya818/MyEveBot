@@ -7,7 +7,7 @@ describe('explicit schema rollout', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_DURABLE_WEB_SESSIONS: 'true'})).toBe('0083_web_session_revocations.sql');
   });
   it('requires the new accounting schema only for the configured alpha installation', () => {
-    expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_ALPHA_OWNER_BINDING: '{}'})).toBe(CURRENT_DATABASE_MIGRATION);
-    expect(CURRENT_DATABASE_MIGRATION).toBe('0084_three_owner_cloud_accounting.sql');
+    expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_ALPHA_OWNER_BINDING: '{}'})).toBe('0084_three_owner_cloud_accounting.sql');
+    expect(CURRENT_DATABASE_MIGRATION).toBe('0085_myapps_runtime.sql');
   });
 });
