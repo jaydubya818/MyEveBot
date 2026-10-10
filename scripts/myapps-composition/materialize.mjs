@@ -13,6 +13,7 @@ import {applyFixturesOverlay} from './fixtures-overlay.mjs';
 import {applyComposerOverlay} from './composer-overlay.mjs';
 import {applyFactoryMain,factoryMainConflicts} from './factory-main.mjs';
 import {applyFactoryCapabilityCompatibility} from './factory-capability-compatibility.mjs';
+import {applyAgentPackaging} from './agent-packaging.mjs';
 import {retainMainCatalog,retainMainInventory,verifyMainPreserved,verifyMainSource} from './current-main.mjs';
 const [eve, factory, output] = process.argv.slice(2).map(p => resolve(p));
 assert(eve && factory && output, 'Usage: materialize.mjs MYEVE_SOURCE MYFACTORY_SOURCE ABSENT_OUTPUT');
@@ -170,6 +171,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       featureEntry.sha256=digest(features);
       featureEntry.reason+=' MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged.';
       retainMainInventory({main:pins.myeve.main,read,readRaw,readComposed,inventory});
+      evidence.agentPackaging=applyAgentPackaging({integration,canonical:pins.myeve.governance,read,readComposed,inventory,put});
       put(inventoryPath,JSON.stringify(inventory,null,2)+'\n');
     }
     if(name==='myfactory')evidence.factoryCurrentMain=applyFactoryMain({main:pins.myfactory.main,head,integration,initialTree,read,readComposed,put});

@@ -227,6 +227,9 @@ jobs:
           done
           grep -q 'server listening at http://127.0.0.1:3185/' "$QE_EVIDENCE_DIR/server.log"
           curl --max-time 90 -fsS http://127.0.0.1:3183/api/auth/status >/dev/null
+          fixture_source="$(sed -n 's/^Offline owner journey fixture started. Source copy: //p' "$QE_EVIDENCE_DIR/server.log")"
+          test -n "$fixture_source"
+          node ../../scripts/myapps-composition/verify-tokenizer-trace.mjs ../.. "$fixture_source/apps/eve/.output/server" "$QE_EVIDENCE_DIR/tokenizer-trace.json"
           npx playwright test -c ../../scripts/myapps-composition/composer-browser.config.cjs
           npx playwright test -c test/owner-journey/independent.config.cjs
       - uses: actions/upload-artifact@v4

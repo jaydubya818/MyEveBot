@@ -133,7 +133,7 @@
     },
     "apps/eve/scripts/executor-inventory.json": {
       "sourceSha256": "2bcfb7ed3e68556b84a5b321c66763491579493f2896ff7377455b3665a924c6",
-      "outputSha256": "752f2d1fec15dd577297c4f22d659ccbde969ebf93add7d0b4855559b32cd033"
+      "outputSha256": "79d57e45c3fc900055eb7c9e13e1d0a24bb86f8846943ff1307bcda465fbae1b"
     },
     "apps/eve/scripts/qualify-capability-browser.mjs": {
       "sourceSha256": "bc57c90d418eca63cd5402d4b4243818cf08a8ddea7913a214087722333b6244",
@@ -510,7 +510,7 @@
     "apps/eve/lib/capability-registry.ts": "Canonical discovery filters plus exact dormant MyApps entry/deny gate plus two current-main preference declarations.",
     "apps/eve/lib/engineering/production-validation-postgres.test.ts": "Exact74d cleanup, full migration checksums and expiry negative; exact main capability binding/foreign-owner denials.",
     "apps/eve/package.json": "Preserve main dependency mitigation and both capability workspaces; canonical integration narrows Eve to exact0.66.3.",
-    "apps/eve/scripts/executor-inventory.json": "Exact42 governance records + six MyApps records/three explicit transformations +13 current-main records; no checker change.",
+    "apps/eve/scripts/executor-inventory.json": "Exact42 governance records + six MyApps records/three explicit transformations +13 current-main records; no checker change. Exact canonical agent build-only externalization retains INTERNAL classification and all prior review reasons.",
     "apps/eve/vercel.json": "Union false-only branch exclusions from both sources; all other hosting fields identical.",
     "package-lock.json": "Preserve complete main dependency graph/integrities; add two unchanged MyApps workspace references and canonical exactEve requirement."
   },
