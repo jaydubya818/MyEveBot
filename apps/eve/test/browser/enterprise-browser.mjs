@@ -18,7 +18,7 @@ async function start({source,owner,databaseUrl='postgresql://postgres@localhost:
   const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>/^(PATH|HOME|TMPDIR|NODE_PATH|EVE_ENABLED_FEATURES|MYEVE_MISSIONCONTROL_.*)$/.test(key)));
   Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,
-    OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
+    NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
     MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),MC_COMPOSED_BROWSER_INPUT:join(output,'tool-input.json'),
     MC_COMPOSED_BROWSER_CONFIG_FILE:join(source,'runtime-browser-config.json'),NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'});
   const log=await open(join(output,'server.log'),'wx');
@@ -51,6 +51,13 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
     const marker='Deterministic Sofie readback from the actual tool:';
     await send(input.operation==='enterprise.propose'?'Build an Agentic HR platform':'Read the completed enterprise Result and its Proof for this Mission.');
     await page.getByText(marker,{exact:false}).first().waitFor({timeout:90000});
+    const handoff=new URL(await page.getByRole('link',{name:'Review in MissionControl with owner login'}).last().getAttribute('href'));
+    assert.equal(handoff.origin,'http://localhost:5188');assert.equal(handoff.pathname,'/v2/missions');
+    assert.equal(handoff.searchParams.get('workspace'),process.env.MYEVE_MISSIONCONTROL_PROJECT_ID);
+    if(input.operation==='enterprise.result')assert.equal(handoff.searchParams.get('reviewMission'),input.missionId);
+    else {assert.ok(handoff.searchParams.get('proposal'));assert.match(handoff.searchParams.get('proposalDigest'),/^sha256:[a-f0-9]{64}$/);}
+    report.ownerHandoff={url:handoff.toString(),authority:'NONE',ownerLoginRequired:true};
+
     const cardName=input.operation==='enterprise.result'?'Enterprise Result and Proof':'Enterprise Mission proposal';
     await page.getByRole('region',{name:cardName}).first().waitFor();report.checks.push('actual-tool-structured-evidence-rendered');
     await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});await page.waitForTimeout(500);

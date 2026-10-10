@@ -5,6 +5,7 @@ on:
     branches: [codex/checkpoint-h-authenticated-enterprise]
 permissions:
   contents: read
+  packages: read
 # Advisory. Green jobs never establish the full cross-system owner journey.
 jobs:
   browser:
@@ -21,15 +22,16 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
-      - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx
+      - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
         working-directory: apps/eve
       - name: Actual password login, delayed persistence, reconnect and failed save
         run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 74ccd15b5693a96f74e558eb4882f1849c4cd741
+          ref: f68d216f32856265f0f2ffc7345342852dbdf57f
           path: .qualification/missioncontrol
+          fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
         with:
@@ -42,6 +44,19 @@ jobs:
           MC_GOLDEN_RUNTIME_PACKAGE_URL: ${{ vars.MC_GOLDEN_RUNTIME_PACKAGE_URL }}
         run: node scripts/enterprise-golden-journey/prepare-hosted.mjs hybrid-mission
         working-directory: .qualification/missioncontrol
+      - name: Read-only private GHCR access
+        env:
+          GHCR_READ_TOKEN: ${{ github.token }}
+        run: printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Recover exact runtime and qualify component controls
+        working-directory: .qualification/missioncontrol
+        run: |
+          node scripts/enterprise-golden-journey/recover-ghcr-runtime.mjs "$RUNNER_TEMP/checkpoint-h/runtime"
+          if node -e 'process.exit(JSON.parse(require("fs").readFileSync(process.argv[1])).status === "PASS" ? 0 : 1)' "$RUNNER_TEMP/checkpoint-h/runtime/recovery.json"; then
+            node --import tsx scripts/qualification/unpublished-verifier-controls.mts "$RUNNER_TEMP/checkpoint-h/runtime/bundles" "$RUNNER_TEMP/checkpoint-h/runtime/image.txt" "$RUNNER_TEMP/checkpoint-h/runtime/registered-controls" /usr/bin/docker "$RUNNER_TEMP/checkpoint-h/runtime/artifact/image-binding.json" 3
+            printf 'MC_GOLDEN_RUNTIME_BUILD=%s\n' "$RUNNER_TEMP/checkpoint-h/runtime" >> "$GITHUB_ENV"
+            sudo install -d -m 1777 /private/tmp
+          fi
       - name: Authenticated enterprise proposal and canonical owner isolation
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol

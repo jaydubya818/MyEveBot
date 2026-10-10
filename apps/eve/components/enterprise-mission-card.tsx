@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ownerReviewLink } from "@/lib/missioncontrol/owner-review-link";
 import { enterpriseInput, enterpriseResult, proposeResponse, readResponse, submitResponse } from "@/lib/missioncontrol/contracts";
 
 /** Only structured tool evidence is presented here; assistant narrative is never a status source. */
@@ -9,9 +10,14 @@ export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unk
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
   const parsed = enterpriseInput.safeParse(input);
   if (!parsed.success || !output || typeof output !== "object") return null;
-  const receipt = (output as { receipt?: { response?: unknown; observedAt?: number } }).receipt;
+  const receipt = (output as { receipt?: { response?: unknown; observedAt?: number; projectId?: string } }).receipt;
   if (!receipt) return null;
   const request = parsed.data;
+  const ownerLink = (identity: { proposalId: string; digest: string } | { missionId: string }) => {
+    const href = ownerReviewLink(process.env.NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL, receipt.projectId, identity);
+    return href ? <a className="inline-flex min-h-11 items-center rounded-md border border-kumo-hairline px-3 underline" href={href} target="_blank" rel="noopener noreferrer">Review in MissionControl with owner login</a>
+      : <p>Open Missions in MissionControl with your owner login to review this decision.</p>;
+  };
   const shell = "my-2 space-y-3 rounded-xl border border-kumo-hairline bg-kumo-base p-4 text-sm";
   const refresh = (message: string) => onRefresh && <button type="button" className="min-h-11 rounded-md border border-kumo-hairline px-3 focus-visible:outline-2" onClick={() => onRefresh(message)}>Refresh from MissionControl</button>;
   if (request.operation === "enterprise.propose") {
@@ -23,6 +29,7 @@ export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unk
       <h4 className="font-medium">Plan summary</h4><ul className="list-disc space-y-1 ps-5">{p.proposal.workstreams.map(s => <li key={s}>{s}</li>)}</ul>
       <p><strong>Stop condition:</strong> {p.proposal.stopCondition}</p>
       <p><strong>Needs You:</strong> {p.needsYou}</p>
+      {ownerLink({ proposalId: p.proposalId, digest: p.digest })}
       <p>Draft budget: $0. Creating a draft does not authorize execution.</p>
       <details><summary>Proposal identity</summary><p className="break-all">{p.proposalId}</p><p className="break-all">{p.digest}</p></details>
       {refresh(`Inspect enterprise proposal ${p.proposalId}. If the exact digest ${p.digest} is owner-authorized, submit it once and read its Mission status. Otherwise show the outstanding owner decision.`)}
@@ -60,6 +67,7 @@ export function EnterpriseMissionCard({ input, output, onRefresh }: { input: unk
       <p>Observed {new Date(r.observedAt).toLocaleString()}. Valid until {new Date(r.freshUntil).toLocaleString()}.</p>
       {r.reasons.map(reason => <p key={reason}>{reason}</p>)}
       <details><summary>Exact verification evidence ({r.workOrders.length} WorkOrders)</summary><ul className="space-y-3">{r.workOrders.map(w => <li key={w.workOrderId} className="break-all"><p>WorkOrder: {w.workOrderId}</p><p>Candidate: {w.candidate}</p><p>Independent verifier: {w.verificationAttemptId}</p><p>Evidence: {w.evidenceSetDigest}</p><p>Proof: {w.proofDigest}</p></li>)}</ul></details>
+      {ownerLink({ missionId: r.missionId })}
       <p>Isolated deterministic execution. Production authority: none.</p>
       {refresh(`Re-read enterprise.result for exact Mission ${request.missionId} and Plan digest ${request.expectedPlanDigest}. Present only fresh canonical Result/Proof evidence.`)}
     </section>;

@@ -12,7 +12,7 @@ Chat now awaits a successful thread save before sending or retrying. Non-success
 
 Structured `mission_control` tool responses render a proposal, plan/workstreams, draft-only scope, Needs You, Mission creation/status, WorkOrders, and Result/Proof. Shared pure protocol schemas are separated from server-only signing code. Assistant narrative never supplies status. Result observations expire visibly; refresh requests a new canonical tool observation in the same conversation. No UI code signs commands, mints owner credentials, authorizes a draft, dispatches WorkOrders or accepts Missions.
 
-MyEve password authentication and MissionControl Clerk authentication are separate. The approved service contract can propose, submit an owner-authorized draft, read status and consume exact Result evidence. It cannot authorize proposals or accept Missions. Selection of the linked existing owner UI versus a new federated owner-login bridge is pending the Product Owner's answer. No bridge is invented in this checkpoint.
+MyEve password authentication and MissionControl Clerk authentication are separate. The approved service contract can propose, submit an owner-authorized draft, read status and consume exact Result evidence. It cannot authorize proposals or accept Missions. Option A is approved: owner authorization and acceptance use the existing MissionControl Clerk login. NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL configures the public origin for identifier-only links to the Missions review panel. No credentials are carried in URLs; the backend rechecks owner authority. No federated bridge is introduced.
 
 ## Qualification
 
