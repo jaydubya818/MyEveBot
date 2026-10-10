@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
+import {replaceExactFixtureHunks} from './fixture-main-overlay.mjs';
 import {applyFixturesOverlay,reviewedFixtures} from './fixtures-overlay.mjs';
 
 const root=fileURLToPath(new URL('../..',import.meta.url));
@@ -21,6 +23,9 @@ function fixture(name) {
     // Preparation retains the reviewed preimage when the canonical fixture advances.
     // Every candidate still has to match the unchanged composed SHA exactly.
     const possibilities=[null,read('HEAD',path),read(manifest.integration,path),canonical];
+    const main=JSON.parse(readFileSync(new URL(`../../docs/myapps/phase3/${name==='myeve'?'myeve':'factory'}-main-fixture-sources.json`,import.meta.url)));
+    const entry=main.files[path],head=read('HEAD',path);
+    if(entry&&digest(head)===entry.composedSha256)possibilities.push(replaceExactFixtureHunks(head,entry.preimageHunks,true));
     if(expected.preserveLedger)possibilities.push(canonical.replace(expected.preserveLedger.from,expected.preserveLedger.to));
     const matching=possibilities.find(value=>digest(value)===expected.composedSha256);
     assert.notEqual(matching,undefined,`Missing exact composed fixture input: ${path}`);

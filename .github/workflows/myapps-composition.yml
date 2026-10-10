@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: e3ad57c33c7cb774f0ff5c8c5fc278d40c874d5a
+          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           fetch-depth: 0
           path: .qualification/myfactory
       - uses: actions/checkout@v4
@@ -50,6 +50,9 @@ jobs:
           node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-composition
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: /tmp/myapps-composition/myeve
+      - name: Apply and verify current-main dependency mitigation
+        working-directory: /tmp/myapps-composition/myeve
+        run: npm run postinstall && npm run security:patches
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: /tmp/myapps-composition/myfactory
       - run: node node_modules/playwright/cli.js install --with-deps chromium
@@ -220,7 +223,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: e3ad57c33c7cb774f0ff5c8c5fc278d40c874d5a
+          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           fetch-depth: 0
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
@@ -230,6 +233,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-packaging-composition
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
       - run: npm test --workspace apps/builder
       - run: npm run test --workspace apps/eve -- lib/myapps-packaging.test.ts
       - run: npm run typecheck --workspace apps/builder
@@ -247,6 +251,7 @@ jobs:
         working-directory: /tmp/myapps-standalone
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
+          npm run postinstall && npm run security:patches
           npm run build
       - name: Generated application authority and asset gates
         working-directory: /tmp/myapps-standalone
@@ -263,4 +268,51 @@ jobs:
             /tmp/myapps-standalone/eve-builder.json
             /tmp/myapps-standalone-repeat/eve-builder.json
             /tmp/myapps-standalone/package-lock.json
+          retention-days: 14
+
+  capability-boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          repository: jaydubya818/MyFactory
+          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
+          fetch-depth: 0
+          path: .qualification/myfactory
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Bind capability qualification to exact composed source
+        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-capability-composition
+      - name: Frozen install and reviewed dependency mitigation
+        working-directory: /tmp/myapps-capability-composition/myeve
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run postinstall
+          npm run security:patches
+          node node_modules/playwright/cli.js install --with-deps chromium
+      - name: Canonical policy and MyApps activation separation
+        working-directory: /tmp/myapps-capability-composition/myeve
+        run: |
+          npm test --workspace=@mission-control/capability-control
+          npm run typecheck --workspace=@myeve/capability-enforcement
+          npm exec --workspace apps/eve -- vitest run lib/myapps-capability-boundary.test.ts lib/myapps-packaging.test.ts
+      - name: Source lock, PostgreSQL, policy lifecycle, restore witness, HTTP and browser
+        working-directory: /tmp/myapps-capability-composition/myeve/apps/eve
+        run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node --import tsx scripts/qualify-capability-control.mjs --browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inactive-myapps-capability-boundaries
+          path: |
+            /tmp/myapps-capability-composition/*.json
+            /tmp/myapps-capability-composition/myeve/docs/capability-control/evidence
+            /tmp/myapps-capability-composition/myeve/output/playwright/capability-control
           retention-days: 14

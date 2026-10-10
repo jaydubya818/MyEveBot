@@ -11,6 +11,8 @@ import assert from 'node:assert/strict';
 import {applyGovernanceOverlay} from './governance-overlay.mjs';
 import {applyFixturesOverlay} from './fixtures-overlay.mjs';
 import {applyComposerOverlay} from './composer-overlay.mjs';
+import {applyFactoryMain,factoryMainConflicts} from './factory-main.mjs';
+import {retainMainCatalog,retainMainInventory,verifyMainPreserved,verifyMainSource} from './current-main.mjs';
 const [eve, factory, output] = process.argv.slice(2).map(p => resolve(p));
 assert(eve && factory && output, 'Usage: materialize.mjs MYEVE_SOURCE MYFACTORY_SOURCE ABSENT_OUTPUT');
 assert(!existsSync(output), 'Output must not exist; no checkout may be overwritten');
@@ -23,8 +25,9 @@ mkdirSync(output);
 for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['myfactory',factory,pins.myfactory.integration]]) {
   const head = git(repo,['rev-parse','HEAD']);
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
+  git(repo,['merge-base','--is-ancestor',pins[name].main,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
-  const expected = name==='myeve' ? ['.github/workflows/ci.yml','.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/capability-registry.ts','apps/eve/scripts/executor-inventory.json','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts'].sort() : [];
+  const expected = name==='myeve' ? ['.github/workflows/ci.yml','.gitignore','apps/eve/lib/beta-integration/runtime.ts','apps/eve/lib/capability-registry.ts','apps/eve/scripts/executor-inventory.json','apps/eve/lib/database-schema.test.ts','apps/eve/lib/database-schema.ts','apps/eve/lib/engineering/production-validation-postgres.test.ts','apps/eve/vercel.json'].sort() : factoryMainConflicts;
   const attempt = spawnSync('git',['-C',repo,'merge-tree','--write-tree','--name-only',head,integration],{encoding:'utf8'});
   assert([0,1].includes(attempt.status),attempt.stderr);
   const sections=attempt.stdout.trimEnd().split('\n\n');
@@ -45,15 +48,32 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
     }
     return result.stdout;
   };
+  const readRaw=(sha,path)=>execFileSync('git',['-C',repo,'show',`${sha}:${path}`],{maxBuffer:32*1024*1024});
   const readComposed=(path)=>reconciledSources.get(path)??read(initialTree,path);
+  const readComposedRaw=(path)=>reconciledSources.has(path)?Buffer.from(reconciledSources.get(path)):readRaw(initialTree,path);
   try {
     indexGit(['read-tree',initialTree]);
     if(name==='myeve') {
+      verifyMainSource(pins.myeve.main,readRaw);
       // Keep canonical CI coverage, resolving only the exact companion-fixture pin.
       const ciPath='.github/workflows/ci.yml',factoryHead=git(factory,['rev-parse','HEAD']);
       assert(show(repo,head,ciPath).includes(`ref: ${factoryHead}`),'Factory preparation must match the CI fixture pin');
       const ciConflict=`<<<<<<< ${head}\n          ref: ${factoryHead}\n=======\n          ref: 388232c3053cdd3f55e9e309b72a9d9d95ded55f\n>>>>>>> ${integration}`;
-      put(ciPath,replacement(show(repo,initialTree,ciPath),ciConflict,`          ref: ${factoryHead}`));
+      let ci=replacement(show(repo,initialTree,ciPath),ciConflict,`          ref: ${factoryHead}`);
+      const serialComment='        # Separate test databases share cluster-wide roles; initialize those fixtures serially.\n        # Concurrency and race assertions inside each test file still run unchanged.\n';
+      const left=serialComment+show(repo,head,ciPath).split(serialComment)[1].split('\n')[0];
+      const right=show(repo,integration,ciPath).match(/          MYRELAY_SOURCE_ROOT:[\s\S]*?        run: npm exec --workspace apps\/eve -- vitest run[^\n]+/)[0];
+      ci=replacement(ci,`<<<<<<< ${head}\n${left}\n=======\n${right}\n>>>>>>> ${integration}`,right.replace('        run:',serialComment+'        run:'));
+      put(ciPath,ci);
+      const deploymentPath='apps/eve/vercel.json';
+      const canonicalDeployment=JSON.parse(show(repo,integration,deploymentPath));
+      const preparedDeployment=JSON.parse(show(repo,head,deploymentPath));
+      const disabled={...canonicalDeployment.git.deploymentEnabled,...preparedDeployment.git.deploymentEnabled};
+      assert(Object.values(disabled).every(value=>value===false),'Deployment prevention must remain disabled');
+      const withoutGit=value=>{const copy=structuredClone(value);delete copy.git;return copy;};
+      assert.deepEqual(withoutGit(canonicalDeployment),withoutGit(preparedDeployment),'Unreviewed hosting configuration');
+      canonicalDeployment.git.deploymentEnabled=disabled;
+      put(deploymentPath,JSON.stringify(canonicalDeployment,null,2)+'\n');
       // Both inputs used a fixed last-migration name. Checkpoint 4 verifies
       // every applied name/checksum instead, without rewriting any migration.
       const validationPath='apps/eve/lib/engineering/production-validation-postgres.test.ts';
@@ -65,7 +85,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       put(validationPath,replacement(show(repo,initialTree,validationPath),conflict,ledgerAssertion));
       const ignores=show(repo,integration,'.gitignore');
       assert(!ignores.includes('/output/playwright/myapps/'));
-      put('.gitignore',ignores+'\n# Synthetic MyApps reference qualification output.\n/output/playwright/myapps/\n');
+      put('.gitignore',ignores+'\n# Synthetic MyApps reference qualification output.\n/output/playwright/myapps/\n\n# Capability browser artifacts are uploaded separately by isolated CI.\n/output/playwright/capability-control/\n');
       const runtimePath='apps/eve/lib/beta-integration/runtime.ts';
       const phase2Runtime=show(repo,pins.myeve.phase2,runtimePath);
       const hook=phase2Runtime.slice(phase2Runtime.indexOf('        // Local-only MyApps'),phase2Runtime.indexOf('        if (r.workId && !r.goal) return new CanonicalBetaWork'));
@@ -83,7 +103,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       put('apps/eve/migrations/'+pins.migration.rehearsal,show(repo,pins.myeve.phase2,'apps/eve/migrations/'+pins.migration.original));
       // Classification is DENIED, never an extension of the external-alpha allowlist.
       let features=show(repo,integration,'apps/eve/lib/external-alpha/features.ts');
-      features=replacement(features,'// ---- Pages (app/**/page.tsx)', 'add("EMAIL_CONNECTED_APPS", ["/api/myapps/[...path]", "/apps/installed"]);\n\n// ---- Pages (app/**/page.tsx)');
+      features=replacement(features,'// ---- Pages (app/**/page.tsx)', 'add("EMAIL_CONNECTED_APPS", ["/api/myapps/[...path]", "/apps/installed"]);\nadd("ADMIN", ["/api/capability-control"]);\n\n// ---- Pages (app/**/page.tsx)');
       put('apps/eve/lib/external-alpha/features.ts',features);
       // Carry only the reviewed dormant catalog entry into canonical discovery;
       // preserve the integration's external-alpha filters and all other entries.
@@ -100,6 +120,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       assert(!catalog.includes('tool("installed_apps"'));
       catalog=replacement(catalog,'  tool("engineering_work",',declaration[0]+'  tool("engineering_work",');
       catalog=replacement(catalog,'  // Discovery is gated; execution retains',gate[0]+'  // Discovery is gated; execution retains');
+      catalog=retainMainCatalog({main:pins.myeve.main,read,readRaw,catalog,preparationCatalog});
       put(catalogPath,catalog);
       // Reconcile exact reviewed source metadata, never regenerate the full
       // inventory from arbitrary source. Unrelated canonical records stay intact.
@@ -146,12 +167,16 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
       assert.equal(reviewedCanonical['lib/external-alpha/features.ts'],digest(show(repo,integration,'apps/eve/lib/external-alpha/features.ts')));
       featureEntry.reason+=` Stale pinned canonical inventory fingerprint ${featureEntry.sha256} reconciled against independently reviewed source ${reviewedCanonical['lib/external-alpha/features.ts']}.`;
       featureEntry.sha256=digest(features);
-      featureEntry.reason+=' MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family; the allowlist is unchanged.';
+      featureEntry.reason+=' MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged.';
+      retainMainInventory({main:pins.myeve.main,read,readRaw,readComposed,inventory});
       put(inventoryPath,JSON.stringify(inventory,null,2)+'\n');
     }
+    if(name==='myfactory')evidence.factoryCurrentMain=applyFactoryMain({main:pins.myfactory.main,head,integration,initialTree,read,readComposed,put});
     evidence.qualificationFixtures??={};
-    evidence.qualificationFixtures[name]=applyFixturesOverlay({name,integration,source:pins[name].qualificationFixtures,read,readComposed,put});
+    const mainManifest=JSON.parse(readFileSync(new URL(`../../docs/myapps/phase3/${name==='myeve'?'myeve':'factory'}-main-fixture-sources.json`,import.meta.url)));
+    evidence.qualificationFixtures[name]=applyFixturesOverlay({name,integration,source:pins[name].qualificationFixtures,main:pins[name].main,mainManifest,read,readComposed,put});
     if(name==='myeve')evidence.composer=applyComposerOverlay({name,integration,source:pins.myeve.composer,read,readComposed,put});
+    if(name==='myeve')evidence.currentMain=verifyMainPreserved({main:pins.myeve.main,readRaw,readComposedRaw});
     const tree=indexGit(['write-tree']);
     const snapshot=git(repo,['commit-tree',tree],{input:`MyApps offline composition rehearsal\nPreparation: ${head}\nIntegration snapshot: ${integration}\nNot an adopted release; no branch merge.\n`,env:{...process.env,GIT_AUTHOR_NAME:'MyApps Qualification',GIT_AUTHOR_EMAIL:'qualification@example.invalid',GIT_COMMITTER_NAME:'MyApps Qualification',GIT_COMMITTER_EMAIL:'qualification@example.invalid',GIT_AUTHOR_DATE:'2026-10-09T00:00:00Z',GIT_COMMITTER_DATE:'2026-10-09T00:00:00Z'}});
     const target=join(output,name);
@@ -175,16 +200,20 @@ const envelope={
   applicationMigrations:migrations('myeve','apps/eve/migrations'),
   factoryMigrations:migrations('myfactory','apps/cloud-control/migrations'),
   centralAccountingSql:['shared-accounting.sql','shared-accounting-recovery.sql'].map(file=>fileRecord('myeve','apps/eve/lib/external-alpha/'+file)),
+  capabilityControlSql:['migration.sql','enforcement.sql','decisions.sql','ordering.sql','lifecycle.sql'].map(file=>fileRecord('myeve','docs/capability-control/'+file)),
+  capabilityBinding:{ownerId:null,organizationId:null,installationId:null,agentId:null,environment:null,policyRevision:null,policyIdentity:null,backendEnrollment:null,backendIncarnation:null,recoveryWitness:null},
+  capabilityTopology:{qualification:'NOT_QUALIFIED_FOR_INSTALLATION',sameTransactionRequired:true,lockOrder:null,lockOrderReview:'REQUIRED_WITH_FACTORY_ADVISORY_81427603_AND_CANONICAL_POLICY_AND_ACCOUNTING',historicalBindingBackfill:'FORBIDDEN',witnessReset:'FORBIDDEN'},
   lockfiles:['myeve','myfactory'].map(name=>({repository:name,...fileRecord(name,'package-lock.json')})),
   ordering:[
     'Verify exact approved non-alpha targets, current ledgers/checksums, roles and tested backups; reject missing identity.',
     'Qualify empty-target central accounting base then recovery SQL separately; existing-target upgrade requires an exact baseline and its own approval. Never apply base SQL over existing accounting history.',
     'Reconcile Factory migration ledger in manifest order without installation registration, production grants or source-identity reuse.',
     'Reconcile application migrations through 0092, then additive 0093; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
+    'Capability qualification SQL is a separate additive source contract, never automatic application startup. Require exact same-transaction policy/Work topology, trusted enrollment and independently retained witness before any installation claim.',
     'Keep all execution disabled; qualify successor FactoryVersion, bootstrap, custody/signers, rollback and owner isolation before separate activation approval.'
   ],
   rollback:'Disable admission, fence in-flight Work, reconcile original UNKNOWN resources, retain data/evidence and restore compatible code. Never drop app tables or refund uncertain spend.',
-  blockers:['Full composition and independent security gates must pass','Candidate dependency acceptance','Exact target and ledger identities','Successor FactoryVersion and configuration','Production bootstrap/admission/transport/custody/signers','Backup/restore and operational rollback'],
+  blockers:['Full composition and independent security gates must pass','Candidate dependency acceptance','Exact target and ledger identities','Successor FactoryVersion and configuration','Production bootstrap/admission/transport/custody/signers','Backup/restore and operational rollback','Exact capability bindings, same-transaction topology, monotonic recovery witness and reviewed lock ordering'],
   permissions:{merge:false,deploy:false,migrate:false,activate:false,paidExecution:false,productionGrants:false,externalAlphaChanges:false}
 };
 writeFileSync(join(output,'authorization-envelope.json'),JSON.stringify(envelope,null,2)+'\n');
