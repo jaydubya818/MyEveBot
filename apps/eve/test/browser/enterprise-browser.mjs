@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile,open} from 'node:fs/promises';
+import {mkdir,writeFile,open,copyFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {createRequire} from 'node:module';
 import {chromium} from '@playwright/test';
@@ -15,6 +15,7 @@ async function close(state) {
 export async function closeWarmSofieBrowser(){const state=warmed;warmed=undefined;await close(state);}
 async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/postgres'}) {
   const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT),app=join(source,'apps/eve');await mkdir(output,{recursive:true});
+  await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
   const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>/^(PATH|HOME|TMPDIR|NODE_PATH|EVE_ENABLED_FEATURES|MYEVE_MISSIONCONTROL_.*)$/.test(key)));
   Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,
