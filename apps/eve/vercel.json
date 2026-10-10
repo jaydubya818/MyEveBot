@@ -4,6 +4,8 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
+      "codex/checkpoint-h-authenticated-enterprise": false,
+      "codex/missioncontrol-enterprise-consumer": false,
       "codex/peer-message-answers": false,
       "codex/federation-request-deadline": false,
       "codex/federation-final-consolidation": false,
