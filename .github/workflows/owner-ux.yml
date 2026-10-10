@@ -1,7 +1,7 @@
 name: Owner UX
 on:
   push:
-    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010]
+    branches: [codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010]
   workflow_dispatch:
 permissions:
   contents: read
