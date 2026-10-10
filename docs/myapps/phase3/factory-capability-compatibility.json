@@ -1,0 +1,56 @@
+{
+  "format": "myapps.external-alpha-capability-compatibility.v1",
+  "main": "aad23a8757b351c1e30851128120469d4c30b202",
+  "integration": "18e59dbedbe04275858327ca47d2bd7ec01a407c",
+  "source": "92299fbd88004cc1da9178d52664bd0a9cd28647",
+  "files": {
+    "apps/cloud-control/src/external-alpha-runtime.mjs": {
+      "composedSha256": "f4530977407737d0b60bd3909e12f49c322adbc579691251676b8bda3539d28f",
+      "sourceSha256": "dbaa6173de905dda42a5b07ba0000a518c14aa931d8824784c6a4ecbc91854e9"
+    },
+    "apps/cloud-control/src/source-identity.json": {
+      "composedSha256": "8a315f5f41d52f1ce72bf6fc5c98f0d086a0755f0a2768b4dc995284d3a23823",
+      "sourceSha256": "7f934e9063fff0c24bee8598e51c752eeff7c56e3aea1059cf4bdc6b4fe9778c"
+    },
+    "apps/cloud-control/test/external-alpha-authority-postgres.test.mjs": {
+      "composedSha256": "312e9d11e3bc1f8aad0729ecdb49e854ec5e46da4b1a139a2c9376fc171c9e69",
+      "sourceSha256": "1a4b00c9b9e1c526268c1f8256f9f908c18bfd7c1fff33299adb8c7a19085a19"
+    },
+    "apps/cloud-control/test/external-alpha-delivery-postgres.test.mjs": {
+      "composedSha256": "8254e20890f087208fa773b4a15f42848d4747b7d217218ae608509e8d5bb3d2",
+      "sourceSha256": "8c294194ea1b60e3eef4002cb12cbc042f4362c01340aeb6aa9b18ccc59627a2"
+    },
+    "apps/cloud-control/test/production-model-provider.test.mjs": {
+      "composedSha256": "2f4e73a2e9130d776eed9676897a90a8a8fc8f19c6e8c2911058fcfd55eea9f5",
+      "sourceSha256": "2f4e73a2e9130d776eed9676897a90a8a8fc8f19c6e8c2911058fcfd55eea9f5"
+    },
+    "apps/cloud-control/test/source-identity-qualification.test.mjs": {
+      "composedSha256": "ba105e71186d3e55ec2c401671bb04b5339058a3a7a109b96fdd344135126e77",
+      "sourceSha256": "31c7bbf70b7b86b830c205805632b38d9b8bea744d131f968afbe478ad67006c"
+    },
+    "docs/myapps/current-main-composition-qualification.json": {
+      "composedSha256": "32c79c14366b5652688047927d5a1835fac028a83882a011c69cd83744cfdd26",
+      "sourceSha256": "b64bb1644798a21192ddebbbc8d25ceef8fd12331695125d1148a338d02f4631"
+    }
+  },
+  "inventory": {
+    "path": "docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json",
+    "runtime": "apps/cloud-control/src/external-alpha-runtime.mjs",
+    "composedSha256": "8e2e3c24d4766ed8f5103b2f27601273352d2777a43f3d738199616bec9ac3c9",
+    "sourceSha256": "04ba120bf49954c3c25bd9eb9522ed5eb11e0fadd253c0f271a374201bddc961",
+    "before": {
+      "sha256": "f4530977407737d0b60bd3909e12f49c322adbc579691251676b8bda3539d28f",
+      "classification": "HOST_ACTIVATION",
+      "authorityBoundary": "Composes mandatory digest-pinned private custody and product profile, per-slot source/config FactoryVersion, dedicated registered host, independent acceptance, exact owner authority and durable ambiguity fencing before execution. Injected transports cannot bypass source validation."
+    },
+    "after": {
+      "sha256": "dbaa6173de905dda42a5b07ba0000a518c14aa931d8824784c6a4ecbc91854e9",
+      "classification": "HOST_ACTIVATION",
+      "authorityBoundary": "Composes mandatory digest-pinned private custody and product profile, per-slot source/config FactoryVersion, dedicated registered host, independent acceptance, exact owner authority and durable ambiguity fencing before execution. Injected transports cannot bypass source validation. Current-main compatibility: optional server-owned capability bindings are passed to the existing conjunctive admission checks; grant owner comes only from the pinned installation. No HTTP or environment binding loader, synthetic production enrollment, pricing, authority or UNKNOWN bypass. Missing bindings remain denied."
+    }
+  },
+  "identity": {
+    "version": 1,
+    "sourceDigest": "88d5cac68592267b3630b439614a057f94601f34f63323209721e9f1e3d503cb"
+  }
+}

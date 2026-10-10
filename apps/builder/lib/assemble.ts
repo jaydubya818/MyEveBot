@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
+import { STANDALONE_SHARED_FILES, STANDALONE_SOURCE_INPUTS, readStandaloneSourceFile, relocateMyAppsReferences, relocateCapabilityReferences, standalonePackageManifest, assertUniqueOutputPaths } from "./shared-myapps";
+
 import type { CustomSchedule, FeatureId } from "./config";
 import { allowedPrunableFiles, isExcluded, isPrunable } from "./manifest";
 import { generateScheduleFile, scheduleSlug } from "./schedule-codegen";
@@ -139,6 +141,11 @@ export function templateInfo(): Promise<TemplateInfo> {
         hash.update("\0");
         hash.update(await readTemplateFile(root, relative));
       }
+      for (const file of STANDALONE_SOURCE_INPUTS) {
+        hash.update(file);
+        hash.update("\0");
+        hash.update(await readStandaloneSourceFile(root, file));
+      }
       const releaseRaw = (await readFile(path.join(root, TEMPLATE_RELEASE_FILE), "utf8")).trim();
       const release = Number.parseInt(releaseRaw, 10);
       if (!Number.isFinite(release) || release < 1) {
@@ -176,8 +183,20 @@ export async function templateFiles(features: readonly FeatureId[]): Promise<str
   }).sort();
 }
 
+/** Trusted internal options, separate from the deployment request/wizard input. */
+export interface AssemblyOptions {
+  /** Offline qualification may bind metadata to the exact source commit time. */
+  timestamp?: string;
+}
+
 /** Assembles the complete deployment file set for the Vercel API. */
-export async function assembleDeployment(input: AssembleInput): Promise<DeployFile[]> {
+export async function assembleDeployment(input: AssembleInput, options: AssemblyOptions = {}): Promise<DeployFile[]> {
+  const timestamp = options.timestamp;
+  if (timestamp !== undefined && (typeof timestamp !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(timestamp) ||
+    !Number.isFinite(Date.parse(timestamp)) || new Date(timestamp).toISOString() !== timestamp)) {
+    throw new Error("Invalid assembly timestamp: expected canonical UTC ISO time");
+  }
   const root = await templateRoot();
   const paths = await templateFiles(input.features);
   const out: DeployFile[] = [];
@@ -189,6 +208,7 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
       data = Buffer.from(input.instructions, "utf8");
     } else if (relative === "package.json") {
       const parsed = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
+      standalonePackageManifest(parsed, JSON.parse((await readStandaloneSourceFile(root, "package.json")).toString("utf8")));
       parsed.name = input.projectName;
       if (!input.features.includes("browser")) delete (parsed.scripts as Record<string, unknown>)["computer:prewarm"];
       data = Buffer.from(`${JSON.stringify(parsed, null, 2)}\n`, "utf8");
@@ -239,7 +259,13 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
 `);
     }
 
+    data = relocateCapabilityReferences(relative, relocateMyAppsReferences(relative, data));
     out.push({ file: relative, data: data.toString("base64"), encoding: "base64" });
+  }
+
+  for (const file of STANDALONE_SHARED_FILES) {
+    const data = await readStandaloneSourceFile(root, file);
+    out.push({ file, data: data.toString("base64"), encoding: "base64" });
   }
 
   const usedSlugs = new Set<string>();
@@ -260,7 +286,7 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
     templateRelease: info.release,
     features: [...input.features],
     projectName: input.projectName,
-    deployedAt: new Date().toISOString(),
+    deployedAt: timestamp ?? new Date().toISOString(),
   };
   out.push({
     file: BUILDER_MANIFEST_FILE,
@@ -301,5 +327,6 @@ export const TEMPLATE_STAMP = {
   if (primaryIndex >= 0) out[primaryIndex] = primaryBootstrapPayload;
   else out.push(primaryBootstrapPayload);
 
+  assertUniqueOutputPaths(out);
   return out;
 }

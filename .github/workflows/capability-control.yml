@@ -1,0 +1,38 @@
+name: Capability control qualification
+on:
+  push:
+    branches: [codex/unified-capability-control-plane]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
+      - run: npm exec --workspace=eve-agent -- tsc --noEmit
+      - run: npm run typecheck --workspace=@myeve/capability-enforcement
+      - run: npm test --workspace=@mission-control/capability-control
+      - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
+      - run: node --import tsx apps/eve/scripts/check-executor-governance.ts
+      - run: npm run test --workspace=eve-agent -- lib/web-auth.test.ts lib/web-session-revocation.test.ts agent/lib/retained-work-session.test.ts agent/instructions/persistent-agent.test.ts
+      - run: node --import tsx --test apps/eve/test/capability-registry.test.mjs apps/eve/test/capability-notice.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Disposable PostgreSQL, real HTTP, browser, and accessibility
+        working-directory: apps/eve
+        run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node --import tsx scripts/qualify-capability-control.mjs --browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capability-control-evidence
+          path: |
+            docs/capability-control/evidence
+            output/playwright/capability-control

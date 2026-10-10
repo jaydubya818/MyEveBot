@@ -1,0 +1,31 @@
+{
+  "format": "myapps.canonical-agent-packaging.v1",
+  "integration": "afa65bd4c2d3ce26691a07132030cad1a1ef140e",
+  "canonical": "f896153b6787bb9ab557a782058b04760a9e291f",
+  "path": "apps/eve/agent/agent.ts",
+  "beforeSha256": "7f21269b0274b26acee22916aebadc95d4612d73bdc60ac0002fd122c3113b14",
+  "afterSha256": "ad1d1ca8159bff6b0815ba3495b63a960250e27a727652f24914f9b22f4a1bd5",
+  "hunk": {
+    "from": "externalDependencies: [\"@remotion/bundler\", \"@remotion/renderer\", \"heif2jpeg\"]",
+    "to": "externalDependencies: [\"@remotion/bundler\", \"@remotion/renderer\", \"heif2jpeg\", \"js-tiktoken\"]"
+  },
+  "inventory": {
+    "path": "agent/agent.ts",
+    "before": {
+      "classification": "INTERNAL",
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions.",
+      "sha256": "7f21269b0274b26acee22916aebadc95d4612d73bdc60ac0002fd122c3113b14"
+    },
+    "after": {
+      "classification": "INTERNAL",
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions. Reviewed build packaging only: retain the existing locked js-tiktoken vocabulary as a traced runtime package using Eve externalDependencies, avoiding the reproduced oversized bundled AST conversion failure. Tokenization bytes and owner, alpha, accounting and execution boundaries remain unchanged.",
+      "sha256": "ad1d1ca8159bff6b0815ba3495b63a960250e27a727652f24914f9b22f4a1bd5"
+    }
+  },
+  "dependency": {
+    "name": "js-tiktoken",
+    "version": "1.0.21",
+    "integrity": "sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g=="
+  },
+  "documentation": "eve@0.66.3 docs/agent-config.md build.externalDependencies and AgentBuildDefinition: packaging control with runtime package tracing; no execution authority."
+}

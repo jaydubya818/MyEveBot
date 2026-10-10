@@ -2,7 +2,7 @@ import {test,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {loadMigrations,runMigrations} from '../../../apps/eve/scripts/migration-runner.ts';
 import {requiredDatabaseMigration} from '../../../apps/eve/lib/database-schema.ts';
@@ -15,11 +15,11 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.phase2,name));
  }
- for(const path of ['policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
+ for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.integration,name));
  }
- for(const branch of ['codex/myapps-phase3-readiness',pins.preparationBranch])
+ for(const branch of ['codex/myapps-phase3-readiness','codex/myapps-phase3b-reconciliation',pins.preparationBranch])
   expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
  expect(readFileSync('.gitignore','utf8')).toContain('/output/owner-ux/');
  expect(readFileSync('.gitignore','utf8')).toContain('/output/playwright/myapps/');
@@ -27,9 +27,14 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
  expect(envelope.executable).toBe(false);expect(envelope.authorization).toBe('NOT_GRANTED');
  expect(Object.values(envelope.permissions).every(value=>value===false)).toBe(true);
  expect(Object.values(envelope.targets).every(value=>value===null)).toBe(true);
+ expect(Object.values(envelope.capabilityBinding).every(value=>value===null)).toBe(true);
+ expect(envelope.capabilityTopology).toMatchObject({qualification:'NOT_QUALIFIED_FOR_INSTALLATION',sameTransactionRequired:true,lockOrder:null,historicalBindingBackfill:'FORBIDDEN',witnessReset:'FORBIDDEN'});
+ expect(envelope.capabilityControlSql).toHaveLength(5);
+ expect(envelope.capabilityControlSql.map((sql:{path:string})=>sql.path).sort()).toEqual(['decisions.sql','enforcement.sql','lifecycle.sql','migration.sql','ordering.sql'].map(file=>'docs/capability-control/'+file));
+ for(const sql of envelope.capabilityControlSql)expect(sql.sha256).toBe(createHash('sha256').update(source(pins.myeve.main,sql.path)).digest('hex'));
  const {externalAlphaIngress,externalAlphaCapabilityAllowed,ALLOWED_FAMILIES}=await import('../../../apps/eve/lib/external-alpha/features.ts');
  expect(ALLOWED_FAMILIES).not.toContain('MYAPPS');
- for(const method of ['GET','POST','PUT','DELETE'])for(const path of ['/apps/installed','/api/myapps/ui','/api/myapps/app','/api/myapps/agent','/api/myapps/unknown/deeper'])
+ for(const method of ['GET','HEAD','POST','PUT','DELETE','CONNECT','OPTIONS','TRACE','PATCH'])for(const path of ['/apps/installed','/api/myapps/ui','/api/myapps/app','/api/myapps/agent','/api/myapps/unknown/deeper','/api/capability-control'])
   expect(externalAlphaIngress(path,method,{EVE_PROJECT_NAME:'myeve-alpha-tester-1'} as any)?.allowed).toBe(false);
  expect(externalAlphaCapabilityAllowed('tool.installed_apps')).toBe(false);
  expect(requiredDatabaseMigration({MYEVE_EXTERNAL_ALPHA_POLICY:'{}'} as any)).toBe(pins.migration.externalAlphaRequired);
@@ -69,6 +74,20 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
 test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
  const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
  const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
- expect(check.status).toBe(1);
- expect(check.stderr).toContain('SOURCE_IDENTITY_CHANGED_REVIEW_AND_REPIN');
+ expect(check.status,check.stderr).toBe(0);
+ const successor=JSON.parse(readFileSync(resolve(root!,'docs/myapps/current-main-composition-qualification.json'),'utf8'));
+ expect(successor.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
+ expect(JSON.parse(check.stdout).sourceDigest).toBe(successor.sourceDigest);
+ expect(successor.sourceDigest).not.toBe(successor.predecessorSourceDigest);
+ // A self-consistent identity is not a grant. Run the canonical exact-current
+ // positive control and historical source/contract rejection cases unchanged.
+ const factoryAdapter=JSON.parse(readFileSync(resolve('docs/myapps/phase3/factory-capability-compatibility.json'),'utf8'));
+ expect(factoryAdapter.source).toBe(pins.myfactory.capabilityCompatibility);
+ expect(createHash('sha256').update(readFileSync(resolve(root!,'apps/cloud-control/test/source-identity-qualification.test.mjs'))).digest('hex')).toBe(factoryAdapter.files['apps/cloud-control/test/source-identity-qualification.test.mjs'].sourceSha256);
+ const grants=spawnSync(process.execPath,['--test','--test-reporter=tap','apps/cloud-control/test/source-identity-qualification.test.mjs'],{cwd:root,encoding:'utf8'});
+ expect(grants.status,grants.stderr+grants.stdout).toBe(0);
+ expect(grants.stdout).toContain('coherent historical source or contract grants cannot consume successor authority');
+ expect(grants.stdout).toMatch(/# pass 2\b/);
+ expect(grants.stdout).toMatch(/# fail 0\b/);
+ expect(grants.stdout).toMatch(/# skipped 0\b/);
 });

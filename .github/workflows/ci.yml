@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,12 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
 
       - run: node scripts/protocol-convergence/check-contract.mjs
 
@@ -48,18 +56,26 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: 53b97f0223afc1c00db4dc3c1a442da628d9b7ec
+          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
       - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
       - name: Real PostgreSQL lifecycle and exact Factory authority
         env:
           MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
-        run: npm exec --workspace apps/eve -- vitest run lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts
+        # Separate test databases share cluster-wide roles; initialize those fixtures serially.
+        # Concurrency and race assertions inside each test file still run unchanged.
+        run: npm exec --workspace apps/eve -- vitest run --no-file-parallelism lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts

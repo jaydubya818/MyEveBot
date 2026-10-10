@@ -32,6 +32,14 @@ export const EXCLUDED = [
   "tsconfig.tsbuildinfo",
   "test/",
   "scripts/qualification-",
+  // Canonical capability qualification uses fixture authorities and repository paths.
+  "scripts/qualify-capability-browser.mjs",
+  "scripts/qualify-capability-composed-browser.mjs",
+  "scripts/qualify-capability-control.mjs",
+  "scripts/qualify-capability-enforcement.mjs",
+  "scripts/qualify-capability-lifecycle.mjs",
+  "scripts/qualify-capability-ordering.mjs",
+  "scripts/qualify-capability-recovery.mjs",
 ] as const;
 
 /** Directories whose files must all be claimed by some feature (or core). */
@@ -62,6 +70,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   // Internal engineering tools stay dormant behind their existing owner/runtime gates.
   "agent/tools/engineering_work.ts",
+  // Canonical MyApps source ships, but activation remains owner + local-only.
+  "agent/tools/installed_apps.ts",
   "agent/tools/engineering_direct.ts",
   "agent/tools/engineering_factory.ts",
   // Claimed for source completeness; isExcluded still removes tests from deployments.
@@ -71,6 +81,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/bash.ts",
   "agent/tools/ask_question.ts",
   "agent/tools/discover_capabilities.ts",
+  "agent/tools/show_capabilities.ts",
+  "agent/tools/change_capability.ts",
   "agent/tools/create_factory_work_order.ts",
   "agent/tools/delegate_foreman_issue.ts",
   "agent/tools/delegate_foreman_issue.test.ts",

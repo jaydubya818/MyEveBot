@@ -1,5 +1,7 @@
 import path from "node:path";
 
+import { STANDALONE_SOURCE_INPUTS } from "./lib/shared-myapps";
+
 import type { NextConfig } from "next";
 
 // The deploy and update APIs assemble the agent deployment from apps/eve
@@ -15,6 +17,7 @@ const TEMPLATE_ROUTES = ["/api/deploy", "/api/update", "/api/template-version"] 
 // can attempt to hash those directory links as files before excludes apply.
 const templateIncludes = [
   "../eve/.eve-template-release",
+  "../eve/.vercelignore",
   "../eve/agent/**",
   "../eve/app/**",
   "../eve/components/**",
@@ -28,9 +31,12 @@ const templateIncludes = [
   "../eve/proxy.ts",
   "../eve/public/**",
   "../eve/skills-lock.json",
+  "../eve/scripts/**",
+  "../eve/types/**",
   "../eve/test/**",
   "../eve/tsconfig.json",
   "../eve/vercel.json",
+  ...STANDALONE_SOURCE_INPUTS.map((file) => `../../${file}`),
 ];
 const templateExcludes = [
   "../eve/node_modules/**",

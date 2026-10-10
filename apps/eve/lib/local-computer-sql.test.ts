@@ -6,7 +6,6 @@ import {spawn} from "node:child_process";
 import path from "node:path";
 import os from "node:os";
 // The repository's optional PostgreSQL integration fixtures use the JS driver.
-// @ts-expect-error pg has no declaration package in this workspace.
 import {Client} from "pg";
 const state=vi.hoisted(()=>({client:null as any,admin:null as any}));
 vi.mock("../agent/lib/receipts-db.ts",()=>({db:()=>({query:async(sql:string,params?:unknown[])=>(await state.client.query(sql,params)).rows})}));

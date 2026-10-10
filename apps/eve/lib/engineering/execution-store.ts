@@ -1,3 +1,4 @@
+import { admitCapabilityWork } from "../capability-control/admission.ts";
 import { randomUUID } from "node:crypto";
 import { WorkStore } from "./store.ts";
 import { WorkError, type Work } from "./types.ts";
@@ -15,7 +16,9 @@ export class ExecutionStore {
   }
   async admit(work: Work, contract: WorkContract) {
     const state = initialExecution(contract, work.generation + 1);
-    const rows = await this.workStore.database.query(`WITH w AS (
+    const capabilityId = contract.executor === 'factory-cloud' ? 'myfactory' : 'development-tools';
+    const rows = await admitCapabilityWork(this.workStore, work, capabilityId, contract.coordinatingAgent,
+      contract.budgetUsd, database => database.query(`WITH w AS (
       UPDATE engineering_work SET control='agent',version=version+1,generation=generation+1,updated_at=now()
       WHERE scope_id=$1 AND scope_kind=$2 AND id=$3 AND version=$4 AND lifecycle='active'
       AND NOT EXISTS(SELECT 1 FROM engineering_execution e WHERE e.scope_id=$1 AND e.scope_kind=$2 AND e.work_id=$3) RETURNING *
@@ -28,7 +31,7 @@ export class ExecutionStore {
     ), event AS (
       INSERT INTO engineering_work_events(id,scope_id,scope_kind,work_id,version,actor_id,kind)
       SELECT $7,scope_id,scope_kind,id,version,$6,'admitted' FROM w
-    ) SELECT work_id FROM e`, [...this.scope(work.id),work.version,JSON.stringify(state),this.workStore.principal.actorId,randomUUID()]);
+    ) SELECT work_id FROM e`, [...this.scope(work.id),work.version,JSON.stringify(state),this.workStore.principal.actorId,randomUUID()]));
     if (!rows.length) throw new WorkError("admission_changed", "Work changed or has already been admitted. Reload its contract.");
     return state;
   }

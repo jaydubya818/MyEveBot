@@ -61,7 +61,10 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   expect((await upgrade.query('SELECT count(*) FROM engineering_factory_validation_lifecycle')).rows[0].count).toBe('0');
   await expect(upgrade.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"') WHERE id=$1`,[f.decisionId])).rejects.toThrow('Factory preparation identity is immutable');
   expect(await f.driver.step(f.work.id)).toEqual({state:'HALTED'});expect(await f.lifecycle.read()).toBeNull();
-  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0084_three_owner_cloud_accounting.sql');
+  // Verify the complete applied lineage, including checksums, on both paths.
+  const expectedLedger=(await loadMigrations()).map(({name,checksum})=>({name,checksum}));
+  for(const migrated of [pool,upgrade])
+   expect((await migrated.query('SELECT name,checksum FROM sofie_schema_migrations ORDER BY name')).rows).toEqual(expectedLedger);
  });
  it('deterministically reproduces the legacy materializer state-read race twice with the exact failing predicate',async()=>{
   const evidence=[];
@@ -194,8 +197,8 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
  it.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('composed actual Factory authority: valid intake once; revocation during claim denies intake and execution',async()=>{
   const root=process.env.MYFACTORY_SOURCE_ROOT!;
   const load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
-  const [{productionAuthority},{PostgresDispatchStore},{PostgresSpendLedger},{CloudWorkControl},plan,{productionSpendPlan}]=await Promise.all([
-   load('apps/cloud-control/src/production-authority.mjs'),load('apps/cloud-control/src/postgres-dispatch.mjs'),load('apps/cloud-control/src/postgres-spend.mjs'),load('apps/cloud-control/src/cloud-work-control.mjs'),load('apps/cloud-control/src/production-validation-plan.mjs'),load('apps/cloud-control/src/production-execution-plan.mjs')]);
+  const [{productionAuthority},{PostgresDispatchStore},{PostgresSpendLedger},{CloudWorkControl},plan,{syntheticAdmissionSpendPlan},{capabilityPolicyFixture}]=await Promise.all([
+   load('apps/cloud-control/src/production-authority.mjs'),load('apps/cloud-control/src/postgres-dispatch.mjs'),load('apps/cloud-control/src/postgres-spend.mjs'),load('apps/cloud-control/src/cloud-work-control.mjs'),load('apps/cloud-control/src/production-validation-plan.mjs'),load('apps/cloud-control/test/fixtures/admission-spend-plan.mjs'),load('apps/cloud-control/test/fixtures/capability-policy.mjs')]);
   const schema='validation_factory_'+randomUUID().replaceAll('-','');await pool.query('CREATE SCHEMA '+schema);
   const rewrite=(sql:string)=>sql.replace(/\bfactory\.(production_work_authority|protect_production_authority|work_spend_budgets|work_spend_operations|intake_receipts|delivery_intents|verification_resources|execution_resources|candidate_custody|work_orders|runs|events)\b/g,schema+'.$1').replace(/IN SCHEMA factory\b/g,'IN SCHEMA '+schema);
   const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args),isolated={connect:async()=>{const c=await pool.connect();return{query:(sql:string,args?:unknown[])=>c.query(rewrite(sql),args),release:()=>c.release()};}};
@@ -203,13 +206,19 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const configuration=plan.validationConfiguration,grant=plan.validationSourceGrant,sourceDigest='a'.repeat(64),configurationDigest=digest(configuration),factoryVersion=digest({sourceDigest,configurationDigest}),installation={ownerScope:'disposable-validation-owner'};
   const assertAuthority=productionAuthority({installation,sourceDigest,configuration,contractSha256:plan.validationContractSha256,clientId:grant.clientId,candidateSha256:plan.validationCandidateSha256});
   const {productionVerifierPolicy:policy,productionVerifierPolicySha256:policySha256}=await load('apps/cloud-control/src/production-verifier-policy.mjs');
-  const factory=new PostgresDispatchStore(isolated,{custodyPrefix:'factory/production',assertAuthority,verificationPolicySha256:policySha256}),spend=new PostgresSpendLedger(isolated);
-  const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:productionSpendPlan,verificationPolicy:{policy,policySha256}});
+  const capability=await capabilityPolicyFixture(pool,schema,isolated,{[grant.clientId]:installation.ownerScope});
+  try {
+  const factory=new PostgresDispatchStore(capability.pool,{capabilityBindings:capability.bindings,custodyPrefix:'factory/production',assertAuthority,verificationPolicySha256:policySha256}),spend=new PostgresSpendLedger(capability.pool);
+
   for(const revoked of [false,true]){
    const f=await fixture({repository:grant.source.repository,factoryVersion}),r=f.preparation.request;
+   // Synthetic intake/authority qualification only; PostgreSQL keeps its real clock.
+   const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:syntheticAdmissionSpendPlan(r.deadline),verificationPolicy:{policy,policySha256}});
    const request={protocol:'MYFACTORY_EXECUTION_V2',...r,source:grant.source,maxSpendUsd:1,input:{title:'Disposable lifecycle',description:'Actual production authority, no providers',kind:'feature',acceptanceCriteria:['Bounded'],allowedPaths:grant.allowedPaths,checkCommands:grant.commands}};
    const manifest={version:1,clientId:grant.clientId,ownerScope:installation.ownerScope,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.validationContractSha256,candidateSha256:plan.validationCandidateSha256,environment:'CLOUD_PRODUCTION',publication:false,request};
    await query("INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state) VALUES($1,$2,$3,$4,$5,'AUTHORIZED')",[r.requestId,r.workId,grant.clientId,manifest,digest(manifest)]);
+   await expect(new PostgresDispatchStore(isolated).prepare({...grant,ownerScope:installation.ownerScope},request,()=>({}))).rejects.toThrow('CAPABILITY_INSTALLATION_UNQUALIFIED');
+   await expect(factory.prepare({...grant,ownerScope:'foreign-owner'},request,()=>({}))).rejects.toThrow('CAPABILITY_INSTALLATION_UNQUALIFIED');
    let prepared:any;
    const prepare=async()=>{if(revoked)await query("UPDATE factory.production_work_authority SET state='REVOKED' WHERE request_id=$1",[r.requestId]);prepared=await control.prepare(request);throw Error('OFFLINE_STOP_AFTER_AUTHORIZED_INTAKE');};
    vi.spyOn(f.driver,'adapterFor').mockReturnValue({prepare} as never);
@@ -223,7 +232,11 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    }
    expect(await f.bytes()).toBe(f.original);expect((await f.lifecycle.read()).state).toBe('HALTED');
   }
+  const expiredWork=randomUUID();
+  await expect(spend.createBudget({workId:expiredWork,workGeneration:1,requestId:randomUUID(),workOrderId:randomUUID()},1000000,new Date(Date.now()+60000).toISOString(),syntheticAdmissionSpendPlan(new Date(0).toISOString()))).rejects.toThrow('Qualified pricing has expired');
+  expect((await query('SELECT count(*) FROM factory.work_spend_budgets WHERE work_id=$1',[expiredWork])).rows[0].count).toBe('0');
   expect((await query('SELECT count(*) FROM factory.execution_resources')).rows[0].count).toBe('0');expect((await query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('0');
+  } finally {await capability.cleanup();}
  });
 
 

@@ -1,0 +1,532 @@
+{
+  "format": "myapps.current-main-preservation.v1",
+  "main": "cec0d19761da06c01780796ed0a16f88286ea12f",
+  "previousMain": "2ef364024bc1cdd3e10ec28f3d340119c6f87d41",
+  "files": {
+    ".github/workflows/capability-control.yml": {
+      "sourceSha256": "2b73c5937f93ea43c915f9244120c6c25e0551485d0e0dd4aa6c0ce7c36a93ce",
+      "outputSha256": "2b73c5937f93ea43c915f9244120c6c25e0551485d0e0dd4aa6c0ce7c36a93ce"
+    },
+    ".github/workflows/ci.yml": {
+      "sourceSha256": "f86bf253cca524e2b2b7999085573b36504d8072e0ca1326b8ad6cf21104bae6",
+      "outputSha256": "12e94c362c49568182cce0d072220385f6c321583471920e32eed700ec259f95"
+    },
+    ".github/workflows/cloud-qualification.yml": {
+      "sourceSha256": "f8c74c604b55eab90d96e5a7c1e04f5cc0bacff32374e6d79427d67e25be78b9",
+      "outputSha256": "f8c74c604b55eab90d96e5a7c1e04f5cc0bacff32374e6d79427d67e25be78b9"
+    },
+    ".github/workflows/consolidation-cloud-qualification.yml": {
+      "sourceSha256": "70fa9398f726fdee05f3259e790a9971605abffb71104f1f9748ec60a472304b",
+      "outputSha256": "70fa9398f726fdee05f3259e790a9971605abffb71104f1f9748ec60a472304b"
+    },
+    ".gitignore": {
+      "sourceSha256": "71f639cf8544f2632332c3ed6e47b17920eebafafe2f51430732ecd6490c806c",
+      "outputSha256": "061b30d7c7393053e40b1568492d37a5565e8917a4228d6857d4230cdef0a82a"
+    },
+    "apps/builder/lib/manifest.ts": {
+      "sourceSha256": "d6a9ffe0fcd3143ed19c3828abcd3abff9887caa34d8a57cf2135274604ccfff",
+      "outputSha256": "bfff831c27cb931bf1307f01b05cd35d0d84db6f3a107a6472bfe983252400f1"
+    },
+    "apps/builder/package.json": {
+      "sourceSha256": "86d4befa071c1ca54ad58a036a2c68f40ce7d367e773ad3f40501b126dff6643",
+      "outputSha256": "86d4befa071c1ca54ad58a036a2c68f40ce7d367e773ad3f40501b126dff6643"
+    },
+    "apps/eve/agent/channels/eve.ts": {
+      "sourceSha256": "f86f603da0f99db979cde42ced74ba0b3b19363c2c09ee46c45fe166aec361c5",
+      "outputSha256": "f86f603da0f99db979cde42ced74ba0b3b19363c2c09ee46c45fe166aec361c5"
+    },
+    "apps/eve/agent/tools/change_capability.ts": {
+      "sourceSha256": "386c072d807ac2b34ddc9076c57b7c26c9a539f25474384bbb598fd4b5da71bc",
+      "outputSha256": "386c072d807ac2b34ddc9076c57b7c26c9a539f25474384bbb598fd4b5da71bc"
+    },
+    "apps/eve/agent/tools/show_capabilities.ts": {
+      "sourceSha256": "28d7c5b38fc6b83081d462beb4eb4eb87a22621b2fb19f1b5e756b4fe27f5db1",
+      "outputSha256": "28d7c5b38fc6b83081d462beb4eb4eb87a22621b2fb19f1b5e756b4fe27f5db1"
+    },
+    "apps/eve/app/api/capability-control/route.ts": {
+      "sourceSha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236",
+      "outputSha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236"
+    },
+    "apps/eve/app/globals.css": {
+      "sourceSha256": "640f0cbd1b3523969f353b708a6fecd6f23c1f0f5cab045989220b54bb639207",
+      "outputSha256": "640f0cbd1b3523969f353b708a6fecd6f23c1f0f5cab045989220b54bb639207"
+    },
+    "apps/eve/app/vendor/shadcn/LICENSE.md": {
+      "sourceSha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
+      "outputSha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+    },
+    "apps/eve/app/vendor/shadcn/README.md": {
+      "sourceSha256": "4798790e4b6f4566cbe7d91b140846c83b43de24395f89bf796078452146aa65",
+      "outputSha256": "4798790e4b6f4566cbe7d91b140846c83b43de24395f89bf796078452146aa65"
+    },
+    "apps/eve/app/vendor/shadcn/tailwind.css": {
+      "sourceSha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a",
+      "outputSha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a"
+    },
+    "apps/eve/components/capability-settings.tsx": {
+      "sourceSha256": "b97fa54184a56384c2f17a08c2f6b4990b3b0d35aa09b0c9eca8d38cb3942845",
+      "outputSha256": "b97fa54184a56384c2f17a08c2f6b4990b3b0d35aa09b0c9eca8d38cb3942845"
+    },
+    "apps/eve/components/manage-panel.tsx": {
+      "sourceSha256": "693c74e64c26893bdb5a588c52885c47ec8cc4e2449296de2c2c9abf909f53bd",
+      "outputSha256": "693c74e64c26893bdb5a588c52885c47ec8cc4e2449296de2c2c9abf909f53bd"
+    },
+    "apps/eve/lib/capability-control/admission.ts": {
+      "sourceSha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d",
+      "outputSha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+    },
+    "apps/eve/lib/capability-control/contracts.ts": {
+      "sourceSha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802",
+      "outputSha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802"
+    },
+    "apps/eve/lib/capability-control/runtime.ts": {
+      "sourceSha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669",
+      "outputSha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669"
+    },
+    "apps/eve/lib/capability-control/sofie.ts": {
+      "sourceSha256": "76c1548280cccc507d8d921025363ee59a73d48b8d04af685e318d8419777487",
+      "outputSha256": "76c1548280cccc507d8d921025363ee59a73d48b8d04af685e318d8419777487"
+    },
+    "apps/eve/lib/capability-control/store.ts": {
+      "sourceSha256": "16db8cdd25623d0a9c26f77b93a9fab55a9f55fa2bd1280178d23004c831dfb0",
+      "outputSha256": "16db8cdd25623d0a9c26f77b93a9fab55a9f55fa2bd1280178d23004c831dfb0"
+    },
+    "apps/eve/lib/capability-registry.ts": {
+      "sourceSha256": "f55e125e4849bc8a0abeb746a690e5e46cd81517908d2a8dba6ae56a703ab7ed",
+      "outputSha256": "2f459bfd7a169f7c0e7aec7bb054340f37e5f39c1fd32bac59cca9af09473a82"
+    },
+    "apps/eve/lib/engineering/execution-store.ts": {
+      "sourceSha256": "49149f91f3d54c6341cb444e6d8a95b5a66f03feef809ea7a2a83abffa8d1401",
+      "outputSha256": "49149f91f3d54c6341cb444e6d8a95b5a66f03feef809ea7a2a83abffa8d1401"
+    },
+    "apps/eve/lib/engineering/production-validation-postgres.test.ts": {
+      "sourceSha256": "9f7bc79636c73193ccf7a754f171aa5960f0d9b8caed22966525b61d383a66c1",
+      "outputSha256": "11cf6a20f9a51dfe9005118f52c437537aa03928321e8247ee6a4b791c064a5b"
+    },
+    "apps/eve/lib/engineering/route-admission.ts": {
+      "sourceSha256": "8f4e8227ab64bb11cdfa7e31c3e9d74cbdbdf5a34f6de3be1eceee9c31f2e31e",
+      "outputSha256": "8f4e8227ab64bb11cdfa7e31c3e9d74cbdbdf5a34f6de3be1eceee9c31f2e31e"
+    },
+    "apps/eve/lib/engineering/store.ts": {
+      "sourceSha256": "3295cbeca23595f398c0eb8d571a32babd70c650b5db805c229e5f328ca4f83a",
+      "outputSha256": "3295cbeca23595f398c0eb8d571a32babd70c650b5db805c229e5f328ca4f83a"
+    },
+    "apps/eve/lib/local-computer-sql.test.ts": {
+      "sourceSha256": "d2827c63d978012334c68515e61fe8a348db1bfd5ac2455d56f2ecf4e9acc9c3",
+      "outputSha256": "d2827c63d978012334c68515e61fe8a348db1bfd5ac2455d56f2ecf4e9acc9c3"
+    },
+    "apps/eve/lib/owner-task-lifecycle.integration.test.ts": {
+      "sourceSha256": "6925decf190fd99ea261c6b62c2b65aa8a4f605ddb490e89e98a0d46d0af0d87",
+      "outputSha256": "6925decf190fd99ea261c6b62c2b65aa8a4f605ddb490e89e98a0d46d0af0d87"
+    },
+    "apps/eve/lib/web-session-postgres.test.ts": {
+      "sourceSha256": "47b050975beed41a8449c4b3be2e02e5a23f20a92f26091452d60f7cc3d18770",
+      "outputSha256": "47b050975beed41a8449c4b3be2e02e5a23f20a92f26091452d60f7cc3d18770"
+    },
+    "apps/eve/package.json": {
+      "sourceSha256": "6187e8f14497d0c797b2c2bb324a4e5fa6e6545daf5d76746e66d4c84e3f99c4",
+      "outputSha256": "7f2dd8fded940bbb495f5bffb67398d54ad3affaede4d476da9e1449edd9331e"
+    },
+    "apps/eve/scripts/dependency-security.test.mjs": {
+      "sourceSha256": "47eff1a5ee36d725c4a14d5ca7e4a4d406385a6e15e9703f16c7b45c255c3fd7",
+      "outputSha256": "47eff1a5ee36d725c4a14d5ca7e4a4d406385a6e15e9703f16c7b45c255c3fd7"
+    },
+    "apps/eve/scripts/executor-inventory.json": {
+      "sourceSha256": "2bcfb7ed3e68556b84a5b321c66763491579493f2896ff7377455b3665a924c6",
+      "outputSha256": "79d57e45c3fc900055eb7c9e13e1d0a24bb86f8846943ff1307bcda465fbae1b"
+    },
+    "apps/eve/scripts/qualify-capability-browser.mjs": {
+      "sourceSha256": "bc57c90d418eca63cd5402d4b4243818cf08a8ddea7913a214087722333b6244",
+      "outputSha256": "bc57c90d418eca63cd5402d4b4243818cf08a8ddea7913a214087722333b6244"
+    },
+    "apps/eve/scripts/qualify-capability-composed-browser.mjs": {
+      "sourceSha256": "81b6c0a42e685d1b99bcb558ec1e6f7e002e9674ca9afa6e7c942cef830303b9",
+      "outputSha256": "81b6c0a42e685d1b99bcb558ec1e6f7e002e9674ca9afa6e7c942cef830303b9"
+    },
+    "apps/eve/scripts/qualify-capability-control.mjs": {
+      "sourceSha256": "02761d15b815556e2e63ba9245d1c517fbe90b32877837c4a344f02e6f8a88ff",
+      "outputSha256": "02761d15b815556e2e63ba9245d1c517fbe90b32877837c4a344f02e6f8a88ff"
+    },
+    "apps/eve/scripts/qualify-capability-enforcement.mjs": {
+      "sourceSha256": "8aee1b7c27fbcc980265c293dd8f8a357e5317aab2bb2e2e0ddaa554c74b188d",
+      "outputSha256": "8aee1b7c27fbcc980265c293dd8f8a357e5317aab2bb2e2e0ddaa554c74b188d"
+    },
+    "apps/eve/scripts/qualify-capability-lifecycle.mjs": {
+      "sourceSha256": "7f93392ae4d2d1e40216c18af85a2811eab66c70abed90daaca52aeefbf4c922",
+      "outputSha256": "7f93392ae4d2d1e40216c18af85a2811eab66c70abed90daaca52aeefbf4c922"
+    },
+    "apps/eve/scripts/qualify-capability-ordering.mjs": {
+      "sourceSha256": "5077655664a0e1a4ea1a400c50ce0140b60e4838ae64d14707723211ac78f9ae",
+      "outputSha256": "5077655664a0e1a4ea1a400c50ce0140b60e4838ae64d14707723211ac78f9ae"
+    },
+    "apps/eve/scripts/qualify-capability-recovery.mjs": {
+      "sourceSha256": "cdcefc24f7d7855a0b516608c7a422a351d2ea8167df0e66b680f674c70ffae4",
+      "outputSha256": "cdcefc24f7d7855a0b516608c7a422a351d2ea8167df0e66b680f674c70ffae4"
+    },
+    "apps/eve/vercel.json": {
+      "sourceSha256": "9768a60f7860830fb2df46ccdfd8cc914a0ada2323cdd9924e5ca1e3be12d11f",
+      "outputSha256": "b11a8b77d4c16e755f6538fd092269de85ea480ef83f9ffb07817d975884b1b6"
+    },
+    "docs/capability-control/CHECKPOINT-D.md": {
+      "sourceSha256": "bf6da761db24bdd532fec541769c7558944c9fc9971678c64421670c2aeb9640",
+      "outputSha256": "bf6da761db24bdd532fec541769c7558944c9fc9971678c64421670c2aeb9640"
+    },
+    "docs/capability-control/CHECKPOINT-E.md": {
+      "sourceSha256": "4d866543f430e8e2e31e77cc2f4d86bfdfc7759f562a9221aeab279b8ea0c986",
+      "outputSha256": "4d866543f430e8e2e31e77cc2f4d86bfdfc7759f562a9221aeab279b8ea0c986"
+    },
+    "docs/capability-control/CHECKPOINT.md": {
+      "sourceSha256": "1ff8354fec4ffcca957725361b0492f1c5509084707546589adcc60402d19890",
+      "outputSha256": "1ff8354fec4ffcca957725361b0492f1c5509084707546589adcc60402d19890"
+    },
+    "docs/capability-control/COMPOSIO-RECEIVING-CONTRACT.md": {
+      "sourceSha256": "8a3646155ba2edc8b2787d81963dc4322bba10b87b0562ee3748ef0076f6c39b",
+      "outputSha256": "8a3646155ba2edc8b2787d81963dc4322bba10b87b0562ee3748ef0076f6c39b"
+    },
+    "docs/capability-control/CONTRACT.md": {
+      "sourceSha256": "fe60b24ac76f5f05d6f12d7aba60ed2044a9348516b3d1c483f8e955bb7786f3",
+      "outputSha256": "fe60b24ac76f5f05d6f12d7aba60ed2044a9348516b3d1c483f8e955bb7786f3"
+    },
+    "docs/capability-control/CROSS-SYSTEM.md": {
+      "sourceSha256": "4025c3e0fd7f89f469e6fc07578cac09bb82c78ef8df512569fe1e72f0bc3838",
+      "outputSha256": "4025c3e0fd7f89f469e6fc07578cac09bb82c78ef8df512569fe1e72f0bc3838"
+    },
+    "docs/capability-control/ENFORCEMENT.md": {
+      "sourceSha256": "647d32fd342475c341fb17e6687c0341994657f9270a88aebb7afdda1658f201",
+      "outputSha256": "647d32fd342475c341fb17e6687c0341994657f9270a88aebb7afdda1658f201"
+    },
+    "docs/capability-control/LIFECYCLE-RECOVERY-20261010.md": {
+      "sourceSha256": "880c519cfb4c38e0f47b707d0487d6eb3916b39d843c078b72a3905e45dc88c2",
+      "outputSha256": "880c519cfb4c38e0f47b707d0487d6eb3916b39d843c078b72a3905e45dc88c2"
+    },
+    "docs/capability-control/PRICING-QUALIFICATION-20261010.md": {
+      "sourceSha256": "6838bc69202666c009012ba2727770e21e43d3a37466946c124f48fc1f72a88c",
+      "outputSha256": "6838bc69202666c009012ba2727770e21e43d3a37466946c124f48fc1f72a88c"
+    },
+    "docs/capability-control/RECEIVING-HANDOFF-20261010.md": {
+      "sourceSha256": "5108a78b719132a4d723ecb8f19b6890589d66058d4fedab1e656ace0ba55882",
+      "outputSha256": "5108a78b719132a4d723ecb8f19b6890589d66058d4fedab1e656ace0ba55882"
+    },
+    "docs/capability-control/decisions.sql": {
+      "sourceSha256": "6fd713c6846f6fcbd278c281b98e2b769c7b72adb451b556e104b266980e8360",
+      "outputSha256": "6fd713c6846f6fcbd278c281b98e2b769c7b72adb451b556e104b266980e8360"
+    },
+    "docs/capability-control/enforcement.sql": {
+      "sourceSha256": "f247800e7c43655c43388f70588c8015596fd6643d44a536ee6fdecb40bde767",
+      "outputSha256": "f247800e7c43655c43388f70588c8015596fd6643d44a536ee6fdecb40bde767"
+    },
+    "docs/capability-control/evidence/accessibility.json": {
+      "sourceSha256": "eeedd16ba8c35b17e1a1c366ec60c3da87a1ca97e181eeb23bab05e17a663c98",
+      "outputSha256": "eeedd16ba8c35b17e1a1c366ec60c3da87a1ca97e181eeb23bab05e17a663c98"
+    },
+    "docs/capability-control/evidence/browser.json": {
+      "sourceSha256": "3768f96b79d7cd8cba86b2d8a32b2dd3586b23ad69b4452c8bb33e5e90321428",
+      "outputSha256": "3768f96b79d7cd8cba86b2d8a32b2dd3586b23ad69b4452c8bb33e5e90321428"
+    },
+    "docs/capability-control/evidence/postgres.json": {
+      "sourceSha256": "ade2c6bb54a5339f056244cad9c2f5491061d22c95c42a81a49507ddfd93c82d",
+      "outputSha256": "ade2c6bb54a5339f056244cad9c2f5491061d22c95c42a81a49507ddfd93c82d"
+    },
+    "docs/capability-control/lifecycle.sql": {
+      "sourceSha256": "d715e3f381e1181f47dcb9df027215deeb01f0d8f0f100533c50ac69e50580c4",
+      "outputSha256": "d715e3f381e1181f47dcb9df027215deeb01f0d8f0f100533c50ac69e50580c4"
+    },
+    "docs/capability-control/migration.sql": {
+      "sourceSha256": "f8006be4b484e965eac916eb77c73a331c2f8b052ab0368d5d0e29dc9cbf2a22",
+      "outputSha256": "f8006be4b484e965eac916eb77c73a331c2f8b052ab0368d5d0e29dc9cbf2a22"
+    },
+    "docs/capability-control/ordering.sql": {
+      "sourceSha256": "bc71cff8f8638a009f0590801faea2114f41827c1d7d86436c8239f4e2cdb899",
+      "outputSha256": "bc71cff8f8638a009f0590801faea2114f41827c1d7d86436c8239f4e2cdb899"
+    },
+    "docs/security/capability-dependency-audit-20261010.json": {
+      "sourceSha256": "86871e3c07336166027a33af6476adb6292da6841a83bfdf67de09f9c2678bbb",
+      "outputSha256": "86871e3c07336166027a33af6476adb6292da6841a83bfdf67de09f9c2678bbb"
+    },
+    "docs/security/capability-dependency-remediation-20261010.md": {
+      "sourceSha256": "c9748c6fc4f41c6c323f5843a2d9c87306646729cb0164f3f4e3b549206ca910",
+      "outputSha256": "c9748c6fc4f41c6c323f5843a2d9c87306646729cb0164f3f4e3b549206ca910"
+    },
+    "output/playwright/capability-composed/ordinary.json": {
+      "sourceSha256": "8760cb6a580b756493a131b6ae0cd4444a22e1949fe7887616cb936c5f8ec190",
+      "outputSha256": "8760cb6a580b756493a131b6ae0cd4444a22e1949fe7887616cb936c5f8ec190"
+    },
+    "output/playwright/capability-composed/ordinary.png": {
+      "sourceSha256": "bc17640bb788c6fd127dd3e1605b53f32702d67033cecbc3ee100d14dc60df8b",
+      "outputSha256": "bc17640bb788c6fd127dd3e1605b53f32702d67033cecbc3ee100d14dc60df8b"
+    },
+    "output/playwright/capability-composed/platform.json": {
+      "sourceSha256": "8760cb6a580b756493a131b6ae0cd4444a22e1949fe7887616cb936c5f8ec190",
+      "outputSha256": "8760cb6a580b756493a131b6ae0cd4444a22e1949fe7887616cb936c5f8ec190"
+    },
+    "output/playwright/capability-composed/platform.png": {
+      "sourceSha256": "e44a6ebccb46ea49bc806e2e48fae00901fbb0f00883f38e9dff7f3e4d249ecc",
+      "outputSha256": "e44a6ebccb46ea49bc806e2e48fae00901fbb0f00883f38e9dff7f3e4d249ecc"
+    },
+    "output/playwright/capability-composed/server.log": {
+      "sourceSha256": "e4f28a36459f870af539bcea21af1e7afd5e48658a058ca71f5396ec0b201cfc",
+      "outputSha256": "e4f28a36459f870af539bcea21af1e7afd5e48658a058ca71f5396ec0b201cfc"
+    },
+    "package-lock.json": {
+      "sourceSha256": "958365bf3c51fb497825e46b2b29d7f89f8cf053d5adbbe104c9d7fc446cf2eb",
+      "outputSha256": "833c196cc0967c8b043e5056ae98c48ec0dcc8a3f08cc81502be5a308902adef"
+    },
+    "package.json": {
+      "sourceSha256": "c7b5ca1803cce49c558137ef3264720ae507c25dc59a5951cb9e221f6d205d7c",
+      "outputSha256": "c7b5ca1803cce49c558137ef3264720ae507c25dc59a5951cb9e221f6d205d7c"
+    },
+    "packages/capability-control/README.md": {
+      "sourceSha256": "44c27d28404b0981e6be9080dfbe38e73b7a3246f3dc3705783e56153029d461",
+      "outputSha256": "44c27d28404b0981e6be9080dfbe38e73b7a3246f3dc3705783e56153029d461"
+    },
+    "packages/capability-control/package.json": {
+      "sourceSha256": "ab3bf37f1246d5e543b257e0655ed10ff6eb102896a050cfba991f6aca1d0e2d",
+      "outputSha256": "ab3bf37f1246d5e543b257e0655ed10ff6eb102896a050cfba991f6aca1d0e2d"
+    },
+    "packages/capability-control/source-lock.json": {
+      "sourceSha256": "1f18212d053232788a80d319c9dc41ebe0a38e8a94477ca66e2b6a7804523388",
+      "outputSha256": "1f18212d053232788a80d319c9dc41ebe0a38e8a94477ca66e2b6a7804523388"
+    },
+    "packages/capability-control/src/index.ts": {
+      "sourceSha256": "0fc940c6aae693d020fc8e779fed6f132c24b5d7069115cd226fb79220eed5b4",
+      "outputSha256": "0fc940c6aae693d020fc8e779fed6f132c24b5d7069115cd226fb79220eed5b4"
+    },
+    "packages/capability-control/src/registry.ts": {
+      "sourceSha256": "6b9b33f1527b1a2af5c2ebc61e5fa6d6d66e2dbf05467661736ccc321373304b",
+      "outputSha256": "6b9b33f1527b1a2af5c2ebc61e5fa6d6d66e2dbf05467661736ccc321373304b"
+    },
+    "packages/capability-control/src/resolver.ts": {
+      "sourceSha256": "082b1135e1603a479db39e2d33549c44826304807a32cd0b8d00859ea8f8fa88",
+      "outputSha256": "082b1135e1603a479db39e2d33549c44826304807a32cd0b8d00859ea8f8fa88"
+    },
+    "packages/capability-control/src/types.ts": {
+      "sourceSha256": "19e1b9254e0b752404aec868195903e4f185a89059d290531e5b8fd59e61d620",
+      "outputSha256": "19e1b9254e0b752404aec868195903e4f185a89059d290531e5b8fd59e61d620"
+    },
+    "packages/capability-control/test/policy.test.mjs": {
+      "sourceSha256": "43b559dcc0f0004ed64cb27f99cdfc8bb123d9008400f63dbc2c03a6c3d401bc",
+      "outputSha256": "43b559dcc0f0004ed64cb27f99cdfc8bb123d9008400f63dbc2c03a6c3d401bc"
+    },
+    "packages/capability-control/tsconfig.json": {
+      "sourceSha256": "78f77567a793f1df57adfeca6abf84cd7ed827c40169e660de7c71df1bb9b3e8",
+      "outputSha256": "78f77567a793f1df57adfeca6abf84cd7ed827c40169e660de7c71df1bb9b3e8"
+    },
+    "packages/capability-enforcement/package.json": {
+      "sourceSha256": "d89aaf3b66340977ec310b28e86a129c8b4725046f0d60d1e9e3ec2f79d225b3",
+      "outputSha256": "d89aaf3b66340977ec310b28e86a129c8b4725046f0d60d1e9e3ec2f79d225b3"
+    },
+    "packages/capability-enforcement/src/decisions.ts": {
+      "sourceSha256": "79396da1b9bc014b9d4b4593d799ebd347c24fc7079397e0e669ae73b008da1b",
+      "outputSha256": "79396da1b9bc014b9d4b4593d799ebd347c24fc7079397e0e669ae73b008da1b"
+    },
+    "packages/capability-enforcement/src/lifecycle-source.ts": {
+      "sourceSha256": "da99b88e650520553a8cb85031c77875cbcd88058d9a5ecf01cc8517a3719038",
+      "outputSha256": "da99b88e650520553a8cb85031c77875cbcd88058d9a5ecf01cc8517a3719038"
+    },
+    "packages/capability-enforcement/src/lifecycle-transport.ts": {
+      "sourceSha256": "a625e1626bc277714e999451c3f9d26bfd4a31e8b49b5bf598cb12f30eb61d8e",
+      "outputSha256": "a625e1626bc277714e999451c3f9d26bfd4a31e8b49b5bf598cb12f30eb61d8e"
+    },
+    "packages/capability-enforcement/src/lifecycle-wire.ts": {
+      "sourceSha256": "439bb8b4a948e06ed426d5635d800de8267e3e2dc76ec4c69cb8c8fb1134d6e4",
+      "outputSha256": "439bb8b4a948e06ed426d5635d800de8267e3e2dc76ec4c69cb8c8fb1134d6e4"
+    },
+    "packages/capability-enforcement/src/ordering-source.ts": {
+      "sourceSha256": "95ea7fef076386f62a08dc9037e97c28a5b044ace7ac094cb1319f52d529040d",
+      "outputSha256": "95ea7fef076386f62a08dc9037e97c28a5b044ace7ac094cb1319f52d529040d"
+    },
+    "packages/capability-enforcement/src/ordering-transport.ts": {
+      "sourceSha256": "f595f8d241442584071da57ad6d6d19a5a56fa9379cd504e977d83a4f08b6820",
+      "outputSha256": "f595f8d241442584071da57ad6d6d19a5a56fa9379cd504e977d83a4f08b6820"
+    },
+    "packages/capability-enforcement/src/ordering-wire.ts": {
+      "sourceSha256": "4b198d32e1dcdc930c2658291906ebf72601e144596f3090202a3e7ee708d606",
+      "outputSha256": "4b198d32e1dcdc930c2658291906ebf72601e144596f3090202a3e7ee708d606"
+    },
+    "packages/capability-enforcement/src/postgres.ts": {
+      "sourceSha256": "8826f8166226424e4b1c59d061236de9e28fc35c2a595d2961af4d315f169209",
+      "outputSha256": "8826f8166226424e4b1c59d061236de9e28fc35c2a595d2961af4d315f169209"
+    },
+    "packages/capability-enforcement/src/recovery-witness.ts": {
+      "sourceSha256": "a952deb07166fa0b3ca28075a25572eaeb45b020cee931505fbfb60689e487e9",
+      "outputSha256": "a952deb07166fa0b3ca28075a25572eaeb45b020cee931505fbfb60689e487e9"
+    },
+    "patches/README.md": {
+      "sourceSha256": "7fc187b9c1480aad950cd1fc58d9f689626243e93aab86652ca96abe84d435a7",
+      "outputSha256": "7fc187b9c1480aad950cd1fc58d9f689626243e93aab86652ca96abe84d435a7"
+    },
+    "patches/sprintf-js-1.1.3.js": {
+      "sourceSha256": "7c47206ecabf615f8a028614ccf8cd9ac1fdbd3df39778338fc38c396538c87d",
+      "outputSha256": "7c47206ecabf615f8a028614ccf8cd9ac1fdbd3df39778338fc38c396538c87d"
+    },
+    "patches/sprintf-js-1.1.3.json": {
+      "sourceSha256": "6fba1d6ae23278290b065e44fde051bed95105ef90517a059fd7e8b16cc06336",
+      "outputSha256": "6fba1d6ae23278290b065e44fde051bed95105ef90517a059fd7e8b16cc06336"
+    },
+    "patches/sprintf-js-LICENSE": {
+      "sourceSha256": "f8287e4dd9480be58c56aca4a55c23b782c43a86e69aabad78fff4df0d29edef",
+      "outputSha256": "f8287e4dd9480be58c56aca4a55c23b782c43a86e69aabad78fff4df0d29edef"
+    },
+    "scripts/security/apply-dependency-patches.mjs": {
+      "sourceSha256": "54750559e54bfd33098e9b2f2680f685db884666585e234807c274e0e963fdfa",
+      "outputSha256": "54750559e54bfd33098e9b2f2680f685db884666585e234807c274e0e963fdfa"
+    }
+  },
+  "inventory": {
+    "agent/channels/eve.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
+        "sha256": "d1c27a0b39434118212f65715333380b09daf2561e29735fc9e3cea1f2c3ce55"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+        "sha256": "f86f603da0f99db979cde42ced74ba0b3b19363c2c09ee46c45fe166aec361c5"
+      }
+    },
+    "lib/capability-registry.ts": {
+      "before": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed.",
+        "sha256": "d37e595d2f9a89f2828e7f8ff6999b3101d2eb4c39bc17ad442bfae234542d16"
+      },
+      "after": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Owner capability tools declare read and always-approved preference mutation only; no execution authority.",
+        "sha256": "f55e125e4849bc8a0abeb746a690e5e46cd81517908d2a8dba6ae56a703ab7ed"
+      }
+    },
+    "lib/engineering/store.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+        "sha256": "70de382f5d3c2913731b40b0db3a5b85d0ce996bf50bb4f288b44bce1e12e14c"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+        "sha256": "3295cbeca23595f398c0eb8d571a32babd70c650b5db805c229e5f328ca4f83a"
+      }
+    },
+    "lib/engineering/execution-store.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+        "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+        "sha256": "49149f91f3d54c6341cb444e6d8a95b5a66f03feef809ea7a2a83abffa8d1401"
+      }
+    },
+    "lib/engineering/route-admission.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
+        "sha256": "5151368e3aeb4f4117e88f4f94ec073364b4cec62e6d05320273cefc8004a0c9"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget. Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+        "sha256": "8f4e8227ab64bb11cdfa7e31c3e9d74cbdbdf5a34f6de3be1eceee9c31f2e31e"
+      }
+    },
+    "agent/tools/change_capability.ts": {
+      "before": null,
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Isolated owner-preference mutation only. Eve always-approval; direct configured authenticated owner guard; no subagents; canonical revision/idempotency transaction. No provider execution or authority issuance. Qualification: scripts/qualify-capability-control.mjs and qualify-capability-browser.mjs; independent review pending.",
+        "sha256": "386c072d807ac2b34ddc9076c57b7c26c9a539f25474384bbb598fd4b5da71bc"
+      }
+    },
+    "agent/tools/show_capabilities.ts": {
+      "before": null,
+      "after": {
+        "classification": "READ_ONLY",
+        "reason": "Direct authenticated owner inspection only; subagents excluded. Canonical scoped store exposes explicit unavailable backend integration; no execution grants. Qualification: scripts/qualify-capability-control.mjs.",
+        "sha256": "28d7c5b38fc6b83081d462beb4eb4eb87a22621b2fb19f1b5e756b4fe27f5db1"
+      }
+    },
+    "lib/capability-control/contracts.ts": {
+      "before": null,
+      "after": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Strict owner-preference command and receipt schemas, including PENDING_PROPAGATION; no executable effects.",
+        "sha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802"
+      }
+    },
+    "lib/capability-control/runtime.ts": {
+      "before": null,
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Explicit isolated installation/database gate; signed owner authentication and same-origin mutations. Trusted configuration delivers signed policy and lifecycle observations after commit; development requires independently retained recovery witness. No execution authority or automatic enrollment. Real PostgreSQL recovery/HTTP lifecycle and signed-session bypass qualification pass; production/hosted remains rejected.",
+        "sha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669"
+      }
+    },
+    "lib/capability-control/sofie.ts": {
+      "before": null,
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Direct owner guard excludes delegated, guest and role-pack callers. Canonical scoped preferences only; tool mutation separately requires always-approval. Qualification: scripts/qualify-capability-control.mjs. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
+        "sha256": "76c1548280cccc507d8d921025363ee59a73d48b8d04af685e318d8419777487"
+      }
+    },
+    "lib/capability-control/store.ts": {
+      "before": null,
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Restricted role, exact owner/installation RLS, canonical revision locking, durable idempotency and immutable audit. Witness-enrolled owners fail closed on missing configuration, stale authority digest or uncertain commit. Backend observations require frozen enrolled signatures, monotonic exact control identity and complete native inventory; only explicit owner enable after confirmed control clears the request. New admissions retain all backend checks and UNKNOWN accounting. Qualified by real PostgreSQL lifecycle/recovery/concurrency/owner tests and signed cleanup browser reconnect, with independent security review.",
+        "sha256": "16db8cdd25623d0a9c26f77b93a9fab55a9f55fa2bd1280178d23004c831dfb0"
+      }
+    },
+    "app/api/capability-control/route.ts": {
+      "before": null,
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Signed owner principal and same-origin mutation through bounded strict commands. No body-selected owner. Uses canonical scoped store; no execution authority. Real HTTP browser checks in scripts/qualify-capability-browser.mjs.",
+        "sha256": "9f150e011781768c70110333316266d13a5cd70f2363acc0ecda138791b62236"
+      }
+    },
+    "lib/capability-control/admission.ts": {
+      "before": null,
+      "after": {
+        "classification": "INTERNAL",
+        "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
+        "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+      }
+    }
+  },
+  "catalog": {
+    "path": "apps/eve/lib/capability-registry.ts",
+    "anchor": "  tool(\"list_agents\",",
+    "added": "  tool(\"show_capabilities\", { description: \"Inspect authenticated owner preferences and effective eligibility.\", permissions: [\"capabilities.read\"], configuration: [\"MYEVE_CAPABILITY_CONTROL_ENABLED\"], keywords: [\"capabilities\", \"settings\", \"enabled\"] }),\n  tool(\"change_capability\", { description: \"Change owner preferences through audited canonical commands without granting execution authority.\", permissions: [\"capabilities.preferences.write\"], approval: \"always\", risk: \"high\", riskCategories: [\"capability-preference\"], configuration: [\"MYEVE_CAPABILITY_CONTROL_ENABLED\"], keywords: [\"enable\", \"disable\", \"pause\", \"revoke\", \"capabilities\"] }),\n"
+  },
+  "reconciliations": {
+    ".github/workflows/ci.yml": "Union canonical PostgreSQL coverage and main serial fixture explanation; exact successor Factory pin; deployment remains unavailable.",
+    ".gitignore": "Union historical canonical and both MyApps/capability generated-evidence ignores.",
+    "apps/builder/lib/manifest.ts": "Four independently reviewed instruction ownership renames; retain installed_apps and both main preference tools; exclude seven exact canonical capability qualification harnesses from standalone source.",
+    "apps/eve/lib/capability-registry.ts": "Canonical discovery filters plus exact dormant MyApps entry/deny gate plus two current-main preference declarations.",
+    "apps/eve/lib/engineering/production-validation-postgres.test.ts": "Exact74d cleanup, full migration checksums and expiry negative; exact main capability binding/foreign-owner denials.",
+    "apps/eve/package.json": "Preserve main dependency mitigation and both capability workspaces; canonical integration narrows Eve to exact0.66.3.",
+    "apps/eve/scripts/executor-inventory.json": "Exact42 governance records + six MyApps records/three explicit transformations +13 current-main records; no checker change. Exact canonical agent build-only externalization retains INTERNAL classification and all prior review reasons.",
+    "apps/eve/vercel.json": "Union false-only branch exclusions from both sources; all other hosting fields identical.",
+    "package-lock.json": "Preserve complete main dependency graph/integrities; add two unchanged MyApps workspace references and canonical exactEve requirement."
+  },
+  "packaging": {
+    "source": "bc9d595b130d72e51d738ecb18898406f31940f7",
+    "scope": "REVIEWED_CANONICAL_STANDALONE_SOURCE_AND_TRACE_METADATA_ONLY",
+    "files": {
+      "apps/builder/lib/assemble.ts": "67259cfa24e664f606a49684c134cf6b268924e6d429b1638a46abac939b0bbb",
+      "apps/builder/lib/manifest.ts": "bfff831c27cb931bf1307f01b05cd35d0d84db6f3a107a6472bfe983252400f1",
+      "apps/builder/lib/shared-myapps.test.ts": "535a8d6e9682cde1ca07792ecbf5212adee6f6cb0f73b562bb1541e463f88a4e",
+      "apps/builder/lib/shared-myapps.ts": "f4118d38801128b1d58e7589f3f1421acf4c2005180079d7b3d23cd740026610",
+      "apps/builder/next.config.ts": "0b62eff84fc4a634296ec09c1ac3a9d1d63eb515230a1ae87e8b08509aa80f80",
+      "apps/builder/scripts/qualification-myapps.ts": "8961ba4c1376fc3894cf75c0697e495614c527327b2c8fab12914542a102faab",
+      "docs/myapps/phase3/current-main-standalone-packaging.md": "797a88fbed9b427362d3a0b493baad80e37df784a88fd0f9e625d8e7cc3322e0",
+      "packages/myapps/package.json": "f0ff911cea6f533b8c63f4539b86c3160a9ef4b93ab7f99f52f6ec704b4f744c",
+      "package.json": "c7b5ca1803cce49c558137ef3264720ae507c25dc59a5951cb9e221f6d205d7c"
+    }
+  }
+}

@@ -13,7 +13,9 @@
     "db:migrations:check": "npm run db:migrations:check --workspace=eve-agent",
     "dev": "turbo run dev",
     "test": "node --import tsx --test apps/eve/test/*.test.mjs apps/eve/scripts/*.test.mjs",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck --filter='!@mission-control/capability-control' && tsc --project packages/capability-control/tsconfig.json",
+    "postinstall": "node scripts/security/apply-dependency-patches.mjs",
+    "security:patches": "node scripts/security/apply-dependency-patches.mjs --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
@@ -22,5 +24,24 @@
   },
   "engines": {
     "node": "24.x"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.5",
+    "proxy-addr": "2.0.8",
+    "sharp": "0.35.5",
+    "source-map-js": "1.2.2",
+    "brace-expansion": "5.0.12",
+    "raindrop-ai": {
+      "langsmith": "0.6.0"
+    },
+    "ai": "^7.0.114",
+    "undici@>=8.0.0 <8.10.2": "8.10.2",
+    "@opentelemetry/core@>=2.0.0 <2.8.0": "2.8.0",
+    "fast-uri": "3.1.8",
+    "uuid@<11.1.1": "11.1.1",
+    "postcss-selector-parser": "7.1.6",
+    "smol-toml": "1.9.1",
+    "dompurify": "3.4.16",
+    "katex": "0.18.2"
   }
 }

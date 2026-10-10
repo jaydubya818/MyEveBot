@@ -100,7 +100,19 @@ afterAll(async () => {
   if (directory) rmSync(directory, { recursive: true });
   await pool?.end();
   if (admin) {
-    await admin.query("DROP DATABASE IF EXISTS " + name + " WITH (FORCE)");
+    // pg.Pool.end() can resolve before PostgreSQL observes every socket close.
+    // Wait for owned sessions to leave; never terminate them with a forced drop.
+    let remaining: { pid: number }[] = [];
+    for (let attempt = 0; attempt < 100; attempt++) {
+      remaining = (await admin.query(
+        "SELECT pid FROM pg_stat_activity WHERE datname=$1",
+        [name],
+      )).rows;
+      if (remaining.length === 0) break;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    expect(remaining, "Golden Journey database sessions must close before cleanup").toEqual([]);
+    await admin.query("DROP DATABASE IF EXISTS " + name);
     await admin.end();
   }
 });
