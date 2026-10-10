@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 36fef2b1694c023bec9628134d2384b577f234ff
+          ref: c559a209e7e724e7a9e0f4b9871c5233f750ae6c
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
