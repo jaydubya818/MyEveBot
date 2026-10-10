@@ -580,7 +580,7 @@ export class ReferenceStore {
     write: boolean,
     input: unknown,
     key: string | null,
-    handler: (app: AppRow, timestamp: string) => T,
+    handler: (app: AppRow, timestamp: string, spec: AppPackage["spec"]) => T,
   ): T {
     this.#permission(principal, operation);
     return this.#atomic(() => {
@@ -622,7 +622,7 @@ export class ReferenceStore {
           return JSON.parse(String(prior.response));
         }
       }
-      const output = handler(app, this.#now());
+      const output = handler(app, this.#now(), candidate.package.spec);
       if (write) {
         this.#save(app);
         this.#db

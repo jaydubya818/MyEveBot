@@ -6,7 +6,10 @@ export default defineConfig({
   },
   test: {
     fileParallelism: false,
-    include: ["packages/myapps/integration/*.test.ts", "apps/eve/lib/database-schema.test.ts"],
+    include: [
+      "packages/myapps/integration/*.test.ts",
+      "apps/eve/lib/database-schema.test.ts",
+    ],
     testTimeout: 30000,
     hookTimeout: 120000,
   },

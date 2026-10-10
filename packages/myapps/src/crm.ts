@@ -143,7 +143,7 @@ export class Crm {
       true,
       input,
       requestKey,
-      (app, now) => {
+      (app, now, spec) => {
         if (operation === "createLead") {
           keys(input, ["name", "company", "contact", "source", "valueCents"]);
           requireValue(
@@ -196,7 +196,7 @@ export class Crm {
                 "contact",
                 "source",
                 "valueCents",
-                ...(app.data.schemaVersion === 2 ? ["priority"] : []),
+                ...(spec.schema.version === 2 ? ["priority"] : []),
               ],
             );
             requireValue(Object.keys(input.patch).length > 0);

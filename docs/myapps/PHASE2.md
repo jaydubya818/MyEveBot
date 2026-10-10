@@ -13,7 +13,7 @@ Phase 2 extends the qualified deterministic foundation inside MyEve and MyFactor
 
 Migration 0085 is additive. Owner-scoped tables hold app state, candidate proofs and signed Results, previews, retained installation requests, idempotency receipts, admission snapshots and audit history. Transactions set the owner context and use forced row security. A per-owner lock serializes state transitions with exact Work and Inbox checks. Candidate bytes and audit events are immutable; candidates permit irreversible revocation only.
 
-Installation, grants, data migration, history, receipts and Inbox resolution commit together. Failed updates roll back completely. Retries return a retained result only while its authority remains current. Disabling or revoking clears executable grants and preserves data. Re-enabling requires a current nonrevoked candidate and owner authority.
+Installation, grants, data migration, history, receipts and Inbox resolution commit together. Failed updates roll back completely. Retries return a retained result only while its authority remains current. Disabling gates all execution while retaining approved grants and data. Revocation clears grants and preserves data. Re-enabling requires a current nonrevoked candidate and owner authority.
 
 The supported CRM schema upgrade adds a nullable priority field. A behavior rollback is a newly verified successor, retaining the expanded storage schema and existing data. It does not restore an old database snapshot or silently downgrade data. History includes each accepted version.
 

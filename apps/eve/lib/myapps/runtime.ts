@@ -1,6 +1,7 @@
 import { candidatePreview } from "../../../../packages/myapps/src/preview.ts";
 import { randomUUID } from "node:crypto";
 import {
+  AppError,
   appId,
   canonical,
   digest,
@@ -508,8 +509,14 @@ export class PersistentApps {
       await this.work(c, candidate.package);
       const [prior] = (
         await c.query(
-          "SELECT binding,expires_at FROM myapps_previews WHERE owner_id=$1 AND app_id=$2 AND binding->>'digest'=$3 AND binding->>'runtimeId'=$4 AND NOT ended AND expires_at>clock_timestamp() ORDER BY expires_at DESC LIMIT 1",
-          [p.ownerId, id, candidate.digest, this.host.runtimeId],
+          "SELECT binding,expires_at FROM myapps_previews WHERE owner_id=$1 AND app_id=$2 AND binding->>'digest'=$3 AND binding->>'runtimeId'=$4 AND binding->>'target'=$5 AND NOT ended AND expires_at>clock_timestamp() ORDER BY expires_at DESC LIMIT 1",
+          [
+            p.ownerId,
+            id,
+            candidate.digest,
+            this.host.runtimeId,
+            this.host.target,
+          ],
         )
       ).rows;
       if (prior)
@@ -877,21 +884,51 @@ export class PersistentApps {
       p.kind === "human" && p.ownerId === response.ownerId,
       "APP_UNAVAILABLE",
     );
-    const appId = await this.atomic(p.ownerId, async (c) => {
+    const request = await this.atomic(p.ownerId, async (c) => {
       const [row] = (
         await c.query(
-          "SELECT app_id FROM myapps_install_requests WHERE owner_id=$1 AND id=$2",
+          "SELECT app_id,binding FROM myapps_install_requests WHERE owner_id=$1 AND id=$2",
           [p.ownerId, response.action.id],
         )
       ).rows;
-      return row?.app_id as string | undefined;
+      return row;
     });
-    if (!appId) return null;
-    const receipt = await this.install(p, appId, response.id);
-    return {
-      status: "accepted" as const,
-      receipt: `myapps:${response.id}:${receipt.outcome}`,
-    };
+    if (!request) return null;
+    try {
+      const receipt = await this.install(p, request.app_id, response.id);
+      return {
+        status: "accepted" as const,
+        receipt: `myapps:${response.id}:${receipt.outcome}`,
+      };
+    } catch (error) {
+      // Permanent authority loss must not poison the canonical Inbox delivery queue.
+      // SQL/network failures and disabled host/policy remain retryable failures.
+      if (!(error instanceof AppError)) throw error;
+      let stale = [
+        "APP_WORK_STALE",
+        "PREVIEW_EXPIRED",
+        "INSTALLATION_STALE",
+        "INSTALLATION_BASE_MISMATCH",
+        "INSTALLATION_APPROVAL_REQUIRED",
+        "MIGRATION_FAILED",
+      ].includes(error.code);
+      if (error.code === "APP_UNAVAILABLE") {
+        stale = await this.atomic(p.ownerId, async (c) => {
+          const [candidate] = (
+            await c.query(
+              "SELECT revoked FROM myapps_candidates WHERE owner_id=$1 AND app_id=$2 AND version=$3",
+              [p.ownerId, request.app_id, request.binding.version],
+            )
+          ).rows;
+          return candidate?.revoked === true;
+        });
+      }
+      if (!stale) throw error;
+      return {
+        status: "stale" as const,
+        receipt: `myapps:stale:${response.id}:${error.code}`,
+      };
+    }
   }
 
   async setEnabled(
@@ -1017,7 +1054,7 @@ export class PersistentApps {
     const crm = new Crm(
       {
         operate: (_p, _i, _v, _h, _op, _w, _input, _key, handler) =>
-          handler(state, new Date().toISOString()),
+          handler(state, new Date().toISOString(), candidate.package.spec),
       },
       p,
     );

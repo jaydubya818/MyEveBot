@@ -381,6 +381,43 @@ test.skipIf(!connection || !factoryRoot)(
         )
       ).priority,
     ).toBe("High");
+    const rolledBackLead = await runtime.operate(
+      human,
+      pkg.appId,
+      3,
+      digest(rollback.pkg),
+      "getLead",
+      { leadId: lead.id },
+    );
+    await expect(
+      runtime.operate(
+        human,
+        pkg.appId,
+        3,
+        digest(rollback.pkg),
+        "updateLead",
+        {
+          leadId: lead.id,
+          expectedRevision: rolledBackLead.revision,
+          patch: { priority: "Low" },
+        },
+        "rollback-priority-denied",
+      ),
+    ).rejects.toThrow("INVALID_APP_INPUT");
+    const ordinaryUpdate = await runtime.operate(
+      human,
+      pkg.appId,
+      3,
+      digest(rollback.pkg),
+      "updateLead",
+      {
+        leadId: lead.id,
+        expectedRevision: rolledBackLead.revision,
+        patch: { company: "Acme retained" },
+      },
+      "rollback-ordinary-update",
+    );
+    expect(ordinaryUpdate.priority).toBe("High");
     await expect(
       runtime.install(human, pkg.appId, approval.response.id),
     ).rejects.toThrow("INSTALLATION_STALE");
@@ -716,6 +753,18 @@ test.skipIf(!connection || !factoryRoot)(
         runtimeId: "different-runtime",
       }).install(human, repair.pkg.appId, approval.response.id),
     ).rejects.toThrow("INSTALLATION_STALE");
+    const movedTarget = new PersistentApps(pool, {
+      ...host(),
+      target: "another-private-target",
+    });
+    const targetPreview = await movedTarget.preview(
+      human,
+      repair.pkg.appId,
+      repair.pkg.version,
+    );
+    expect(targetPreview.id).not.toBe(approval.preview.id);
+    expect(targetPreview.target).toBe("another-private-target");
+    await movedTarget.previewData(human, repair.pkg.appId, targetPreview.id);
     await pool.query(
       "UPDATE myapps_previews SET expires_at=clock_timestamp()-interval '1 second' WHERE owner_id=$1 AND id=$2",
       [owner, approval.preview.id],
@@ -998,20 +1047,168 @@ test.skipIf(!connection || !factoryRoot)(
       );
       expect(JSON.parse(output)[0].priority).toBe("High");
       // A response from the actual canonical Needs You consumer installs the successor.
-    const prepared=await runtime.prepareWork(b,randomUUID(),'Roll back CRM behavior.',{sourceCommit:execFileSync('git',['-C',factoryRoot!,'rev-parse','HEAD'],{encoding:'utf8'}).trim(),configurationDigest:digest(resultModule.referenceConfiguration(process.cwd()))},emptyCommit);
-    const run=await factory.build(prepared);runs.set(prepared.pkg.source.candidateId,run);
-    const verification=await factory.verify(b.ownerId,run.id);
-    const signed=resultModule.appResult({pkg:prepared.pkg,run,verification,basePackage:factory.readCandidate(b.ownerId,run.id).basePackage,privateKey,keyId:'phase2-fixture',issuedAt});
-    await runtime.retain(prepared.creationIntent,prepared.pkg,signed);
-    const preview=await runtime.preview(b,prepared.pkg.appId,prepared.pkg.version),attention=await runtime.requestInstall(b,prepared.pkg.appId,preview.id);
-    await runtime.inbox(b.ownerId).respond({itemId:attention.id,actionId:attention.action!.id,actionBinding:attention.actionBinding!,expectedRevision:attention.revision,idempotencyKey:randomUUID(),answer:'Install privately'});
-    const {BetaIntegration}=await import('../../../apps/eve/lib/beta-integration/runtime.ts');
-    const beta=new BetaIntegration(pool,{repository:'synthetic/app-package',maxCostUsd:0.01,maxDurationSeconds:180});
-    expect(await beta.deliver(b.ownerId)).toBe(1);
-    expect((await runtime.list(b))[0].installedVersion).toBe(3);
-    expect((await runtime.inbox(b.ownerId).get(attention.id)).status).toBe('RESOLVED');
-    writeFileSync(resolve('output/playwright/myapps/phase2-native.json'),JSON.stringify({status:'PASS',nativeUi:'PASS',freshProcess:'PASS',canonicalNeedsYouDelivery:'PASS',productionIntegration:'NOT_RUN'},null,2));
-    const oldNodeEnv = process.env.NODE_ENV;
+      const pendingCandidate = async () => {
+        const prepared = await runtime.prepareWork(
+          b,
+          randomUUID(),
+          "Roll back CRM behavior.",
+          {
+            sourceCommit: execFileSync(
+              "git",
+              ["-C", factoryRoot!, "rev-parse", "HEAD"],
+              { encoding: "utf8" },
+            ).trim(),
+            configurationDigest: digest(
+              resultModule.referenceConfiguration(process.cwd()),
+            ),
+          },
+          emptyCommit,
+        );
+        const run = await factory.build(prepared);
+        runs.set(prepared.pkg.source.candidateId, run);
+        const verification = await factory.verify(b.ownerId, run.id);
+        const signed = resultModule.appResult({
+          pkg: prepared.pkg,
+          run,
+          verification,
+          basePackage: factory.readCandidate(b.ownerId, run.id).basePackage,
+          privateKey,
+          keyId: "phase2-fixture",
+          issuedAt,
+        });
+        await runtime.retain(prepared.creationIntent, prepared.pkg, signed);
+        const preview = await runtime.preview(
+            b,
+            prepared.pkg.appId,
+            prepared.pkg.version,
+          ),
+          attention = await runtime.requestInstall(
+            b,
+            prepared.pkg.appId,
+            preview.id,
+          );
+        const response = await runtime.inbox(b.ownerId).respond({
+          itemId: attention.id,
+          actionId: attention.action!.id,
+          actionBinding: attention.actionBinding!,
+          expectedRevision: attention.revision,
+          idempotencyKey: randomUUID(),
+          answer: "Install privately",
+        });
+        return { prepared, preview, attention, response };
+      };
+      const staleWork = await pendingCandidate();
+      await new WorkStore(
+        { scopeId: b.ownerId, scopeKind: "personal", actorId: b.actorId },
+        database(pool),
+      ).change(staleWork.prepared.pkg.work.workId, {
+        operation: "pause",
+        expectedVersion: staleWork.prepared.pkg.work.workVersion,
+      });
+      const revoked = await pendingCandidate();
+      await runtime.revoke(
+        b,
+        revoked.prepared.pkg.appId,
+        revoked.prepared.pkg.version,
+      );
+      const {
+        prepared,
+        preview,
+        attention,
+        response: expiredResponse,
+      } = await pendingCandidate();
+      await pool.query(
+        "UPDATE myapps_previews SET expires_at=clock_timestamp()-interval '1 second' WHERE owner_id=$1 AND id=$2",
+        [b.ownerId, preview.id],
+      );
+      const currentPreview = await runtime.preview(
+        b,
+        prepared.pkg.appId,
+        prepared.pkg.version,
+      );
+      const currentAttention = await runtime.requestInstall(
+        b,
+        prepared.pkg.appId,
+        currentPreview.id,
+      );
+      await runtime.inbox(b.ownerId).respond({
+        itemId: currentAttention.id,
+        actionId: currentAttention.action!.id,
+        actionBinding: currentAttention.actionBinding!,
+        expectedRevision: currentAttention.revision,
+        idempotencyKey: randomUUID(),
+        answer: "Install privately",
+      });
+      const { BetaIntegration } =
+        await import("../../../apps/eve/lib/beta-integration/runtime.ts");
+      const beta = new BetaIntegration(pool, {
+        repository: "synthetic/app-package",
+        maxCostUsd: 0.01,
+        maxDurationSeconds: 180,
+      });
+      await pool.query(
+        `CREATE FUNCTION myapps_queue_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='app.installed' THEN RAISE EXCEPTION 'INJECTED_QUEUE_FAILURE'; END IF; RETURN NEW; END $$; CREATE TRIGGER myapps_queue_failure BEFORE INSERT ON myapps_audit FOR EACH ROW EXECUTE FUNCTION myapps_queue_failure()`,
+      );
+      await expect(beta.deliver(b.ownerId)).rejects.toThrow(
+        "INJECTED_QUEUE_FAILURE",
+      );
+      expect((await runtime.list(b))[0].installedVersion).toBe(2);
+      expect(
+        (await runtime.inbox(b.ownerId).get(currentAttention.id)).status,
+      ).toBe("WAITING");
+      const pending = await pool.query(
+        "SELECT data FROM inbox_attention_responses WHERE owner_id=$1 AND data->>'itemId'=$2",
+        [b.ownerId, currentAttention.id],
+      );
+      expect(pending.rows[0].data.status).toBe("PENDING");
+      await pool.query(
+        "DROP TRIGGER myapps_queue_failure ON myapps_audit; DROP FUNCTION myapps_queue_failure()",
+      );
+      expect(await beta.deliver(b.ownerId)).toBe(1);
+      for (const invalid of [staleWork, revoked]) {
+        expect(
+          (await runtime.inbox(b.ownerId).get(invalid.attention.id)).status,
+        ).toBe("SUPERSEDED");
+        expect(
+          (
+            await pool.query(
+              "SELECT data FROM inbox_attention_responses WHERE owner_id=$1 AND id=$2",
+              [b.ownerId, invalid.response.id],
+            )
+          ).rows[0].data.status,
+        ).toBe("STALE");
+      }
+      expect((await runtime.inbox(b.ownerId).get(attention.id)).status).toBe(
+        "SUPERSEDED",
+      );
+      expect(
+        (
+          await pool.query(
+            "SELECT data FROM inbox_attention_responses WHERE owner_id=$1 AND id=$2",
+            [b.ownerId, expiredResponse.id],
+          )
+        ).rows[0].data.status,
+      ).toBe("STALE");
+      expect((await runtime.list(b))[0].installedVersion).toBe(5);
+      expect(
+        (await runtime.inbox(b.ownerId).get(currentAttention.id)).status,
+      ).toBe("RESOLVED");
+      writeFileSync(
+        resolve("output/playwright/myapps/phase2-native.json"),
+        JSON.stringify(
+          {
+            status: "PASS",
+            nativeUi: "PASS",
+            freshProcess: "PASS",
+            canonicalNeedsYouDelivery: "PASS",
+            staleApprovalQueueRecovery: "PASS",
+            productionIntegration: "NOT_RUN",
+          },
+          null,
+          2,
+        ),
+      );
+      const oldNodeEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = "production";
       expect(localAppsAllowed()).toBe(false);
       expect(
