@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import { CapabilityStore } from '../lib/capability-control/store.ts';
 import { capabilityRegistry } from '@mission-control/capability-control';
-import { acknowledgePolicyFence, issueOrderedPermit, pendingPolicyDeliveries } from '../../../packages/capability-enforcement/src/ordering-source.ts';
+import { acknowledgePolicyFence, issueOrderedPermit, issueBackendOrderedPermit, pendingPolicyDeliveries } from '../../../packages/capability-enforcement/src/ordering-source.ts';
 import { policyChallengeMaterial } from '../../../packages/capability-enforcement/src/decisions.ts';
 import { signPolicyMessage, verifyPolicyMessage, policyMessageHash } from '../../../packages/capability-enforcement/src/ordering-wire.ts';
 
@@ -30,11 +30,12 @@ export async function qualifyOrdering({ admin, runtime, check }) {
   const challenge = () => ({ schema: 'myeve.policy-challenge.v1', requestId: randomUUID(), backendId: binding.backendId,
     installationId: scope.installationId, ownerId: scope.ownerId, organizationId: scope.organizationId, agentId: scope.agentId,
     keyId: binding.keyId, capabilityId: 'missioncontrol', workId: randomUUID(), missionId: 'mission-1', workGeneration: 1,
-    budgetMicros: 0, actionDigest: 'a'.repeat(64), nonce: randomUUID(), issuedAt: Date.now(), expiresAt: Date.now() + 20_000 });
+    budgetMicros: 0, actionDigest: 'a'.repeat(64), nonce: randomUUID(), issuedAt: Date.now(), expiresAt: Date.now() + 20_000,
+    incarnation: 'isolated-incarnation-1', enrollmentVersion: 1 });
   const issue = value => tx(c => issueOrderedPermit(c, value, sign(null, Buffer.from(policyChallengeMaterial(value)), challengeKey.privateKey).toString('base64url'), binding, source.private));
   const acknowledge = async envelope => {
     const fence = await verifyPolicyMessage(envelope, source.public);
-    const { kind, capabilityId, operation, ...identity } = fence;
+    const { kind, capabilityId, operation, controls, ...identity } = fence;
     const ack = await signPolicyMessage({ ...identity, kind: 'FENCE_ACK', fenceHash: await policyMessageHash(fence) }, backend.private);
     return tx(c => acknowledgePolicyFence(c, scope, binding.backendId, ack));
   };
@@ -48,7 +49,7 @@ export async function qualifyOrdering({ admin, runtime, check }) {
     assert.deepEqual(await tx(c => pendingPolicyDeliveries(c, scope, source.private)), deliveries);
   });
   await check('ordered source rejects forged acknowledgments and preserves pending state across connection loss', async () => {
-    const fence = await verifyPolicyMessage(firstDelivery, source.public), { kind, capabilityId, operation, ...identity } = fence;
+    const fence = await verifyPolicyMessage(firstDelivery, source.public), { kind, capabilityId, operation, controls, ...identity } = fence;
     for (const changed of [{ ownerId: 'foreign' }, { incarnation: 'replaced' }, { enrollmentVersion: 2 }, { fenceHash: 'b'.repeat(64) }]) {
       const ack = await signPolicyMessage({ ...identity, kind: 'FENCE_ACK', fenceHash: await policyMessageHash(fence), ...changed }, backend.private);
       await assert.rejects(tx(c => acknowledgePolicyFence(c, scope, binding.backendId, ack)));
@@ -63,6 +64,24 @@ export async function qualifyOrdering({ admin, runtime, check }) {
     const parsed = await verifyPolicyMessage(firstPermit, source.public);
     assert.equal(parsed.missionId, 'mission-1'); assert.equal(parsed.kind, 'PERMIT'); assert.equal(parsed.version, 2);
     await assert.rejects(issue({ ...value, workId: 'foreign-work' }), /REFERENCE_CONFLICT/);
+  });
+  await check('ordered challenges reject omitted or changed incarnation and enrollment before new issuance', async () => {
+    for (const changed of [{ incarnation: undefined }, { incarnation: 'old-boot' }, { enrollmentVersion: 2 }])
+      await assert.rejects(issue({ ...challenge(), ...changed }), /CHALLENGE_INCARNATION/);
+  });
+  await check('receiving-backend signed native challenges bind the exact current policy and incarnation', async () => {
+    const { kind, requiredCapabilities, agentRevision, sourcePermitHash, ...scopeFields } = await verifyPolicyMessage(firstPermit, source.public);
+    const value = { ...scopeFields, kind: 'CHALLENGE', referenceId: randomUUID(), issuedAt: Date.now(), expiresAt: Date.now() + 20_000 };
+    const envelope = await signPolicyMessage(value, backend.private);
+    const issued = await tx(c => issueBackendOrderedPermit(c, envelope, scope, binding.backendId, source.private));
+    assert.equal((await verifyPolicyMessage(issued, source.public)).referenceId, value.referenceId);
+    assert.deepEqual(await tx(c => issueBackendOrderedPermit(c, envelope, scope, binding.backendId, source.private)), issued);
+    for (const changed of [{ incarnation: 'old-boot' }, { enrollmentVersion: 2 }, { policyId: 'old-policy' }, { ownerId: 'foreign-owner' }, { registryVersion: 'stale-registry' }]) {
+      const invalid = await signPolicyMessage({ ...value, referenceId: randomUUID(), ...changed }, backend.private);
+      await assert.rejects(tx(c => issueBackendOrderedPermit(c, invalid, scope, binding.backendId, source.private)));
+    }
+    const forged = await signPolicyMessage({ ...value, referenceId: randomUUID() }, source.private);
+    await assert.rejects(tx(c => issueBackendOrderedPermit(c, forged, scope, binding.backendId, source.private)));
   });
   await check('disable fences the next version and old acknowledgments cannot complete it', async () => {
     await command('disable');
@@ -87,12 +106,22 @@ export async function qualifyOrdering({ admin, runtime, check }) {
     assert.ok(JSON.parse(current.envelope.message).version > JSON.parse(older.envelope.message).version);
     await acknowledge(current.envelope);
   });
+  await check('superseded restrictive intent remains in the exact signed latest delivery', async () => {
+    const receipt = await command('revoke');
+    await actor.command({ requestId: randomUUID(), expectedRevision: (await actor.inspect()).revision, capabilityId: 'memory', operation: 'disable' });
+    const [delivery] = await tx(c => pendingPolicyDeliveries(c, scope, source.private));
+    const message = await verifyPolicyMessage(delivery.envelope, source.public);
+    assert.equal(message.capabilityId, 'memory');
+    assert(message.controls.some(control => control.capabilityId === 'missioncontrol' && control.operation === 'revoke' && control.version === receipt.revision));
+    await acknowledge(delivery.envelope);
+    assert.equal((await actor.inspect()).propagation.status, 'ACKNOWLEDGED');
+  });
   await check('key replacement or enrollment changes cannot stand in for a required acknowledgment', async () => {
-    await command('enable');
+    await actor.command({ requestId: randomUUID(), expectedRevision: (await actor.inspect()).revision, capabilityId: 'files', operation: 'disable' });
     const [delivery] = await tx(c => pendingPolicyDeliveries(c, scope, source.private));
     await admin.query("UPDATE capability_control.policy_destinations SET incarnation='replacement' WHERE owner_id=$1", [scope.ownerId]);
     await assert.rejects(acknowledge(delivery.envelope), /ENROLLMENT_CHANGED/);
-    await assert.rejects(issue(challenge()), /PROPAGATION_PENDING/);
+    await assert.rejects(issue(challenge()), /PROPAGATION_PENDING|CONTROL_PENDING|POLICY_BLOCKED/);
     assert.equal((await actor.inspect()).propagation.status, 'PENDING_PROPAGATION');
   });
 }

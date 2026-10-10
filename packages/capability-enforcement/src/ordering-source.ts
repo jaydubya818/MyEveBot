@@ -1,5 +1,5 @@
 import { assertCapabilityAdmission, type AdmissionScope, type PolicyConnection } from './postgres.ts';
-import { authenticatePolicyChallenge, policyChallengeMaterial, type DecisionBinding } from './decisions.ts';
+import { authenticatePolicyChallenge, policyChallengeMaterial, type DecisionBinding, type PolicyChallenge } from './decisions.ts';
 import { signPolicyMessage, verifyPolicyMessage, policyMessageHash, assertPolicyIdentity,
   type PolicyKey, type PolicyIdentity, type Fence, type SignedPolicyMessage } from './ordering-wire.ts';
 
@@ -26,13 +26,18 @@ export async function pendingPolicyDeliveries(connection: PolicyConnection, scop
     WHERE installation_id=$1 AND owner_id=$2 AND status='PENDING_PROPAGATION'`, [scope.installationId, scope.ownerId])).rows;
   if (!change) return [];
   if (change.organization_id !== scope.organizationId) throw Error('CAPABILITY_POLICY_IDENTITY_MISMATCH');
+  const controls = (await connection.query(`SELECT DISTINCT ON (capability_id,operation)
+    capability_id AS "capabilityId", operation, revision AS version, policy_id AS "policyId"
+    FROM capability_control.policy_changes WHERE installation_id=$1 AND owner_id=$2 AND revision <= $3
+    AND operation IN ('pause','revoke') ORDER BY capability_id,operation,revision DESC`,
+    [scope.installationId, scope.ownerId, change.revision])).rows as Fence['controls'];
   const deliveries: { backendId: string; envelope: SignedPolicyMessage }[] = [];
   for (const destination of change.destinations as Destination[]) {
     const key = [scope.installationId, scope.ownerId, change.revision, destination.backend_id];
     const [prior] = (await connection.query(`SELECT * FROM capability_control.policy_deliveries
       WHERE installation_id=$1 AND owner_id=$2 AND revision=$3 AND backend_id=$4`, key)).rows;
     if (prior?.acknowledgment) continue;
-    const fence: Fence = { ...identity(change, destination), kind: 'FENCE', capabilityId: change.capability_id, operation: change.operation };
+    const fence: Fence = { ...identity(change, destination), kind: 'FENCE', capabilityId: change.capability_id, operation: change.operation, controls };
     const envelope = prior?.envelope ?? await signPolicyMessage(fence, signer);
     if (!prior) await connection.query('INSERT INTO capability_control.policy_deliveries VALUES($1,$2,$3,$4,$5,NULL)', [...key, envelope]);
     deliveries.push({ backendId: destination.backend_id, envelope });
@@ -74,6 +79,28 @@ export async function issueOrderedPermit(connection: PolicyConnection, value: un
   binding: DecisionBinding, signer: PolicyKey) {
   const clock = async () => Number((await connection.query('SELECT floor(extract(epoch FROM clock_timestamp())*1000)::float8 AS now')).rows[0].now);
   const challenge = authenticatePolicyChallenge(value, signature, binding, await clock());
+  return issueAuthenticatedPermit(connection, challenge, binding, signer);
+}
+
+export async function issueBackendOrderedPermit(connection: PolicyConnection, envelope: SignedPolicyMessage,
+  scope: AdmissionScope, backendId: string, signer: PolicyKey) {
+  await lock(connection, scope);
+  const [destination] = (await connection.query(`SELECT * FROM capability_control.policy_destinations
+    WHERE installation_id=$1 AND owner_id=$2 AND backend_id=$3`, [scope.installationId, scope.ownerId, backendId])).rows;
+  if (!destination) throw Error('CAPABILITY_DESTINATION_UNAVAILABLE');
+  const challenge = await verifyPolicyMessage(envelope, { keyId: destination.key_id, jwk: destination.public_jwk });
+  if (challenge.kind !== 'CHALLENGE' || challenge.backendId !== backendId || challenge.ownerId !== scope.ownerId
+    || challenge.organizationId !== scope.organizationId || challenge.installationId !== scope.installationId
+    || challenge.agentId !== scope.agentId) throw Error('CAPABILITY_CHALLENGE_SCOPE');
+  const request: PolicyChallenge = { ...challenge, schema: 'myeve.policy-challenge.v1', requestId: challenge.referenceId,
+    keyId: envelope.keyId, nonce: challenge.referenceId };
+  return issueAuthenticatedPermit(connection, request, { scope, backendId }, signer, challenge, envelope.message);
+}
+
+async function issueAuthenticatedPermit(connection: PolicyConnection, challenge: PolicyChallenge,
+  binding: Pick<DecisionBinding, 'scope' | 'backendId'>, signer: PolicyKey, expectedIdentity?: PolicyIdentity, signedMaterial?: string) {
+  const clock = async () => Number((await connection.query('SELECT floor(extract(epoch FROM clock_timestamp())*1000)::float8 AS now')).rows[0].now);
+  if (challenge.issuedAt > await clock()) throw Error('CAPABILITY_REFERENCE_EXPIRED');
   if (!challenge.missionId) throw Error('CAPABILITY_MISSION_REQUIRED');
   const request = { capabilityId: challenge.capabilityId, workId: challenge.workId,
     workGeneration: challenge.workGeneration, budgetMicros: challenge.budgetMicros };
@@ -86,8 +113,14 @@ export async function issueOrderedPermit(connection: PolicyConnection, value: un
   const [current] = (await connection.query(`SELECT * FROM capability_control.policy_destinations
     WHERE installation_id=$1 AND owner_id=$2 AND backend_id=$3`, [binding.scope.installationId, binding.scope.ownerId, binding.backendId])).rows;
   if (!destination || !sameDestination(destination, current as Destination)) throw Error('CAPABILITY_ENROLLMENT_CHANGED');
+  if (challenge.incarnation !== destination.incarnation || challenge.enrollmentVersion !== destination.enrollment_version)
+    throw Error('CAPABILITY_CHALLENGE_INCARNATION');
+  if (expectedIdentity) {
+    assertPolicyIdentity(expectedIdentity, identity(change, destination));
+    if ((expectedIdentity as PolicyIdentity & { registryVersion: string }).registryVersion !== evidence.registryVersion) throw Error('CAPABILITY_CHALLENGE_REGISTRY');
+  }
   const key = [binding.scope.installationId, binding.scope.ownerId, `ordered:${binding.backendId}`, challenge.requestId];
-  const fingerprint = policyChallengeMaterial(challenge);
+  const fingerprint = signedMaterial ?? policyChallengeMaterial(challenge);
   const [prior] = (await connection.query(`SELECT fingerprint,decision FROM capability_control.policy_decisions
     WHERE installation_id=$1 AND owner_id=$2 AND backend_id=$3 AND request_id=$4`, key)).rows;
   if (prior && prior.fingerprint !== fingerprint) throw Error('CAPABILITY_REFERENCE_CONFLICT');

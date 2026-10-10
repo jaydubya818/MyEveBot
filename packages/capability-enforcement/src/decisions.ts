@@ -8,6 +8,7 @@ const challengeSchema = z.object({ schema: z.literal('myeve.policy-challenge.v1'
   keyId: text, capabilityId: text, workId: text, workGeneration: z.number().int().positive(),
   budgetMicros: z.number().int().nonnegative().max(1e12), actionDigest: z.string().regex(/^[a-f0-9]{64}$/),
   nonce: z.string().uuid(), issuedAt: z.number().int().positive(), expiresAt: z.number().int().positive(), missionId: text.optional(),
+  incarnation: text.optional(), enrollmentVersion: z.number().int().positive().optional(),
 }).strict();
 export type PolicyChallenge = z.infer<typeof challengeSchema>;
 export interface DecisionBinding { scope: AdmissionScope; backendId: string; keyId: string; publicKeyPem: string }

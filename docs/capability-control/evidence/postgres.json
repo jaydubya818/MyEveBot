@@ -1,5 +1,5 @@
 {
-  "passed": 44,
+  "passed": 47,
   "checks": [
     "migration rollback leaves no schema",
     "synthetic platform defaults enable all 36 preferences without execution",
@@ -42,8 +42,11 @@
     "ordered source stages a monotonic frozen change and prevents permits before exact acknowledgment",
     "ordered source rejects forged acknowledgments and preserves pending state across connection loss",
     "exact duplicate acknowledgments complete once and signed permits deduplicate concurrent retries",
+    "ordered challenges reject omitted or changed incarnation and enrollment before new issuance",
+    "receiving-backend signed native challenges bind the exact current policy and incarnation",
     "disable fences the next version and old acknowledgments cannot complete it",
     "an unavailable receiver cannot prevent a newer disable intent",
+    "superseded restrictive intent remains in the exact signed latest delivery",
     "key replacement or enrollment changes cannot stand in for a required acknowledgment"
   ],
   "realOwnerBinding": "NOT_QUALIFIED",
