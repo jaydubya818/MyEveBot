@@ -4071,13 +4071,13 @@
     },
     "lib/capability-control/contracts.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Strict owner-preference command and receipt schemas; no executable effects.",
-      "sha256": "85bcfde22703addd40d18f313f12e7fc6ae7209f477df40a921f7bc23a88a09b"
+      "reason": "Strict owner-preference command and receipt schemas, including PENDING_PROPAGATION; no executable effects.",
+      "sha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802"
     },
     "lib/capability-control/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. No production deployment or execution. Qualification: scripts/qualify-capability-control.mjs. Isolated capability management requires a server-minted signed-session marker for direct primary owner requests; local fallback, role agents, selected Work, and untrusted origin cannot mint it. Real channel regression: scripts/qualify-capability-control.mjs.",
-      "sha256": "b84784886878696c9757d52cfdd7b4a671702015e89057dbb12e39c293b20318"
+      "reason": "Explicit isolated installation/database gate; signed owner authentication even on localhost and same-origin mutations. Server-only configuration can deliver signed policy fences after commit, but creates no execution authority. Hosted/production configuration is rejected. Qualification: scripts/qualify-capability-control.mjs and scripts/qualify-capability-ordering.mjs. Direct primary-owner signed-session requirements and channel bypass checks remain enforced.",
+      "sha256": "86a7cddd1f84044c3919ec8ddd541c433d8d0958a505adbd9ea04aa5dfdadb90"
     },
     "lib/capability-control/sofie.ts": {
       "classification": "ENFORCED",
@@ -4086,8 +4086,8 @@
     },
     "lib/capability-control/store.ts": {
       "classification": "ENFORCED",
-      "reason": "Restricted database role, owner/installation RLS, revision lock, idempotency receipt and immutable audit. Cannot forge identity or availability evidence. Controls remain PENDING_BACKEND and admissionEligible false. Real PostgreSQL concurrency/isolation/revocation qualification: scripts/qualify-capability-control.mjs. Independent security review pending.",
-      "sha256": "67edaf77bb479edcbd00945420ad036cb4d289bb17041bbeed86d92c38b9ebe8"
+      "reason": "Restricted database role, owner/installation RLS, revision lock, idempotency receipt and immutable audit. New commands durably stage exact-version propagation; retries use the same canonical command. Delivery occurs only after commit and failures remain pending. Cannot forge identity, enrollment or availability evidence. Pause/revoke remain pending backend acknowledgment and admissionEligible false. Real PostgreSQL concurrency/isolation/revocation and ordering qualification: scripts/qualify-capability-control.mjs and scripts/qualify-capability-ordering.mjs. Independent read-only security review passed within the isolated candidate scope.",
+      "sha256": "7eeeffa33e4ad436a4f60111f67807ef2048b4ab395b1e1cc4467b89160b4636"
     },
     "app/api/capability-control/route.ts": {
       "classification": "ENFORCED",
