@@ -84,11 +84,12 @@ jobs:
           npm run db:migrations:check
           npm run build --workspace @myeve/myapps-reference
           node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
-      - name: PostgreSQL 17 backup and restore tools
+      - name: PostgreSQL 17 isolated server and backup tools
         run: |
-          if [ ! -x /usr/lib/postgresql/17/bin/pg_dump ]; then
-            # Ubuntu 24.04 ships PostgreSQL 16. Use the official signed PGDG
-            # repository for a client matching the existing PostgreSQL 17 fixture.
+          pg_bin=/usr/lib/postgresql/17/bin
+          if [ ! -x "$pg_bin/pg_dump" ] || [ ! -x "$pg_bin/pg_restore" ] || [ ! -x "$pg_bin/initdb" ] || [ ! -x "$pg_bin/pg_ctl" ]; then
+            # Capability qualification creates its own private cluster. Client
+            # tools alone cannot supply initdb/pg_ctl. Use the signed PGDG source.
             sudo install -d /usr/share/postgresql-common/pgdg
             sudo curl --fail --silent --show-error --location \
               https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -97,9 +98,13 @@ jobs:
             echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
               | sudo tee /etc/apt/sources.list.d/myapps-pgdg.list
             sudo apt-get update
-            sudo apt-get install --yes postgresql-client-17
+            sudo apt-get install --yes postgresql-17 postgresql-client-17
           fi
-          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+          for pg_tool in pg_dump pg_restore initdb pg_ctl; do
+            test -x "$pg_bin/$pg_tool"
+            "$pg_bin/$pg_tool" --version
+          done
+          echo "$pg_bin" >> "$GITHUB_PATH"
       - name: Disposable migration interruption and real restore qualification
         working-directory: /tmp/myapps-composition/myeve
         env:
@@ -148,7 +153,9 @@ jobs:
           node --test apps/cloud-control/test/admission-spend-plan.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs
       - name: Composed Factory capability locks and recovery witness
         working-directory: /tmp/myapps-composition/myfactory
-        run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node scripts/qualify-capability-enforcement.mjs
+        env:
+          CAPABILITY_TEST_POSTGRES_BIN: /usr/lib/postgresql/17/bin
+        run: node scripts/qualify-capability-enforcement.mjs
       - name: Reviewed Factory full history and immutable identity regressions
         working-directory: .qualification/factory-reviewed-history
         env:
