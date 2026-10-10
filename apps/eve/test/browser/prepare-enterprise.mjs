@@ -2,12 +2,13 @@ import {execFileSync} from 'node:child_process';
 import {copyFile,mkdir,symlink,writeFile,readFile} from 'node:fs/promises';
 import {resolve,join,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
+import {instrumentEnterpriseRuntimeConfig} from './enterprise-runtime-config-overlay.mjs';
 import {instrumentEnterpriseConsumer,instrumentEnterpriseResponseFailure,instrumentEnterpriseAdapter,instrumentActionGateway} from './enterprise-diagnostics-overlay.mjs';
 const source=resolve(process.argv[2]),target=resolve(process.argv[3]);
 execFileSync('git',['clone','--no-hardlinks',source,target],{stdio:'pipe'});
 const files=execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:source,encoding:'utf8'}).split('\0').filter(Boolean),hashes={};
 for(const file of files){await mkdir(dirname(join(target,file)),{recursive:true});await copyFile(join(source,file),join(target,file));hashes[file]=createHash('sha256').update(await readFile(join(source,file))).digest('hex');}
-const manifest={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),hashes,transformedHashes:{},instrumentation:'IN_PROGRESS',overlays:['Deterministic model','Loopback PostgreSQL transport','Fixture-only runtime credential file; canonical signatures and owner checks unchanged','Fixture-only allowlisted command error diagnostics; original error rethrown'],paidOperations:0};
+const manifest={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),hashes,transformedHashes:{},instrumentation:'IN_PROGRESS',overlays:['Deterministic model','Loopback PostgreSQL transport','Fixture-only authoritative runtime credential file; missing or invalid configuration fails closed; canonical signatures and owner checks unchanged','Fixture-only allowlisted command error diagnostics; original error rethrown'],paidOperations:0};
 async function retainManifest() {
   const bytes=JSON.stringify(manifest,null,2)+'\n';
   await writeFile(join(target,'CHECKPOINT_H_FIXTURE.json'),bytes);
@@ -19,9 +20,7 @@ await symlink(join(source,'node_modules'),join(target,'node_modules'));await sym
 await copyFile(join(source,'apps/eve/test/browser/enterprise-model.fixture.ts'),join(target,'apps/eve/agent/agent.ts'));
 const transport=join(target,'apps/eve/test/browser/local-transport.cjs');await writeFile(transport,(await readFile(transport,'utf8')).replace("configured.pathname !== '/blocker_fixes'","configured.pathname !== '/postgres'"));
 const consumer=join(target,'apps/eve/lib/missioncontrol/consumer.ts');
-let code=await readFile(consumer,'utf8');
-code="import { readFileSync as fixtureConfig } from 'node:fs';\n"+code;
-code=code.replace('export function enterpriseConfig(env: NodeJS.ProcessEnv = process.env): EnterpriseConfig {', 'export function enterpriseConfig(env: NodeJS.ProcessEnv = process.env): EnterpriseConfig {\n  if(process.env.MC_COMPOSED_BROWSER_CONFIG_FILE) { try { env={...env,...JSON.parse(fixtureConfig(process.env.MC_COMPOSED_BROWSER_CONFIG_FILE, "utf8"))}; } catch {} }');
+const code=instrumentEnterpriseRuntimeConfig(await readFile(consumer,'utf8'));
 await writeFile(consumer,instrumentEnterpriseConsumer(instrumentEnterpriseResponseFailure(code)));
 const adapter=join(target,'apps/eve/agent/lib/missioncontrol.ts');
 await writeFile(adapter,instrumentEnterpriseAdapter(await readFile(adapter,'utf8')));

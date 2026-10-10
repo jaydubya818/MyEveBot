@@ -13,15 +13,21 @@ async function close(state) {
   await state.log.close();
 }
 export async function closeWarmSofieBrowser(){const state=warmed;warmed=undefined;await close(state);}
-async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/postgres'}) {
-  const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT),app=join(source,'apps/eve');await mkdir(output,{recursive:true});
-  await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
-  const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
+export function enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile}) {
+  const app=join(source,'apps/eve');
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>/^(PATH|HOME|TMPDIR|NODE_PATH|EVE_ENABLED_FEATURES|MYEVE_MISSIONCONTROL_.*)$/.test(key)));
   Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,
     NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
     MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),MC_COMPOSED_BROWSER_INPUT:join(output,'tool-input.json'),
-    MC_COMPOSED_BROWSER_CONFIG_FILE:join(source,'runtime-browser-config.json'),NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'});
+    NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'});
+  if(runtimeConfigFile !== undefined)env.MC_COMPOSED_BROWSER_CONFIG_FILE=runtimeConfigFile;
+  return env;
+}
+async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/postgres',runtimeConfigFile}) {
+  const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT),app=join(source,'apps/eve');await mkdir(output,{recursive:true});
+  await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
+  const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
+  const env=enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile});
   const log=await open(join(output,'server.log'),'wx');
   const server=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port','3077'],{cwd:app,env,stdio:['ignore',log.fd,log.fd]});
   const state={output,require,log,server,posts:[],checks:[]};
@@ -38,7 +44,7 @@ async function start({source,owner,databaseUrl='postgresql://postgres@localhost:
   } catch(error){await close(state);throw error;}
 }
 /** Authentication and compilation occur before production of short-lived verification evidence. */
-export async function warmSofieBrowser(options){assert.equal(warmed,undefined);warmed=await start(options);}
+export async function warmSofieBrowser(options){assert.equal(warmed,undefined);warmed=await start({...options,runtimeConfigFile:join(options.source,'runtime-browser-config.json')});}
 export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl}) {
   const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT);await mkdir(output,{recursive:true});
   await writeFile(join(output,'tool-input.json'),JSON.stringify(input));
@@ -46,7 +52,7 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
   let state;
   const audit=async()=>{await state.page.addScriptTag({path:state.require.resolve('axe-core/axe.min.js')});return state.page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return {violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),passes:r.passes.length};});};
   try {
-    state=warmed??await start({source,owner,databaseUrl});warmed=undefined;const {page}=state;report.checks.push(...state.checks);
+    state=warmed??await start({source,owner,databaseUrl,...(input.operation==='enterprise.result'?{runtimeConfigFile:join(source,'runtime-browser-config.json')}:{})});warmed=undefined;const {page}=state;report.checks.push(...state.checks);
     await page.getByRole('button',{name:'New conversation',exact:true}).click();
     await page.getByRole('heading',{name:'Hey Qualification Owner',exact:true}).waitFor();report.checks.push('fixture-owner-display-identity-matches');
     const send=async text=>{await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill(text);await page.getByRole('button',{name:'Send',exact:true}).click();};
