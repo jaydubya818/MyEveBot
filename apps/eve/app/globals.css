@@ -5,7 +5,7 @@
 @import "./typeset.css";
 /* Utility-only import (shimmer, scroll-fade, scrollbar helpers) used by the
    chat message scroller and attachments. Defines no color tokens. */
-@import "shadcn/tailwind.css";
+@import "./vendor/shadcn/tailwind.css";
 
 .typeset-docs {
   --typeset-font-body: var(--font-geist);

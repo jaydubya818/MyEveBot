@@ -1,0 +1,141 @@
+{
+  "schema": "capability-dependency-qualification/v1",
+  "before": {
+    "info": 0,
+    "low": 4,
+    "moderate": 30,
+    "high": 13,
+    "critical": 4,
+    "total": 51
+  },
+  "after": {
+    "info": 0,
+    "low": 4,
+    "moderate": 30,
+    "high": 0,
+    "critical": 0,
+    "total": 34
+  },
+  "remaining": [
+    {
+      "name": "@opentelemetry/core",
+      "severity": "moderate",
+      "nodes": [
+        "apps/eve/node_modules/@opentelemetry/core",
+        "node_modules/@opentelemetry/exporter-logs-otlp-http/node_modules/@opentelemetry/core",
+        "node_modules/@opentelemetry/exporter-metrics-otlp-http/node_modules/@opentelemetry/core",
+        "node_modules/@opentelemetry/exporter-trace-otlp-proto/node_modules/@opentelemetry/core",
+        "node_modules/@opentelemetry/otlp-exporter-base/node_modules/@opentelemetry/core",
+        "node_modules/@opentelemetry/otlp-transformer/node_modules/@opentelemetry/core",
+        "node_modules/raindrop-ai/node_modules/@opentelemetry/core"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-8988-4f7v-96qf",
+          "range": "<2.8.0"
+        }
+      ]
+    },
+    {
+      "name": "dompurify",
+      "severity": "low",
+      "nodes": [
+        "node_modules/dompurify"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-p98j-92pf-mc4p",
+          "range": ">=3.4.13 <=3.4.15"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-6688-9rhm-gjv2",
+          "range": "<=3.4.15"
+        }
+      ]
+    },
+    {
+      "name": "fast-uri",
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/fast-uri"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+          "range": ">=3.0.0 <3.1.8"
+        }
+      ]
+    },
+    {
+      "name": "katex",
+      "severity": "low",
+      "nodes": [
+        "node_modules/katex"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-238p-pmpm-9mq7",
+          "range": ">=0.11.0 <0.18.2"
+        }
+      ]
+    },
+    {
+      "name": "postcss-selector-parser",
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/postcss-selector-parser"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+          "range": "<7.1.6"
+        }
+      ]
+    },
+    {
+      "name": "smol-toml",
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/smol-toml"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-r4xh-jqrq-34v2",
+          "range": "<=1.8.0"
+        }
+      ]
+    },
+    {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/sprintf-js"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+          "range": "<=1.1.3"
+        }
+      ]
+    },
+    {
+      "name": "uuid",
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@langchain/core/node_modules/uuid",
+        "node_modules/gaxios/node_modules/uuid",
+        "node_modules/google-gax/node_modules/uuid",
+        "node_modules/teeny-request/node_modules/uuid"
+      ],
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "range": "<11.1.1"
+        }
+      ]
+    }
+  ],
+  "productionIntegration": "NOT_RUN",
+  "paidOperations": "NOT_RUN",
+  "riskAcceptances": []
+}
