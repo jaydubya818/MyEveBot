@@ -24,6 +24,8 @@ test('fixture source and transformed hashes survive successful and failed instru
     execFileSync('git',['init','-q'],{cwd:source});execFileSync('git',['add','.'],{cwd:source});
     execFileSync('git',['-c','user.name=Fixture Test','-c','user.email=fixture@example.invalid','-c','commit.gpgsign=false','commit','-qm','Disposable manifest test'],{cwd:source});
     const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();
+    const companion=join(source,'.qualification/companion');await mkdir(companion,{recursive:true});
+    execFileSync('git',['init','-q'],{cwd:companion});await writeFile(join(companion,'README.md'),'Untracked CI companion');
     for(const failed of [false,true]) {
       if(failed){files['apps/eve/agent/lib/missioncontrol.ts']='export function changedAdapter() {}';await writeFile(join(source,'apps/eve/agent/lib/missioncontrol.ts'),files['apps/eve/agent/lib/missioncontrol.ts']);}
       const target=join(root,failed?'failed':'passed'),output=join(root,failed?'failed-artifact':'passed-artifact');
@@ -32,6 +34,8 @@ test('fixture source and transformed hashes survive successful and failed instru
       const bytes=await readFile(join(target,'CHECKPOINT_H_FIXTURE.json'),'utf8');
       assert.equal(await readFile(join(output,'fixture-source.json'),'utf8'),bytes);
       const manifest=JSON.parse(bytes);assert.equal(manifest.sha,sha);assert.equal(manifest.instrumentation,failed?'FAILED':'PASS');
+      assert.equal(manifest.sourceDirty,failed);
+      assert.equal(Object.keys(manifest.hashes).some(path=>path.startsWith('.qualification/')),false);
       for(const [path,original] of Object.entries(files))assert.equal(manifest.hashes[path],createHash('sha256').update(original).digest('hex'));
       for(const [path,digest] of Object.entries(manifest.transformedHashes))assert.equal(digest,createHash('sha256').update(await readFile(join(target,path))).digest('hex'));
       assert.notEqual(manifest.transformedHashes['apps/eve/lib/missioncontrol/consumer.ts'],manifest.hashes['apps/eve/lib/missioncontrol/consumer.ts']);
