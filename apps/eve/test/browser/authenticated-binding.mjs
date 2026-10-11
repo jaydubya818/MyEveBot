@@ -10,7 +10,7 @@ import {chromium} from '@playwright/test';
 import {checkMobileConversationLayout} from './mobile-conversation-layout.mjs';
 import {disableFixtureDevIndicator} from './enterprise-visual-overlay.mjs';
 const root=resolve(process.argv[2]),output=resolve(process.argv[3]);await mkdir(output,{recursive:true});
-const require=createRequire(join(root,'package.json'));
+const require=createRequire(join(root,'apps/eve/package.json'));
 const scratch=await mkdtemp(join(tmpdir(),'checkpoint-h-binding-')),source=join(scratch,'source');
 const sourceFiles={};
 for(const file of execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean)) {await mkdir(dirname(join(source,file)),{recursive:true});await copyFile(join(root,file),join(source,file));sourceFiles[file]=createHash('sha256').update(await readFile(join(root,file))).digest('hex');}
