@@ -32,7 +32,7 @@ export function enterpriseBrowserEnvironment({source,owner,databaseUrl,output,pa
 async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/postgres',runtimeConfigFile}) {
   const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT),app=join(source,'apps/eve');await mkdir(output,{recursive:true});
   await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
-  const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
+  const require=createRequire(join(source,'apps/eve/package.json')),password=randomBytes(24).toString('hex');
   const env=enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile});
   const browserBuild=await buildProductionBrowser({app,output,require,env});
   await requireAvailablePort(3077);
