@@ -15,6 +15,7 @@ assert.equal(mcDirty,false,'Pinned MC source must be clean');
 const output=resolve(process.argv[2]??'/tmp/myeve-enterprise-'+randomUUID());await mkdir(output,{recursive:true});
 const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'25432fba910cbadfd8586c5a1afaa847df323028',
   missionControlDirty:mcDirty,myeveDirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),myeveSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0,executableProductionGrants:0};
+assert.equal(receipt.myeveDirty,false,'MyEve qualification source must be clean');
 const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS '+name);};
 const pgName='mc-sofie-'+randomUUID(),port=55519;
 let db,pool,container=false;

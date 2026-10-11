@@ -142,6 +142,7 @@ jobs:
       with:
         persist-credentials: false
         ref: ${{ github.sha }}
+        path: myeve
     - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
       with:
         node-version: '24'
@@ -154,14 +155,14 @@ jobs:
       with:
         repository: jaydubya818/MissionControl
         ref: 25432fba910cbadfd8586c5a1afaa847df323028
-        path: .qualification/missioncontrol
+        path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
       with:
         version: 9.0.0
-        package_json_file: .qualification/missioncontrol/package.json
+        package_json_file: missioncontrol/package.json
     - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
-      working-directory: .qualification/missioncontrol
+      working-directory: missioncontrol
     - name: Fetch exact test storage and checksum-qualified backend
       run: 'docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
 
@@ -179,12 +180,14 @@ jobs:
     - name: Prepare isolated deterministic production browser
       env:
         MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
-      run: |
-        test -z "$(git status --porcelain --untracked-files=no)"
-        node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
+      run: 'test -z "$(git status --porcelain --untracked-files=no)"
+
+        node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE/myeve" "$RUNNER_TEMP/sofie-browser-source"
+
+        '
     - name: Authenticated production browser, actual tool, transactional storage and recovery
       env:
-        MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+        MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/missioncontrol
         MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
         MYEVE_CHECKPOINT_H_BROWSER: '1'
         MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
@@ -195,6 +198,9 @@ jobs:
         name: unified-sofie-consumer
         path: ${{ runner.temp }}/sofie-consumer
         if-no-files-found: error
+    defaults:
+      run:
+        working-directory: myeve
   authenticated-browser:
     runs-on: ubuntu-latest
     timeout-minutes: 30
