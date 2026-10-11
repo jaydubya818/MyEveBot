@@ -12,13 +12,15 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
  useEffect(()=>{if(freshRead.current&&freshRead.current!==work){freshRead.current=null;lock.current=false;setBusy(false);setError('');}},[work]);
  const view=ownerWorkPresentation(work);
  const operation=work.lifecycle==='active'&&!work.externalAlpha&&view.status!=='Outcome unconfirmed'&&!view.currentResult&&!work.attention&&!work.pendingDecisions.length
-  ? work.control==='paused'?'resume':work.control==='agent'?'pause':null:null;
+  ? work.control==='paused'?'resume':work.control==='agent'?'pause':null
+  // Alpha: a running Work fences paid chat turns, so the owner stops it here, without a Sofie turn.
+  : work.lifecycle==='active'&&work.externalAlpha&&!work.externalAlpha.result&&!work.externalAlpha.factoryOutcome&&work.externalAlpha.state==='CONSUMED'?'stop':null;
  async function change(){
   if(!operation||lock.current)return;
   lock.current=true;setBusy(true);setError('');setMessage('');
   try{
    await ownerRequest('/api/beta/work',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workId:work.workId,expectedVersion:work.workVersion,expectedGeneration:work.workGeneration,operation})});
-   setMessage(operation==='pause'?'Your pause is saved.':'Your resume request is saved. Select this Work in Sofie to continue.');
+   setMessage(operation==='stop'?'Stop requested. Stopping starts nothing new and adds no charge; the Work status shows the confirmed outcome.':operation==='pause'?'Your pause is saved.':'Your resume request is saved. Select this Work in Sofie to continue.');
    // A confirmed write stays locked until the new version is read. An uncertain
    // response always needs a fresh read before another owner action.
    onRefresh();
@@ -27,7 +29,7 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
  return <section aria-label="Work actions" className="owner-card">
   {message&&<p role="status">{message}</p>}
   {error&&<div role="alert"><p>{error}</p><button onClick={()=>{freshRead.current=work;onRefresh();}}>Refresh Work</button></div>}
-  <div className="owner-actions">{operation&&<button disabled={busy} onClick={()=>void change()}>{busy?'Saving…':operation==='resume'?'Resume Work':'Pause Work'}</button>}<Link href={`/chat?work=${encodeURIComponent(work.workId)}`}>Discuss with Sofie →</Link></div>
+  <div className="owner-actions">{operation&&<button disabled={busy} onClick={()=>void change()}>{busy?'Saving…':operation==='stop'?'Stop Work':operation==='resume'?'Resume Work':'Pause Work'}</button>}<Link href={`/chat?work=${encodeURIComponent(work.workId)}`}>Discuss with Sofie →</Link></div>
   <p className="owner-muted">{work.externalAlpha || view.currentResult ? 'Open a conversation about this Work to review the outcome and next steps.' : 'Open a conversation about this Work to review the outcome or ask Sofie to continue.'}</p>
  </section>;
 }

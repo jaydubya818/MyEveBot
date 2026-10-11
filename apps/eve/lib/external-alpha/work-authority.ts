@@ -513,8 +513,19 @@ export class ExternalAlphaWorkAuthority {
         documentSha256: authority.documentSha256,
       },
     );
-    if (receipt.claimed === true)
-      await sharedAlphaAccounting(this.database).dispatch(this.database, this.policy, authority.allowanceId, "work:" + authority.id);
+    if (receipt.claimed === true) {
+      try {
+        await sharedAlphaAccounting(this.database).dispatch(this.database, this.policy, authority.allowanceId, "work:" + authority.id);
+      } catch (error) {
+        // A definitive central refusal is raised before the lease row is written and rolls
+        // back: the Factory was never called, so the claim is cancelled (charge retained),
+        // not left DISPATCHING to expire into a permanent UNKNOWN fence. An unavailable or
+        // ambiguous central store stays unresolved for the durable sweep.
+        if (error instanceof Error && /\bEXTERNAL_ALPHA_SHARED_(FENCED|CAPACITY)\b/.test(error.message))
+          await this.finish(authority.id, "CANCELLED", { reason: "SHARED_DISPATCH_DENIED" }).catch(() => {});
+        throw error;
+      }
+    }
     return { claimed: receipt.claimed === true, authority: record(receipt.authority) };
   }
   async finish(
