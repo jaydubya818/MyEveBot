@@ -5,7 +5,7 @@ import { defineAgent, defineDynamic } from 'eve';
 import { MockLanguageModelV4, convertArrayToReadableStream } from 'ai/test';
 const usage = { inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 }, outputTokens: { total: 0, text: 0, reasoning: 0 } };
 export default defineAgent({
-  build: { externalDependencies: ['@remotion/bundler', '@remotion/renderer', 'heif2jpeg'] },
+  build: { externalDependencies: ['@remotion/bundler', '@remotion/renderer', 'heif2jpeg', 'js-tiktoken'] },
   model: defineDynamic({ events: {
     'turn.started': () => ({ model: 'openai/gpt-4o', modelContextWindowTokens: 128000 }),
     'step.started': () => ({ modelContextWindowTokens: 128000, model: new MockLanguageModelV4({
