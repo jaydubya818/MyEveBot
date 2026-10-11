@@ -2258,7 +2258,7 @@
     "lib/external-alpha/work-action.ts": {
       "classification": "ENFORCED",
       "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed. Reconcile now passes the Work so the signed Factory Result can be ingested for the owner. Checkpoint A composition: stop carries the exact current owner Work; immutable authenticated no-candidate terminal facts explain Factory failure/cancellation and cleanup/accounting without claiming candidate Proof. Closed Result reconnect returns exact retained candidate/verdict without Factory read. Takeover transfers Work to human only after authenticated known cleanup (or definitively unsent authority); UNKNOWN and bare consumed terminal labels remain fenced.",
-      "sha256": "abd1dbb16a45b2881004591ad502bb9a454696e10090fd88093b93877cefeb47"
+      "sha256": "bb0a394a421c02da9d8ae58c428d46657926a0d1e951057f6bb41fc756387e7b"
     },
     "lib/external-alpha/work-config.ts": {
       "classification": "INTERNAL",
@@ -2278,7 +2278,7 @@
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification.",
-      "sha256": "3a88ced1a443e3ab4713187a3c85a09752dd4b59b47082ddad8d1ade13400579"
+      "sha256": "2bbcf55a9f767d578b7511a039386efdcb26fb694c49784abbcc01686adc9b5d"
     },
     "lib/external-write-policy.ts": {
       "classification": "INTERNAL",
@@ -3240,7 +3240,7 @@
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
       "reason": "Reviewed canonical owner CAS and stored private Result decision integration; generic control denies outstanding external authority under same Work lock. Inbox readback preserves exact owner decision linkage; response does not create execution or publication authority. Evidence: work-controller, private-acceptance, owner isolation and inbox regressions.",
-      "sha256": "b9967ef2646550deef25c98ec592df6313cddced39844af2f145bf3a3374e576"
+      "sha256": "8c0f201707ddf80a6a719e122e43b7c54e987c3354300d8c077663da62c26c75"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -4122,7 +4122,7 @@
     "lib/external-alpha/work-authority.ts": {
       "classification": "ENFORCED",
       "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "43927bdd9c5559e2cc8e2ccf26316f63de7844626daa2a6fd489bf7d5f5dffbf"
+      "sha256": "53f8852249dc6963fb57d1d320e13b53ccc5ee9d3a4e55d9e88eaae746022fe5"
     },
     "lib/external-alpha/features.ts": {
       "classification": "INTERNAL",
@@ -4207,7 +4207,7 @@
     "lib/external-alpha/bounded-context.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Current context-headroom review: Bounded Proof limitations preserved with explicit incomplete/unavailable disclosure. Common revision/producer/time fields factored without altering exact criterion states or distinct hashes; reconstruction tests verify identity. Shared projection used by mandatory alpha context and tool results; 32000-byte hard limit unchanged.",
-      "sha256": "9cb86fefa77aaa2f960c8a5bdbe938339e1750223093da13009400c9999c0135"
+      "sha256": "5d9e3c0e3b1b94d606b8e001c800ea539cf5ecdb315df48727c252c66a97bcf5"
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",

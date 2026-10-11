@@ -238,7 +238,7 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
     await expect(e.pool.query("DELETE FROM external_alpha_work_authority WHERE id=$1", [a.id])).rejects.toThrow(/cannot be deleted/);
     // A later generation of the same Work is not admitted: one allowance per Work and one Work per UTC day.
     await e.pool.query("UPDATE engineering_work SET version=version+1,generation=generation+1 WHERE id=$1", [work.id]);
-    await expect(e.svc.issue(await e.store.get(work.id), files)).rejects.toThrow(/exhausted|One active Work|duplicate key|EXTERNAL_ALPHA_SHARED_FENCED/);
+    await expect(e.svc.issue(await e.store.get(work.id), files)).rejects.toThrow(/exhausted|One active Work|duplicate key|EXTERNAL_ALPHA_SHARED_FENCED|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     await e.svc.finish(a.id, "COMPLETED");
     await expect(e.svc.finish(a.id, "CANCELLED")).rejects.toThrow(/transition denied/);
     expect((await e.pool.query("SELECT state FROM external_alpha_allowance WHERE id=$1", [a.allowanceId])).rows[0].state).toBe("COMPLETED");

@@ -4,9 +4,12 @@ const {record}=require('../owner-ux/provenance.cjs');
 const axe=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
 test.skip(process.env.MYEVE_OWNER_JOURNEY!=='1','Requires the isolated no-paid provider runner');
 async function send(page,text){await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill(text);await page.getByRole('button',{name:'Send',exact:true}).click();}
+// Decision D (zero-gap UNKNOWN fencing): a paid chat turn during a running Work is denied before any
+// model call. That one expected, explained denial is excluded from the "no unexpected failure" checks.
+const expectedFenced=new Set();
 async function retainedFailures(page){
  const {threads}=await (await page.request.get('/api/threads')).json();const failures=[];
- for(const thread of threads){const {chat}=await (await page.request.get(`/api/threads/${thread.id}`)).json();for(const event of chat.events??[])if(event.type==='turn.failed')failures.push(event);}
+ for(const thread of threads){const {chat}=await (await page.request.get(`/api/threads/${thread.id}`)).json();for(const event of chat.events??[])if(event.type==='turn.failed'&&!expectedFenced.has(JSON.stringify(event)))failures.push(event);}
  return JSON.stringify(failures);
 }
 test('completes one private Work with owner acceptance and same-conversation Result readback',async({page})=>{
@@ -30,8 +33,13 @@ test('completes one private Work with owner acceptance and same-conversation Res
  await expect(page.getByText('Your Work request is acknowledged. Open Work to follow its saved progress.',{exact:true})).toBeVisible({timeout:90000});
  expect(await retainedFailures(page)).toBe('[]');
  const sent=await (await page.request.get('http://127.0.0.1:3184/fixture/status')).json();expect(sent.dispatches).toBe(1);expect(sent.workCount).toBe(1);
+ const callsMid=sent.modelCalls;
  await send(page,'How is the Work going?');
- await expect(page.getByText('The saved result is not yet available.',{exact:false})).toBeVisible({timeout:90000});
+ await expect(page.getByText("Sofie can't start a paid turn while a Work",{exact:false})).toBeVisible({timeout:90000});
+ expect((await (await page.request.get('http://127.0.0.1:3184/fixture/status')).json()).modelCalls).toBe(callsMid);
+ const fenced=JSON.parse(await retainedFailures(page));
+ expect(fenced).toHaveLength(1);expect(JSON.stringify(fenced[0])).toContain('EXTERNAL_ALPHA_SHARED_FENCED');
+ for(const event of fenced)expectedFenced.add(JSON.stringify(event));
  expect(await retainedFailures(page)).toBe('[]');
  await page.reload();await expect(page.locator('.owner-work-summary')).toHaveCount(1);
  expect((await page.request.post('http://127.0.0.1:3184/fixture/complete')).ok()).toBeTruthy();

@@ -54,7 +54,7 @@ no network call is made until the owner confirms it.
 
 ## Shared accounting installation
 
-Apply the reviewed `apps/eve/lib/external-alpha/shared-accounting.sql` to a separate restricted PostgreSQL resource and register exactly the two reviewed cohort/owner/slot/policy bindings while inactive. Do not grant tester roles table mutation or cohort administration. The runtime calls the authenticated transactional admission function; missing configuration, registration or ledger schema denies paid admission.
+Apply the reviewed `apps/eve/lib/external-alpha/shared-accounting.sql`, then `shared-accounting-recovery.sql` and `shared-accounting-zero-gap.sql` in that order, to a separate restricted PostgreSQL resource and register exactly the two reviewed cohort/owner/slot/policy bindings while inactive. Do not grant tester roles table mutation or cohort administration. The runtime calls the authenticated transactional admission function; missing configuration, registration or ledger schema denies paid admission.
 
 The central ledger reserves entire allowances permanently and enforces owner and global daily/lifetime ceilings under shared transactional locks. Local mirrors do not establish global authority. A local/central ambiguity, unresolved dispatch or UNKNOWN exposure fences later paid admission. Expiry, cancellation, unused allowance and cleanup never refund the reservation. Exact authenticated known settlement may clear a dispatch lease, without refund.
 

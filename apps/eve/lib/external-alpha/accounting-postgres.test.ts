@@ -45,6 +45,13 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
   it("Work first, then ten chats: same ceiling", async () => {
     const { e, budget } = await make();
     await e.svc.issue(await e.seedWork(), files);
+    // Zero-gap: an admitted, not-yet-dispatched Work is the active Work and fences chat admission
+    // (nothing charged) until it dispatches or its admission window ends.
+    await expect(chat(budget, 50)).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_FENCED/);
+    const c = await e.pool.connect();
+    try { await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+      await c.query("UPDATE external_alpha_cohort_admission SET deadline=clock_timestamp()-interval '1 second' WHERE kind='WORK'"); await c.query("COMMIT"); }
+    catch (error) { await c.query("ROLLBACK"); throw error; } finally { c.release(); }
     for (let i = 0; i < 10; i++) await chat(budget, i);
     await expect(chat(budget, 99)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });

@@ -5,7 +5,9 @@ import { WorkStore } from "../engineering/store.ts";
 import { EngineeringWorkerProjectionStore } from "../engineering/worker-projection.ts";
 import { currentTruthLines } from "../engineering/current-truth-lines.ts";
 import { readFile } from "node:fs/promises";
-import { SharedAlphaAccounting } from "./shared-accounting.ts";
+import { SharedAlphaAccounting, sharedAlphaAccounting } from "./shared-accounting.ts";
+import type { ExecutionDatabase } from "../execution-types.ts";
+import type { ExternalAlphaPolicy } from "./policy.ts";
 import { afterEach, describe, expect, it } from "vitest";
 import { generateKeyPairSync, randomUUID, sign, type KeyObject } from "node:crypto";
 import { digest } from "../engineering/contract.ts";
@@ -644,6 +646,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
       await central.pool.query(await readFile(new URL("./shared-accounting-recovery.sql", import.meta.url), "utf8"));
+      await central.pool.query(await readFile(new URL("./shared-accounting-zero-gap.sql", import.meta.url), "utf8"));
     const cohortId = randomUUID();
     const a = await Env.create(true, { cohortId }); envs.push(a);
     const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);
@@ -659,37 +662,26 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     return { central, a, b, app, chat };
   }
 
-  it("QE-017: two owners' authenticated Work may overlap within the two-slot capacity and every charged ceiling", async () => {
+  it("QE-017: one active Work per cohort; the second owner is denied with explicit capacity before any Factory call (Decision A)", async () => {
     const { central, a, b, app } = await sharedPair();
     const appB = await setup(true, b);
     const wa = await a.seedWork(), wb = await b.seedWork();
     const sa = await app.controller.start(wa);
     expect(sa.sent).toBe(true);
     expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{state:"RUNNING"}]);
-    const sb = await appB.controller.start(wb);
-    expect(sb.sent).toBe(true);
-    if (!sa.sent || !sb.sent) throw Error("expected both Works to start");
-    expect(sa.authority.state).toBe("CONSUMED"); expect(sb.authority.state).toBe("CONSUMED");
-    expect(sa.authority.envelope.document.ownerId).toBe(a.owner); expect(sb.authority.envelope.document.ownerId).toBe(b.owner);
-    expect(sa.authority.workId).toBe(wa.id); expect(sb.authority.workId).toBe(wb.id);
-    expect(sa.authority.documentSha256).not.toBe(sb.authority.documentSha256);
-    const dispatches = (await central.pool.query("SELECT a.owner_id,a.kind,d.state FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id")).rows;
-    expect(dispatches).toHaveLength(2);
-    expect(dispatches).toEqual(expect.arrayContaining([{owner_id:a.owner,kind:"WORK",state:"RUNNING"},{owner_id:b.owner,kind:"WORK",state:"RUNNING"}]));
-    const charges = (await central.pool.query("SELECT owner_id,sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission GROUP BY owner_id")).rows;
-    expect(charges).toHaveLength(2);
-    for (const charge of charges) expect(Number(charge.amount)).toBe(1300000);
-    expect(charges.reduce((total: number, charge: {amount: string}) => total + Number(charge.amount), 0)).toBe(2600000);
-    expect(charges.reduce((total: number, charge: {amount: string}) => total + Number(charge.amount), 0)).toBeLessThanOrEqual(4600000);
-    await app.controller.start(wa); await appB.controller.start(wb);
-    expect(app.factory.posts).toBe(1); expect(appB.factory.posts).toBe(1);
-    // One Work per owner/day: neither slot can acquire a third concurrent Work.
-    await expect(app.controller.start(await a.seedWork())).rejects.toThrow(/SHARED_EXHAUSTED/);
-    await expect(appB.controller.start(await b.seedWork())).rejects.toThrow(/SHARED_EXHAUSTED/);
-    expect(app.factory.posts).toBe(1); expect(appB.factory.posts).toBe(1);
-    await expect(new ExternalAlphaAllowance(a.db,a.policy).admit({kind:"CHAT",bindingId:"own-chat",requestSha256:digest("own-chat")})).resolves.toMatchObject({kind:"CHAT"});
-    await expect(new ExternalAlphaAllowance(b.db,b.policy).admit({kind:"CHAT",bindingId:"other-chat",requestSha256:digest("other-chat")})).resolves.toMatchObject({kind:"CHAT"});
-    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission")).rows[0].amount)).toBe(2800000);
+    await expect(appB.controller.start(wb)).rejects.toThrow(/SHARED_CAPACITY/);
+    expect(appB.factory.posts).toBe(0);
+    expect(await b.count("external_alpha_work_authority")).toBe(0);
+    // Retries cannot bypass the cap; a duplicate start of the active Work never redispatches.
+    await expect(appB.controller.start(wb)).rejects.toThrow(/SHARED_CAPACITY/);
+    await app.controller.start(wa);
+    expect(app.factory.posts).toBe(1); expect(appB.factory.posts).toBe(0);
+    const admissions = (await central.pool.query("SELECT owner_id,kind,state FROM external_alpha_cohort_admission")).rows;
+    expect(admissions).toEqual([{owner_id:a.owner,kind:"WORK",state:"BOUND"}]);
+    // Zero-gap fencing: no owner's chat is admitted while the Work runs.
+    await expect(new ExternalAlphaAllowance(a.db,a.policy).admit({kind:"CHAT",bindingId:"own-chat",requestSha256:digest("own-chat")})).rejects.toThrow(/SHARED_FENCED/);
+    await expect(new ExternalAlphaAllowance(b.db,b.policy).admit({kind:"CHAT",bindingId:"other-chat",requestSha256:digest("other-chat")})).rejects.toThrow(/SHARED_FENCED/);
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint amount FROM external_alpha_cohort_admission")).rows[0].amount)).toBe(1300000);
   }, 90000);
 
   it.each(["UNKNOWN","FENCED","OVERDUE"] as const)("QE-017: %s Work exposure denies another owner's Work before any Factory call", async exposure => {
@@ -705,7 +697,8 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
       finally { c.release(); }
     } else await central.pool.query("UPDATE external_alpha_cohort_dispatch SET state=$1",[exposure]);
     const appB = await setup(true,b);
-    await expect(appB.controller.start(await b.seedWork())).rejects.toThrow(/SHARED_FENCED/);
+    // UNKNOWN/FENCED/OVERDUE Work keeps holding the single active-Work slot.
+    await expect(appB.controller.start(await b.seedWork())).rejects.toThrow(/SHARED_CAPACITY/);
     expect(appB.factory.posts).toBe(0);
     expect(await b.count("external_alpha_work_authority")).toBe(0);
     expect((await central.pool.query("SELECT count(*)::integer count FROM external_alpha_cohort_dispatch")).rows[0].count).toBe(1);
@@ -716,7 +709,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const work = await unproved.a.seedWork();
     const started = await unproved.app.controller.start(work);
     if (!started.sent) throw Error("sent");
-    await expect(unproved.chat("before-proof")).resolves.toMatchObject({kind:"CHAT"});
+    await expect(unproved.chat("before-proof")).rejects.toThrow(/SHARED_FENCED/);
     await unproved.a.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
     await unproved.a.svc.sweep();
     await expect(unproved.chat("after-label")).rejects.toThrow(/SHARED_FENCED/);
@@ -727,13 +720,13 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const proved = await sharedPair();
     const w = await proved.a.seedWork();
     await proved.app.controller.start(w);
-    await expect(proved.chat("before-known-proof")).resolves.toMatchObject({kind:"CHAT"});
+    await expect(proved.chat("before-known-proof")).rejects.toThrow(/SHARED_FENCED/);
     proved.app.factory.state = "FAILED"; proved.app.factory.quiescent = true; proved.app.factory.verdict = "NONE";
     await proved.app.controller.reconcile(w.id, { work: w });
     expect(await proved.a.count("external_alpha_work_terminal_settlement")).toBe(1);
     expect((await proved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
     await expect(proved.chat("after-known-proof")).resolves.toMatchObject({ kind: "CHAT" });
-    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1500000);
+    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
   }, 30000);
 
   it("central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch", async () => {
@@ -897,4 +890,293 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(out.currentTruth.join(" ")).toMatch(mode === "known" ? /in your hands/ : /waits for authenticated cleanup/);
   });
 
+
+  // ===== Zero-gap UNKNOWN fencing and one-active-Work capacity (Decision A/D, 2026-10-10) =====
+  // The central accounting store is the only admission authority. A local UNKNOWN that has not (yet)
+  // reached it must never be outrun: every unresolved lease, including authenticated RUNNING, fences.
+  // Fault injection wraps ONE owner's SharedAlphaAccounting client (drop / committed-but-ack-lost / delay).
+  class FaultyFence extends SharedAlphaAccounting {
+    constructor(db: ExecutionDatabase, token: string, private mode: "drop" | "lost_ack" | "delay") { super(db, token); }
+    async fence(database: ExecutionDatabase, policy: ExternalAlphaPolicy, allowanceId: string) {
+      if (this.mode === "drop") throw Error("EXTERNAL_ALPHA_SHARED_UNAVAILABLE");
+      if (this.mode === "delay") { await new Promise(r => setTimeout(r, 1500)); return super.fence(database, policy, allowanceId); }
+      await super.fence(database, policy, allowanceId); throw Error("EXTERNAL_ALPHA_SHARED_UNAVAILABLE");
+    }
+  }
+  const tokenA = "1".repeat(64);
+  async function runningPair(mode?: "drop" | "lost_ack" | "delay") {
+    const p = await sharedPair();
+    const w = await p.a.seedWork();
+    const s = await p.app.controller.start(w); if (!s.sent) throw Error("sent");
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "RUNNING" }]);
+    if (mode) p.a.db.externalAlphaAccounting = new FaultyFence(p.central.db, tokenA, mode);
+    return { ...p, w, s };
+  }
+  async function centralDeadlinePassed(central: Env, kind: "WORK" | "CHAT") {
+    // Fixture-only clock movement on the disposable central DB (bypasses the immutability trigger).
+    const c = await central.pool.connect();
+    try { await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+      await c.query("UPDATE external_alpha_cohort_admission SET deadline=clock_timestamp()-interval '1 second' WHERE kind=$1", [kind]); await c.query("COMMIT"); }
+    catch (error) { await c.query("ROLLBACK"); throw error; } finally { c.release(); }
+  }
+  const ceilings = async (central: Env) => Number((await central.pool.query("SELECT COALESCE(sum(ceiling_microusd),0)::bigint n FROM external_alpha_cohort_admission")).rows[0].n);
+
+  it("UF-1: Work UNKNOWN with the central fence unreachable never admits another owner", async () => {
+    const p = await runningPair("drop");
+    await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_work_authority WHERE id=$1", [p.s.authority.id])).rows[0].state).toBe("UNKNOWN");
+    await expect(p.chat("after-local-unknown")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-2: Factory-reported UNKNOWN operation with the central fence unreachable never admits another owner", async () => {
+    const p = await runningPair("drop");
+    await expect(p.a.svc.recordFactoryOperation(p.s.authority, { operationId: "uf2", phase: "productive", state: "unknown", actualMicrousd: null, reservedMicrousd: 200000, model: "m", pricingRevision: "r" })).rejects.toThrow(/SHARED_UNAVAILABLE/);
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_operation WHERE step_key='factory:uf2:0'")).rows).toEqual([{ state: "UNKNOWN" }]);
+    await expect(p.chat("after-factory-unknown")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-3: no second owner's Work can be dispatched during an unrecorded UNKNOWN (no overlapping RUNNING)", async () => {
+    const p = await runningPair("drop");
+    await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    const appB = await setup(true, p.b);
+    await expect(appB.controller.start(await p.b.seedWork())).rejects.toThrow(/SHARED_(CAPACITY|FENCED)/);
+    expect(appB.factory.posts).toBe(0);
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "RUNNING" }]);
+  }, 90000);
+  it("UF-8: no fault, delayed central write: no admission inside the local-UNKNOWN window", async () => {
+    const p = await runningPair("delay");
+    const rec = p.a.svc.recordFactoryOperation(p.s.authority, { operationId: "uf8", phase: "productive", state: "unknown", actualMicrousd: null, reservedMicrousd: 200000, model: "m", pricingRevision: "r" });
+    for (let i = 0; i < 200; i++) { if ((await p.a.pool.query("SELECT 1 FROM external_alpha_operation WHERE step_key='factory:uf8:0' AND state='UNKNOWN'")).rows.length) break; await new Promise(r => setTimeout(r, 10)); }
+    await expect(p.chat("in-window")).rejects.toThrow(/SHARED_FENCED/);
+    await rec;
+    await expect(p.chat("after-fence")).rejects.toThrow(/SHARED_FENCED/);
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "UNKNOWN" }]);
+  }, 90000);
+  it("UF-4: restart repair records the local UNKNOWN centrally, idempotently, without releasing any reservation", async () => {
+    const p = await runningPair("drop");
+    await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    const before = await ceilings(p.central);
+    p.a.db.externalAlphaAccounting = new SharedAlphaAccounting(p.central.db, tokenA);
+    await p.a.svc.sweep(); const once = (await p.central.pool.query("SELECT a.state AS admission,d.state AS dispatch FROM external_alpha_cohort_admission a JOIN external_alpha_cohort_dispatch d ON d.admission_id=a.id")).rows;
+    await p.a.svc.sweep(); const twice = (await p.central.pool.query("SELECT a.state AS admission,d.state AS dispatch FROM external_alpha_cohort_admission a JOIN external_alpha_cohort_dispatch d ON d.admission_id=a.id")).rows;
+    expect(once).toEqual([{ admission: "UNKNOWN", dispatch: "UNKNOWN" }]); expect(twice).toEqual(once);
+    expect(await ceilings(p.central)).toBe(before);
+    await expect(p.chat("after-repair")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-5: lost fence acknowledgment (committed centrally) fences other owners", async () => {
+    const p = await runningPair("lost_ack");
+    await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "UNKNOWN" }]);
+    await expect(p.chat("after-lost-ack")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-6: an in-flight Sofie call whose local UNKNOWN never reached central still fences", async () => {
+    const p = await sharedPair();
+    const al = await new ExternalAlphaAllowance(p.a.db, p.a.policy).admit({ kind: "CHAT", bindingId: "uf6", requestSha256: digest("uf6") });
+    const op = await new ExternalAlphaAllowance(p.a.db, p.a.policy).reserve({ allowanceId: al.id, stepKey: "turn:1", requestSha256: digest("uf6-op"), microusd: 50000 });
+    await new ExternalAlphaAllowance(p.a.db, p.a.policy).claimDispatch(op);
+    p.a.db.externalAlphaAccounting = new FaultyFence(p.central.db, tokenA, "drop");
+    await new ExternalAlphaAllowance(p.a.db, p.a.policy).unknown(op).catch(() => {});
+    await expect(p.chat("after-sofie-unknown")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-7: stale or replayed running_work evidence cannot reopen admission or capacity", async () => {
+    const p = await runningPair("lost_ack");
+    await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    p.a.db.externalAlphaAccounting = new SharedAlphaAccounting(p.central.db, tokenA);
+    await expect(sharedAlphaAccounting(p.a.db).workPhase(p.a.db, p.a.policy, p.s.authority.allowanceId, p.s.authority.id, "running_work")).rejects.toThrow(/KNOWN_WORK_REQUIRED/);
+    // Even a direct central replay (bypassing the app check) cannot turn UNKNOWN back into RUNNING.
+    await expect(p.central.db.query("SELECT external_alpha_cohort_call($1::jsonb)", [JSON.stringify({ mode: "running_work", cohortId: p.a.policy.cohortId, ownerId: p.a.policy.ownerId, slot: p.a.policy.slot, policySha256: digest(p.a.policy), credential: tokenA,
+      id: (await p.central.pool.query("SELECT id FROM external_alpha_cohort_admission")).rows[0].id, allowanceId: p.s.authority.allowanceId, operationSha256: digest("work:" + p.s.authority.id) })])).rejects.toThrow(/SHARED_FENCED/);
+    await expect(p.chat("after-replay")).rejects.toThrow(/SHARED_FENCED/);
+  }, 90000);
+  it("UF-9: an allowance admitted before the Work cannot dispatch a paid call while the Work is RUNNING or UNKNOWN", async () => {
+    const p = await sharedPair();
+    const bAllow = new ExternalAlphaAllowance(p.b.db, p.b.policy);
+    const admitted = await bAllow.admit({ kind: "CHAT", bindingId: "uf9", requestSha256: digest("uf9") });   // before any Work lease
+    const s = await p.app.controller.start(await p.a.seedWork()); if (!s.sent) throw Error("sent");
+    await expect(bAllow.reserve({ allowanceId: admitted.id, stepKey: "turn:1", requestSha256: digest("uf9-op"), microusd: 50000 })).rejects.toThrow(/SHARED_FENCED/);
+    p.a.db.externalAlphaAccounting = new FaultyFence(p.central.db, tokenA, "drop");
+    await p.a.svc.finish(s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+    await expect(bAllow.reserve({ allowanceId: admitted.id, stepKey: "turn:2", requestSha256: digest("uf9-op2"), microusd: 50000 })).rejects.toThrow(/SHARED_FENCED/);
+    // Replayed admission (same binding) is idempotent: same central reservation, no new charge, still cannot dispatch.
+    const replay = await bAllow.admit({ kind: "CHAT", bindingId: "uf9", requestSha256: digest("uf9") });
+    expect(replay.id).toBe(admitted.id);
+    expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.kind='CHAT' AND d.state<>'NOT_DISPATCHED'")).rows[0].n).toBe(0);
+    expect(await ceilings(p.central)).toBe(1400000);
+  }, 90000);
+  it("CAP-1: an undispatched Work reservation holds the single slot and fences new chat admission until its deadline", async () => {
+    const p = await sharedPair();
+    await sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "cap1", requestSha256: digest("cap1") });
+    await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "cap1-b", requestSha256: digest("cap1-b") })).rejects.toThrow(/SHARED_CAPACITY/);
+    await expect(p.chat("pending-work-chat")).rejects.toThrow(/SHARED_FENCED/);   // not charged for a call that could not dispatch
+    expect(await ceilings(p.central)).toBe(1300000);
+    // Owner disconnect: A never dispatches. Capacity returns only after the deadline (dispatch is then impossible).
+    await centralDeadlinePassed(p.central, "WORK");
+    await expect(p.chat("after-deadline-chat")).resolves.toMatchObject({ kind: "CHAT" });
+    await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "cap1-b2", requestSha256: digest("cap1-b2") })).resolves.toMatchObject({ kind: "WORK" });
+  }, 90000);
+  it("CAP-2: concurrent Work admission from both owners acquires the slot exactly once", async () => {
+    const p = await sharedPair();
+    const out = await Promise.allSettled([
+      sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "race-a", requestSha256: digest("race-a") }),
+      sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "race-b", requestSha256: digest("race-b") }),
+    ]);
+    expect(out.filter(o => o.status === "fulfilled")).toHaveLength(1);
+    expect(String((out.find(o => o.status === "rejected") as PromiseRejectedResult).reason)).toMatch(/SHARED_CAPACITY/);
+    expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_admission WHERE kind='WORK'")).rows[0].n).toBe(1);
+  }, 90000);
+  it("CAP-3: fairness: after A's Work settles and its admission expires, B is admitted and A cannot reacquire the slot the same UTC day", async () => {
+    const p = await sharedPair();
+    const w = await p.a.seedWork();
+    await p.app.controller.start(w);
+    p.app.factory.state = "FAILED"; p.app.factory.quiescent = true; p.app.factory.verdict = "NONE";
+    await p.app.controller.reconcile(w.id, { work: w });
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "SETTLED" }]);
+    // Settled but still before its deadline: still holds the slot (conservative).
+    await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "fair-b0", requestSha256: digest("fair-b0") })).rejects.toThrow(/SHARED_CAPACITY/);
+    await centralDeadlinePassed(p.central, "WORK");
+    await expect(sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "fair-a2", requestSha256: digest("fair-a2") })).rejects.toThrow(/SHARED_EXHAUSTED/);
+    await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "fair-b1", requestSha256: digest("fair-b1") })).resolves.toMatchObject({ kind: "WORK" });
+  }, 90000);
+  it("CAP-4: UNKNOWN or FENCED Work keeps the slot even after its deadline", async () => {
+    for (const exposure of ["UNKNOWN", "FENCED"] as const) {
+      const p = await runningPair();
+      if (exposure === "UNKNOWN") await p.a.svc.finish(p.s.authority.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" });
+      else await sharedAlphaAccounting(p.a.db).workPhase(p.a.db, p.a.policy, p.s.authority.allowanceId, p.s.authority.id, "hold_work");
+      await centralDeadlinePassed(p.central, "WORK");
+      await expect(sharedAlphaAccounting(p.b.db).reserve(p.b.policy, { kind: "WORK", bindingId: "cap4-" + exposure, requestSha256: digest("cap4-" + exposure) })).rejects.toThrow(/SHARED_(FENCED|CAPACITY)/);
+    }
+  }, 120000);
+  it("CAP-5: a rolled-back admission transaction consumes no capacity or ceiling", async () => {
+    const p = await sharedPair();
+    const c = await p.central.pool.connect();
+    try {
+      await c.query("BEGIN");
+      await c.query("SELECT external_alpha_cohort_call($1::jsonb)", [JSON.stringify({ mode: "reserve", id: randomUUID(), kind: "WORK", bindingSha256: digest("rolled-back"), requestSha256: digest("rb"),
+        cohortId: p.b.policy.cohortId, ownerId: p.b.policy.ownerId, slot: p.b.policy.slot, policySha256: digest(p.b.policy), credential: "2".repeat(64) })]);
+      await c.query("ROLLBACK");
+    } finally { c.release(); }
+    expect(await ceilings(p.central)).toBe(0);
+    await expect(sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "after-rollback", requestSha256: digest("after-rollback") })).resolves.toMatchObject({ kind: "WORK" });
+  }, 90000);
+  it("CAP-6: replayed admission (same binding) returns the original reservation and never acquires a second slot", async () => {
+    const p = await sharedPair();
+    const allow = new ExternalAlphaAllowance(p.a.db, p.a.policy);
+    const first = await sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "replay", requestSha256: digest("replay") });
+    const again = await sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "replay", requestSha256: digest("replay") });
+    expect(again.id).toBe(first.id);
+    await expect(sharedAlphaAccounting(p.a.db).reserve(p.a.policy, { kind: "WORK", bindingId: "replay", requestSha256: digest("changed") })).rejects.toThrow(/BINDING_CHANGED/);
+    expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_admission")).rows[0].n).toBe(1);
+    void allow;
+  }, 90000);
+  it("CAP-7: the owner-facing Work start action reports explicit capacity denial with nothing charged or started", async () => {
+    const p = await runningPair();
+    const appB = await setup(true, p.b);
+    const work = await p.b.seedWork();
+    const env = {
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: p.b.policy.projectId, MYEVE_OWNER_ID: p.b.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(p.b.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(p.b.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(appB.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: appB.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-2",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(p.b.policy, appB.config),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+    } as unknown as NodeJS.ProcessEnv;
+    const before = await ceilings(p.central);
+    const out = await externalAlphaFactoryAction(p.b.store, work.id, { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation },
+      { sessionId: "sess-b", callId: "call-b" }, { database: p.b.db, factory: appB.factory, env, signer: p.b.signer }).then(() => null, (e: { code?: string; message: string; status?: number }) => e);
+    expect(out?.code).toBe("EXTERNAL_ALPHA_WORK_CAPACITY");
+    expect(out?.status).toBe(409);
+    expect(out?.message).toMatch(/Only one Work can run at a time/);
+    expect(appB.factory.posts).toBe(0);
+    expect(await p.b.count("external_alpha_work_authority")).toBe(0);
+    expect(await ceilings(p.central)).toBe(before);
+  }, 90000);
+  it("STOP-1: the owner stops a running alpha Work without a paid turn; the fence clears only from the authenticated terminal fact", async () => {
+    const p = await runningPair();
+    const env = {
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: p.a.policy.projectId, MYEVE_OWNER_ID: p.a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(p.a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(p.a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(p.app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: p.app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(p.a.policy, p.app.config),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+    } as unknown as NodeJS.ProcessEnv;
+    await expect(p.chat("while-running")).rejects.toThrow(/SHARED_FENCED/);          // paid turns are fenced
+    const ownChat = (id: string) => new ExternalAlphaAllowance(p.a.db, p.a.policy).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
+    await expect(ownChat("own-while-running")).rejects.toThrow(/SHARED_FENCED/);
+    const before = await ceilings(p.central), opsBefore = await p.a.count("external_alpha_operation");
+    const work = await p.a.store.get(p.w.id);
+    // Same entry the owner route uses: no model operation, no new authority, owner scope + exact version.
+    await expect(externalAlphaFactoryAction(p.a.store, work.id, { operation: "stop", expectedWorkVersion: work.version + 1, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "stale" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer })).rejects.toThrow(/Reload the current Work/);
+    expect(p.app.factory.stops).toEqual([]);
+    const out = await externalAlphaFactoryAction(p.a.store, work.id, { operation: "stop", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "stop" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer });
+    expect(out.state).toBe("CANCELLED");
+    expect(p.app.factory.stops).toEqual([p.s.authority.requestId]);
+    expect(p.app.factory.posts).toBe(1);                                               // never redispatched
+    expect(await p.a.count("external_alpha_work_authority")).toBe(1);
+    expect(await p.a.count("external_alpha_operation")).toBe(opsBefore);              // no paid model operation
+    expect(await p.a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await p.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "SETTLED" }]);
+    await expect(p.chat("after-stop")).resolves.toMatchObject({ kind: "CHAT" });      // fence released
+    expect(await ceilings(p.central)).toBe(before + 100000);                           // only the new chat admission
+    // The Work still holds the single slot until its admission window ends (one Work per cohort).
+    const appB = await setup(true, p.b);
+    await expect(appB.controller.start(await p.b.seedWork())).rejects.toThrow(/SHARED_CAPACITY/);
+  }, 90000);
+  it("STOP-2: the owner page never cancels a Work that is still starting, so a concurrent claim cannot be overwritten", async () => {
+    const p = await sharedPair();
+    const env = {
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: p.a.policy.projectId, MYEVE_OWNER_ID: p.a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(p.a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(p.a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(p.app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: p.app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(p.a.policy, p.app.config),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+    } as unknown as NodeJS.ProcessEnv;
+    const work = await p.a.seedWork();
+    const ownerStop = (w: { id: string; version: number; generation: number }) => externalAlphaFactoryAction(p.a.store, w.id,
+      { operation: "stop", expectedWorkVersion: w.version, expectedWorkGeneration: w.generation },
+      { sessionId: "owner-work-controls", callId: randomUUID() }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer, ownerDirectStop: true });
+    await expect(ownerStop(work)).resolves.toMatchObject({ state: "NONE" });              // nothing to stop, nothing created
+    expect(await p.a.count("external_alpha_work_authority")).toBe(0);
+    const issued = await p.a.svc.issue(work, files);
+    await expect(ownerStop(await p.a.store.get(work.id))).rejects.toMatchObject({ code: "EXTERNAL_ALPHA_WORK_STARTING", status: 409 });
+    await p.a.svc.claim(issued);                                                           // DISPATCHING
+    await expect(ownerStop(await p.a.store.get(work.id))).rejects.toMatchObject({ code: "EXTERNAL_ALPHA_WORK_STARTING" });
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows[0].state).toBe("DISPATCHING");
+    expect(p.app.factory.stops).toEqual([]);
+    // Owner mode accepts stop only.
+    await expect(externalAlphaFactoryAction(p.a.store, work.id, { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation },
+      { sessionId: "owner-work-controls", callId: "x" }, { database: p.a.db, factory: p.app.factory, env, signer: p.a.signer, ownerDirectStop: true })).rejects.toMatchObject({ status: 400 });
+  }, 90000);
+  it("RACE-1: a chat admitted before the Work cannot dispatch between the Work's reservation and its dispatch; the Work still runs", async () => {
+    const p = await sharedPair();
+    const bAllow = new ExternalAlphaAllowance(p.b.db, p.b.policy);
+    const early = await bAllow.admit({ kind: "CHAT", bindingId: "race1", requestSha256: digest("race1") });   // no lease yet
+    const w = await p.a.seedWork();
+    const issued = await p.a.svc.issue(w, files);                                                            // A's Work reserved+bound, not dispatched
+    await expect(bAllow.reserve({ allowanceId: early.id, stepKey: "turn:1", requestSha256: digest("race1-op"), microusd: 50000 })).rejects.toThrow(/SHARED_FENCED/);
+    const claim = await p.a.svc.claim(issued);
+    expect(claim.claimed).toBe(true);
+    expect((await p.central.pool.query("SELECT a.kind,d.state FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE d.state<>'NOT_DISPATCHED'")).rows).toEqual([{ kind: "WORK", state: "DISPATCHED" }]);
+  }, 90000);
+  it("RACE-2: a definitive central dispatch refusal cancels the claimed authority before any Factory call (never DISPATCHING→UNKNOWN)", async () => {
+    const p = await sharedPair();
+    const chat = await new ExternalAlphaAllowance(p.b.db, p.b.policy).admit({ kind: "CHAT", bindingId: "race2", requestSha256: digest("race2") });
+    const w = await p.a.seedWork();
+    const issued = await p.a.svc.issue(w, files);
+    // Fixture-only: a conflicting unresolved lease (e.g. one written by a pre-upgrade function) so the
+    // Work's central dispatch is definitively refused inside its own rolled-back transaction.
+    const c = await p.central.pool.connect();
+    try { await c.query("BEGIN"); await c.query("SET LOCAL session_replication_role=replica");
+      await c.query("INSERT INTO external_alpha_cohort_dispatch(admission_id,operation_sha256,state) SELECT id,$1,'DISPATCHED' FROM external_alpha_cohort_admission WHERE kind='CHAT'", [digest("race2-op")]);
+      await c.query("COMMIT"); } catch (error) { await c.query("ROLLBACK"); throw error; } finally { c.release(); }
+    void chat;
+    await expect(p.app.controller.start(w)).rejects.toThrow(/SHARED_FENCED/);
+    expect(p.app.factory.posts).toBe(0);
+    const [auth] = (await p.a.pool.query("SELECT state,terminal_reason FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows;
+    expect(auth).toEqual({ state: "CANCELLED", terminal_reason: "SHARED_DISPATCH_DENIED" });
+    expect((await p.central.pool.query("SELECT count(*)::int n FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.kind='WORK'")).rows[0].n).toBe(0);
+    // A retry never re-claims or sends; the sweep never turns it into UNKNOWN.
+    await expect(p.app.controller.start(w)).resolves.toMatchObject({ sent: false });
+    await p.a.svc.sweep();
+    expect((await p.a.pool.query("SELECT state FROM external_alpha_work_authority WHERE id=$1", [issued.id])).rows[0].state).toBe("CANCELLED");
+    expect(p.app.factory.posts).toBe(0);
+  }, 90000);
 });
