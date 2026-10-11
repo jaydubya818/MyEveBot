@@ -136,7 +136,7 @@ jobs:
       run: node --import tsx --test apps/eve/test/numeric-range-protected.test.mjs
   missioncontrol-consumer:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
@@ -174,11 +174,19 @@ jobs:
         chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
 
         '
-    - name: Actual tool, transactional storage, concurrency and lost acknowledgment
+    - name: Install locked browser
+      run: node node_modules/playwright/cli.js install --with-deps chromium
+    - name: Prepare isolated deterministic production browser
+      env:
+        MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
+      run: node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
+    - name: Authenticated production browser, actual tool, transactional storage and recovery
       env:
         MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
         MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
-      run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/sofie-consumer"
+        MYEVE_CHECKPOINT_H_BROWSER: '1'
+        MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
+      run: node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/sofie-consumer"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
