@@ -12,6 +12,7 @@ test('fixture source and transformed hashes survive successful and failed instru
   try {
     await mkdir(source);
     const files={
+      'apps/eve/next.config.ts':'const nextConfig: NextConfig = {}; export default nextConfig;',
       'apps/eve/test/browser/enterprise-model.fixture.ts':'export const model="fixture";',
       'apps/eve/agent/agent.ts':'export const model="original";',
       'apps/eve/test/browser/local-transport.cjs':"const allowed=configured.pathname !== '/blocker_fixes';",
@@ -34,6 +35,7 @@ test('fixture source and transformed hashes survive successful and failed instru
       for(const [path,original] of Object.entries(files))assert.equal(manifest.hashes[path],createHash('sha256').update(original).digest('hex'));
       for(const [path,digest] of Object.entries(manifest.transformedHashes))assert.equal(digest,createHash('sha256').update(await readFile(join(target,path))).digest('hex'));
       assert.notEqual(manifest.transformedHashes['apps/eve/lib/missioncontrol/consumer.ts'],manifest.hashes['apps/eve/lib/missioncontrol/consumer.ts']);
+      assert.notEqual(manifest.transformedHashes['apps/eve/next.config.ts'],manifest.hashes['apps/eve/next.config.ts']);
       if(failed)assert.equal(manifest.transformedHashes['apps/eve/agent/lib/missioncontrol.ts'],manifest.hashes['apps/eve/agent/lib/missioncontrol.ts']);
     }
   } finally {await rm(root,{recursive:true,force:true});}

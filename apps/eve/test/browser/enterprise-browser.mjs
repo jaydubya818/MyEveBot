@@ -5,12 +5,18 @@ import {mkdir,writeFile,open,copyFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {createRequire} from 'node:module';
 import {chromium} from '@playwright/test';
+import {checkMobileConversationLayout} from './mobile-conversation-layout.mjs';
+import {buildProductionBrowser} from './production-browser-build.mjs';
+import {requireAvailablePort,startBuiltAgent,stopOwnedProcess} from './production-browser-runtime.mjs';
 let warmed;
-async function close(state) {
+function close(state) {
   if(!state)return;
-  await state.browser?.close();state.server.kill('SIGTERM');
-  if(state.server.exitCode===null&&state.server.signalCode===null)await new Promise(r=>state.server.once('exit',r));
-  await state.log.close();
+  return state.closing??=(async()=>{
+    state.removeShutdownHandlers?.();
+    try {await state.browser?.close();}
+    finally {try {await stopOwnedProcess(state.server);}
+      finally {try {await stopOwnedProcess(state.agent);} finally {await state.log.close();}}}
+  })();
 }
 export async function closeWarmSofieBrowser(){const state=warmed;warmed=undefined;await close(state);}
 export function enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile}) {
@@ -28,11 +34,20 @@ async function start({source,owner,databaseUrl='postgresql://postgres@localhost:
   await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
   const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');
   const env=enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile});
+  const browserBuild=await buildProductionBrowser({app,output,require,env});
+  await requireAvailablePort(3077);
   const log=await open(join(output,'server.log'),'wx');
-  const server=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port','3077'],{cwd:app,env,stdio:['ignore',log.fd,log.fd]});
-  const state={output,require,log,server,posts:[],checks:[]};
+  const state={output,require,log,browserBuild,posts:[],checks:[]};
+  const interrupted=signal=>{void close(state).finally(()=>process.kill(process.pid,signal));};
+  const interrupt=()=>interrupted('SIGINT'),terminate=()=>interrupted('SIGTERM');
+  const exiting=()=>{state.server?.kill('SIGTERM');state.agent?.kill('SIGTERM');};
+  process.once('SIGINT',interrupt);process.once('SIGTERM',terminate);process.once('exit',exiting);
+  state.removeShutdownHandlers=()=>{process.off('SIGINT',interrupt);process.off('SIGTERM',terminate);process.off('exit',exiting);};
   try {
-    for(let n=0;;n++){if(server.exitCode!==null)throw Error('Browser server exited');try{if((await fetch('http://localhost:3077/login',{signal:AbortSignal.timeout(5000)})).ok)break;}catch{}if(n===180)throw Error('Browser server unavailable');await new Promise(r=>setTimeout(r,500));}
+    // Next serves cached production rewrites; supervise the built local agent explicitly.
+    state.agent=await startBuiltAgent({entry:join(app,'.output/server/index.mjs'),app,env,log,onSpawn:child=>{state.agent=child;}});
+    state.server=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'start','--hostname','127.0.0.1','--port','3077'],{cwd:app,env:{...env,NODE_ENV:'production'},stdio:['ignore',log.fd,log.fd]});
+    for(let n=0;;n++){if(state.server.exitCode!==null||state.agent.exitCode!==null)throw Error('Production browser or agent server exited');try{if((await fetch('http://localhost:3077/login',{signal:AbortSignal.timeout(5000)})).ok)break;}catch{}if(n===180)throw Error('Production browser or agent server unavailable');await new Promise(r=>setTimeout(r,500));}
     state.browser=await chromium.launch({headless:true});state.context=await state.browser.newContext({viewport:{width:1280,height:900}});state.page=await state.context.newPage();
     state.page.on('request',r=>{if(r.method()==='POST'&&new URL(r.url()).pathname.startsWith('/eve/v1/session'))state.posts.push(new URL(r.url()).pathname);});
     assert.equal((await state.context.request.get('http://localhost:3077/api/threads')).status(),401);state.checks.push('anonymous-owner-route-denied');
@@ -52,7 +67,7 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
   let state;
   const audit=async()=>{await state.page.addScriptTag({path:state.require.resolve('axe-core/axe.min.js')});return state.page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return {violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),passes:r.passes.length};});};
   try {
-    state=warmed??await start({source,owner,databaseUrl,...(input.operation==='enterprise.result'?{runtimeConfigFile:join(source,'runtime-browser-config.json')}:{})});warmed=undefined;const {page}=state;report.checks.push(...state.checks);
+    state=warmed??await start({source,owner,databaseUrl,...(input.operation==='enterprise.result'?{runtimeConfigFile:join(source,'runtime-browser-config.json')}:{})});warmed=undefined;const {page}=state;report.checks.push(...state.checks);report.browserBuild=state.browserBuild;
     await page.getByRole('button',{name:'New conversation',exact:true}).click();
     await page.getByRole('heading',{name:'Hey Qualification Owner',exact:true}).waitFor();report.checks.push('fixture-owner-display-identity-matches');
     const send=async text=>{await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill(text);await page.getByRole('button',{name:'Send',exact:true}).click();};
@@ -83,7 +98,9 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
       assert.equal(new Set(report.observations.map(o=>o.commandId)).size,report.observations.length);
       report.completedResultVisible=report.observations.every(o=>o.status==='AVAILABLE'&&o.freshUntil>o.observedAt);
     } else {report.proposalVisible=true;assert.ok(actions.every(a=>a.provider_receipt.response.proposal?.title===input.proposal.title));}
-    report.accessibility=await audit();await page.setViewportSize({width:390,height:844});await page.screenshot({path:join(output,'result-mobile.png'),fullPage:true});
+    report.accessibility=await audit();await page.setViewportSize({width:390,height:844});
+    report.mobileLayout=await checkMobileConversationLayout(page);report.checks.push('mobile-navigation-and-composer-unobscured');
+    await page.screenshot({path:join(output,'result-mobile.png'),fullPage:true});
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));report.checks.push('mobile-horizontal-reflow');
     report.mobileAccessibility=await audit();
     const ownerLink=page.getByRole('link',{name:'Review in MissionControl with owner login'}).last();

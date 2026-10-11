@@ -2443,15 +2443,17 @@ function ChatThread({
         </div>
       )}
       <div className="mx-auto flex size-full max-w-3xl min-h-0 flex-col px-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          shape="square"
-          icon={SidebarSimpleIcon}
-          className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
-          aria-label="Open threads"
-          onClick={onOpenSidebar}
-        />
+        <div className="flex shrink-0 py-2 md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="min-h-11 min-w-11"
+            aria-label="Open threads"
+            onClick={onOpenSidebar}
+          />
+        </div>
 
         {agentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">

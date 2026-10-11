@@ -7,6 +7,8 @@ import {randomBytes,randomUUID,createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {Pool} from 'pg';
 import {chromium} from '@playwright/test';
+import {checkMobileConversationLayout} from './mobile-conversation-layout.mjs';
+import {disableFixtureDevIndicator} from './enterprise-visual-overlay.mjs';
 const root=resolve(process.argv[2]),output=resolve(process.argv[3]);await mkdir(output,{recursive:true});
 const require=createRequire(join(root,'package.json'));
 const scratch=await mkdtemp(join(tmpdir(),'checkpoint-h-binding-')),source=join(scratch,'source');
@@ -14,8 +16,11 @@ const sourceFiles={};
 for(const file of execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean)) {await mkdir(dirname(join(source,file)),{recursive:true});await copyFile(join(root,file),join(source,file));sourceFiles[file]=createHash('sha256').update(await readFile(join(root,file))).digest('hex');}
 await symlink(join(root,'node_modules'),join(source,'node_modules'));await symlink(join(root,'apps/eve/node_modules'),join(source,'apps/eve/node_modules'));
 const app=join(source,'apps/eve');await copyFile(join(root,'apps/eve/test/browser/eve-session-fixture.ts'),join(app,'agent/agent.ts'));
+const config=join(app,'next.config.ts');await writeFile(config,disableFixtureDevIndicator(await readFile(config,'utf8')));
 const docker=process.env.MC_GOLDEN_DOCKER||'docker',name='checkpoint-h-'+randomUUID(),port=55539,webPort=3081,owner='checkpoint-h-owner';
 const report={schema:'checkpoint-h-binding/v1',source:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),sourceDirty:!!execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),sourceTreeDigest:createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),checks:[],status:'IN_PROGRESS',paidOperations:0,productionIntegration:'NOT_RUN',sourceCopy:source};
+report.browserRuntime='DEVELOPMENT_SERVER_WITHOUT_DEV_INDICATOR';
+report.fixtureConfig={originalHash:sourceFiles['apps/eve/next.config.ts'],transformedHash:createHash('sha256').update(await readFile(config)).digest('hex')};
 let pool,server,browser,page,log,container=false;
 const audit=async()=>{
  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
@@ -61,6 +66,7 @@ try {
  await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'Mobile conversation must reflow without horizontal scrolling');
  report.mobileAccessibility=await audit();assert.deepEqual(report.mobileAccessibility.violations,[],'Mobile conversation accessibility');
+ report.mobileLayout=await checkMobileConversationLayout(page);report.checks.push('mobile-navigation-and-composer-unobscured');
  await page.screenshot({path:join(output,'mobile-follow-up.png'),fullPage:true});report.checks.push('mobile same-session follow-up and accessible reflow');
  await page.getByRole('button',{name:'Open threads',exact:true}).click();
  await page.getByRole('button',{name:'New conversation',exact:true}).click();await page.route('**/api/threads/*',async route=>{if(route.request().method()==='PUT')await route.fulfill({status:503,body:'Unavailable'});else await route.continue();});
