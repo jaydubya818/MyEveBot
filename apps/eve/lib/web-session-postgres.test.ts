@@ -38,10 +38,22 @@ describe.skipIf(!connection)("PostgreSQL session revocation", () => {
     adapter.query.mockImplementation(async (sql: string, params: unknown[]) => (await pool.query(sql, params)).rows);
   }, 60_000);
   afterAll(async () => {
-    await pool?.end();
-    if (admin) { await admin.query('DROP DATABASE "' + schema + '" WITH (FORCE)'); await admin.end(); }
-    vi.unstubAllEnvs();
-  });
+    try {
+      await pool?.end();
+      if (admin) {
+        // Pool shutdown can precede PostgreSQL observing the socket close.
+        const deadline = Date.now() + 5000;
+        while (Number((await admin.query("SELECT count(*) FROM pg_stat_activity WHERE datname=$1", [schema])).rows[0].count) > 0) {
+          if (Date.now() >= deadline) throw Error("Disposable database connections did not close: " + schema);
+          await new Promise(resolve => setTimeout(resolve, 25));
+        }
+        await admin.query('DROP DATABASE IF EXISTS "' + schema + '"');
+      }
+    } finally {
+      try { await admin?.end(); }
+      finally { vi.unstubAllEnvs(); }
+    }
+  }, 10000);
   it("preserves revocation across connections, independent sessions, and operator reruns", async () => {
     const first = createWebSessionToken(), second = createWebSessionToken();
     expect(await authenticateWebPrincipal(request(first))).toEqual({ id: env.MYEVE_OWNER_ID });

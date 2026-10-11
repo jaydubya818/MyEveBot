@@ -1,18 +1,8 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { enterpriseInput, enterpriseResult, hasConsistentEnterpriseResult, authenticationSchema, envelopeSchema, readResponse, proposeResponse, submitResponse, id, text, type EnterpriseInput } from './contracts.ts';
+export { enterpriseInput, enterpriseResult, type EnterpriseInput } from './contracts.ts';
 
-const text = (max: number) => z.string().min(1).max(max).refine(s => s === s.trim() && !/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(s));
-const id = text(200), digest = z.string().regex(/^sha256:[a-f0-9]{64}$/);
-const proposal = z.object({ title:text(160), objective:text(4000), workstreams:z.array(text(160)).min(2).max(12),
-  milestones:z.array(text(160)).min(1).max(20), stopCondition:text(500), budgetMicrousd:z.literal(0) }).strict();
-export const enterpriseInput = z.discriminatedUnion('operation', [
-  z.object({operation:z.literal('enterprise.result'),missionId:id,expectedPlanDigest:digest}).strict(),
-  z.object({operation:z.literal('enterprise.inspect'),intentKey:id.nullable(),proposalId:id.nullable()}).strict().refine(r=>(r.intentKey===null)!==(r.proposalId===null)),
-  z.object({operation:z.literal('enterprise.propose'),intentKey:id,proposal}).strict(),
-  z.object({operation:z.literal('enterprise.submit'),proposalId:id,proposalDigest:digest}).strict(),
-  z.object({operation:z.literal('enterprise.read'),proposalId:id,missionId:id,expectedPlanDigest:digest.nullable()}).strict(),
-]);
-export type EnterpriseInput = z.infer<typeof enterpriseInput>;
 export const APPLICATION = 'myeve-sofie-readiness-v1';
 export const CAPABILITY = 'tool.mission_control';
 export interface EnterpriseConfig {
@@ -47,33 +37,6 @@ export function signedCommand(config:EnterpriseConfig, input:EnterpriseInput, co
     envelope.commandId,String(envelope.issuedAt),String(envelope.expiresAt),envelope.payloadDigest].join('\n');
   return {envelope:{...envelope,signature:'sha256='+createHmac('sha256',config.secret).update(bytes).digest('hex')},payloadJson};
 }
-const qualityGate=z.object({eligible:z.boolean(),reasons:z.array(text(500)).max(100),identity:z.record(z.string(),z.unknown()).nullable().optional()}).strict();
-const plan=z.object({id,revision:z.number().int().positive(),status:text(60),digest,
-  milestones:z.array(z.object({id,title:text(500),dependsOn:z.array(id).max(100)}).strict()).max(100)}).strict();
-const readResponse=z.object({
-  mission:z.object({id,title:text(500),state:text(60),budgetUsd:z.number().nonnegative().nullable(),spentUsd:z.number().nonnegative()}).strict(),
-  plan:plan.nullable(),plans:z.array(z.object({id,revision:z.number().int().positive(),status:text(60),digest,isCurrent:z.boolean()}).strict()).max(20),
-  workOrders:z.array(z.object({id,title:text(500),state:text(60),revisionId:id.nullable(),planId:id.nullable(),blockingIssue:z.string().max(4000).nullable(),qualityGate}).strict()).max(100),
-  blockers:z.array(z.string().max(4000)).max(101),needsYou:z.string().max(4000).nullable(),
-  resultProof:z.object({status:z.literal('NOT_AVAILABLE'),reason:z.literal('COMPLETED_RESULT_REQUIRES_SCOPED_READ'),
-    references:z.array(z.object({handoffId:id,workOrderId:id,outcome:text(60)}).strict()).max(100)}).strict(),
-  truncated:z.boolean(),executionAuthority:z.literal('NONE'),explanation:z.string().max(4000),
-}).strict();
-const proposeResponse=z.object({proposalId:id,digest,proposal,needsYou:text(4000),executionAuthority:z.literal('NONE')}).strict();
-const submitResponse=z.object({missionId:id,proposalDigest:digest,created:z.boolean(),executionAuthority:z.literal('NONE')}).strict();
-const resultWorkOrder=z.object({workOrderId:id,revisionId:id,revision:z.number().int().positive(),sourceAttemptId:id,verificationAttemptId:id,
-  candidate:text(200),producerInvocationId:id,provider:z.enum(['isolated-container','local-docker']),factoryVersion:text(200),factoryDefinitionVersionId:id,verifierFactoryDefinitionVersionId:id.nullable(),verifierFactoryVersion:text(200),verifierInvocationId:id,runtimeImage:digest.nullable(),
-  qualityContractDigest:digest,verificationContractDigest:digest,verificationRunId:id,verificationReceiptId:id,verificationPlanDigest:digest,
-  evidenceSetDigest:digest,evidenceIds:z.array(id).min(1).max(100),reservationDigest:text(200),settlementDigest:text(200),proofDigest:digest,
-  verifierSettlementDigest:text(200).nullable(),handoffId:id,artifactIds:z.array(id).max(100),gate:z.literal('PASS'),independentlyVerified:z.literal(true)}).strict();
-export const enterpriseResult=z.object({schema:z.literal('enterprise-result-projection/v1'),scope:z.literal('ISOLATED_DETERMINISTIC'),
-  missionId:id,ownerId:id,tenantId:id,projectId:id,plan:z.object({missionId:id,planId:id,planRevision:z.number().int().positive(),planDigest:digest}).strict(),
-  qualityContract:z.object({revision:z.number().int().positive(),digest}).strict(),status:z.enum(['AVAILABLE','NOT_AVAILABLE']),
-  enterpriseQualityGate:z.enum(['PASS','NOT_ESTABLISHED']),ownerAcceptance:z.enum(['ACCEPTED','PENDING']),observedAt:z.number().int(),freshUntil:z.number().int(),
-  assertions:z.array(z.object({assertionId:id,workOrderId:id,verificationReceiptId:id,verificationAttemptId:id}).strict()).max(100),reasons:z.array(text(500)).max(200),workOrders:z.array(resultWorkOrder).max(100),executionAuthority:z.literal('NONE'),explanation:text(500)}).strict();
-const authenticationSchema=z.object({commandId:id,requestDigest:z.string().regex(/^sha256=[a-f0-9]{64}$/),expiresAt:z.number().int(),signature:digest}).strict();
-const envelopeSchema=z.object({schema:z.literal('sofie-enterprise-response/v1'),applicationId:z.literal(APPLICATION),connectionId:id,
-  projectId:id,ownerId:id,observedAt:z.number().int().positive(),responseDigest:digest,response:z.unknown(),authentication:authenticationSchema.optional()}).strict();
 export function validateResponse(config:EnterpriseConfig,input:EnterpriseInput,value:unknown, now=Date.now()) {
   const envelope=envelopeSchema.parse(value);
   if(envelope.connectionId!==config.connectionId || envelope.projectId!==config.projectId || envelope.ownerId!==config.missionControlOwnerId
@@ -88,15 +51,10 @@ export function validateResponse(config:EnterpriseConfig,input:EnterpriseInput,v
     const r=enterpriseResult.parse(envelope.response);
     if(r.missionId!==input.missionId || r.plan.missionId!==input.missionId || r.plan.planDigest!==input.expectedPlanDigest
       || r.ownerId!==config.missionControlOwnerId || r.projectId!==config.projectId || r.tenantId!==config.tenantId
-      || r.qualityContract.revision!==r.plan.planRevision || r.observedAt>envelope.observedAt || r.freshUntil<=now
-      || authentication.expiresAt>r.freshUntil || r.workOrders.some(w=>w.sourceAttemptId===w.verificationAttemptId || w.producerInvocationId===w.verifierInvocationId || w.qualityContractDigest!==r.qualityContract.digest
-        || (w.provider==='isolated-container' ? !w.runtimeImage || !w.verifierFactoryDefinitionVersionId || !w.verifierSettlementDigest
-          : w.runtimeImage!==null || w.verifierFactoryDefinitionVersionId!==null || w.verifierSettlementDigest!==null || w.verifierFactoryVersion!==w.factoryVersion))
-      || new Set(r.workOrders.map(w=>w.workOrderId)).size!==r.workOrders.length)throw Error('ENTERPRISE_RESULT_BINDING');
-    if(r.status==='AVAILABLE' ? r.enterpriseQualityGate!=='PASS' || !r.workOrders.length || !r.assertions.length || r.reasons.length!==0
-      : r.enterpriseQualityGate!=='NOT_ESTABLISHED' || r.workOrders.length!==0 || r.assertions.length!==0 || !r.reasons.length)throw Error('ENTERPRISE_RESULT_BINDING');
+      || r.observedAt>envelope.observedAt || r.freshUntil<=now || authentication.expiresAt>r.freshUntil
+      || !hasConsistentEnterpriseResult(r))throw Error('ENTERPRISE_RESULT_BINDING');
   } else if(input.operation==='enterprise.inspect') {
-    const r=z.object({proposal:z.object({id,intentKey:id,digest,authorized:z.boolean(),missionId:id.nullable()}).strict().nullable(),executionAuthority:z.literal('NONE')}).strict().parse(envelope.response);
+    const r=z.object({proposal:z.object({id,intentKey:id,digest:z.string().regex(/^sha256:[a-f0-9]{64}$/),authorized:z.boolean(),missionId:id.nullable()}).strict().nullable(),executionAuthority:z.literal('NONE')}).strict().parse(envelope.response);
     if((input.proposalId && r.proposal?.id!==input.proposalId) || (input.intentKey && r.proposal && r.proposal.intentKey!==input.intentKey))throw Error('ENTERPRISE_PROPOSAL_BINDING');
   } else if(input.operation==='enterprise.propose') {
     const r=proposeResponse.parse(envelope.response);
@@ -130,6 +88,7 @@ export async function sendEnterpriseCommand(config:EnterpriseConfig,input:Enterp
 /** Evidence-derived wording; never promote producer narratives into enterprise PASS. */
 export function explainEnterpriseResult(value:unknown):string {
   const result=enterpriseResult.parse(value);
+  if(!hasConsistentEnterpriseResult(result))throw Error('ENTERPRISE_RESULT_BINDING');
   if(result.status!=='AVAILABLE')return 'Enterprise Result is not currently available: '+result.reasons.join(', ')+'. No enterprise PASS is established.';
   return `Mission ${result.missionId}, Plan revision ${result.plan.planRevision}: the isolated enterprise Quality Gate is PASS for ${result.workOrders.length} exact independently verified WorkOrders with settled accounting. Owner acceptance: ${result.ownerAcceptance}. This observation expires at ${new Date(result.freshUntil).toISOString()}; reconnect requires a fresh read. No production or execution authority is granted.`;
 }
