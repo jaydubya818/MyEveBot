@@ -94,6 +94,7 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
+import { EnterpriseMissionCard } from "@/components/enterprise-mission-card";
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
 import type { CapabilityStatus } from "@/lib/capabilities";
@@ -1188,6 +1189,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function deleteThread(id: string) {
     try {
       ownerLocalStorage.removeItem(chatKey(id));
+      ownerLocalStorage.removeItem(`eve-web-draft:${id}`);
     } catch {
       // Ignore storage failures.
     }
@@ -1587,6 +1589,12 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           }
           onTitle={(title) => setThreadTitle(index.activeId, title)}
           onActivity={(title) => touchThread(index.activeId, title)}
+          onPrepareSend={async () => {
+            const meta = indexRef.current.threads.find((thread) => thread.id === index.activeId);
+            if (!meta || !await saveThreadForCurrentOwner(meta.id, threadMetaBody(meta))) {
+              throw new Error("Your conversation could not be saved. Your draft is still here; try again.");
+            }
+          }}
           onPersist={(chat) => persistChat(index.activeId, chat)}
           onBusyChange={(busy) => setThreadBusy(index.activeId, busy)}
           onOpenSidebar={() => setSidebarOpen(true)}
@@ -1802,6 +1810,7 @@ function ChatThread({
   initialDraft,
   onTitle,
   onActivity,
+  onPrepareSend,
   onPersist,
   onBusyChange,
   onOpenSidebar,
@@ -1829,6 +1838,7 @@ function ChatThread({
   initialDraft?: string;
   onTitle: (title: string) => void;
   onActivity: (title?: string) => void;
+  onPrepareSend: () => Promise<void>;
   onPersist: (chat: SavedChat) => void;
   onBusyChange: (busy: boolean) => void;
   onOpenSidebar: () => void;
@@ -1866,7 +1876,23 @@ function ChatThread({
     };
   }
   const activeLabel = roleName ?? agentName;
-  const [draft, setDraft] = useState(initialDraft ?? "");
+  const draftKey = `eve-web-draft:${threadId}`;
+  const [draft, setDraftState] = useState(() => {
+    if (initialDraft !== undefined) return initialDraft;
+    try { return ownerLocalStorage.getItem(draftKey) ?? ""; } catch { return ""; }
+  });
+  const draftRef = useRef(draft);
+  // Server reconciliation may remount this thread while the owner is typing.
+  // Keep the composer in the existing owner-partitioned local store.
+  function setDraft(next: string | ((previous: string) => string)) {
+    const value = typeof next === "function" ? next(draftRef.current) : next;
+    draftRef.current = value;
+    try {
+      if (value) ownerLocalStorage.setItem(draftKey, value);
+      else ownerLocalStorage.removeItem(draftKey);
+    } catch { /* The mounted composer still retains the draft if storage is full. */ }
+    setDraftState(value);
+  }
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
@@ -1878,6 +1904,8 @@ function ChatThread({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const uploadInProgress = useRef(false);
+  const preparingSend = useRef(false);
+  const [savingConversation, setSavingConversation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   // dragenter/dragleave fire for every child; count to avoid overlay flicker.
@@ -2213,7 +2241,18 @@ function ChatThread({
   async function sendDraft() {
     if (ownerConflict) return;
     const text = draft.trim();
-    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
+    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current || preparingSend.current) return;
+    preparingSend.current = true;
+    setSavingConversation(true);
+    setUploadError(null);
+    try { await onPrepareSend(); }
+    catch {
+      setUploadError("Your conversation could not be saved. Your draft is still here; try again.");
+      return;
+    } finally {
+      preparingSend.current = false;
+      setSavingConversation(false);
+    }
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
@@ -2285,9 +2324,17 @@ function ChatThread({
     composerRef.current?.focus();
   }
 
-  function retryMessage(text: string) {
+  async function retryMessage(text: string) {
     if (ownerConflict) return;
-    if (isBusy || text.length === 0) return;
+    if (isBusy || text.length === 0 || preparingSend.current) return;
+    preparingSend.current = true;
+    setSavingConversation(true);
+    setUploadError(null);
+    try { await onPrepareSend(); }
+    catch {
+      setUploadError("Your conversation could not be saved. Try again when it is available.");
+      return;
+    } finally { preparingSend.current = false; setSavingConversation(false); }
     onActivity();
     void agent.send(text);
   }
@@ -2575,6 +2622,7 @@ function ChatThread({
             }}
           >
             {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
+            {savingConversation && <p role="status" className="px-2 py-1 text-sm">Saving conversation…</p>}
             {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
             {attachments.length > 0 && (
               <AttachmentGroup className="px-1 pb-2">
@@ -2609,7 +2657,7 @@ function ChatThread({
             )}
             <InputArea
               ref={composerRef}
-              disabled={uploading}
+              disabled={uploading || savingConversation}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
@@ -2674,7 +2722,7 @@ function ChatThread({
                 variant="ghost"
                 shape="square"
                 icon={PlusIcon}
-                disabled={uploading}
+                disabled={uploading || savingConversation}
                 aria-label="Attach files"
                 title="Attach files"
                 className="text-kumo-subtle"
@@ -2716,7 +2764,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
+                    disabled={uploading || savingConversation || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>
@@ -3058,7 +3106,7 @@ function ChatMessage({
     <Message align={align}>
       <MessageContent className="gap-2">
         {message.parts.map((part, index) => (
-          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} />
+          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} onEnterpriseRefresh={!busy && !readOnly ? onRetry : undefined} />
         ))}
         {message.role === "assistant" && text.length > 0 && (
           <div className={cn(actionRowClass, !assistantDone && "invisible")}>
@@ -3136,11 +3184,13 @@ function ChatMessage({
 }
 
 function ChatPart({
+  onEnterpriseRefresh,
   part,
   role,
   readOnly,
   onRespond,
 }: {
+  onEnterpriseRefresh?: (message: string) => void;
   part: EveMessagePart;
   role: "assistant" | "user";
   readOnly: boolean;
@@ -3229,6 +3279,7 @@ function ChatPart({
 
       return (
         <div className="flex flex-col gap-2">
+          {part.toolName === "mission_control" && part.state === "output-available" && <EnterpriseMissionCard input={part.input} output={part.output} onRefresh={onEnterpriseRefresh} />}
           {expandable ? (
             <details>
               <summary aria-label={`${label}. Open Proof of Work / Advanced`} className="w-fit cursor-pointer list-none rounded-md hover:brightness-125 [&::-webkit-details-marker]:hidden">

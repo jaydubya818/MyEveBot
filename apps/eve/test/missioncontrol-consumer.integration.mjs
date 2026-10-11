@@ -2,18 +2,18 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {readFile,readdir,mkdir,writeFile,rm} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL,fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {Pool} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,signedCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
-assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'c0ba5a97087a50feb36bb1a788f9cf065890e328','Use the exact reviewed MC compatibility source');
+assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),'25e6d99bdfd7f8766ea0af8475b7346b0a0f3067','Use the exact pinned MC owner-review candidate');
 const mcDirty=!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim();
 assert.equal(mcDirty,false,'Pinned MC source must be clean');
 const output=resolve(process.argv[2]??'/tmp/myeve-enterprise-'+randomUUID());await mkdir(output,{recursive:true});
-const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'c0ba5a97087a50feb36bb1a788f9cf065890e328',
+const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:'25e6d99bdfd7f8766ea0af8475b7346b0a0f3067',
   missionControlDirty:mcDirty,myeveDirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),myeveSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0,executableProductionGrants:0};
 const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS '+name);};
 const pgName='mc-sofie-'+randomUUID(),port=55519;
@@ -58,6 +58,11 @@ try {
   await check('exact-pinned-protocol-parity',async()=>{const p=signedCommand(config,propose);assert.equal(validateEnterpriseRequest(JSON.parse(p.payloadJson)).operation,propose.operation);
     const {createHmac}=await import('node:crypto');assert.equal(p.envelope.signature,'sha256='+createHmac('sha256',secret).update(canonicalServiceCommand(p.envelope)).digest('hex'));});
   let prepared;await check('actual-Sofie-tool-and-Action-Gateway-proposal',async()=>{prepared=await call(propose);assert.equal(prepared.receipt.response.proposal.title,proposal.title);});
+  if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
+    const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
+    receipt.browser=await qualifySofieBrowser({source:fileURLToPath(new URL('../../../',import.meta.url)),pool,input:propose,owner,db,databaseUrl:'postgresql://postgres@localhost:55519/postgres'});
+    assert.equal(receipt.browser.status,'PASS');
+  }
   const proposalId=prepared.receipt.response.proposalId,proposalDigest=prepared.receipt.response.digest;
   assert.equal(proposalDigest,enterpriseDigest({connectionId:connection.connectionId,tenantId:s.tenantId,projectId:s.projectId,ownerId:s.operatorId,intentKey:propose.intentKey,proposal}));
   const submit={operation:'enterprise.submit',proposalId,proposalDigest};
@@ -109,7 +114,7 @@ try {
 } catch(e){receipt.status='FAIL';receipt.failure=String(e.message);throw e;}
 finally {
   neonConfig.fetchFunction=originalTransport;
-  if(db){await db.stop();assert.match(db.root,/\/mc-enterprise-1b-[A-Za-z0-9]+$/);await rm(db.root,{recursive:true,force:true});}
+  if(db)await db.destroy();
   if(pool)await pool.end();if(container)execFileSync('docker',['rm','-f',pgName],{stdio:'pipe'});
   receipt.cleanup='VERIFIED';await writeFile(join(output,'qualification.json'),JSON.stringify(receipt,null,2)+'\n');
 }
