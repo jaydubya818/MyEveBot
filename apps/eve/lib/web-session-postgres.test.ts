@@ -38,6 +38,7 @@ describe.skipIf(!connection)("PostgreSQL session revocation", () => {
     adapter.query.mockImplementation(async (sql: string, params: unknown[]) => (await pool.query(sql, params)).rows);
   }, 60_000);
   afterAll(async () => {
+    try {
     await pool?.end();
     if (admin) {
       // Pool.end() can resolve before PostgreSQL observes the clients' disconnects.
@@ -49,10 +50,11 @@ describe.skipIf(!connection)("PostgreSQL session revocation", () => {
         expect(Number(remaining)).toBe(0);
       }, { timeout: 5_000, interval: 10 });
       await admin.query('DROP DATABASE "' + schema + '"');
-      await admin.end();
     }
-    vi.unstubAllEnvs();
-  });
+    } finally {
+      try { await admin?.end(); } finally { vi.unstubAllEnvs(); }
+    }
+  }, 10000);
   it("preserves revocation across connections, independent sessions, and operator reruns", async () => {
     const first = createWebSessionToken(), second = createWebSessionToken();
     expect(await authenticateWebPrincipal(request(first))).toEqual({ id: env.MYEVE_OWNER_ID });

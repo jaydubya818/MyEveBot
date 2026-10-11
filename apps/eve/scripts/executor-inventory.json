@@ -2013,7 +2013,7 @@
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. External-alpha installation: explicit capability allowlist (default-deny) enforced in availability, which the execution hook and action gateway require. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change. Current-main owner preference declarations preserved: Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Owner capability tools declare read and always-approved preference mutation only; no execution authority.",
-      "sha256": "2f459bfd7a169f7c0e7aec7bb054340f37e5f39c1fd32bac59cca9af09473a82"
+      "sha256": "1afa0d3df1fbc4cf37159dea79bf6af211b4a2d6affe90ffce963bd8c9f850d5"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2638,7 +2638,7 @@
     "lib/thread-owner-conflict.ts": {
       "classification": "INTERNAL",
       "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers.",
-      "sha256": "279a736ce844106f140a4bdb4ca66b531c9e2f28c3f54f364304ad3eab2f94a9"
+      "sha256": "941ead25300513cac817910e08bed742d7eb8d505939998ebc7aced926a06b95"
     },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
@@ -4298,6 +4298,32 @@
       "classification": "INTERNAL",
       "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
       "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+    },
+    "agent/lib/missioncontrol.ts": {
+      "classification": "ENFORCED",
+      "disposition": "gateway",
+      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority.",
+      "sha256": "8ccb3ab5d2fa43ac1ab64c7473e3237a62216b5ba14d1ba69785f06f6d90c634"
+    },
+    "agent/tools/mission_control.ts": {
+      "classification": "ENFORCED",
+      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation.",
+      "sha256": "dc37f2dead6b99fafe9739dc3d9e6d1f4b74c49482d259873cc1e5eedba02f07"
+    },
+    "lib/missioncontrol/consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Shared integrity validation binds each assertion to its WorkOrder and verification Attempt; assertion and WorkOrder gate receipt IDs may differ, with canonical MissionControl authenticating receipt/evidence custody. Cached UI is recorded observation, not current proof or owner authority. Canonical MissionControl rechecks grants. Consumer negative tests cover forged PASS, foreign bindings, stale evidence and cross-WorkOrder assertions; production endpoints remain denied.",
+      "sha256": "2d1a401979455cd9658a1b096e5506d812dc433f72f29c477ecc1255261e891c"
+    },
+    "lib/missioncontrol/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure strict input/response schemas and shared Result integrity validation for isolated zero-budget drafts and exact recorded evidence; no IO. No owner identity, approval or execution grant input is accepted. Assertion WorkOrder and verification Attempt relationships are checked without requiring equality of legitimately distinct gate receipt IDs. Signed consumer and card regressions reject forged PASS, wrong Plan, foreign WorkOrder/Attempt bindings and stale observations; only authenticated fresh consumer reads establish current evidence.",
+      "sha256": "569dc832f79bfb159c7126c49924fb453ead2dffc5510a23ea4e6cb4214216ff"
+    },
+    "lib/missioncontrol/owner-review-link.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure identifier-only URL construction, no IO or credentials. HTTPS or loopback HTTP origin only; userinfo, paths, query and fragments denied. Three owner-review-link tests cover exact proposal/Result Mission references and unsafe destination denial. URL supplies no owner authority.",
+      "sha256": "b4c6f1f730ba32790fc2e74d3f0820cd6121d1c12ea9588b67c9c4f4ce6b6015"
     }
   }
 }
