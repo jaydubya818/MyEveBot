@@ -18,7 +18,6 @@ import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
 import { publicKeyId } from "./work-authority.ts";
 import { readExternalAlphaProofEvidence } from "./work-readback.ts";
 import { ProductiveSandboxFixture } from "./productive-sandbox-test-fixture.ts";
-import { productivePricingFixture, bindProductivePricingFixture } from "../../test/fixtures/productive-pricing.ts";
 
 // Explicitly opt-in offline qualification: three real disposable PostgreSQL
 // databases, generic source, deterministic producer/model transport, and actual
@@ -53,16 +52,12 @@ async function modules() {
 }
 async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO_CUSTODY" = "PASS") {
   const m = await modules();
-  const { productionSpendPlan } = await imported("apps/cloud-control/src/production-execution-plan.mjs");
-  const pricing = productivePricingFixture(m.price.productionModelPrice, productionSpendPlan, new Date(Date.now() + 300000).toISOString());
   const sourceFiles = { ...m.generic.baseFiles, "test/priority.test.mjs": m.generic.baseFiles["test/tasks.test.mjs"] };
   const candidate = { ...m.generic.correctFiles(), ...(kind === "FAIL" ? { "src/render.js": m.generic.correctFiles()["src/render.js"].replace("<h1>Alpha Tasks</h1>", "<h1>Changed title</h1>") } : {}) };
   const tree = m.custody.fileTree(sourceFiles).sha, commitBytes = Buffer.from(`tree ${tree}\nauthor Generic Fixture <fixture@invalid> 0 +0000\ncommitter Generic Fixture <fixture@invalid> 0 +0000\n\nGeneric source\n`);
   const commit = createHash("sha1").update(`commit ${commitBytes.length}\0`).update(commitBytes).digest("hex");
   const allowed = ["src/render.js", "src/tasks.js", "test/priority.test.mjs", "test/tasks.test.mjs"].sort();
-  const canonicalSourceDigest = JSON.parse(await readFile(join(root!, "apps/cloud-control/src/source-identity.json"), "utf8")).sourceDigest;
-  // Explicit synthetic identity: this fixture must not reuse production FactoryVersion approvals.
-  const sourceDigest = digest({ kind: "TEST_ONLY_OFFLINE_PRODUCTIVE", canonicalSourceDigest, fixturePricingSha256: pricing.sha256 });
+  const sourceDigest = JSON.parse(await readFile(join(root!, "apps/cloud-control/src/source-identity.json"), "utf8")).sourceDigest;
   const initial = { source: { repository: "fixture-org/myeve-alpha-workspace-01", baseSha: commit, treeSha: tree, sourceDigest, allowedFiles: allowed }, checkCommands: ["npm test"] };
   const factoryVersion = m.runtime.externalAlphaFactoryVersion(initial, sourceDigest);
   const a = await Env.create(true, { repository: initial.source.repository, baseSha: commit, treeSha: tree, sourceDigest, factoryVersion }); environments.push(a);
@@ -98,7 +93,7 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const config = externalAlphaWorkConfigSchema.parse({ allowedFiles: allowed, checkCommands: initial.checkCommands, factory: { origin: "https://fixture-alpha-factory.vercel.app", trustedTeamId: claims.owner_id,
     receiptKeys: [{ keyId: publicKeyId(receipt.publicKey), publicKey: receipt.publicKey.export({ type: "spki", format: "pem" }) }], resultVerification: { factoryId: signing.factoryId, sourceDigest, configurationDigest: digest(m.runtime.externalAlphaConfiguration(installation)), verifierPolicySha256: m.verifier.alphaTasksVerificationPolicySha256, resultKeys: [signing.key] } } });
   const entry = { slot: "slot-1", owner: "fixture-org", repo: "myeve-alpha-workspace-01", commit, tree }, snapshot = m.source.buildSnapshot(entry, { files: sourceFiles, commitBytes });
-  const transport = new ProductiveSandboxFixture({ ...m, price: { ...m.price, productionModelPrice: pricing.price } }, candidate, kind === "UNKNOWN", sourceFiles); transports.push(transport);
+  const transport = new ProductiveSandboxFixture(m, candidate, kind === "UNKNOWN", sourceFiles); transports.push(transport);
   const docker = m.docker.protectedDockerSandboxApi(); dockerApis.push(docker);
   const queued: any[] = [], queue = { send: async (topic: string, payload: any) => { queued.push({ topic, payload }); if (kind === "QUEUE_UNKNOWN" && topic === m.delivery.externalAlphaWorkTopic) throw Error("ACK_LOST"); return { messageId: "fixture-message-" + queued.length }; } };
   let corruptSource = false;
@@ -108,7 +103,7 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const deps = { pool: capability.pool, capabilityBindings: capability.bindings, installation, queue, signing, sourceDigest, deploymentId: "dpl_fixture", registry: { "slot-1": entry }, snapshots: { "slot-1": { repository: initial.source.repository, commit, tree, path: `factory/private-source/slot-1/${snapshot.sha256}.json`, bytes: snapshot.bytes.length, sha256: snapshot.sha256 } }, sourceCustody: { read: async () => ({ bytes: corruptSource ? Buffer.from(snapshot.bytes.toString().replace("Alpha Tasks", "Other Tasks")) : Buffer.from(snapshot.bytes), sha256: snapshot.sha256 }) }, signReceipt: m.authority.receiptSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })), signReadback: m.readback.readbackSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })),
     providerFactory: ({ spend, plan, privateSource }: any) => m.provider.cloudWorkProvider({ ledger: spend, plan, privateSource, custodyPrefix: "factory/production", sandboxApi: transport.api, blobPut: transport.blobPut, blobGet: transport.blobGet, modelProviderForRow: transport.modelProvider }),
     hostInstallation: { projectId: "prj_fixtureVerifier" }, verifierProfile: { id: "alpha-tasks-node-json-v1", kind: "PRODUCT", tree }, verification: { deps: { ...(kind === "NO_CUSTODY" ? { loadHidden: async () => { throw Error("VERIFIER_CUSTODY_UNAVAILABLE"); } } : {}), sandboxApi: docker, providerOptions: async () => ({ projectId: "prj_fixtureVerifier" }) } } };
-  const makeRuntime = () => bindProductivePricingFixture(m.runtime.externalAlphaRuntimeComponents(deps), productionSpendPlan, pricing);
+  const makeRuntime = () => m.runtime.externalAlphaRuntimeComponents(deps);
   let runtime = makeRuntime();
   const factoryEnv = { FACTORY_EXTERNAL_ALPHA_INSTALLATION: JSON.stringify([installationConfig]), FACTORY_EXTERNAL_ALPHA_INSTALLATION_SHA256: digest([installation.sha256]), VERCEL_DEPLOYMENT_ID: "dpl_fixture" };
   let httpReads = 0, httpPosts = 0; const faults = { tamperResult: false };
