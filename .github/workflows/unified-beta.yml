@@ -1,0 +1,213 @@
+name: Unified beta exact-source qualification
+'on':
+  push:
+    branches:
+    - codex/unified-beta-myeve-20261011
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+    - run: npm ci --no-audit --no-fund
+    - name: Apply and verify reviewed dependency source mitigation
+      run: npm run postinstall && npm run security:patches
+    - run: node scripts/protocol-convergence/check-contract.mjs
+    - run: npm run test --workspace=eve-agent -- lib/relay
+    - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
+    - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts
+        agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts
+        lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
+    - run: npm run typecheck
+    - run: npm run db:migrations:check
+    - run: npm test
+    - run: npm run build
+    timeout-minutes: 35
+  postgres-validation:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+        - 5432:5432
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+        repository: jaydubya818/MyFactory
+        ref: e36c92e1968a6fa5ffc72b3de3ad1cfebaa6e816
+        path: .qualification/myfactory
+    - uses: actions/checkout@v4
+      with:
+        repository: jaydubya818/relay
+        ref: 8a8678d675adc8ac7f799d7660071de2256bb231
+        path: .qualification/relay
+        persist-credentials: false
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+    - run: npm ci --no-audit --no-fund
+    - name: Apply and verify reviewed dependency source mitigation
+      run: npm run postinstall && npm run security:patches
+    - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
+    - name: Cache offline qualification image
+      run: docker pull node:24-bookworm
+    - name: Canonical pricing freshness and historical approval denials
+      run: node --test apps/cloud-control/test/pricing-qualification.test.mjs
+      working-directory: .qualification/myfactory
+    - name: Real PostgreSQL lifecycle and exact Factory authority
+      env:
+        MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+        MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+        MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+        MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
+        FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
+      run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts
+        lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
+        lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts
+        lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts
+        lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+    - name: Durable owner budget concurrency and UNKNOWN recovery
+      env:
+        MYEVE_OWNER_CHANNEL_TESTS: '1'
+        MYEVE_OWNER_TEST_USER: postgres
+        MYEVE_OWNER_TEST_PORT: '5432'
+      run: npm exec --workspace apps/eve -- vitest run lib/relay/owner/model-budget.integration.test.mjs
+    timeout-minutes: 35
+  protected-verifier:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 35
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 24
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - name: Retrieve exact existing offline verifier image
+      env:
+        PROTECTED_VERIFIER_IMAGE: node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+      run: 'docker pull --platform=linux/arm64 "$PROTECTED_VERIFIER_IMAGE"
+
+        docker image inspect "$PROTECTED_VERIFIER_IMAGE" > "$RUNNER_TEMP/protected-verifier-image.json"
+
+        node --input-type=module - <<''NODE''
+
+        import assert from ''node:assert/strict'';
+
+        import {readFileSync} from ''node:fs'';
+
+        const [image] = JSON.parse(readFileSync(process.env.RUNNER_TEMP + ''/protected-verifier-image.json'', ''utf8''));
+
+        assert.equal(process.arch, ''arm64'');
+
+        assert.equal(image.Os, ''linux'');
+
+        assert.equal(image.Architecture, ''arm64'');
+
+        assert.ok(image.RepoDigests.includes(process.env.PROTECTED_VERIFIER_IMAGE));
+
+        console.log(JSON.stringify({image:process.env.PROTECTED_VERIFIER_IMAGE,imageId:image.Id,os:image.Os,architecture:image.Architecture}));
+
+        NODE
+
+        '
+    - name: Offline protected positive and failed-review controls
+      env:
+        QUANTITY_PROTECTED_CORPUS: '1'
+      run: node --import tsx --test apps/eve/test/numeric-range-protected.test.mjs
+  missioncontrol-consumer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '24'
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - run: node --import tsx --test apps/eve/test/missioncontrol-consumer.test.mjs apps/eve/test/myfactory-protocol.test.mjs
+        apps/eve/test/factory-evidence.test.mjs
+    - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+    - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: jaydubya818/MissionControl
+        ref: 02c9f26c2396b4679653e01476078c9dd3b50e26
+        path: .qualification/missioncontrol
+        persist-credentials: false
+    - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      with:
+        version: 9.0.0
+        package_json_file: .qualification/missioncontrol/package.json
+    - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+      working-directory: .qualification/missioncontrol
+    - name: Fetch exact test storage and checksum-qualified backend
+      run: 'docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+
+        curl --fail --location --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+
+        echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+
+        unzip "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+
+        chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+
+        '
+    - name: Actual tool, transactional storage, concurrency and lost acknowledgment
+      env:
+        MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+        MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+      run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/sofie-consumer"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: unified-sofie-consumer
+        path: ${{ runner.temp }}/sofie-consumer
+        if-no-files-found: error
+  authenticated-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '24'
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - run: npx playwright install --with-deps chromium
+    - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+    - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+    - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts
+        components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
+      working-directory: apps/eve
+    - name: Actual password login, delayed persistence, reconnect and failed save
+      run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: unified-authenticated-browser
+        path: ${{ runner.temp }}/checkpoint-h/binding
+        if-no-files-found: error
