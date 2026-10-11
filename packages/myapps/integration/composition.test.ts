@@ -15,9 +15,17 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.phase2,name));
  }
- for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','work-authority.ts','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
+ for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.integration,name));
+ }
+ // The explicit successor changes pre-dispatch refusal handling and adds the
+ // central zero-gap upgrade. Compare both against canonical bytes, not the
+ // candidate's own receipt, while preserving every original authority check.
+ expect(pins.myeve.externalAlphaSuccessor).toBe('4cceb253d21f28b17f645bd88d90a6b764ddc073');
+ for(const path of ['work-authority.ts','shared-accounting-zero-gap.sql']){
+  const name='apps/eve/lib/external-alpha/'+path;
+  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.externalAlphaSuccessor,name));
  }
  for(const branch of ['codex/myapps-phase3-readiness','codex/myapps-phase3b-reconciliation',pins.preparationBranch])
   expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
@@ -27,6 +35,8 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
  expect(envelope.executable).toBe(false);expect(envelope.authorization).toBe('NOT_GRANTED');
  expect(Object.values(envelope.permissions).every(value=>value===false)).toBe(true);
  expect(Object.values(envelope.targets).every(value=>value===null)).toBe(true);
+ const zeroGapPath='apps/eve/lib/external-alpha/shared-accounting-zero-gap.sql';
+ expect(envelope.centralAccountingSql).toContainEqual({path:zeroGapPath,sha256:createHash('sha256').update(readFileSync(zeroGapPath)).digest('hex')});
  expect(Object.values(envelope.capabilityBinding).every(value=>value===null)).toBe(true);
  expect(envelope.capabilityTopology).toMatchObject({qualification:'NOT_QUALIFIED_FOR_INSTALLATION',sameTransactionRequired:true,lockOrder:null,historicalBindingBackfill:'FORBIDDEN',witnessReset:'FORBIDDEN'});
  expect(envelope.capabilityControlSql).toHaveLength(5);
