@@ -6,8 +6,9 @@ import {instrumentEnterpriseRuntimeConfig} from './enterprise-runtime-config-ove
 import {disableFixtureDevIndicator} from './enterprise-visual-overlay.mjs';
 import {instrumentEnterpriseConsumer,instrumentEnterpriseResponseFailure,instrumentEnterpriseAdapter,instrumentActionGateway} from './enterprise-diagnostics-overlay.mjs';
 const source=resolve(process.argv[2]),target=resolve(process.argv[3]);
+if(execFileSync('git',['status','--porcelain','--untracked-files=no'],{cwd:source,encoding:'utf8'}).trim())throw Error('Enterprise browser requires clean committed source');
 execFileSync('git',['clone','--no-hardlinks',source,target],{stdio:'pipe'});
-const files=execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:source,encoding:'utf8'}).split('\0').filter(Boolean),hashes={};
+const files=execFileSync('git',['ls-files','--cached','-z'],{cwd:source,encoding:'utf8'}).split('\0').filter(Boolean),hashes={};
 for(const file of files){await mkdir(dirname(join(target,file)),{recursive:true});await copyFile(join(source,file),join(target,file));hashes[file]=createHash('sha256').update(await readFile(join(source,file))).digest('hex');}
 const manifest={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),hashes,transformedHashes:{},instrumentation:'IN_PROGRESS',overlays:['Deterministic model','Loopback PostgreSQL transport','Fixture-only authoritative runtime credential file; missing or invalid configuration fails closed; canonical signatures and owner checks unchanged','Fixture-only allowlisted command error diagnostics; original error rethrown','Isolated next.config devIndicators:false; application and framework errors remain visible; runtime mode is reported separately'],paidOperations:0};
 async function retainManifest() {
