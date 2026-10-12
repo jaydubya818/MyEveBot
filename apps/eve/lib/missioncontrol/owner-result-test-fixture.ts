@@ -34,7 +34,7 @@ export function ownerResultFixtureConfig(work:Work,keys:FixtureResultKeys):Facto
  * The caller supplies an already admitted exact owner writer in a disposable PostgreSQL database.
  */
 export async function retainOwnerResultFixture(input:{store:WorkStore;config:FactoryRuntime;keys:FixtureResultKeys;
-  work:Work;binding:FactoryBinding;requestId:string;runId:string;decisionId:string}) {
+  work:Work;binding:FactoryBinding;requestId:string;runId:string;decisionId:string;rawTree?:Uint8Array}) {
   const {store,config,keys,work,binding:q,requestId,runId,decisionId}=input,db=store.database;
   const [run]=await db.query('SELECT * FROM engineering_route_runs WHERE id=$1 AND scope_id=$2',[runId,work.scopeId]);
   if(!run?.missioncontrol_binding)throw Error('Fixture requires an admitted owner writer');
@@ -42,7 +42,7 @@ export async function retainOwnerResultFixture(input:{store:WorkStore;config:Fac
   const source={id:randomUUID(),requestId:q.requestId,workGeneration:work.generation,envelope:{document:{source:{
     allowedFiles:config.engineering.profile.allowedPaths,baseSha:q.inputCommit,treeSha:'2'.repeat(40)}}}};
   const {signed}=buildSignedResult({authority:source as any,work,workOrderId:q.workOrderId,keys,
-    opts:{runId:q.runId,requestDigest:q.requestDigest}});
+    opts:{runId:q.runId,requestDigest:q.requestDigest,rawTree:input.rawTree}});
   // The real verifier reads the canonical signed bytes, not the builder's
   // insertion-ordered object. Preserve that representation in artifact hashes.
   const manifest=JSON.parse(Buffer.from(signed.encoded,'base64url').toString('utf8')) as ResultManifest;

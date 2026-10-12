@@ -79,6 +79,8 @@ export interface BuildOptions {
   patchExtra?: string;
   runId?: string;
   requestDigest?: string;
+  /** Optional real Git tree bytes from a public test source closure. */
+  rawTree?: Uint8Array;
   status?: "COMPLETED" | "FAILED";
   mutate?: (m: ResultManifest) => void;
   /** Overrides applied to the verifier attestation. */
@@ -107,7 +109,7 @@ export function buildSignedResult(input: {
   const patch = Buffer.from(
     files.map((f) => `diff --git a/${f} b/${f}\n--- a/${f}\n+++ b/${f}\n@@ -1 +1 @@\n-old\n+new\n`).join("") + (o.patchExtra ?? ""),
   );
-  const treeBytes = Buffer.from("fixture-tree-" + authority.id);
+  const treeBytes = o.rawTree ? Buffer.from(o.rawTree) : Buffer.from("fixture-tree-" + authority.id);
   const tree = gitId("tree", treeBytes);
   const commitBytes = Buffer.from(
     `tree ${tree}\nparent ${doc.source.baseSha}\nauthor f <f@example.invalid> 1 +0000\ncommitter f <f@example.invalid> 1 +0000\n\nfixture\n`,
