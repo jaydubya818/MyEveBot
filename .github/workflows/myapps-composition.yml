@@ -1,15 +1,18 @@
-name: MyApps inactive QE composition readiness
+name: MyApps current-source QE readiness
 on:
   push:
-    branches: [main, codex/myapps-allowance-successor-20261010]
+    branches: [main, codex/myapps-allowance-successor-20261010, codex/unified-beta-myeve-20261011]
   pull_request:
-    paths: ['scripts/myapps-composition/**', 'docs/myapps/phase3/**', 'packages/myapps/composition*.config.ts', 'packages/myapps/integration/composition.test.ts', 'packages/myapps/qualification/**', '.github/workflows/myapps-composition.yml']
+    paths: ['scripts/myapps-composition/**', 'scripts/unified-beta/qualification-envelope.mjs', 'docs/myapps/phase3/**', 'packages/myapps/composition*.config.ts', 'packages/myapps/integration/composition.test.ts', 'packages/myapps/qualification/**', '.github/workflows/myapps-composition.yml']
 permissions:
   contents: read
 jobs:
   rehearsal:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: myeve
     services:
       postgres:
         image: postgres:17
@@ -27,16 +30,17 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
+          path: myeve
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
+          ref: e36c92e1968a6fa5ffc72b3de3ad1cfebaa6e816
           fetch-depth: 0
-          path: .qualification/myfactory
+          path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
-        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
+        run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -52,33 +56,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Materialize pinned offline source rehearsal
+      - name: Recover exact historical comparison objects
+        run: git fetch --no-tags origin 500f17a463682b6e4a2c445f99a04fcf77eaea74 afa65bd4c2d3ce26691a07132030cad1a1ef140e cec0d19761da06c01780796ed0a16f88286ea12f 474bd465c2773bf55536b1914045c646deaa644f 396631afa4739e5ca8ac0c5c81781f82f3160403 d64f2f96003818b2f51341b54a2edd6f426a0dae 4cceb253d21f28b17f645bd88d90a6b764ddc073
+      - name: Verify historical provenance and bind the selected release sources
         env:
-          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
         run: |
           node --test scripts/myapps-composition/*.test.mjs
-          node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-composition
+          node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
       - run: npm ci --ignore-scripts --no-audit --no-fund
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
       - name: Apply and verify current-main dependency mitigation
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: npm run postinstall && npm run security:patches
       - run: npm ci --ignore-scripts --no-audit --no-fund
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
       - run: node node_modules/playwright/cli.js install --with-deps chromium
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
       - name: Canonical governance, types and Proof context regressions
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: |
           npm run typecheck
           node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/bounded-context.test.ts apps/eve/lib/external-alpha/qe-014-context-limitations.test.ts apps/eve/lib/external-alpha/context.test.ts apps/eve/agent/lib/context-assembly.test.ts apps/eve/lib/private-owner-boundary.test.ts
       - name: Exact composed FactoryVersion identity receipt
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
         run: |
-          node packages/app-builder/scripts/qualify-myapps-identity.mjs create /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/factoryversion-identity.json
-          node packages/app-builder/scripts/qualify-myapps-identity.mjs verify /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/factoryversion-identity.json
+          node packages/app-builder/scripts/qualify-myapps-identity.mjs create ${{ github.workspace }}/myeve ${{ github.workspace }}/myfactory ${{ github.workspace }}/factoryversion-identity.json
+          node packages/app-builder/scripts/qualify-myapps-identity.mjs verify ${{ github.workspace }}/myeve ${{ github.workspace }}/myfactory ${{ github.workspace }}/factoryversion-identity.json
       - name: Contracts, migration catalog and shared runtime types
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: |
           node --test packages/myapps/test/*.test.mjs
           npm run db:migrations:check
@@ -106,43 +112,43 @@ jobs:
           done
           echo "$pg_bin" >> "$GITHUB_PATH"
       - name: Disposable migration interruption and real restore qualification
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         env:
           MYAPPS_MIGRATION_REHEARSAL: '1'
-          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
           MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: |
-          node --import tsx packages/myapps/qualification/migration-recovery.mjs /tmp/myapps-composition/myeve /tmp/myapps-composition/myfactory /tmp/myapps-composition/migration-recovery.json
+          node --import tsx packages/myapps/qualification/migration-recovery.mjs ${{ github.workspace }}/myeve ${{ github.workspace }}/myfactory ${{ github.workspace }}/migration-recovery.json
           node --test packages/myapps/qualification/migration-recovery-failure.test.mjs
       - name: Factory custody and Result contracts
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
         env:
-          MYEVE_SOURCE_ROOT: /tmp/myapps-composition/myeve
+          MYEVE_SOURCE_ROOT: ${{ github.workspace }}/myeve
         run: node --test packages/app-builder/test/*.test.mjs apps/cloud-control/test/cloud-verification.test.mjs
       - name: Real database, browser, Proof, isolation, accounting and recovery
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         env:
           MYAPPS_COMPOSITION_REHEARSAL: '1'
           MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
-          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
-        run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile=/tmp/myapps-composition/composed-tests.json
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
+        run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/composed-tests.json
       - name: QE criterion evidence and recovery contracts
         if: always()
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
-        run: node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile=/tmp/myapps-composition/qe-tests.json
+        run: node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/qe-tests.json
       - name: Factory QE verifier, custody and accounting contracts
         if: always()
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
         env:
           FACTORY_LOCAL_QE_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: node --test apps/cloud-control/test/external-alpha-verifier.test.mjs apps/cloud-control/test/postgres-alpha-criteria-local.test.mjs apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs apps/cloud-control/test/external-alpha-model-provider.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs packages/hosted-routing/test/protocol.test.mjs
       - name: Provision offline verifier image
         run: docker pull node:24-bookworm
       - name: Composed Factory authority, delivery and deterministic fixture regressions
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
         env:
           FACTORY_PAID_TEST_DATABASE_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
           DATABASE_URL_UNPOOLED: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
@@ -152,56 +158,57 @@ jobs:
           node --test apps/cloud-control/test/capability-policy-postgres.test.mjs apps/cloud-control/test/successor-intake-postgres.test.mjs apps/cloud-control/test/cloud-startup-postgres.test.mjs apps/cloud-control/test/paid-ambiguity-postgres.test.mjs apps/cloud-control/test/alpha-owner-postgres.test.mjs apps/cloud-control/test/external-alpha-authority-postgres.test.mjs apps/cloud-control/test/external-alpha-myeve-conformance-postgres.test.mjs apps/cloud-control/test/external-alpha-delivery-postgres.test.mjs apps/cloud-control/test/external-alpha-host-database-postgres.test.mjs
           node --test apps/cloud-control/test/admission-spend-plan.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs
       - name: Composed Factory capability locks and recovery witness
-        working-directory: /tmp/myapps-composition/myfactory
+        working-directory: ${{ github.workspace }}/myfactory
         env:
           CAPABILITY_TEST_POSTGRES_BIN: /usr/lib/postgresql/17/bin
         run: node scripts/qualify-capability-enforcement.mjs
-      - name: Reviewed Factory full history and immutable identity regressions
+      # This frozen comparison is historical evidence, never the selected release Factory.
+      - name: Historical Factory full history and immutable identity regressions
         working-directory: .qualification/factory-reviewed-history
         env:
-          MYEVE_CHECKOUT: /tmp/myapps-composition/myeve
+          MYEVE_CHECKOUT: ${{ github.workspace }}/myeve
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm ci --prefix templates/feedback-hub --ignore-scripts --no-audit --no-fund
           docker pull node:22-bookworm
           node node_modules/playwright/cli.js install --with-deps chromium
-          node --input-type=module -e 'import assert from "node:assert/strict"; import {execFileSync} from "node:child_process"; const identity=cwd=>JSON.parse(execFileSync(process.execPath,["apps/cloud-control/scripts/cloud-source-identity.mjs"],{cwd,encoding:"utf8"})).sourceDigest; assert.equal(identity(process.cwd()),identity("/tmp/myapps-composition/myfactory"));'
+          node --input-type=module -e 'import assert from "node:assert/strict"; import {execFileSync} from "node:child_process"; const identity=cwd=>JSON.parse(execFileSync(process.execPath,["apps/cloud-control/scripts/cloud-source-identity.mjs"],{cwd,encoding:"utf8"})).sourceDigest; assert.equal(identity(process.cwd()),JSON.parse(execFileSync("git",["-C",process.env.MYEVE_CHECKOUT,"show","HEAD:docs/myapps/phase3/factory-capability-compatibility.json"],{encoding:"utf8"})).identity.sourceDigest);'
           npm test
       - name: Composed MyEve admission, productive journeys and deterministic fixtures
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         env:
           MYEVE_VALIDATION_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
-          MYFACTORY_SOURCE_ROOT: /tmp/myapps-composition/myfactory
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
           MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
           FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
         run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/external-alpha/productive-pricing-test-fixture.test.ts lib/external-alpha/productive-sandbox-test-fixture.test.ts
-      - name: Check approved allowance correction on untouched canonical source
+      - name: Historical allowance comparison on untouched canonical source
         if: always()
         working-directory: .qualification/qe-baseline
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
-          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/allowance-postgres.test.ts --reporter=default --reporter=json --outputFile=/tmp/myapps-composition/baseline-allowance-tests.json
+          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/allowance-postgres.test.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/baseline-allowance-tests.json
       - name: Existing browser and performance regressions
         if: always()
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: |
           node packages/myapps/browser/journey.mjs
           node packages/myapps/browser/performance.mjs
       - name: Browser fixture startup failure and owned cleanup regressions
-        working-directory: /tmp/myapps-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: node --import tsx --test scripts/myapps-composition/browser-cleanup.postgres.mjs
       - name: Composed composer refresh and unchanged E2 browser journey
-        working-directory: /tmp/myapps-composition/myeve/apps/eve
+        working-directory: ${{ github.workspace }}/myeve/apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
           MYEVE_OWNER_JOURNEY: '1'
           MYEVE_COMPOSER_TEST_PASSWORD: synthetic-journey-owner
-          QE_EVIDENCE_DIR: /tmp/myapps-composition/composer-browser
+          QE_EVIDENCE_DIR: ${{ github.workspace }}/composer-browser
           PGHOST: localhost
           PGPORT: '55591'
           PGUSER: ux_fixture
@@ -242,38 +249,39 @@ jobs:
         with:
           name: inactive-myapps-composition
           path: |
-            /tmp/myapps-composition/*.json
-            /tmp/myapps-composition/myeve/output/playwright/myapps/
-            /tmp/myapps-composition/composer-browser/
+            ${{ github.workspace }}/*.json
+            ${{ github.workspace }}/myeve/output/playwright/myapps/
+            ${{ github.workspace }}/composer-browser/
           retention-days: 14
   standalone-packaging:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: /tmp/myapps-packaging-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
+          path: myeve
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
+          ref: e36c92e1968a6fa5ffc72b3de3ad1cfebaa6e816
           fetch-depth: 0
-          path: .qualification/myfactory
+          path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
-        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
+        run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Materialize exact composed packaging source
-        working-directory: ${{ github.workspace }}
-        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-packaging-composition
+      - name: Bind packaging to the selected release sources
+        working-directory: myeve
+        run: node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run postinstall && npm run security:patches
       - run: npm test --workspace apps/builder
@@ -297,13 +305,13 @@ jobs:
           npm run build
       - name: Generated application authority and asset gates
         working-directory: /tmp/myapps-standalone
-        run: node --import tsx /tmp/myapps-packaging-composition/myeve/apps/builder/scripts/qualification-myapps-gates.mjs /tmp/myapps-standalone
+        run: node --import tsx ${{ github.workspace }}/myeve/apps/builder/scripts/qualification-myapps-gates.mjs /tmp/myapps-standalone
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: inactive-myapps-standalone
           path: |
-            /tmp/myapps-packaging-composition/*.json
+            ${{ github.workspace }}/*.json
             /tmp/myapps-standalone.json
             /tmp/myapps-standalone-repeat.json
             /tmp/myapps-standalone-reproducible.json
@@ -315,49 +323,53 @@ jobs:
   capability-boundaries:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: myeve
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
+          path: myeve
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: 16e9075e0b9025b4b75cca3db8790805be77689e
+          ref: e36c92e1968a6fa5ffc72b3de3ad1cfebaa6e816
           fetch-depth: 0
-          path: .qualification/myfactory
+          path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
-        run: git -C .qualification/myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
+        run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Bind capability qualification to exact composed source
-        run: node scripts/myapps-composition/materialize.mjs . .qualification/myfactory /tmp/myapps-capability-composition
+      - name: Bind capability qualification to the selected release sources
+        run: node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
       - name: Frozen install and reviewed dependency mitigation
-        working-directory: /tmp/myapps-capability-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm run postinstall
           npm run security:patches
           node node_modules/playwright/cli.js install --with-deps chromium
       - name: Canonical policy and MyApps activation separation
-        working-directory: /tmp/myapps-capability-composition/myeve
+        working-directory: ${{ github.workspace }}/myeve
         run: |
           npm test --workspace=@mission-control/capability-control
           npm run typecheck --workspace=@myeve/capability-enforcement
           npm exec --workspace apps/eve -- vitest run lib/myapps-capability-boundary.test.ts lib/myapps-packaging.test.ts
       - name: Source lock, PostgreSQL, policy lifecycle, restore witness, HTTP and browser
-        working-directory: /tmp/myapps-capability-composition/myeve/apps/eve
+        working-directory: ${{ github.workspace }}/myeve/apps/eve
         run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node --import tsx scripts/qualify-capability-control.mjs --browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: inactive-myapps-capability-boundaries
           path: |
-            /tmp/myapps-capability-composition/*.json
-            /tmp/myapps-capability-composition/myeve/docs/capability-control/evidence
-            /tmp/myapps-capability-composition/myeve/output/playwright/capability-control
+            ${{ github.workspace }}/*.json
+            ${{ github.workspace }}/myeve/docs/capability-control/evidence
+            ${{ github.workspace }}/myeve/output/playwright/capability-control
           retention-days: 14
