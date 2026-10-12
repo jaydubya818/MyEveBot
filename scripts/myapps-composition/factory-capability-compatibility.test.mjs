@@ -5,11 +5,12 @@ import {applyFactoryCapabilityCompatibility,reviewedFactoryCapabilityCompatibili
 import {applyFactoryMain} from './factory-main.mjs';
 import {applyFixturesOverlay} from './fixtures-overlay.mjs';
 import {readFileSync} from 'node:fs';
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
 const fixtures=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/factory-main-fixture-sources.json',import.meta.url)));
 function fixture(){
  const repo=process.env.MYFACTORY_SOURCE_ROOT;assert(repo,'MYFACTORY_SOURCE_ROOT required');
  const git=args=>spawnSync('git',['-C',repo,...args],{encoding:'utf8',maxBuffer:32*1024*1024});
- const head=git(['rev-parse','HEAD']).stdout.trim(),merge=git(['merge-tree','--write-tree','--name-only',head,manifest.integration]);assert.equal(merge.status,1);
+ const head=preparationPins.myfactory.phase3Preparation,merge=git(['merge-tree','--write-tree','--name-only',head,manifest.integration]);assert.equal(merge.status,1);
  const initialTree=merge.stdout.split('\n')[0];
  const read=(sha,path)=>{const r=git(['show',`${sha}:${path}`]);if(r.status!==0){assert.match(r.stderr,/does not exist in|exists on disk, but not in/);return null;}return r.stdout;};
  const current=new Map(),readComposed=p=>current.has(p)?current.get(p):read(initialTree,p),put=(p,s)=>current.set(p,s);

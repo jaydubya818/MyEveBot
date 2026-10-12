@@ -5,6 +5,7 @@ import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {applyFixturesOverlay,reviewedFixtures} from './fixtures-overlay.mjs';
 import {replaceExactFixtureHunks} from './fixture-main-overlay.mjs';
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
 const mainManifest=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/factory-main-fixture-sources.json',import.meta.url)));
 const digest=s=>s===null?null:createHash('sha256').update(s).digest('hex');
 function fixture(){
@@ -54,7 +55,7 @@ test('Eve main capability denials coexist with canonical cleanup and the complet
  const repo=new URL('../..',import.meta.url).pathname;
  const read=(sha,path)=>{const r=spawnSync('git',['-C',repo,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});if(r.status!==0){assert.match(r.stderr,/does not exist in|exists on disk, but not in/);return null;}return r.stdout;};
  for(const [path,expected] of Object.entries(baseline.files)){
-  let bytes=read('HEAD',path);
+  let bytes=read(preparationPins.myeve.phase3Preparation,path);
   if(manifest.files[path])assert.equal(digest(bytes),manifest.files[path].composedSha256);
   else {const options=[bytes,null,read(baseline.integration,path),read(baseline.source,path)];bytes=options.find(s=>digest(s)===expected.composedSha256);assert.notEqual(bytes,undefined,path);}
   current.set(path,bytes);

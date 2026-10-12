@@ -16,7 +16,9 @@ reference workflow uses the same Factory selection and retains its separate
 synthetic browser and runtime checks. Both workflows run on the existing
 deployment-disabled unified qualification branch.
 
-Historical provenance remains independently checked. The composition rehearsal
+Historical provenance remains independently checked. Historical fixture reads use
+the recorded preparation commits instead of the moving checkout HEAD; their byte
+assertions and mutation rejection checks remain unchanged. The composition rehearsal
 still runs every `scripts/myapps-composition/*.test.mjs` test, including rejection
 of unreviewed materializer inputs and the immutable overlay/preimage assertions.
 The frozen Factory `92299fbd88004cc1da9178d52664bd0a9cd28647` full-history test

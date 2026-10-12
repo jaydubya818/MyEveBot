@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {readFileSync} from 'node:fs';
 import {replaceExactFixtureHunks} from './fixture-main-overlay.mjs';
 import {applyFixturesOverlay,reviewedFixtures} from './fixtures-overlay.mjs';
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
 
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const digest=value=>value===null?null:createHash('sha256').update(value).digest('hex');
@@ -22,9 +23,9 @@ function fixture(name) {
     const canonical=read(manifest.source,path);
     // Preparation retains the reviewed preimage when the canonical fixture advances.
     // Every candidate still has to match the unchanged composed SHA exactly.
-    const possibilities=[null,read('HEAD',path),read(manifest.integration,path),canonical];
+    const possibilities=[null,read(preparationPins[name].phase3Preparation,path),read(manifest.integration,path),canonical];
     const main=JSON.parse(readFileSync(new URL(`../../docs/myapps/phase3/${name==='myeve'?'myeve':'factory'}-main-fixture-sources.json`,import.meta.url)));
-    const entry=main.files[path],head=read('HEAD',path);
+    const entry=main.files[path],head=read(preparationPins[name].phase3Preparation,path);
     if(entry&&digest(head)===entry.composedSha256)possibilities.push(replaceExactFixtureHunks(head,entry.preimageHunks,true));
     if(expected.preserveLedger)possibilities.push(canonical.replace(expected.preserveLedger.from,expected.preserveLedger.to));
     const matching=possibilities.find(value=>digest(value)===expected.composedSha256);

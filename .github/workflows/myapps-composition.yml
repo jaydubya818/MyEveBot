@@ -40,7 +40,7 @@ jobs:
           path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
-        run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
+        run: git -C myfactory fetch --no-tags origin 4c6e540b40e1db226eefda763e615dfe7cb02e3c 18e59dbedbe04275858327ca47d2bd7ec01a407c 92299fbd88004cc1da9178d52664bd0a9cd28647
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version: 24
       - name: Recover exact historical comparison objects
-        run: git fetch --no-tags origin 500f17a463682b6e4a2c445f99a04fcf77eaea74 afa65bd4c2d3ce26691a07132030cad1a1ef140e cec0d19761da06c01780796ed0a16f88286ea12f 474bd465c2773bf55536b1914045c646deaa644f 396631afa4739e5ca8ac0c5c81781f82f3160403 d64f2f96003818b2f51341b54a2edd6f426a0dae 4cceb253d21f28b17f645bd88d90a6b764ddc073
+        run: git fetch --no-tags origin 500f17a463682b6e4a2c445f99a04fcf77eaea74 afa65bd4c2d3ce26691a07132030cad1a1ef140e cec0d19761da06c01780796ed0a16f88286ea12f 474bd465c2773bf55536b1914045c646deaa644f 396631afa4739e5ca8ac0c5c81781f82f3160403 d64f2f96003818b2f51341b54a2edd6f426a0dae 4cceb253d21f28b17f645bd88d90a6b764ddc073 615f9209c37f656b14723747e556c03a45a85544 977438094ad830f6cb80523a890ca9188f32febe fb6b052d0c3ad353a1e4171f0cb25c63780a1d9b c7b9e948454cbb7eb7d5fc92f4bbc65918b56ab5 f896153b6787bb9ab557a782058b04760a9e291f
       - name: Verify historical provenance and bind the selected release sources
         env:
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory

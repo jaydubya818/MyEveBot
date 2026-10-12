@@ -7,7 +7,7 @@ import {applyComposerOverlay,reviewedComposer as manifest} from './composer-over
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const read=(sha,path)=>{
   const result=spawnSync('git',['-C',root,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
-  if(result.status!==0){assert.match(result.stderr,/does not exist in/);return null;}
+  if(result.status!==0){assert.match(result.stderr,/does not exist in|exists on disk, but not in/);return null;}
   return result.stdout;
 };
 function fixture(){const writes=new Map();return{writes,args:{name:'myeve',integration:manifest.integration,source:manifest.source,read,readComposed:path=>read(manifest.integration,path),put:(path,bytes)=>writes.set(path,bytes)}};}

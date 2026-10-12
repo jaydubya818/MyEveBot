@@ -1,19 +1,21 @@
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {applyGovernanceOverlay, reviewedGovernance as manifest} from './governance-overlay.mjs';
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
 
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const read=(sha,path)=>{
   const result=spawnSync('git',['-C',root,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
-  if(result.status!==0){assert.match(result.stderr,/does not exist in/);return null;}
+  if(result.status!==0){assert.match(result.stderr,/does not exist in|exists on disk, but not in/);return null;}
   return result.stdout;
 };
 function fixture(){
   const inventory=JSON.parse(read(manifest.integration,'apps/eve/scripts/executor-inventory.json'));
   const writes=new Map();
-  const readComposed=path=>read(path===manifest.builderManifest.path?'HEAD':manifest.integration,path);
+  const readComposed=path=>read(path===manifest.builderManifest.path?preparationPins.myeve.phase3Preparation:manifest.integration,path);
   return {inventory,writes,args:{integration:manifest.integration,source:manifest.source,inventory,read,readComposed,put:(path,bytes)=>writes.set(path,bytes)}};
 }
 

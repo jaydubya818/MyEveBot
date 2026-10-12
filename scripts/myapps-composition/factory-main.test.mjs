@@ -1,11 +1,13 @@
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {applyFactoryMain,reviewedFactoryMain as manifest,factoryMainConflicts} from './factory-main.mjs';
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
 function fixture(){
  const repo=process.env.MYFACTORY_SOURCE_ROOT;assert(repo,'MYFACTORY_SOURCE_ROOT required');
  const command=args=>spawnSync('git',['-C',repo,...args],{encoding:'utf8',maxBuffer:32*1024*1024});
- const head=command(['rev-parse','HEAD']).stdout.trim(),integration=manifest.integration;
+ const head=preparationPins.myfactory.phase3Preparation,integration=manifest.integration;
  const result=command(['merge-tree','--write-tree','--name-only',head,integration]);assert.equal(result.status,1,result.stderr);
  const [initialTree,...conflicts]=result.stdout.split('\n\n')[0].split('\n');assert.deepEqual(conflicts.sort(),factoryMainConflicts);
  const read=(sha,path)=>{const r=command(['show',`${sha}:${path}`]);if(r.status!==0){assert.match(r.stderr,/does not exist in|exists on disk, but not in/);return null;}return r.stdout;};
