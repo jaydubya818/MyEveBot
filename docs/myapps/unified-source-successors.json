@@ -1,7 +1,8 @@
 {
   "format": "myapps.unified-source-successors.v1",
   "historicalPins": "phase3/sources.json",
-  "myapps": "ab331cd5b7785632e7c0539ef16aab4338222b31",
+  "myapps": "e907feb1bd026aaa9015fcc26e3e72a6af9e9c05",
+  "previousMyapps": "ab331cd5b7785632e7c0539ef16aab4338222b31",
   "missionControlAuthority": "053751d5aa065c396bf0fdec6a67fd0259e8431c",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],

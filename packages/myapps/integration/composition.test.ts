@@ -12,7 +12,8 @@ const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'u
 const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
- expect(unified.myapps).toBe('ab331cd5b7785632e7c0539ef16aab4338222b31');
+ expect(unified.myapps).toBe('e907feb1bd026aaa9015fcc26e3e72a6af9e9c05');
+ expect(unified.previousMyapps).toBe('ab331cd5b7785632e7c0539ef16aab4338222b31');
  expect(unified.missionControlAuthority).toBe('053751d5aa065c396bf0fdec6a67fd0259e8431c');
  expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
  expect(unified.authorityFiles).toEqual(['work-authority.ts']);
