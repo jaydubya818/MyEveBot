@@ -33,6 +33,16 @@ try {
   assert.notEqual(denied.status, 0, "An untracked file added after tracing must fail the mandatory build gate");
   assert.match(denied.stderr, /exact template inventory only/);
 } finally { await writeFile(tracePath, originalTrace); }
+const metadataPath = path.join(root, "node_modules/next/package.json");
+const metadataBytes = await readFile(metadataPath);
+try {
+  const tampered = JSON.parse(metadataBytes.toString());
+  tampered.syntheticPrivateField = "SYNTHETIC_METADATA_TRIPWIRE";
+  await writeFile(metadataPath, JSON.stringify(tampered));
+  const denied = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+  assert.notEqual(denied.status, 0, "Same-name/version dependency metadata with altered body must fail");
+  assert.match(denied.stderr, /Dependency metadata changed/);
+} finally { await writeFile(metadataPath, metadataBytes); }
 const input = { projectName: "sealed-bundle-fixture", features: [...FEATURE_IDS], instructions: "Synthetic offline packaging fixture", schedules: [] };
 const options = { timestamp: "2026-10-12T00:00:00.000Z" };
 const expected = await assembleDeployment(input, options);
@@ -51,5 +61,5 @@ try {
   await assert.rejects(assembleDeployment(input, options), /Builder source inventory mismatch/);
   console.log(JSON.stringify({ status: "PASS", routes, templateInputs: inputs.length, exportedFiles: actual.length,
     inventorySha256: createHash("sha256").update(await readFile(path.join(root, TEMPLATE_SOURCE_MANIFEST))).digest("hex"),
-    exactTraceInventory: true, injectedTraceDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
+    exactTraceInventory: true, injectedTraceDenied: true, alteredMetadataDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
 } finally { process.chdir(cwd); await rm(bundle, { recursive: true, force: true }); await rm(tripwire); }

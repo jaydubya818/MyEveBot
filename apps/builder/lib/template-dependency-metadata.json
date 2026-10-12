@@ -1,9 +1,107 @@
 {
-  "format": "myeve.builder-vendor-metadata.v1",
+  "format": "myeve.builder-dependency-metadata.v1",
   "sourceCommit": "f7a50e265c1397eec45c2caa04fc11e71ebba276",
   "packageLockSha256": "64a6344e61ad69f382a151932b6522b567f20c44c819d53ca7a8c6060b6b76bd",
-  "scope": "Vendored dependency package metadata only; never part of an agent export.",
+  "scope": "Exact dependency package metadata only; never part of an agent export.",
   "files": {
+    "apps/eve/node_modules/@grpc/grpc-js/package.json": {
+      "package": "apps/eve/node_modules/@grpc/grpc-js",
+      "version": "1.14.5",
+      "integrity": "sha512-7VZM+SVdEcUUqSQeNI3zM8Qs/BhQKZndPo2h5VkYkAM8Iz0wJIa8mKV5ekQGqG8UUsnkQ0NMxIxwkIHYvj0qOw==",
+      "sha256": "901cce55ec87cd1e633f2fa4a4b1d41131cc35d6a76ab328c92a1d76b117e2b8"
+    },
+    "apps/eve/node_modules/@next/env/package.json": {
+      "package": "apps/eve/node_modules/@next/env",
+      "version": "16.3.8",
+      "integrity": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
+      "sha256": "225932e843b7307bee980b1a63c1474c468f72107a801fd6d1db0457302da4ed"
+    },
+    "apps/eve/node_modules/@next/swc-darwin-arm64/package.json": {
+      "package": "apps/eve/node_modules/@next/swc-darwin-arm64",
+      "version": "16.3.8",
+      "integrity": "sha512-2JPRMh2nmQG5CiL7cXGL9AGwnPWJQ//cTtAUCT+w511QHk79SYz3LGv/pc5X643B/WEO0rvu3Yww0hqwt3kgeA==",
+      "sha256": "14c3acf279bfe8c5f6e1cbacc4dfb17584bf6c01ccb9499bd293ecefe3b72c03"
+    },
+    "apps/eve/node_modules/@next/swc-linux-x64-gnu/package.json": {
+      "package": "apps/eve/node_modules/@next/swc-linux-x64-gnu",
+      "version": "16.3.8",
+      "integrity": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ==",
+      "sha256": "dca7a240d53c8edd8833ad465f85d304d307637159ec6243da6190d02cd969fe",
+      "sourceUrl": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.3.8.tgz"
+    },
+    "apps/eve/node_modules/@next/swc-linux-x64-musl/package.json": {
+      "package": "apps/eve/node_modules/@next/swc-linux-x64-musl",
+      "version": "16.3.8",
+      "integrity": "sha512-+316WswI8ScVgZeUd+1KGaXkHhaYQzCjvH/05TZSpJ8zBizb1a4G7DtO7F12jcBIqMOtsz9ji1t48fmKtzqsGA==",
+      "sha256": "8225ef6fa70db32e6632815cae657bdba41c4e26a9addc5572589ecc5b2b2975",
+      "sourceUrl": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.3.8.tgz"
+    },
+    "apps/eve/node_modules/@opentelemetry/api-logs/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/api-logs",
+      "version": "0.218.0",
+      "integrity": "sha512-fmEWp5kXlGEc3i/lR698Hz41DfGyN4Tbe4g7L1AxSc7fF8Xeh/FQ9Quqpa9dVA413Q1Ad43QOLzU4JoXgbFPWw==",
+      "sha256": "bc544006d322a4ed28262af2dd86b64cdcbec63cd71627f6dfd986d95dcc82ec"
+    },
+    "apps/eve/node_modules/@opentelemetry/core/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/core",
+      "version": "2.8.0",
+      "integrity": "sha512-hd1Lfh8p545nNz+jq1Ejfz+Mn1hyLuxYn1YzTfFNrxr8urEWMNQLPf1Th8kjOH+HxwawCrtgBp8JpBUR4ZSgww==",
+      "sha256": "cb7c7d51dd8b709162fb25d39b08caf53be185ce80b58c7081f70914693fb6b9"
+    },
+    "apps/eve/node_modules/@opentelemetry/exporter-trace-otlp-http/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/exporter-trace-otlp-http",
+      "version": "0.218.0",
+      "integrity": "sha512-8dqezsmPhtKitIK/eTipZhYl9EX2/gNQ5zUMhaz3uxEURwfkNf8IPvo6yNfrzbxdtpAOybS/+h7wmIWYqFSpiw==",
+      "sha256": "ffa92076885f1849c6b4db42161b87d7266713bf328d203c0e9462f03de20a22"
+    },
+    "apps/eve/node_modules/@opentelemetry/instrumentation/node_modules/@opentelemetry/api-logs/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/instrumentation/node_modules/@opentelemetry/api-logs",
+      "version": "0.219.0",
+      "integrity": "sha512-FFx7YnaYJlIjqWW/AG/yAZ0L/NEY724PipXXXQLdtZPbLwBGbUMTGL1i/esI56TWfTUXxhLfpgrnWJCG8aUJyg==",
+      "sha256": "41634610875079811097d07ded624cc814665ef36ed113b3389cf8352c0bc8c8"
+    },
+    "apps/eve/node_modules/@opentelemetry/instrumentation/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/instrumentation",
+      "version": "0.219.0",
+      "integrity": "sha512-X5t7I8GyIO9rmGHwoedZLREpQqrF1WW2nxzNNym6HOKpFiE+rvqV3ngC0xcZVO2YwIGf3KKmRdWrYwdwz3H9RQ==",
+      "sha256": "403cb8a6f1c61e39fa7326906a2161e2be5889cbb4cfd137d3f503b2c0fc927a"
+    },
+    "apps/eve/node_modules/@opentelemetry/resources/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/resources",
+      "version": "2.7.1",
+      "integrity": "sha512-DeT6KKolmC4e/dRQvMQ/RwlnzhaqeiFOXY5ngoOPJ07GgVVKxZOg9EcrNZb5aTzUn+iCrJldAgOfQm1O/QfPAQ==",
+      "sha256": "79ab4d535da825904c3d5bf103de748cf27fd5e7098b2bdecc02f3a854ef2299"
+    },
+    "apps/eve/node_modules/@opentelemetry/sdk-logs/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/sdk-logs",
+      "version": "0.218.0",
+      "integrity": "sha512-QvnNdugatFTVCJXH0Mcu7GOOJSylA9j127kIezOE4YwTI4YbowRons2K4WZTv5FMS8T4q9P0NdaRHdkSmeAIag==",
+      "sha256": "ea33e59f1c2348bea30ab3140f839f20b00a9b4c114a81bbe7d8cc5dcef5bdc5"
+    },
+    "apps/eve/node_modules/@opentelemetry/sdk-trace-base/package.json": {
+      "package": "apps/eve/node_modules/@opentelemetry/sdk-trace-base",
+      "version": "2.7.1",
+      "integrity": "sha512-NAYIlsF8MPUsKqJMiDQJTMPOmlbawC1Iz/omMLygZ1C9am8fTKYjTaI+OZM+WTY3t3Glo0wnOg/6/pac6RGPPw==",
+      "sha256": "b04e83afa61cc20fc1d92909049f7663c7f9e29c10d226d06caa2efedfc5904a"
+    },
+    "apps/eve/node_modules/@photon-ai/otel/package.json": {
+      "package": "apps/eve/node_modules/@photon-ai/otel",
+      "version": "3.8.1",
+      "integrity": "sha512-VDGj/iYk8ZXQhPLUYjNXtIAa7AA3kVGpjupn99ShiSotgbLeskXCOiAO4G0TlER2oUeoI9ovLU2fEyA87bMExw==",
+      "sha256": "4571637a7ea6691e2eec24b01bf23bf0ad838a4f2ea345f5b20389ca70c6b159"
+    },
+    "apps/eve/node_modules/@spectrum-ts/core/package.json": {
+      "package": "apps/eve/node_modules/@spectrum-ts/core",
+      "version": "12.8.0",
+      "integrity": "sha512-S79FOB5OZvFJ9wFnrYEKdaUEIPsIy6g2k1+q5/M9NS+1e0qLrSrLk96t1LgtdMZ+DDA1wTYU2doBipJXc2oA/w==",
+      "sha256": "bf239b4f2bea2a1fce09ba09c8c4a3570014b2fa8842ed43101d8b88b81d34a4"
+    },
+    "apps/eve/node_modules/@spectrum-ts/imessage/package.json": {
+      "package": "apps/eve/node_modules/@spectrum-ts/imessage",
+      "version": "12.8.0",
+      "integrity": "sha512-j26u6DVisAY8hDZ9riLS6wdTX0TmBFbuZXFn5afcW9RCnzknvX0zMO6UQwYc9IxS7M6yWb94HKARUW13N+rHqQ==",
+      "sha256": "4da6358fdaa9d40e97598f0882bf9c719c38469ec955dd129958002e1ec20e81"
+    },
     "apps/eve/node_modules/@vercel/cli-config/node_modules/zod/locales/package.json": {
       "package": "apps/eve/node_modules/@vercel/cli-config/node_modules/zod",
       "version": "4.1.11",
@@ -15,6 +113,12 @@
       "version": "4.1.11",
       "integrity": "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==",
       "sha256": "5cb4c7dad36258f0c5b26d914adfebd66105dddc4af3c12d2b3173e7e5674191"
+    },
+    "apps/eve/node_modules/@vercel/cli-config/node_modules/zod/package.json": {
+      "package": "apps/eve/node_modules/@vercel/cli-config/node_modules/zod",
+      "version": "4.1.11",
+      "integrity": "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==",
+      "sha256": "7f0b2022fb61e9082d384803efb42b6cf4b3024731982bc7ab43b1013129475b"
     },
     "apps/eve/node_modules/@vercel/cli-config/node_modules/zod/v3/package.json": {
       "package": "apps/eve/node_modules/@vercel/cli-config/node_modules/zod",
@@ -57,6 +161,30 @@
       "version": "4.1.11",
       "integrity": "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==",
       "sha256": "5cb4c7dad36258f0c5b26d914adfebd66105dddc4af3c12d2b3173e7e5674191"
+    },
+    "apps/eve/node_modules/@vercel/cli-config/package.json": {
+      "package": "apps/eve/node_modules/@vercel/cli-config",
+      "version": "0.3.1",
+      "integrity": "sha512-sISbygqlFXYb8qfPu/+2Cf/A8IjrlAuZePdag3EDQr2PRA455s7UZtl9Ro674CWsB/saBRmz3jEkw0YsQs8OoQ==",
+      "sha256": "1e34e3b23448cdbef968b0f6a37b2f75d899816919078e7072f38f9de5b07aa3"
+    },
+    "apps/eve/node_modules/@vercel/cli-exec/package.json": {
+      "package": "apps/eve/node_modules/@vercel/cli-exec",
+      "version": "1.0.1",
+      "integrity": "sha512-g9XerViJ/paZujufXYcu5XYI2vU2rtB4sgdpjUHde5RnOkdmpu0ngH46LCFGHoPXO/C+qDPSczIHIRN+8Q2YKQ==",
+      "sha256": "aa014147d60b9751b648cc602e84e7c541aae0675d2014aa5a3949b32b02becb"
+    },
+    "apps/eve/node_modules/@vercel/oidc/package.json": {
+      "package": "apps/eve/node_modules/@vercel/oidc",
+      "version": "3.8.10",
+      "integrity": "sha512-sPw1kIfQEA6/2dB+zlAJHnhhNBRJ8t/t4HfFvKO+g0EPBA7NbCKyGovuhgAV6Mnl865ka7HqCEguIy596czdAw==",
+      "sha256": "99eec15072ff6a4a77ddd2903d5b4b0d7b78ef9fb8c78978b952d5db9945ad6e"
+    },
+    "apps/eve/node_modules/marked/package.json": {
+      "package": "apps/eve/node_modules/marked",
+      "version": "18.0.13",
+      "integrity": "sha512-xTxVzZsBFwunP6HDmtBkabUQEYArnP7/rMDGmPj9SlrKlQ4i8MdYVow+nJL0eOqwpUqhzBoTBRADGN6uYwPyOw==",
+      "sha256": "d5c3d83ccecc77341413daee62343ea90880595a721e4c2740ec84d82aa754aa"
     },
     "apps/eve/node_modules/next/dist/compiled/@babel/runtime/helpers/esm/package.json": {
       "package": "apps/eve/node_modules/next",
@@ -939,6 +1067,30 @@
       "version": "16.3.8",
       "integrity": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
       "sha256": "53c461e9ad93deaa50e7d07a81b6b772dfb0a99f8a5b30414deb895fa95de30c"
+    },
+    "apps/eve/node_modules/next/package.json": {
+      "package": "apps/eve/node_modules/next",
+      "version": "16.3.8",
+      "integrity": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
+      "sha256": "6da8fc4823b66b8f2906d150002618e3f3e0d2446ebf3823b2a2f7efe73a46a4"
+    },
+    "apps/eve/node_modules/react-dom/package.json": {
+      "package": "apps/eve/node_modules/react-dom",
+      "version": "19.2.8",
+      "integrity": "sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==",
+      "sha256": "7c82f0967114d4b5d38b1f07e543af87c9919e8d3243f9604004819319cb2200"
+    },
+    "apps/eve/node_modules/react/package.json": {
+      "package": "apps/eve/node_modules/react",
+      "version": "19.2.8",
+      "integrity": "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==",
+      "sha256": "e40c3ed9b633c9ecf188e09a4be309780a1ea0a9c068278a30ff6a27e7b2dbb6"
+    },
+    "apps/eve/node_modules/typescript/package.json": {
+      "package": "apps/eve/node_modules/typescript",
+      "version": "5.9.3",
+      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+      "sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
     }
   }
 }

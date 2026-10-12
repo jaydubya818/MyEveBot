@@ -5,20 +5,21 @@ import path from "node:path";
 import { templateRoot } from "../lib/assemble";
 import { TEMPLATE_SOURCE_MANIFEST } from "../lib/template-source";
 import { STANDALONE_SOURCE_INPUTS } from "../lib/shared-myapps";
-import vendorMetadata from "../lib/template-vendor-metadata.json";
+import qualifiedMetadata from "../lib/template-dependency-metadata.json";
 
 const root = await templateRoot(), repository = path.resolve(root, "../..");
 const inventory = JSON.parse(await readFile(path.join(root, TEMPLATE_SOURCE_MANIFEST), "utf8"));
 const inputs = [...Object.keys(inventory.files), TEMPLATE_SOURCE_MANIFEST];
 const lockBytes = await readFile(path.join(repository, "package-lock.json"));
-assert.equal(createHash("sha256").update(lockBytes).digest("hex"), vendorMetadata.packageLockSha256, "Dependency lock changed; packaging qualification required");
+assert.equal(createHash("sha256").update(lockBytes).digest("hex"), qualifiedMetadata.packageLockSha256, "Dependency lock changed; packaging qualification required");
 const lock = JSON.parse(lockBytes.toString());
 const metadata: Record<string, { package: string; version: string; integrity: string; sha256: string }> = {};
 async function verifyDependencyMetadata(file: string): Promise<void> {
   const relative = path.relative(repository, file).split(path.sep).join("/");
   assert.ok(relative.startsWith("apps/eve/node_modules/") && relative.endsWith("/package.json"), "Unexpected source outside template inventory");
-  const vendored = (vendorMetadata.files as Record<string, {package:string;version:string;integrity:string;sha256:string}>)[relative];
-  const owner = vendored?.package ?? path.posix.dirname(relative);
+  const qualified = (qualifiedMetadata.files as Record<string, {package:string;version:string;integrity:string;sha256:string}>)[relative];
+  assert.ok(qualified, "Unqualified dependency metadata path");
+  const owner = qualified.package;
   const locked = lock.packages[owner];
   assert.ok(locked && typeof locked.version === "string" && /^sha512-/.test(locked.integrity), "Unqualified dependency metadata identity");
   let component = repository;
@@ -30,10 +31,8 @@ async function verifyDependencyMetadata(file: string): Promise<void> {
   const packageJson = JSON.parse(await readFile(path.join(repository, owner, "package.json"), "utf8"));
   assert.equal(packageJson.version, locked.version);
   assert.equal(packageJson.name, owner.split("node_modules/").at(-1));
-  if (vendored) {
-    assert.equal(locked.version, vendored.version); assert.equal(locked.integrity, vendored.integrity);
-    assert.equal(sha256, vendored.sha256, "Vendored metadata changed; packaging qualification required");
-  }
+  assert.equal(locked.version, qualified.version); assert.equal(locked.integrity, qualified.integrity);
+  assert.equal(sha256, qualified.sha256, "Dependency metadata changed; packaging qualification required");
   metadata[relative] = { package: owner, version: locked.version, integrity: locked.integrity, sha256 };
 }
 const routes = ["deploy", "update", "template-version"];
