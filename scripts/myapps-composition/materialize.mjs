@@ -24,6 +24,13 @@ const git = (repo, args, options = {}) => execFileSync('git', ['-C', repo, ...ar
 const show = (repo, sha, path) => execFileSync('git',['-C',repo,'show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
 const replacement = (text, from, to) => { assert.equal(text.split(from).length,2,`Expected one exact source anchor: ${from}`);return text.replace(from,to); };
 const evidence = { format:pins.format, pins, snapshots:{}, production:'NOT_RUN', adoption:'NOT_AUTHORIZED' };
+// Validate both preparations before creating output or writing Git objects.
+// An arbitrary descendant can otherwise contribute files outside the overlays.
+for (const [name, repo] of [['myeve',eve],['myfactory',factory]]) {
+  assert.equal(git(repo,['rev-parse','HEAD']), pins[name].phase3Preparation,
+    `Unreviewed ${name} preparation source: update the reviewed source pins first`);
+  assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
+}
 mkdirSync(output);
 for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['myfactory',factory,pins.myfactory.integration]]) {
   const head = git(repo,['rev-parse','HEAD']);
