@@ -105,6 +105,35 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
   );
 }
 
+// Model and tool text must not initiate image requests without a user action.
+// Do not forward srcSet or other source attributes from untrusted HTML.
+function MarkdownImage({ src, alt }: ComponentProps<"img">) {
+  const [approvedSource, setApprovedSource] = useState<string | null>(null);
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  if (typeof src !== "string" || !src) return <span>{alt || "Image unavailable"}</span>;
+  let location: string;
+  try {
+    const origin = typeof window === "undefined" ? "https://workspace.invalid" : window.location.origin;
+    const url = new URL(src, origin);
+    if (!["http:", "https:", "blob:"].includes(url.protocol)) return <span>{alt || "Image unavailable"}</span>;
+    location = url.hostname || "this workspace";
+  } catch {
+    return <span>{alt || "Image unavailable"}</span>;
+  }
+  if (approvedSource === src && failedSource !== src) {
+    return <img src={src} alt={alt || "Image"} referrerPolicy="no-referrer" onError={() => setFailedSource(src)} />;
+  }
+  return (
+    <span className="not-typeset inline-flex flex-col gap-1 rounded-md border p-3">
+      <span>{alt || "Image"} · {location}</span>
+      {failedSource === src && <span role="status">Image could not be loaded.</span>}
+      <button type="button" className="text-left underline" onClick={() => { setFailedSource(null); setApprovedSource(src); }}>
+        {failedSource === src ? "Retry image" : "Load image"}
+      </button>
+    </span>
+  );
+}
+
 // Streamdown's default components carry their own Tailwind typography, which
 // would fight shadcn/typeset. Mapping every element to its bare intrinsic tag
 // keeps Streamdown's streaming-safe parsing while typeset owns all styling.
@@ -132,7 +161,7 @@ const bareComponents: Components = {
   tr: "tr",
   th: "th",
   td: "td",
-  img: "img",
+  img: MarkdownImage,
   hr: "hr",
   sup: "sup",
   sub: "sub",
