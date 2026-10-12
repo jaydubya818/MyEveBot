@@ -107,16 +107,17 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
 
 // Model and tool text must not initiate image requests without a user action.
 // Do not forward srcSet or other source attributes from untrusted HTML.
-function MarkdownImage({ src, alt }: ComponentProps<"img">) {
+function MarkdownImage({ src, alt }: ComponentProps<"img"> & { node?: unknown }) {
   const [approvedSource, setApprovedSource] = useState<string | null>(null);
   const [failedSource, setFailedSource] = useState<string | null>(null);
   if (typeof src !== "string" || !src) return <span>{alt || "Image unavailable"}</span>;
   let location: string;
   try {
-    const origin = typeof window === "undefined" ? "https://workspace.invalid" : window.location.origin;
-    const url = new URL(src, origin);
+    const url = new URL(src, "https://workspace.invalid");
     if (!["http:", "https:", "blob:"].includes(url.protocol)) return <span>{alt || "Image unavailable"}</span>;
-    location = url.hostname || "this workspace";
+    // A relative URL follows the base origin. This keeps SSR and hydration identical.
+    const relative = url.origin !== new URL(src, "https://relative-check.invalid").origin;
+    location = relative || url.protocol === "blob:" ? "this workspace" : url.hostname;
   } catch {
     return <span>{alt || "Image unavailable"}</span>;
   }
