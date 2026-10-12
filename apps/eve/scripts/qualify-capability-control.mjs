@@ -8,6 +8,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { CapabilityStore } from '../lib/capability-control/store.ts';
 import { capabilityConfiguration, capabilityPrincipal, closeCapabilityDatabase } from '../lib/capability-control/runtime.ts';
+import { CapabilityError } from '../lib/capability-control/contracts.ts';
 import { createWebSessionToken } from '../lib/web-auth.ts';
 import { capabilityToolOwner } from '../lib/capability-control/sofie.ts';
 import { capabilityRegistry } from '@mission-control/capability-control';
@@ -156,7 +157,9 @@ try {
     await assert.rejects(capabilityPrincipal(new Request('http://localhost/api/capability-control', { method: 'POST', headers: { cookie: `myeve_session=${token}`, origin: 'https://attacker.invalid' } })), /same-origin/);
   });
   await check('production and unconfigured environments fail closed', async () => {
-    assert.throws(() => capabilityConfiguration({ ...process.env, VERCEL: '1' }), /isolated/);
+    assert.throws(() => capabilityConfiguration({ ...process.env, VERCEL: '1' }), error =>
+      error instanceof CapabilityError && error.code === 'capabilities_unavailable' && error.status === 503
+        && error.message === 'This hosted installation is not qualified.');
     assert.throws(() => capabilityConfiguration({ ...process.env, MYEVE_CAPABILITY_ENVIRONMENT: 'production' }), /configured/);
     assert.throws(() => capabilityConfiguration({}), /isolated/);
   });
