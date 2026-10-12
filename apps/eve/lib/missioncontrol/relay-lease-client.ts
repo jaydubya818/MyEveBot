@@ -31,7 +31,15 @@ export type RelayLeaseEnrollment = z.infer<typeof relayLeaseEnrollmentSchema>;
 const hash = (value: unknown) => createHash('sha256').update(canonicalPermitJson(value)).digest('hex');
 // Relay's canonical no-limit response is {limits:{}}. Empty metadata carries
 // no obligations; populated limits and unknown obligation kinds still deny.
-const noAdditionalObligations = z.object({limits:z.object({}).strict().optional()}).strict();
+// Inspect raw parsed JSON before any record/object schema can drop reserved keys.
+const noAdditionalObligations = z.custom(value => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const keys=Object.keys(value);
+  if(keys.length===0)return true;
+  if(keys.length!==1||keys[0]!=='limits')return false;
+  const limits=(value as {limits:unknown}).limits;
+  return Boolean(limits && typeof limits==='object' && !Array.isArray(limits) && Object.keys(limits).length===0);
+});
 export const relayLeaseEnrollmentDigest = (value:unknown) => hash(relayLeaseEnrollmentSchema.parse(value));
 const secret = (value: string | undefined) => {
   if (!value || value.length > 16384 || value !== value.trim() || /[\u0000-\u0020\u007f]/.test(value))
@@ -87,7 +95,7 @@ export class InstalledRelayLeaseClient {
     if (Buffer.byteLength(body) > 65536) throw Error('MISSIONCONTROL_RELAY_REQUEST_TOO_LARGE');
     const prepared=z.object({decision:z.object({decisionId:id('dec'),expiresAt:z.string().datetime({offset:true}),
       outcome:z.enum(['ALLOW','DENY','REQUIRE_APPROVAL','LIMIT','ESCALATE']),reasonCodes:z.array(z.string()),
-      obligations:z.record(z.string(),z.unknown()),matchedRuleIds:z.array(z.string())}).strict(),
+      obligations:z.unknown(),matchedRuleIds:z.array(z.string())}).strict(),
       approvalRequest:z.object({requestId:text,allowedScopes:z.array(z.unknown()),expiresAt:z.string().datetime({offset:true})}).strict().nullable()}).strict()
       .parse(await this.post('/prepare',body));
     if(Date.parse(prepared.decision.expiresAt)<=Date.now()||source.expiresAt<=Date.now()

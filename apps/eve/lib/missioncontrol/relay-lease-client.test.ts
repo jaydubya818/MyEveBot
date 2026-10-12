@@ -64,7 +64,8 @@ describe('installed Relay lease transport',()=>{
       expect(()=>installedRelayLeaseConfig(f.f.enrollment,{...f.env,MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify({...f.c,...changes})})).toThrow();
     expect(()=>installedRelayLeaseConfig({...f.f.enrollment,relayLeaseEnrollmentSha256:undefined},f.env)).toThrow('MISSIONCONTROL_RELAY_ENROLLMENT_CHANGED');
   });
-  it.each([{limits:{maxCalls:1}},{limits:{costMicrousd:1}},{limits:{},unknown:true}])('denies substantive or unknown obligations %j',async obligations=>{
+  it.each([{limits:{maxCalls:1}},{limits:{costMicrousd:1}},{limits:{},unknown:true},
+    JSON.parse('{"__proto__":{"unknown":true}}'),JSON.parse('{"limits":{"__proto__":{"unknown":true}}}')])('denies substantive or unknown obligations %j',async obligations=>{
     const f=await fixture(),send=vi.fn(async()=>Response.json({decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),
       outcome:'ALLOW',reasonCodes:[],obligations,matchedRuleIds:[]},approvalRequest:null}));
     await expect(new InstalledRelayLeaseClient(f.config,send).issue(f.sourceEnvelope)).rejects.toThrow('MISSIONCONTROL_RELAY_POLICY_DENIED');

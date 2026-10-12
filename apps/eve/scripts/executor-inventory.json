@@ -4387,8 +4387,8 @@
     },
     "lib/missioncontrol/relay-lease-client.ts": {
       "classification": "ENFORCED",
-      "reason": "Server-enrolled scope and HTTPS origin; bounded authenticated canonical Relay preparation/lease transport, no redirect/retry, no resource execution or invented approval/budget. Pinned P-256 proof and exact scope/hash/freshness validation. Protocol and composed PostgreSQL tests; actual installed grants remain unqualified. Reviewed full selection and P-256 pin digest compared to operator-only enrollment; LIMIT, unsupported obligations and expired approvals deny before issuance. Actual Relay service sends the no-op obligations envelope {limits:{}}; strict empty limits accepted, populated or unknown obligations denied.",
-      "sha256": "3fa5e66390e50684661e3c973955bea904418919b5d05b169a951c7b46c81610"
+      "reason": "Server-enrolled scope and HTTPS origin; bounded authenticated canonical Relay preparation/lease transport, no redirect/retry, no resource execution or invented approval/budget. Pinned P-256 proof and exact scope/hash/freshness validation. Protocol and composed PostgreSQL tests; actual installed grants remain unqualified. Reviewed full selection and P-256 pin digest compared to operator-only enrollment; LIMIT, unsupported obligations and expired approvals deny before issuance. Actual Relay service sends the no-op obligations envelope {limits:{}}; strict empty limits accepted, populated or unknown obligations denied. Raw prepared obligations are checked before record schema normalization; reserved __proto__ fields at either level cannot disappear into an empty-obligation allowance. Evidence: 15 transport tests.",
+      "sha256": "9104540445b0808d4db125e4dc667b2cb42205e97e129e07c86d255202f08e6c"
     },
     "app/api/beta/issues/route.ts": {
       "classification": "ENFORCED",
