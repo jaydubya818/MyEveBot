@@ -6,7 +6,10 @@ import { Env, connection } from "../external-alpha/work-test-fixture.ts";
 import { digest } from "./transport.ts";
 import { relayConnectionBinding, validateRelayReusePlan, type RelayReusePlan, type RelayReadOnlyInstallationAudit } from "./installation-validation.ts";
 const relayRoot = process.env.MYRELAY_SOURCE_ROOT;
-const relayCommit = "8a8678d675adc8ac7f799d7660071de2256bb231";
+// Historical compatibility defaults to its original immutable source. Final
+// release gates also run this audit against their explicitly selected source.
+const relayCommit = process.env.MYRELAY_SOURCE_SHA ?? "8a8678d675adc8ac7f799d7660071de2256bb231";
+if (!/^[a-f0-9]{40}$/.test(relayCommit)) throw Error("Exact Relay fixture source required");
 const sourceFile = (path: string) => execFileSync("git",["-C",relayRoot!,"show",`${relayCommit}:${path}`],{encoding:"utf8",maxBuffer:4*1024*1024});
 const hash = (v: string) => createHash("sha256").update(v).digest("hex");
 const envs: Env[] = [];

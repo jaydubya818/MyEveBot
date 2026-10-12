@@ -4141,8 +4141,8 @@
     },
     "lib/external-alpha/result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification.",
-      "sha256": "374d2397687cc39ef2439c9bf190343344d54de7c63427e0839674bf56322f36"
+      "reason": "Explicit disposable PostgreSQL/synthetic signed Factory fixture support with generated identities/keys. Production providers are not invoked. Evidence: no-paid owner journey harness and PostgreSQL authority tests; this is not real Vercel Factory qualification. Optional public raw-tree fixture bytes qualify signed-Result/source-closure continuity; omitted argument preserves original fixture behavior. Test-only 99d3e455 independent scoped PASS and 139 affected regressions.",
+      "sha256": "285124f639a2b5db867378df66d104f31e4442cc702e1ae5c988a71040344deb"
     },
     "lib/external-alpha/dispatch-readback.ts": {
       "classification": "ENFORCED",
@@ -4442,8 +4442,8 @@
     },
     "lib/missioncontrol/owner-result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Disposable synthetic signed custody helper only. Uses canonical bytes decoded from its signed manifest, real Gate C/native Proof verification and explicitly controlled terminal/accounting fixture. No installed producer execution, cleanup qualification or deployed key. Test imports only.",
-      "sha256": "bfd0ecfa0e8e289e13dc57553b61bf2cdc099c31a5b5b0f47486d6e719d9e0a7"
+      "reason": "Disposable synthetic signed custody helper only. Uses canonical bytes decoded from its signed manifest, real Gate C/native Proof verification and explicitly controlled terminal/accounting fixture. No installed producer execution, cleanup qualification or deployed key. Test imports only. Optional public raw-tree fixture bytes qualify signed-Result/source-closure continuity; omitted argument preserves original fixture behavior. Test-only 99d3e455 independent scoped PASS and 139 affected regressions.",
+      "sha256": "5e747bb2eb9568e93653e93237568d469be4e52a02f6a2664195a0a258c87df1"
     },
     "lib/missioncontrol/owner-reconciliation.ts": {
       "classification": "ENFORCED",

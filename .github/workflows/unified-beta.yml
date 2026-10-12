@@ -2,7 +2,10 @@ name: Unified beta exact-source qualification
 'on':
   push:
     branches:
+    - main
     - codex/unified-beta-myeve-20261011
+  pull_request:
+    branches: [main]
   workflow_dispatch: null
 permissions:
   contents: read
@@ -54,6 +57,19 @@ jobs:
         MYAPPS_ALPHA_BROWSER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
       run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts packages/myapps/integration/alpha-tasks-late-worker.test.ts
+    - name: Registered owner Result intake, human installation, Sofie and cold restart
+      env:
+        MYAPPS_POSTGRES_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+      run: |
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/local-owner-apps.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/myapps-alpha/registered-owner-journey.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/registered-owner-journey.json','utf8'));
+        assert.equal(result.success,true);assert.ok(result.numPassedTests>0);assert.equal(result.numPendingTests,0);
+        NODE
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
@@ -212,6 +228,7 @@ jobs:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
         MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
         MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+        MYRELAY_SOURCE_SHA: b25a90c3ebeaeff731c26690e289331142dae904
         MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
         FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
       run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts
@@ -221,6 +238,12 @@ jobs:
         lib/missioncontrol/permit-store.integration.test.ts
         lib/beta-feedback-postgres.test.ts
         lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+    - name: Historical installed Relay schema compatibility (not the selected release)
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+        MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+        MYRELAY_SOURCE_SHA: 8a8678d675adc8ac7f799d7660071de2256bb231
+      run: npm exec --workspace apps/eve -- vitest run lib/relay/installation-validation.test.ts
     - name: Durable owner budget concurrency and UNKNOWN recovery
       env:
         MYEVE_OWNER_CHANNEL_TESTS: '1'
