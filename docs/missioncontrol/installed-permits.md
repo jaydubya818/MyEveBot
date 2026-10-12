@@ -33,3 +33,9 @@ Rollback disables new admissions, reconciles retained authority through the orig
 ## Remaining qualification
 
 The composed authenticated live-service journey, an independently retained hosted recovery witness, actual owner/Relay bindings, custody-derived FactoryVersions, the same-Mission MyApps package and hosted checks remain required. Local synthetic PostgreSQL and protocol tests are engineering evidence only. The existing hosted capability guard remains in force; this change does not turn it off.
+
+## Exact External Alpha admission custody
+
+Migration `0100_missioncontrol_alpha_admission_custody.sql` retains the exact signed admission receipt at authority issuance and dispatch claim. The accepted permit ID and command ID travel from the authenticated admission result through the existing controller. Transaction-local wrappers call the original accounting/admission functions; receiving triggers validate the specified receipt, current policy, Work tuple and FactoryVersion. Claim may refresh its receipt but cannot substitute another permit. These immutable owner-scoped bindings are evidence, not another execution or accounting ledger. Existing results receive no inferred backfill and are ineligible for MyApps unless their exact dispatch binding was retained.
+
+The separately authorized role package must add SELECT on `missioncontrol_alpha_admission_bindings` and EXECUTE on `missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text)`, `external_alpha_missioncontrol_work_admit(jsonb)` and `external_alpha_missioncontrol_work_claim(jsonb)`. The runtime receives no INSERT/UPDATE/DELETE on the binding table; its receiving trigger writes it. Preserve the existing canonical function permissions. Neither this document nor migration applies grants to an installation.

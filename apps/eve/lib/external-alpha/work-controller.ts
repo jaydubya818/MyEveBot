@@ -347,14 +347,15 @@ export class ExternalAlphaWorkController {
     await this.retainReadback?.(record,original);
     return verified;
   }
-  async start(work: Work, effect?: { sessionId: string; callId: string }): Promise<StartOutcome> {
+  async start(work: Work, effect?: { sessionId: string; callId: string }, missionControl?: {permitId:string;commandId:string}): Promise<StartOutcome> {
     const record = await this.authority.issue(work, this.config.allowedFiles, {
       now: new Date(this.clock()),
       effect,
+      missionControl,
     });
     if (record.state !== "ISSUED")
       return { sent: false, authority: record, reason: "ALREADY_" + record.state };
-    const claim = await this.authority.claim(record);
+    const claim = await this.authority.claim(record,missionControl);
     if (!claim.claimed) return { sent: false, authority: claim.authority, reason: "NOT_CLAIMED" };
     let response: unknown;
     const prepare = prepareRequest(record, work, this.config, this.clock());

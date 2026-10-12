@@ -90,6 +90,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
   });
   const accept = () => store.accept(fixture.signPermit(), fixture.signReceipt(), fixture.challenge, pair,
     fixture.document.work.id, env.policy.repository);
+  const admission=()=>({permitId:fixture.document.permitId,commandId:fixture.challenge.commandId});
   const acknowledgmentResponse=(value:any)=>({permitId:value.permitId,sequence:value.sequence,authority:value.authority,cleanup:value.cleanup,accounting:'UNCHANGED'});
   it('composes fresh signed MC and Relay admission into the original Factory action exactly once',async()=>{
     const receiver=generateKeyPairSync('ec',{namedCurve:'P-256'}),source=generateKeyPairSync('ec',{namedCurve:'P-256'}),relay=generateKeyPairSync('ec',{namedCurve:'P-256'});
@@ -215,7 +216,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
   it('issues, claims and refreshes through the ordinary runtime role without policy-write privileges',async()=>{
     await accept();
     await env.pool.query(`GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),
-      external_alpha_work_admit(jsonb),external_alpha_admit(jsonb),external_alpha_work_claim(jsonb),external_alpha_work_finish(jsonb),external_alpha_dispatch_bind(jsonb) TO ${role}`);
+      missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text),external_alpha_missioncontrol_work_admit(jsonb),external_alpha_missioncontrol_work_claim(jsonb),external_alpha_work_admit(jsonb),external_alpha_admit(jsonb),external_alpha_work_claim(jsonb),external_alpha_work_finish(jsonb),external_alpha_dispatch_bind(jsonb) TO ${role}`);
     await env.pool.query(`GRANT UPDATE(owner_id) ON external_alpha_policy TO ${role}`);
     await env.pool.query(`GRANT INSERT,UPDATE ON external_alpha_work_authority,external_alpha_allowance TO ${role}`);
     await env.pool.query(`GRANT INSERT ON external_alpha_shared_binding,external_alpha_work_dispatch TO ${role}`);
@@ -226,9 +227,16 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const controller=new ExternalAlphaWorkController(authority,factory,config,receiptKeys(config),Date.now,
       (record,original)=>store.retainFactoryReadback(record,original));
     const work=await env.store.get(fixture.document.work.id);
-    expect((await controller.start(work)).authority.state).toBe('CONSUMED');
+    expect((await controller.start(work,undefined,admission())).authority.state).toBe('CONSUMED');
     expect(await controller.refreshReadback(fixture.document.work)).toMatchObject({state:'RUNNING'});
     expect(factory.posts).toBe(1);
+    const custody=await database.atomic!(async tx=>{
+      await tx.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[env.owner]);
+      return tx.query('SELECT stage,permit_id,command_id FROM missioncontrol_alpha_admission_bindings ORDER BY stage');
+    });
+    expect(custody).toEqual(['DISPATCH','ISSUE'].map(stage=>({stage,permit_id:fixture.document.permitId,command_id:fixture.challenge.commandId})));
+    await expect(runtime.query("UPDATE missioncontrol_alpha_admission_bindings SET command_id='forged'")).rejects.toThrow('permission denied');
+    await expect(runtime.query("INSERT INTO missioncontrol_alpha_admission_bindings SELECT * FROM missioncontrol_alpha_admission_bindings")).rejects.toThrow('permission denied');
     await expect(runtime.query('UPDATE external_alpha_policy SET activated_at=NULL')).rejects.toThrow('permission denied');
     await expect(runtime.query("UPDATE capability_control.owner_state SET preferences='{}'")).rejects.toThrow('permission denied');
     await expect(runtime.query('UPDATE missioncontrol_owner_enrollments SET revision=revision+1')).rejects.toThrow('permission denied');
@@ -252,6 +260,50 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(await env.count('external_alpha_work_authority')).toBe(0);
     expect(await env.count('external_alpha_cohort_admission')).toBe(0);
   });
+  it('requires the explicit accepted command before reserving any shared money',async()=>{
+    await accept();const work=await env.store.get(fixture.document.work.id);
+    await expect(env.svc.issue(work,files)).rejects.toThrow('MISSIONCONTROL_EXACT_ADMISSION_REQUIRED');
+    await expect(env.svc.issue(work,files,{missionControl:{...admission(),commandId:randomUUID()}})).rejects.toThrow('MISSIONCONTROL_EXACT_ADMISSION_REQUIRED');
+    expect(await env.count('external_alpha_cohort_admission')).toBe(0);
+    expect(await env.count('external_alpha_work_authority')).toBe(0);
+  });
+  it('refuses a different permit at claim and the legacy direct claim without the exact command',async()=>{
+    await accept();const original=admission(),work=await env.store.get(fixture.document.work.id);
+    const authority=await env.svc.issue(work,files,{missionControl:original});
+    fixture.document.permitId=randomUUID();fixture.challenge.commandId=randomUUID();await accept();
+    await expect(env.svc.claim(authority,admission())).rejects.toThrow('MISSIONCONTROL_ALPHA_PERMIT_CHANGED');
+    await expect(env.svc.claim(authority)).rejects.toThrow('MISSIONCONTROL_EXACT_ADMISSION_REQUIRED');
+    expect(await env.count('missioncontrol_alpha_admission_bindings')).toBe(1);
+    expect(await env.count('external_alpha_cohort_dispatch')).toBe(0);
+    expect((await env.svc.claim(authority,original)).claimed).toBe(true);
+    expect((await env.svc.claim(authority,original)).claimed).toBe(false);
+    expect(await env.count('missioncontrol_alpha_admission_bindings')).toBe(2);
+    await expect(env.pool.query("DELETE FROM missioncontrol_alpha_admission_bindings")).rejects.toThrow('MISSIONCONTROL_BINDING_IMMUTABLE');
+  });
+  it('retains a refreshed command only for the original permit at dispatch',async()=>{
+    await accept();const first=admission(),work=await env.store.get(fixture.document.work.id);
+    const authority=await env.svc.issue(work,files,{missionControl:first});
+    fixture.challenge.commandId=randomUUID();await accept();
+    expect((await env.svc.claim(authority,admission())).claimed).toBe(true);
+    const rows=(await env.pool.query('SELECT stage,permit_id,command_id FROM missioncontrol_alpha_admission_bindings ORDER BY stage')).rows;
+    expect(rows).toEqual([
+      {stage:'DISPATCH',permit_id:first.permitId,command_id:fixture.challenge.commandId},
+      {stage:'ISSUE',permit_id:first.permitId,command_id:first.commandId},
+    ]);
+  });
+  it('does not replace an explicitly expired command with another current receipt',async()=>{
+    await accept();const valid=admission(),expired=fixture.signReceipt({...fixture.receiptDocument(),commandId:randomUUID(),
+      issuedAt:Date.now()-20000,expiresAt:Date.now()-10000});
+    // Superuser test seed: an already expired historical receipt remains immutable.
+    await env.pool.query(`INSERT INTO missioncontrol_admission_receipts
+      SELECT owner_id,$2,permit_id,$3,$4,to_timestamp($5::double precision/1000),to_timestamp($6::double precision/1000),
+        capability_agent,capability_backend,capability_snapshot_sha256,capability_expires_at,clock_timestamp()
+      FROM missioncontrol_admission_receipts WHERE command_id=$1`,
+      [valid.commandId,expired.document.commandId,expired,digest(expired),expired.document.issuedAt,expired.document.expiresAt]);
+    await expect(env.svc.issue(await env.store.get(fixture.document.work.id),files,{missionControl:{...valid,commandId:expired.document.commandId}}))
+      .rejects.toThrow('MISSIONCONTROL_EXACT_ADMISSION_REQUIRED');
+    expect(await env.count('external_alpha_cohort_admission')).toBe(0);
+  });
   it('revocation fences current admission and preserves immutable historical evidence', async () => {
     await accept();
     const e = { ...fixture.enrollment, revision: 2, revokedAt: Date.now() };
@@ -264,9 +316,9 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
   });
   it('a capability change after reservation denies the canonical dispatch claim', async () => {
     await accept();
-    const authority=await env.svc.issue(await env.store.get(fixture.document.work.id),files);
+    const authority=await env.svc.issue(await env.store.get(fixture.document.work.id),files,{missionControl:admission()});
     await env.pool.query("UPDATE capability_control.owner_state SET revision=revision+1,preferences=jsonb_set(preferences,'{enterprise.fleet}','\"DISABLED\"') WHERE owner_id=$1",[env.owner]);
-    await expect(env.svc.claim(authority)).rejects.toThrow('MISSIONCONTROL_CAPABILITY_CURRENTNESS_REQUIRED');
+    await expect(env.svc.claim(authority,admission())).rejects.toThrow('MISSIONCONTROL_CAPABILITY_CURRENTNESS_REQUIRED');
     expect((await env.svc.forWork(fixture.document.work.id))?.state).toBe('ISSUED');
     expect(await env.count('external_alpha_cohort_dispatch')).toBe(0);
     // Reservation remains canonical historical accounting; a refusal never refunds it.
@@ -274,7 +326,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
   });
   it('serializes a queued revoke before a concurrent canonical dispatch claim',async()=>{
     await accept();
-    const authority=await env.svc.issue(await env.store.get(fixture.document.work.id),files);
+    const authority=await env.svc.issue(await env.store.get(fixture.document.work.id),files,{missionControl:admission()});
     const blocker=await env.pool.connect();
     const waitForLock=async(fragment:string)=>{
       for(let attempt=0;attempt<200;attempt++){
@@ -290,8 +342,8 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       const control=fixture.signControl();
       fence=store.fence(fixture.document.permitId,control,controlDigest(control.document));
       await waitForLock('SELECT id FROM engineering_work');
-      claim=env.svc.claim(authority).catch(error=>error);
-      await waitForLock('external_alpha_work_claim');
+      claim=env.svc.claim(authority,admission()).catch(error=>error);
+      await waitForLock('external_alpha_missioncontrol_work_claim');
       await blocker.query('COMMIT');await fence;
       expect(await claim).toBeInstanceOf(Error);
       expect(String(await claim)).toContain('MISSIONCONTROL_WORK_FENCED');
@@ -349,7 +401,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config),Date.now,
       (authority,original)=>store.retainFactoryReadback(authority,original));
-    const work=await env.store.get(fixture.document.work.id),started=await controller.start(work);
+    const work=await env.store.get(fixture.document.work.id),started=await controller.start(work,undefined,admission());
     if(!started.sent)throw Error('Expected synthetic Factory dispatch');
     const request={schema:'mc-result-request/v1' as const,connectionId:fixture.enrollment.connectionId,
       installationId:fixture.enrollment.installationId,ownerId:env.owner,projectId:fixture.enrollment.projectId,
@@ -401,7 +453,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(acknowledgments[0]).toEqual(acknowledgments[1]);
     expect(acknowledgments[0]).toMatchObject({authority:'FENCED',cleanup:'PENDING_BACKEND'});
     expect(await env.count('missioncontrol_permit_controls')).toBe(1);
-    await expect(env.svc.issue(await env.store.get(fixture.document.work.id),files)).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await expect(env.svc.issue(await env.store.get(fixture.document.work.id),files,{missionControl:admission()})).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
     expect(await env.count('external_alpha_cohort_admission')).toBe(0);
     await expect(env.pool.query('DELETE FROM missioncontrol_permit_controls')).rejects.toThrow('MISSIONCONTROL_BINDING_IMMUTABLE');
   });
@@ -411,7 +463,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config),Date.now,
       (authority,original)=>store.retainFactoryReadback(authority,original));
-    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work,undefined,admission());
     const control=fixture.signControl(),delivery={status:'CONTROL',control,controlDigest:controlDigest(control.document)};
     const acknowledgments:unknown[]=[];
     const client={readControl:async()=>delivery,acknowledgeControl:async(value:unknown)=>{
@@ -432,7 +484,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config));
-    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work,undefined,admission());
     const control=fixture.signControl({...fixture.controlDocument(),operation:'disable_new'});
     const client={readControl:async()=>({status:'NO_CONTROL'}),acknowledgeControl:async(value:unknown)=>acknowledgmentResponse(value)};
     const workStore=new WorkStore({scopeKind:'personal',scopeId:env.owner,actorId:env.owner},database);
@@ -454,7 +506,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config));
-    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work,undefined,admission());
     const operation=scenario==='lost-confirmed-ack'?'revoke':'disable_new';
     const control=fixture.signControl({...fixture.controlDocument(),operation});
     const delivery={status:'CONTROL',control,controlDigest:controlDigest(control.document)};
@@ -500,7 +552,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config));
-    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work,undefined,admission());
     const authority=(await env.svc.forWork(work.id))!;await env.svc.finish(authority.id,'UNKNOWN',{reason:'SYNTHETIC_UNCERTAINTY'});
     // Old deliveries are unavailable. Their signed fences and UNKNOWN authority
     // stay retained; scheduling observations must not be mistaken for delivery.

@@ -463,7 +463,7 @@ export class ExternalAlphaWorkAuthority {
   async issue(
     work: Work,
     allowedFiles: readonly string[],
-    options: { now?: Date; effect?: { sessionId: string; callId: string } } = {},
+    options: { now?: Date; effect?: { sessionId: string; callId: string }; missionControl?: {permitId:string;commandId:string} } = {},
   ): Promise<WorkAuthorityRecord> {
     const document = buildWorkAuthority({
       policy: this.policy,
@@ -486,9 +486,15 @@ export class ExternalAlphaWorkAuthority {
       [this.policy.ownerId, work.id, work.version, work.generation,
         process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION',this.policy.factoryVersion]);
     else if(process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')throw Error('MISSIONCONTROL_SCHEMA_REQUIRED');
+    const [custodySchema]=await this.database.query("SELECT to_regprocedure('public.missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text)') IS NOT NULL AS installed");
+    if(custodySchema?.installed)await this.database.query('SELECT missioncontrol_assert_alpha_admission($1,$2,$3,$4,$5,$6,$7)',
+      [this.policy.ownerId,work.id,work.version,work.generation,this.policy.factoryVersion,
+        options.missionControl?.permitId??null,options.missionControl?.commandId??null]);
+    else if(options.missionControl)throw Error('MISSIONCONTROL_SCHEMA_REQUIRED');
     const shared = sharedAlphaAccounting(this.database);
     const admission = await shared.reserve(this.policy, { kind: "WORK", bindingId: document.idempotencyKey, requestSha256: document.idempotencyKey });
-    const row = await this.call<Record<string, any>>("work_admit", {
+    const row = await this.call<Record<string, any>>(options.missionControl ? "missioncontrol_work_admit" : "work_admit", {
+      missionControl: options.missionControl,
       document,
       canonical: canonicalJson(document),
       documentSha256: envelope.authoritySha256,
@@ -510,11 +516,12 @@ export class ExternalAlphaWorkAuthority {
     return stored;
   }
   /** Exactly one caller receives claimed=true and may send. */
-  async claim(authority: WorkAuthorityRecord) {
+  async claim(authority: WorkAuthorityRecord, missionControl?: {permitId:string;commandId:string}) {
     await sharedAlphaAccounting(this.database).assertBound(this.database, this.policy, authority.allowanceId);
     const receipt = await this.call<{ claimed: boolean; authority: Record<string, any> }>(
-      "work_claim",
+      missionControl ? "missioncontrol_work_claim" : "work_claim",
       {
+        missionControl,
         authorityId: authority.id,
         requestId: authority.requestId,
         documentSha256: authority.documentSha256,

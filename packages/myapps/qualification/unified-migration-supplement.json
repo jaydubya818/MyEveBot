@@ -21,6 +21,10 @@
     {
       "name": "0098_unified_beta_feedback_initial_state.sql",
       "sha256": "9d2f26eb1895b32395202727ddbdf965878ff57bbbff28c038db68d8b1ff246e"
+    },
+    {
+      "name": "0100_missioncontrol_alpha_admission_custody.sql",
+      "sha256": "1af0da23805a4da821ca57dc0de11153143f810e512131a616ca99493aafb0dd"
     }
   ]
 }

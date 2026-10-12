@@ -68,7 +68,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(unified.migration).toBe('0098_unified_beta_feedback_initial_state.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0100_missioncontrol_alpha_admission_custody.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');

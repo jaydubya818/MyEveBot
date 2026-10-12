@@ -43,6 +43,12 @@ Synthetic offline qualification:
 
 The lifecycle fixture injects synthetic provenance/capability admission; the importer tests independently exercise real canonical signed Result/Proof/permit data in disposable PostgreSQL. This does not establish the full installed capability-to-private-candidate chain, actual private runtime profile, second Factory-produced release, hosted CI, or unified Golden Journey. The update/rollback test is explicitly a package-only update against one synthetic candidate, not evidence of a second Factory Result.
 
-No MyApps migration is added. The unified catalog contains additive migrations through 0098; the separate unified migration supplement preserves all historical migration checksums. Installation and data remain in the existing MyApps and Needs You tables.
+No MyApps storage migration is added. Exact original admission provenance is retained by the separate MissionControl migration 0100; the separate unified migration supplement preserves all historical migration checksums. Installation and data remain in the existing MyApps and Needs You tables.
 
 Actual private source closure, protected custody qualification and installation-specific FactoryVersions remain unresolved. Independent review of this exact source successor and explicit final activation authorization are still required. Nothing here authorizes protected cloud execution, application deployment, production migration, paid calls, merges or tester activation.
+
+## Review correction: exact admitting permit
+
+The importer now follows the immutable authority DISPATCH binding to the exact admission receipt and signed permit. It verifies the historical signed receipt as well as the permit, and never selects another permit by creation time. A second valid permit does not change a Result's origin; revoking the actual admitting permit denies installation even if another permit remains valid. Missing historical bindings fail closed, without backfill. The current policy, enrollment and accounting checks still apply.
+
+The 120-hour External Alpha policy window, enrollment expiry, changes to Work control/lifecycle and unresolved exposure anywhere under that owner may stop previews, installs and mutations. Retained task data remains visible in the owner catalog while its read capability and local host are available. Testers should report the displayed failure instead of repeatedly starting new Work or assuming an expiry renewed their allowance.

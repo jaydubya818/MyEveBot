@@ -5,6 +5,6 @@
   "missionControlAuthority": "47d7b88287f4f8b3dab53a7bf81a06dc52819176",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
-  "migration": "0098_unified_beta_feedback_initial_state.sql",
+  "migration": "0100_missioncontrol_alpha_admission_custody.sql",
   "scope": "Explicit reviewed-source comparisons; historical pins and accounting SQL remain unchanged. Source identity does not grant deployment or execution authority."
 }

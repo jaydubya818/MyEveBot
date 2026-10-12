@@ -144,6 +144,18 @@ describe.skipIf(!connection)(
       VALUES($1,$2,$3,1,1,$4,$5)`,
         [e.owner, p.permitId, work.id, permitDigest(p), permit.signPermit()],
       );
+      const admission=permit.signReceipt();
+      await e.pool.query(`INSERT INTO missioncontrol_admission_receipts(owner_id,command_id,permit_id,envelope,receipt_sha256,
+        issued_at,expires_at,capability_agent,capability_backend,capability_snapshot_sha256,capability_expires_at)
+        VALUES($1,$2,$3,$4,$5,to_timestamp($6::double precision/1000),to_timestamp($7::double precision/1000),
+          'synthetic-agent','synthetic-backend',$8,clock_timestamp()+interval '1 hour')`,
+        [e.owner,admission.document.commandId,p.permitId,admission,digest(admission),admission.document.issuedAt,
+          admission.document.expiresAt,'a'.repeat(64)]);
+      // This disposable importer fixture seeds historical custody explicitly.
+      // The receiving triggers are qualified separately using actual admission.
+      for(const stage of ['ISSUE','DISPATCH'])await e.pool.query(`INSERT INTO missioncontrol_alpha_admission_bindings
+        (owner_id,authority_id,stage,permit_id,command_id,receipt_sha256) VALUES($1,$2,$3,$4,$5,$6)`,
+        [e.owner,authority.id,stage,p.permitId,admission.document.commandId,digest(admission)]);
       const db: WorkDatabase = {
         ...e.db,
         atomic: async (action) => {
@@ -165,7 +177,7 @@ describe.skipIf(!connection)(
       };
       const read = (owner = e.owner, id = result.resultId) =>
         retainedAlphaTasksOrigin(db, owner, id, { policy: e.policy, config });
-      return { e, work, result, config, permit, read };
+      return { e, work, result, config, permit, authority, read };
     }
     it("preserves accepted Work historical identity and original PARTIAL Proof without writes or renewed execution", async () => {
       const s = await fixture(),
@@ -243,5 +255,24 @@ describe.skipIf(!connection)(
         expect(await s.e.count("external_alpha_work_result")).toBe(1);
       },
     );
+    it('keeps the exact dispatch permit even when another valid permit exists for the same Work',async()=>{
+      const s=await fixture(),before=await s.read();
+      const other={...s.permit.document,permitId:randomUUID(),approvalId:randomUUID()};
+      await s.e.pool.query(`INSERT INTO missioncontrol_execution_permits(owner_id,permit_id,work_id,work_version,work_generation,permit_sha256,envelope)
+        VALUES($1,$2,$3,1,1,$4,$5)`,[s.e.owner,other.permitId,s.work.id,permitDigest(other),s.permit.signPermit(other)]);
+      expect((await s.read()).origin).toEqual(before.origin);
+      await s.e.pool.query(`INSERT INTO missioncontrol_permit_controls(owner_id,permit_id,sequence,operation,control_digest,envelope)
+        VALUES($1,$2,1,'revoke',$3,$4)`,[s.e.owner,s.permit.document.permitId,'a'.repeat(64),s.permit.signControl()]);
+      await expect(s.read()).rejects.toThrow('APP_MISSION_BINDING');
+      expect(await s.e.count('external_alpha_work_result')).toBe(1);
+    });
+    it('refuses historical provenance without an exact dispatch custody record',async()=>{
+      const s=await fixture();
+      // Superuser fixture corruption, never a recovery/backfill path.
+      await s.e.pool.query('ALTER TABLE missioncontrol_alpha_admission_bindings DISABLE TRIGGER missioncontrol_alpha_binding_immutable');
+      await s.e.pool.query("DELETE FROM missioncontrol_alpha_admission_bindings WHERE stage='DISPATCH'");
+      await s.e.pool.query('ALTER TABLE missioncontrol_alpha_admission_bindings ENABLE TRIGGER missioncontrol_alpha_binding_immutable');
+      await expect(s.read()).rejects.toThrow('APP_MISSION_BINDING');
+    });
   },
 );

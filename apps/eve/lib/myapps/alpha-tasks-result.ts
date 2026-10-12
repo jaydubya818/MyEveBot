@@ -24,6 +24,7 @@ import {
   executionPermitEnvelopeSchema,
   verifyExecutionPermit,
   permitDigest,
+  verifyAdmissionReceipt,
 } from "../missioncontrol/execution-permit.ts";
 import { requireValue } from "../../../../packages/myapps/src/contracts.ts";
 import {
@@ -158,12 +159,20 @@ export async function retainedAlphaTasksOrigin(
       [ownerId],
     );
     const permits = await db.query(
-      `SELECT p.envelope,p.permit_sha256,b.binding,b.binding_sha256 FROM missioncontrol_execution_permits p
-      JOIN missioncontrol_work_bindings b USING(owner_id,work_id,work_version,work_generation)
+      `SELECT p.envelope,p.permit_sha256,b.binding,b.binding_sha256,r.envelope AS admission,r.receipt_sha256,
+        r.command_id FROM missioncontrol_alpha_admission_bindings custody
+      JOIN missioncontrol_admission_receipts r ON r.owner_id=custody.owner_id AND r.command_id=custody.command_id
+        AND r.permit_id=custody.permit_id AND r.receipt_sha256=custody.receipt_sha256
+      JOIN missioncontrol_execution_permits p ON p.owner_id=r.owner_id AND p.permit_id=r.permit_id
+      JOIN missioncontrol_work_bindings b ON b.owner_id=p.owner_id AND b.work_id=p.work_id
+        AND b.work_version=p.work_version AND b.work_generation=p.work_generation
       WHERE p.owner_id=$1 AND p.work_id=$2 AND p.work_version=$3 AND p.work_generation=$4
+        AND custody.authority_id=$5 AND custody.stage='DISPATCH'
+        AND EXISTS(SELECT 1 FROM missioncontrol_alpha_admission_bindings issued WHERE issued.owner_id=custody.owner_id
+          AND issued.authority_id=custody.authority_id AND issued.stage='ISSUE' AND issued.permit_id=custody.permit_id)
         AND NOT EXISTS(SELECT 1 FROM missioncontrol_permit_controls c WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id AND c.operation='revoke')
-      ORDER BY p.created_at DESC LIMIT 1`,
-      [ownerId, row.work_id, row.work_version, row.work_generation],
+      `,
+      [ownerId, row.work_id, row.work_version, row.work_generation, row.id],
     );
     requireValue(permits.length === 1, "APP_MISSION_BINDING");
     const packet = executionPermitEnvelopeSchema.parse(permits[0].envelope);
@@ -191,6 +200,10 @@ export async function retainedAlphaTasksOrigin(
       permit.enrollment.expiresAt > Date.now(),
       "APP_MISSION_BINDING",
     );
+    const admission=permits[0].admission;
+    verifyAdmissionReceipt(admission,permit,{commandId:permits[0].command_id,
+      challenge:admission?.document?.challenge,policyPairSha256:admission?.document?.policyPairSha256},admission?.document?.issuedAt);
+    requireValue(resultDigest(admission)===permits[0].receipt_sha256,"APP_MISSION_BINDING");
     const {
       schema: _schema,
       permitId: _permit,

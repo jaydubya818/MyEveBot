@@ -114,13 +114,17 @@ export async function externalAlphaFactoryAction(
   }
   if (input.operation === "start") {
     await assertBusinessEffect(store, workId, { operation: "execute_factory" });
+    let missionControl: {permitId:string;commandId:string}|undefined;
     if (env.MYEVE_MISSIONCONTROL_MODE === 'APPROVED_NONPRODUCTION') {
       const existing = await controller.authority.forWork(workId);
       // A consumed/terminal request is read back through the canonical controller.
       // Fresh approval is required only when this call could claim execution.
-      if (!existing || existing.state === 'ISSUED') await admitMissionControlExecution(store, work, env);
+      if (!existing || existing.state === 'ISSUED') {
+        const accepted=await admitMissionControlExecution(store, work, env);
+        missionControl={permitId:accepted.permit.document.permitId,commandId:accepted.receipt.document.commandId};
+      }
     }
-    const out = await controller.start(work, effect).catch((error: unknown) => {
+    const out = await controller.start(work, effect,missionControl).catch((error: unknown) => {
       // One active Work per cohort (QE-017): explicit, non-retryable-until-free capacity denial.
       // The shared reservation was refused before any charge, authority or Factory call.
       if (error instanceof Error && /\bEXTERNAL_ALPHA_SHARED_CAPACITY\b/.test(error.message))
