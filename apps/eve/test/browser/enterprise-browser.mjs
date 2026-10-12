@@ -63,7 +63,7 @@ export async function warmSofieBrowser(options){assert.equal(warmed,undefined);w
 export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl}) {
   const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT);await mkdir(output,{recursive:true});
   await writeFile(join(output,'tool-input.json'),JSON.stringify(input));
-  const report={schema:'checkpoint-h-enterprise-browser/v1',status:'IN_PROGRESS',checks:[],model:'DETERMINISTIC_FIXTURE',ownerAuthorizationUI:'NOT_IMPLEMENTED',fullJourney:'NOT_RUN',remaining:['Owner proposal authorization and acceptance browser path unresolved','Proposal and completed Result fixtures are separate Missions','Deterministic model output does not qualify live model behavior'],paidOperations:0};
+  const report={schema:'checkpoint-h-enterprise-browser/v1',status:'IN_PROGRESS',checks:[],model:'DETERMINISTIC_FIXTURE',ownerAuthorizationUI:'NOT_RUN',fullJourney:'NOT_RUN',remaining:['MissionControl owner authorization and acceptance UI is not exercised by this browser runner','Proposal and completed Result fixtures are separate Missions','Deterministic model output does not qualify live model behavior'],paidOperations:0};
   let state;
   const audit=async()=>{await state.page.addScriptTag({path:state.require.resolve('axe-core/axe.min.js')});return state.page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return {violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),passes:r.passes.length};});};
   try {
