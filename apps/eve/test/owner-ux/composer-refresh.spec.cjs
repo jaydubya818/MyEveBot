@@ -1,6 +1,40 @@
 const {test,expect}=require('@playwright/test');
 const {randomUUID}=require('node:crypto');
 
+test('stream recovery retains typing across the composer replacement',async({page})=>{
+ await page.goto('/login');
+ expect((await page.request.post('/api/auth/login',{data:{password:process.env.MYEVE_COMPOSER_TEST_PASSWORD??'synthetic-ux-owner-a'}})).ok()).toBeTruthy();
+ const {ownerId}=await(await page.request.get('/api/auth/status')).json();expect(ownerId).toBeTruthy();
+ const thread={id:randomUUID(),title:'Disposable reconnect composer',updatedAt:Date.now()};
+ const sessionId='synthetic-reconnect-'+randomUUID();
+ const chat={events:[{type:'session.waiting',data:{continuationToken:'fixture',wait:'next-user-message'},meta:{id:randomUUID(),at:new Date().toISOString()}}],session:{sessionId,streamIndex:1}};
+ expect((await page.request.put('/api/threads/'+thread.id,{data:{...thread,chat}})).ok()).toBeTruthy();
+ let release;const held=new Promise(resolve=>{release=resolve;});
+ let started;const intercepted=new Promise(resolve=>{started=resolve;});let sends=0;
+ page.on('request',request=>{if(request.method()==='POST'&&new URL(request.url()).pathname.startsWith('/eve/'))sends++;});
+ const routePattern='**/eve/v1/session/'+sessionId+'/stream*';
+ try{
+  await page.evaluate(({ownerId,thread,chat})=>{
+   const prefix='myeve-private:'+encodeURIComponent(ownerId)+':';
+   localStorage.setItem(prefix+'eve-web-threads',JSON.stringify({activeId:thread.id,threads:[thread]}));
+   localStorage.setItem(prefix+'eve-web-chat:'+thread.id,JSON.stringify({...chat,savedAt:Date.now()+1000}));
+  },{ownerId,thread,chat});
+  // The durable stream is already caught up: its tail is before our cursor.
+  // Hold that response until input starts, then allow the real resume/remount.
+  await page.route(routePattern,async route=>{started();await held;await route.fulfill({status:200,contentType:'application/x-ndjson',headers:{'x-eve-stream-tail-index':'0','x-eve-stream-version':'25'},body:''});});
+  await page.goto('/chat');await intercepted;
+  const composer=page.getByRole('textbox',{name:'Message Sofie',exact:true});await expect(composer).toBeEnabled();
+  const original=await composer.elementHandle(),draft='Keep typing through reconnect.';
+  const typing=composer.pressSequentially(draft,{delay:20});
+  await page.waitForFunction(()=>document.querySelector('textarea[data-thread-composer]')?.value.startsWith('Keep'));
+  release();await page.waitForFunction(element=>!element.isConnected,original);await typing;
+  await expect(composer).toHaveValue(draft);await expect(composer).toBeFocused();
+  await expect(page.getByRole('button',{name:'Send',exact:true})).toBeEnabled();
+  expect(await page.evaluate(({ownerId,id})=>localStorage.getItem('myeve-private:'+encodeURIComponent(ownerId)+':eve-web-draft:'+id),{ownerId,id:thread.id})).toBe(draft);
+  expect(sends).toBe(0);
+ }finally{release();await page.unroute(routePattern);await page.request.delete('/api/threads/'+thread.id);}
+});
+
 for(const mode of ['empty composer','existing draft','middle caret','selected text','thread search','focus moved during remount'])test(`server refresh preserves ${mode}`,async({page})=>{
  const focusComposer=mode!=='thread search',expectComposer=focusComposer&&mode!=='focus moved during remount';
  await page.goto('/login');

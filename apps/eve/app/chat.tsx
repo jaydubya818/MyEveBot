@@ -1934,11 +1934,16 @@ function ChatThread({
   }
   const activeLabel = roleName ?? agentName;
   const draftKey = `eve-web-draft:${threadId}`;
-  const [draft, setDraftState] = useState(() => {
+  const [storedDraft, setDraftState] = useState(() => {
     if (initialDraft !== undefined) return initialDraft;
     try { return ownerLocalStorage.getItem(draftKey) ?? ""; } catch { return ""; }
   });
+  // A transcript refresh can prepare a replacement while the current composer
+  // is still receiving input. Prefer the parent's latest draft over the value
+  // captured when that replacement first rendered.
+  const draft = initialDraft ?? storedDraft;
   const draftRef = useRef(draft);
+  useLayoutEffect(() => { draftRef.current = draft; }, [draft]);
   const [composerReady, setComposerReady] = useState(false);
   useEffect(() => setComposerReady(true), []);
   // Server reconciliation may remount this thread while the owner is typing.
