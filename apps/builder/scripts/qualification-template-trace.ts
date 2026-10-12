@@ -43,6 +43,29 @@ try {
   assert.notEqual(denied.status, 0, "Same-name/version dependency metadata with altered body must fail");
   assert.match(denied.stderr, /Dependency metadata changed/);
 } finally { await writeFile(metadataPath, metadataBytes); }
+// Exercise Next's two generated package-context files even in a standalone
+// Builder build, where the neighboring Eve build has not created them yet.
+for (const relative of [".next/package.json", ".next/build/package.json"]) {
+  const file = path.join(root, relative);
+  const existing = await readFile(file).catch(error => { if (error.code === "ENOENT") return null; throw error; });
+  if (existing) assert.equal(existing.toString(), '{"type": "commonjs"}');
+  await mkdir(path.dirname(file), { recursive: true });
+  try {
+    await writeFile(file, '{"type": "commonjs"}', existing ? {} : { flag: "wx" });
+    const trace = JSON.parse(originalTrace.toString());
+    trace.files.push(path.relative(path.dirname(tracePath), file));
+    await writeFile(tracePath, JSON.stringify(trace));
+    const accepted = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+    assert.equal(accepted.status, 0, accepted.stderr);
+    await writeFile(file, '{"type": "commonjs", "syntheticPrivateField": "SYNTHETIC_BUILD_METADATA"}');
+    const denied = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+    assert.notEqual(denied.status, 0, "Generated metadata cannot contain additional private fields");
+    assert.match(denied.stderr, /Generated Next metadata changed/);
+  } finally {
+    await writeFile(tracePath, originalTrace);
+    if (existing) await writeFile(file, existing); else await rm(file);
+  }
+}
 const input = { projectName: "sealed-bundle-fixture", features: [...FEATURE_IDS], instructions: "Synthetic offline packaging fixture", schedules: [] };
 const options = { timestamp: "2026-10-12T00:00:00.000Z" };
 const expected = await assembleDeployment(input, options);
@@ -61,5 +84,5 @@ try {
   await assert.rejects(assembleDeployment(input, options), /Builder source inventory mismatch/);
   console.log(JSON.stringify({ status: "PASS", routes, templateInputs: inputs.length, exportedFiles: actual.length,
     inventorySha256: createHash("sha256").update(await readFile(path.join(root, TEMPLATE_SOURCE_MANIFEST))).digest("hex"),
-    exactTraceInventory: true, injectedTraceDenied: true, alteredMetadataDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
+    exactTraceInventory: true, injectedTraceDenied: true, alteredMetadataDenied: true, generatedMetadataTamperDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
 } finally { process.chdir(cwd); await rm(bundle, { recursive: true, force: true }); await rm(tripwire); }
