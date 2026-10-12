@@ -25,9 +25,18 @@ export async function readPostgresRecoveryHead(witness: PostgresRecoveryWitness,
 }
 /** One independently committed CAS, before the application commits. No compensation/reset is permitted. */
 export async function advancePostgresRecoveryHead(witness: PostgresRecoveryWitness, previous: RecoveryHead, next: RecoveryHead) {
-  const { rows } = await witnessPool(witness).query('SELECT capability_witness.advance_head($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS head',
-    [...scopeParameters(witness, previous), previous.revision, previous.digest, next.revision, next.digest]);
-  return rows[0]?.head;
+  const connection = await witnessPool(witness).connect();
+  try {
+    await connection.query('BEGIN');
+    await connection.query('SET LOCAL synchronous_commit = on');
+    const { rows } = await connection.query('SELECT capability_witness.advance_head($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS head',
+      [...scopeParameters(witness, previous), previous.revision, previous.digest, next.revision, next.digest]);
+    await connection.query('COMMIT');
+    return rows[0]?.head;
+  } finally {
+    // Discard on both success and ambiguity; a timed-out COMMIT must never be reused.
+    connection.release(true);
+  }
 }
 export async function closeRecoveryWitnessDatabases() {
   const current = [...pools.values()]; pools.clear();

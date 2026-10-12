@@ -53,14 +53,16 @@ CREATE FUNCTION capability_witness.assert_enrollment(e text,o text,i text,u text
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
 DECLARE unsafe boolean;
 BEGIN
-  SELECT r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb
+  SELECT r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb OR r.rolreplication
     OR has_schema_privilege(session_user,'capability_witness','CREATE')
     OR has_table_privilege(session_user,'capability_witness.enrollments','INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER')
     OR has_table_privilege(session_user,'capability_witness.heads','INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER')
     INTO unsafe FROM pg_roles r WHERE r.rolname=session_user;
   -- NOINHERIT is insufficient: membership may still allow SET ROLE to a writer.
   IF EXISTS(SELECT 1 FROM pg_roles r WHERE pg_has_role(session_user,r.oid,'MEMBER') AND
-    (r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb
+    (r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb OR r.rolreplication
+      -- EXECUTE-only custody needs no predefined role, including OS/file access.
+      OR left(r.rolname,3)='pg_'
       OR has_schema_privilege(r.oid,'capability_witness','CREATE')
       OR has_table_privilege(r.oid,'capability_witness.enrollments','INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER')
       OR has_table_privilege(r.oid,'capability_witness.heads','INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER'))) THEN
@@ -90,6 +92,9 @@ CREATE FUNCTION capability_witness.advance_head(e text,o text,i text,u text,epoc
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
 DECLARE changed integer;
 BEGIN
+  IF current_setting('synchronous_commit')<>'on' THEN
+    RAISE EXCEPTION 'CAPABILITY_RECOVERY_DURABLE_COMMIT_REQUIRED';
+  END IF;
   PERFORM capability_witness.assert_enrollment(e,o,i,u,epoch_value,q,binding_digest);
   IF next_revision IS NULL OR previous_revision IS NULL OR next_revision<=previous_revision
     OR next_revision>9007199254740991 OR next_digest IS NULL OR next_digest !~ '^[a-f0-9]{64}$' THEN

@@ -150,3 +150,40 @@ test('NOINHERIT membership cannot hide an alternate role able to rewrite the wit
     await admin.query(`DROP ROLE ${inheritedRole}`);
   }
 });
+
+
+test('restricted runtime rejects predefined server roles and replication privileges', async () => {
+  const head = await recoveryHead(app, scope, witness);
+  for (const privilegedRole of ['pg_execute_server_program', 'pg_write_server_files', 'pg_read_server_files']) {
+    await admin.query(`GRANT ${privilegedRole} TO ${witnessRole}`);
+    try {
+      // No server program or file operation is attempted: membership itself denies custody.
+      await assert.rejects(assertRecoveryHead(witness, head), /UNAVAILABLE/);
+    } finally { await admin.query(`REVOKE ${privilegedRole} FROM ${witnessRole}`); }
+  }
+  await admin.query(`ALTER ROLE ${witnessRole} REPLICATION`);
+  try { await assert.rejects(assertRecoveryHead(witness, head), /UNAVAILABLE/); }
+  finally { await admin.query(`ALTER ROLE ${witnessRole} NOREPLICATION`); }
+});
+
+test('CAS requires a durable commit even when the restricted login defaults to asynchronous commit', async () => {
+  await admin.query(`ALTER ROLE ${witnessRole} SET synchronous_commit=off`);
+  await closeRecoveryWitnessDatabases();
+  const client = new pg.Pool({ connectionString: witness.databaseUrl });
+  try {
+    assert.equal((await client.query('SHOW synchronous_commit')).rows[0].synchronous_commit, 'off');
+    const saved = (await witnessAdmin.query("SELECT revision,digest FROM capability_witness.heads WHERE owner_id='owner'")).rows[0];
+    const previous = { schema: 'capability-control.recovery-head.v1' as const, ...scope, epoch: witness.epoch, revision: Number(saved.revision), digest: saved.digest };
+    const next = { ...previous, revision: previous.revision + 1, digest: 'f'.repeat(64) };
+    await assert.rejects(client.query('SELECT capability_witness.advance_head($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+      [witness.enrollmentId, scope.organizationId, scope.installationId, scope.ownerId, witness.epoch, witness.qualificationDigest, witness.installationDigest,
+        previous.revision, previous.digest, next.revision, next.digest]), /DURABLE_COMMIT_REQUIRED/);
+    await advanceRecoveryWitness(witness, previous, next);
+    await closeRecoveryWitnessDatabases();
+    await assertRecoveryHead(witness, next);
+  } finally {
+    await client.end();
+    await admin.query(`ALTER ROLE ${witnessRole} RESET synchronous_commit`);
+    await closeRecoveryWitnessDatabases();
+  }
+});
