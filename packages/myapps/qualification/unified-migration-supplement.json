@@ -41,6 +41,10 @@
     {
       "name": "0103_missioncontrol_admission_isolation.sql",
       "sha256": "f5ef8222df77f0e39178658792d8aea4167d5680ce6d043a1b2c9bb62e6a1003"
+    },
+    {
+      "name": "0104_missioncontrol_legacy_writer_isolation.sql",
+      "sha256": "a600b7926cd155c3053c6bb271270e0aaea4123fe98dc3c7411b7b56a690dc3d"
     }
   ]
 }

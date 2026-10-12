@@ -44,15 +44,15 @@ for (const entry of historical.files) {
 assert.equal(result.historical.length, 103);
 const migrations = await loadMigrations(pathToFileURL(join(eve, 'apps/eve/migrations/')));
 // The historical catalog remains byte-for-byte frozen. This separately reviewed
-// supplement qualifies only the ten new additive unified-beta migrations.
+// supplement qualifies only the eleven new additive unified-beta migrations.
 const supplementBytes=readFileSync(new URL('./unified-migration-supplement.json',import.meta.url));
 const supplement=JSON.parse(supplementBytes);
 assert.equal(supplement.schema,'unified-beta-migration-supplement/v1');
-assert.equal(supplement.files.length,10);
+assert.equal(supplement.files.length,11);
 assert.deepEqual(migrations.slice(89).map(({name,checksum})=>({name,sha256:checksum})),supplement.files);
 result.supplementSha256=sha(supplementBytes);
-assert.equal(migrations.length, 99, 'Review any new application migration explicitly');
-assert.equal(migrations.at(-1).name, '0103_missioncontrol_admission_isolation.sql');
+assert.equal(migrations.length, 100, 'Review any new application migration explicitly');
+assert.equal(migrations.at(-1).name, '0104_missioncontrol_legacy_writer_isolation.sql');
 assert.equal(new Set(migrations.map(m => m.name.slice(0, 4))).size, migrations.length);
 const expected = migrations.map(({ name, checksum }) => ({ name, checksum }));
 assert.throws(() => planMigrations(migrations, [expected[1]]), /Noncontiguous/);
@@ -128,7 +128,7 @@ try {
   check('duplicate application migration preserves names, checksums and original timestamps');
 
   // Exact canonical prefixes are supported by planMigrations, not guessed deployment states.
-  for (const boundary of ['0033', '0067', '0084', '0092', '0093', '0094', '0095', '0096', '0097', '0098', '0099', '0100', '0101', '0102']) {
+  for (const boundary of ['0033', '0067', '0084', '0092', '0093', '0094', '0095', '0096', '0097', '0098', '0099', '0100', '0101', '0102', '0103']) {
     const upgrade = await create('prefix' + boundary);
     const prefix = migrations.filter(m => m.name.slice(0, 4) <= boundary);
     await migrate(upgrade.client, prefix);

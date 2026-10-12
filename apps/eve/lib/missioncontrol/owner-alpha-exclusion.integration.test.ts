@@ -13,7 +13,7 @@ import {splitSqlStatements} from '../../scripts/migration-sql.ts';
 const original0099='52478de2d2e680949406b4f1c76e3bb4c3220dbf07d8c4dc521ff9e51787bc8c';
 const changed0099='b580bb23098fb564a95de94bfd5b7a826278f10a19717de9331469b52c8e2f1f';
 const correction0102Name='0102_missioncontrol_owner_alpha_exclusion.sql';
-const migrationName='0103_missioncontrol_admission_isolation.sql';
+const migrationName='0104_missioncontrol_legacy_writer_isolation.sql';
 const sha=(text:string)=>createHash('sha256').update(text).digest('hex');
 const driver=(pool:pg.Pool):MigrationDatabase=>({query:async(s,p)=>(await pool.query(s,p)).rows,
   transaction:async statements=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}
