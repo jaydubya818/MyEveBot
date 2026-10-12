@@ -33,7 +33,7 @@ for (const [name, repo] of [['myeve',eve],['myfactory',factory]]) {
 }
 mkdirSync(output);
 for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['myfactory',factory,pins.myfactory.integration]]) {
-  const head = git(repo,['rev-parse','HEAD']);
+  const head = pins[name].phase3Preparation;
   git(repo,['merge-base','--is-ancestor',pins[name].phase2,head]);
   git(repo,['merge-base','--is-ancestor',pins[name].main,head]);
   assert.equal(git(repo,['status','--porcelain','--untracked-files=no']), '', 'Preparation source must be committed and clean');
@@ -66,7 +66,7 @@ for (const [name, repo, integration] of [['myeve',eve,pins.myeve.integration],['
     if(name==='myeve') {
       verifyMainSource(pins.myeve.main,readRaw);
       // Keep canonical CI coverage, resolving only the exact companion-fixture pin.
-      const ciPath='.github/workflows/ci.yml',factoryHead=git(factory,['rev-parse','HEAD']);
+      const ciPath='.github/workflows/ci.yml',factoryHead=pins.myfactory.phase3Preparation;
       assert(show(repo,head,ciPath).includes(`ref: ${factoryHead}`),'Factory preparation must match the CI fixture pin');
       const ciConflict=`<<<<<<< ${head}\n          ref: ${factoryHead}\n=======\n          ref: 388232c3053cdd3f55e9e309b72a9d9d95ded55f\n>>>>>>> ${integration}`;
       let ci=replacement(show(repo,initialTree,ciPath),ciConflict,`          ref: ${factoryHead}`);
