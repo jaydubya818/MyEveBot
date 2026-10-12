@@ -66,6 +66,8 @@ for (const relative of [".next/package.json", ".next/build/package.json"]) {
     if (existing) await writeFile(file, existing); else await rm(file);
   }
 }
+const restored = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+assert.equal(restored.status, 0, "Restore the exact original trace verification receipt after negative tests: " + restored.stderr);
 const input = { projectName: "sealed-bundle-fixture", features: [...FEATURE_IDS], instructions: "Synthetic offline packaging fixture", schedules: [] };
 const options = { timestamp: "2026-10-12T00:00:00.000Z" };
 const expected = await assembleDeployment(input, options);
