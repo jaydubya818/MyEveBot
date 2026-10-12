@@ -148,6 +148,23 @@ describe("denial under an external-alpha installation (no provider is reached)",
       expect(fetchSpy).not.toHaveBeenCalled();
     } finally { vi.unstubAllGlobals(); }
   });
+  it("Orgo lifecycle and desktop reads deny before provider contact", async () => {
+    const fetchSpy = vi.fn(() => { throw Error("NETWORK_REACHED"); });
+    vi.stubGlobal("fetch", fetchSpy);
+    try {
+      const { orgo } = await import("../../agent/lib/orgo.ts");
+      for (const invoke of [
+        () => orgo.start(), () => orgo.provision(), () => orgo.wake(),
+        () => orgo.bash("echo synthetic"), () => orgo.screenshot(),
+        () => orgo.status(), () => orgo.verifyKey("synthetic-key"),
+      ]) await expect(invoke()).rejects.toThrow("EXTERNAL_ALPHA_PAID_PATH_DENIED:orgo-hosted-model");
+      // These methods already deny for every installation at the canonical
+      // unqualified-write boundary, before reaching the provider transport.
+      for (const invoke of [() => orgo.live(), () => orgo.stop(), () => orgo.restart(), () => orgo.delete()])
+        await expect(invoke()).rejects.toMatchObject({ code: "external_write_blocked" });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); }
+  });
   it("Realtime denies before microphone, peer connection or provider contact", async () => {
     const peer = vi.fn(() => { throw Error("PEER_REACHED"); });
     const fetchSpy = vi.fn(() => { throw Error("NETWORK_REACHED"); });

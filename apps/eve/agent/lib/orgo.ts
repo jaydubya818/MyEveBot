@@ -333,6 +333,7 @@ async function api<T>(
   path: string,
   init: { method?: string; body?: unknown; signal?: AbortSignal } = {},
 ): Promise<T> {
+  denyExternalAlphaPaidPath("orgo-hosted-model");
   requireReadOnlyTransport("orgo",init.method);
   const response = await fetch(`${apiBase()}${path}`, {
     method: init.method ?? "GET",
@@ -883,6 +884,7 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
   return {
   /** Check a candidate key against Orgo before storing it. Throws when bad. */
   async verifyKey(key: string, signal?: AbortSignal): Promise<void> {
+    denyExternalAlphaPaidPath("orgo-hosted-model");
     const response = await fetch(`${apiBase()}/workspaces`, {
       headers: { Authorization: `Bearer ${key}` },
       signal,
