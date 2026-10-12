@@ -17,13 +17,16 @@ test.skipIf(!composed)('composition preserves historical bytes except explicitly
  expect(unified.missionControlAuthority).toBe('053751d5aa065c396bf0fdec6a67fd0259e8431c');
  expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
  expect(unified.authorityFiles).toEqual(['work-authority.ts']);
+ expect(unified.signedPatchScope).toBe('3bec42136d5050ba639ea399e7d304d234265575');
  for(const path of ['runtime.ts','api.ts','workflow.ts','hosting.ts']){
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(unified.myappsFiles.includes(path)?unified.myapps:pins.myeve.phase2,name));
  }
  for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
-  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.integration,name));
+  // The independently reviewed parser successor rejects quoted headers and
+  // gitlinks. All other original authority and accounting bytes stay pinned.
+  expect(readFileSync(name,'utf8')).toBe(source(path==='result-ingestion.ts'?unified.signedPatchScope:pins.myeve.integration,name));
  }
  // The explicit successor changes pre-dispatch refusal handling and adds the
  // central zero-gap upgrade. Compare both against canonical bytes, not the

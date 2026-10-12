@@ -4,6 +4,7 @@
   "myapps": "e907feb1bd026aaa9015fcc26e3e72a6af9e9c05",
   "previousMyapps": "ab331cd5b7785632e7c0539ef16aab4338222b31",
   "missionControlAuthority": "053751d5aa065c396bf0fdec6a67fd0259e8431c",
+  "signedPatchScope": "3bec42136d5050ba639ea399e7d304d234265575",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
   "migration": "0103_missioncontrol_admission_isolation.sql",
