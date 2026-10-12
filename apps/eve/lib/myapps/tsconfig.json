@@ -16,7 +16,8 @@
     },
     "types": [
       "node",
-      "react"
+      "react",
+      "next"
     ],
     "jsx": "react-jsx"
   },

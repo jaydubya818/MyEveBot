@@ -29,13 +29,18 @@ jobs:
     - run: node node_modules/playwright/cli.js install --with-deps chromium
     - name: Retrieve the exact offline runtime image
       run: |
-        docker pull --platform=linux/arm64 node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+        docker pull --platform=linux/arm64 node@sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0
         node --import tsx --input-type=module - <<'NODE'
         import assert from 'node:assert/strict';
         import {execFileSync} from 'node:child_process';
-        import {image} from './packages/myapps/test/alpha-tasks/fixtures.mjs';
-        const [actual]=JSON.parse(execFileSync('docker',['image','inspect',image],{encoding:'utf8'}));
-        assert.equal(actual.Id,image);assert.equal(actual.Os,'linux');assert.equal(actual.Architecture,'arm64');
+        import {appendFileSync,mkdirSync,writeFileSync} from 'node:fs';
+        const artifact='node@sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0';
+        const [actual]=JSON.parse(execFileSync('docker',['image','inspect',artifact],{encoding:'utf8'}));
+        assert.match(actual.Id,/^sha256:[a-f0-9]{64}$/);assert.equal(actual.Os,'linux');assert.equal(actual.Architecture,'arm64');
+        assert.ok(actual.RepoDigests.includes(artifact));
+        appendFileSync(process.env.GITHUB_ENV,'MYAPPS_ALPHA_TEST_IMAGE_ID='+actual.Id+'\n');
+        const output=process.env.RUNNER_TEMP+'/myapps-alpha';mkdirSync(output,{recursive:true});
+        writeFileSync(output+'/runtime-image.json',JSON.stringify({artifact,imageId:actual.Id,os:actual.Os,architecture:actual.Architecture},null,2));
         NODE
     - name: Existing CRM, strict source contracts and isolated candidate denial tests
       env:

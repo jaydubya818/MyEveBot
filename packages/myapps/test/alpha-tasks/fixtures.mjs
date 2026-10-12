@@ -13,7 +13,8 @@ import {
   sourceClosureDigest,
 } from "../../src/alpha-tasks/source.ts";
 export const image =
-  "sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0";
+  process.env.MYAPPS_ALPHA_TEST_IMAGE_ID ?? "sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0";
+if (!/^sha256:[a-f0-9]{64}$/.test(image)) throw Error("IMMUTABLE_LOCAL_FIXTURE_IMAGE_REQUIRED");
 const source = `import {readFileSync,writeFileSync} from 'node:fs';
 export function createStore(path){const read=()=>JSON.parse(readFileSync(path,'utf8'));const save=d=>writeFileSync(path,JSON.stringify(d));const valid=p=>{if(!['Low','Medium','High'].includes(p))throw Error('priority');};
 return{list:()=>read().tasks,create:input=>{valid(input.priority);const d=read(),t={id:d.next++,title:input.title.trim(),done:false,priority:input.priority};d.tasks.push(t);save(d);return t;},update:(id,patch)=>{if('priority'in patch)valid(patch.priority);const d=read(),t=d.tasks.find(t=>t.id===id);if(!t)throw Error('missing');Object.assign(t,patch);save(d);return t;}};}`;
