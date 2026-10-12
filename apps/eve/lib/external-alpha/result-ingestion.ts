@@ -76,19 +76,22 @@ export interface IngestionContext {
   now?: number;
 }
 
-const patchPathPattern = /^diff --git a\/(.+) b\/(.+)$/gm;
+const patchPathPattern = /^diff --git a\/(.+) b\/(.+)$/;
 /** Changed paths of the signed patch artifact; anything outside the exact
  * allowed file set, or a rename/copy/symlink, is a scope violation. */
 export function patchScope(patch: string, allowed: readonly string[]) {
   const permitted = new Set(allowed);
   const changed: string[] = [];
   const violations: string[] = [];
-  for (const m of patch.matchAll(patchPathPattern)) {
+  for (const header of patch.match(/^diff --git .*$/gm) ?? []) {
+    const m = patchPathPattern.exec(header);
+    if (!m) { violations.push("unsupported_header"); continue; }
     if (m[1] !== m[2] || !permitted.has(m[1])) violations.push("path");
     else changed.push(m[1]);
   }
   if (/^(rename|copy) (from|to) /m.test(patch)) violations.push("rename");
   if (/^(new|old|deleted) (file )?mode 120000/m.test(patch) || /^new file mode 120000/m.test(patch)) violations.push("symlink");
+  if (/^(?:(?:new|old|deleted) (?:file )?mode 160000|index [a-f0-9]+\.\.[a-f0-9]+ 160000)$/m.test(patch)) violations.push("gitlink");
   if (changed.length === 0 && violations.length === 0) violations.push("empty");
   return { changed: [...new Set(changed)].sort(), violations: [...new Set(violations)] };
 }

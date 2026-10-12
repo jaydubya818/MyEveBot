@@ -34,7 +34,7 @@ jobs:
       - run: npx playwright install --with-deps chrome
       - name: Focused policy and owner-boundary contracts
         working-directory: apps/eve
-        run: npx vitest run lib/external-alpha/context.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
+        run: npx vitest run lib/external-alpha/context.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/patch-scope.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay

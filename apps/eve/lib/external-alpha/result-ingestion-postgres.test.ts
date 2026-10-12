@@ -144,6 +144,18 @@ describe.skipIf(!connection)("external alpha Result/Proof ingestion (real Postgr
     expect(patchScope("", ["src/app.ts"]).violations).toContain("empty");
   });
 
+  it.each([
+    'diff --git "a/private\\tfile" "b/private\\tfile"\n',
+    'diff --git a/src/app.ts b/src/app.ts\nindex 1111111..2222222 160000\n',
+  ])("retains signed unsupported patch metadata as FAIL: %s", async patchExtra => {
+    const s = await make();
+    const out = await ingestExternalAlphaResult(s.ctx(s.result({ patchExtra }).signed));
+    expect(out.verdict).toBe("FAIL");
+    const proof = proofOfWorkSchema.parse((await s.readback())[0].proof);
+    expect(proof.outcome).toBe("FAILED");
+    expect(proof.limitations[0]).toMatch(/outside the authorized set/);
+  });
+
   it("is idempotent: a replay returns the original; different bytes conflict; one row each", async () => {
     const s = await make();
     const built = s.result();
