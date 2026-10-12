@@ -3,6 +3,14 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 beforeEach(() => vi.resetModules());
 afterEach(() => vi.unstubAllGlobals());
 
+it("keeps path and query syntax inside the thread identifier", async () => {
+  const fetch = vi.fn(async (_url: string) => Response.json({ ok: true }));
+  vi.stubGlobal("fetch", fetch);
+  const { saveThreadForCurrentOwner } = await import("./thread-owner-conflict");
+  expect(await saveThreadForCurrentOwner("../../api/agents?owner=other#fragment", {})).toBe(true);
+  expect(fetch.mock.calls[0]?.[0]).toBe("/api/threads/..%2F..%2Fapi%2Fagents%3Fowner%3Dother%23fragment");
+});
+
 it("keeps a conflicting local thread and stops repeat uploads while new threads still save", async () => {
   const fetch = vi.fn(async (url: string) => url.endsWith("/older")
     ? Response.json({ error: { code: "thread_owner_conflict" } }, { status: 409 })

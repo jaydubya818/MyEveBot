@@ -14,7 +14,7 @@ export function subscribeToThreadOwnerConflicts(listener: (id: string) => void):
 export async function saveThreadForCurrentOwner(id: string, body: unknown): Promise<boolean> {
   if (threadHasOwnerConflict(id)) return false;
   try {
-    const response = await fetch(`/api/threads/${id}`, {
+    const response = await fetch(`/api/threads/${encodeURIComponent(id)}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),

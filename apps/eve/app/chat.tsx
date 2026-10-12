@@ -332,7 +332,7 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
 }
 
 function deleteThreadOnServer(id: string): void {
-  void fetch(`/api/threads/${id}`, { method: "DELETE" }).catch(() => undefined);
+  void fetch(`/api/threads/${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => undefined);
 }
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
@@ -348,7 +348,7 @@ async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
 
 async function fetchServerChat(id: string): Promise<SavedChat | null> {
   try {
-    const response = await fetch(`/api/threads/${id}`);
+    const response = await fetch(`/api/threads/${encodeURIComponent(id)}`);
     if (!response.ok) return null;
     const body = (await response.json()) as { chat?: SavedChat };
     return body.chat ?? null;
