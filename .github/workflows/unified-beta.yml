@@ -64,6 +64,9 @@ jobs:
         ref: b25a90c3ebeaeff731c26690e289331142dae904
         path: .qualification/relay
         persist-credentials: false
+    - name: Retain the historical installed Relay comparison object
+      working-directory: .qualification/relay
+      run: git fetch --no-tags --depth=1 https://github.com/jaydubya818/relay.git 8a8678d675adc8ac7f799d7660071de2256bb231
     - uses: actions/setup-node@v4
       with:
         node-version: 24
