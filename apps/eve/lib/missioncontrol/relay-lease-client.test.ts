@@ -30,7 +30,7 @@ async function fixture() {
     remotePermit:await signPolicyMessage({...relay,...changes},{keyId:c.relayKey.keyId,jwk:keys.privateKey.export({format:'jwk'})})});
   return {f,c,env,config,source,sourceEnvelope,response};
 }
-const prepared=()=>Response.json({decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),outcome:'ALLOW',reasonCodes:[],obligations:{},matchedRuleIds:[]},approvalRequest:null});
+const prepared=()=>Response.json({decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),outcome:'ALLOW',reasonCodes:[],obligations:{limits:{}},matchedRuleIds:[]},approvalRequest:null});
 describe('installed Relay lease transport',()=>{
   it('sends a stable exact ActionIntent and accepts independently versioned Relay policy evidence',async()=>{
     const f=await fixture(),send=vi.fn(async(url:URL|RequestInfo)=>String(url).endsWith('/prepare')?prepared():Response.json(await f.response())),client=new InstalledRelayLeaseClient(f.config,send);
@@ -63,6 +63,12 @@ describe('installed Relay lease transport',()=>{
       {parameters:{target:'different'}},{origin:'https://localhost.'}])
       expect(()=>installedRelayLeaseConfig(f.f.enrollment,{...f.env,MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify({...f.c,...changes})})).toThrow();
     expect(()=>installedRelayLeaseConfig({...f.f.enrollment,relayLeaseEnrollmentSha256:undefined},f.env)).toThrow('MISSIONCONTROL_RELAY_ENROLLMENT_CHANGED');
+  });
+  it.each([{limits:{maxCalls:1}},{limits:{costMicrousd:1}},{limits:{},unknown:true}])('denies substantive or unknown obligations %j',async obligations=>{
+    const f=await fixture(),send=vi.fn(async()=>Response.json({decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),
+      outcome:'ALLOW',reasonCodes:[],obligations,matchedRuleIds:[]},approvalRequest:null}));
+    await expect(new InstalledRelayLeaseClient(f.config,send).issue(f.sourceEnvelope)).rejects.toThrow('MISSIONCONTROL_RELAY_POLICY_DENIED');
+    expect(send).toHaveBeenCalledTimes(1);
   });
   it('passes the exact current approval to canonical issuance, while expired approval and unsupported obligations deny',async()=>{
     const f=await fixture(),selected={...f.c,approvalRequestId:'approval-existing'};

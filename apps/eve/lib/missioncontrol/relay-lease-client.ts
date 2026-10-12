@@ -29,6 +29,9 @@ export const relayLeaseEnrollmentSchema = z.object({
 }).strict();
 export type RelayLeaseEnrollment = z.infer<typeof relayLeaseEnrollmentSchema>;
 const hash = (value: unknown) => createHash('sha256').update(canonicalPermitJson(value)).digest('hex');
+// Relay's canonical no-limit response is {limits:{}}. Empty metadata carries
+// no obligations; populated limits and unknown obligation kinds still deny.
+const noAdditionalObligations = z.object({limits:z.object({}).strict().optional()}).strict();
 export const relayLeaseEnrollmentDigest = (value:unknown) => hash(relayLeaseEnrollmentSchema.parse(value));
 const secret = (value: string | undefined) => {
   if (!value || value.length > 16384 || value !== value.trim() || /[\u0000-\u0020\u007f]/.test(value))
@@ -89,7 +92,7 @@ export class InstalledRelayLeaseClient {
       .parse(await this.post('/prepare',body));
     if(Date.parse(prepared.decision.expiresAt)<=Date.now()||source.expiresAt<=Date.now()
       ||['DENY','ESCALATE','LIMIT'].includes(prepared.decision.outcome)
-      ||Object.keys(prepared.decision.obligations).length>0)throw Error('MISSIONCONTROL_RELAY_POLICY_DENIED');
+      ||!noAdditionalObligations.safeParse(prepared.decision.obligations).success)throw Error('MISSIONCONTROL_RELAY_POLICY_DENIED');
     if(prepared.decision.outcome==='REQUIRE_APPROVAL'&&(!prepared.approvalRequest||prepared.approvalRequest.requestId!==c.approvalRequestId
       ||Date.parse(prepared.approvalRequest.expiresAt)<=Date.now()))
       throw new WorkError('MISSIONCONTROL_RELAY_APPROVAL_REQUIRED','Relay requires its current owner approval. Factory dispatch is blocked until that approval is current.',409);
