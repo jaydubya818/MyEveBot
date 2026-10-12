@@ -7,6 +7,6 @@
   "signedPatchScope": "3bec42136d5050ba639ea399e7d304d234265575",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
-  "migration": "0103_missioncontrol_admission_isolation.sql",
+  "migration": "0104_missioncontrol_legacy_writer_isolation.sql",
   "scope": "Explicit reviewed-source comparisons; historical pins and accounting SQL remain unchanged. Source identity does not grant deployment or execution authority."
 }
