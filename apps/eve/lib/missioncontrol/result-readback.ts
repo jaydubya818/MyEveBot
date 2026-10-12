@@ -1,3 +1,5 @@
+import {ownerFactoryOrigin} from './owner-factory-binding.ts';
+import {ownerFactoryResultReadback} from './owner-result-readback.ts';
 import { createHash } from 'node:crypto';
 import type { WorkDatabase } from '../engineering/store.ts';
 import { WorkStore } from '../engineering/store.ts';
@@ -20,17 +22,29 @@ export async function missionControlResultReadback(database:WorkDatabase,request
     if(permit.connectionId!==request.connectionId||permitDigest(permit)!==permitRow.permit_sha256
       ||permit.ownerId!==request.ownerId||permit.installationId!==request.installationId||permit.projectId!==request.projectId)
       throw Error('MISSIONCONTROL_RESULT_ACCESS_DENIED');
+    if(await ownerFactoryOrigin(database,request.ownerId,permit.work.id)){
+      const mapped=await ownerFactoryResultReadback(database,permit,now),observedAt=Date.now();
+      const expiresAt=Math.min(observedAt+30000,request.expiresAt,enrollment.expiresAt,
+        mapped.admission?.originalFactoryReadback?.backendObservedAt?Date.parse(mapped.admission.originalFactoryReadback.backendObservedAt)+30000:Infinity);
+      if(expiresAt<=observedAt)throw Error('MISSIONCONTROL_RESULT_REQUEST_EXPIRED');
+      return {schema:'mc-result-readback/v1' as const,commandId:request.commandId,challenge:request.challenge,
+        connectionId:request.connectionId,installationId:request.installationId,ownerId:request.ownerId,permitId:permit.permitId,
+        permitSha256:permitDigest(permit),missionId:permit.missionId,planId:permit.planId,workOrderId:permit.workOrderId,
+        workOrderRevisionId:permit.workOrderRevisionId,work:permit.work,observedAt,expiresAt,...mapped};
+    }
     const store=new WorkStore({scopeId:request.ownerId,scopeKind:'personal',actorId:request.ownerId},database);
     const work=await store.get(permit.work.id),readback=await readExternalAlphaWork(store,work);
     const [row]=await database.query(`SELECT a.id,a.request_id,a.document_sha256,a.document,a.receipt,a.state,d.request_digest,d.admitted_deadline,
       r.envelope,r.result_id,r.exposure_unknown,r.settlement_state,r.cleanup_confirmed,r.manifest_digest,
       o.readback,o.readback_sha256
       FROM external_alpha_work_authority a JOIN external_alpha_work_dispatch d ON d.authority_id=a.id AND d.owner_id=a.owner_id
+      JOIN missioncontrol_alpha_admission_bindings custody ON custody.owner_id=a.owner_id AND custody.authority_id=a.id
+        AND custody.stage='DISPATCH' AND custody.permit_id=$5
       LEFT JOIN external_alpha_work_result r ON r.authority_id=a.id AND r.owner_id=a.owner_id
       LEFT JOIN LATERAL(SELECT readback,readback_sha256 FROM missioncontrol_factory_readbacks
         WHERE owner_id=a.owner_id AND authority_id=a.id ORDER BY observed_at DESC,readback_sha256 LIMIT 1) o ON true
       WHERE a.owner_id=$1 AND a.work_id=$2 AND a.work_version=$3 AND a.work_generation=$4`,
-      [request.ownerId,permit.work.id,permit.work.version,permit.work.generation]);
+      [request.ownerId,permit.work.id,permit.work.version,permit.work.generation,request.permitId]);
     const observedAt=Date.now();
     let evidenceExpiresAt:number|undefined;
     let admission=null,result=null,status:'PENDING'|'SETTLED'|'NO_RESULT'='PENDING';

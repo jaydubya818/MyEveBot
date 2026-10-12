@@ -7,6 +7,7 @@ import { canonicalPermitJson, ownerEnrollmentSchema, verifyExecutionPermit, veri
 import { parsePolicyMessage } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import { assertCapabilityAdmission } from '../../../../packages/capability-enforcement/src/postgres.ts';
 import { capabilityPairDigest, capabilityPairSchema, type CapabilityPair } from './installed-client.ts';
+import { ownerFactoryOrigin,ownerFactoryWorkTuple } from './owner-factory-binding.ts';
 import type { WorkAuthorityRecord } from '../external-alpha/work-authority.ts';
 
 const denied = (): never => { throw Error('MISSIONCONTROL_BINDING_DENIED'); };
@@ -32,7 +33,12 @@ export class MissionControlBindings {
   }
   async accept(permitValue: unknown, receiptValue: unknown, challenge: { commandId: string; challenge: string }, pairValue: CapabilityPair,
     workId: string, repository: string, now = Date.now()) {
-    return this.atomic(async database => {
+    return this.atomic(database => this.acceptInTransaction(database,permitValue,receiptValue,challenge,pairValue,workId,repository,now));
+  }
+  /** Called only inside the canonical route admission transaction, never after it commits. */
+  async acceptInTransaction(database:WorkDatabase,permitValue:unknown,receiptValue:unknown,
+    challenge:{commandId:string;challenge:string},pairValue:CapabilityPair,workId:string,repository:string,now=Date.now()) {
+      await database.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[this.ownerId]);
       const [row] = await database.query('SELECT missioncontrol_enrollment_document($1) AS document', [this.ownerId]);
       const enrollment = ownerEnrollmentSchema.parse(row?.document), pair = capabilityPairSchema.parse(pairValue);
       const source = parsePolicyMessage(JSON.parse(pair.myeve.message));
@@ -53,12 +59,19 @@ export class MissionControlBindings {
       await database.query("SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR UPDATE", [this.ownerId, workId]);
       const store = new WorkStore({ scopeId: this.ownerId, scopeKind: 'personal', actorId: this.ownerId }, database);
       const work = await store.get(workId);
-      assertCanonicalAlphaWork(work, { ownerId: this.ownerId, repository });
+      const origin=await ownerFactoryOrigin(database,this.ownerId,workId);
+      let tupleSha256=alphaTasksTupleSha256;
+      if(origin){
+        tupleSha256=ownerFactoryWorkTuple(work,enrollment);
+        if(origin.work_version!==work.version||origin.work_generation!==work.generation||origin.document.tupleSha256!==tupleSha256)return denied();
+      } else assertCanonicalAlphaWork(work, { ownerId: this.ownerId, repository });
       const verified = verifyExecutionPermit(permitValue, row?.document, { ownerId: this.ownerId,
-        workId: work.id, workVersion: work.version, workGeneration: work.generation, tupleSha256: alphaTasksTupleSha256,
+        workId: work.id, workVersion: work.version, workGeneration: work.generation, tupleSha256,
         maxCostMicrousd: work.maxCostUsd * 1000000, maxDurationSeconds: work.maxDurationSeconds }, now);
       const receipt = verifyAdmissionReceipt(receiptValue, verified, {...challenge,policyPairSha256:capabilityPairDigest(pair)}, now);
       const document = verified.document;
+      if(origin&&(document.workOrderId!==origin.document.workOrderId||document.workOrderRevisionId!==origin.document.expectedWorkOrderRevisionId
+        ||document.planDigest!==origin.document.expectedPlanDigest))return denied();
       if (source.missionId !== document.missionId || source.workGeneration !== work.generation
         || source.budgetMicros < document.admission.maxCostMicrousd) return denied();
       const [fence] = await database.query('SELECT * FROM missioncontrol_capability_snapshot($1,$2,$3,$4)',
@@ -93,7 +106,6 @@ export class MissionControlBindings {
       await assertCapabilityAdmission(policyConnection,scope,capabilityRequest);
       if (Date.now() >= Math.min(receipt.document.expiresAt,source.expiresAt,relay.expiresAt)) return denied();
       return { work, permit: verified.envelope, receipt };
-    });
   }
   async forWork(workId: string) {
     return this.atomic(async database => {
@@ -119,6 +131,8 @@ export class MissionControlBindings {
         WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
           OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
             AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))
+          OR EXISTS(SELECT 1 FROM engineering_route_runs r WHERE r.scope_id=p.owner_id AND r.scope_kind='personal' AND r.work_id=p.work_id
+            AND r.missioncontrol_binding->>'permitId'=p.permit_id AND r.dispatch_state IN('PREPARED','UNKNOWN','DISPATCHED','STOPPING'))
           OR EXISTS(SELECT 1 FROM missioncontrol_permit_controls c WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id
             AND c.sequence=(SELECT max(latest.sequence) FROM missioncontrol_permit_controls latest
               WHERE latest.owner_id=c.owner_id AND latest.permit_id=c.permit_id)

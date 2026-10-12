@@ -1,3 +1,5 @@
+import { factoryConfig } from '../engineering/factory-routing.ts';
+import { prepareOwnerFactoryOrigin } from './owner-factory-binding.ts';
 import { z } from 'zod';
 import { id,digest,enterpriseInput } from './contracts.ts';
 import type { WorkStore } from '../engineering/store.ts';
@@ -16,17 +18,25 @@ export type MissionControlToolInput=z.infer<typeof missionControlToolInput>;
 export async function prepareMissionControlExecution(store:WorkStore,value:unknown,commandId:string,
   env:NodeJS.ProcessEnv=process.env,send:typeof fetch=fetch) {
   const input=prepareExecutionInput.parse(value),ownerId=store.principal.scopeId,policy=externalAlphaPolicy(env);
-  if(!policy||policy.ownerId!==ownerId||store.principal.scopeKind!=='personal'||store.principal.actorId!==ownerId)
+  if((policy&&policy.ownerId!==ownerId)||store.principal.scopeKind!=='personal'||store.principal.actorId!==ownerId)
     throw Error('MISSIONCONTROL_PREPARE_OWNER');
   const bindings=new MissionControlBindings(store.database,ownerId),enrollment=await bindings.enrollment();
   const client=new InstalledMissionControlClient(installedMissionControlConfig(enrollment,ownerId,env),send);
   const work=await store.get(input.workId);
-  assertCanonicalAlphaWork(work,{ownerId,repository:policy.repository});
-  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration||enrollment.factoryVersion!==policy.factoryVersion)
+  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)
+    throw Error('MISSIONCONTROL_PREPARE_WORK_CHANGED');
+  let tupleSha256=alphaTasksTupleSha256;
+  if(policy)assertCanonicalAlphaWork(work,{ownerId,repository:policy.repository});
+  else {
+    const origin=await prepareOwnerFactoryOrigin(store,work,await factoryConfig(),input);
+    tupleSha256=origin.tupleSha256;
+    if(origin.enrollment.revision!==enrollment.revision)throw Error('MISSIONCONTROL_PREPARE_ENROLLMENT_CHANGED');
+  }
+  if(policy&&enrollment.factoryVersion!==policy.factoryVersion)
     throw Error('MISSIONCONTROL_PREPARE_WORK_CHANGED');
   return client.prepare({proposalId:input.proposalId,workOrderId:input.workOrderId,expectedWorkOrderRevisionId:input.expectedWorkOrderRevisionId,
     expectedPlanDigest:input.expectedPlanDigest,idempotencyKey:input.idempotencyKey,
-    work:{id:work.id,version:work.version,generation:work.generation,tupleSha256:alphaTasksTupleSha256},
+    work:{id:work.id,version:work.version,generation:work.generation,tupleSha256},
     admission:{factoryVersion:enrollment.factoryVersion,executionContractSha256:enrollment.executionContractSha256,
       capabilityPolicySha256:enrollment.capabilityPolicySha256,maxCostMicrousd:Math.round(work.maxCostUsd*1e6),maxDurationSeconds:work.maxDurationSeconds}},commandId);
 }

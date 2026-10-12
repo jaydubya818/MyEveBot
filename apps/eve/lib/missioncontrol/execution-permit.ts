@@ -29,6 +29,11 @@ export const executionPermitEnvelopeSchema = z.object({ document: executionPermi
   signature: z.string().regex(/^[A-Za-z0-9_-]{86}$/) }).strict();
 export type ExecutionPermitEnvelope = z.infer<typeof executionPermitEnvelopeSchema>;
 
+export const ownerFactoryAdapterSchema = z.object({
+  factoryId: id, sourceDigest: sha, configurationDigest: sha, configurationHash: sha,
+  profileHash: sha, repository: id, agentId: id,
+}).strict();
+
 export const ownerEnrollmentSchema = z.object({
   schema: z.literal('mc-owner-enrollment/v1'), environment: z.literal('APPROVED_NONPRODUCTION'),
   installationId: id, revision: positive, ownerId: id, ownerSubject: id, missionControlOwnerId: id,
@@ -38,6 +43,8 @@ export const ownerEnrollmentSchema = z.object({
   factoryVersion: sha, executionContractSha256: sha, capabilityPolicySha256: sha,
   // Older evidence remains readable; installed Relay admission requires this pin.
   relayLeaseEnrollmentSha256: sha.optional(),
+  // MyEve-only qualification pins; never an execution grant or an alpha slot.
+  ownerFactoryAdapter: ownerFactoryAdapterSchema.optional(),
   maxCostMicrousd: positive, maxDurationSeconds: positive,
   permitKeys: z.array(z.object({ keyId: sha, publicKey: z.string().min(1).max(2000), activeFrom: timestamp,
     notAfter: timestamp, revokedAt: timestamp.nullable() }).strict()).min(1).max(4),

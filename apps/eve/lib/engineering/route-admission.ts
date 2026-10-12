@@ -1,3 +1,5 @@
+import {MissionControlBindings} from '../missioncontrol/permit-store.ts';
+import type {MissionControlAdmissionProof} from '../missioncontrol/admit-execution.ts';
 import { admitCapabilityWork } from "../capability-control/admission.ts";
 import {cloudRoutingEvidenceSchema,assertCloudRoutingWork} from './cloud-environment-routing.ts';
 import { createHash, randomUUID } from "node:crypto";
@@ -81,6 +83,7 @@ export class RouteAdmissionService {
   constructor(
     readonly workStore: WorkStore,
     readonly authority: CurrentRouteAuthority,
+    readonly missionControl?: MissionControlAdmissionProof|null,
   ) {}
 
   async admit(id: string, value: unknown, completion?: Record<string, unknown>): Promise<RouteAdmissionReceipt> {
@@ -135,8 +138,17 @@ export class RouteAdmissionService {
       MYFACTORY: 'myfactory', RELAY: 'agent-communication' }[input.request.route];
     const rows = await admitCapabilityWork(this.workStore, work, capabilityId, contract.coordinatingAgentId,
       contract.budgetUsd, async (database, capabilityEvidence) => {
-      const admittedSnapshot = { ...authoritySnapshot, capabilityEvidence };
-      return database.query(
+      let missionControl;
+      if(this.missionControl){
+        if(input.request.route!=='MYFACTORY'||!snapshot.factory)throw Error('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
+        const proof=this.missionControl;
+        const accepted=await new MissionControlBindings(this.workStore.database,scopeId).acceptInTransaction(database,
+          proof.permit,proof.receipt,proof.request,proof.pair,id,work.repository);
+        missionControl={permitId:accepted.permit.document.permitId,commandId:accepted.receipt.document.commandId,
+          tupleSha256:proof.tupleSha256,factoryRequestId:snapshot.factory.requestId};
+      }
+      const admittedSnapshot = { ...authoritySnapshot, capabilityEvidence,...(missionControl?{missionControl}:{}) };
+      const queued = await database.query(
       `WITH locked_work AS MATERIALIZED (
          SELECT w.scope_id,w.scope_kind,w.id,w.version,w.generation
          FROM engineering_work w
@@ -213,7 +225,10 @@ export class RouteAdmissionService {
         digest(context), digest(admittedSnapshot), transitionId, runId,
         snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null, input.expectedWorkGeneration ?? work.generation, completion?.sessionId ?? null,
       ],
-    ); }).catch((error: unknown) => {
+    );
+      if(!queued.length)throw new WorkError("routing_changed", "Work, provider, proposal or writer state changed. Reload before admission.");
+      return queued;
+    }).catch((error: unknown) => {
       if (error && typeof error==="object" && "message" in error && String(error.message).startsWith("INSUFFICIENT_COMPLETION_BUDGET:"))
         throw new WorkError("INSUFFICIENT_COMPLETION_BUDGET",String(error.message),409);
       throw error;

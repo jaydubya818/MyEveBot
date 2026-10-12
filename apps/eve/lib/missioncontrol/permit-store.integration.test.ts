@@ -1,3 +1,8 @@
+import {RouteAdmissionService} from '../engineering/route-admission.ts';
+import {ENGINEERING_COMPOSITION_V1} from '../digital-worker/packs.ts';
+import {applyOwnerFactoryControl,pollOwnerFactoryWorkControl} from './owner-control-runtime.ts';
+import {prepareOwnerFactoryOrigin,assertOwnerFactoryConfiguration} from './owner-factory-binding.ts';
+import {factoryExecutionConfigurationHash} from '../engineering/factory-configuration-hash.ts';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { Env, connection, files } from '../external-alpha/work-test-fixture.ts';
 import { alphaTasksTupleSha256 } from '../external-alpha/work-tuple.ts';
@@ -83,11 +88,286 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     store = new MissionControlBindings(database, env.owner);
   }, 30000);
   afterEach(async () => {
-    vi.unstubAllGlobals();
+    vi.unstubAllGlobals();vi.unstubAllEnvs();
     await env?.close();
     if (role) { const client=await import('pg').then(pg=>new pg.default.Pool({connectionString:connection}));
       try { await client.query('DROP ROLE IF EXISTS '+role); } finally { await client.end(); } }
   });
+  async function ownerFixture() {
+    const work=await env.store.get(fixture.document.work.id);
+    const config:any={engineering:{ownerId:env.owner,agentId:'fixture-agent',profile:{repository:work.repository,allowedPaths:files}},
+      routing:{intent:'PRODUCE'},commands:['node --test'],connection:{factoryId:'owner-fixture',sourceDigest:'1'.repeat(64),configurationDigest:'2'.repeat(64),
+        qualification:{scopeId:env.owner,profileHash:'',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+60000).toISOString(),mode:'LOCAL_FIXTURE',evidenceRef:'synthetic'},
+        factoryVersion:digest({sourceDigest:'1'.repeat(64),configurationDigest:'2'.repeat(64)})}};
+    config.connection.qualification.profileHash=digest(config.engineering.profile);
+    fixture.enrollment.revision++;fixture.document.enrollmentRevision++;
+    fixture.enrollment.factoryVersion=fixture.document.admission.factoryVersion=config.connection.factoryVersion;
+    fixture.enrollment.ownerFactoryAdapter={factoryId:config.connection.factoryId,sourceDigest:config.connection.sourceDigest,
+      configurationDigest:config.connection.configurationDigest,configurationHash:factoryExecutionConfigurationHash(config),
+      profileHash:config.connection.qualification.profileHash,repository:work.repository,agentId:'fixture-agent'};
+    await env.pool.query('UPDATE missioncontrol_owner_enrollments SET revision=$2,document=$3 WHERE owner_id=$1',[env.owner,fixture.enrollment.revision,fixture.enrollment]);
+    await env.pool.query(`GRANT INSERT ON missioncontrol_owner_work_origins TO ${role}`);
+    const workStore=new WorkStore({scopeId:env.owner,scopeKind:'personal',actorId:env.owner},database);
+    const input={proposalId:'owner-proposal',workOrderId:fixture.document.workOrderId,expectedWorkOrderRevisionId:fixture.document.workOrderRevisionId,expectedPlanDigest:fixture.document.planDigest};
+    const origin=await prepareOwnerFactoryOrigin(workStore,work,config,input);
+    fixture.document.work.tupleSha256=origin.tupleSha256;
+    return {work,workStore,config,input};
+  }
+  async function ownerRoute(includeProof=true,admitted=true) {
+    const x=await ownerFixture(),requestId=randomUUID(),decisionId=randomUUID(),runId=randomUUID();
+    const deadline=new Date(Date.now()+60000).toISOString(),binding={factoryId:'owner-fixture',agentId:'fixture-agent',workId:x.work.id,workVersion:1,workGeneration:1,criteriaVersion:1,
+      factoryVersion:x.config.connection.factoryVersion,sourceDigest:x.config.connection.sourceDigest,configurationDigest:x.config.connection.configurationDigest,
+      inputCommit:'1'.repeat(40),requestId:randomUUID(),requestDigest:'3'.repeat(64),workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:1};
+    await env.pool.query(`INSERT INTO engineering_factory_requests(id,scope_id,scope_kind,work_id,actor_id,agent_id,factory_id,operation_id,binding)
+      VALUES($1,$2,'personal',$3,$2,'fixture-agent','owner-fixture',$4,$5)`,[requestId,env.owner,x.work.id,'4'.repeat(64),binding]);
+    const snapshot={contract:{deadline},factory:{requestId,repository:x.work.repository,baseSha:binding.inputCommit,
+      profileHash:x.config.connection.qualification.profileHash,allowedPaths:files,deadline},
+      ...(includeProof?{missionControl:{permitId:fixture.document.permitId,commandId:fixture.challenge.commandId,
+        tupleSha256:fixture.document.work.tupleSha256,factoryRequestId:requestId}}:{})};
+    await env.pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,
+      eligible_routes,rejected_routes,constraints,provider_id,provider_version,actor_id,admission_authority_snapshot,factory_preparation)
+      VALUES($1,$2,'personal',$3,1,'MYFACTORY','synthetic','POLICY','{}','[]','[]','[]','owner-fixture',$4,$2,$5,$6)`,
+      [decisionId,env.owner,x.work.id,binding.factoryVersion,snapshot,{configurationHash:factoryExecutionConfigurationHash(x.config),request:{workId:x.work.id,workGeneration:1,repository:x.work.repository,requestId:binding.requestId,deadline}}]);
+    if(admitted)await env.pool.query(`UPDATE engineering_routing_decisions SET status='ADMITTED',admitted_at=clock_timestamp(),admission_reason='synthetic',
+      admission_policy_id='fixture',admission_policy_version=1,admission_request='{}',admission_context_snapshot='{}',
+      admission_context_hash=$2,admission_authority_hash=$2 WHERE id=$1`,[decisionId,'sha256:'+'1'.repeat(64)]);
+    const insert=()=>env.pool.query(`INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,provider_id,provider_version,status,decision_id,work_version,work_generation)
+      VALUES($1,$2,'personal',$3,'MYFACTORY','owner-fixture',$4,'QUEUED',$5,1,1) RETURNING *`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId]);
+    return {...x,insert,runId,decisionId,requestId,binding};
+  }
+  it('durably marks owner Work before approval and denies native and legacy SQL admission',async()=>{
+    const x=await ownerFixture();
+    await expect(env.pool.query(`INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,provider_id,provider_version,status,work_version,work_generation)
+      VALUES($1,$2,'personal',$3,'DIRECT','fixture','1','QUEUED',1,1)`,[randomUUID(),env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
+    await expect(env.pool.query(`INSERT INTO engineering_execution(scope_id,scope_kind,work_id,revision,state) VALUES($1,'personal',$2,1,'{}')`,[env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
+    await expect(env.pool.query('DELETE FROM missioncontrol_owner_work_origins WHERE owner_id=$1',[env.owner])).rejects.toThrow('MISSIONCONTROL_ORIGIN_IMMUTABLE');
+    expect(await env.count('engineering_route_runs')).toBe(0);
+    expect(await env.count('missioncontrol_execution_permits')).toBe(0);
+  });
+  it('fails closed on missing exact owner metadata and changed qualified configuration',async()=>{
+    const x=await ownerFixture();
+    expect(()=>assertOwnerFactoryConfiguration(x.work,{...fixture.enrollment,ownerFactoryAdapter:undefined},x.config)).toThrow('BINDING_DENIED');
+    expect(()=>assertOwnerFactoryConfiguration(x.work,fixture.enrollment,{...x.config,commands:['changed']})).toThrow('BINDING_DENIED');
+    expect(()=>assertOwnerFactoryConfiguration({...x.work,scopeId:'foreign'},fixture.enrollment,x.config)).toThrow('BINDING_DENIED');
+    await expect(prepareOwnerFactoryOrigin(x.workStore,x.work,x.config,{...x.input,workOrderId:'foreign'})).rejects.toThrow('BINDING_DENIED');
+  });
+  it('denies owner writer SQL admission before signed approval and when correlation is missing',async()=>{
+    const x=await ownerRoute(false);
+    await expect(x.insert()).rejects.toThrow('MISSIONCONTROL_FACTORY_CORRELATION_REQUIRED');
+    await accept();
+    await expect(x.insert()).rejects.toThrow('MISSIONCONTROL_FACTORY_CORRELATION_REQUIRED');
+  });
+  it('retains exact original Factory request attempt and writer under the signed owner permit',async()=>{
+    const x=await ownerRoute();await accept();
+    const run=(await x.insert()).rows[0];
+    expect(run.missioncontrol_binding).toMatchObject({permitId:fixture.document.permitId,commandId:fixture.challenge.commandId,
+      factoryRequestId:x.requestId,factoryBinding:x.binding,routeRunId:x.runId,dispatchIdentity:x.requestId,writerGeneration:1});
+    await expect(x.insert()).rejects.toThrow();
+    expect(await env.count('engineering_route_runs')).toBe(1);
+    await expect(env.pool.query("UPDATE engineering_route_runs SET missioncontrol_binding='{}' WHERE id=$1",[x.runId])).rejects.toThrow('IMMUTABLE');
+  });
+  it('preserves admitted owner authority on ordinary disable and fences revoke claim and late ACK',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();
+    const disable=fixture.signControl({...fixture.controlDocument(),operation:'disable_new'});
+    await store.fence(fixture.document.permitId,disable,controlDigest(disable.document));
+    await env.pool.query("UPDATE engineering_route_runs SET dispatch_state='UNKNOWN' WHERE id=$1",[x.runId]);
+    const revoke=fixture.signControl({...fixture.controlDocument(),sequence:2});
+    await store.fence(fixture.document.permitId,revoke,controlDigest(revoke.document));
+    await expect(env.pool.query("UPDATE engineering_route_runs SET dispatch_state='DISPATCHED' WHERE id=$1",[x.runId])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await expect(env.pool.query("UPDATE engineering_route_runs SET factory_candidate='{}' WHERE id=$1",[x.runId])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    expect((await env.pool.query('SELECT dispatch_state FROM engineering_route_runs WHERE id=$1',[x.runId])).rows[0].dispatch_state).toBe('UNKNOWN');
+    await env.pool.query("UPDATE engineering_route_runs SET dispatch_state='STOPPING' WHERE id=$1",[x.runId]);
+    expect(await env.count('missioncontrol_execution_permits')).toBe(1);
+  });
+  it('does not use another current permit to reauthorize an obsolete selected receipt',async()=>{
+    const x=await ownerRoute();await accept();
+    fixture.enrollment.revision++;fixture.document.enrollmentRevision++;
+    await env.pool.query('UPDATE missioncontrol_owner_enrollments SET revision=$2,document=$3 WHERE owner_id=$1',[env.owner,fixture.enrollment.revision,fixture.enrollment]);
+    fixture.document.permitId=randomUUID();fixture.challenge.commandId=randomUUID();await accept();
+    await expect(x.insert()).rejects.toThrow('MISSIONCONTROL_EXACT_ADMISSION_REQUIRED');
+  });
+  it('rolls back owner permit retention when the receiving transaction fails',async()=>{
+    await ownerFixture();
+    await expect(database.atomic!(async db=>{
+      await store.acceptInTransaction(db,fixture.signPermit(),fixture.signReceipt(),fixture.challenge,pair,fixture.document.work.id,env.policy.repository);
+      throw Error('INJECTED_ADMISSION_FAILURE');
+    })).rejects.toThrow('INJECTED_ADMISSION_FAILURE');
+    expect(await env.count('missioncontrol_execution_permits')).toBe(0);
+    expect(await env.count('missioncontrol_admission_receipts')).toBe(0);
+  });
+
+  it('denies fresh owner admission after concurrent policy disable while preserving retained proof',async()=>{
+    const x=await ownerRoute();await accept();
+    await env.pool.query("UPDATE capability_control.owner_state SET revision=revision+1,preferences=jsonb_set(preferences,'{missioncontrol}','\"DISABLED\"') WHERE owner_id=$1",[env.owner]);
+    await expect(x.insert()).rejects.toThrow('MISSIONCONTROL_CAPABILITY_CURRENTNESS_REQUIRED');
+    expect(await env.count('engineering_route_runs')).toBe(0);
+    expect(await env.count('missioncontrol_execution_permits')).toBe(1);
+  });
+  it('fences an owner writer before claim and freezes its original request',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();
+    await expect(env.pool.query("UPDATE engineering_factory_requests SET binding=binding||'{\"attemptNumber\":2}' WHERE id=$1",[x.requestId])).rejects.toThrow('MISSIONCONTROL_FACTORY_REQUEST_IMMUTABLE');
+    const revoke=fixture.signControl();await store.fence(fixture.document.permitId,revoke,controlDigest(revoke.document));
+    await expect(env.pool.query("UPDATE engineering_route_runs SET dispatch_state='UNKNOWN' WHERE id=$1",[x.runId])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    expect((await env.pool.query('SELECT dispatch_state FROM engineering_route_runs WHERE id=$1',[x.runId])).rows[0].dispatch_state).toBe('PREPARED');
+  });
+  it('serializes simultaneous owner admissions into one original writer',async()=>{
+    const x=await ownerRoute();await accept();
+    const outcomes=await Promise.allSettled([x.insert(),x.insert()]);
+    expect(outcomes.filter(result=>result.status==='fulfilled')).toHaveLength(1);
+    expect(await env.count('engineering_route_runs')).toBe(1);
+  });
+  it('isolates owner origin evidence under the runtime role',async()=>{
+    await ownerFixture();
+    const rows=await database.atomic!(async db=>{
+      await db.query("SELECT set_config('myeve.missioncontrol_owner','foreign',true)");
+      return db.query('SELECT * FROM missioncontrol_owner_work_origins');
+    });
+    expect(rows).toEqual([]);
+  });
+
+  async function canonicalOwnerRoute(race=false){
+    const x=await ownerRoute(false,false),scope={kind:'personal',id:env.owner},provider={id:'owner-fixture',version:x.binding.factoryVersion};
+    await env.pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
+      VALUES('fixture-agent',$1,'Sofie','sofie','engineer','synthetic owner fixture',true,'active',1.3,180,30)`,[env.owner]);
+    await env.pool.query(`GRANT UPDATE ON agents,business_partnership TO ${role}`);
+    await env.pool.query(`GRANT EXECUTE ON FUNCTION business_assert_effect(text,uuid,integer,integer,text,jsonb) TO ${role}`);
+    await env.pool.query(`GRANT INSERT,UPDATE ON engineering_routing_decisions,engineering_route_runs,engineering_route_transitions,engineering_native_runtime TO ${role}`);
+    vi.stubEnv('MYEVE_CAPABILITY_CONTROL_ENABLED','true');vi.stubEnv('MYEVE_CAPABILITY_INSTALLATION_ID',fixture.enrollment.installationId);
+    vi.stubEnv('MYEVE_CAPABILITY_ENVIRONMENT','qualification');vi.stubEnv('MYEVE_CAPABILITY_DATABASE_URL',connection!);
+    vi.stubEnv('MYEVE_CAPABILITY_ORIGIN','http://127.0.0.1:3000');vi.stubEnv('VERCEL','');vi.stubEnv('VERCEL_ENV','');
+    const now=new Date().toISOString(),deadline=new Date(Date.now()+60000).toISOString(),routePolicy={id:'owner-policy',version:1};
+    const contract={contractVersion:2,workId:x.work.id,workVersion:1,criteriaVersion:1,scope,humanOwnerId:env.owner,coordinatingAgentId:'fixture-agent',
+      objective:x.work.objective,criteria:x.work.criteria.map(c=>({id:c.id,statement:c.statement,evidence:c.method==='test'?'deterministic':'human'})),
+      resourceRefs:['repository:'+x.work.repository],allowedOperations:['factory.submit'],allowedRoutes:['MYFACTORY'],budgetUsd:1.3,deadline,policyVersion:1,
+      composition:ENGINEERING_COMPOSITION_V1,routingProfile:{profileVersion:1,workShape:'bounded',decomposition:'single-thread',interaction:'interactive',parallelism:'low',
+        verification:'standard',duration:'short',ambiguity:'low',externalExpertise:'none',humanJudgment:'possible',risk:'medium'},routePolicy,definitionOfDone:['Independent protected verification']};
+    const context={contractVersion:2,workId:x.work.id,workVersion:1,scope,agentId:'fixture-agent',assembledAt:now,maxTokens:1000,estimatedTokens:0,items:[]};
+    const facts={currentWorkVersion:1,currentCriteriaVersion:1,currentPolicyVersion:1,workActive:true,scope,agentId:'fixture-agent',authority:'ALLOW',remainingBudgetUsd:1.3,
+      allowedRoutes:['MYFACTORY'],allowedOperations:['factory.submit'],allowedResourceRefs:contract.resourceRefs,routePolicy:{...routePolicy,allowedRoutes:['MYFACTORY'],
+        providers:{DIRECT:null,DEEP_AGENT:null,EXECUTOR:null,MYFACTORY:provider,RELAY:null}},
+      qualifications:{DIRECT:null,DEEP_AGENT:null,EXECUTOR:null,RELAY:null,MYFACTORY:{provider,scope,status:'QUALIFIED',health:'HEALTHY',evidenceRef:'synthetic',observedAt:now,expiresAt:deadline}},
+      writerState:'NONE',factoryAdmission:'ALLOW',relayGrant:'DENY',peerPolicy:'DENY',observedAt:now};
+    const proof={permit:fixture.signPermit(),receipt:fixture.signReceipt(),request:fixture.challenge,pair,tupleSha256:fixture.document.work.tupleSha256};
+    const service=new RouteAdmissionService(x.workStore,{read:async()=>{
+      if(race)await env.pool.query("UPDATE engineering_routing_decisions SET provider_version=$2 WHERE id=$1",[x.decisionId,'f'.repeat(64)]);
+      return {contract,context,facts,factory:{requestId:x.requestId,repository:x.work.repository,baseSha:x.binding.inputCommit,
+        profileHash:x.config.connection.qualification.profileHash,allowedPaths:files,deadline}};
+    }},proof);
+    return {x,admit:()=>service.admit(x.work.id,{decisionId:x.decisionId,expectedWorkVersion:1,expectedWorkGeneration:1,
+      request:{route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:contract.resourceRefs}})};
+  }
+  it('composes both canonical capability checks, signed approval and original Factory writer in one receiving transaction',async()=>{
+    const {x,admit}=await canonicalOwnerRoute();const result=await admit();
+    expect(result).toMatchObject({route:'MYFACTORY',status:'QUEUED',workVersion:1,workGeneration:1});
+    const [run]=(await env.pool.query('SELECT * FROM engineering_route_runs WHERE id=$1',[result.runId])).rows;
+    expect(run.missioncontrol_binding).toMatchObject({permitId:fixture.document.permitId,factoryRequestId:x.requestId,commandId:fixture.challenge.commandId});
+    expect(await env.count('missioncontrol_admission_receipts')).toBe(1);
+  });
+  it('rolls back signed approval and policy evidence if route proposal changes before receiving commit',async()=>{
+    const {admit}=await canonicalOwnerRoute(true);await expect(admit()).rejects.toThrow('changed');
+    expect(await env.count('missioncontrol_admission_receipts')).toBe(0);
+    expect(await env.count('missioncontrol_execution_permits')).toBe(0);
+    expect(await env.count('engineering_route_runs')).toBe(0);
+  });
+  it('targets signed owner revoke at the original writer and reports unavailable cleanup without losing the fence',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();
+    const stopRun=vi.fn(async(workId:string,runId:string)=>{expect(workId).toBe(x.work.id);expect(runId).toBe(x.runId);throw Error('backend unavailable');});
+    const control=fixture.signControl();
+    const client={readControl:vi.fn(),acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)};
+    const result=await applyOwnerFactoryControl(x.workStore,{store:x.workStore,stopRun},{status:'CONTROL',control,controlDigest:controlDigest(control.document)},client);
+    expect(result).toMatchObject({authority:'FENCED',cleanup:'PENDING_BACKEND'});expect(stopRun).toHaveBeenCalledOnce();
+    await expect(env.pool.query("UPDATE engineering_route_runs SET dispatch_state='UNKNOWN' WHERE id=$1",[x.runId])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+  });
+
+  async function seedOwnerCustody(x:Awaited<ReturnType<typeof ownerRoute>>){
+    const receiptId=randomUUID(),candidateId=randomUUID(),candidateSha='c'.repeat(40),profileHash=x.config.connection.qualification.profileHash;
+    await env.pool.query(`INSERT INTO engineering_factory_receipts(id,request_id,envelope_digest,envelope) VALUES($1,$2,$3,'{}')`,[receiptId,x.requestId,'a'.repeat(64)]);
+    const candidates=[{id:candidateId,sha:candidateSha}],custody={receiptId,candidates,sourceFiles:{},files:{},profileHash};
+    await env.pool.query(`UPDATE engineering_route_runs SET dispatch_state='TERMINAL',status='COMPLETED',fenced_at=clock_timestamp(),
+      quiescence='{"quiescent":true}',factory_candidate=$2 WHERE id=$1`,[x.runId,custody]);
+    await env.pool.query(`INSERT INTO engineering_direct_workspaces(scope_id,scope_kind,work_id,decision_id,route_run_id,work_version,work_generation,
+      criteria_version,repository,base_sha,profile_hash,deadline,source_files,draft_files,candidates,producer,factory_receipt_id,phase)
+      VALUES($1,'personal',$2,$3,$4,1,1,1,$5,$6,$7,clock_timestamp()+interval '60 seconds','{}','{}',$8,'MYFACTORY',$9,'VERIFICATION_REQUESTED')`,
+      [env.owner,x.work.id,x.decisionId,x.runId,x.work.repository,x.binding.inputCommit,profileHash,JSON.stringify(candidates),receiptId]);
+    const token=randomUUID();
+    await env.pool.query(`INSERT INTO engineering_direct_verification_jobs(scope_id,scope_kind,work_id,candidate_id,candidate_sha,workspace_revision,status,
+      lease_token,lease_until,route_run_id) VALUES($1,'personal',$2,$3,$4,1,'RUNNING',$5,clock_timestamp()+interval '30 seconds',$6)`,
+      [env.owner,x.work.id,candidateId,candidateSha,token,x.runId]);
+    return {candidateSha,candidateId,token};
+  }
+  it('invalidates active verifier renewal and current lease after revoke while allowing recovery evidence',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();const v=await seedOwnerCustody(x);
+    expect((await env.pool.query("SELECT engineering_candidate_verifiable($1,'personal',$2) AS allowed",[env.owner,x.work.id])).rows[0].allowed).toBe(true);
+    const control=fixture.signControl();await store.fence(fixture.document.permitId,control,controlDigest(control.document));
+    expect((await env.pool.query("SELECT engineering_candidate_verifiable($1,'personal',$2) AS allowed",[env.owner,x.work.id])).rows[0].allowed).toBe(false);
+    await expect(env.pool.query("UPDATE engineering_direct_verification_jobs SET lease_until=clock_timestamp()+interval '1 minute' WHERE work_id=$1",[x.work.id])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await expect(env.pool.query("UPDATE engineering_direct_verification_jobs SET status='COMPLETED',lease_token=NULL,lease_until=NULL WHERE work_id=$1",[x.work.id])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await expect(env.pool.query("UPDATE engineering_direct_workspaces SET phase='VERIFICATION_PASSED' WHERE work_id=$1",[x.work.id])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await expect(env.pool.query(`INSERT INTO engineering_native_results(id,scope_id,scope_kind,work_id,candidate_sha,work_version,work_generation,proof,content_hash)
+      VALUES($1,$2,'personal',$3,$4,1,1,'{}',$5)`,[randomUUID(),env.owner,x.work.id,v.candidateSha,'a'.repeat(64)])).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
+    await env.pool.query("UPDATE engineering_direct_verification_jobs SET status='RECOVERY_REQUIRED',lease_token=NULL,lease_until=NULL WHERE work_id=$1",[x.work.id]);
+    expect((await env.pool.query('SELECT status FROM engineering_direct_verification_jobs WHERE work_id=$1',[x.work.id])).rows[0].status).toBe('RECOVERY_REQUIRED');
+  });
+  it('does not stop a newer writer when a delayed old owner revoke is delivered',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();await seedOwnerCustody(x);
+    // A later current decision exists; stop(workId) would select it. The control
+    // must use the original runId even when the current decision has moved on.
+    const newerDecision=randomUUID();
+    await env.pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,eligible_routes,rejected_routes,constraints,actor_id)
+      VALUES($1,$2,'personal',$3,2,'HUMAN','next revision','POLICY','{}','[]','[]','[]',$2)`,[newerDecision,env.owner,x.work.id]);
+    const stopped:string[]=[];
+    const driver={store:x.workStore,stopRun:async(_work:string,run:string)=>{stopped.push(run);return {} as any;}};
+    const control=fixture.signControl(),client={readControl:vi.fn(),acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)};
+    await applyOwnerFactoryControl(x.workStore,driver,{status:'CONTROL',control,controlDigest:controlDigest(control.document)},client);
+    expect(stopped).toEqual([x.runId]);
+    expect((await env.pool.query('SELECT status FROM engineering_routing_decisions WHERE id=$1',[newerDecision])).rows[0].status).toBe('PROPOSED');
+  });
+  it('retries an older lost control ACK after checking the newer writer and keeps its stop exact',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();await seedOwnerCustody(x);
+    const oldPermit=fixture.document.permitId,control=fixture.signControl();
+    await store.fence(oldPermit,control,controlDigest(control.document));
+    await env.pool.query('UPDATE engineering_work SET version=2 WHERE id=$1',[x.work.id]);
+    const nextWork=await x.workStore.get(x.work.id);
+    fixture.document.workOrderRevisionId=randomUUID();
+    const nextOrigin=await prepareOwnerFactoryOrigin(x.workStore,nextWork,x.config,{...x.input,expectedWorkOrderRevisionId:fixture.document.workOrderRevisionId});
+    fixture.document.work={...fixture.document.work,version:2,tupleSha256:nextOrigin.tupleSha256};
+    fixture.document.permitId=randomUUID();fixture.challenge.commandId=randomUUID();
+    const source=JSON.parse(pair.myeve.message);source.referenceId=fixture.challenge.commandId;
+    pair.myeve.message=JSON.stringify(source);pair.relay.message=JSON.stringify({...source,authority:'relay',sourcePermitHash:'a'.repeat(64)});
+    fixture.challenge.policyPairSha256=capabilityPairDigest(pair);await accept();
+    const requestId=randomUUID(),decisionId=randomUUID(),runId=randomUUID();
+    const binding={...x.binding,workVersion:2,requestId:randomUUID(),runId:randomUUID()};
+    await env.pool.query('UPDATE engineering_factory_requests SET current=false WHERE id=$1',[x.requestId]);
+    await env.pool.query(`INSERT INTO engineering_factory_requests(id,scope_id,scope_kind,work_id,actor_id,agent_id,factory_id,operation_id,binding)
+      VALUES($1,$2,'personal',$3,$2,'fixture-agent','owner-fixture',$4,$5)`,[requestId,env.owner,x.work.id,'5'.repeat(64),binding]);
+    const [prior]=(await env.pool.query('SELECT * FROM engineering_routing_decisions WHERE id=$1',[x.decisionId])).rows;
+    const snapshot={...prior.admission_authority_snapshot,factory:{...prior.admission_authority_snapshot.factory,requestId},
+      missionControl:{permitId:fixture.document.permitId,commandId:fixture.challenge.commandId,tupleSha256:fixture.document.work.tupleSha256,factoryRequestId:requestId}};
+    const preparation={...prior.factory_preparation,request:{...prior.factory_preparation.request,requestId:binding.requestId}};
+    await env.pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,
+      eligible_routes,rejected_routes,constraints,provider_id,provider_version,actor_id,admission_authority_snapshot,factory_preparation)
+      VALUES($1,$2,'personal',$3,2,'MYFACTORY','next writer','POLICY','{}','[]','[]','[]','owner-fixture',$4,$2,$5,$6)`,
+      [decisionId,env.owner,x.work.id,binding.factoryVersion,snapshot,preparation]);
+    await env.pool.query(`UPDATE engineering_routing_decisions SET status='ADMITTED',admitted_at=clock_timestamp(),admission_reason='synthetic',
+      admission_policy_id='fixture',admission_policy_version=1,admission_request='{}',admission_context_snapshot='{}',
+      admission_context_hash=$2,admission_authority_hash=$2 WHERE id=$1`,[decisionId,'sha256:'+'1'.repeat(64)]);
+    await env.pool.query(`INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,provider_id,provider_version,status,decision_id,work_version,work_generation)
+      VALUES($1,$2,'personal',$3,'MYFACTORY','owner-fixture',$4,'QUEUED',$5,2,1)`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId]);
+    const checked:string[]=[],stopped:string[]=[],driver={store:x.workStore,stopRun:async(_work:string,run:string)=>{stopped.push(run);return {} as any;}};
+    const client={readControl:async(id:string)=>{checked.push(id);return id===oldPermit?{status:'CONTROL',control,controlDigest:controlDigest(control.document)}:{status:'NO_CONTROL'};},
+      acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)};
+    await pollOwnerFactoryWorkControl(x.workStore,driver,x.work.id,{NODE_ENV:'test'},client);
+    expect(checked).toEqual([fixture.document.permitId,oldPermit]);expect(stopped).toEqual([x.runId]);
+    expect((await env.pool.query('SELECT dispatch_state FROM engineering_route_runs WHERE id=$1',[runId])).rows[0].dispatch_state).toBe('PREPARED');
+    expect((await env.pool.query('SELECT permit_id FROM missioncontrol_control_acknowledgments')).rows).toEqual([{permit_id:oldPermit}]);
+    client.readControl=async()=>{throw Error('offline');};
+    await expect(pollOwnerFactoryWorkControl(x.workStore,driver,x.work.id,{NODE_ENV:'test'},client)).rejects.toThrow('offline');
+  });
+
+  const alphaReadback=(value:Awaited<ReturnType<typeof missionControlResultReadback>>)=>{
+    if(!value.admission||!('originalSignedReadback' in value.admission))throw Error('Expected original alpha readback');
+    return value.admission.originalSignedReadback;
+  };
   const accept = () => store.accept(fixture.signPermit(), fixture.signReceipt(), fixture.challenge, pair,
     fixture.document.work.id, env.policy.repository);
   const admission=()=>({permitId:fixture.document.permitId,commandId:fixture.challenge.commandId});
@@ -410,7 +690,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const running=await missionControlResultReadback(database,request);
     expect(running).toMatchObject({status:'PENDING',missionId:fixture.document.missionId,result:null,
       admission:{authorityId:started.authority.id,requestId:started.authority.requestId}});
-    expect(running.admission?.originalSignedReadback.readbackSignature).toBeTruthy();
+    expect(alphaReadback(running).readbackSignature).toBeTruthy();
     factory.state='COMPLETED';factory.quiescent=true;
     factory.resultPayload=buildSignedResult({authority:started.authority,work,workOrderId:started.readback.workOrderId,keys:env.resultKeys,
       opts:{requestDigest:factory.requestDigest(started.authority.requestId)}}).signed;
@@ -419,7 +699,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(completed.status).toBe('SETTLED');
     expect(completed.result).toMatchObject({cleanupConfirmed:true,exposureUnknown:false,settlementState:'SETTLED'});
     expect(completed.result?.proof).toBeTruthy();
-    expect(completed.admission?.originalSignedReadback.readbackAttestation.state).toBe('COMPLETED');
+    expect(alphaReadback(completed).readbackAttestation.state).toBe('COMPLETED');
     const count=await env.count('missioncontrol_factory_readbacks');
     await controller.refreshReadback(fixture.document.work);
     expect(await env.count('missioncontrol_factory_readbacks')).toBe(count+1);
@@ -431,7 +711,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await controller.refreshReadback(fixture.document.work);
     const brief=await missionControlResultReadback(database,request);
     expect(brief.status).toBe('SETTLED');
-    expect(brief.expiresAt).toBe(Date.parse(brief.admission!.originalSignedReadback.readbackAttestation.expiresAt));
+    expect(brief.expiresAt).toBe(Date.parse(alphaReadback(brief).readbackAttestation.expiresAt));
     const slow:WorkDatabase={...database,atomic:async action=>database.atomic!(async transaction=>action({
       query:async(sql,values)=>{if(sql.includes('LEFT JOIN LATERAL'))await transaction.query('SELECT pg_sleep(1.1)');return transaction.query(sql,values);},
     }))};
@@ -442,8 +722,11 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const uncertain=await missionControlResultReadback(database,request);
     expect(uncertain.status).toBe('PENDING');
     expect(uncertain.result?.proof).toBeTruthy();
-    expect(uncertain.admission?.originalSignedReadback.readbackAttestation.state).toBe('UNKNOWN');
+    expect(alphaReadback(uncertain).readbackAttestation.state).toBe('UNKNOWN');
     expect(factory.posts).toBe(1);
+    fixture.document.permitId=randomUUID();fixture.challenge.commandId=randomUUID();await accept();
+    const foreignPermit=await missionControlResultReadback(database,{...request,permitId:fixture.document.permitId});
+    expect(foreignPermit).toMatchObject({status:'PENDING',admission:null,result:null});
     await expect(missionControlResultReadback(database,{...request,connectionId:'foreign-connection'})).rejects.toThrow('MISSIONCONTROL_RESULT_ACCESS_DENIED');
     await expect(env.pool.query('DELETE FROM missioncontrol_factory_readbacks')).rejects.toThrow('MISSIONCONTROL_BINDING_IMMUTABLE');
   });

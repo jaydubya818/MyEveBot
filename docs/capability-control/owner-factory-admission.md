@@ -1,0 +1,13 @@
+# Owner Factory admission adapter
+
+The existing authenticated owner enrollment may bind one reviewed Factory configuration through `ownerFactoryAdapter`. This metadata is local to MyEve. It does not create an account, installation, Factory qualification, execution authority, spending grant, or External Alpha slot.
+
+Migration 0099 retains immutable owner/installation/Work/WorkOrder provenance before preparation. Receiving admission retains the exact signed MissionControl permit and receipt inside the existing capability-policy and route-admission transaction. The writer freezes the original Factory request, attempt, source/configuration/FactoryVersion, route decision and writer generation. A failed route commit rolls back its admission evidence. Backend checks remain independent of preference enablement.
+
+Ordinary disable denies new admissions and preserves the admitted writer. Revoke fences dispatch, custody promotion, protected-verifier claims and renewal, and new native Proof. Cleanup calls the original writer ID, never the newest Work decision. Acknowledgment remains `PENDING_BACKEND` until fresh authenticated terminal resource and known accounting evidence is available. Diagnostic updates cannot renew backend observation freshness. Current-writer control reads precede new effects; bounded durable retries retain older unresolved acknowledgments after a Work-version handoff.
+
+Owner Result readback projects the original Gate C envelope and native Proof into the existing authenticated MissionControl channel. It never creates an Alpha authority or replaces Result verification. The separate MissionControl owner verifier validates the exact immutable binding, signed Result, native Proof, fresh resource observation and accounting. Existing Alpha readback uses its exact migration-0100 DISPATCH receipt binding.
+
+Qualification uses disposable localhost PostgreSQL databases, synthetic identities and keys. The admission suite covers positive canonical receiving transactions, cross-owner denial, stale and substituted permits, concurrent admissions, rollback, legacy/native bypass, disable/revoke, active verifier fencing and lost control acknowledgment after writer succession. Full MyEve MissionControl regression and TypeScript checks are required for this source. Migration governance/catalog reconciliation is owned by the unified integration workstream.
+
+Installed owner configuration and custody remain separate gates. No migration was applied to an installed database. No remote Factory operation, paid execution, deployment, merge, credential mutation or tester activation is authorized by this source.
