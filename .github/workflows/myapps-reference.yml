@@ -2,9 +2,9 @@ name: MyApps current-source deterministic reference
 on:
   push:
     branches: [codex/myapps-foundation, codex/myapps-phase2, codex/unified-beta-myeve-20261011]
-    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
+    paths: ['packages/myapps/**', 'scripts/unified-beta/qualification-envelope.mjs', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
   pull_request:
-    paths: ['packages/myapps/**', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
+    paths: ['packages/myapps/**', 'scripts/unified-beta/qualification-envelope.mjs', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
 permissions:
   contents: read
 jobs:
