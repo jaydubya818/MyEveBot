@@ -10,7 +10,7 @@ const origin = z.string().max(500).refine(value => {
   try {
     const url = new URL(value);
     return url.origin === value && url.protocol === 'https:' && !url.username && !url.password && !url.port
-      && url.hostname.includes('.') && !url.hostname.endsWith('.localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname);
+      && url.hostname.includes('.') && !url.hostname.endsWith('.') && !url.hostname.endsWith('.localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname);
   } catch { return false; }
 });
 
@@ -36,6 +36,8 @@ export const ownerEnrollmentSchema = z.object({
   clerkIssuer: origin, clerkAudience: id, clerkAuthorizedParty: origin,
   activeFrom: timestamp, expiresAt: timestamp, revokedAt: timestamp.nullable(),
   factoryVersion: sha, executionContractSha256: sha, capabilityPolicySha256: sha,
+  // Older evidence remains readable; installed Relay admission requires this pin.
+  relayLeaseEnrollmentSha256: sha.optional(),
   maxCostMicrousd: positive, maxDurationSeconds: positive,
   permitKeys: z.array(z.object({ keyId: sha, publicKey: z.string().min(1).max(2000), activeFrom: timestamp,
     notAfter: timestamp, revokedAt: timestamp.nullable() }).strict()).min(1).max(4),

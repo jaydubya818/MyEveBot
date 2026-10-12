@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained. Stale pinned canonical inventory fingerprint 97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd reconciled against independently reviewed source ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change. Explicit installed MissionControl mode requires0094; existing noninstalled schema requirements remain unchanged. Migration catalog and rollout tests pass; no migration is run here. Additive 0095 control acknowledgment schema required only for explicitly installed MissionControl mode; legacy requirements preserved. Explicit installed MissionControl mode requires additive feedback migration0096; legacy minimums preserved.",
-      "sha256": "d44d3af408fecd3a5cd623e25ee8424d52053291c5f782e1f403a3d7757a1c97"
+      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained. Stale pinned canonical inventory fingerprint 97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd reconciled against independently reviewed source ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change. Explicit installed MissionControl mode requires0094; existing noninstalled schema requirements remain unchanged. Migration catalog and rollout tests pass; no migration is run here. Additive 0095 control acknowledgment schema required only for explicitly installed MissionControl mode; legacy requirements preserved. Explicit installed MissionControl mode requires additive feedback migration0096; legacy minimums preserved. Reviewed additive 0097 minimum for explicitly installed MissionControl mode; legacy minimums unchanged.",
+      "sha256": "8ea3629816a7ddce3e5e01d8e3a42bfb7a892763be465a7a4f3a468412277993"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -4342,13 +4342,13 @@
     },
     "lib/missioncontrol/control-runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed exact owner/permit control commits immutable monotonic fence before network ACK. Revoke calls existing stop; disable-new never stops active Work. UNKNOWN and reservations are preserved; cleanup requires canonical evidence. Real PostgreSQL control and duplicate-delivery tests pass. Retain exact MC acknowledgment response after committed denying fence; bounded per-permit errors preserve later control delivery. Never confirm UNKNOWN cleanup. Real PostgreSQL regression coverage.",
-      "sha256": "79ed46c273e7161e0370da1c006c7200deef10531ae618e2c1556bb9b9256fd6"
+      "reason": "Signed exact owner/permit control commits immutable monotonic fence before network ACK. Revoke calls existing stop; disable-new never stops active Work. UNKNOWN and reservations are preserved; cleanup requires canonical evidence. Real PostgreSQL control and duplicate-delivery tests pass. Retain exact MC acknowledgment response after committed denying fence; bounded per-permit errors preserve later control delivery. Never confirm UNKNOWN cleanup. Real PostgreSQL regression coverage. Reviewed durable attempt before I/O, per-permit failure isolation and bounded safe diagnostic codes; ACK alone requires exact confirmed backend evidence.",
+      "sha256": "404a8732f2ae11ae7394f17443dac9afc72657113ff9cc9c42bae6517f9509a4"
     },
     "lib/missioncontrol/execution-permit.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure strict Ed25519 execution permit, short admission receipt and deny-only control verification; exact owner, enrollment, Work, limits, key identity, time and digest bindings.49 negative/positive protocol tests; no effects or grants.",
-      "sha256": "83193447caca748b429472c8ebd73f36826379134f2f2f97507d0286d690cf9c"
+      "reason": "Pure strict Ed25519 execution permit, short admission receipt and deny-only control verification; exact owner, enrollment, Work, limits, key identity, time and digest bindings.49 negative/positive protocol tests; no effects or grants. Reviewed optional server enrollment digest for Relay selection; required at installed Relay admission. Signed permit wire unchanged. Trailing-dot origins deny.",
+      "sha256": "d01a03b84474f92c78b469a056ad0847a4dbaeb5c0b3804e4552253a525c6f30"
     },
     "lib/missioncontrol/installed-client.ts": {
       "classification": "ENFORCED",
@@ -4357,8 +4357,8 @@
     },
     "lib/missioncontrol/permit-store.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner RLS and pinned transactions retain immutable Work/permit/receipt/control/readback evidence. Canonical policy resolver plus agent, registry, receiver and policy identity checks; earliest source/Relay/canonical expiry. Controls serialize with claim through Work lock. Restricted-role, concurrent replay, deny and expiry PostgreSQL checks pass. Hosted recovery witness remains a release dependency. Durable owner-scoped control obligations survive expiry/terminal cleanup; only exact validated remote acknowledgment records delivery. Immutable fences and accounting preserved. Real PostgreSQL lost-ACK and polling recovery regressions.",
-      "sha256": "b65239ccc0a71aaf16272f1c9aa74ce83d9acd3a21d316edcf116c44435ee55b"
+      "reason": "Owner RLS and pinned transactions retain immutable Work/permit/receipt/control/readback evidence. Canonical policy resolver plus agent, registry, receiver and policy identity checks; earliest source/Relay/canonical expiry. Controls serialize with claim through Work lock. Restricted-role, concurrent replay, deny and expiry PostgreSQL checks pass. Hosted recovery witness remains a release dependency. Durable owner-scoped control obligations survive expiry/terminal cleanup; only exact validated remote acknowledgment records delivery. Immutable fences and accounting preserved. Real PostgreSQL lost-ACK and polling recovery regressions. Reviewed owner-RLS scheduling attempts and bounded least-recently-attempted control pages; observations grant no authority and pending UNKNOWN is retained.",
+      "sha256": "f40d2b0127bbb11c344d5f3e135ba0b9c44b341039a683692633c61d920001bd"
     },
     "lib/missioncontrol/permit-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4387,8 +4387,8 @@
     },
     "lib/missioncontrol/relay-lease-client.ts": {
       "classification": "ENFORCED",
-      "reason": "Server-enrolled scope and HTTPS origin; bounded authenticated canonical Relay preparation/lease transport, no redirect/retry, no resource execution or invented approval/budget. Pinned P-256 proof and exact scope/hash/freshness validation. Protocol and composed PostgreSQL tests; actual installed grants remain unqualified.",
-      "sha256": "db4bffcb44537c1e7ed75f364ba0994004834a42369314170b254aac188199e7"
+      "reason": "Server-enrolled scope and HTTPS origin; bounded authenticated canonical Relay preparation/lease transport, no redirect/retry, no resource execution or invented approval/budget. Pinned P-256 proof and exact scope/hash/freshness validation. Protocol and composed PostgreSQL tests; actual installed grants remain unqualified. Reviewed full selection and P-256 pin digest compared to operator-only enrollment; LIMIT, unsupported obligations and expired approvals deny before issuance.",
+      "sha256": "6d8db0e718c7e05b1b4e9bc94fc9bd5b812386032fdcb49e033f504cb27f2402"
     },
     "app/api/beta/issues/route.ts": {
       "classification": "ENFORCED",

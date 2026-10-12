@@ -11,7 +11,7 @@ const text = z.string().min(1).max(255);
 const origin = z.string().url().refine(value => {
   const url = new URL(value);
   return url.origin === value && url.protocol === 'https:' && !url.port && !url.username && !url.password
-    && url.hostname.includes('.') && !url.hostname.endsWith('.localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname);
+    && url.hostname.includes('.') && !url.hostname.endsWith('.') && !url.hostname.endsWith('.localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname);
 });
 const resource = z.object({ type: z.string().min(1).max(128), ids: z.array(z.string().min(1).max(512)).max(1000).optional(),
   attributes: z.record(z.string(), z.union([z.string(), z.number().finite(), z.boolean(), z.array(z.string())])).optional() }).strict();
@@ -29,6 +29,7 @@ export const relayLeaseEnrollmentSchema = z.object({
 }).strict();
 export type RelayLeaseEnrollment = z.infer<typeof relayLeaseEnrollmentSchema>;
 const hash = (value: unknown) => createHash('sha256').update(canonicalPermitJson(value)).digest('hex');
+export const relayLeaseEnrollmentDigest = (value:unknown) => hash(relayLeaseEnrollmentSchema.parse(value));
 const secret = (value: string | undefined) => {
   if (!value || value.length > 16384 || value !== value.trim() || /[\u0000-\u0020\u007f]/.test(value))
     throw Error('MISSIONCONTROL_RELAY_CREDENTIAL_UNAVAILABLE');
@@ -42,6 +43,7 @@ export function installedRelayLeaseConfig(enrollment: OwnerEnrollment, env: Node
   const config = relayLeaseEnrollmentSchema.parse(JSON.parse(value));
   if (config.ownerId !== enrollment.ownerId || config.installationId !== enrollment.installationId
     || config.connectionId !== enrollment.connectionId || config.enrollmentRevision !== enrollment.revision
+    || enrollment.relayLeaseEnrollmentSha256 !== relayLeaseEnrollmentDigest(config)
     || config.activeFrom > Date.now() || config.expiresAt <= Date.now()
     || Object.hasOwn(config.parameters, 'capabilityAdmissionDigest')) throw Error('MISSIONCONTROL_RELAY_ENROLLMENT_CHANGED');
   return { enrollment: config, credential: secret(env.MYEVE_MISSIONCONTROL_RELAY_RUNTIME_CREDENTIAL),
@@ -86,8 +88,10 @@ export class InstalledRelayLeaseClient {
       approvalRequest:z.object({requestId:text,allowedScopes:z.array(z.unknown()),expiresAt:z.string().datetime({offset:true})}).strict().nullable()}).strict()
       .parse(await this.post('/prepare',body));
     if(Date.parse(prepared.decision.expiresAt)<=Date.now()||source.expiresAt<=Date.now()
-      ||['DENY','ESCALATE'].includes(prepared.decision.outcome))throw Error('MISSIONCONTROL_RELAY_POLICY_DENIED');
-    if(prepared.decision.outcome==='REQUIRE_APPROVAL'&&(!prepared.approvalRequest||prepared.approvalRequest.requestId!==c.approvalRequestId))
+      ||['DENY','ESCALATE','LIMIT'].includes(prepared.decision.outcome)
+      ||Object.keys(prepared.decision.obligations).length>0)throw Error('MISSIONCONTROL_RELAY_POLICY_DENIED');
+    if(prepared.decision.outcome==='REQUIRE_APPROVAL'&&(!prepared.approvalRequest||prepared.approvalRequest.requestId!==c.approvalRequestId
+      ||Date.parse(prepared.approvalRequest.expiresAt)<=Date.now()))
       throw new WorkError('MISSIONCONTROL_RELAY_APPROVAL_REQUIRED','Relay requires its current owner approval. Factory dispatch is blocked until that approval is current.',409);
     const result=z.object({leaseId:id('lse'),token:z.string().min(1).max(16384),expiresAt:z.string().datetime({offset:true}),
       maxCalls:z.literal(1),onlineRequired:z.literal(true),remotePermit:capabilityPairSchema.shape.relay}).strict()

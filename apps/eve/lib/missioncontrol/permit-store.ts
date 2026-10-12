@@ -107,6 +107,7 @@ export class MissionControlBindings {
   async controlCandidates():Promise<string[]> {
     return this.atomic(async database=>{
       const rows=await database.query(`SELECT p.permit_id FROM missioncontrol_execution_permits p
+        LEFT JOIN missioncontrol_control_attempts attempt ON attempt.owner_id=p.owner_id AND attempt.permit_id=p.permit_id
         WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
           OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
             AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))
@@ -115,9 +116,14 @@ export class MissionControlBindings {
               WHERE latest.owner_id=c.owner_id AND latest.permit_id=c.permit_id)
             AND NOT EXISTS(SELECT 1 FROM missioncontrol_control_acknowledgments a WHERE a.owner_id=c.owner_id
               AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest AND a.cleanup='CONFIRMED')))
-        ORDER BY p.created_at,p.permit_id LIMIT 101`,[this.ownerId]);
-      if(rows.length>100)throw Error('MISSIONCONTROL_CONTROL_BACKLOG');
+        ORDER BY attempt.attempted_at ASC NULLS FIRST,p.created_at,p.permit_id LIMIT 100`,[this.ownerId]);
       return rows.map(row=>String(row.permit_id));
+    });
+  }
+  async recordControlAttempt(permitId:string) {
+    return this.atomic(async database=>{
+      await database.query(`INSERT INTO missioncontrol_control_attempts(owner_id,permit_id)
+        VALUES($1,$2) ON CONFLICT(owner_id,permit_id) DO UPDATE SET attempted_at=clock_timestamp()`,[this.ownerId,permitId]);
     });
   }
   async retainControlAcknowledgment(expected:{permitId:string;sequence:number;controlDigest:string;

@@ -23,6 +23,7 @@ import { READBACK_DOMAIN } from '../external-alpha/dispatch-readback.ts';
 import { prepareMissionControlExecution } from './prepare-execution.ts';
 import { externalAlphaFactoryAction } from '../external-alpha/work-action.ts';
 import { externalAlphaFactoryPinSha256 } from '../external-alpha/work-config.ts';
+import { relayLeaseEnrollmentDigest } from './relay-lease-client.ts';
 
 describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () => {
   let env: Env, database: WorkDatabase, store: MissionControlBindings, fixture: ReturnType<typeof permitFixture>, pair: CapabilityPair, role: string;
@@ -52,6 +53,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await env.pool.query(`GRANT USAGE ON SCHEMA public,capability_control TO ${role}`);
     await env.pool.query(`GRANT SELECT ON ALL TABLES IN SCHEMA public,capability_control TO ${role}`);
     await env.pool.query(`GRANT UPDATE ON engineering_work TO ${role}`);
+    await env.pool.query(`GRANT INSERT,UPDATE ON missioncontrol_control_attempts TO ${role}`);
     await env.pool.query(`GRANT INSERT ON missioncontrol_work_bindings,missioncontrol_execution_permits,missioncontrol_admission_receipts,missioncontrol_permit_controls,missioncontrol_factory_readbacks,missioncontrol_control_acknowledgments TO ${role}`);
     await env.pool.query(`GRANT EXECUTE ON FUNCTION capability_control.lock_admission_policy(text,text,text),missioncontrol_capability_snapshot(text,text,text,text),missioncontrol_enrollment_document(text) TO ${role}`);
     const installation=e.installationId, ids=capabilityRegistry.capabilities.map(item=>item.id);
@@ -100,6 +102,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
     const e=fixture.enrollment,publicRelay=relay.publicKey.export({format:'jwk'});
+    e.revision=fixture.document.enrollmentRevision=2;
     const runtime={NODE_ENV:'test' as const,VERCEL:'1',VERCEL_ENV:'production',VERCEL_PROJECT_ID:env.policy.projectId,
       EVE_PROJECT_NAME:'myeve-alpha-tester-1',MYEVE_OWNER_ID:env.owner,MYEVE_EXTERNAL_ALPHA_POLICY:JSON.stringify(env.policy),
       MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY:generateKeyPairSync('ed25519').privateKey.export({type:'pkcs8',format:'pem'}).toString(),
@@ -117,6 +120,8 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
         accountId:'acct_fixtureaccount',agentId:'agt_fixtureagent',runtimeClientId:'rtc_fixtureruntime',taskId:'tsk_fixturetask',workloadId:'wkl_fixtureworkload',
         audience:'fixture-audience',capability:{name:'resource.lease.execute',version:'1.0'},resource:{type:'target',ids:['synthetic']},parameters:{},
         relayKey:{keyId:'fixture-relay',jwk:{kty:publicRelay.kty,crv:publicRelay.crv,x:publicRelay.x,y:publicRelay.y}}})};
+    e.relayLeaseEnrollmentSha256=relayLeaseEnrollmentDigest(JSON.parse(runtime.MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON));
+    await env.pool.query('UPDATE missioncontrol_owner_enrollments SET revision=$2,document=$3 WHERE owner_id=$1',[env.owner,e.revision,e]);
     const calls:string[]=[];
     vi.stubGlobal('fetch',async(url:string,options:RequestInit)=>{
       const body=JSON.parse(String(options.body));
@@ -485,9 +490,45 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       acknowledgeControl:async value=>value.permitId===firstId?{}:acknowledgmentResponse(value),
     });
     expect(result.failures).toEqual([firstId]);expect(result.outcomes).toHaveLength(1);
+    expect(result.failureCodes).toEqual([{permitId:firstId,code:'CONTROL_RESPONSE_INVALID'}]);
     expect(await env.count('missioncontrol_permit_controls')).toBe(2);
     expect(await env.count('missioncontrol_control_acknowledgments')).toBe(1);
     expect(factory.posts).toBe(0);
+  });
+  it('delivers a new revoke behind more than 100 unresolved controls across bounded durable pages',async()=>{
+    await accept();
+    const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
+    const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
+    const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config));
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const authority=(await env.svc.forWork(work.id))!;await env.svc.finish(authority.id,'UNKNOWN',{reason:'SYNTHETIC_UNCERTAINTY'});
+    // Old deliveries are unavailable. Their signed fences and UNKNOWN authority
+    // stay retained; scheduling observations must not be mistaken for delivery.
+    for(let i=0;i<101;i++){
+      const document={...fixture.document,permitId:'pending-'+String(i).padStart(3,'0')};
+      const envelope=fixture.signPermit(document);
+      await env.pool.query(`INSERT INTO missioncontrol_execution_permits(owner_id,permit_id,work_id,work_version,work_generation,permit_sha256,envelope,created_at)
+        VALUES($1,$2,$3,1,1,$4,$5,clock_timestamp()-interval '1 minute')`,[env.owner,document.permitId,work.id,permitDigest(document),envelope]);
+      const control=fixture.signControl({...fixture.controlDocument(),permitId:document.permitId,permitSha256:permitDigest(document)});
+      await env.pool.query(`INSERT INTO missioncontrol_permit_controls(owner_id,permit_id,sequence,operation,control_digest,envelope)
+        VALUES($1,$2,1,'revoke',$3,$4)`,[env.owner,document.permitId,controlDigest(control.document),control]);
+    }
+    const control=fixture.signControl(),delivered:string[]=[];
+    const client={readControl:async(permitId:string)=>{
+      if(permitId!==fixture.document.permitId)throw Error('SYNTHETIC_TRANSPORT_OUTAGE');
+      delivered.push(permitId);return {status:'CONTROL',control,controlDigest:controlDigest(control.document)};
+    },acknowledgeControl:async(value:unknown)=>acknowledgmentResponse(value)};
+    const principal={scopeKind:'personal' as const,scopeId:env.owner,actorId:env.owner};
+    const first=await pollMissionControlControls(new WorkStore(principal,database),controller,undefined,client);
+    expect(first.checked).toBe(100);expect(first.pageFull).toBe(true);expect(delivered).toEqual([]);
+    const second=await pollMissionControlControls(new WorkStore(principal,database),controller,undefined,client);
+    expect(second.checked).toBe(100);expect(delivered).toEqual([fixture.document.permitId]);
+    expect(second.outcomes).toMatchObject([{authority:'FENCED',cleanup:'PENDING_BACKEND'}]);
+    expect((await env.svc.forWork(work.id))?.state).toBe('UNKNOWN');
+    expect(await env.count('missioncontrol_control_acknowledgments')).toBe(1);
+    expect(await env.count('external_alpha_cohort_admission')).toBe(1);expect(factory.posts).toBe(1);
+    const foreign=new MissionControlBindings(database,'foreign-owner');
+    await expect(foreign.recordControlAttempt(fixture.document.permitId)).rejects.toThrow();
   });
   it('retains the earliest policy-permit expiry instead of extending it to receipt expiry', async () => {
     const source=JSON.parse(pair.myeve.message),relay=JSON.parse(pair.relay.message);

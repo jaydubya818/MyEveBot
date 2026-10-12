@@ -55,7 +55,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: jaydubya818/relay
-        ref: 8a8678d675adc8ac7f799d7660071de2256bb231
+        ref: b25a90c3ebeaeff731c26690e289331142dae904
         path: .qualification/relay
         persist-credentials: false
     - uses: actions/setup-node@v4
@@ -91,6 +91,14 @@ jobs:
         MYEVE_OWNER_TEST_USER: postgres
         MYEVE_OWNER_TEST_PORT: '5432'
       run: npm exec --workspace apps/eve -- vitest run lib/relay/owner/model-budget.integration.test.mjs
+    - name: Independent witness privilege, concurrent CAS and real restore qualification
+      env:
+        CAPABILITY_WITNESS_TEST_DATABASE_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        CAPABILITY_TEST_POSTGRES_BIN: /usr/lib/postgresql/16/bin
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-16
+        node --import tsx --test packages/capability-enforcement/test/postgres-recovery-witness.test.ts
     timeout-minutes: 35
   protected-verifier:
     runs-on: ubuntu-24.04-arm
@@ -156,7 +164,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: af521c92c05a1c79d1aff11510efea8dcf23e350
+        ref: b56e90f1b3c986634ea2130b56bc069ad4e17b31
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
@@ -229,7 +237,7 @@ jobs:
       if: always()
       with:
         name: unified-authenticated-browser
-        path: ${{ runner.temp }}/checkpoint-h/binding
+        path: ${{ runner.temp }}/checkpoint-h
         if-no-files-found: error
   myapps-composition:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 import { generateKeyPairSync, randomUUID, createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import { InstalledRelayLeaseClient, installedRelayLeaseConfig } from './relay-lease-client.ts';
+import { InstalledRelayLeaseClient, installedRelayLeaseConfig, relayLeaseEnrollmentDigest } from './relay-lease-client.ts';
 import { permitFixture } from './permit-test-fixture.ts';
 import { canonicalPermitJson } from './execution-permit.ts';
 import { signPolicyMessage, policyMessageHash, type AdmissionPermit } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
@@ -16,6 +16,7 @@ async function fixture() {
   const env={NODE_ENV:'test' as const,MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION',MYEVE_OWNER_ID:'owner',
     MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify(c),MYEVE_MISSIONCONTROL_RELAY_RUNTIME_CREDENTIAL:'synthetic-runtime-credential',
     MYEVE_MISSIONCONTROL_RELAY_WORKLOAD_TOKEN:'synthetic-workload-token'};
+  f.enrollment.relayLeaseEnrollmentSha256=relayLeaseEnrollmentDigest(c);
   const config=installedRelayLeaseConfig(f.enrollment,env);
   const source:AdmissionPermit={kind:'PERMIT',authority:'myeve',ownerId:'owner',organizationId:'org',installationId:c.installationId,
     backendId:'mc',incarnation:'incarnation',enrollmentVersion:1,version:1,policyId:'source-policy',referenceId:randomUUID(),
@@ -50,11 +51,35 @@ describe('installed Relay lease transport',()=>{
       expect(()=>installedRelayLeaseConfig(f.f.enrollment,{...f.env,MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify({...f.c,...changes})})).toThrow();
     expect(()=>installedRelayLeaseConfig(f.f.enrollment,{...f.env,MYEVE_MISSIONCONTROL_RELAY_RUNTIME_CREDENTIAL:'secret\ninjected'})).toThrow();
   });
-  it.each(['DENY','ESCALATE','REQUIRE_APPROVAL'])('does not request a lease after %s preparation',async outcome=>{
+  it.each(['DENY','ESCALATE','LIMIT','REQUIRE_APPROVAL'])('does not request a lease after %s preparation',async outcome=>{
     const f=await fixture(),send=vi.fn(async()=>Response.json({decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),
       outcome,reasonCodes:[],obligations:{},matchedRuleIds:[]},approvalRequest:null}));
     await expect(new InstalledRelayLeaseClient(f.config,send).issue(f.sourceEnvelope)).rejects.toThrow(/MISSIONCONTROL|Relay requires/);
     expect(send).toHaveBeenCalledTimes(1);
+  });
+  it('rejects environment key or selection replacement without the operator-held enrollment pin',async()=>{
+    const f=await fixture();
+    for(const changes of [{relayKey:{...f.c.relayKey,keyId:'replaced-key'}},{taskId:'tsk_replacedtask'},
+      {parameters:{target:'different'}},{origin:'https://localhost.'}])
+      expect(()=>installedRelayLeaseConfig(f.f.enrollment,{...f.env,MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify({...f.c,...changes})})).toThrow();
+    expect(()=>installedRelayLeaseConfig({...f.f.enrollment,relayLeaseEnrollmentSha256:undefined},f.env)).toThrow('MISSIONCONTROL_RELAY_ENROLLMENT_CHANGED');
+  });
+  it('passes the exact current approval to canonical issuance, while expired approval and unsupported obligations deny',async()=>{
+    const f=await fixture(),selected={...f.c,approvalRequestId:'approval-existing'};
+    const env={...f.env,MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON:JSON.stringify(selected)};
+    const config=installedRelayLeaseConfig({...f.f.enrollment,relayLeaseEnrollmentSha256:relayLeaseEnrollmentDigest(selected)},env);
+    for(const scenario of ['current','expired','obligation'] as const){
+      const send=vi.fn(async(url:URL|RequestInfo)=>String(url).endsWith('/prepare')?Response.json({
+        decision:{decisionId:'dec_fixturedecision',expiresAt:new Date(Date.now()+60000).toISOString(),outcome:'REQUIRE_APPROVAL',reasonCodes:[],
+          obligations:scenario==='obligation'?{unimplemented:true}:{},matchedRuleIds:[]},
+        approvalRequest:{requestId:selected.approvalRequestId,allowedScopes:[],expiresAt:new Date(Date.now()+(scenario==='expired'?-1:60000)).toISOString()}
+      }):Response.json(await f.response()));
+      const operation=new InstalledRelayLeaseClient(config,send).issue(f.sourceEnvelope);
+      if(scenario==='current'){
+        await operation;expect(send).toHaveBeenCalledTimes(2);
+        expect(JSON.parse(String((send.mock.calls[1] as unknown as [string,RequestInit])[1].body)).approvalRequestId).toBe(selected.approvalRequestId);
+      }else{await expect(operation).rejects.toThrow();expect(send).toHaveBeenCalledTimes(1);}
+    }
   });
   it('rejects correctly signed foreign, changed or stale proofs before MC admission',async()=>{
     const f=await fixture();

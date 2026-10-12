@@ -48,12 +48,21 @@ export async function pollMissionControlControls(store:WorkStore,controller:Exte
   const bindings=new MissionControlBindings(store.database,store.principal.scopeId),enrollment=await bindings.enrollment();
   const client=providedClient??new InstalledMissionControlClient(installedMissionControlConfig(enrollment,store.principal.scopeId,env,'control'));
   const permits=await bindings.controlCandidates();
-  const outcomes=[],failures:string[]=[];
+  const outcomes=[],failures:string[]=[],failureCodes:{permitId:string;code:string}[]=[];
   for(const permitId of permits){
     try{
+      // Persist before I/O so a failed or interrupted attempt cannot monopolize
+      // the bounded page. UNKNOWN remains eligible and is never settled here.
+      await bindings.recordControlAttempt(permitId);
       const input=controlReadSchema.parse(await client.readControl(permitId,randomUUID()));
       if(input.status==='CONTROL')outcomes.push(await applyMissionControlControl(store,controller,input,client));
-    }catch{failures.push(permitId);}
+    }catch(error){
+      failures.push(permitId);
+      const code=error instanceof z.ZodError?'CONTROL_RESPONSE_INVALID':error instanceof Error
+        && ['MISSIONCONTROL_BINDING_DENIED','MISSIONCONTROL_CONTROL_OWNER','MISSIONCONTROL_CONTROL_WORK_CHANGED'].includes(error.message)
+        ?error.message:'CONTROL_DELIVERY_UNAVAILABLE';
+      failureCodes.push({permitId,code});
+    }
   }
-  return {checked:permits.length,outcomes,failures};
+  return {checked:permits.length,pageFull:permits.length===100,outcomes,failures,failureCodes};
 }
