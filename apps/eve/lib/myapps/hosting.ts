@@ -2,10 +2,13 @@ import { readFileSync } from "node:fs";
 import type { Principal } from "../../../../packages/myapps/src/store.ts";
 import { PersistentApps } from "./runtime.ts";
 import { createAppsApi } from "./api.ts";
+import { createAlphaTasksApi } from "./alpha-tasks-api.ts";
+import type { AlphaTasksApps } from "./alpha-tasks.ts";
 import { authenticateWebPrincipal } from "../web-auth.ts";
 import { requireValue } from "../../../../packages/myapps/src/contracts.ts";
 interface LocalBinding {
   apps: PersistentApps;
+  alphaTasks?: AlphaTasksApps;
   policy(owner: string): Promise<Principal>;
 }
 let local: LocalBinding | null = null;
@@ -41,8 +44,12 @@ export async function handleInstalledApps(
       "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'",
   };
   try {
-    const { apps, policy } = localApps();
+    const { apps, policy, alphaTasks } = localApps();
     const path = new URL(request.url).pathname.replace("/api/myapps", "");
+    if (path === "/alpha") {
+      requireValue(alphaTasks, "APP_UNAVAILABLE");
+      return createAlphaTasksApi(alphaTasks!, policy, authenticate)(request);
+    }
     if (request.method === "POST") {
       const url = new URL(request.url);
       url.pathname = "/api" + path;
@@ -119,5 +126,9 @@ export async function consumeInstalledAppResponse(
   )
     return null;
   const principal = await local.policy(response.ownerId);
+  if (local.alphaTasks) {
+    const accepted = await local.alphaTasks.consumeOwnerResponse(principal, response);
+    if (accepted) return accepted;
+  }
   return local.apps.consumeOwnerResponse(principal, response);
 }

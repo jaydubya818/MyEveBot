@@ -175,6 +175,12 @@
   gap: 24px;
   min-width: 0;
 }
+.owner-alpha-tasks h3 { margin-top: 24px; }
+.owner-alpha-tasks form { gap: 16px; margin-top: 16px; }
+.owner-alpha-tasks form label { margin: 0; }
+.owner-alpha-tasks .owner-task-list { margin-top: 24px; }
+.owner-alpha-tasks label.owner-task-completion { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.owner-alpha-tasks .owner-task-completion input { width: 20px; height: 20px; min-height: 20px; margin: 0; padding: 0; }
 .owner-card {
   border: 1px solid #3d4539;
   border-radius: 15px;

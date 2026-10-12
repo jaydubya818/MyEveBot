@@ -4231,8 +4231,8 @@
     },
     "agent/tools/installed_apps.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Explicit local-only host and authenticated owner gates; rechecks caller identity, denies guests/roles/subagents, removes installation permission, and delegates only canonical CRM operations.",
-      "sha256": "ef0080435ee79bd3fa923ede14274e4aacc6616ed370f14f50779c516795ca53"
+      "reason": "Local-only trusted host. Rechecks signed owner; denies guest, roles and subagents. Typed Alpha Tasks commands share canonical custody/policy/runtime and stable request identity. Removes installation permission; agents cannot approve installation or toggle enabled state. Preserves CRM interface. Verified caller/permission and PostgreSQL lifecycle tests.",
+      "sha256": "829cb05324ccfb03b77df6c37ab6d0a9d8038fc6ce93206fe6b9af0f1ffb9c2d"
     },
     "lib/myapps/api.ts": {
       "classification": "ENFORCED",
@@ -4241,13 +4241,13 @@
     },
     "lib/myapps/hosting.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Denies production/Vercel/missing opt-in; explicit trusted binding only. Authenticated owner-scoped asset/API access with private headers; retained inbox responses re-enter canonical installation checks.",
-      "sha256": "7dee504b1bb46e7d92fb5719a70fe1546b24601d0b2e224bc8255eadd258d8eb"
+      "reason": "Unchanged production/Vercel deny and explicit local opt-in. Trusted binding only; signed owner, same-origin bounded API and canonical profile-specific inbox consumers. Alpha Tasks and CRM coexist without cross-profile interpretation. No default owner or hosted bootstrap.",
+      "sha256": "8f6208d3b3d9e21734fe55ea49001cc8522bbab54752f08986e68ab09ecd9dc0"
     },
     "lib/myapps/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed MyApps canonical packaging 2026-10-10: Host/operation checks, owner-scoped serialized transactions, exact active Work/admission binding, authenticated Result/cleanup verification, immutable candidates and exact human installation approval; no general provider/publication authority.",
-      "sha256": "fe0b0d877529334f14b86c272e151bbf0c7aab50ce0eb12aa79c98d625f740e9"
+      "reason": "Canonical CRM authorization preserved. Alpha Tasks records are excluded from CRM state, catalog, offers, agent queries and approval consumption. Verified ordinary-role PostgreSQL profile isolation and lifecycle.",
+      "sha256": "7c072563e45d2c50a4ed1cf6acf99231e17b6ee63e25cff1cc2e5e24f4a9a44e"
     },
     "lib/myapps/workflow.ts": {
       "classification": "INTERNAL",
@@ -4357,8 +4357,8 @@
     },
     "lib/missioncontrol/permit-store.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner RLS and pinned transactions retain immutable Work/permit/receipt/control/readback evidence. Canonical policy resolver plus agent, registry, receiver and policy identity checks; earliest source/Relay/canonical expiry. Controls serialize with claim through Work lock. Restricted-role, concurrent replay, deny and expiry PostgreSQL checks pass. Hosted recovery witness remains a release dependency. Durable owner-scoped control obligations survive expiry/terminal cleanup; only exact validated remote acknowledgment records delivery. Immutable fences and accounting preserved. Real PostgreSQL lost-ACK and polling recovery regressions. Reviewed owner-RLS scheduling attempts and bounded least-recently-attempted control pages; observations grant no authority and pending UNKNOWN is retained.",
-      "sha256": "f40d2b0127bbb11c344d5f3e135ba0b9c44b341039a683692633c61d920001bd"
+      "reason": "Canonical signed enrollment, permit, admission, control and readback validation with immutable owner-scoped evidence. Bounded polling allocates fresh/pending groups and durable attempt aging; no new execution/accounting/ACK authority. Verified 104 MC tests and independent19d22 scoped review.",
+      "sha256": "59041461dcd44cda3a078f4b11e8fbc0583b9f8ee119d4f3e024f98864219d14"
     },
     "lib/missioncontrol/permit-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4399,6 +4399,26 @@
       "classification": "ENFORCED",
       "reason": "Owner-RLS SELECT/INSERT report queue with exact idempotency and canonical Work/Mission lookup. No execution, permission, learning or accounting mutation. PostgreSQL ordinary-role and isolated-owner tests; triage not writable by app.",
       "sha256": "4898b6720270783331bdee1b5ac51847f07fe2cc87d5ff6034aa3adb67b824c4"
+    },
+    "lib/myapps/alpha-tasks.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-scoped serialized PostgreSQL. Canonical custody and current capability checked at admission and commit. Immutable source/runtime binding, exact human inbox approval, isolated execution, durable request identity and confirmed cleanup. RUNNING/UNKNOWN fences new effects. Lost commit ACK never overwrites success. Catalog is bounded retained owner data, never code execution.",
+      "sha256": "90d5ba5eaccb16e280f81b51bf6e7cacd88f201f8f0c4ca2b1a3614c08172d43"
+    },
+    "lib/myapps/alpha-tasks-host.ts": {
+      "classification": "ENFORCED",
+      "reason": "Actual process and supplied config must both be nonproduction/non-Vercel with local opt-in. Trusted immutable profiles/source only. Canonical signed Result origin and current capability verified in same transaction. Original Work/Result/Factory identity retained; no hosted bootstrap.",
+      "sha256": "0ddb3b6e57087a5952134b4d9e39ac42d24a6777a5e6416b4e86f0a3595001d7"
+    },
+    "lib/myapps/alpha-tasks-result.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Validates retained canonical owner policy, signed Result/Proof, settled accounting and cleanup, criteria/source/Factory identity and MC enrollment/permit. Rejects UNKNOWN or stale/revoked bindings. Reads historical accepted Work without rewriting evidence.",
+      "sha256": "14bf1e2bb108c3a69c1bee32b23b06af993205df3365a69a01b605ff54d495b0"
+    },
+    "lib/myapps/alpha-tasks-api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Strict shared UI/agent commands. HTTP requires enabled trusted host, signed owner/matching actor, same-origin POST and bounded input. No request-authored principal, package or arbitrary execution. Installation records and validates exact human-owner canonical inbox decision. Runtime transaction remains authoritative.",
+      "sha256": "dc593235d5b8935318ea6171ff047f31fbcfc3699672b39c9b1dea17cdd346be"
     }
   }
 }

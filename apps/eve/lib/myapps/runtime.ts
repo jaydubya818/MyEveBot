@@ -131,7 +131,7 @@ export class PersistentApps {
         [owner, id],
       )
     ).rows;
-    requireValue(row, "APP_UNAVAILABLE");
+    requireValue(row && !row.state.profile, "APP_UNAVAILABLE");
     return row.state;
   }
   private async candidate(
@@ -477,7 +477,7 @@ export class PersistentApps {
     return this.atomic(p.ownerId, async (c) =>
       (
         await c.query(
-          "SELECT state FROM myapps_installations WHERE owner_id=$1 ORDER BY app_id",
+          "SELECT state FROM myapps_installations WHERE owner_id=$1 AND NOT (state ? 'profile') ORDER BY app_id",
           [p.ownerId],
         )
       ).rows.map((r) => ({
@@ -576,7 +576,7 @@ export class PersistentApps {
     return this.atomic(p.ownerId, async (c) => {
       const rows = (
         await c.query(
-          `SELECT p.app_id,p.id,p.binding,v.package FROM myapps_previews p JOIN myapps_candidates v ON v.owner_id=p.owner_id AND v.app_id=p.app_id AND v.version=(p.binding->>'version')::integer JOIN myapps_installations a ON a.owner_id=p.owner_id AND a.app_id=p.app_id WHERE p.owner_id=$1 AND NOT p.ended AND p.expires_at>clock_timestamp() AND NOT v.revoked AND (a.state->>'installedVersion' IS NULL OR (p.binding->>'version')::integer>(a.state->>'installedVersion')::integer) ORDER BY v.version DESC`,
+          `SELECT p.app_id,p.id,p.binding,v.package FROM myapps_previews p JOIN myapps_candidates v ON v.owner_id=p.owner_id AND v.app_id=p.app_id AND v.version=(p.binding->>'version')::integer JOIN myapps_installations a ON a.owner_id=p.owner_id AND a.app_id=p.app_id WHERE p.owner_id=$1 AND v.package->>'format'='myeve.app-package.reference.v1' AND NOT p.ended AND p.expires_at>clock_timestamp() AND NOT v.revoked AND (a.state->>'installedVersion' IS NULL OR (p.binding->>'version')::integer>(a.state->>'installedVersion')::integer) ORDER BY v.version DESC`,
           [p.ownerId],
         )
       ).rows;
@@ -887,7 +887,7 @@ export class PersistentApps {
     const request = await this.atomic(p.ownerId, async (c) => {
       const [row] = (
         await c.query(
-          "SELECT app_id,binding FROM myapps_install_requests WHERE owner_id=$1 AND id=$2",
+          "SELECT r.app_id,r.binding FROM myapps_install_requests r JOIN myapps_installations a USING(owner_id,app_id) WHERE r.owner_id=$1 AND r.id=$2 AND NOT (a.state ? 'profile')",
           [p.ownerId, response.action.id],
         )
       ).rows;
@@ -1106,7 +1106,7 @@ export class PersistentApps {
     return this.atomic(p.ownerId, async (c) => {
       const apps = (
         await c.query(
-          "SELECT state FROM myapps_installations WHERE owner_id=$1 AND state->>'enabled'='true'",
+          "SELECT state FROM myapps_installations WHERE owner_id=$1 AND NOT (state ? 'profile') AND state->>'enabled'='true'",
           [p.ownerId],
         )
       ).rows;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { localAppsAllowed } from "../../../lib/myapps/hosting.ts";
+import { InstalledAlphaTasks } from "../../../components/owner/installed-alpha-tasks";
 export default function InstalledAppsPage() {
   if (!localAppsAllowed())
     return (
@@ -9,11 +10,5 @@ export default function InstalledAppsPage() {
         <Link href="/apps">Back to Apps</Link>
       </main>
     );
-  return (
-    <iframe
-      title="Your installed Apps"
-      src="/api/myapps/ui"
-      style={{ width: "100%", height: "100vh", border: 0 }}
-    />
-  );
+  return <InstalledAlphaTasks />;
 }
