@@ -62,13 +62,17 @@ jobs:
         env:
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
         run: |
-          node --test scripts/myapps-composition/*.test.mjs
           node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: ${{ github.workspace }}/myeve
       - name: Apply and verify current-main dependency mitigation
         working-directory: ${{ github.workspace }}/myeve
         run: npm run postinstall && npm run security:patches
+      - name: Composition tooling with frozen dependencies installed
+        working-directory: ${{ github.workspace }}/myeve
+        env:
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
+        run: node --test scripts/myapps-composition/*.test.mjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: ${{ github.workspace }}/myfactory
       - run: node node_modules/playwright/cli.js install --with-deps chromium

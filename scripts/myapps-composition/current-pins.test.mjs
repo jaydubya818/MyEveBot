@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, readdirSync} from 'node:fs';
 import {assertCurrentPins, factory} from './current-pins.mjs';
+import {parse} from 'yaml';
 
 const root = new URL('../../.github/workflows/', import.meta.url);
 const workflows = Object.fromEntries(readdirSync(root).filter(name => /\.ya?ml$/i.test(name)).map(name => [name, readFileSync(new URL(name, root), 'utf8')]));
@@ -29,4 +30,12 @@ test('rejects wrong pins in new or differently formatted workflows and every una
     assert.throws(() => assertCurrentPins({...workflows, 'unified-beta.yml': changed}, envelope));
   }
   assert.throws(() => assertCurrentPins(workflows, envelope.replace(factory, wrong)));
+});
+test('rehearsal installs the frozen YAML dependency before qualification tooling', () => {
+  const lock = JSON.parse(readFileSync(new URL('../../package-lock.json', import.meta.url)));
+  assert.equal(lock.packages['node_modules/yaml'].version, '2.9.1');
+  const steps = parse(workflows['myapps-composition.yml']).jobs.rehearsal.steps;
+  const install = steps.findIndex(step => step.run === 'npm ci --ignore-scripts --no-audit --no-fund' && step['working-directory'] === '${{ github.workspace }}/myeve');
+  const tooling = steps.findIndex(step => step.run?.includes('node --test scripts/myapps-composition/*.test.mjs'));
+  assert.ok(install >= 0 && tooling > install, 'Tooling cannot run before its frozen dependencies are installed');
 });

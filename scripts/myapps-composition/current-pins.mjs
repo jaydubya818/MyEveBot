@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import {parse} from 'yaml';
+// Qualification uses YAML 2.9.1 already present in the frozen root dependency
+// closure. CI must install that closure before running this tooling; preserve
+// the separately qualified Builder lock bytes rather than repinning metadata.
 
 export const factory = 'e36c92e1968a6fa5ffc72b3de3ad1cfebaa6e816';
 export const missioncontrol = 'f9bcd0df4bb970a36a43599b00d724b07f300ad0';
