@@ -1945,7 +1945,9 @@ function ChatThread({
   const draftRef = useRef(draft);
   useLayoutEffect(() => { draftRef.current = draft; }, [draft]);
   const [composerReady, setComposerReady] = useState(false);
-  useEffect(() => setComposerReady(true), []);
+  // Complete readiness and focus restoration before the browser can deliver
+  // another keystroke to a replacement composer. SSR stays disabled until mount.
+  useLayoutEffect(() => setComposerReady(true), []);
   // Server reconciliation may remount this thread while the owner is typing.
   // Keep the composer in the existing owner-partitioned local store.
   function setDraft(next: string | ((previous: string) => string)) {

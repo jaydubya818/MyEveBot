@@ -25,9 +25,21 @@ test('stream recovery retains typing across the composer replacement',async({pag
   await page.goto('/chat');await intercepted;
   const composer=page.getByRole('textbox',{name:'Message Sofie',exact:true});await expect(composer).toBeEnabled();
   const original=await composer.elementHandle(),draft='Keep typing through reconnect.';
+  await page.evaluate(element=>{
+   const observer=new MutationObserver(()=>{
+    if(element.isConnected)return;
+    const replacement=document.querySelector('textarea[data-thread-composer]');
+    window.__composerReplacement={ready:!!replacement&&!replacement.disabled,focused:document.activeElement===replacement};
+    observer.disconnect();
+   });
+   observer.observe(document.body,{childList:true,subtree:true});
+  },original);
   const typing=composer.pressSequentially(draft,{delay:20});
   await page.waitForFunction(()=>document.querySelector('textarea[data-thread-composer]')?.value.startsWith('Keep'));
   release();await page.waitForFunction(element=>!element.isConnected,original);await typing;
+  // At the first browser-observable replacement, input must already be ready;
+  // a passive-effect gap can otherwise discard a keystroke during the remount.
+  expect(await page.evaluate(()=>window.__composerReplacement)).toEqual({ready:true,focused:true});
   await expect(composer).toHaveValue(draft);await expect(composer).toBeFocused();
   await expect(page.getByRole('button',{name:'Send',exact:true})).toBeEnabled();
   expect(await page.evaluate(({ownerId,id})=>localStorage.getItem('myeve-private:'+encodeURIComponent(ownerId)+':eve-web-draft:'+id),{ownerId,id:thread.id})).toBe(draft);
