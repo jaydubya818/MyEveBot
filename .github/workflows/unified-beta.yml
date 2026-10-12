@@ -83,6 +83,7 @@ jobs:
         lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts
         lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts
         lib/missioncontrol/permit-store.integration.test.ts
+        lib/beta-feedback-postgres.test.ts
         lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
     - name: Durable owner budget concurrency and UNKNOWN recovery
       env:
@@ -222,6 +223,8 @@ jobs:
       working-directory: apps/eve
     - name: Actual password login, delayed persistence, reconnect and failed save
       run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
+    - name: Tester feedback rendered states and response-loss recovery
+      run: node apps/eve/test/browser/beta-feedback.mjs "$RUNNER_TEMP/checkpoint-h/feedback"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:

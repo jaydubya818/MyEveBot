@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="antialiased">
         <OwnerSessionBoundary><AppearanceSync />
-        <DestinationGate hrefs={hrefs}><ApplicationShell>{children}</ApplicationShell></DestinationGate></OwnerSessionBoundary>
+        <DestinationGate hrefs={hrefs} feedbackEnabled={process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION'}><ApplicationShell>{children}</ApplicationShell></DestinationGate></OwnerSessionBoundary>
       </body>
     </html>
   );

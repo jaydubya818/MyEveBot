@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useId, useRef } from "react";
 import { CommandPalette } from "@/components/command-palette";
-import { useDestinationAllowed, useVisibleDestinations } from "./destination-gate";
+import { useDestinationAllowed, useVisibleDestinations,useBetaFeedbackEnabled } from "./destination-gate";
 
 const primary = ["/today", "/chat", "/work", "/needs-you", "/workspace"];
 export function OwnerNavigation() {
@@ -14,6 +14,7 @@ export function OwnerNavigation() {
   const [open, setOpen] = useState(false);
   const allowed = useDestinationAllowed();
   const destinations = useVisibleDestinations();
+  const feedbackEnabled=useBetaFeedbackEnabled();
   const conversation = pathname === "/chat" || pathname === "/sofie";
   useEffect(() => { setMenuOpen(false); setOpen(false); }, [pathname]);
   useEffect(() => {
@@ -35,6 +36,7 @@ export function OwnerNavigation() {
         <Link key={href} href={href} aria-current={selected(href) ? "page" : undefined}>{label}</Link>)}
       <button className="owner-search" onClick={() => conversation ? window.dispatchEvent(new Event("myeve:commands")) : setOpen(true)} aria-label="Search and commands (Command K)">Search <kbd>⌘K</kbd></button>
       <div className="owner-account">
+        {feedbackEnabled&&allowed('/feedback')&&<Link href="/feedback" aria-current={selected('/feedback')?'page':undefined}>Beta feedback</Link>}
         {allowed("/settings") && <Link href="/settings" aria-current={selected("/settings") ? "page" : undefined}>Settings</Link>}
         {allowed("/privacy") && <Link href="/privacy" aria-current={selected("/privacy") ? "page" : undefined}>Privacy & boundaries</Link>}
       </div>

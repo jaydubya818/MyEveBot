@@ -1,4 +1,5 @@
 export const productDestinations = [
+  { href: '/feedback',label:'Beta feedback',description:'Report a problem and follow its review' },
   { href: "/settings", label: "Settings", description: "Account, appearance and privacy" },
   { href: "/business", label: "Our business", description: "Private and explicitly shared context" },
   {

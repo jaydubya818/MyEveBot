@@ -39,7 +39,7 @@ export const DENIED_FAMILIES = [
 ] as const;
 export type AllowedFamily = (typeof ALLOWED_FAMILIES)[number];
 export type DeniedFamily = (typeof DENIED_FAMILIES)[number];
-export const INSTALLED_FAMILIES=['MISSION_CONTROL'] as const;
+export const INSTALLED_FAMILIES=['MISSION_CONTROL','BETA_FEEDBACK'] as const;
 export type Family = AllowedFamily | DeniedFamily | (typeof INSTALLED_FAMILIES)[number];
 const allowedSet: ReadonlySet<string> = new Set(ALLOWED_FAMILIES);
 
@@ -51,7 +51,7 @@ export function externalAlphaMemoryApproved(_env: NodeJS.ProcessEnv = process.en
   return false;
 }
 export function externalAlphaFamilyAllowed(family: Family, env: NodeJS.ProcessEnv = process.env): boolean {
-  if(family==='MISSION_CONTROL')return env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
+  if(family==='MISSION_CONTROL'||family==='BETA_FEEDBACK')return env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
   if (!allowedSet.has(family)) return false;
   if (family === "MEMORY") return externalAlphaMemoryApproved(env);
   return true;
@@ -136,6 +136,8 @@ add("ADMIN", ["/api/control", "/api/operations", "/api/owner-data", "/api/beta/f
 add("EMAIL_CONNECTED_APPS", ["/api/myapps/[...path]", "/apps/installed"]);
 add("ADMIN", ["/api/capability-control"]);
 add('MISSION_CONTROL',['/api/missioncontrol/result','/api/missioncontrol/control'],['POST']);
+add('BETA_FEEDBACK',['/api/beta/issues'],['GET','POST']);
+add('BETA_FEEDBACK',['/feedback'],READ);
 
 // ---- Pages (app/**/page.tsx) ----------------------------------------------
 add("CORE", ["/", "/login", "/privacy", "/welcome", "/settings"]);
