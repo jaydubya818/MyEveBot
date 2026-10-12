@@ -77,6 +77,24 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(await e.count("external_alpha_allowance", "kind='WORK' AND state='OPEN'")).toBe(1);
   });
 
+  it("requires enrollment before charging when installed mode is enabled, while preserving unenrolled legacy execution", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const previousMode = process.env.MYEVE_MISSIONCONTROL_MODE;
+    try {
+      process.env.MYEVE_MISSIONCONTROL_MODE = 'APPROVED_NONPRODUCTION';
+      await expect(controller.start(work)).rejects.toThrow(/MISSIONCONTROL/);
+      expect(await e.count('external_alpha_work_authority')).toBe(0);
+      expect(await e.count('external_alpha_cohort_admission')).toBe(0);
+      expect(factory.posts).toBe(0);
+    } finally {
+      if (previousMode === undefined) delete process.env.MYEVE_MISSIONCONTROL_MODE;
+      else process.env.MYEVE_MISSIONCONTROL_MODE = previousMode;
+    }
+    expect((await controller.start(work)).authority.state).toBe('CONSUMED');
+    expect(factory.posts).toBe(1);
+  });
+
   it("sends exactly once under 24 concurrent duplicate deliveries, and never on later refreshes", async () => {
     const { e, factory, controller } = await make();
     const work = await e.seedWork();
@@ -87,6 +105,18 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     await controller.start(await e.store.get(work.id));
     expect(factory.posts).toBe(1);
     expect(await e.count("external_alpha_work_authority")).toBe(1);
+  });
+  it('preserves authenticated execution truth when optional observation storage fails',async()=>{
+    const {e,factory,config,rk}=await make();
+    const controller=new ExternalAlphaWorkController(e.svc,factory,config,rk,Date.now,async()=>{throw Error('SYNTHETIC_READBACK_STORAGE_OUTAGE');});
+    const work=await e.seedWork(),started=await controller.start(work);
+    expect(started.authority.state).toBe('CONSUMED');
+    expect((await controller.reconcile(work.id,{work})).state).toBe('CONSUMED');
+    expect((await controller.stop(work.id,{work})).state).toBe('CANCELLED');
+    expect(await e.count('external_alpha_allowance',"state='UNKNOWN'")).toBe(0);
+    expect(factory.posts).toBe(1);
+    await expect(controller.refreshReadback({id:work.id,version:work.version,generation:work.generation}))
+      .rejects.toThrow('SYNTHETIC_READBACK_STORAGE_OUTAGE');
   });
 
   it("denies generic owner controls after external authority exists without invalidating its Work generation", async () => {

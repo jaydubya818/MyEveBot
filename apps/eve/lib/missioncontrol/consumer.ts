@@ -7,6 +7,7 @@ export const APPLICATION = 'myeve-sofie-readiness-v1';
 export const CAPABILITY = 'tool.mission_control';
 export interface EnterpriseConfig {
   endpoint:string; ownerId:string; missionControlOwnerId:string; tenantId:string; projectId:string; connectionId:string; secret:string;
+  environment?:'ISOLATED_DETERMINISTIC'|'APPROVED_NONPRODUCTION';
 }
 /** Canonical mc-service-command-v1 encoding; parity is checked against pinned MissionControl source. */
 export function canonical(value: unknown): string {

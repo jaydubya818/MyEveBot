@@ -5,8 +5,11 @@ import { db } from "../../agent/lib/receipts-db.ts";
 import { externalAlphaPolicy } from "./policy.ts";
 import { sharedAlphaAccounting } from "./shared-accounting.ts";
 import { assertExternalAlphaWorkBinding, externalAlphaWorkConfig } from "./work-config.ts";
-import { ExternalAlphaWorkAuthority, WorkAuthoritySigner } from "./work-authority.ts";
-import { ExternalAlphaWorkController, HttpExternalAlphaFactoryClient, receiptKeys, type ExternalAlphaFactoryClient } from "./work-controller.ts";
+import type { WorkAuthoritySigner } from "./work-authority.ts";
+import type { ExternalAlphaWorkController, ExternalAlphaFactoryClient } from "./work-controller.ts";
+import { createExternalAlphaWorkController } from './work-action.ts';
+import { capabilityWorkDatabase } from '../capability-control/admission.ts';
+import { pollMissionControlControls } from '../missioncontrol/control-runtime.ts';
 
 /** Resumes ONLY retained authority readback. This caller has no path to issue,
  * claim, redispatch, manufacture a writer or retry a paid operation. Concurrent
@@ -46,12 +49,14 @@ export async function runExternalAlphaReconciliation(deps: { env?: NodeJS.Proces
   const policy = externalAlphaPolicy(env), config = externalAlphaWorkConfig(env);
   if (!policy || !config) return { checked: 0, inactive: true as const };
   assertExternalAlphaWorkBinding(policy, config, env);
-  const database = deps.database ?? (db() as ExecutionDatabase);
+  const installed=env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
+  const database = deps.database ?? (installed?capabilityWorkDatabase():(db() as ExecutionDatabase));
   let accountingRepair: "RECONCILED" | "UNAVAILABLE" = "RECONCILED";
   try { await sharedAlphaAccounting(database, env).reconcile(database, policy); }
   catch { accountingRepair = "UNAVAILABLE"; }
-  const authority = new ExternalAlphaWorkAuthority(database, policy, deps.signer ?? WorkAuthoritySigner.fromEnv(env));
-  const controller = new ExternalAlphaWorkController(authority,
-    deps.factory ?? new HttpExternalAlphaFactoryClient(config, { projectId: policy.projectId }, { env }), config, receiptKeys(config));
-  return { ...await reconcileExternalAlphaAuthorities(controller, new WorkStore({ scopeKind: "personal", scopeId: policy.ownerId, actorId: policy.ownerId }, database)), accountingRepair };
+  const store=new WorkStore({scopeKind:'personal',scopeId:policy.ownerId,actorId:policy.ownerId},database);
+  const controller=createExternalAlphaWorkController(store,{...deps,database,env});
+  const controls=installed?await pollMissionControlControls(store,controller,env)
+    .catch(()=>({status:'DELIVERY_UNAVAILABLE' as const})):null;
+  return { ...await reconcileExternalAlphaAuthorities(controller,store),accountingRepair,controls };
 }

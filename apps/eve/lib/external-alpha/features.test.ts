@@ -45,6 +45,15 @@ const concrete = (pattern: string) => pattern.replace(/\[\.\.\.[^\]]+\]/g, "x/y"
 const rulesByFamily = (family: Family) => externalAlphaRouteRules.filter((r) => r.family === family);
 
 describe("external-alpha route allowlist (default-deny)", () => {
+  it('opens only signed MissionControl POST receivers in explicitly installed mode',()=>{
+    for(const path of ['/api/missioncontrol/result','/api/missioncontrol/control']){
+      expect(classifyExternalAlphaRoute(path,'POST',installation()).allowed).toBe(false);
+      const configured=installation({MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION'});
+      expect(classifyExternalAlphaRoute(path,'POST',configured).allowed).toBe(true);
+      for(const verb of ['GET','PATCH','DELETE'])expect(classifyExternalAlphaRoute(path,verb,configured).allowed).toBe(false);
+      expect(classifyExternalAlphaRoute('/api/relay/owner-execution','POST',configured).allowed).toBe(false);
+    }
+  });
   it("classifies every app/ route handler and page, and no rule is stale", () => {
     const found = discover();
     const classified = new Set(externalAlphaRouteRules.map((r) => r.pattern));

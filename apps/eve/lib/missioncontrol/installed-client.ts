@@ -22,13 +22,13 @@ export function installedMissionControlConfig(value: unknown, ownerId: string, e
     || (purpose==='admission'&&(e.revokedAt !== null || e.activeFrom > Date.now() || e.expiresAt <= Date.now())))
     throw Error('MISSIONCONTROL_INSTALLATION_UNAVAILABLE');
   return {endpoint:e.issuer,ownerId:e.ownerId,missionControlOwnerId:e.missionControlOwnerId,tenantId:e.tenantId,
-    projectId:e.projectId,connectionId:e.connectionId,secret,purpose};
+    projectId:e.projectId,connectionId:e.connectionId,secret,purpose,environment:'APPROVED_NONPRODUCTION'};
 }
 
 /** No automatic retries, redirects or target URLs from request data. */
 export class InstalledMissionControlClient {
   constructor(readonly config: EnterpriseConfig & {purpose:'admission'|'control'}, private readonly send: typeof fetch = fetch) {}
-  private async command(path: 'readApproved'|'authorizeAdmission'|'readControl'|'acknowledgeControl', capability: string, payload: unknown, commandId: string) {
+  private async command(path: 'readApproved'|'authorizeAdmission'|'readControl'|'acknowledgeControl'|'preparePermit', capability: string, payload: unknown, commandId: string) {
     if(this.config.purpose==='control'&&!['readControl','acknowledgeControl'].includes(path))throw Error('MISSIONCONTROL_CONTROL_ONLY');
     const packet = signedServiceCommand(this.config, capability, payload, commandId);
     const response = await this.send(this.config.endpoint + '/api/action', {
@@ -53,6 +53,13 @@ export class InstalledMissionControlClient {
       admissionCommandId:request.admissionCommandId,challenge:request.challenge,
     },request.commandId);
     return z.object({permit:z.unknown(),capabilityChallenge:envelope}).strict().parse(response);
+  }
+  async prepare(input:{proposalId:string;workOrderId:string;expectedWorkOrderRevisionId:string;expectedPlanDigest:string;
+    idempotencyKey:string;work:ExecutionPermit['work'];admission:ExecutionPermit['admission']},commandId:string) {
+    const response=await this.command('preparePermit','enterprise.preparePermit',{
+      schema:'mc-permit-request/v1',connectionId:this.config.connectionId,projectId:this.config.projectId,...input,
+    },commandId);
+    return z.object({requestId:z.string().min(1).max(200),status:z.literal('OWNER_APPROVAL_REQUIRED')}).strict().parse(response);
   }
   async authorize(permit: ExecutionPermit, permitSha256:string, pair:CapabilityPair, request:{commandId:string;challenge:string}) {
     return this.command('authorizeAdmission','enterprise.authorizeAdmission',{

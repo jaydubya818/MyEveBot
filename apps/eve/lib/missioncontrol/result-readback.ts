@@ -31,6 +31,8 @@ export async function missionControlResultReadback(database:WorkDatabase,request
         WHERE owner_id=a.owner_id AND authority_id=a.id ORDER BY observed_at DESC,readback_sha256 LIMIT 1) o ON true
       WHERE a.owner_id=$1 AND a.work_id=$2 AND a.work_version=$3 AND a.work_generation=$4`,
       [request.ownerId,permit.work.id,permit.work.version,permit.work.generation]);
+    const observedAt=Date.now();
+    let evidenceExpiresAt:number|undefined;
     let admission=null,result=null,status:'PENDING'|'SETTLED'|'NO_RESULT'='PENDING';
     if(row?.readback){
       if(createHash('sha256').update(canonicalPermitJson(row.readback)).digest('hex')!==row.readback_sha256
@@ -50,13 +52,16 @@ export async function missionControlResultReadback(database:WorkDatabase,request
           settlementState:row.settlement_state,exposureUnknown:row.exposure_unknown,accounting:readback.accounting,
           acceptance:readback.acceptance??null};
         const attestation=row.readback.readbackAttestation;
-        const fresh=Date.parse(attestation.issuedAt)<=now&&Date.parse(attestation.expiresAt)>now
+        const fresh=Date.parse(attestation.issuedAt)<=observedAt&&Date.parse(attestation.expiresAt)>observedAt
           &&Date.parse(attestation.expiresAt)-Date.parse(attestation.issuedAt)<=120000;
-        if(fresh&&result.settlementState==='SETTLED'&&result.exposureUnknown===false&&result.cleanupConfirmed
-          &&result.accounting.unknownMicrousd===0)status='SETTLED';
+        if(fresh&&attestation.quiescent===true&&['COMPLETED','FAILED','CANCELLED'].includes(attestation.state)
+          &&attestation.spend?.status==='KNOWN'&&attestation.spend.accountingComplete===true
+          &&attestation.spend.unknownExposureMicrousd===0&&attestation.spend.retainedMicrousd===0
+          &&result.settlementState==='SETTLED'&&result.exposureUnknown===false&&result.cleanupConfirmed
+          &&result.accounting.unknownMicrousd===0&&result.accounting.reservedMicrousd===0){status='SETTLED';evidenceExpiresAt=Date.parse(attestation.expiresAt);}
       }else if(readback?.factoryOutcome)status='NO_RESULT';
     }
-    const observedAt=Date.now(),expiresAt=Math.min(observedAt+30000,request.expiresAt,enrollment.expiresAt);
+    const expiresAt=Math.min(observedAt+30000,request.expiresAt,enrollment.expiresAt,evidenceExpiresAt??Infinity);
     if(expiresAt<=observedAt)throw Error('MISSIONCONTROL_RESULT_REQUEST_EXPIRED');
     return {schema:'mc-result-readback/v1' as const,commandId:request.commandId,challenge:request.challenge,
       connectionId:request.connectionId,installationId:request.installationId,ownerId:request.ownerId,permitId:permit.permitId,

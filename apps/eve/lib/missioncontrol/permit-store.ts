@@ -103,6 +103,17 @@ export class MissionControlBindings {
       return rows[0] ?? null;
     });
   }
+  async controlCandidates():Promise<string[]> {
+    return this.atomic(async database=>{
+      const rows=await database.query(`SELECT p.permit_id FROM missioncontrol_execution_permits p
+        WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
+          OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
+            AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN')))
+        ORDER BY p.created_at,p.permit_id LIMIT 101`,[this.ownerId]);
+      if(rows.length>100)throw Error('MISSIONCONTROL_CONTROL_BACKLOG');
+      return rows.map(row=>String(row.permit_id));
+    });
+  }
   async fence(permitId:string,value:unknown,expectedDigest:string,now=Date.now()) {
     return this.atomic(async database=>{
       const [enrollment]=await database.query('SELECT missioncontrol_enrollment_document($1) AS document',[this.ownerId]);

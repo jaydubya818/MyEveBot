@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained. Stale pinned canonical inventory fingerprint 97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd reconciled against independently reviewed source ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change.",
-      "sha256": "522f42d7cfa0665645bdc75aa4259c533d367af4f486cb2204c49a3ad25e642d"
+      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained. Stale pinned canonical inventory fingerprint 97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd reconciled against independently reviewed source ada47474a28dff53c2b570394f1b08d6e0e7edd250a83fea73b68c9b26ac4ead. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change. Explicit installed MissionControl mode requires0094; existing noninstalled schema requirements remain unchanged. Migration catalog and rollout tests pass; no migration is run here.",
+      "sha256": "ee34cd00d6de536084d907c7bd6a6ad5a22971d8445a5ac01b7afa70aff3bc11"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2257,8 +2257,8 @@
     },
     "lib/external-alpha/work-action.ts": {
       "classification": "ENFORCED",
-      "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed. Reconcile now passes the Work so the signed Factory Result can be ingested for the owner. Checkpoint A composition: stop carries the exact current owner Work; immutable authenticated no-candidate terminal facts explain Factory failure/cancellation and cleanup/accounting without claiming candidate Proof. Closed Result reconnect returns exact retained candidate/verdict without Factory read. Takeover transfers Work to human only after authenticated known cleanup (or definitively unsent authority); UNKNOWN and bare consumed terminal labels remain fenced.",
-      "sha256": "bb0a394a421c02da9d8ae58c428d46657926a0d1e951057f6bb41fc756387e7b"
+      "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed. Reconcile now passes the Work so the signed Factory Result can be ingested for the owner. Checkpoint A composition: stop carries the exact current owner Work; immutable authenticated no-candidate terminal facts explain Factory failure/cancellation and cleanup/accounting without claiming candidate Proof. Closed Result reconnect returns exact retained candidate/verdict without Factory read. Takeover transfers Work to human only after authenticated known cleanup (or definitively unsent authority); UNKNOWN and bare consumed terminal labels remain fenced. Canonical owner/Work checks and original authority/accounting remain the sole execution path. Shared controller construction attaches only installed evidence observation; unchanged direct-stop and Work-generation controls. No additional paid ingress.",
+      "sha256": "7c7faa95ec3840a3ee7ce631cd941d3dd828ce86ccf6a9d46e4e6db2de8fe83e"
     },
     "lib/external-alpha/work-config.ts": {
       "classification": "INTERNAL",
@@ -2267,8 +2267,8 @@
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "23df1dd69fb7ab6c0ba8a88b06c541fd5e47df02e46e4512a9f52e938a5350b3"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Optional evidence-copy failures preserve verified execution/accounting state and log a fixed diagnostic; invalid signatures still fence UNKNOWN. Exact existing-request refresh verifies a fresh challenge and cannot issue/claim/stop/settle.75 canonical PostgreSQL controller tests cover dispatch/recovery; callback failure regression covers start/reconcile/stop and strict refresh.",
+      "sha256": "ec8e3c581ca47dcf19a351c5d3a9ea85d5b8bf52b25410a2c36d1d1719ad3ff9"
     },
     "lib/external-alpha/work-readback.ts": {
       "classification": "READ_ONLY",
@@ -4121,13 +4121,13 @@
     },
     "lib/external-alpha/work-authority.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "53f8852249dc6963fb57d1d320e13b53ccc5ee9d3a4e55d9e88eaae746022fe5"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Current signed admission is required before shared reservation when0094 exists and the owner is enrolled; SQL repeats the guard on issue/claim. Legacy missing schema remains compatible only outside installed mode. Real restricted-role issue/claim and barrier-controlled revoke/expiry checks pass. No spending controls are widened. Explicit installed mode also requires an enrollment even when the schema exists without a binding; it cannot fall back to legacy admission.",
+      "sha256": "1d21cd2fd59b21c4bf0775b11a56f6bde3c386361095c7ff16c182148773fa1b"
     },
     "lib/external-alpha/features.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged.",
-      "sha256": "dd21d85488740ff06fdbe3aa51e5746febfc0a99334067342b472b8ba4459267"
+      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged. Classifies only two signed MissionControl POST endpoints and its owner tool under explicit installed mode. Default external-alpha scope and unrelated denied families remain closed.82 ingress/schema/client regressions pass; route authorization remains in the signed handlers.",
+      "sha256": "d815c24ebcfcde84c7518551e3a44e6dd509cf7ce6fb419664d588a8b1032c38"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4151,8 +4151,8 @@
     },
     "lib/external-alpha/reconciliation.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "16cab8d1f640ffe8a9d07d156fee05d74e252907154b86a2a0c0b33c699a3440"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Installed runtime reuses canonical transactional database, controller and immutable evidence retention. Pull control recovery can only reduce existing authority; unavailable delivery is reported and ordinary reconciliation preserves accounting. No issue/claim/redispatch in scheduled recovery.",
+      "sha256": "afd6b2c8aa4e5e9c833554c19847402f183bef18355e6451a8931419b38d4195"
     },
     "lib/external-alpha/shared-accounting.ts": {
       "classification": "ENFORCED",
@@ -4302,18 +4302,18 @@
     "agent/lib/missioncontrol.ts": {
       "classification": "ENFORCED",
       "disposition": "gateway",
-      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority.",
-      "sha256": "8ccb3ab5d2fa43ac1ab64c7473e3237a62216b5ba14d1ba69785f06f6d90c634"
+      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority. Installed owner and initiator must be canonical web-session owner, no child/guest/Role. Exact enrolled connection is resolved server-side; existing ActionGateway authority/provider consumption wraps draft and approval preparation. Preparation binds current canonical Work and creates no spending authority. Legacy owner-denial regressions and real PostgreSQL prepare-without-reservation checks pass.",
+      "sha256": "0ca11006ccf47a1b6f061890e144751523a5c69f4fbf5dc872b476b0cc5ca502"
     },
     "agent/tools/mission_control.ts": {
       "classification": "ENFORCED",
-      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation.",
-      "sha256": "dc37f2dead6b99fafe9739dc3d9e6d1f4b74c49482d259873cc1e5eedba02f07"
+      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation. Owner-only, unavailable to subagents; strict installed preparation input delegates to the separately reviewed canonical gateway adapter. Owner approval remains in MissionControl; no tool can approve its own request.",
+      "sha256": "0c239cd8068b818c161aeb9a7be6475f858f8d3b3e1b2f8b881a7a272f6789b2"
     },
     "lib/missioncontrol/consumer.ts": {
-      "classification": "INTERNAL",
-      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Shared integrity validation binds each assertion to its WorkOrder and verification Attempt; assertion and WorkOrder gate receipt IDs may differ, with canonical MissionControl authenticating receipt/evidence custody. Cached UI is recorded observation, not current proof or owner authority. Canonical MissionControl rechecks grants. Consumer negative tests cover forged PASS, foreign bindings, stale evidence and cross-WorkOrder assertions; production endpoints remain denied.",
-      "sha256": "2d1a401979455cd9658a1b096e5506d812dc433f72f29c477ecc1255261e891c"
+      "classification": "ENFORCED",
+      "reason": "Trusted signed transport for the owner-gated enterprise adapter. Disabled unless explicitly ISOLATED_DETERMINISTIC and restricted to HTTP 127.0.0.1 with a configured port. Strict zero-budget proposal/read schema, bounded response, redirect denial, no automatic mutation retry, exact keyed Result/request/Mission/Plan/owner/tenant binding and expiry validation. Shared integrity validation binds each assertion to its WorkOrder and verification Attempt; assertion and WorkOrder gate receipt IDs may differ, with canonical MissionControl authenticating receipt/evidence custody. Cached UI is recorded observation, not current proof or owner authority. Canonical MissionControl rechecks grants. Consumer negative tests cover forged PASS, foreign bindings, stale evidence and cross-WorkOrder assertions; production endpoints remain denied. Factored the unchanged canonical service-command HMAC bytes for installed transport. Existing isolated config remains loopback-only. Installed environment metadata is supplied from enrollment; protocol and legacy consumer tests pass.",
+      "sha256": "9ce96279d6a3cad047c049a761232390f131a131b55a873d1a09f080f86b83e4"
     },
     "lib/missioncontrol/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4324,6 +4324,61 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Pure identifier-only URL construction, no IO or credentials. HTTPS or loopback HTTP origin only; userinfo, paths, query and fragments denied. Three owner-review-link tests cover exact proposal/Result Mission references and unsafe destination denial. URL supplies no owner authority.",
       "sha256": "b4c6f1f730ba32790fc2e74d3f0820cd6121d1c12ea9588b67c9c4f4ce6b6015"
+    },
+    "app/api/missioncontrol/control/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Bounded signed deny-only ingress selects configured owner and operator enrollment. Ed25519 control verification and immutable local fence precede canonical stop and authenticated ACK; no request-selected destination. Cleanup is pending unless existing canonical evidence proves it. Signed-control and real PostgreSQL revoke/UNKNOWN tests cover the called enforcement path. Installed hosting remains unqualified.",
+      "sha256": "4271ad0c4fd0eb467c66fffe65993e861294b651d20cb3ae5e10900bb1873697"
+    },
+    "app/api/missioncontrol/result/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Bounded dedicated connection HMAC request, configured owner and immutable enrollment. Exact retained Work readback refresh only: cannot issue, claim, replay, stop or settle paid execution. Returns original signed evidence and immutable Proof; no-store. Protocol and real signed PostgreSQL projection tests cover authentication, correlation and freshness. Installed hosting remains unqualified.",
+      "sha256": "e4d9527849eac91dbdf69b2c5c186bd2bf276e493e6c86455bbd3dd4ef688708"
+    },
+    "lib/missioncontrol/capability-source.ts": {
+      "classification": "ENFORCED",
+      "reason": "Uses existing canonical issueBackendOrderedPermit under restricted pinned transaction, configured installation/agent/backend and enrolled receiver signature. No alternate resolver or registry. Real PostgreSQL source signature, replay and revoked-policy tests pass.",
+      "sha256": "4c161a4e69736a27d534a0b06e0e5054fddb4ed5f54320881d33cf8e30e78c08"
+    },
+    "lib/missioncontrol/control-runtime.ts": {
+      "classification": "ENFORCED",
+      "reason": "Signed exact owner/permit control commits immutable monotonic fence before network ACK. Revoke calls existing stop; disable-new never stops active Work. UNKNOWN and reservations are preserved; cleanup requires canonical evidence. Real PostgreSQL control and duplicate-delivery tests pass.",
+      "sha256": "f2faf97cedfcadeafa24a42318ed758a860e64c46e5b3d2e1e3509363d431702"
+    },
+    "lib/missioncontrol/execution-permit.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure strict Ed25519 execution permit, short admission receipt and deny-only control verification; exact owner, enrollment, Work, limits, key identity, time and digest bindings.49 negative/positive protocol tests; no effects or grants.",
+      "sha256": "83193447caca748b429472c8ebd73f36826379134f2f2f97507d0286d690cf9c"
+    },
+    "lib/missioncontrol/installed-client.ts": {
+      "classification": "ENFORCED",
+      "reason": "Operator-enrolled exact HTTPS origin and per-connection secret only, bounded responses, timeout, no redirect or transport retries. Control-purpose config cannot invoke admission/preparation. Server currentness and signatures remain independently required; client response alone grants no execution.",
+      "sha256": "5926adb40b7090ff05a08f06549c9260bfd800e3fcd3cf5bd2622ea71d13e3a3"
+    },
+    "lib/missioncontrol/permit-store.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner RLS and pinned transactions retain immutable Work/permit/receipt/control/readback evidence. Canonical policy resolver plus agent, registry, receiver and policy identity checks; earliest source/Relay/canonical expiry. Controls serialize with claim through Work lock. Restricted-role, concurrent replay, deny and expiry PostgreSQL checks pass. Hosted recovery witness remains a release dependency.",
+      "sha256": "27a9bc2b61157e20acb78ac2a49d83fbafbdc5f3cb4f1fdda9d7b120e52cf153"
+    },
+    "lib/missioncontrol/permit-test-fixture.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Synthetic Ed25519 keys, owner enrollment and signed test messages used only by qualification tests; no installed credential, owner binding or runtime caller.",
+      "sha256": "93bc7ac1acc98e74147711cb2345738fa19ca478567bbde69305fbc448d2e6cd"
+    },
+    "lib/missioncontrol/prepare-execution.ts": {
+      "classification": "ENFORCED",
+      "reason": "Strict owner-scoped canonical AlphaTasks Work, version/generation and installed FactoryVersion produce an inspectable approval request through enrolled client. Does not issue authority or reserve money. Positive/stale Work PostgreSQL test verifies no accounting mutation.",
+      "sha256": "4ffb91de6903f1bf7becb39cd5031d6e0f0a59b305ccbe36e2616bbe2e753cd0"
+    },
+    "lib/missioncontrol/result-protocol.ts": {
+      "classification": "INTERNAL",
+      "reason": "Dedicated domain-separated short-lived HMAC authenticates exact connection, owner, installation, project, origins and challenge. Nine wire tests cover tamper, owner scope, expiry and domain separation.",
+      "sha256": "a85c1c0200d9fa9d561d9435e83708a8d3266868b742bec6c77a9aaa1648192b"
+    },
+    "lib/missioncontrol/result-readback.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Projects original signed Factory evidence and retained Result/Proof against exact immutable permit/Work binding. Fresh settlement requires quiescent known complete spend and no retained/UNKNOWN exposure. Final observation time and attestation deadline bound freshness. Real signed Factory UNKNOWN and delayed PostgreSQL read regressions pass; no verdict promotion.",
+      "sha256": "bf77e02afebbc92ac3c882ed105440f50fcc023345a6ee68f7b90d517122d0af"
     }
   }
 }

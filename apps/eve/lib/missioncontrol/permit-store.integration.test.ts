@@ -11,11 +11,16 @@ import { controlDigest } from './execution-permit.ts';
 import { missionControlResultReadback } from './result-readback.ts';
 import { FakeFactory } from '../external-alpha/factory-test-fixture.ts';
 import { ExternalAlphaWorkController, receiptKeys } from '../external-alpha/work-controller.ts';
-import { publicKeyId } from '../external-alpha/work-authority.ts';
+import { ExternalAlphaWorkAuthority,publicKeyId } from '../external-alpha/work-authority.ts';
 import { buildSignedResult } from '../external-alpha/result-test-fixture.ts';
-import { generateKeyPairSync,randomUUID } from 'node:crypto';
+import { generateKeyPairSync,randomUUID,sign } from 'node:crypto';
 import { issueMissionControlSourcePermit } from './capability-source.ts';
 import { signPolicyMessage,verifyPolicyMessage,parsePolicyMessage } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
+import { applyMissionControlControl,pollMissionControlControls } from './control-runtime.ts';
+import { WorkStore } from '../engineering/store.ts';
+import { digest } from '../engineering/contract.ts';
+import { READBACK_DOMAIN } from '../external-alpha/dispatch-readback.ts';
+import { prepareMissionControlExecution } from './prepare-execution.ts';
 
 describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () => {
   let env: Env, database: WorkDatabase, store: MissionControlBindings, fixture: ReturnType<typeof permitFixture>, pair: CapabilityPair, role: string;
@@ -80,6 +85,25 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
   });
   const accept = () => store.accept(fixture.signPermit(), fixture.signReceipt(), fixture.challenge, pair,
     fixture.document.work.id, env.policy.repository);
+  it('prepares owner approval for only the exact canonical Work without reserving execution',async()=>{
+    const e=fixture.enrollment;
+    const runtime={NODE_ENV:'test' as const,VERCEL:'1',VERCEL_ENV:'production',VERCEL_PROJECT_ID:env.policy.projectId,
+      EVE_PROJECT_NAME:'myeve-alpha-tester-1',MYEVE_OWNER_ID:env.owner,MYEVE_EXTERNAL_ALPHA_POLICY:JSON.stringify(env.policy),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY:generateKeyPairSync('ed25519').privateKey.export({type:'pkcs8',format:'pem'}).toString(),
+      MYEVE_EXTERNAL_ALPHA_POLICY_SHA256:digest(env.policy),MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION',
+      MYEVE_MISSIONCONTROL_URL:e.issuer,MYEVE_MISSIONCONTROL_AUDIENCE:e.audience,MYEVE_MISSIONCONTROL_CONNECTION_ID:e.connectionId,
+      MYEVE_MISSIONCONTROL_INSTALLATION_ID:e.installationId,MYEVE_MISSIONCONTROL_SECRET:'synthetic-connection-secret-32-characters'};
+    const input={operation:'enterprise.prepare_execution',proposalId:'proposal',workOrderId:fixture.document.workOrderId,
+      expectedWorkOrderRevisionId:fixture.document.workOrderRevisionId,expectedPlanDigest:fixture.document.planDigest,idempotencyKey:'prepare-alpha',
+      workId:fixture.document.work.id,expectedWorkVersion:1,expectedWorkGeneration:1};
+    const workStore=new WorkStore({scopeKind:'personal',scopeId:env.owner,actorId:env.owner},database);
+    let sent:unknown;
+    const send:typeof fetch=async(_url,request)=>{sent=JSON.parse(String(request?.body));return Response.json({status:'success',value:{requestId:'request',status:'OWNER_APPROVAL_REQUIRED'}});};
+    expect(await prepareMissionControlExecution(workStore,input,'prepare-command',runtime,send)).toMatchObject({status:'OWNER_APPROVAL_REQUIRED'});
+    expect(JSON.parse((sent as any).args[0].payloadJson)).toMatchObject({work:fixture.document.work,admission:fixture.document.admission});
+    await expect(prepareMissionControlExecution(workStore,{...input,expectedWorkGeneration:2},'stale-command',runtime,send)).rejects.toThrow('MISSIONCONTROL_PREPARE_WORK_CHANGED');
+    expect(await env.count('external_alpha_cohort_admission')).toBe(0);expect(await env.count('external_alpha_work_authority')).toBe(0);
+  });
 
   it('issues the canonical source permit only for the pinned receiver and active policy',async()=>{
     const receiver=generateKeyPairSync('ec',{namedCurve:'P-256'}),source=generateKeyPairSync('ec',{namedCurve:'P-256'});
@@ -111,6 +135,27 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       expect(await env.count(table)).toBe(1);
     expect((await store.forWork(fixture.document.work.id))?.binding.missionId).toBe(fixture.document.missionId);
     await expect(database.query('SELECT missioncontrol_assert_dispatch($1,$2,1,1,true)', [env.owner, fixture.document.work.id])).resolves.toHaveLength(1);
+  });
+  it('issues, claims and refreshes through the ordinary runtime role without policy-write privileges',async()=>{
+    await accept();
+    await env.pool.query(`GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),
+      external_alpha_work_admit(jsonb),external_alpha_admit(jsonb),external_alpha_work_claim(jsonb),external_alpha_work_finish(jsonb),external_alpha_dispatch_bind(jsonb) TO ${role}`);
+    await env.pool.query(`GRANT UPDATE(owner_id) ON external_alpha_policy TO ${role}`);
+    await env.pool.query(`GRANT INSERT,UPDATE ON external_alpha_work_authority,external_alpha_allowance TO ${role}`);
+    await env.pool.query(`GRANT INSERT ON external_alpha_shared_binding,external_alpha_work_dispatch TO ${role}`);
+    const runtime={...database,query:async(sql:string,values?:unknown[])=>database.atomic!(transaction=>transaction.query(sql,values))};
+    const authority=new ExternalAlphaWorkAuthority(runtime,env.policy,env.signer);
+    const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
+    const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
+    const controller=new ExternalAlphaWorkController(authority,factory,config,receiptKeys(config),Date.now,
+      (record,original)=>store.retainFactoryReadback(record,original));
+    const work=await env.store.get(fixture.document.work.id);
+    expect((await controller.start(work)).authority.state).toBe('CONSUMED');
+    expect(await controller.refreshReadback(fixture.document.work)).toMatchObject({state:'RUNNING'});
+    expect(factory.posts).toBe(1);
+    await expect(runtime.query('UPDATE external_alpha_policy SET activated_at=NULL')).rejects.toThrow('permission denied');
+    await expect(runtime.query("UPDATE capability_control.owner_state SET preferences='{}'")).rejects.toThrow('permission denied');
+    await expect(runtime.query('UPDATE missioncontrol_owner_enrollments SET revision=revision+1')).rejects.toThrow('permission denied');
   });
   it('denies mismatched Work and cross-owner access before retaining evidence', async () => {
     const foreign = new MissionControlBindings(database, 'foreign-owner');
@@ -150,6 +195,47 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(await env.count('external_alpha_cohort_dispatch')).toBe(0);
     // Reservation remains canonical historical accounting; a refusal never refunds it.
     expect(await env.count('external_alpha_cohort_admission')).toBe(1);
+  });
+  it('serializes a queued revoke before a concurrent canonical dispatch claim',async()=>{
+    await accept();
+    const authority=await env.svc.issue(await env.store.get(fixture.document.work.id),files);
+    const blocker=await env.pool.connect();
+    const waitForLock=async(fragment:string)=>{
+      for(let attempt=0;attempt<200;attempt++){
+        const rows=(await env.pool.query("SELECT pid FROM pg_stat_activity WHERE datname=$1 AND wait_event_type='Lock' AND query LIKE $2",[env.name,'%'+fragment+'%'])).rows;
+        if(rows.length)return;
+        await new Promise(resolve=>setTimeout(resolve,10));
+      }
+      throw Error('Synthetic lock barrier did not engage');
+    };
+    let fence:Promise<unknown>|undefined,claim:Promise<unknown>|undefined;
+    try{
+      await blocker.query('BEGIN');await blocker.query('SELECT id FROM engineering_work WHERE id=$1 FOR UPDATE',[fixture.document.work.id]);
+      const control=fixture.signControl();
+      fence=store.fence(fixture.document.permitId,control,controlDigest(control.document));
+      await waitForLock('SELECT id FROM engineering_work');
+      claim=env.svc.claim(authority).catch(error=>error);
+      await waitForLock('external_alpha_work_claim');
+      await blocker.query('COMMIT');await fence;
+      expect(await claim).toBeInstanceOf(Error);
+      expect(String(await claim)).toContain('MISSIONCONTROL_WORK_FENCED');
+      expect((await env.svc.forWork(fixture.document.work.id))?.state).toBe('ISSUED');
+      expect(await env.count('external_alpha_cohort_dispatch')).toBe(0);
+    }finally{await blocker.query('ROLLBACK');blocker.release();await Promise.allSettled([fence,claim]);}
+  },10000);
+  it('rejects a capability decision that expires while acceptance waits for the canonical Work lock',async()=>{
+    const source=JSON.parse(pair.myeve.message);source.expiresAt=Date.now()+1000;
+    pair.myeve.message=JSON.stringify(source);fixture.challenge.policyPairSha256=capabilityPairDigest(pair);
+    const blocker=await env.pool.connect();
+    let pending:Promise<unknown>|undefined;
+    try{
+      await blocker.query('BEGIN');await blocker.query('SELECT id FROM engineering_work WHERE id=$1 FOR UPDATE',[fixture.document.work.id]);
+      pending=accept().catch(error=>error);
+      await blocker.query('SELECT pg_sleep(1.2)');await blocker.query('COMMIT');
+      expect(await pending).toBeInstanceOf(Error);
+      expect(await env.count('missioncontrol_admission_receipts')).toBe(0);
+      expect(await env.count('external_alpha_cohort_admission')).toBe(0);
+    }finally{await blocker.query('ROLLBACK');blocker.release();await pending;}
   });
   it('detects changed authoritative evidence even without a preference revision change', async () => {
     await accept();
@@ -210,6 +296,25 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await controller.refreshReadback(fixture.document.work);
     expect(await env.count('missioncontrol_factory_readbacks')).toBe(count+1);
     await expect(controller.refreshReadback({...fixture.document.work,version:999})).rejects.toThrow('EXTERNAL_ALPHA_READBACK_WORK_CHANGED');
+    factory.readbackMutate=value=>{
+      value.readbackAttestation.expiresAt=new Date(Date.now()+1000).toISOString();
+      value.readbackSignature=sign(null,Buffer.concat([Buffer.from(READBACK_DOMAIN),Buffer.from([0]),Buffer.from(digest(value.readbackAttestation),'ascii')]),factory.receiptKey.privateKey).toString('base64url');
+    };
+    await controller.refreshReadback(fixture.document.work);
+    const brief=await missionControlResultReadback(database,request);
+    expect(brief.status).toBe('SETTLED');
+    expect(brief.expiresAt).toBe(Date.parse(brief.admission!.originalSignedReadback.readbackAttestation.expiresAt));
+    const slow:WorkDatabase={...database,atomic:async action=>database.atomic!(async transaction=>action({
+      query:async(sql,values)=>{if(sql.includes('LEFT JOIN LATERAL'))await transaction.query('SELECT pg_sleep(1.1)');return transaction.query(sql,values);},
+    }))};
+    expect((await missionControlResultReadback(slow,request)).status).toBe('PENDING');
+    factory.readbackMutate=null;factory.state='UNKNOWN';factory.quiescent=false;
+    factory.ops=[{id:'uncertain',phase:'productive',state:'unknown'}];
+    await controller.refreshReadback(fixture.document.work);
+    const uncertain=await missionControlResultReadback(database,request);
+    expect(uncertain.status).toBe('PENDING');
+    expect(uncertain.result?.proof).toBeTruthy();
+    expect(uncertain.admission?.originalSignedReadback.readbackAttestation.state).toBe('UNKNOWN');
     expect(factory.posts).toBe(1);
     await expect(missionControlResultReadback(database,{...request,connectionId:'foreign-connection'})).rejects.toThrow('MISSIONCONTROL_RESULT_ACCESS_DENIED');
     await expect(env.pool.query('DELETE FROM missioncontrol_factory_readbacks')).rejects.toThrow('MISSIONCONTROL_BINDING_IMMUTABLE');
@@ -223,6 +328,47 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await expect(env.svc.issue(await env.store.get(fixture.document.work.id),files)).rejects.toThrow('MISSIONCONTROL_WORK_FENCED');
     expect(await env.count('external_alpha_cohort_admission')).toBe(0);
     await expect(env.pool.query('DELETE FROM missioncontrol_permit_controls')).rejects.toThrow('MISSIONCONTROL_BINDING_IMMUTABLE');
+  });
+  it('delivers revocation through canonical stop and ACKs only authenticated cleanup',async()=>{
+    await accept();
+    const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
+    const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
+    const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config),Date.now,
+      (authority,original)=>store.retainFactoryReadback(authority,original));
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const control=fixture.signControl(),delivery={status:'CONTROL',control,controlDigest:controlDigest(control.document)};
+    const acknowledgments:unknown[]=[];
+    const client={readControl:async()=>delivery,acknowledgeControl:async(value:unknown)=>{
+      expect(await env.count('missioncontrol_permit_controls')).toBe(1);acknowledgments.push(value);
+    }};
+    const workStore=new WorkStore({scopeKind:'personal',scopeId:env.owner,actorId:env.owner},database);
+    const out=await pollMissionControlControls(workStore,controller,undefined,client);
+    expect(out.checked).toBe(1);
+    expect(acknowledgments[0]).toMatchObject({authority:'FENCED',cleanup:'CONFIRMED'});
+    expect(factory.posts).toBe(1);expect(factory.stops).toHaveLength(1);
+    expect((await env.svc.forWork(work.id))?.state).toBe('CANCELLED');
+    await applyMissionControlControl(workStore,controller,delivery,client);
+    expect(factory.stops).toHaveLength(1);
+  });
+  it('disable-new preserves running Work and UNKNOWN never becomes cleanup success',async()=>{
+    await accept();
+    const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
+    const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
+    const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config));
+    const work=await env.store.get(fixture.document.work.id);await controller.start(work);
+    const control=fixture.signControl({...fixture.controlDocument(),operation:'disable_new'});
+    const client={readControl:async()=>({status:'NO_CONTROL'}),acknowledgeControl:async()=>({})};
+    const workStore=new WorkStore({scopeKind:'personal',scopeId:env.owner,actorId:env.owner},database);
+    expect(await applyMissionControlControl(workStore,controller,{status:'CONTROL',control,controlDigest:controlDigest(control.document)},client))
+      .toMatchObject({authority:'NEW_ADMISSIONS_DENIED',cleanup:'PENDING_BACKEND'});
+    expect(factory.stops).toHaveLength(0);expect((await env.svc.forWork(work.id))?.state).toBe('CONSUMED');
+    const authority=(await env.svc.forWork(work.id))!;
+    await env.svc.finish(authority.id,'UNKNOWN',{reason:'SYNTHETIC_UNCERTAINTY'});
+    const revoke=fixture.signControl({...fixture.controlDocument(),sequence:2});
+    expect(await applyMissionControlControl(workStore,controller,{status:'CONTROL',control:revoke,controlDigest:controlDigest(revoke.document)},client))
+      .toMatchObject({authority:'FENCED',cleanup:'PENDING_BACKEND'});
+    expect((await env.svc.forWork(work.id))?.state).toBe('UNKNOWN');
+    expect(await env.count('external_alpha_cohort_admission')).toBe(1);
   });
   it('retains the earliest policy-permit expiry instead of extending it to receipt expiry', async () => {
     const source=JSON.parse(pair.myeve.message),relay=JSON.parse(pair.relay.message);

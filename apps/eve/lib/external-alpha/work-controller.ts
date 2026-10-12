@@ -325,6 +325,14 @@ export class ExternalAlphaWorkController {
     readonly clock: () => number = Date.now,
     readonly retainReadback?: (authority: WorkAuthorityRecord, original: unknown) => Promise<void>,
   ) {}
+  private async observeReadback(authority:WorkAuthorityRecord,original:unknown) {
+    try { await this.retainReadback?.(authority,original); }
+    catch {
+      // Projection storage cannot change authenticated execution/accounting truth.
+      // A later read-only refresh can retain the same original signed evidence.
+      console.error('missioncontrol_readback_retention_failed');
+    }
+  }
   /** Refresh evidence for the already dispatched request, including terminal
    * Results. This method cannot issue, claim, stop, settle or replay execution. */
   async refreshReadback(work: {id:string;version:number;generation:number}) {
@@ -377,11 +385,11 @@ export class ExternalAlphaWorkController {
     let readback: FactoryReadback;
     try {
       readback = verifyReadback(response, record, this.keys, binding, challenge, this.clock());
-      await this.retainReadback?.(record,response);
     } catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "RECEIPT_UNVERIFIED" }).catch(() => {});
       throw Error("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
     }
+    await this.observeReadback(record,response);
     const consumed = await this.authority.finish(record.id, "CONSUMED", { receipt: readback.authorityReceipt });
     // A verified receipt establishes consumption; an authenticated UNKNOWN
     // establishes an unresolved remote effect immediately, before refresh.
@@ -408,12 +416,12 @@ export class ExternalAlphaWorkController {
     const raw = await this.factory.read(record.requestId, challenge);
     if (raw === null) return { state: record.state }; // sweep fences an unresolved dispatch after expiry
     let readback: FactoryReadback;
-    try { readback = verifyReadback(raw, record, this.keys, binding, challenge, this.clock());
-      await this.retainReadback?.(record,raw); }
+    try { readback = verifyReadback(raw, record, this.keys, binding, challenge, this.clock()); }
     catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "READBACK_UNVERIFIED" });
       return { state: "UNKNOWN" as const };
     }
+    await this.observeReadback(record,raw);
     let current = record;
     if (record.state === "DISPATCHING")
       current = await this.authority.finish(record.id, "CONSUMED", { receipt: readback.authorityReceipt });
@@ -521,12 +529,12 @@ export class ExternalAlphaWorkController {
     const binding = await dispatchBinding(this.authority.database, record);
     await sharedAlphaAccounting(this.authority.database).workPhase(this.authority.database,this.authority.policy,record.allowanceId,record.id,"hold_work");
     const raw = await this.factory.stop(record.requestId, challenge);
-    try { verifyReadback(raw, record, this.keys, binding, challenge, this.clock());
-      await this.retainReadback?.(record,raw); }
+    try { verifyReadback(raw, record, this.keys, binding, challenge, this.clock()); }
     catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "STOP_READBACK_UNVERIFIED" });
       return { state: "UNKNOWN" as const };
     }
+    await this.observeReadback(record,raw);
     return this.reconcile(workId, ctx);
   }
 }

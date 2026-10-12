@@ -39,7 +39,8 @@ export const DENIED_FAMILIES = [
 ] as const;
 export type AllowedFamily = (typeof ALLOWED_FAMILIES)[number];
 export type DeniedFamily = (typeof DENIED_FAMILIES)[number];
-export type Family = AllowedFamily | DeniedFamily;
+export const INSTALLED_FAMILIES=['MISSION_CONTROL'] as const;
+export type Family = AllowedFamily | DeniedFamily | (typeof INSTALLED_FAMILIES)[number];
 const allowedSet: ReadonlySet<string> = new Set(ALLOWED_FAMILIES);
 
 /** Memory remains OFF for this release, including the local backend. Legacy
@@ -50,6 +51,7 @@ export function externalAlphaMemoryApproved(_env: NodeJS.ProcessEnv = process.en
   return false;
 }
 export function externalAlphaFamilyAllowed(family: Family, env: NodeJS.ProcessEnv = process.env): boolean {
+  if(family==='MISSION_CONTROL')return env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
   if (!allowedSet.has(family)) return false;
   if (family === "MEMORY") return externalAlphaMemoryApproved(env);
   return true;
@@ -133,6 +135,7 @@ add("ADMIN", ["/api/control", "/api/operations", "/api/owner-data", "/api/beta/f
 
 add("EMAIL_CONNECTED_APPS", ["/api/myapps/[...path]", "/apps/installed"]);
 add("ADMIN", ["/api/capability-control"]);
+add('MISSION_CONTROL',['/api/missioncontrol/result','/api/missioncontrol/control'],['POST']);
 
 // ---- Pages (app/**/page.tsx) ----------------------------------------------
 add("CORE", ["/", "/login", "/privacy", "/welcome", "/settings"]);
@@ -263,12 +266,14 @@ export const externalAlphaMemoryCapabilities: ReadonlySet<string> = new Set([
 ]);
 export function externalAlphaCapabilityAllowed(id: string, env: NodeJS.ProcessEnv = process.env): boolean {
   if (externalAlphaCapabilityAllowlist.has(id)) return true;
+  if(id==='tool.mission_control'&&env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')return true;
   return externalAlphaMemoryCapabilities.has(id) && externalAlphaMemoryApproved(env);
 }
 /** Legacy feature flags an installation may carry. A declared EVE_ENABLED_FEATURES
  * can narrow this set, never widen it; an unset value means this set, never "all". */
 export function externalAlphaEnabledFeatures(env: NodeJS.ProcessEnv = process.env): Set<string> {
   const allowed = new Set<string>(externalAlphaMemoryApproved(env) ? ["memory"] : []);
+  if(env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')allowed.add('missioncontrol-readiness');
   const raw = env.EVE_ENABLED_FEATURES;
   if (raw === undefined || raw.trim().length === 0) return allowed;
   const declared = new Set(raw.split(",").map((v) => v.trim()).filter(Boolean));
