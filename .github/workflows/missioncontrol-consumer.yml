@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
       - run: node --import tsx --test apps/eve/test/missioncontrol-consumer.test.mjs apps/eve/test/myfactory-protocol.test.mjs apps/eve/test/factory-evidence.test.mjs
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
       - run: node --import tsx apps/eve/scripts/check-capability-registry.ts

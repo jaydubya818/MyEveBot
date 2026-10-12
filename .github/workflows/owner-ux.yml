@@ -31,6 +31,7 @@ jobs:
           node-version: 24.18.1
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
       - run: npx playwright install --with-deps chrome
       - name: Focused policy and owner-boundary contracts
         working-directory: apps/eve
@@ -122,6 +123,7 @@ jobs:
           node-version: 24.18.1
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
       - run: npx playwright install --with-deps chromium
       - name: Start isolated unpaid journey fixture
         working-directory: apps/eve

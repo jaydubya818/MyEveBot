@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
       - run: npx playwright install --with-deps chromium
       - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json

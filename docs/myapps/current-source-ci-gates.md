@@ -16,6 +16,18 @@ reference workflow uses the same Factory selection and retains its separate
 synthetic browser and runtime checks. Both workflows run on the existing
 deployment-disabled unified qualification branch.
 
+The reference workflow qualifies every push on its selected branches, including
+main, because its identity envelope binds the whole source tree. A rendering or
+packaging correction must not silently inherit a previous source's reference
+result. Pull-request path filtering remains unchanged. The composition browser
+readiness check uses Next on port 3183; port 3185 serves the separate Eve runtime.
+
+Current-source MyEve jobs that disable install lifecycle scripts explicitly apply
+and verify the reviewed dependency patch before tests. Historical MyEve and
+Factory comparison checkouts retain their own immutable package contracts; the
+current MyEve patch command is not applied to unrelated repositories or fabricated
+on historical sources that predate it.
+
 Historical provenance remains independently checked. Historical fixture reads use
 the preparation commits in `historical-composition-fixtures.json` instead of the
 moving checkout HEAD. These identities are recorded by the original offline
