@@ -21,6 +21,12 @@ jobs:
     - name: Apply and verify reviewed dependency source mitigation
       run: npm run postinstall && npm run security:patches
     - run: node scripts/protocol-convergence/check-contract.mjs
+    - name: Installed permits, feedback authentication and fail-closed feature boundaries
+      run: npm exec --workspace apps/eve -- vitest run lib/missioncontrol/execution-permit.test.ts
+        lib/missioncontrol/admission-receipt.test.ts lib/missioncontrol/permit-control.test.ts
+        lib/missioncontrol/result-protocol.test.ts lib/missioncontrol/installed-client.test.ts
+        lib/missioncontrol/relay-lease-client.test.ts lib/beta-feedback-route.test.ts
+        lib/external-alpha/features.test.ts lib/database-schema.test.ts
     - run: npm run test --workspace=eve-agent -- lib/relay lib/external-alpha/relay-link.test.ts
     - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
     - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts

@@ -43,8 +43,16 @@ for (const entry of historical.files) {
 }
 assert.equal(result.historical.length, 103);
 const migrations = await loadMigrations(pathToFileURL(join(eve, 'apps/eve/migrations/')));
-assert.equal(migrations.length, 89, 'Review any new application migration explicitly');
-assert.equal(migrations.at(-1).name, '0093_myapps_runtime.sql');
+// The historical catalog remains byte-for-byte frozen. This separately reviewed
+// supplement qualifies only the five new additive unified-beta migrations.
+const supplementBytes=readFileSync(new URL('./unified-migration-supplement.json',import.meta.url));
+const supplement=JSON.parse(supplementBytes);
+assert.equal(supplement.schema,'unified-beta-migration-supplement/v1');
+assert.equal(supplement.files.length,5);
+assert.deepEqual(migrations.slice(89).map(({name,checksum})=>({name,sha256:checksum})),supplement.files);
+result.supplementSha256=sha(supplementBytes);
+assert.equal(migrations.length, 94, 'Review any new application migration explicitly');
+assert.equal(migrations.at(-1).name, '0098_unified_beta_feedback_initial_state.sql');
 assert.equal(new Set(migrations.map(m => m.name.slice(0, 4))).size, migrations.length);
 const expected = migrations.map(({ name, checksum }) => ({ name, checksum }));
 assert.throws(() => planMigrations(migrations, [expected[1]]), /Noncontiguous/);
@@ -112,7 +120,7 @@ try {
   await migrate(fresh.client);
   assert.deepEqual(await ledger(fresh.client), expected);
   const freshSchema = schema(fresh.name);
-  check('fresh ordered application ledger and all historical checksums', { application: 89, factory: 12, central: 2 });
+  check('fresh ordered application ledger and all historical checksums', { application: 94, factory: 12, central: 2 });
   check('duplicate, noncontiguous and unsupported Phase 2 ledger identities are rejected');
   const originalLedger = (await fresh.client.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
   await migrate(fresh.client);
@@ -120,7 +128,7 @@ try {
   check('duplicate application migration preserves names, checksums and original timestamps');
 
   // Exact canonical prefixes are supported by planMigrations, not guessed deployment states.
-  for (const boundary of ['0033', '0067', '0084', '0092']) {
+  for (const boundary of ['0033', '0067', '0084', '0092', '0093', '0094', '0095', '0096', '0097']) {
     const upgrade = await create('prefix' + boundary);
     const prefix = migrations.filter(m => m.name.slice(0, 4) <= boundary);
     await migrate(upgrade.client, prefix);

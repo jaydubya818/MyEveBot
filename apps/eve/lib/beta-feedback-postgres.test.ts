@@ -58,6 +58,26 @@ describe.skipIf(!connection)('private beta feedback with ordinary PostgreSQL rol
     await expect(e.pool.query("UPDATE unified_beta_feedback SET details='changed',triage_note='bad' WHERE id=$1",[input.id])).rejects.toThrow('FEEDBACK_REPORT_IMMUTABLE');
     await expect(e.pool.query('DELETE FROM unified_beta_feedback_triage')).rejects.toThrow('FEEDBACK_HISTORY_IMMUTABLE');
   });
+  it('rejects forged initial triage under the ordinary application role and stamps server-owned chronology',async()=>{
+    const {e,pool}=await setup(),app=await pool.connect();
+    const insert=`INSERT INTO unified_beta_feedback(owner_id,id,input_digest,platform,title,details,impact,priority,status,triage_note,revision,created_at,updated_at)
+      VALUES($1,$2,$3,'MyEve / Sofie','Synthetic report','Synthetic details','IMPAIRED',$4,$5,$6,$7,'2100-01-01','2100-01-02') RETURNING *`;
+    try{
+      for(const [priority,status,note,revision] of [['P2','RESOLVED','Forged resolution',1],['P2','TRIAGED','Forged triage',1],
+        ['P2','REPORTED','Forged note',1],['P2','REPORTED',null,2],['P3','REPORTED',null,1]]){
+        await app.query('BEGIN');await app.query("SELECT set_config('myeve.feedback_owner',$1,true)",[e.owner]);
+        await expect(app.query(insert,[e.owner,randomUUID(),'a'.repeat(64),priority,status,note,revision])).rejects.toThrow('FEEDBACK_INITIAL_STATE_REQUIRED');
+        await app.query('ROLLBACK');
+      }
+      expect(await e.count('unified_beta_feedback')).toBe(0);expect(await e.count('unified_beta_feedback_triage')).toBe(0);
+      await app.query('BEGIN');await app.query("SELECT set_config('myeve.feedback_owner',$1,true)",[e.owner]);
+      const report=(await app.query(insert,[e.owner,randomUUID(),'a'.repeat(64),'P2','REPORTED',null,1])).rows[0];
+      expect(report.status).toBe('REPORTED');expect(report.revision).toBe(1);
+      expect(new Date(report.created_at).getTime()).toBeLessThan(Date.now()+1000);
+      expect(report.created_at).toEqual(report.updated_at);
+      await app.query('COMMIT');
+    }finally{app.release();}
+  });
   it('paginates stable private history and rejects caller-assigned status or Mission',async()=>{
     const {service,input}=await setup();
     await expect(service.save({...input,status:'RESOLVED'})).rejects.toThrow();

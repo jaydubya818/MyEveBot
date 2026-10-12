@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0097_missioncontrol_control_attempts.sql";
+export const CURRENT_DATABASE_MIGRATION = "0098_unified_beta_feedback_initial_state.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.

@@ -1,0 +1,26 @@
+{
+  "schema": "unified-beta-migration-supplement/v1",
+  "historicalCatalog": "historical-migrations.json",
+  "files": [
+    {
+      "name": "0094_missioncontrol_permit_bindings.sql",
+      "sha256": "3ee188389aabb091c8bf864160f849ca85c772e283111c812acdc288a81cb05d"
+    },
+    {
+      "name": "0095_missioncontrol_control_acknowledgments.sql",
+      "sha256": "6b2fcb0bcc4e1227eaac88931b983e62648d9a095956b5f2bffe420fcd531f0a"
+    },
+    {
+      "name": "0096_unified_beta_feedback.sql",
+      "sha256": "67e193cbd393d0f4c58bf7b6b0b30d6c5a428a88131b65fa0bca9e1511e52d03"
+    },
+    {
+      "name": "0097_missioncontrol_control_attempts.sql",
+      "sha256": "cddbc57333052ea999e9a81dab8310f592f324790a9a8bc08090fa46d012223e"
+    },
+    {
+      "name": "0098_unified_beta_feedback_initial_state.sql",
+      "sha256": "ff244cccc7e09be269ea97bfe9e627ee1dd659f6aab3de4fa2f3ce1a622c95f5"
+    }
+  ]
+}
