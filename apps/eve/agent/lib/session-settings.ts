@@ -71,6 +71,7 @@ function marker(text: string): ClientTurnSettings | null {
 
 export function clientTurnSettings(messages: readonly ModelMessage[]): ClientTurnSettings {
   for (let index = messages.length - 1; index >= 0; index--) {
+    if (messages[index].role !== "user") continue;
     const content = messages[index].content;
     const texts = typeof content === "string" ? [content] : content.map((part) => "text" in part && typeof part.text === "string" ? part.text : "");
     for (const text of texts) { const parsed = marker(text); if (parsed) return parsed; }
