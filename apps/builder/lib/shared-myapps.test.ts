@@ -3,6 +3,8 @@ import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promis
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { execFileSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import { assembleDeployment, templateRoot } from "./assemble";
 import { FEATURE_IDS } from "./config";
 import { MYAPPS_TRACE_METADATA, SHARED_MYAPPS_FILES, SHARED_CAPABILITY_FILES, STANDALONE_SHARED_FILES, STANDALONE_SOURCE_INPUTS, readStandaloneSourceFile, relocateCapabilityReferences, standalonePackageManifest, assertUniqueOutputPaths, readSharedMyAppsFile, relocateMyAppsReferences } from "./shared-myapps";
@@ -137,4 +139,27 @@ test("Builder-only MyApps metadata is digest-bound and cannot acquire install ho
     await writeFile(path.join(root, MYAPPS_TRACE_METADATA), JSON.stringify(changed));
     await assert.rejects(readStandaloneSourceFile(eve, MYAPPS_TRACE_METADATA), /trace metadata changed/);
   } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("AlphaTasks packaging preserves exact tracked adapter bytes and its runtime identity", async () => {
+  const root = await templateRoot();
+  const repository = path.resolve(root, "../..");
+  const files = await assembleDeployment({ projectName: "adapter-closure-fixture", features: [], instructions: "offline fixture", schedules: [] });
+  const out = await mkdtemp(path.join(os.tmpdir(), "adapter-export-"));
+  try {
+    for (const file of SHARED_MYAPPS_FILES) {
+      const bytes = Buffer.from(files.find(entry => entry.file === file)!.data, "base64");
+      assert.deepEqual(bytes, execFileSync("git", ["show", `HEAD:${file}`], { cwd: repository }), `exact tracked source: ${file}`);
+      await mkdir(path.dirname(path.join(out, file)), { recursive: true });
+      await writeFile(path.join(out, file), bytes);
+    }
+    const adapter = "packages/myapps/src/alpha-tasks/isolation.ts";
+    const original = await import(pathToFileURL(path.join(repository, adapter)).href);
+    const packaged = await import(pathToFileURL(path.join(out, adapter)).href);
+    assert.equal(await packaged.localAlphaTasksAdapterDigest(), await original.localAlphaTasksAdapterDigest());
+    for (const file of ["lib/myapps/local-bootstrap.ts", "lib/myapps/alpha-tasks-host.ts", "lib/myapps/local-configuration.ts", "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/permit-store.ts"]) {
+      const expected = (await readFile(path.join(root, file), "utf8")).replaceAll("../../../../packages/", "../../packages/");
+      assert.equal(Buffer.from(files.find(entry => entry.file === file)!.data, "base64").toString(), expected, `only imports relocated; authority unchanged: ${file}`);
+    }
+  } finally { await rm(out, { recursive: true, force: true }); }
 });

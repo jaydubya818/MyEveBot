@@ -1,13 +1,14 @@
 import { createHash } from "node:crypto";
-import { readdir, readFile, stat } from "node:fs/promises";
+import { stat } from "node:fs/promises";
 import path from "node:path";
 
 import { STANDALONE_SHARED_FILES, STANDALONE_SOURCE_INPUTS, readStandaloneSourceFile, relocateMyAppsReferences, relocateCapabilityReferences, standalonePackageManifest, assertUniqueOutputPaths } from "./shared-myapps";
 
 import type { CustomSchedule, FeatureId } from "./config";
-import { allowedPrunableFiles, isExcluded, isPrunable } from "./manifest";
+import { allowedPrunableFiles, isPrunable } from "./manifest";
 import { generateScheduleFile, scheduleSlug } from "./schedule-codegen";
 import { generatePrimaryBootstrapSource } from "./primary-bootstrap";
+import { templateSourceFiles, readTemplateSource as readTemplateFile } from "./template-source";
 
 // Turns the live apps/eve source into the file set for one configured
 // deployment: walk, filter (exclusions + feature pruning), transform
@@ -83,39 +84,6 @@ export async function templateRoot(): Promise<string> {
   throw new Error("Could not locate the apps/eve template source");
 }
 
-function templateFilePath(root: string, relative: string): string {
-  const absolute = path.resolve(root, relative);
-  const prefix = `${path.resolve(root)}${path.sep}`;
-  if (!absolute.startsWith(prefix)) {
-    throw new Error(`Template path escapes apps/eve: ${relative}`);
-  }
-  return absolute;
-}
-
-/**
- * Template files are included explicitly in next.config.ts. Ignoring this
- * dynamic read prevents Turbopack from conservatively tracing the entire
- * monorepo; templateFilePath still keeps every read inside apps/eve.
- */
-async function readTemplateFile(root: string, relative: string): Promise<Buffer> {
-  return readFile(/* turbopackIgnore: true */ templateFilePath(root, relative));
-}
-
-async function walk(root: string, dir: string, out: string[]): Promise<void> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const absolute = path.join(dir, entry.name);
-    const relative = path.relative(root, absolute).split(path.sep).join("/");
-    const probe = entry.isDirectory() ? `${relative}/` : relative;
-    if (isExcluded(probe)) continue;
-    if (entry.isDirectory()) {
-      await walk(root, absolute, out);
-    } else if (entry.isFile()) {
-      out.push(relative);
-    }
-  }
-}
-
 /**
  * Template identity for update detection: a content hash (display / equality)
  * plus a checked-in monotonic release integer (ordering). Deployed agents
@@ -133,8 +101,7 @@ export function templateInfo(): Promise<TemplateInfo> {
   templateInfoInflight ??= (async () => {
     try {
       const root = await templateRoot();
-      const files: string[] = [];
-      await walk(root, root, files);
+      const files = await templateSourceFiles(root);
       const hash = createHash("sha256");
       for (const relative of files.sort()) {
         hash.update(relative);
@@ -146,7 +113,7 @@ export function templateInfo(): Promise<TemplateInfo> {
         hash.update("\0");
         hash.update(await readStandaloneSourceFile(root, file));
       }
-      const releaseRaw = (await readFile(path.join(root, TEMPLATE_RELEASE_FILE), "utf8")).trim();
+      const releaseRaw = (await readTemplateFile(root, TEMPLATE_RELEASE_FILE)).toString("utf8").trim();
       const release = Number.parseInt(releaseRaw, 10);
       if (!Number.isFinite(release) || release < 1) {
         throw new Error(
@@ -173,8 +140,7 @@ export async function templateVersion(): Promise<string> {
 /** All template file paths that ship for this feature selection (pre-transform). */
 export async function templateFiles(features: readonly FeatureId[]): Promise<string[]> {
   const root = await templateRoot();
-  const files: string[] = [];
-  await walk(root, root, files);
+  const files = await templateSourceFiles(root);
   const allowed = allowedPrunableFiles(features);
   return files.filter((file) => {
     if (!features.includes("browser") && (file === "agent/lib/qa-sandbox.ts" || file === "scripts/prewarm-computer.ts" ||

@@ -11,6 +11,10 @@ export const SHARED_MYAPPS_FILES = [
   "packages/myapps/src/preview.ts",
   "packages/myapps/src/resolver.ts",
   "packages/myapps/src/store.ts",
+  "packages/myapps/src/alpha-tasks/contracts.ts",
+  "packages/myapps/src/alpha-tasks/source.ts",
+  "packages/myapps/src/alpha-tasks/isolation.ts",
+  "packages/myapps/src/alpha-tasks/runner.mjs",
   "packages/myapps/prototype/index.html",
   "packages/myapps/prototype/app.js",
   "packages/myapps/prototype/app.css",
@@ -58,6 +62,11 @@ export const STANDALONE_SOURCE_INPUTS = [...STANDALONE_SHARED_FILES, MYAPPS_TRAC
 const RELOCATED_CONSUMERS = new Set([
   "lib/myapps/api.ts", "lib/myapps/hosting.ts",
   "lib/myapps/runtime.ts", "lib/myapps/workflow.ts",
+  "components/owner/installed-alpha-tasks.tsx",
+  "lib/myapps/alpha-tasks.ts", "lib/myapps/alpha-tasks-api.ts",
+  "lib/myapps/alpha-tasks-result.ts", "lib/myapps/owner-tasks-result.ts",
+  "lib/myapps/local-bootstrap.ts", "lib/myapps/local-configuration.ts",
+  "lib/myapps/alpha-tasks-host.ts",
 ]);
 const REPOSITORY_PREFIX = "../../../../packages/myapps/";
 
@@ -95,6 +104,7 @@ export function relocateMyAppsReferences(file: string, data: Buffer): Buffer {
   if (!source.includes(REPOSITORY_PREFIX)) return data;
   if (!RELOCATED_CONSUMERS.has(file)) throw new Error(`Unexpected shared MyApps consumer: ${file}`);
   const relocated = source.replace(/\.\.\/\.\.\/\.\.\/\.\.\/packages\/myapps\/([^"'`\s]*)/g, (reference, suffix: string) => {
+    if (!path.posix.extname(suffix) && (SHARED_MYAPPS_FILES as readonly string[]).includes(`packages/myapps/${suffix}.ts`)) suffix += ".ts";
     const shared = `packages/myapps/${suffix}`;
     if (!(SHARED_MYAPPS_FILES as readonly string[]).includes(shared) &&
       !(file === "lib/myapps/hosting.ts" && suffix === "prototype/")) {
@@ -110,7 +120,10 @@ export function relocateCapabilityReferences(file: string, data: Buffer): Buffer
   const source = data.toString("utf8");
   const prefix = "../../../../packages/capability-";
   if (!source.includes(prefix)) return data;
-  if (file !== "lib/capability-control/store.ts" && file !== "lib/capability-control/runtime.ts") {
+  if (!["lib/capability-control/store.ts", "lib/capability-control/runtime.ts",
+    "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/capability-source.ts",
+    "lib/missioncontrol/installed-client.ts", "lib/missioncontrol/permit-store.ts",
+    "lib/missioncontrol/relay-lease-client.ts", "lib/myapps/alpha-tasks-host.ts"].includes(file)) {
     throw new Error(`Unexpected shared capability consumer: ${file}`);
   }
   const relocated = source.replace(/\.\.\/\.\.\/\.\.\/\.\.\/packages\/(capability-[^"'`\s]*)/g, (reference, suffix: string) => {

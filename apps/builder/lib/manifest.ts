@@ -248,7 +248,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
 };
 
 export function isExcluded(relativePath: string): boolean {
-  return /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
+  return relativePath.split("/").some((part) => part.startsWith(".env") || ["output", ".local-computer", ".git", "node_modules", ".eve", ".next", ".output", ".turbo", ".vercel"].includes(part)) || /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
     (entry) =>
       relativePath === entry ||
       (entry.endsWith("/") ? relativePath.startsWith(entry) : relativePath.startsWith(entry)),
