@@ -109,7 +109,18 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
     for(let n=0;n<80;n++) {await page.keyboard.press('Tab');if(await ownerLink.evaluate(link=>link===document.activeElement)){ownerLinkReached=true;break;}}
     assert.ok(ownerLinkReached,'Owner review link must be reachable by keyboard without granting authority');report.checks.push('mobile-owner-handoff-keyboard-accessible');
     report.status=report.accessibility.violations.length||report.mobileAccessibility.violations.length||!(report.completedResultVisible||report.proposalVisible)?'PARTIAL':'PASS';
-  } catch(error){report.status='FAIL';report.error=String(error);if(state?.page){report.failureText=await state.page.locator('body').innerText().catch(()=>'');report.accessibility=await audit().catch(()=>({status:'NOT_RUN'}));await state.page.screenshot({path:join(output,'failure.png'),fullPage:true}).catch(()=>{});}}
+  } catch(error){report.status='FAIL';report.error=String(error);if(state?.page){
+    // This runner uses synthetic text only. Retain the composer and its exact
+    // owner-scoped draft so a reconnect failure distinguishes lost input from
+    // a disabled control or an uncommitted conversation.
+    report.composer=await state.page.evaluate(owner=>{
+      const element=document.querySelector('textarea[data-thread-composer]');
+      if(!element)return null;
+      const threadId=element.getAttribute('data-thread-composer');
+      return {threadId,value:element.value,disabled:element.disabled,
+        persistedDraft:localStorage.getItem('myeve-private:'+encodeURIComponent(owner)+':eve-web-draft:'+threadId)};
+    },owner).catch(()=>null);
+    report.failureText=await state.page.locator('body').innerText().catch(()=>'');report.accessibility=await audit().catch(()=>({status:'NOT_RUN'}));await state.page.screenshot({path:join(output,'failure.png'),fullPage:true}).catch(()=>{});}}
   finally {report.sessionRequests=state?.posts??[];await close(state);await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');}
   return report;
 }
