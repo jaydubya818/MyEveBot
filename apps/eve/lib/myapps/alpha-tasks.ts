@@ -444,8 +444,8 @@ export class AlphaTasksApps {
             expiresAt,
           ],
         );
-        await c.query(
-          "UPDATE myapps_receipts SET response=$4::jsonb WHERE owner_id=$1 AND app_id=$2 AND id=$3",
+        const completed = await c.query(
+          "UPDATE myapps_receipts SET response=$4::jsonb WHERE owner_id=$1 AND app_id=$2 AND id=$3 AND response->>'status'='RUNNING' AND response->>'operationId'=$5 RETURNING id",
           [
             p.ownerId,
             id,
@@ -456,8 +456,10 @@ export class AlphaTasksApps {
               previewId,
               cleanup: "CONFIRMED",
             }),
+            operationId,
           ],
         );
+        requireValue(completed.rows.length === 1, "APP_OPERATION_FENCED");
         return {
           previewId,
           expiresAt,
@@ -923,10 +925,11 @@ export class AlphaTasksApps {
             canonical(s.data) === canonical(result.data),
             "APP_READ_MUTATED_DATA",
           );
-        await c.query(
-          "UPDATE myapps_receipts SET response=$4::jsonb WHERE owner_id=$1 AND app_id=$2 AND id=$3",
-          [p.ownerId, id, requestKey, canonical(output)],
+        const completed = await c.query(
+          "UPDATE myapps_receipts SET response=$4::jsonb WHERE owner_id=$1 AND app_id=$2 AND id=$3 AND response->>'status'='RUNNING' AND response->>'operationId'=$5 RETURNING id",
+          [p.ownerId, id, requestKey, canonical(output), admitted.operationId],
         );
+        requireValue(completed.rows.length === 1, "APP_OPERATION_FENCED");
         await this.audit(c, p, id, "alpha-tasks." + request.operation, {
           requestHash,
           operationId: admitted.operationId,

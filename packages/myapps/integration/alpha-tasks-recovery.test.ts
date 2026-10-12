@@ -16,7 +16,6 @@ describe.skipIf(!connection)('operator-only exact RUNNING receipt recovery',()=>
   await env.pool.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
   await env.pool.query(`GRANT SELECT ON myapps_receipts,myapps_installations TO ${role}`);
   await env.pool.query(`GRANT UPDATE(response) ON myapps_receipts TO ${role}`);
-  await env.pool.query(`GRANT UPDATE(owner_id) ON myapps_installations TO ${role}`);
   await env.pool.query(`GRANT INSERT ON myapps_audit TO ${role}`);
   await env.pool.query(`GRANT USAGE ON SEQUENCE myapps_audit_sequence_seq TO ${role}`);
  });
@@ -48,6 +47,17 @@ describe.skipIf(!connection)('operator-only exact RUNNING receipt recovery',()=>
   await expect(recover()).rejects.toThrow('MYAPPS_RECOVERY_BINDING_DENIED');
   expect((await env.pool.query('SELECT response FROM myapps_receipts')).rows[0].response.status).toBe(status);
   expect((await env.pool.query('SELECT count(*) FROM myapps_audit')).rows[0].count).toBe('0');
+ });
+ it('operator recovery role cannot change installation owner or state',async()=>{
+  const client=await env.pool.connect();
+  try{
+   await client.query('SET ROLE '+role);
+   await client.query("SELECT set_config('myeve.myapps_owner',$1,false)",[env.owner]);
+   await expect(client.query("UPDATE myapps_installations SET owner_id='foreign'")).rejects.toThrow('permission denied');
+   await expect(client.query("UPDATE myapps_installations SET state='{}'::jsonb")).rejects.toThrow('permission denied');
+  }finally{await client.query('RESET ROLE');client.release();}
+  await recover();
+  expect((await env.pool.query('SELECT owner_id,state FROM myapps_installations')).rows[0]).toEqual({owner_id:env.owner,state});
  });
  it.each(['operation','request_hash','owner','evidence_sha256'])('rejects a mismatched %s before audit or mutation',async field=>{
   await expect(recover({[field]:'wrong'})).rejects.toThrow(/MYAPPS_RECOVERY/);

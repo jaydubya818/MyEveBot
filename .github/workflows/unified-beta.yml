@@ -53,7 +53,7 @@ jobs:
         MYAPPS_ALPHA_DOCKER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
-      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts
+      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts packages/myapps/integration/alpha-tasks-late-worker.test.ts
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
@@ -82,7 +82,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: d90956db8134308d914bedb4434c6e8fcb4ec2e8
+        ref: 5b3728bba1cec864663006483089abc8ff6ab262
         path: missioncontrol
         persist-credentials: false
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -293,7 +293,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: d90956db8134308d914bedb4434c6e8fcb4ec2e8
+        ref: 5b3728bba1cec864663006483089abc8ff6ab262
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa

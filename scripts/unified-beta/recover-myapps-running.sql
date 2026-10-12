@@ -15,7 +15,7 @@ CREATE TEMP TABLE myapps_recovery_selected ON COMMIT DROP AS
  SELECT r.*,i.state AS installation_before FROM myapps_receipts r
  JOIN myapps_installations i USING(owner_id,app_id)
  WHERE r.owner_id=current_setting('myeve.myapps_owner') AND r.app_id=current_setting('myeve.recovery_app')
-  AND r.id=current_setting('myeve.recovery_receipt') FOR UPDATE OF r,i;
+  AND r.id=current_setting('myeve.recovery_receipt') FOR UPDATE OF r;
 DO $$
 BEGIN
  IF (SELECT count(*) FROM myapps_recovery_selected)<>1 THEN RAISE EXCEPTION 'MYAPPS_RECOVERY_EXACT_RECORD_REQUIRED'; END IF;

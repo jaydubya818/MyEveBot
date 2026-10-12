@@ -27,7 +27,9 @@ Record host termination, exact container absence, exact staging absence, the ori
 
 ## Record a known failure atomically
 
-Only a still-RUNNING receipt with confirmed cleanup and no committed result is eligible. `scripts/unified-beta/recover-myapps-running.sql` takes the same owner advisory lock as the application, locks both exact rows, rejects COMPLETED/UNKNOWN/stale or mismatched input, appends the prior response and evidence digest to immutable audit history, and changes the receipt to DENIED. It never updates task data, app state, approvals, canonical Work or accounting.
+Only a still-RUNNING receipt with confirmed cleanup and no committed result is eligible. `scripts/unified-beta/recover-myapps-running.sql` takes the same owner advisory lock as the application, locks the exact receipt, rejects COMPLETED/UNKNOWN/stale or mismatched input, appends the prior response and evidence digest to immutable audit history, and changes the receipt to DENIED. The operator needs only SELECT on installation state; it must not receive UPDATE on installation owner or state. The shared advisory lock serializes application state changes and the script verifies that installation state remains unchanged. It never updates task data, app state, approvals, canonical Work or accounting.
+
+Both preview and task-operation success commits require the original receipt to remain RUNNING with its exact operation UUID. If recovery, UNKNOWN or a replacement has fenced that worker, the entire late transaction rolls back, including preview records, task data, revisions and audit. Keep the process-quiescence prerequisite even with this database fence.
 
 Supply the connection through the approved private `PGSERVICE`/credential mechanism, not a password-bearing command argument. The variables below come from the exact incident record; they are not examples of installation identities.
 
