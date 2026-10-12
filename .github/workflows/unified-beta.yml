@@ -471,6 +471,8 @@ jobs:
       working-directory: ${{ github.workspace }}/myeve
       run: 'node --test packages/myapps/test/*.test.mjs
 
+        node --test scripts/myapps-composition/materialize.test.mjs
+
         npm run db:migrations:check
 
         npm run build --workspace @myeve/myapps-reference
