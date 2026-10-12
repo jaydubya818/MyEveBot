@@ -45,7 +45,7 @@ export function BetaFeedbackPanel({workId=null}:{workId?:string|null}) {
   return <ProductShell title="Beta feedback" description="Tell us what happened and what you expected. Reports stay in your workspace.">
     <div className="owner-stack">
       <Card title="Report a problem">
-        {linkedWork&&<p>Linked to <Link href={'/work?workId='+encodeURIComponent(linkedWork)}>your Work</Link>. <button disabled={locked} onClick={()=>setLinkedWork(null)}>Remove link</button></p>}
+        {linkedWork&&<p>Linked to <Link href={'/work?kind=work&id='+encodeURIComponent(linkedWork)}>your Work</Link>. <button disabled={locked} onClick={()=>setLinkedWork(null)}>Remove link</button></p>}
         {saved&&<p role="status">Report saved. Reference {saved.id.slice(0,8)}. It is awaiting review.</p>}
         <form onSubmit={submit} className="owner-stack">
           <label>Where did this happen?<select value={platform} disabled={locked} onChange={e=>setPlatform(e.target.value as BetaFeedbackInput['platform'])}>{platforms.map(name=><option key={name}>{name}</option>)}</select></label>
@@ -63,10 +63,10 @@ export function BetaFeedbackPanel({workId=null}:{workId?:string|null}) {
         <ResourceState loading={loading} error={error} refresh={()=>setReload(n=>n+1)}/>
         {!loading&&!error&&reports.length===0&&<Empty title="No reports yet">Saved reports and review notes will appear here.</Empty>}
         {!loading&&reports.map(item=><article key={item.id} className="owner-card"><h3>{item.title}</h3>
-          <p className="owner-muted">{item.platform} · {date(item.createdAt)} · {item.status==='REPORTED'?'Awaiting review':item.status==='TRIAGED'?'Reviewed':'Resolved'}</p>
+          <p className="owner-muted">{item.platform} · {date(item.createdAt)} · {item.status==='REPORTED'?'Awaiting review':item.status==='TRIAGED'?'Reviewed':item.status==='RESOLVED'?'Resolved':'Status unavailable'}</p>
           <p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{item.details}</p>
           {item.triageNote&&<p>Review note: {item.triageNote}</p>}
-          {item.workId&&<Link href={'/work?workId='+encodeURIComponent(item.workId)}>Open linked Work</Link>}
+          {item.workId&&<Link href={'/work?kind=work&id='+encodeURIComponent(item.workId)}>Open linked Work</Link>}
         </article>)}
         {next&&<button onClick={()=>void more()} disabled={loadingMore}>{loadingMore?'Loading reports…':'Load earlier reports'}</button>}
       </Card>

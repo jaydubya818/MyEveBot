@@ -10,8 +10,8 @@ const root=resolve('.'),app=join(root,'apps/eve'),out=resolve(process.argv[2]);
 const require=createRequire(join(app,'package.json'));
 await mkdir(out,{recursive:true});
 const entry=`import React from 'react';import{createRoot}from'react-dom/client';
-import Login from '${app}/app/login/page.tsx';import{OwnerCandidateDecision}from'${app}/components/owner/candidate-decision.tsx';
-createRoot(document.getElementById('root')).render(location.pathname==='/login'?<Login/>:<div className="owner-shell"><OwnerCandidateDecision workId="fixture-work"/></div>);`;
+import{BetaFeedbackPanel}from'${app}/components/owner/beta-feedback.tsx';import Login from '${app}/app/login/page.tsx';import{OwnerCandidateDecision}from'${app}/components/owner/candidate-decision.tsx';
+createRoot(document.getElementById('root')).render(location.pathname==='/feedback'?<BetaFeedbackPanel workId="11111111-1111-4111-8111-111111111111"/>:location.pathname==='/login'?<Login/>:<div className="owner-shell"><OwnerCandidateDecision workId="fixture-work"/></div>);`;
 await build({stdin:{contents:entry,loader:'tsx',resolveDir:app},bundle:true,format:'esm',outfile:join(out,'app.js'),jsx:'automatic',
   alias:{'@':app,react:dirname(require.resolve('react/package.json')),'react-dom':dirname(require.resolve('react-dom/package.json'))},define:{'process.env':'{}','process.env.NODE_ENV':'"production"','process.env.NEXT_PUBLIC_AGENT_NAME':'"Sofie"','process.env.NEXT_PUBLIC_OWNER_NAME':'"Synthetic owner"'}});
 const fixture=(scenario)=>({binding:{allowedPaths:['quantity.mjs'],candidate:'a'.repeat(40),verifiedTree:'b'.repeat(40),resultId:'fixture-result',repository:'fixture/repo',baseRef:'main',expectedBaseSha:'c'.repeat(40),branch:'fixture',version:1,generation:1},
@@ -24,13 +24,14 @@ let scenario='none',unexpectedWrites=0;
 const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Source boundary qualification</title><link rel="stylesheet" href="/app.css"></head><body style="margin:0;font:16px sans-serif"><div id="root"></div><script type="module" src="/app.js"></script></body></html>';
 const server=createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
+  if(url.pathname==='/api/beta/issues'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({next:null,reports:[{id:'fixture-report',platform:'MyEve / Sofie',title:'Synthetic feedback',details:'Synthetic readback only',impact:'MINOR',priority:'P3',workId:'11111111-1111-4111-8111-111111111111',missionId:null,status:scenario,triageNote:null,createdAt:'2026-10-12T00:00:00Z'}]}));return;}
   if(url.pathname==='/api/auth/login'){res.setHeader('Content-Type','application/json');res.end('{"ok":true}');return;}
   if(url.pathname==='/api/beta/owner-decision'){
     if(req.method!=='GET'){unexpectedWrites++;res.writeHead(405);res.end();return;}
     res.setHeader('Content-Type','application/json');res.end(JSON.stringify(fixture(scenario)));return;
   }
   if(['/app.js','/app.css'].includes(url.pathname)){res.setHeader('Content-Type',url.pathname.endsWith('.js')?'application/javascript':'text/css');res.end(await readFile(join(out,url.pathname.slice(1))));return;}
-  if(url.pathname!=='/login'&&url.pathname!=='/decision'){res.end('<!doctype html><html lang="en"><title>Local destination</title><body>Local destination</body></html>');return;}
+  if(url.pathname!=='/login'&&url.pathname!=='/decision'&&url.pathname!=='/feedback'){res.end('<!doctype html><html lang="en"><title>Local destination</title><body>Local destination</body></html>');return;}
   res.setHeader('Content-Type','text/html');res.end(html);
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -72,6 +73,19 @@ try{
     assert.deepEqual(axe.violations,[]);
     await page.screenshot({path:join(out,`candidate-${value}-${width}.png`),fullPage:true});
     report.checks.push(`candidate ${value} at ${width}`);
+  }
+  for(const width of [1440,390])for(const [status,label] of [['REPORTED','Awaiting review'],['TRIAGED','Reviewed'],['RESOLVED','Resolved'],['UNKNOWN_NEW_STATE','Status unavailable']]){
+    scenario=status;await page.setViewportSize({width,height:1000});await page.goto(origin+'/feedback');
+    await page.getByRole('heading',{name:'Synthetic feedback',exact:true}).waitFor();
+    await expect(page.locator('article')).toContainText(label);
+    if(status!=='RESOLVED')await expect(page.locator('article')).not.toContainText('Resolved');
+    for(const name of ['your Work','Open linked Work']){
+      const href=await page.getByRole('link',{name,exact:true}).getAttribute('href'),url=new URL(href,origin);
+      assert.equal(url.pathname,'/work');assert.equal(url.searchParams.get('kind'),'work');assert.equal(url.searchParams.get('id'),'11111111-1111-4111-8111-111111111111');
+    }
+    await page.addScriptTag({path:createRequire(import.meta.url).resolve('axe-core/axe.min.js')});
+    const axe=await page.evaluate(()=>window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));assert.deepEqual(axe.violations,[]);
+    report.checks.push(`feedback ${status} at ${width}: exact Work links, truthful status, zero WCAG2.1AA violations`);
   }
   assert.equal(unexpectedWrites,0);assert.deepEqual(outside,[]);assert.deepEqual(errors,[]);
   report.checks.push('zero WCAG2.1AA violations across all10 owner decision states; no publication writes or external requests');report.status='PASS';
