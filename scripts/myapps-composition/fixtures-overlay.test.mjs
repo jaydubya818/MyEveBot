@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {readFileSync} from 'node:fs';
 import {replaceExactFixtureHunks} from './fixture-main-overlay.mjs';
 import {applyFixturesOverlay,reviewedFixtures} from './fixtures-overlay.mjs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const digest=value=>value===null?null:createHash('sha256').update(value).digest('hex');

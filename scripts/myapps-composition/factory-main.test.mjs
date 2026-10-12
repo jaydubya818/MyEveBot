@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {applyFactoryMain,reviewedFactoryMain as manifest,factoryMainConflicts} from './factory-main.mjs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 function fixture(){
  const repo=process.env.MYFACTORY_SOURCE_ROOT;assert(repo,'MYFACTORY_SOURCE_ROOT required');
  const command=args=>spawnSync('git',['-C',repo,...args],{encoding:'utf8',maxBuffer:32*1024*1024});

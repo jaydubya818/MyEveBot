@@ -5,7 +5,7 @@ import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {applyFixturesOverlay,reviewedFixtures} from './fixtures-overlay.mjs';
 import {replaceExactFixtureHunks} from './fixture-main-overlay.mjs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 const mainManifest=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/factory-main-fixture-sources.json',import.meta.url)));
 const digest=s=>s===null?null:createHash('sha256').update(s).digest('hex');
 function fixture(){

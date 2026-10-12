@@ -5,7 +5,7 @@ import {applyFactoryCapabilityCompatibility,reviewedFactoryCapabilityCompatibili
 import {applyFactoryMain} from './factory-main.mjs';
 import {applyFixturesOverlay} from './fixtures-overlay.mjs';
 import {readFileSync} from 'node:fs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 const fixtures=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/factory-main-fixture-sources.json',import.meta.url)));
 function fixture(){
  const repo=process.env.MYFACTORY_SOURCE_ROOT;assert(repo,'MYFACTORY_SOURCE_ROOT required');

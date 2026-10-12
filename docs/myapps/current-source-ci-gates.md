@@ -17,7 +17,9 @@ synthetic browser and runtime checks. Both workflows run on the existing
 deployment-disabled unified qualification branch.
 
 Historical provenance remains independently checked. Historical fixture reads use
-the recorded preparation commits instead of the moving checkout HEAD; their byte
+the preparation commits in `historical-composition-fixtures.json` instead of the
+moving checkout HEAD. These identities are recorded by the original offline
+snapshot commit and frozen Factory identity manifest; their byte
 assertions and mutation rejection checks remain unchanged. The composition rehearsal
 still runs every `scripts/myapps-composition/*.test.mjs` test, including rejection
 of unreviewed materializer inputs and the immutable overlay/preimage assertions.

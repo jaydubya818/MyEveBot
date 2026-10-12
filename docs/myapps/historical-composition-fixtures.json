@@ -1,0 +1,12 @@
+{
+  "scope": "HISTORICAL_TEST_INPUTS_ONLY",
+  "myeve": {
+    "phase3Preparation": "5802d785b46713ba64588bffe96afbc648c073dd",
+    "provenanceCommit": "d0ecbfa4cf2f0760c1752ae535946c4a83bba213",
+    "provenance": "Original offline snapshot commit message records the preparation."
+  },
+  "myfactory": {
+    "phase3Preparation": "16e9075e0b9025b4b75cca3db8790805be77689e",
+    "provenance": "docs/myapps/phase3/factory-main-sources.json identity.record.preparationCommit"
+  }
+}

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {applyGovernanceOverlay, reviewedGovernance as manifest} from './governance-overlay.mjs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 
 const root=fileURLToPath(new URL('../..',import.meta.url));
 const read=(sha,path)=>{

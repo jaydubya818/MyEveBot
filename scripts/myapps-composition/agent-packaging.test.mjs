@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {applyAgentPackaging,reviewedAgentPackaging as m} from './agent-packaging.mjs';
-const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/phase3/sources.json',import.meta.url)));
+const preparationPins=JSON.parse(readFileSync(new URL('../../docs/myapps/historical-composition-fixtures.json',import.meta.url)));
 const read=(sha,path)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8',maxBuffer:32*1024*1024});
 function fixture(){
  const inventory={executors:{[m.inventory.path]:structuredClone(m.inventory.before),unrelated:{classification:'RETAINED',sha256:'untouched'}}};
