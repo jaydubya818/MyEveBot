@@ -1,11 +1,17 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   enabled: true,
+  agentAllowed: true,
   owner: "owner-a",
   catalog: vi.fn(),
   operate: vi.fn(),
   sofie: vi.fn(),
 }));
+vi.mock('../../lib/capability-registry.ts',()=>({getCapability:()=>({availability:{status:state.enabled?'available':'disabled'}})}));
+vi.mock('../../lib/agents.ts',()=>({effectiveCapability:()=>({allowed:state.agentAllowed})}));
+vi.mock('../lib/session-settings.ts',()=>({resolveSessionAgent:async()=>({id:'configured-agent'})}));
+vi.mock('../../lib/myapps/local-bootstrap.ts',()=>({ensureConfiguredLocalApps:()=>null}));
+vi.mock('../../lib/myapps/local-configuration.ts',()=>({localOwnerAppsConfiguration:()=>null}));
 vi.mock("eve/tools", () => ({
   defineDynamic: (value: unknown) => value,
   defineTool: (value: unknown) => value,
@@ -52,9 +58,16 @@ const id = "11111111-1111-4111-8111-111111111111",
 beforeEach(() => {
   vi.clearAllMocks();
   state.enabled = true;
+  state.agentAllowed = true;
   state.owner = "owner-a";
   state.catalog.mockResolvedValue([]);
   state.operate.mockResolvedValue({ status: "COMPLETED" });
+});
+it('returns no executable resolver for a denied agent and rechecks policy after discovery',async()=>{
+  state.agentAllowed=false;expect(await tool()).toBeNull();
+  state.agentAllowed=true;const selected=await tool();state.agentAllowed=false;
+  await expect(selected.execute({profile:'alpha-tasks',operation:'catalog',requestId:id},context())).rejects.toThrow('APP_UNAVAILABLE');
+  expect(state.catalog).not.toHaveBeenCalled();
 });
 it("uses the canonical task adapter with the current owner and strips installation permission", async () => {
   const t = await tool(),

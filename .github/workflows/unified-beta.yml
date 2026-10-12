@@ -153,6 +153,7 @@ jobs:
         lib/missioncontrol/result-protocol.test.ts lib/missioncontrol/installed-client.test.ts
         lib/missioncontrol/relay-lease-client.test.ts lib/beta-feedback-route.test.ts
         lib/external-alpha/features.test.ts lib/database-schema.test.ts agent/tools/installed_apps.test.ts
+        lib/myapps/local-bootstrap.test.ts lib/myapps-capability-boundary.test.ts lib/myapps-packaging.test.ts
     - run: npm run test --workspace=eve-agent -- lib/relay lib/external-alpha/relay-link.test.ts
     - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
     - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts

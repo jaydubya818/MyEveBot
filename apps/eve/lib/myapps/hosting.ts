@@ -8,6 +8,7 @@ import { authenticateWebPrincipal } from "../web-auth.ts";
 import { requireValue } from "../../../../packages/myapps/src/contracts.ts";
 interface LocalBinding {
   apps: PersistentApps;
+  legacyAvailable?: boolean;
   alphaTasks?: AlphaTasksApps;
   policy(owner: string): Promise<Principal>;
 }
@@ -44,6 +45,8 @@ export async function handleInstalledApps(
       "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'",
   };
   try {
+    const {ensureConfiguredLocalApps}=await import('./local-bootstrap.ts');
+    ensureConfiguredLocalApps();
     const { apps, policy, alphaTasks } = localApps();
     const path = new URL(request.url).pathname.replace("/api/myapps", "");
     if (path === "/alpha") {
@@ -119,6 +122,8 @@ export async function handleInstalledApps(
 export async function consumeInstalledAppResponse(
   response: import("../universal-inbox/contracts.ts").OwnerResponse,
 ) {
+  const {ensureConfiguredLocalApps}=await import('./local-bootstrap.ts');
+  ensureConfiguredLocalApps();
   if (
     !localAppsAllowed() ||
     !local ||
@@ -130,5 +135,5 @@ export async function consumeInstalledAppResponse(
     const accepted = await local.alphaTasks.consumeOwnerResponse(principal, response);
     if (accepted) return accepted;
   }
-  return local.apps.consumeOwnerResponse(principal, response);
+  return local.legacyAvailable===false ? null : local.apps.consumeOwnerResponse(principal, response);
 }

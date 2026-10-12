@@ -2,6 +2,22 @@ import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 import { localApps, localAppsAllowed } from "../../lib/myapps/hosting.ts";
 import { alphaTasksCommands } from "../../lib/myapps/alpha-tasks-api.ts";
+import {getCapability} from '../../lib/capability-registry.ts';
+import {effectiveCapability} from '../../lib/agents.ts';
+import {resolveSessionAgent} from '../lib/session-settings.ts';
+import {ensureConfiguredLocalApps} from '../../lib/myapps/local-bootstrap.ts';
+import {localOwnerAppsConfiguration} from '../../lib/myapps/local-configuration.ts';
+import {isPartnerPrincipal} from '../../lib/private-owner-boundary.ts';
+import {ownerRuntimeFromAuth} from '../../lib/relay/owner/runtime.ts';
+import {executionIdentityFromAuth} from '../../lib/execution-auth.ts';
+
+async function permittedAgent(ctx:Parameters<typeof resolveSessionAgent>[0]) {
+  if(isPartnerPrincipal(ctx.ownerId)||ownerRuntimeFromAuth(ctx.auth)||executionIdentityFromAuth(ctx.auth))return false;
+  if(getCapability('tool.installed_apps')?.availability.status!=='available')return false;
+  const agent=await resolveSessionAgent(ctx),registration=localOwnerAppsConfiguration();
+  return Boolean(agent&&effectiveCapability(agent,'tool.installed_apps').allowed
+    &&(!registration||(agent.id===registration.agentId&&ctx.ownerId===registration.ownerId)));
+}
 export default defineDynamic({
   events: {
     "step.started": async (_event, ctx) => {
@@ -15,6 +31,12 @@ export default defineDynamic({
         caller.attributes.myeveRoleId
       )
         return null;
+      // Match the persistent-agent policy resolver: denied agents return no
+      // executable resolver, so its canonical denial cannot be shadowed.
+      try {
+        if(!await permittedAgent({ownerId:caller.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true}))return null;
+        ensureConfiguredLocalApps();localApps();
+      }catch{return null;}
       return defineTool({
         availableInSubagents: false,
         description:
@@ -66,7 +88,10 @@ export default defineDynamic({
             toolCtx.session.parent
           )
             throw Error("APP_UNAVAILABLE");
-          const { apps, policy, alphaTasks } = localApps(),
+          if(!await permittedAgent({ownerId:current.principalId,sessionId:toolCtx.session.id,auth:toolCtx.session.auth,primaryFallback:true}))
+            throw Error('APP_UNAVAILABLE');
+          ensureConfiguredLocalApps();
+          const { apps, policy, alphaTasks, legacyAvailable } = localApps(),
             p = await policy(current.principalId);
           if (p.ownerId !== current.principalId) throw Error("APP_UNAVAILABLE");
           const principal = {
@@ -96,6 +121,7 @@ export default defineDynamic({
               url: "/apps/installed",
             };
           }
+          if(legacyAvailable===false)throw Error('APP_PROFILE_UNAVAILABLE');
           const result = await apps.sofie(
             principal,
             input.requestId,

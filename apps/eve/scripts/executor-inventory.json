@@ -2011,9 +2011,9 @@
       "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
     },
     "lib/capability-registry.ts": {
-      "classification": "NOT_APPLICABLE",
-      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. External-alpha installation: explicit capability allowlist (default-deny) enforced in availability, which the execution hook and action gateway require. Reviewed MyApps packaging composition: pinned canonical source plus the exact local inbox hook, migration catalog expectation, or disabled catalog metadata only; no accounting or activation change. Current-main owner preference declarations preserved: Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority. Factory start declaration now shares request-only proposal semantics; no authority or action gate changed. Owner capability tools declare read and always-approved preference mutation only; no execution authority.",
-      "sha256": "1afa0d3df1fbc4cf37159dea79bf6af211b4a2d6affe90ffce963bd8c9f850d5"
+      "classification": "ENFORCED",
+      "reason": "Existing capability discovery and deployment/agent controls retained. Installed apps become discoverable only with a strict digest-bound local owner registration, exact owner/installation/database matching and existing local capability gates. External Alpha, Vercel and production remain denied; preferences or a local flag alone are insufficient. Availability does not authorize an effect.",
+      "sha256": "9e2e3c140ef298cf5d00d3e712f60c64b23c272f0e44779ca7381a3a815cc967"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -4231,8 +4231,8 @@
     },
     "agent/tools/installed_apps.ts": {
       "classification": "ENFORCED",
-      "reason": "Local-only trusted host. Rechecks signed owner; denies guest, roles and subagents. Typed Alpha Tasks commands share canonical custody/policy/runtime and stable request identity. Removes installation permission; agents cannot approve installation or toggle enabled state. Preserves CRM interface. Verified caller/permission and PostgreSQL lifecycle tests.",
-      "sha256": "829cb05324ccfb03b77df6c37ab6d0a9d8038fc6ce93206fe6b9af0f1ffb9c2d"
+      "reason": "Owner-only local installed-app adapter. Discovery and execution repeat current registered agent capability policy; partner, Routine, owner-channel, role, guest and subagent effects denied. Lazy explicit local bootstrap retains actual nonproduction/non-Vercel gates. Agent cannot approve installation; current canonical MyApps host custody and capability checks remain transactional.",
+      "sha256": "dfc430cad4c1b6700dced5223963eabadbb7537401306bbaf7def70d4ba50571"
     },
     "lib/myapps/api.ts": {
       "classification": "ENFORCED",
@@ -4241,8 +4241,8 @@
     },
     "lib/myapps/hosting.ts": {
       "classification": "ENFORCED",
-      "reason": "Unchanged production/Vercel deny and explicit local opt-in. Trusted binding only; signed owner, same-origin bounded API and canonical profile-specific inbox consumers. Alpha Tasks and CRM coexist without cross-profile interpretation. No default owner or hosted bootstrap.",
-      "sha256": "8f6208d3b3d9e21734fe55ea49001cc8522bbab54752f08986e68ab09ecd9dc0"
+      "reason": "Signed web-owner and same-origin API use explicit lazy local registration or the existing trusted local binding. Actual production/Vercel denial remains. Web, Inbox and agent paths initialize independently after restart. Exact owner policy and original installation decisions rechecked; unrelated Inbox actions fall through without invoking an unqualified legacy adapter.",
+      "sha256": "fc210f0d5d39f7f453d384d31ae77d020b3d7bba97d0e89237e6afa3b54f9139"
     },
     "lib/myapps/runtime.ts": {
       "classification": "ENFORCED",
@@ -4454,6 +4454,16 @@
       "classification": "READ_ONLY",
       "reason": "Read-only canonical owner custody under enrollment and Work locks. Verifies original Gate C signature, exact immutable MissionControl permit and admission receipt, writer/request/Factory identity, protected evidence and original native Proof, current enrollment/configuration, known exact-attempt spend, complete canonical accounting and quiescence. Rejects revoked, foreign, missing, UNKNOWN and unverified custody; emits explicit owner provenance, never an Alpha authority. No new execution or accounting mutation.",
       "sha256": "ef5bccd627b3911bed645eea48fa3c379c2a21cc5fa9909625075d98c10fe277"
+    },
+    "lib/myapps/local-configuration.ts": {
+      "classification": "ENFORCED",
+      "reason": "Pure strict operator-registration gate: owner/installation/current canonical database, qualified environment, runtime contract and descriptor digest must match. Real and supplied process guards deny production, Vercel and either external-tester installation. No credentials read, pool, source access, migration or execution occurs here.",
+      "sha256": "102b18e6d4b0ff7b075f4c3ed4b1c5a65e8746bc2519e2e8e0de85d8ca8cf892"
+    },
+    "lib/myapps/local-bootstrap.ts": {
+      "classification": "ENFORCED",
+      "reason": "Default-inactive local owner bootstrap shares canonical Work/capability database and existing signed auth/Inbox/AlphaTasks runtime. Trusted content-addressed source intake reads bounded regular owned files with no symlinks, reconstructs exact signed candidate tree, and prepares canonical Result provenance without approving installation. Current custody/capability rechecked on effects. Cache detects changed/removed registration; unregistered startup has no IO. Local signed-session cold-start PostgreSQL and registry/source-store denial coverage pass.",
+      "sha256": "533ca0038d328402db73c118cffc7443f8c2d9b7b9d3dda2c86f346844376093"
     }
   }
 }
