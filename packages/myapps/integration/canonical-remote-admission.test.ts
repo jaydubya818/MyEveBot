@@ -1,5 +1,9 @@
 import {afterEach,beforeEach,describe,expect,it} from 'vitest';
 import {readFile} from 'node:fs/promises';
+import {createServer} from 'node:http';
+import {Readable} from 'node:stream';
+import {once} from 'node:events';
+import {remoteHttpExchange,remoteHttpReceiver,REMOTE_HTTP_PATH} from '../src/alpha-tasks/remote-http.ts';
 import {generateKeyPairSync,randomUUID} from 'node:crypto';
 import pg from 'pg';
 import {capabilityRegistry} from '@mission-control/capability-control';
@@ -14,7 +18,7 @@ import {fixture} from '../test/alpha-tasks/fixtures.mjs';
 
 describe.skipIf(!connection)('canonical remote admission custody (ordinary-role PostgreSQL)',()=>{
  let env:Env,role:string,pool:pg.Pool,apps:AlphaTasksApps,host:AlphaTasksHost;
- let client:RemoteAlphaTasksIsolation,wire:SignedRemoteRequest,trust:any,executorKey:any;
+ let client:RemoteAlphaTasksIsolation,wire:SignedRemoteRequest,trust:any,executorKey:any,controllerKey:any;
  let started:Promise<void>,release:()=>void,pending:Promise<any>|undefined,request:RemoteRequest,clock:number;
  const f=fixture(),owner=f.pkg.origin.ownerId,installation=f.pkg.origin.installationId,id=f.pkg.appId;
  const principal={ownerId:owner,actorId:owner,kind:'human' as const,allowedOperations:['apps.read','apps.manage','apps.install','apps.run']};
@@ -44,7 +48,7 @@ describe.skipIf(!connection)('canonical remote admission custody (ordinary-role 
   const enrollment={...identity,revision:1,controllerKeyId:'controller',executorKeyId:'executor',profile:f.runtime,active:true,expiresAt:clock+3600000};
   const {enrollmentDigest:_unused,...enrolled}=enrollment;const {active:_active,...immutable}=enrolled;
   identity.enrollmentDigest=digest(immutable);
-  trust={enrollment:async()=>enrolled,controllerPublicKey:keys.publicKey,executorPublicKey:executor.publicKey,now:()=>clock};executorKey=executor.privateKey;
+  trust={enrollment:async()=>enrolled,controllerPublicKey:keys.publicKey,executorPublicKey:executor.publicKey,now:()=>clock};executorKey=executor.privateKey;controllerKey=keys.privateKey;
   client=new RemoteAlphaTasksIsolation(trust,keys.privateKey,async()=>{throw Error('No transport installed');});
   host={runtimeId:'canonical-admission-fixture',target:'synthetic',enabled:()=>true,receivingIdentity:()=>({...identity}),assertProfile:()=>{},
    authorize:async(c,p,origin)=>{
@@ -154,6 +158,59 @@ describe.skipIf(!connection)('canonical remote admission custody (ordinary-role 
    expect(retained?.outcome?.status??'UNKNOWN').toBe(crashed?'UNKNOWN':'COMPLETED');
    expect((await authorize({...request,action:'FENCE',execution:null})).action).toBe('FENCE');
   } finally {await remote.pool.query('DROP OWNED BY '+role);await remote.close();}
+ });
+
+ for(const loseResponse of [false,true])it(`canonical operation composes signed HTTP and backend journal (${loseResponse?'lost response':'positive'})`,async()=>{
+  const remote=await Env.create();let calls=0,handler!:(request:Request)=>Promise<Response>,endpoint='',latest:SignedRemoteRequest|undefined;
+  let lose=loseResponse;
+  const server=createServer(async(req,res)=>{
+   try {
+    const headers=new Headers();for(const [key,value] of Object.entries(req.headers))if(value!==undefined)headers.set(key,Array.isArray(value)?value.join(','):value);
+    const request=new Request(new URL(req.url!,endpoint),{method:req.method,headers,body:Readable.toWeb(req),duplex:'half'} as RequestInit);
+    const response=await handler(request);
+    res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
+   }catch {if(!res.destroyed){res.writeHead(500);res.end();}}
+  });
+  try {
+   await remote.pool.query(await readFile(new URL('../src/alpha-tasks/remote-isolation.sql',import.meta.url),'utf8'));
+   await remote.pool.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
+   await remote.pool.query(`GRANT SELECT,INSERT,UPDATE ON myapps_remote_delivery TO ${role}`);
+   const journal=new PostgresRemoteDeliveryJournal({query:async(sql,values)=>{const c=await remote.pool.connect();try{await c.query('SET ROLE '+role);return await c.query(sql,values);}finally{await c.query('RESET ROLE');c.release();}}});
+   const receiver=new RemoteIsolationReceiver(trust,executorKey,journal,{execute:async(_source,_operation,_input,data,operationId)=>{
+    calls++;return {operationId,data,output:[],cleanup:'CONFIRMED',sourceClosureDigest:f.pkg.sourceClosureDigest,runtimeDigest:digest(f.runtime)};
+   }},r=>apps.authorizeRemote(r,async()=>principal,()=>clock));
+   server.listen(0,'127.0.0.1');await once(server,'listening');const address=server.address();
+   if(!address||typeof address==='string')throw Error('Missing local fixture address');endpoint='http://127.0.0.1:'+address.port+REMOTE_HTTP_PATH;
+   const config={endpoint,enrollment:{...identity},loopbackQualification:true as const,timeoutMs:5000};
+   const receive=remoteHttpReceiver(config,receiver);handler=async request=>{
+    const response=await receive(request);
+    if(lose&&response.status===200){lose=false;return new Response(null,{status:503});}
+    return response;
+   };
+   const exchange=remoteHttpExchange(config);
+   const transport=new RemoteAlphaTasksIsolation(trust,controllerKey,async command=>{if(command.document.action==='EXECUTE')latest=structuredClone(command);return exchange(command);});
+   host.execute=(...args)=>transport.execute(...args);
+   const key=randomUUID(),operation=()=>apps.operate(principal,id,1,digest(f.pkg),'list',{},key);
+   if(loseResponse)await expect(operation()).rejects.toMatchObject({cleanup:'UNKNOWN'});
+   else expect((await operation()).status).toBe('COMPLETED');
+   expect(calls).toBe(1);expect(latest).toBeDefined();
+   const row=(await env.pool.query('SELECT * FROM myapps_receipts WHERE execution_admission IS NOT NULL')).rows[0];
+   expect(row.response.status).toBe(loseResponse?'UNKNOWN':'COMPLETED');
+   expect(row.execution_admission.operationId).toBe(latest!.document.binding.operationId);
+   // Retrying the canonical key reads retained status and never redispatches.
+   expect((await operation()).status).toBe(row.response.status);expect(calls).toBe(1);
+   expect((await transport.observe(latest!,'READ')).status).toBe('COMPLETED');
+   // A signed backend readback must not silently settle the controller's UNKNOWN receipt.
+   expect((await env.pool.query('SELECT response FROM myapps_receipts WHERE id=$1',[row.id])).rows[0].response).toEqual(row.response);
+   await env.pool.query("UPDATE capability_control.owner_state SET preferences=jsonb_set(preferences,'{myapps}','\"DISABLED\"')");
+   await expect(apps.operate(principal,id,1,digest(f.pkg),'list',{},randomUUID())).rejects.toThrow('Capability admission denied');
+   await expect(transport.observe(latest!,'EXECUTE')).rejects.toMatchObject({cleanup:'UNKNOWN'});
+   expect((await transport.observe(latest!,'READ')).status).toBe('COMPLETED');
+   // No physical fence implementation exists; signed recovery truthfully stays pending.
+   expect((await transport.observe(latest!,'FENCE')).status).toBe('PENDING_BACKEND');
+   expect((await transport.observe(latest!,'READ')).status).toBe('PENDING_BACKEND');expect(calls).toBe(1);
+   expect((await env.pool.query('SELECT response,execution_admission FROM myapps_receipts WHERE id=$1',[row.id])).rows[0]).toEqual({response:row.response,execution_admission:row.execution_admission});
+  }finally{server.closeAllConnections();if(server.listening)await new Promise<void>(resolve=>server.close(()=>resolve()));await remote.pool.query('DROP OWNED BY '+role);await remote.close();}
  });
  it('ordinary-role insert rejects mismatched receipt binding and duplicate operation identity',async()=>{
   const row=await reserve();const copy={...row.execution_admission,receiptId:randomUUID()};
