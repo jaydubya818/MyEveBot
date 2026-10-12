@@ -37,6 +37,10 @@
     {
       "name": "0102_missioncontrol_owner_alpha_exclusion.sql",
       "sha256": "e71395195756a1667e248760816d4f6fa8f414bdedd3051298e2e15ec3f3f1e6"
+    },
+    {
+      "name": "0103_missioncontrol_admission_isolation.sql",
+      "sha256": "f5ef8222df77f0e39178658792d8aea4167d5680ce6d043a1b2c9bb62e6a1003"
     }
   ]
 }

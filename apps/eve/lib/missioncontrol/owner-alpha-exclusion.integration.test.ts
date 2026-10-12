@@ -12,7 +12,8 @@ import {splitSqlStatements} from '../../scripts/migration-sql.ts';
 
 const original0099='52478de2d2e680949406b4f1c76e3bb4c3220dbf07d8c4dc521ff9e51787bc8c';
 const changed0099='b580bb23098fb564a95de94bfd5b7a826278f10a19717de9331469b52c8e2f1f';
-const migrationName='0102_missioncontrol_owner_alpha_exclusion.sql';
+const correction0102Name='0102_missioncontrol_owner_alpha_exclusion.sql';
+const migrationName='0103_missioncontrol_admission_isolation.sql';
 const sha=(text:string)=>createHash('sha256').update(text).digest('hex');
 const driver=(pool:pg.Pool):MigrationDatabase=>({query:async(s,p)=>(await pool.query(s,p)).rows,
   transaction:async statements=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}
@@ -108,6 +109,34 @@ describe.skipIf(!connection)('additive owner/Alpha exclusion and caller context 
       expect((await env.pool.query('SELECT count(*)::int n FROM external_alpha_work_authority WHERE work_id=$1',[work.id])).rows[0].n).toBe(first==='Alpha'?1:0);
     }finally{await winner.query('ROLLBACK');if(pending)await pending;await loser.query('ROLLBACK');winner.release();loser.release();}
   });
+  for(const first of ['owner','Alpha'] as const)for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])for(const mode of ['explicit','session default'])
+    it(`rejects ${mode} ${isolation} with a stale snapshot after ${first} admission`,async()=>{
+      const {work,row}=await target(),winner=await env.pool.connect(),loser=await env.pool.connect();
+      try{
+        await winner.query('BEGIN ISOLATION LEVEL READ COMMITTED');await winner.query('SET LOCAL ROLE '+role);
+        await winner.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[env.owner]);
+        if(first==='Alpha')await insert(winner,row);
+        const origin=await ownerOrigin(work);
+        if(first==='owner')await origin(winner);
+        if(mode==='session default')await loser.query("SELECT set_config('default_transaction_isolation',$1,false)",[isolation.toLowerCase()]);
+        await loser.query(mode==='explicit'?'BEGIN ISOLATION LEVEL '+isolation:'BEGIN');
+        await loser.query('SET LOCAL ROLE '+role);
+        await loser.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[env.owner]);
+        expect((await loser.query("SELECT current_setting('transaction_isolation') AS isolation")).rows[0].isolation).toBe(isolation.toLowerCase());
+        const table=first==='owner'?'missioncontrol_owner_work_origins':'external_alpha_work_authority';
+        const count=async(c:pg.PoolClient)=>Number((await c.query('SELECT count(*) n FROM '+table+' WHERE work_id=$1',[work.id])).rows[0].n);
+        expect(await count(loser)).toBe(0);
+        await winner.query('COMMIT');
+        expect(await count(loser)).toBe(0);
+        await expect(first==='owner'?insert(loser,row):origin(loser)).rejects.toThrow('MISSIONCONTROL_ADMISSION_ISOLATION_REQUIRED');
+        await loser.query('ROLLBACK');
+        expect((await env.pool.query('SELECT count(*)::int n FROM missioncontrol_owner_work_origins WHERE work_id=$1',[work.id])).rows[0].n).toBe(first==='owner'?1:0);
+        expect((await env.pool.query('SELECT count(*)::int n FROM external_alpha_work_authority WHERE work_id=$1',[work.id])).rows[0].n).toBe(first==='Alpha'?1:0);
+      }finally{
+        await winner.query('ROLLBACK');await loser.query('ROLLBACK');
+        await loser.query('RESET default_transaction_isolation');winner.release();loser.release();
+      }
+    });
   it.each(['ISSUED','UNKNOWN'] as const)('denies owner admission after %s Alpha authority and preserves that history',async state=>{
     if(state==='UNKNOWN'){
       const c=await env.pool.connect();
@@ -149,6 +178,7 @@ describe.skipIf(!connection)('published 0099 lineage recovery',()=>{
     const u=new URL(connection!);u.pathname='/'+name;const pool=new pg.Pool({connectionString:u.href});pools.push(pool);return pool;}
   it('upgrades the original published prefix without rewriting history, Work, writer or UNKNOWN accounting',async()=>{
     const all=await loadMigrations(),prefix=all.filter(m=>m.name<'0100'),pool=await database(),db=driver(pool);
+    expect(all.find(m=>m.name===correction0102Name)?.checksum).toBe('e71395195756a1667e248760816d4f6fa8f414bdedd3051298e2e15ec3f3f1e6');
     expect(prefix.at(-1)?.name).toBe('0099_missioncontrol_owner_factory.sql');expect(prefix.at(-1)?.checksum).toBe(original0099);
     await runMigrations(db,prefix,()=>{});
     const owner=randomUUID(),work=randomUUID(),run=randomUUID(),allowance=randomUUID(),authority=randomUUID();
@@ -174,7 +204,7 @@ describe.skipIf(!connection)('published 0099 lineage recovery',()=>{
   it('rejects the published in-place changed 0099 ledger without checksum rewrite or partial upgrade',async()=>{
     const all=await loadMigrations(),prefix=all.filter(m=>m.name<'0100'),pool=await database(),db=driver(pool);
     // Recreate the exact published changed candidate, with its own real ledger.
-    const corrected=await readFile(new URL('../../migrations/'+migrationName,import.meta.url),'utf8');
+    const corrected=await readFile(new URL('../../migrations/'+correction0102Name,import.meta.url),'utf8');
     const original=await readFile(new URL('../../migrations/0099_missioncontrol_owner_factory.sql',import.meta.url),'utf8');
     const exclusion="  OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=w.scope_id AND a.work_id=w.id\n    AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))\n";
     const guard=corrected.slice(corrected.indexOf('CREATE FUNCTION missioncontrol_owner_alpha_guard()'))
