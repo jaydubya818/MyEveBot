@@ -25,18 +25,18 @@ export function OwnerCandidateDecision({workId,embedded=false}:{workId:string;em
   const body=await response.json();if(!response.ok)throw Error(body.error);await load();setConfirm(false);setSaved(true);
  }catch(e){setError(e instanceof Error?e.message:'Decision unavailable.');}finally{setBusy(false);}}
  const content = <>
- {!embedded&&<><Link href="/results">Results</Link><h1>{data?(data.readback?.review.status==='FAIL'?'Result needs attention':'Sofie finished the work'):'Owner decision'}</h1></>}
+ {!embedded&&<><Link href="/results">Results</Link><h1>{data?(data.readback?.review.status==='FAIL'||data.readback?.ci.status==='FAIL'?'Result needs attention':'Review retained candidate'):'Owner decision'}</h1></>}
  {error&&<p role="alert">{error}</p>}{!data&&!error&&<p role="status">Loading retained Result…</p>}
  {data&&<>
  {data.readback?.review.status==='FAIL'&&<p role="alert">Independent review found an issue: {data.readback.review.summary} Current Result remains partial.</p>}
- <p>{data.binding.allowedPaths.join(', ')} was implemented and independently verified.</p>
- <p>Implementation checks: <strong>{data.implementation.passed}/{data.implementation.total}</strong><br/>Independent verification: <strong>{data.verification.passed}/{data.verification.total}</strong></p>
+ <p>Retained candidate files: {data.binding.allowedPaths.join(', ')}</p>
+ <p>Retained implementation checks: <strong>{data.implementation.passed}/{data.implementation.total}</strong><br/>Retained protected verification: <strong>{data.verification.passed}/{data.verification.total}</strong></p>
  <p>Total journey model cost: <strong>{money(data.accounting.settledMicrousd)}</strong></p>
  <details><summary>Proof of Work</summary>
  <p>Candidate: {data.binding.candidate}<br/>Verified tree: {data.binding.verifiedTree}</p>
  <p>Sofie: {money(data.accounting.sofieMicrousd)} · Factory: {money(data.accounting.factoryMicrousd)}</p>
  <p>The original Proof is retained. Owner acceptance is a separate decision.</p>
- {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}): PASS · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>The candidate has recorded review evidence. Owner acceptance remains a separate decision.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
+ {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}) · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>This readback records current CI and review status. Owner acceptance remains a separate decision.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
  <p>The historical Proof is an immutable snapshot. Current accounting above includes the final explanation.</p>
  <ul>{data.proof.evidence.map(e=><li key={e.criterionId}>{e.state} — {e.producer}: {e.sourceRef}</li>)}</ul>
  <details><summary>Canonical evidence references</summary><ul>{[...new Set(data.proof.artifactRefs)].map(s=><li key={s}>{s.startsWith("factory-evidence:sha256:") ? <a href={`/api/beta/evidence?workId=${encodeURIComponent(workId)}&resultId=${encodeURIComponent(data.binding.resultId)}&reference=${encodeURIComponent(s)}`}>Download retained Factory evidence</a> : s}{data.proof.artifactRefs.filter(ref=>ref===s).length>1?` — referenced by ${data.proof.artifactRefs.filter(ref=>ref===s).length} checks`:''}</li>)}</ul></details>
