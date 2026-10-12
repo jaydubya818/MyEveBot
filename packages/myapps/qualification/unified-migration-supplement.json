@@ -45,6 +45,10 @@
     {
       "name": "0104_missioncontrol_legacy_writer_isolation.sql",
       "sha256": "a600b7926cd155c3053c6bb271270e0aaea4123fe98dc3c7411b7b56a690dc3d"
+    },
+    {
+      "sha256": "24a067d2362da34ee2cee7f9f9c78a05b533d377865d8ef202a29c92c5933875",
+      "name": "0105_myapps_execution_admission.sql"
     }
   ]
 }

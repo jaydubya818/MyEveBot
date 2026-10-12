@@ -17,13 +17,13 @@ export interface RemoteBinding {
 type Action='EXECUTE'|'READ'|'FENCE';
 interface Execution {pkg:AlphaTasksPackage;operation:string;input:unknown;data:TaskData}
 export interface RemoteRequest {
-  schema:'myapps.remote-isolation.request/v1'; action:Action; binding:RemoteBinding;
-  commandDigest:string; issuedAt:number; expiresAt:number; execution:Execution|null;
+  schema:'myapps.remote-isolation.request/v2'; action:Action; binding:RemoteBinding;
+  commandDigest:string; executionDigest:string; issuedAt:number; expiresAt:number; execution:Execution|null;
 }
 export interface SignedRemoteRequest {document:RemoteRequest;keyId:string;signature:string;source:SourceClosure|null}
 export type RemoteOutcome={status:'COMPLETED';result:IsolatedResult}|{status:'DENIED'|'UNKNOWN';result:null};
 export interface RemoteObservation {
-  schema:'myapps.remote-isolation.observation/v1';requestDigest:string;commandDigest:string;binding:RemoteBinding;
+  schema:'myapps.remote-isolation.observation/v2';requestDigest:string;commandDigest:string;binding:RemoteBinding;
   observedAt:number;status:'COMPLETED'|'DENIED'|'UNKNOWN'|'NOT_FOUND'|'PENDING_BACKEND'|'AUTHORITY_FENCED'|'CLEANUP_CONFIRMED';
   result:IsolatedResult|null;
 }
@@ -68,11 +68,11 @@ function validateRequest(wire:SignedRemoteRequest,e:RemoteEnrollment,trust:Trust
   keys(wire,['document','keyId','signature','source']);
   requireValue(wire.keyId===e.controllerKeyId,'APP_REMOTE_KEY');
   authentic(wire.document,wire.signature,trust.controllerPublicKey);
-  const r=wire.document;keys(r,['schema','action','binding','commandDigest','issuedAt','expiresAt','execution']);
+  const r=wire.document;keys(r,['schema','action','binding','commandDigest','executionDigest','issuedAt','expiresAt','execution']);
   const now=(trust.now??Date.now)();
-  requireValue(r.schema==='myapps.remote-isolation.request/v1'&&['EXECUTE','READ','FENCE'].includes(r.action)&&
+  requireValue(r.schema==='myapps.remote-isolation.request/v2'&&['EXECUTE','READ','FENCE'].includes(r.action)&&
     Number.isSafeInteger(r.issuedAt)&&Number.isSafeInteger(r.expiresAt)&&r.issuedAt<=now&&r.expiresAt>now&&
-    r.expiresAt-r.issuedAt>0&&r.expiresAt-r.issuedAt<=30000&&isDigest(r.commandDigest),'APP_REMOTE_REQUEST');
+    r.expiresAt-r.issuedAt>0&&r.expiresAt-r.issuedAt<=30000&&isDigest(r.executionDigest)&&r.commandDigest===digest({binding:r.binding,executionDigest:r.executionDigest}),'APP_REMOTE_REQUEST');
   binding(r.binding,e);
   if(r.action==='EXECUTE') {
     requireValue(e.active&&r.execution&&wire.source,'APP_REMOTE_DISABLED');
@@ -82,7 +82,7 @@ function validateRequest(wire:SignedRemoteRequest,e:RemoteEnrollment,trust:Trust
     requireValue(canonical(op)===canonical({operation:r.execution.operation,input:r.execution.input})&&
       p.spec.ownerId===e.ownerId&&p.origin.installationId===e.installationId&&digest(p)===r.binding.packageDigest&&
       digest(p.origin)===r.binding.originDigest&&digest(p.runtime)===r.binding.runtimeDigest&&
-      p.sourceClosureDigest===r.binding.sourceClosureDigest&&digest({binding:r.binding,execution:r.execution})===r.commandDigest,'APP_REMOTE_BINDING');
+      p.sourceClosureDigest===r.binding.sourceClosureDigest&&digest(r.execution)===r.executionDigest,'APP_REMOTE_BINDING');
     const source=verifySourceClosure(wire.source,p.origin.candidateTree);
     requireValue(sourceClosureDigest(source)===p.sourceClosureDigest,'APP_REMOTE_SOURCE');
   } else requireValue(r.execution===null&&wire.source===null,'APP_REMOTE_REQUEST');
@@ -153,7 +153,7 @@ export class RemoteIsolationReceiver {
       else requireValue(retained.outcome.result===null,'APP_REMOTE_RESULT');
     }
     const value=observation(retained);
-    const document:RemoteObservation={schema:'myapps.remote-isolation.observation/v1',requestDigest:digest(r),
+    const document:RemoteObservation={schema:'myapps.remote-isolation.observation/v2',requestDigest:digest(r),
       commandDigest:r.commandDigest,binding:r.binding,observedAt:now(),...value};
     return {document,keyId:e.executorKeyId,signature:signature(document,this.signer)};
   }
@@ -169,7 +169,7 @@ export class RemoteAlphaTasksIsolation {
     const b:RemoteBinding={ownerId:e.ownerId,installationId:e.installationId,agentId:e.agentId,hostId:e.hostId,enrollmentDigest:enrollmentDigest(e),operationId,
       packageDigest:digest(p),originDigest:digest(p.origin),sourceClosureDigest:p.sourceClosureDigest,runtimeDigest:digest(p.runtime) as Hash};
     const execution={pkg:p,...op,data:validateTaskData(data)};
-    const document:RemoteRequest={schema:'myapps.remote-isolation.request/v1',action:'EXECUTE',binding:b,commandDigest:digest({binding:b,execution}),
+    const document:RemoteRequest={schema:'myapps.remote-isolation.request/v2',action:'EXECUTE',binding:b,commandDigest:digest({binding:b,executionDigest:digest(execution)}),executionDigest:digest(execution),
       issuedAt:now,expiresAt:Math.min(now+30000,e.expiresAt),execution};
     const wire={document,keyId:e.controllerKeyId,signature:signature(document,this.signer),source};
     validateRequest(wire,e,this.trust);return structuredClone(wire);
@@ -189,7 +189,7 @@ export class RemoteAlphaTasksIsolation {
     requireValue(wire.keyId===e.executorKeyId,'APP_REMOTE_KEY');authentic(wire.document,wire.signature,this.trust.executorPublicKey);
     const r=wire.document;keys(r,['schema','requestDigest','commandDigest','binding','observedAt','status','result']);
     const current=enrollment(await this.trust.enrollment(),now());
-    requireValue(r.schema==='myapps.remote-isolation.observation/v1'&&r.requestDigest===digest(document)&&r.commandDigest===document.commandDigest&&
+    requireValue(r.schema==='myapps.remote-isolation.observation/v2'&&r.requestDigest===digest(document)&&r.commandDigest===document.commandDigest&&
       canonical(r.binding)===canonical(document.binding)&&Number.isSafeInteger(r.observedAt)&&r.observedAt>=document.issuedAt&&r.observedAt<=now()&&
       now()<document.expiresAt&&digest(current)===digest(e),'APP_REMOTE_RESPONSE');
     requireValue(['COMPLETED','DENIED','UNKNOWN','NOT_FOUND','PENDING_BACKEND','AUTHORITY_FENCED','CLEANUP_CONFIRMED'].includes(r.status),'APP_REMOTE_RESPONSE');

@@ -1,6 +1,6 @@
 # Dormant remote isolation contract
 
-`myapps.remote-isolation.request/v1` and `myapps.remote-isolation.observation/v1`
+`myapps.remote-isolation.request/v2` and `myapps.remote-isolation.observation/v2`
 prepare the existing Alpha Tasks execution boundary for a separately qualified
 host. Nothing imports this adapter from the installed bootstrap. There is no
 HTTP listener, URL fetcher, credential loader, registered host, migration runner,
@@ -61,3 +61,28 @@ same-Mission journeys, current source review/CI, and the preserved source/activa
 approvals. Local synthetic signatures, PostgreSQL and offline Docker tests do not
 provide any of those installation authorities. UNKNOWN accounting remains with
 the canonical accounting owner; this journal neither refunds nor clears it.
+
+Version 2 adds an explicit signed execution fingerprint so recovery can match the
+immutable canonical admission without retransmitting private before-state. It
+rejects version 1 requests; the prior dormant candidate remains separate evidence.
+
+
+Canonical receiving admission is provided by the dormant
+`AlphaTasksApps.authorizeRemote` method. The trusted composition supplies a fresh
+authentication callback; no field in the signed remote request is a principal.
+Migration 0105 records immutable execution custody on the existing operation
+receipt, including original principal/permission, package and operation digests,
+app/data revisions, Work generation/version, policy revision and exact receiving
+identity. Existing local hosts omit that identity and cannot become remote
+admissions retroactively. Historical NULL admissions are not backfilled.
+
+EXECUTE requires the original principal and permission, the same RUNNING
+reservation, current app/candidate state and the existing host's canonical
+custody/policy authorization inside the owner-locked transaction. A changed policy
+revision or expired request denies. READ can recover the original principal's
+exact custody; owner FENCE requires the current human owner with `apps.manage`.
+Recovery does not rerun an execution or require a revoked execution capability to
+be restored. Mutable receipt status never rewrites the immutable admission. The
+receiving adapter returns bounded validation metadata; it is not a new global
+ledger or an independently usable execution grant. Deployment still needs the
+qualified authenticated connection and backend fence described above.

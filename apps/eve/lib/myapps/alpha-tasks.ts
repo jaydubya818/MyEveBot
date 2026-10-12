@@ -32,11 +32,15 @@ import {
   IsolatedExecutionError,
   type IsolatedResult,
 } from "../../../../packages/myapps/src/alpha-tasks/isolation.ts";
+import type {RemoteRequest} from '../../../../packages/myapps/src/alpha-tasks/remote-isolation.ts';
+import {executionAdmission,authorizeRemoteAdmission,type ReceivingIdentity} from './remote-admission.ts';
 type Connection = GoalConnection;
 export interface AlphaTasksHost {
   runtimeId: string;
   target: string;
   enabled(): boolean;
+  /** Dormant remote compositions must supply an exact trusted enrollment. Local hosts omit it. */
+  receivingIdentity?():ReceivingIdentity;
   assertProfile(pkg: AlphaTasksPackage): void;
   /** Must resolve canonical custody and current capability policy in the provided transaction. */
   authorize(
@@ -88,7 +92,7 @@ export interface AlphaTasksView {
   }>;
 }
 /** Inert until a trusted local composition supplies custody, policy and isolated execution.
- * Uses existing owner-scoped MyApps/Needs You stores; no new migration or production bootstrap. */
+ * Uses owner-scoped MyApps/Needs You stores; additive receipt custody, no production bootstrap. */
 export class AlphaTasksApps {
   constructor(
     readonly pool: GoalPool,
@@ -375,18 +379,22 @@ export class AlphaTasksApps {
     const operationId = randomUUID(),
       key = "preview:" + operationId;
     const candidate = await this.atomic(p.ownerId, async (c) => {
-      await this.state(c, p, id);
+      const state=await this.state(c, p, id);
       const row = await this.candidate(c, p, id, version);
-      await this.host.authorize(c, p, row.package.origin, "apps.manage");
+      const authorization=await this.host.authorize(c, p, row.package.origin, "apps.manage");
       await this.assertQuiescent(c, p, id);
+      const requestHash=digest({version,digest:row.digest,mode:'preview'});
       await c.query(
-        "INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response) VALUES($1,$2,$3,$4,$5::jsonb)",
+        "INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response,execution_admission) VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb)",
         [
           p.ownerId,
           id,
           key,
-          digest({ version, digest: row.digest, mode: "preview" }),
+          requestHash,
           canonical({ status: "RUNNING", operationId }),
+          canonical(executionAdmission({principal:p,pkg:row.package,receiptId:key,requestHash,operationId,mode:'PREVIEW',
+            operation:'list',input:{},data:{next:1,tasks:[]},appRevision:state.revision,dataRevision:state.dataRevision,authorization,
+            receivingIdentity:this.host.receivingIdentity?.()??null})),
         ],
       );
       return row;
@@ -828,7 +836,7 @@ export class AlphaTasksApps {
           candidate.digest === hash,
         "APP_VERSION_CONFLICT",
       );
-      await this.host.authorize(c, p, candidate.package.origin, "apps.run");
+      const authorization=await this.host.authorize(c, p, candidate.package.origin, "apps.run");
       const prior = (
         await c.query(
           "SELECT request_hash,response FROM myapps_receipts WHERE owner_id=$1 AND app_id=$2 AND id=$3",
@@ -851,13 +859,16 @@ export class AlphaTasksApps {
       requireValue(!pending, "APP_OPERATION_UNKNOWN");
       const operationId = randomUUID();
       await c.query(
-        "INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response) VALUES($1,$2,$3,$4,$5::jsonb)",
+        "INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response,execution_admission) VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb)",
         [
           p.ownerId,
           id,
           requestKey,
           requestHash,
           canonical({ status: "RUNNING", operationId }),
+          canonical(executionAdmission({principal:p,pkg:candidate.package,receiptId:requestKey,requestHash,operationId,mode:'INVOKE',
+            ...request,data:s.data,appRevision:s.revision,dataRevision:s.dataRevision,authorization,
+            receivingIdentity:this.host.receivingIdentity?.()??null})),
         ],
       );
       return {
@@ -950,6 +961,14 @@ export class AlphaTasksApps {
       );
       throw error;
     }
+  }
+  /** Dormant receiving adapter. Authentication is supplied afresh by the trusted composition;
+   * no route or tool exposes this method and the request cannot supply its own principal. */
+  async authorizeRemote(request:RemoteRequest,authenticate:()=>Promise<Principal>,now=Date.now) {
+    const snapshot=structuredClone(request),p=structuredClone(await authenticate());
+    this.permit(p,'apps.read');
+    const grant=await this.atomic(p.ownerId,c=>authorizeRemoteAdmission(c,p,snapshot,this.host,now));
+    requireValue(grant.expiresAt>now(),'APP_REMOTE_ADMISSION');return grant;
   }
   async setEnabled(
     p: Principal,

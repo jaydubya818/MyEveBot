@@ -11,6 +11,6 @@ describe('explicit schema rollout', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_ALPHA_OWNER_BINDING: '{}'})).toBe('0084_three_owner_cloud_accounting.sql');
     expect(CURRENT_DATABASE_MIGRATION).toBe((await loadMigrations()).at(-1)?.name);
     expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0092_private_result_acceptance.sql');
-    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_EXTERNAL_ALPHA_POLICY:'{}',MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION'})).toBe('0104_missioncontrol_legacy_writer_isolation.sql');
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_EXTERNAL_ALPHA_POLICY:'{}',MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION'})).toBe('0105_myapps_execution_admission.sql');
   });
 });

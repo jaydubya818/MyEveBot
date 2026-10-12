@@ -92,7 +92,7 @@ describe.skipIf(!connection)('dormant signed MyApps executor delivery custody',(
   });
   it.each(['ownerId','installationId','agentId','hostId','enrollmentDigest','originDigest','runtimeDigest','sourceClosureDigest','packageDigest'])('denies signed foreign %s before execution',async key=>{
     const a=await prepare();(a.document.binding as any)[key]=key.endsWith('Digest')?'sha256:'+'f'.repeat(64):'foreign';
-    a.document.commandDigest=digest({binding:a.document.binding,execution:a.document.execution});resign(a);
+    a.document.commandDigest=digest({binding:a.document.binding,executionDigest:a.document.executionDigest});resign(a);
     await expect(receiver.receive(a)).rejects.toThrow();expect(calls).toBe(0);
   });
   it('denies current capability changes on replay and without touching retained outcome',async()=>{
