@@ -899,6 +899,55 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const row=(await env.pool.query('SELECT capability_expires_at FROM missioncontrol_admission_receipts')).rows[0];
     expect(new Date(row.capability_expires_at).getTime()).toBe(relay.expiresAt);
   });
+  it.each(['start','reconcile','stop'] as const)('recovers a failed %s evidence copy without redispatch or accounting changes',async(stage)=>{
+    await accept();
+    const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
+    const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
+    let failNext=stage==='start',failures=0;
+    const controller=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config),Date.now,async(authority,original)=>{
+      if(failNext){failNext=false;failures++;throw Error('SYNTHETIC_READBACK_STORAGE_OUTAGE');}
+      await store.retainFactoryReadback(authority,original);
+    });
+    const work=await env.store.get(fixture.document.work.id),started=await controller.start(work,undefined,admission());
+    if(!started.sent)throw Error('Expected synthetic Factory dispatch');
+    if(stage!=='start'){
+      failNext=true;
+      if(stage==='reconcile')await controller.reconcile(work.id,{work});
+      else await controller.stop(work.id,{work});
+    }
+    expect(failures).toBe(1);
+    const originalAuthority=await env.svc.forWork(work.id);
+    expect(originalAuthority).toMatchObject({id:started.authority.id,requestId:started.authority.requestId,
+      state:stage==='stop'?'CANCELLED':'CONSUMED'});
+    const accounting=async()=>({
+      allowances:(await env.pool.query('SELECT * FROM external_alpha_allowance ORDER BY id')).rows,
+      operations:(await env.pool.query('SELECT * FROM external_alpha_operation ORDER BY id')).rows,
+      cohort:(await env.pool.query('SELECT * FROM external_alpha_cohort_admission ORDER BY id')).rows,
+    });
+    const before=await accounting(),canonicalWork=await env.store.get(work.id);
+    expect(before.allowances).toHaveLength(1);
+    expect(Number(before.allowances[0].ceiling_microusd)).toBe(1300000);
+    expect(before.allowances[0].state).toBe(stage==='stop'?'HALTED':'OPEN');
+    const copies=await env.count('missioncontrol_factory_readbacks'),stops=factory.stops.length;
+    // Recovery only reads the already admitted request; it cannot consume, stop,
+    // settle, release its reservation or rewrite canonical Work.
+    const recovered=new ExternalAlphaWorkController(env.svc,factory,config,receiptKeys(config),Date.now,
+      (authority,original)=>store.retainFactoryReadback(authority,original));
+    await recovered.refreshReadback(fixture.document.work);
+    expect(await accounting()).toEqual(before);
+    expect(await env.store.get(work.id)).toEqual(canonicalWork);
+    expect(await env.svc.forWork(work.id)).toEqual(originalAuthority);
+    expect(factory.posts).toBe(1);
+    expect(factory.stops).toHaveLength(stops);
+    expect(await env.count('missioncontrol_factory_readbacks')).toBe(copies+1);
+    const projected=await missionControlResultReadback(database,{schema:'mc-result-request/v1',
+      connectionId:fixture.enrollment.connectionId,installationId:fixture.enrollment.installationId,ownerId:env.owner,
+      projectId:fixture.enrollment.projectId,permitId:fixture.document.permitId,commandId:randomUUID(),challenge:'a'.repeat(64),
+      issuer:fixture.enrollment.issuer,audience:fixture.enrollment.audience,issuedAt:Date.now(),expiresAt:Date.now()+30000});
+    expect(projected.admission).toMatchObject({authorityId:started.authority.id,requestId:started.authority.requestId});
+    expect(alphaReadback(projected).readbackSignature).toBeTruthy();
+    expect(alphaReadback(projected).readbackAttestation.state).toBe(stage==='stop'?'CANCELLED':'RUNNING');
+  });
   it('retains original authenticated Factory evidence and projects the same Mission Result', async () => {
     await accept();
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
