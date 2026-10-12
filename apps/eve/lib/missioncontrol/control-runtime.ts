@@ -47,7 +47,7 @@ export async function pollMissionControlControls(store:WorkStore,controller:Exte
   env:NodeJS.ProcessEnv=process.env,providedClient?:ControlClient) {
   const bindings=new MissionControlBindings(store.database,store.principal.scopeId),enrollment=await bindings.enrollment();
   const client=providedClient??new InstalledMissionControlClient(installedMissionControlConfig(enrollment,store.principal.scopeId,env,'control'));
-  const permits=await bindings.controlCandidates();
+  const permits=await bindings.controlCandidates('alpha');
   const outcomes=[],failures:string[]=[],failureCodes:{permitId:string;code:string}[]=[];
   for(const permitId of permits){
     try{

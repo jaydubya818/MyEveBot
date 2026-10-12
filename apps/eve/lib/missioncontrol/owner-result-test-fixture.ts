@@ -57,7 +57,7 @@ export async function retainOwnerResultFixture(input:{store:WorkStore;config:Fac
     candidate,{workGeneration:work.generation,profileHash:digest(profile),factoryVersion:q.factoryVersion});
   const [decision]=await db.query('SELECT admission_authority_snapshot FROM engineering_routing_decisions WHERE id=$1',[decisionId]);
   const deadline=decision.admission_authority_snapshot.contract.deadline;
-  const identity={deadline,runId,workId:work.id,workVersion:work.version,workGeneration:work.generation,writerGeneration:Number(run.writer_generation),
+  const identity={factoryId:q.factoryId,repository:work.repository,baseSha:q.inputCommit,allowedPaths:profile.allowedPaths,deadline,runId,workId:work.id,workVersion:work.version,workGeneration:work.generation,writerGeneration:Number(run.writer_generation),
     dispatchIdentity:run.dispatch_identity,requestId:q.requestId,remoteRunId:q.runId,workOrderId:q.workOrderId,factoryVersion:q.factoryVersion};
   const quiescence={...identity,state:'COMPLETED',quiescent:true,evidenceRef:'synthetic-terminal-custody:'+q.runId};
   const spend=workSpendV2Schema.parse({contractVersion:'WORK_LEDGER_V2',status:'KNOWN',currency:'USD',unit:'microUSD',workId:work.id,

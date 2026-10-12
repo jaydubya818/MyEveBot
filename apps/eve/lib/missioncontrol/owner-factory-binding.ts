@@ -40,6 +40,16 @@ export async function ownerFactoryOrigin(database:WorkDatabase,ownerId:string,wo
   return rows[0]??null;
 }
 
+/** Unenrolled legacy stores retain their existing behavior. Enrolled owners
+ * require transactions even if optional adapter metadata was later removed.
+ * The canonical enrollment lookup avoids interpreting an RLS-hidden origin as absence. */
+export async function hasMissionControlEnrollment(database:WorkDatabase,ownerId:string) {
+  const [row]=await database.query(`WITH context AS MATERIALIZED (
+    SELECT set_config('myeve.missioncontrol_owner',$1,true) AS owner_id)
+    SELECT missioncontrol_enrollment_document(context.owner_id) AS document FROM context`,[ownerId]);
+  return Boolean(row?.document);
+}
+
 /** Persist provenance before asking MissionControl for owner approval. The Work lock
  * serializes this marker with every writer admission, including native fallback. */
 export async function prepareOwnerFactoryOrigin(store:WorkStore,work:Work,config:FactoryRuntime,input:{proposalId:string;

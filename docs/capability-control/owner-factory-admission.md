@@ -11,3 +11,13 @@ Owner Result readback projects the original Gate C envelope and native Proof int
 Qualification uses disposable localhost PostgreSQL databases, synthetic identities and keys. The admission suite covers positive canonical receiving transactions, cross-owner denial, stale and substituted permits, concurrent admissions, rollback, legacy/native bypass, disable/revoke, active verifier fencing and lost control acknowledgment after writer succession. Full MyEve MissionControl regression and TypeScript checks are required for this source. Migration governance/catalog reconciliation is owned by the unified integration workstream.
 
 Installed owner configuration and custody remain separate gates. No migration was applied to an installed database. No remote Factory operation, paid execution, deployment, merge, credential mutation or tester activation is authorized by this source.
+
+## Recovery and cross-consumer qualification
+
+The existing operations monitor now retries owner controls independently of active Work steps. Signed callbacks select the backend by exact retained Work version, generation and tuple. Historical Alpha permits retain their original routing; an earlier active or UNKNOWN Alpha authority prevents owner-origin creation, and owner-origin Work cannot acquire a new Alpha authority. Removing optional adapter metadata cannot suppress retained control recovery. A missing runtime or unknown resource/accounting state retains the fence and reports pending cleanup.
+
+Unenrolled statement-only Work stores preserve their prior behavior. Any enrolled owner requires a transactional store; the canonical enrollment lookup supplies that decision without interpreting RLS-hidden rows as absence. Missing schema or unavailable policy remains fail closed.
+
+`owner-result-test-fixture.ts` uses real signed Gate C admission, signature-bound TestEvidence/DiffEvidence, protected cloud evidence projection and `NativeResultStore.retain`. Terminal resource custody and accounting are seeded in disposable PostgreSQL. This is deterministic receiver qualification, not evidence of a cloud execution or resource cleanup.
+
+The optional exact-source consumer check runs with `MYEVE_OWNER_RESULT_MC_SOURCE` pointing to a clean MissionControl checkout and `MYEVE_OWNER_RESULT_MC_SHA` holding its full commit. Run the MissionControl MyEve Vitest suite with those variables plus the dedicated localhost `MYEVE_EXTERNAL_ALPHA_TEST_DATABASE`. The check authenticates the readback packet, verifies original Result and Proof through MissionControl, and rejects a validly re-signed foreign Mission and a substituted Factory attempt. Omitting these source variables leaves cross-consumer verification explicitly `NOT_RUN`.

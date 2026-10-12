@@ -32,11 +32,24 @@ BEGIN
   OR EXISTS(SELECT 1 FROM engineering_route_runs r WHERE r.scope_id=w.scope_id AND r.scope_kind=w.scope_kind AND r.work_id=w.id
     AND ((r.work_version=w.version AND r.work_generation=w.generation) OR r.status NOT IN('COMPLETED','FAILED','CANCELLED')))
   OR EXISTS(SELECT 1 FROM engineering_execution x WHERE x.scope_id=w.scope_id AND x.scope_kind=w.scope_kind AND x.work_id=w.id)
+  OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=w.scope_id AND a.work_id=w.id
+    AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))
  THEN RAISE EXCEPTION 'MISSIONCONTROL_ORIGIN_DENIED'; END IF;
  RETURN NEW;
 END $$;
 CREATE TRIGGER missioncontrol_owner_origin_guard BEFORE INSERT OR UPDATE OR DELETE ON missioncontrol_owner_work_origins
  FOR EACH ROW EXECUTE FUNCTION missioncontrol_owner_origin_guard();
+-- statement-breakpoint
+CREATE FUNCTION missioncontrol_owner_alpha_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
+BEGIN
+ PERFORM 1 FROM engineering_work WHERE scope_id=NEW.owner_id AND scope_kind='personal' AND id=NEW.work_id FOR UPDATE;
+ PERFORM set_config('myeve.missioncontrol_owner',NEW.owner_id,true);
+ IF EXISTS(SELECT 1 FROM missioncontrol_owner_work_origins WHERE owner_id=NEW.owner_id AND work_id=NEW.work_id)
+ THEN RAISE EXCEPTION 'MISSIONCONTROL_OWNER_ROUTE_REQUIRED'; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER missioncontrol_owner_alpha_guard BEFORE INSERT ON external_alpha_work_authority
+ FOR EACH ROW EXECUTE FUNCTION missioncontrol_owner_alpha_guard();
 -- statement-breakpoint
 CREATE FUNCTION missioncontrol_owner_writer_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE o missioncontrol_owner_work_origins%ROWTYPE; d engineering_routing_decisions%ROWTYPE;

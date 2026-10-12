@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { WorkStore } from '../engineering/store.ts';
 import type { FactoryRuntime } from '../engineering/factory-routing.ts';
-import { assertOwnerFactoryConfiguration, ownerFactoryOrigin } from './owner-factory-binding.ts';
+import { assertOwnerFactoryConfiguration, ownerFactoryOrigin, hasMissionControlEnrollment } from './owner-factory-binding.ts';
 import type { Work } from '../engineering/types.ts';
 import { assertCanonicalAlphaWork, alphaTasksTupleSha256 } from '../external-alpha/work-tuple.ts';
 import { externalAlphaPolicy } from '../external-alpha/policy.ts';
@@ -57,7 +57,11 @@ export type MissionControlAdmissionProof=Awaited<ReturnType<typeof requestMissio
 export async function requestOwnerFactoryAdmission(store:WorkStore,work:Work,config:FactoryRuntime,
   env:NodeJS.ProcessEnv=process.env,send:typeof fetch=fetch):Promise<MissionControlAdmissionProof|null> {
   const ownerId=store.principal.scopeId;
-  if(!store.database.atomic||store.principal.scopeKind!=='personal'||store.principal.actorId!==ownerId)throw Error('MISSIONCONTROL_EXECUTION_OWNER');
+  if(store.principal.scopeKind!=='personal'||store.principal.actorId!==ownerId)throw Error('MISSIONCONTROL_EXECUTION_OWNER');
+  if(!store.database.atomic){
+    if(!await hasMissionControlEnrollment(store.database,ownerId))return null;
+    throw Error('MISSIONCONTROL_TRANSACTION_REQUIRED');
+  }
   const origin=await store.database.atomic(async database=>{
     await database.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[ownerId]);
     return ownerFactoryOrigin(database,ownerId,work.id);

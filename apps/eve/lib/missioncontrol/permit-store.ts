@@ -116,7 +116,7 @@ export class MissionControlBindings {
       return rows[0] ?? null;
     });
   }
-  async controlCandidates():Promise<string[]> {
+  async controlCandidates(kind:'all'|'owner'|'alpha'='all'):Promise<string[]> {
     return this.atomic(async database=>{
       // A not-yet-observed control may be a fresh revoke. Check those permits
       // first, but reserve half each full page for retained controls so a stream
@@ -128,7 +128,17 @@ export class MissionControlBindings {
             WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id) AS retained_control
         FROM missioncontrol_execution_permits p
         LEFT JOIN missioncontrol_control_attempts attempt ON attempt.owner_id=p.owner_id AND attempt.permit_id=p.permit_id
-        WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
+        WHERE p.owner_id=$1
+          AND ($2<>'alpha' OR NOT EXISTS(SELECT 1 FROM missioncontrol_owner_work_origins o WHERE o.owner_id=p.owner_id AND o.work_id=p.work_id
+            AND o.work_version=p.work_version AND o.work_generation=p.work_generation
+            AND o.document->>'tupleSha256'=p.envelope#>>'{document,work,tupleSha256}'))
+          AND (($2='owner' AND EXISTS(SELECT 1 FROM missioncontrol_owner_work_origins o WHERE o.owner_id=p.owner_id AND o.work_id=p.work_id
+            AND o.work_version=p.work_version AND o.work_generation=p.work_generation
+            AND o.document->>'tupleSha256'=p.envelope#>>'{document,work,tupleSha256}')
+            AND NOT EXISTS(SELECT 1 FROM missioncontrol_permit_controls c JOIN missioncontrol_control_acknowledgments a
+              ON a.owner_id=c.owner_id AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest
+              WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id AND c.operation='revoke' AND a.cleanup='CONFIRMED'))
+          OR ($2<>'owner' AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
           OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
             AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))
           OR EXISTS(SELECT 1 FROM engineering_route_runs r WHERE r.scope_id=p.owner_id AND r.scope_kind='personal' AND r.work_id=p.work_id
@@ -137,12 +147,12 @@ export class MissionControlBindings {
             AND c.sequence=(SELECT max(latest.sequence) FROM missioncontrol_permit_controls latest
               WHERE latest.owner_id=c.owner_id AND latest.permit_id=c.permit_id)
             AND NOT EXISTS(SELECT 1 FROM missioncontrol_control_acknowledgments a WHERE a.owner_id=c.owner_id
-              AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest AND a.cleanup='CONFIRMED')))
+              AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest AND a.cleanup='CONFIRMED')))))
         ), ranked AS (
           SELECT *,row_number() OVER(PARTITION BY retained_control
             ORDER BY COALESCE(attempted_at,created_at),created_at,permit_id) AS ordinal FROM candidates
         ) SELECT permit_id FROM ranked
-        ORDER BY (ordinal-1)/50,retained_control,ordinal LIMIT 100`,[this.ownerId]);
+        ORDER BY (ordinal-1)/50,retained_control,ordinal LIMIT 100`,[this.ownerId,kind]);
       return rows.map(row=>String(row.permit_id));
     });
   }

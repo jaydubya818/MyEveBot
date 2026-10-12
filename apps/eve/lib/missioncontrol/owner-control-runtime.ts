@@ -1,9 +1,10 @@
 import {randomUUID} from 'node:crypto';
 import type {FactoryWorkDriver} from '../engineering/factory-work-driver.ts';
 import type {WorkStore} from '../engineering/store.ts';
-import {workSpendV2Schema} from '../engineering/factory-spend.ts';
+import {workSpendV2Schema,validateSpendBinding} from '../engineering/factory-spend.ts';
+import {readJourneyAccounting} from '../engineering/journey-accounting.ts';
 import {MissionControlBindings} from './permit-store.ts';
-import {ownerFactoryOrigin} from './owner-factory-binding.ts';
+import {ownerFactoryOrigin,hasMissionControlEnrollment} from './owner-factory-binding.ts';
 import {InstalledMissionControlClient,installedMissionControlConfig} from './installed-client.ts';
 import {controlDeliverySchema} from './control-runtime.ts';
 
@@ -24,13 +25,20 @@ export async function applyOwnerFactoryControl(store:WorkStore,driver:Pick<Facto
     // Absence of a writer does not prove a remotely prepared resource was removed.
     if(run){
       if(d.operation==='revoke')await driver.stopRun(d.work.id,run.id);
-      const [current]=await store.database.query(`SELECT r.*,d.factory_observation,EXISTS(SELECT 1 FROM engineering_direct_verification_jobs j
+      const [current]=await store.database.query(`SELECT r.*,d.factory_observation,d.admission_authority_snapshot,EXISTS(SELECT 1 FROM engineering_direct_verification_jobs j
           WHERE j.scope_id=r.scope_id AND j.scope_kind=r.scope_kind AND j.work_id=r.work_id
           AND j.route_run_id=r.id AND j.status IN('QUEUED','RUNNING','RECOVERY_REQUIRED')) AS verification_pending FROM engineering_route_runs r
         JOIN engineering_routing_decisions d ON d.id=r.decision_id WHERE r.id=$1 AND r.scope_id=$2`,[run.id,ownerId]);
       const observation=current?.factory_observation,spend=workSpendV2Schema.safeParse(observation?.value?.spend);
       const identity=observation?.value?.identity,original=current?.missioncontrol_binding?.factoryBinding;
+      const accounting=await readJourneyAccounting(store,d.work.id);
+      if(spend.success)validateSpendBinding(spend.data,{workId:d.work.id,workGeneration:d.work.generation,requestId:original?.requestId,
+        workOrderId:original?.workOrderId,deadline:current.admission_authority_snapshot?.contract?.deadline,
+        dispatchIdentity:current.dispatch_identity,remoteRunId:original?.runId,factoryVersion:original?.factoryVersion});
       if(!current?.verification_pending&&current?.dispatch_state==='TERMINAL'&&current.quiescence&&current.fenced_at
+        &&accounting.coverage==='COMPLETE'&&accounting.unknownExposureMicrousd===0&&accounting.reservedMicrousd===0
+        &&identity?.runId===current.id&&identity?.workId===d.work.id&&identity?.workGeneration===d.work.generation
+        &&identity?.factoryId===original?.factoryId&&identity?.factoryVersion===original?.factoryVersion
         &&identity?.requestId===original?.requestId&&identity?.remoteRunId===original?.runId&&identity?.workOrderId===original?.workOrderId
         &&identity?.dispatchIdentity===current.dispatch_identity&&identity?.writerGeneration===Number(current.writer_generation)
         &&['COMPLETED','FAILED','CANCELLED','NOT_DISPATCHED'].includes(observation.value.state)&&observation.value.quiescent===true&&Date.parse(observation.backendObservedAt)<=Date.now()&&Date.parse(observation.backendObservedAt)>Date.now()-30000
@@ -48,8 +56,11 @@ export async function applyOwnerFactoryControl(store:WorkStore,driver:Pick<Facto
  * A failed read prevents a fresh effect; stop/reconcile remains callable independently. */
 export async function pollOwnerFactoryWorkControl(store:WorkStore,driver:Pick<FactoryWorkDriver,'store'|'stopRun'>,workId:string,
   env:NodeJS.ProcessEnv=process.env,providedClient?:ControlClient) {
-  if(!store.database.atomic)throw Error('MISSIONCONTROL_TRANSACTION_REQUIRED');
   const ownerId=store.principal.scopeId;
+  if(!store.database.atomic){
+    if(!await hasMissionControlEnrollment(store.database,ownerId))return null;
+    throw Error('MISSIONCONTROL_TRANSACTION_REQUIRED');
+  }
   const permits=await store.database.atomic(async database=>{
     await database.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[ownerId]);
     if(!await ownerFactoryOrigin(database,ownerId,workId))return null;

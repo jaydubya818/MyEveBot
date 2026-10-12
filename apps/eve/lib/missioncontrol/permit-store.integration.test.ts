@@ -1,3 +1,6 @@
+import {requestOwnerFactoryAdmission} from './admit-execution.ts';
+import {qualifyOwnerResultConsumer} from '../../../../scripts/composed-admission/owner-result-consumer.mts';
+import {deliverMissionControlControl,pollOwnerFactoryControls,runOwnerFactoryReconciliation} from './owner-reconciliation.ts';
 import {ownerResultFixtureConfig,retainOwnerResultFixture} from './owner-result-test-fixture.ts';
 import {prepareAuthenticatedFactoryInput} from '../engineering/factory-authenticated-result.ts';
 import {RouteAdmissionService} from '../engineering/route-admission.ts';
@@ -151,6 +154,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await expect(env.pool.query('DELETE FROM missioncontrol_owner_work_origins WHERE owner_id=$1',[env.owner])).rejects.toThrow('MISSIONCONTROL_ORIGIN_IMMUTABLE');
     expect(await env.count('engineering_route_runs')).toBe(0);
     expect(await env.count('missioncontrol_execution_permits')).toBe(0);
+    await expect(env.pool.query('INSERT INTO external_alpha_work_authority(owner_id,work_id) VALUES($1,$2)',[env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
   });
   it('fails closed on missing exact owner metadata and changed qualified configuration',async()=>{
     const x=await ownerFixture();
@@ -285,6 +289,11 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(result.result).toMatchObject({resultId:retained.receiptId,nativeResultId:retained.native.id,proofHash:retained.native.contentHash,
       signedResult:retained.signed,cleanupConfirmed:true,exposureUnknown:false,acceptance:null});
     expect(result.result?.proof).toEqual(retained.native.proof);
+    const composition=await qualifyOwnerResultConsumer(result,request,fixture.document,{schema:'mc-owner-factory-result-pins/v1',
+      factoryId:x.binding.factoryId,sourceDigest:x.binding.sourceDigest,configurationDigest:x.binding.configurationDigest,
+      profileHash:digest(x.config.engineering.profile),verifierPolicySha256:retained.manifest.verification!.policySha256,
+      resultKeys:[env.resultKeys.key],checkCommands:x.config.commands,allowedFiles:x.config.engineering.profile.allowedPaths});
+    expect(composition.status).toBe(process.env.MYEVE_OWNER_RESULT_MC_SOURCE?'PASS':'NOT_RUN');
     expect(retained.native.proof.evidence).toHaveLength(x.work.criteria.length);
     expect(retained.native.proof.evidence.every(e=>e.state==='PASS')).toBe(true);
     expect(await env.count('external_alpha_work_authority')).toBe(0);
@@ -308,6 +317,27 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
         await client.query('ROLLBACK');
       }finally{await client.query('ROLLBACK');client.release();}
     }
+  });
+  it.each(['KNOWN','UNKNOWN','FOREIGN','STALE'])('reports owner cleanup truthfully for %s retained accounting',async(state)=>{
+    const {x,admit}=await canonicalOwnerRoute(false,true),admitted=await admit();
+    const retained=await retainOwnerResultFixture({store:new WorkStore(x.workStore.principal,env.db),config:x.config,keys:env.resultKeys,
+      work:x.work,binding:x.binding,requestId:x.requestId,runId:admitted.runId,decisionId:x.decisionId});
+    const observation:any=structuredClone(retained.observation),spend=observation.value.spend;
+    if(state==='FOREIGN')spend.workId=randomUUID();
+    if(state==='STALE')observation.backendObservedAt=new Date(Date.now()-60000).toISOString();
+    if(state==='UNKNOWN')Object.assign(spend,{status:'UNKNOWN',accountingComplete:false,retainedMicrousd:1000,availableMicrousd:1299000,
+      productiveAllowanceRemainingMicrousd:1298000,unknownExposureMicrousd:1000,paidOperationsUsed:1,
+      operations:[{operationId:randomUUID(),workId:x.work.id,workGeneration:1,dispatchIdentity:retained.observation.value.identity.dispatchIdentity,
+        requestId:x.binding.requestId,workOrderId:x.binding.workOrderId,factoryVersion:x.binding.factoryVersion,runId:x.binding.runId,
+        model:'synthetic',pricingRevision:spend.pricingRevision,reservedMicrousd:1000,actualMicrousd:null,providerRequestId:null,usage:null,state:'unknown',phase:'productive'}]});
+    await env.pool.query('UPDATE engineering_routing_decisions SET factory_observation=$2 WHERE id=$1',[x.decisionId,observation]);
+    const control=fixture.signControl(),stopRun=vi.fn(async()=>({} as any));
+    const result=await applyOwnerFactoryControl(x.workStore,{store:x.workStore,stopRun},
+      {status:'CONTROL',control,controlDigest:controlDigest(control.document)},
+      {readControl:vi.fn(),acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)});
+    expect(result).toMatchObject({authority:'FENCED',cleanup:state==='KNOWN'?'CONFIRMED':'PENDING_BACKEND'});
+    expect(stopRun).toHaveBeenCalledWith(x.work.id,admitted.runId);
+    expect((await env.pool.query('SELECT factory_observation FROM engineering_routing_decisions WHERE id=$1',[x.decisionId])).rows[0].factory_observation).toEqual(observation);
   });
   it('rolls back signed approval and policy evidence if route proposal changes before receiving commit',async()=>{
     const {admit}=await canonicalOwnerRoute(true);await expect(admit()).rejects.toThrow('changed');
@@ -408,6 +438,91 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect((await env.pool.query('SELECT permit_id FROM missioncontrol_control_acknowledgments')).rows).toEqual([{permit_id:oldPermit}]);
     client.readControl=async()=>{throw Error('offline');};
     await expect(pollOwnerFactoryWorkControl(x.workStore,driver,x.work.id,{NODE_ENV:'test'},client)).rejects.toThrow('offline');
+  });
+
+  it('recovers lost owner ACK for idle terminal Work after permit expiry without the Alpha controller',async()=>{
+    const x=await ownerRoute(),expiresAt=Date.now()+2000;
+    fixture.document.expiresAt=expiresAt;
+    await store.accept(fixture.signPermit(),fixture.signReceipt({...fixture.receiptDocument(),expiresAt}),fixture.challenge,pair,x.work.id,x.work.repository);
+    await x.insert();await seedOwnerCustody(x);
+    const control=fixture.signControl(),delivery={status:'CONTROL',control,controlDigest:controlDigest(control.document)};
+    const stopped:string[]=[],driver={store:x.workStore,stopRun:async(_id:string,run:string)=>{stopped.push(run);return {} as any;}};
+    const alphaController=vi.fn(()=>{throw Error('Alpha controller forbidden for owner Work');});
+    let lost=true;
+    const client={readControl:async()=>delivery,acknowledgeControl:async(value:any)=>{
+      if(lost){lost=false;throw Error('lost acknowledgment');}return acknowledgmentResponse(value);
+    }};
+    await expect(deliverMissionControlControl(x.workStore,delivery,client,{ownerDriver:driver,alphaController})).rejects.toThrow('lost acknowledgment');
+    expect(await env.count('missioncontrol_permit_controls')).toBe(1);
+    await new Promise(resolve=>setTimeout(resolve,Math.max(0,expiresAt-Date.now()+20)));
+    expect((await env.pool.query('SELECT expires_at<=clock_timestamp() AS expired FROM missioncontrol_admission_receipts')).rows[0].expired).toBe(true);
+    const result=await runOwnerFactoryReconciliation({env:{NODE_ENV:'test',MYEVE_OWNER_ID:env.owner,MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION'},database,driver,client});
+    expect(result).toMatchObject({checked:1,outcomes:[{authority:'FENCED',cleanup:'PENDING_BACKEND'}],failures:[]});
+    const repeated=await pollOwnerFactoryControls(x.workStore,driver,client);
+    expect(repeated).toMatchObject({checked:1,failures:[]});
+    expect(stopped).toEqual([x.runId,x.runId,x.runId]);expect(alphaController).not.toHaveBeenCalled();
+    expect(await store.controlCandidates('alpha')).toEqual([]);
+    expect(await env.count('missioncontrol_control_acknowledgments')).toBe(1);
+    expect(await env.count('engineering_route_runs')).toBe(1);
+    expect(await env.count('external_alpha_work_authority')).toBe(0);
+    expect(await runOwnerFactoryReconciliation({env:{NODE_ENV:'test'}})).toEqual({checked:0,inactive:true});
+  });
+
+  it('keeps historical Alpha permit routing exact after a later owner-origin Work version',async()=>{
+    await accept();const oldControl=structuredClone(fixture.signControl()),oldPermit=fixture.document.permitId;
+    await env.pool.query('UPDATE engineering_work SET version=2 WHERE id=$1',[fixture.document.work.id]);
+    await ownerFixture();
+    expect(await store.controlCandidates('alpha')).toEqual([oldPermit]);
+    expect(await store.controlCandidates('owner')).toEqual([]);
+    const workStore=new WorkStore({scopeId:env.owner,scopeKind:'personal',actorId:env.owner},database);
+    const stop=vi.fn(async()=>({})),alphaController=vi.fn(()=>({authority:{policy:{ownerId:env.owner},forWork:async()=>null},stop}) as any);
+    const ownerStop=vi.fn(async()=>({} as any));
+    await deliverMissionControlControl(workStore,{status:'CONTROL',control:oldControl,controlDigest:controlDigest(oldControl.document)},
+      {readControl:vi.fn(),acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)},
+      {ownerDriver:{store:workStore,stopRun:ownerStop},alphaController});
+    expect(alphaController).toHaveBeenCalledOnce();expect(stop).toHaveBeenCalledOnce();expect(ownerStop).not.toHaveBeenCalled();
+  });
+  it.each(['ISSUED','UNKNOWN'])('denies owner origin while an earlier Alpha authority remains %s',async(state)=>{
+    await accept();
+    const work=await env.store.get(fixture.document.work.id);
+    const authority=await env.svc.issue(work,files,{missionControl:admission()});
+    if(state==='UNKNOWN'){
+      await env.svc.claim(authority,admission());
+      await env.svc.finish(authority.id,'UNKNOWN',{reason:'synthetic lost dispatch acknowledgment'});
+    }
+    await expect(ownerFixture()).rejects.toThrow('MISSIONCONTROL_ORIGIN_DENIED');
+    expect(await env.count('missioncontrol_owner_work_origins')).toBe(0);
+    expect((await env.pool.query('SELECT state FROM external_alpha_work_authority')).rows[0].state).toBe(state);
+  });
+  it('keeps durable owner control recovery enabled when optional current adapter metadata disappears',async()=>{
+    const x=await ownerRoute();await accept();await x.insert();
+    const control=fixture.signControl();
+    await env.pool.query("UPDATE missioncontrol_owner_enrollments SET revision=revision+1,document=jsonb_set(document-'ownerFactoryAdapter','{revision}',to_jsonb(revision+1)) WHERE owner_id=$1",[env.owner]);
+    const stopRun=vi.fn(async()=>{throw Error('configuration unavailable');});
+    const result=await runOwnerFactoryReconciliation({env:{NODE_ENV:'test',MYEVE_OWNER_ID:env.owner,MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION'},database,
+      driver:{store:x.workStore,stopRun},client:{readControl:async()=>({status:'CONTROL',control,controlDigest:controlDigest(control.document)}),
+        acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)}});
+    expect(result).toMatchObject({checked:1,outcomes:[{authority:'FENCED',cleanup:'PENDING_BACKEND'}],failures:[]});
+    expect(stopRun).toHaveBeenCalledOnce();expect(await env.count('missioncontrol_permit_controls')).toBe(1);
+  });
+
+  it('preserves statement-only non-MC Work while requiring transactions for retained owner origins',async()=>{
+    const client=await env.pool.connect();
+    try{
+      await client.query('SET ROLE '+role);
+      const legacyOwner=randomUUID(),legacyWork=await env.seedWork({},legacyOwner);
+      const readOnly={query:async(sql:string,values?:unknown[])=>(await client.query(sql,values)).rows};
+      const legacy=new WorkStore({scopeId:legacyOwner,scopeKind:'personal',actorId:legacyOwner},readOnly);
+      const single=new WorkStore({scopeId:env.owner,scopeKind:'personal',actorId:env.owner},readOnly);
+      const driver={store:single,stopRun:vi.fn()},work=await single.get(fixture.document.work.id);
+      expect(await requestOwnerFactoryAdmission(legacy,legacyWork,{} as any)).toBeNull();
+      expect(await pollOwnerFactoryWorkControl(legacy,{store:legacy,stopRun:vi.fn()},legacyWork.id)).toBeNull();
+      await ownerFixture();
+      await expect(requestOwnerFactoryAdmission(single,work,{} as any)).rejects.toThrow('MISSIONCONTROL_TRANSACTION_REQUIRED');
+      await expect(pollOwnerFactoryWorkControl(single,driver,work.id)).rejects.toThrow('MISSIONCONTROL_TRANSACTION_REQUIRED');
+      expect((await client.query("SELECT current_setting('myeve.missioncontrol_owner',true) AS owner")).rows[0].owner??'').toBe('');
+      expect(driver.stopRun).not.toHaveBeenCalled();
+    }finally{await client.query('RESET ROLE');client.release();}
   });
 
   const alphaReadback=(value:Awaited<ReturnType<typeof missionControlResultReadback>>)=>{

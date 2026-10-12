@@ -1,4 +1,3 @@
-import {ownerFactoryOrigin} from './owner-factory-binding.ts';
 import {ownerFactoryResultReadback} from './owner-result-readback.ts';
 import { createHash } from 'node:crypto';
 import type { WorkDatabase } from '../engineering/store.ts';
@@ -22,7 +21,10 @@ export async function missionControlResultReadback(database:WorkDatabase,request
     if(permit.connectionId!==request.connectionId||permitDigest(permit)!==permitRow.permit_sha256
       ||permit.ownerId!==request.ownerId||permit.installationId!==request.installationId||permit.projectId!==request.projectId)
       throw Error('MISSIONCONTROL_RESULT_ACCESS_DENIED');
-    if(await ownerFactoryOrigin(database,request.ownerId,permit.work.id)){
+    const ownerOrigin=await database.query(`SELECT 1 FROM missioncontrol_owner_work_origins WHERE owner_id=$1 AND work_id=$2
+      AND work_version=$3 AND work_generation=$4 AND document->>'tupleSha256'=$5`,
+      [request.ownerId,permit.work.id,permit.work.version,permit.work.generation,permit.work.tupleSha256]);
+    if(ownerOrigin.length){
       const mapped=await ownerFactoryResultReadback(database,permit,now),observedAt=Date.now();
       const expiresAt=Math.min(observedAt+30000,request.expiresAt,enrollment.expiresAt,
         mapped.admission?.originalFactoryReadback?.backendObservedAt?Date.parse(mapped.admission.originalFactoryReadback.backendObservedAt)+30000:Infinity);

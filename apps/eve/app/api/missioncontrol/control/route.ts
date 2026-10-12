@@ -3,7 +3,7 @@ import { WorkStore } from '../../../../lib/engineering/store.ts';
 import { createExternalAlphaWorkController } from '../../../../lib/external-alpha/work-action.ts';
 import { MissionControlBindings } from '../../../../lib/missioncontrol/permit-store.ts';
 import { InstalledMissionControlClient,installedMissionControlConfig } from '../../../../lib/missioncontrol/installed-client.ts';
-import { applyMissionControlControl } from '../../../../lib/missioncontrol/control-runtime.ts';
+import { deliverMissionControlControl } from '../../../../lib/missioncontrol/owner-reconciliation.ts';
 import { boundedJson } from '../../../../lib/relay/client.ts';
 
 export const runtime='nodejs';
@@ -17,7 +17,8 @@ export async function POST(request:Request) {
     const enrollment=await new MissionControlBindings(database,ownerId).enrollment();
     const config=installedMissionControlConfig(enrollment,ownerId,process.env,'control');
     const store=new WorkStore({scopeKind:'personal',scopeId:ownerId,actorId:ownerId},database);
-    await applyMissionControlControl(store,createExternalAlphaWorkController(store),input,new InstalledMissionControlClient(config));
+    await deliverMissionControlControl(store,input,new InstalledMissionControlClient(config),
+      {alphaController:()=>createExternalAlphaWorkController(store)});
     // Only the authenticated callback to MissionControl conveys the ACK.
     return Response.json({received:true},{headers});
   }catch{
