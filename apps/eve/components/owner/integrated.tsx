@@ -1,5 +1,5 @@
 "use client";
-import type { PublicationReadback } from '@/lib/engineering/publication-contract';
+import { canReviewRetainedResult, resultPublicationReadback, type RetainedResultBinding } from "./result-readback";
 import {
   useEffect,
   useRef,
@@ -31,12 +31,11 @@ type CanonicalWork = Awaited<
 >;
 type Today = Awaited<ReturnType<GoalWorkQueries["today"]>>;
 type Brief = Awaited<ReturnType<GoalWorkQueries["brief"]>>;
-type Result = {
+type Result = RetainedResultBinding & {
   id: string;
   work_id: string;
   proof: ProofOfWork;
   journeyAccounting?: JourneyAccounting;
-  publicationReadback?: PublicationReadback | null;
   content_hash: string;
   source: "LOCAL_FIXTURE" | "CANONICAL";
   created_at: string;
@@ -373,15 +372,17 @@ export function IntegratedExperience({
         .filter(
           (r) => !selectedId || r.id === selectedId || r.work_id === selectedId,
         )
-        .map((r) => (
-          <Card
+        .map((r) => {
+          const work = errors.length ? undefined : works.find(w => w.id === r.work_id);
+          const publication = resultPublicationReadback(r, work);
+          return <Card
             key={r.id}
             title={
               works.find((w) => w.id === r.work_id)?.title ?? "Retained Result"
             }
           >
             <p>
-              <State value={r.proof.outcome} />
+              Retained proof outcome: <State value={r.proof.outcome} />
             </p>
             <p className="owner-muted">
               {r.source === "LOCAL_FIXTURE"
@@ -398,7 +399,7 @@ export function IntegratedExperience({
             <p className="owner-muted">
               Candidate: {r.candidate_sha ?? r.proof.resultRevision}
             </p>
-            {advancedAvailable && r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS") && <p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></p>}
+            {advancedAvailable && r.route === "MYFACTORY" && canReviewRetainedResult(r, work) && <p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></p>}
             <p>
               Work revision {r.proof.workVersion} · Criteria revision{" "}
               {r.proof.criteriaVersion}
@@ -406,7 +407,12 @@ export function IntegratedExperience({
             <details>
               <summary>Proof of Work</summary>
               {r.journeyAccounting && <p>{journeyCostText(r.journeyAccounting)}</p>}
-              {r.publicationReadback && <p>Current publication: PASS · GitHub CI: {r.publicationReadback.ci.status} · Independent review: {r.publicationReadback.review.status}. {r.publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result: PARTIAL.</p>}
+              {publication ? <section aria-label="Publication readback">
+                <p>GitHub CI: {publication.ci.status} · Independent review: {publication.review.status}.</p>
+                <p>{publication.review.summary}</p>
+                <p>Owner acceptance: {publication.ownerAcceptance} · Merge: {publication.merge} · Deployment: {publication.deployment}.</p>
+                <p className="owner-muted">Observed {date(publication.observedAt)}. Owner acceptance remains a separate decision.</p>
+              </section> : <p>Current publication evidence is unavailable. Retained proof does not establish current readiness.</p>}
               <ul className="owner-list">
                 {r.proof.evidence.map((e) => (
                   <li key={e.criterionId}>
@@ -476,8 +482,8 @@ export function IntegratedExperience({
               </button>
               <Link href={`/memory?workId=${r.work_id}`}>Review learning</Link></>}
             </div>
-          </Card>
-        ))
+          </Card>;
+        })
     ) : (
       <Empty title="No retained Results">
         Verified outputs and their evidence will appear here.
@@ -723,7 +729,7 @@ export function IntegratedExperience({
                 Load more Inbox items
               </button>
             )}
-            {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
+            {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">
