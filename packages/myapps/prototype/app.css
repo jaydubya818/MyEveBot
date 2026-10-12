@@ -399,9 +399,14 @@ dialog::backdrop {
   .wordmark {
     margin: 0;
   }
-  .sidebar nav,
-  .fixture {
+  .sidebar nav {
     display: none;
+  }
+  .fixture {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: right;
   }
   .main {
     padding: 22px 16px;

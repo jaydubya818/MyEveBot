@@ -242,6 +242,8 @@ try {
   await click("Overview");
   await waitText("Open pipeline");
   await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.locator(".fixture").isVisible(), true, "Synthetic fixture disclosure remains visible on mobile");
+  assert.match(await page.locator(".fixture").innerText(), /Synthetic data only/);
   await capture("overview-narrow");
   assert.equal(
     await page.evaluate(
