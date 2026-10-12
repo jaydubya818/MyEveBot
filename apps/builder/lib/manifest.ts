@@ -14,6 +14,7 @@ import type { FeatureId } from "./config";
 /** Path prefixes / exact files never included in a deployment. */
 export const EXCLUDED = [
   ".agents/",
+  ".builder-template-source.",
   ".env",
   ".eve/",
   ".gitignore",

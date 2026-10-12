@@ -83,7 +83,7 @@ export async function readStandaloneSourceFile(eveRoot: string, file: string): P
   }
   // Resolve the checkout root once (macOS /tmp itself is a symlink), then reject
   // symlinks in every source component, including packages/ and myapps/.
-  let source = await realpath(path.resolve(eveRoot, "../.."));
+  let source = await realpath(/* turbopackIgnore: true */ path.resolve(eveRoot, "../.."));
   const parts = file.split("/");
   for (const [index, part] of parts.entries()) {
     source = path.join(source, part);

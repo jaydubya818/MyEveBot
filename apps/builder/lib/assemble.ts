@@ -75,7 +75,7 @@ export async function templateRoot(): Promise<string> {
   ];
   for (const candidate of candidates) {
     try {
-      const probe = await stat(path.join(candidate, "agent", "agent.ts"));
+      const probe = await stat(/* turbopackIgnore: true */ path.join(candidate, "agent", "agent.ts"));
       if (probe.isFile()) return candidate;
     } catch {
       // keep looking

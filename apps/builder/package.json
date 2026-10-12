@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "next build && tsx scripts/verify-template-trace.ts",
     "dev": "next dev --port 3100",
     "start": "next start",
     "typecheck": "tsc && tsx scripts/check-manifest.ts",

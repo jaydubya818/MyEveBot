@@ -89,13 +89,15 @@ test("shared file and parent symlinks cannot expand the source boundary", async 
 });
 
 test("builder tracing uses the same narrow shared inventory", async () => {
-  const { default: config } = await import("../next.config");
+  const { default: configure } = await import("../next.config");
+  const config = await configure();
   for (const route of ["/api/deploy", "/api/update", "/api/template-version"]) {
     const includes = config.outputFileTracingIncludes![route];
     assert.deepEqual(includes.filter((file) => file.includes("packages/myapps")), [...SHARED_MYAPPS_FILES, MYAPPS_TRACE_METADATA].map((file) => `../../${file}`));
     assert.deepEqual(includes.filter((file) => file.startsWith("../../")), STANDALONE_SOURCE_INPUTS.map((file) => `../../${file}`));
-    assert.ok(includes.includes("../eve/scripts/**"));
-    assert.ok(includes.includes("../eve/types/**"));
+    assert.ok(includes.includes("../eve/.builder-template-source.json"));
+    assert.ok(includes.includes("../eve/agent/agent.ts"));
+    assert.ok(!includes.some(file => file.includes("**")), "template traces contain exact files only");
 
   }
 });

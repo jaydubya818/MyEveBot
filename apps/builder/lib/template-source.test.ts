@@ -4,7 +4,8 @@ import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test, type TestContext } from 'node:test';
-import { templateSourceFiles, readTemplateSource } from './template-source';
+import { prepareTemplateTrace, templateTraceExcludes } from './template-build';
+import { TEMPLATE_SOURCE_MANIFEST, templateSourceFiles, readTemplateSource } from './template-source';
 
 async function fixture(t: TestContext) {
   const repo=await mkdtemp(path.join(tmpdir(),'builder-source-'));
@@ -23,10 +24,29 @@ test('developer assembly excludes untracked files and nested local data, even wh
   assert.equal((await readTemplateSource(root,'lib/valid.ts')).toString(),'SYNTHETIC_FIXTURE_ONLY');
 });
 
-test('traced bundle fallback preserves canonical source without Git and excludes nested local data',async t=>{
-  const {root,put}=await fixture(t);
-  for(const file of ['agent/agent.ts','lib/valid.ts','package.json','.eve-template-release','lib/.env.fixture','agent/output/evidence','lib/.local-computer/state','output/result','unreviewed.txt','test/fixture.ts'])await put(file);
-  assert.deepEqual(await templateSourceFiles(root),['.eve-template-release','agent/agent.ts','lib/valid.ts','package.json']);
+test('sealed traced bundle preserves tracked source without Git and rejects changed bytes',async t=>{
+  const {repo,root,put,git}=await fixture(t);git('init','-q');
+  for(const file of ['agent/agent.ts','lib/valid.ts','package.json','.eve-template-release'])await put(file);
+  git('add','--all');
+  const files=await prepareTemplateTrace(root);
+  assert.deepEqual(files,['.eve-template-release','agent/agent.ts','lib/valid.ts','package.json',TEMPLATE_SOURCE_MANIFEST]);
+  await rm(path.join(repo,'.git'),{recursive:true});
+  for(const file of ['lib/.env.fixture','lib/private-custody.json','agent/output/evidence','lib/.local-computer/state','output/result','unreviewed.txt'])await put(file);
+  assert.deepEqual(await templateSourceFiles(root),files.slice(0,-1));
+  assert.equal((await readTemplateSource(root,'lib/valid.ts')).toString(),'SYNTHETIC_FIXTURE_ONLY');
+  await assert.rejects(readTemplateSource(root,'lib/private-custody.json'),/inventory mismatch/);
+  await writeFile(path.join(root,'lib/valid.ts'),'SYNTHETIC_CHANGED');
+  await assert.rejects(readTemplateSource(root,'lib/valid.ts'),/inventory mismatch/);
+});
+
+test('a bundle cannot use missing, malformed or unsafe provenance',async t=>{
+  const {root,put}=await fixture(t);await put('lib/untracked.ts');
+  await assert.rejects(templateSourceFiles(root));
+  for(const value of [{format:'unknown',files:{}},{format:'myeve.builder-source.v1',files:{'../outside':'a'.repeat(64)}},{format:'myeve.builder-source.v1',files:{'lib/.env.fixture':'a'.repeat(64)}},{format:'myeve.builder-source.v1',files:{'lib/untracked.ts':'invalid'}}]){
+    await writeFile(path.join(root,TEMPLATE_SOURCE_MANIFEST),JSON.stringify(value));
+    await assert.rejects(templateSourceFiles(root),/Invalid Builder source inventory/);
+  }
+  await assert.rejects(prepareTemplateTrace(root),/requires tracked template source/);
 });
 
 test('broken checkout metadata never falls back to a bundle filesystem walk',async t=>{
@@ -55,4 +75,10 @@ test('a symlinked template root cannot substitute outside source',async t=>{
   await rm(root,{recursive:true});await symlink(outside,root);
   await assert.rejects(templateSourceFiles(root),/Invalid template source root/);
   await assert.rejects(readTemplateSource(root,'package.json'),/Invalid template source root/);
+});
+
+test('build exclusions close ordinary untracked files and whole unrelated directories',async t=>{
+  const {root,put}=await fixture(t);
+  for(const file of ['lib/valid.ts','lib/private-custody.json','lib/nested/untracked.txt','output/fixture.txt'])await put(file);
+  assert.deepEqual(await templateTraceExcludes(root,['lib/valid.ts']),['../eve/lib/nested/**','../eve/lib/private-custody.json','../eve/output/**']);
 });

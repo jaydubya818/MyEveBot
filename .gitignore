@@ -31,3 +31,6 @@ node_modules
 
 # Capability browser artifacts are uploaded separately by isolated CI.
 /output/playwright/capability-control/
+
+# Build-derived Builder source inventory; never source authority.
+/apps/eve/.builder-template-source.*
