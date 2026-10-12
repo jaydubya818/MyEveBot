@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import pg from 'pg';
 import { CapabilityStore } from '../../../apps/eve/lib/capability-control/store.ts';
 import { advanceRecoveryWitness, assertRecoveryHead, closeRecoveryWitnessDatabases, configuredRecoveryWitness, initializeRecoveryWitness, recoveryHead } from '../src/recovery-witness.ts';
@@ -23,7 +25,7 @@ const run = promisify(execFile);
 const store = () => new CapabilityStore(runtime, { id: scope.installationId, environment: 'qualification' }, { ownerId: scope.ownerId, source: 'settings' }, undefined, witness);
 const command = (revision: number) => ({ requestId: randomUUID(), expectedRevision: revision, capabilityId: 'missioncontrol', operation: 'revoke' });
 before(async () => {
-  temporary = await mkdtemp('/private/tmp/witness-qualified-');
+  temporary = await mkdtemp(join(tmpdir(), 'witness-qualified-'));
   await admin.query(`CREATE DATABASE ${appName}`); await admin.query(`CREATE DATABASE ${witnessName}`);
   await admin.query(`CREATE ROLE ${appRole} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
   await admin.query(`CREATE ROLE ${witnessRole} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
