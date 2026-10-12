@@ -1,3 +1,5 @@
+import {ownerResultFixtureConfig,retainOwnerResultFixture} from './owner-result-test-fixture.ts';
+import {prepareAuthenticatedFactoryInput} from '../engineering/factory-authenticated-result.ts';
 import {RouteAdmissionService} from '../engineering/route-admission.ts';
 import {ENGINEERING_COMPOSITION_V1} from '../digital-worker/packs.ts';
 import {applyOwnerFactoryControl,pollOwnerFactoryWorkControl} from './owner-control-runtime.ts';
@@ -93,9 +95,9 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     if (role) { const client=await import('pg').then(pg=>new pg.default.Pool({connectionString:connection}));
       try { await client.query('DROP ROLE IF EXISTS '+role); } finally { await client.end(); } }
   });
-  async function ownerFixture() {
+  async function ownerFixture(signedResult=false) {
     const work=await env.store.get(fixture.document.work.id);
-    const config:any={engineering:{ownerId:env.owner,agentId:'fixture-agent',profile:{repository:work.repository,allowedPaths:files}},
+    const config:any=signedResult?ownerResultFixtureConfig(work,env.resultKeys):{engineering:{ownerId:env.owner,agentId:'fixture-agent',profile:{repository:work.repository,allowedPaths:files}},
       routing:{intent:'PRODUCE'},commands:['node --test'],connection:{factoryId:'owner-fixture',sourceDigest:'1'.repeat(64),configurationDigest:'2'.repeat(64),
         qualification:{scopeId:env.owner,profileHash:'',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+60000).toISOString(),mode:'LOCAL_FIXTURE',evidenceRef:'synthetic'},
         factoryVersion:digest({sourceDigest:'1'.repeat(64),configurationDigest:'2'.repeat(64)})}};
@@ -113,26 +115,26 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     fixture.document.work.tupleSha256=origin.tupleSha256;
     return {work,workStore,config,input};
   }
-  async function ownerRoute(includeProof=true,admitted=true) {
-    const x=await ownerFixture(),requestId=randomUUID(),decisionId=randomUUID(),runId=randomUUID();
-    const deadline=new Date(Date.now()+60000).toISOString(),binding={factoryId:'owner-fixture',agentId:'fixture-agent',workId:x.work.id,workVersion:1,workGeneration:1,criteriaVersion:1,
+  async function ownerRoute(includeProof=true,admitted=true,signedResult=false) {
+    const x=await ownerFixture(signedResult),requestId=randomUUID(),decisionId=randomUUID(),runId=randomUUID();
+    const deadline=new Date(Date.now()+60000).toISOString(),binding=prepareAuthenticatedFactoryInput({factoryId:x.config.connection.factoryId,agentId:'fixture-agent',workId:x.work.id,workVersion:1,workGeneration:1,criteriaVersion:1,
       factoryVersion:x.config.connection.factoryVersion,sourceDigest:x.config.connection.sourceDigest,configurationDigest:x.config.connection.configurationDigest,
-      inputCommit:'1'.repeat(40),requestId:randomUUID(),requestDigest:'3'.repeat(64),workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:1};
+      inputCommit:'1'.repeat(40),requestId:randomUUID(),requestDigest:'3'.repeat(64),workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:1});
     await env.pool.query(`INSERT INTO engineering_factory_requests(id,scope_id,scope_kind,work_id,actor_id,agent_id,factory_id,operation_id,binding)
-      VALUES($1,$2,'personal',$3,$2,'fixture-agent','owner-fixture',$4,$5)`,[requestId,env.owner,x.work.id,'4'.repeat(64),binding]);
+      VALUES($1,$2,'personal',$3,$2,'fixture-agent',$6,$4,$5)`,[requestId,env.owner,x.work.id,binding.operationId,binding,binding.factoryId]);
     const snapshot={contract:{deadline},factory:{requestId,repository:x.work.repository,baseSha:binding.inputCommit,
       profileHash:x.config.connection.qualification.profileHash,allowedPaths:files,deadline},
       ...(includeProof?{missionControl:{permitId:fixture.document.permitId,commandId:fixture.challenge.commandId,
         tupleSha256:fixture.document.work.tupleSha256,factoryRequestId:requestId}}:{})};
     await env.pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,
       eligible_routes,rejected_routes,constraints,provider_id,provider_version,actor_id,admission_authority_snapshot,factory_preparation)
-      VALUES($1,$2,'personal',$3,1,'MYFACTORY','synthetic','POLICY','{}','[]','[]','[]','owner-fixture',$4,$2,$5,$6)`,
-      [decisionId,env.owner,x.work.id,binding.factoryVersion,snapshot,{configurationHash:factoryExecutionConfigurationHash(x.config),request:{workId:x.work.id,workGeneration:1,repository:x.work.repository,requestId:binding.requestId,deadline}}]);
+      VALUES($1,$2,'personal',$3,1,'MYFACTORY','synthetic','POLICY','{}','[]','[]','[]',$7,$4,$2,$5,$6)`,
+      [decisionId,env.owner,x.work.id,binding.factoryVersion,snapshot,{configurationHash:factoryExecutionConfigurationHash(x.config),request:{workId:x.work.id,workGeneration:1,repository:x.work.repository,requestId:binding.requestId,deadline}},binding.factoryId]);
     if(admitted)await env.pool.query(`UPDATE engineering_routing_decisions SET status='ADMITTED',admitted_at=clock_timestamp(),admission_reason='synthetic',
       admission_policy_id='fixture',admission_policy_version=1,admission_request='{}',admission_context_snapshot='{}',
       admission_context_hash=$2,admission_authority_hash=$2 WHERE id=$1`,[decisionId,'sha256:'+'1'.repeat(64)]);
     const insert=()=>env.pool.query(`INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,provider_id,provider_version,status,decision_id,work_version,work_generation)
-      VALUES($1,$2,'personal',$3,'MYFACTORY','owner-fixture',$4,'QUEUED',$5,1,1) RETURNING *`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId]);
+      VALUES($1,$2,'personal',$3,'MYFACTORY',$6,$4,'QUEUED',$5,1,1) RETURNING *`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId,binding.factoryId]);
     return {...x,insert,runId,decisionId,requestId,binding};
   }
   it('durably marks owner Work before approval and denies native and legacy SQL admission',async()=>{
@@ -225,8 +227,8 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(rows).toEqual([]);
   });
 
-  async function canonicalOwnerRoute(race=false){
-    const x=await ownerRoute(false,false),scope={kind:'personal',id:env.owner},provider={id:'owner-fixture',version:x.binding.factoryVersion};
+  async function canonicalOwnerRoute(race=false,signedResult=false){
+    const x=await ownerRoute(false,false,signedResult),scope={kind:'personal',id:env.owner},provider={id:x.binding.factoryId,version:x.binding.factoryVersion};
     await env.pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
       VALUES('fixture-agent',$1,'Sofie','sofie','engineer','synthetic owner fixture',true,'active',1.3,180,30)`,[env.owner]);
     await env.pool.query(`GRANT UPDATE ON agents,business_partnership TO ${role}`);
@@ -262,6 +264,26 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const [run]=(await env.pool.query('SELECT * FROM engineering_route_runs WHERE id=$1',[result.runId])).rows;
     expect(run.missioncontrol_binding).toMatchObject({permitId:fixture.document.permitId,factoryRequestId:x.requestId,commandId:fixture.challenge.commandId});
     expect(await env.count('missioncontrol_admission_receipts')).toBe(1);
+  });
+  it('reads original signed owner Gate C Result and canonical NativeResultStore Proof from retained custody',async()=>{
+    const {x,admit}=await canonicalOwnerRoute(false,true),admitted=await admit();
+    // The runtime principal remains restricted; fixture custody writes use only this disposable database's test owner.
+    const fixtureStore=new WorkStore(x.workStore.principal,env.db);
+    const retained=await retainOwnerResultFixture({store:fixtureStore,config:x.config,keys:env.resultKeys,work:x.work,
+      binding:x.binding,requestId:x.requestId,runId:admitted.runId,decisionId:x.decisionId});
+    const e=fixture.enrollment,request={schema:'mc-result-request/v1' as const,connectionId:e.connectionId,installationId:e.installationId,
+      ownerId:env.owner,projectId:e.projectId,issuer:e.issuer,audience:e.audience,permitId:fixture.document.permitId,
+      commandId:randomUUID(),challenge:'a'.repeat(64),issuedAt:Date.now(),expiresAt:Date.now()+30000};
+    const result=await missionControlResultReadback(database,request);
+    expect(result.status).toBe('SETTLED');
+    expect(result.result).toMatchObject({resultId:retained.receiptId,nativeResultId:retained.native.id,proofHash:retained.native.contentHash,
+      signedResult:retained.signed,cleanupConfirmed:true,exposureUnknown:false,acceptance:null});
+    expect(result.result?.proof).toEqual(retained.native.proof);
+    expect(retained.native.proof.evidence).toHaveLength(x.work.criteria.length);
+    expect(retained.native.proof.evidence.every(e=>e.state==='PASS')).toBe(true);
+    expect(await env.count('external_alpha_work_authority')).toBe(0);
+    await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{backendObservedAt}',to_jsonb((clock_timestamp()-interval '1 minute')::text)) WHERE id=$1",[x.decisionId]);
+    await expect(missionControlResultReadback(database,request)).rejects.toThrow('MISSIONCONTROL_RESULT_REQUEST_EXPIRED');
   });
   it('rolls back signed approval and policy evidence if route proposal changes before receiving commit',async()=>{
     const {admit}=await canonicalOwnerRoute(true);await expect(admit()).rejects.toThrow('changed');
