@@ -106,6 +106,9 @@ jobs:
         const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/registered-owner-journey.json','utf8'));
         assert.equal(result.success,true);assert.equal(result.numTotalTests,1);assert.equal(result.numPassedTests,1);
         assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,1);
+        assert.equal(result.testResults[0].name,process.cwd()+'/apps/eve/lib/missioncontrol/local-owner-apps.integration.test.ts');
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
         NODE
     - name: Dormant signed remote isolation, durable delivery and offline runtime
       env:
@@ -218,8 +221,12 @@ jobs:
       run: |
         mkdir -p "$RUNNER_TEMP/composed-admission"
         node --test scripts/composed-admission/*.test.mjs
-        COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard.json" node --import tsx scripts/composed-admission/journey.mts
-        COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown.json" node --import tsx scripts/composed-admission/journey.mts
+        # Two required clean passes, not a retry: any failure stops the step.
+        # Each journey creates and destroys its own Convex/PostgreSQL fixtures.
+        for pass in 1 2; do
+          COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard-$pass.json" node --import tsx scripts/composed-admission/journey.mts
+          COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown-$pass.json" node --import tsx scripts/composed-admission/journey.mts
+        done
     - name: Exact owner Factory Result through the MissionControl verifier and MyApps custody
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
@@ -237,6 +244,9 @@ jobs:
         const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-alpha-exclusion.json','utf8'));
         assert.equal(result.success,true);assert.equal(result.numTotalTests,18);assert.equal(result.numPassedTests,18);
         assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,18);
+        assert.equal(result.testResults[0].name,process.cwd()+'/apps/eve/lib/missioncontrol/owner-alpha-exclusion.integration.test.ts');
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
         NODE
         node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-legacy-isolation.json"
         node --input-type=module - <<'NODE'
@@ -571,7 +581,7 @@ jobs:
       working-directory: ${{ github.workspace }}/myeve
       run: 'node --test packages/myapps/test/*.test.mjs
 
-        node --test scripts/myapps-composition/materialize.test.mjs
+        node --test scripts/myapps-composition/materialize.test.mjs scripts/myapps-composition/assert-report.test.mjs scripts/myapps-composition/current-pins.test.mjs
 
         npm run db:migrations:check
 
@@ -614,15 +624,17 @@ jobs:
         MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
-      run: node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json
-        --outputFile=${{ runner.temp }}/unified-myapps/composed-tests.json
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile="${{ runner.temp }}/unified-myapps/composed-tests.json"
+        node scripts/myapps-composition/assert-report.mjs composed "${{ runner.temp }}/unified-myapps/composed-tests.json" "$PWD"
     - name: QE criterion evidence and recovery contracts
       if: always()
       working-directory: ${{ github.workspace }}/myeve
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
-      run: node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json
-        --outputFile=${{ runner.temp }}/unified-myapps/qe-tests.json
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile="${{ runner.temp }}/unified-myapps/qe-tests.json"
+        node scripts/myapps-composition/assert-report.mjs qe "${{ runner.temp }}/unified-myapps/qe-tests.json" "$PWD"
     - name: Factory QE verifier, custody and accounting contracts
       if: always()
       working-directory: ${{ github.workspace }}/myfactory

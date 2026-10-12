@@ -46,7 +46,14 @@ let rpc: (operation: string, args?: any) => Promise<any>;
 const note = (name: string) => { report.checks.push(name); console.log('PASS ' + name); };
 try {
     const { startFixtureDatabase } = await import(pathToFileURL(mcRoot + '/scripts/enterprise-compatibility/database.mjs').href);
-    mc = await startFixtureDatabase(mcRoot, { installedPermits: true });
+    const preparingAt = performance.now();
+    try {
+        mc = await startFixtureDatabase(mcRoot, { installedPermits: true });
+        report.fixturePreparation = { status: 'PASS', elapsedMs: Math.round(performance.now() - preparingAt), commandDeadlineMs: 60000 };
+    } catch (error) {
+        report.fixturePreparation = { status: 'FAIL', elapsedMs: Math.round(performance.now() - preparingAt), commandDeadlineMs: 60000 };
+        throw error;
+    }
     env = await Env.create();
     const work = await env.seedWork();
     const now = Date.now(), hash = 'a'.repeat(64), signing = generateKeyPairSync('ed25519');

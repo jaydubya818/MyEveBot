@@ -1,0 +1,144 @@
+{
+  "composed": {
+    "apps/eve/lib/database-schema.test.ts": {
+      "passed": 2,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/accounting-postgres.test.ts": {
+      "passed": 9,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/allowance-postgres.test.ts": {
+      "passed": 7,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/features.test.ts": {
+      "passed": 77,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/paid-paths.test.ts": {
+      "passed": 20,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/policy.test.ts": {
+      "passed": 16,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/private-acceptance-postgres.test.ts": {
+      "passed": 15,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/proxy.test.ts": {
+      "passed": 8,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/result-ingestion-postgres.test.ts": {
+      "passed": 19,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/shared-accounting-postgres.test.ts": {
+      "passed": 15,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/work-authority-postgres.test.ts": {
+      "passed": 19,
+      "skipped": []
+    },
+    "packages/myapps/integration/alpha-tasks-guard.test.ts": {
+      "passed": 4,
+      "skipped": []
+    },
+    "packages/myapps/integration/alpha-tasks-late-worker.test.ts": {
+      "passed": 6,
+      "skipped": []
+    },
+    "packages/myapps/integration/alpha-tasks-recovery.test.ts": {
+      "passed": 8,
+      "skipped": []
+    },
+    "packages/myapps/integration/alpha-tasks-result.test.ts": {
+      "passed": 8,
+      "skipped": []
+    },
+    "packages/myapps/integration/alpha-tasks.test.ts": {
+      "passed": 0,
+      "skipped": [
+        "isolated candidate, canonical Needs You, duplicate-safe data, package update and rollback preserve same Mission/original Result",
+        "stale policy or installed base invalidates approval; revocation prevents operations",
+        "ordinary role enforces owner RLS and legacy CRM does not interpret Alpha Tasks state",
+        "clean failure preserves data; UNKNOWN preview fences further execution and installation",
+        "signed owner browser installs, updates, rolls back and safely retries an actual isolated app"
+      ]
+    },
+    "packages/myapps/integration/canonical-remote-admission.test.ts": {
+      "passed": 51,
+      "skipped": []
+    },
+    "packages/myapps/integration/composition.test.ts": {
+      "passed": 3,
+      "skipped": []
+    },
+    "packages/myapps/integration/golden.test.ts": {
+      "passed": 1,
+      "skipped": []
+    },
+    "packages/myapps/integration/local-bootstrap.test.ts": {
+      "passed": 2,
+      "skipped": []
+    },
+    "packages/myapps/integration/persistent.test.ts": {
+      "passed": 4,
+      "skipped": []
+    },
+    "packages/myapps/integration/remote-http.test.ts": {
+      "passed": 44,
+      "skipped": []
+    },
+    "packages/myapps/integration/remote-isolation.test.ts": {
+      "passed": 43,
+      "skipped": [
+        "dormant signed MyApps executor delivery custody signed loopback through actual offline Docker preserves the existing runtime profile"
+      ]
+    }
+  },
+  "qe": {
+    "apps/eve/lib/external-alpha/chat-recovery-postgres.test.ts": {
+      "passed": 7,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/context.test.ts": {
+      "passed": 11,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/conversation-readback.test.ts": {
+      "passed": 4,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/model-recovery-postgres.test.ts": {
+      "passed": 2,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts": {
+      "passed": 1,
+      "skipped": []
+    },
+    "apps/eve/lib/external-alpha/work-controller-postgres.test.ts": {
+      "passed": 76,
+      "skipped": []
+    },
+    "apps/eve/lib/relay/connect-concurrency.test.ts": {
+      "passed": 3,
+      "skipped": []
+    },
+    "packages/myapps/qualification/accounting-upgrade.test.ts": {
+      "passed": 1,
+      "skipped": []
+    }
+  },
+  "baseline-allowance": {
+    "apps/eve/lib/external-alpha/allowance-postgres.test.ts": {
+      "passed": 7,
+      "skipped": []
+    }
+  }
+}

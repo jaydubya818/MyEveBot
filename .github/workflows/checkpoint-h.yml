@@ -30,6 +30,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
+          # Historical checkpoint-H comparison only; not the unified-beta MissionControl candidate.
           ref: af521c92c05a1c79d1aff11510efea8dcf23e350
           path: .qualification/missioncontrol
           fetch-depth: 0
