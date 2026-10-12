@@ -1,5 +1,6 @@
 /** Local actual-service composition. Synthetic identities and FakeFactory only. */
 import assert from 'node:assert/strict';
+import { requireLocalPostgres } from './local-database.mjs';
 import { finishQualification, bounded } from './cleanup.mjs';
 import { fork, execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -24,14 +25,15 @@ import { InstalledMissionControlClient, installedMissionControlConfig } from '..
 import { capabilityRegistry } from '@mission-control/capability-control';
 import { signPolicyMessage, verifyPolicyMessage, policyMessageHash } from '../../packages/capability-enforcement/src/ordering-wire.ts';
 const mcRoot = process.env.COMPOSED_MC_ROOT!, relayRoot = process.env.COMPOSED_RELAY_ROOT!, output = process.env.COMPOSED_REPORT!;
-if (!mcRoot || !relayRoot || !output || !process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE?.includes('127.0.0.1'))
+requireLocalPostgres(process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE);
+if (!mcRoot || !relayRoot || !output)
     throw Error('Explicit disposable sources and database required');
 const report: any = { scope: 'LOCAL_REAL_CONVEX_POSTGRES_SYNTHETIC_IDENTITIES_FAKEFACTORY', status: 'RUNNING', source: { myeve: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), missioncontrol: execFileSync('git', ['-C', mcRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), relay: execFileSync('git', ['-C', relayRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() }, checks: [], installedAuthentication: 'NOT_RUN', factoryExecution: 'FakeFactory', paidOperations: 0, productionIntegration: 'NOT_RUN', externalAlphaImpact: 'NONE' };
 for (const root of [resolve('.'), mcRoot, relayRoot])
     if (execFileSync('git', ['-C', root, 'status', '--porcelain', '--untracked-files=no'], { encoding: 'utf8' }).trim())
         throw Error('Tracked source changes cannot qualify an exact commit');
 report.trackedSourcesClean = true;
-report.harnessDigests = Object.fromEntries(await Promise.all(['journey.mts', 'relay-fixture.mts', 'cleanup.mjs'].map(async (file) => [file, createHash('sha256').update(await readFile(resolve('scripts/composed-admission', file))).digest('hex')])));
+report.harnessDigests = Object.fromEntries(await Promise.all(['journey.mts', 'relay-fixture.mts', 'cleanup.mjs', 'local-database.mjs'].map(async (file) => [file, createHash('sha256').update(await readFile(resolve('scripts/composed-admission', file))).digest('hex')])));
 const nativeFetch = globalThis.fetch;
 let env: any, mc: any, child: any, receiverServer: any, role: string | undefined;
 let childCompletion: Promise<{
