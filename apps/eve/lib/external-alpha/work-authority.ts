@@ -446,7 +446,9 @@ export class ExternalAlphaWorkAuthority {
   ) {}
   private async call<T = any>(name: string, payload: Record<string, unknown>) {
     const [row] = await this.database.query(
-      `SELECT external_alpha_${name}($1::jsonb) AS receipt`,
+      ["work_admit","work_claim","missioncontrol_work_admit","missioncontrol_work_claim"].includes(name)
+        ? `WITH owner_context AS MATERIALIZED (SELECT set_config('myeve.missioncontrol_owner',$1::jsonb->>'ownerId',true)) SELECT external_alpha_${name}($1::jsonb) AS receipt FROM owner_context`
+        : `SELECT external_alpha_${name}($1::jsonb) AS receipt`,
       [
         JSON.stringify({
           ...payload,
@@ -482,12 +484,12 @@ export class ExternalAlphaWorkAuthority {
     // Enrolled installations must present current owner approval before reserving
     // shared money. The database repeats this check during admission and claim.
     const [missionControlSchema]=await this.database.query("SELECT to_regprocedure('public.missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text)') IS NOT NULL AS installed");
-    if(missionControlSchema?.installed)await this.database.query('SELECT missioncontrol_assert_dispatch($1,$2,$3,$4,$5,$6)',
+    if(missionControlSchema?.installed)await this.database.query("WITH owner_context AS MATERIALIZED (SELECT set_config('myeve.missioncontrol_owner',$1,true)) SELECT missioncontrol_assert_dispatch($1,$2,$3,$4,$5,$6) FROM owner_context",
       [this.policy.ownerId, work.id, work.version, work.generation,
         process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION',this.policy.factoryVersion]);
     else if(process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')throw Error('MISSIONCONTROL_SCHEMA_REQUIRED');
     const [custodySchema]=await this.database.query("SELECT to_regprocedure('public.missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text)') IS NOT NULL AS installed");
-    if(custodySchema?.installed)await this.database.query('SELECT missioncontrol_assert_alpha_admission($1,$2,$3,$4,$5,$6,$7)',
+    if(custodySchema?.installed)await this.database.query("WITH owner_context AS MATERIALIZED (SELECT set_config('myeve.missioncontrol_owner',$1,true)) SELECT missioncontrol_assert_alpha_admission($1,$2,$3,$4,$5,$6,$7) FROM owner_context",
       [this.policy.ownerId,work.id,work.version,work.generation,this.policy.factoryVersion,
         options.missionControl?.permitId??null,options.missionControl?.commandId??null]);
     else if(options.missionControl)throw Error('MISSIONCONTROL_SCHEMA_REQUIRED');

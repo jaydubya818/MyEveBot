@@ -166,7 +166,7 @@ export class Env {
   async rawAdmit(doc: unknown, over: Record<string, unknown> = {}) {
     const canonical = canonicalJson(doc);
     return (
-      await this.pool.query("SELECT external_alpha_work_admit($1::jsonb) AS r", [
+      await this.pool.query("WITH owner_context AS MATERIALIZED (SELECT set_config('myeve.missioncontrol_owner',$1::jsonb->>'ownerId',true)) SELECT external_alpha_work_admit($1::jsonb) AS r FROM owner_context", [
         JSON.stringify({
           document: doc,
           canonical,

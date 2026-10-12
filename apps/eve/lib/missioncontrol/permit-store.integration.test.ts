@@ -47,6 +47,10 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       } catch (error) { await client.query('ROLLBACK'); throw error; }
       finally { client.release(); }
     } };
+    database.query=async(sql,values)=>database.atomic!(async tx=>{
+      await tx.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[env.owner]);
+      return tx.query(sql,values);
+    });
     const work = await env.seedWork();
     fixture = permitFixture({ ownerId: env.owner, workId: work.id, workVersion: work.version,
       workGeneration: work.generation, tupleSha256: alphaTasksTupleSha256, maxCostMicrousd: 1300000, maxDurationSeconds: 180 });
@@ -63,6 +67,8 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await env.pool.query(`GRANT INSERT,UPDATE ON missioncontrol_control_attempts TO ${role}`);
     await env.pool.query(`GRANT INSERT ON missioncontrol_work_bindings,missioncontrol_execution_permits,missioncontrol_admission_receipts,missioncontrol_permit_controls,missioncontrol_factory_readbacks,missioncontrol_control_acknowledgments TO ${role}`);
     await env.pool.query(`GRANT EXECUTE ON FUNCTION capability_control.lock_admission_policy(text,text,text),missioncontrol_capability_snapshot(text,text,text,text),missioncontrol_enrollment_document(text) TO ${role}`);
+    await env.pool.query(`GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),
+      missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text) TO ${role}`);
     const installation=e.installationId, ids=capabilityRegistry.capabilities.map(item=>item.id);
     const facts=Object.fromEntries(capabilityRegistry.capabilities.map(item=>[item.id,{supported:true,deployed:true,entitled:true,
       administrator:'ALLOW',setup:Object.fromEntries(item.setupRequirements.map(key=>[key,true])),
@@ -284,6 +290,24 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(await env.count('external_alpha_work_authority')).toBe(0);
     await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{backendObservedAt}',to_jsonb((clock_timestamp()-interval '1 minute')::text)) WHERE id=$1",[x.decisionId]);
     await expect(missionControlResultReadback(database,request)).rejects.toThrow('MISSIONCONTROL_RESULT_REQUEST_EXPIRED');
+  });
+  it('assertion helpers reject a different owner without switching caller context',async()=>{
+    await env.pool.query(`GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),
+      missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text) TO ${role}`);
+    for(const sql of ['SELECT missioncontrol_assert_dispatch($1,$2,1,1,true)',
+      'SELECT missioncontrol_assert_alpha_admission($1,$2,1,1,NULL,NULL,NULL)']) {
+      const client=await env.pool.connect();
+      try{
+        await client.query('BEGIN');await client.query('SET LOCAL ROLE '+role);
+        await client.query("SELECT set_config('myeve.missioncontrol_owner','different-owner',true)");
+        await client.query('SAVEPOINT before_assertion');
+        await expect(client.query(sql,[env.owner,fixture.document.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_CONTEXT_REQUIRED');
+        await client.query('ROLLBACK TO before_assertion');
+        expect((await client.query("SELECT current_setting('myeve.missioncontrol_owner') AS owner")).rows[0].owner).toBe('different-owner');
+        expect((await client.query('SELECT owner_id FROM missioncontrol_owner_enrollments')).rows).toEqual([]);
+        await client.query('ROLLBACK');
+      }finally{await client.query('ROLLBACK');client.release();}
+    }
   });
   it('rolls back signed approval and policy evidence if route proposal changes before receiving commit',async()=>{
     const {admit}=await canonicalOwnerRoute(true);await expect(admit()).rejects.toThrow('changed');

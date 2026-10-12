@@ -7,6 +7,8 @@ import { ProductShell, ResourceState } from "./product-shell";
 import { Card, Empty } from "./primitives";
 
 const messages: Record<string, string> = {
+  APP_OPERATION_FENCED:
+    "This operation was stopped. Its changes were not saved. Refresh to see the recorded outcome.",
   APP_UNAVAILABLE:
     "This app is unavailable. Refresh its records before trying again.",
   APP_CAPABILITY_DENIED:

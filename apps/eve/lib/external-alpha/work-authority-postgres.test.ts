@@ -331,7 +331,7 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
       [bait, e.owner, digest(e.policy), "a".repeat(64), randomUUID()],
     );
     await e.pool.query(
-      "INSERT INTO external_alpha_work_authority(id,idempotency_key,owner_id,policy_sha256,allowance_id,work_id,work_version,work_generation,request_id,writer_id,document,document_sha256,signature,key_id,issued_at,expires_at,state) VALUES($1,$2,$3,$4,$5,$6,1,1,$7,$8,'{}',$9,$10,$11,now()-interval '1 hour',now()-interval '59 minutes','EXPIRED')",
+      "WITH owner_context AS MATERIALIZED (SELECT set_config('myeve.missioncontrol_owner',$3,true)) INSERT INTO external_alpha_work_authority(id,idempotency_key,owner_id,policy_sha256,allowance_id,work_id,work_version,work_generation,request_id,writer_id,document,document_sha256,signature,key_id,issued_at,expires_at,state) SELECT $1,$2,$3,$4,$5,$6,1,1,$7,$8,'{}',$9,$10,$11,now()-interval '1 hour',now()-interval '59 minutes','EXPIRED' FROM owner_context",
       [randomUUID(), "e".repeat(64), e.owner, digest(e.policy), bait, randomUUID(), doc.candidateWriter.requestId, randomUUID(), "f".repeat(64), "A".repeat(86), "b".repeat(64)],
     );
     const before = await e.count("external_alpha_allowance");

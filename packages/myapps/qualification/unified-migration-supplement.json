@@ -29,6 +29,10 @@
     {
       "name": "0100_missioncontrol_alpha_admission_custody.sql",
       "sha256": "1af0da23805a4da821ca57dc0de11153143f810e512131a616ca99493aafb0dd"
+    },
+    {
+      "name": "0101_missioncontrol_assertion_owner_context.sql",
+      "sha256": "4f83cd12c3b460ac5d2393332eb1183a7abb08826d5346db489675384d09bcd2"
     }
   ]
 }

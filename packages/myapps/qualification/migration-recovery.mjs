@@ -44,15 +44,15 @@ for (const entry of historical.files) {
 assert.equal(result.historical.length, 103);
 const migrations = await loadMigrations(pathToFileURL(join(eve, 'apps/eve/migrations/')));
 // The historical catalog remains byte-for-byte frozen. This separately reviewed
-// supplement qualifies only the seven new additive unified-beta migrations.
+// supplement qualifies only the eight new additive unified-beta migrations.
 const supplementBytes=readFileSync(new URL('./unified-migration-supplement.json',import.meta.url));
 const supplement=JSON.parse(supplementBytes);
 assert.equal(supplement.schema,'unified-beta-migration-supplement/v1');
-assert.equal(supplement.files.length,7);
+assert.equal(supplement.files.length,8);
 assert.deepEqual(migrations.slice(89).map(({name,checksum})=>({name,sha256:checksum})),supplement.files);
 result.supplementSha256=sha(supplementBytes);
-assert.equal(migrations.length, 96, 'Review any new application migration explicitly');
-assert.equal(migrations.at(-1).name, '0100_missioncontrol_alpha_admission_custody.sql');
+assert.equal(migrations.length, 97, 'Review any new application migration explicitly');
+assert.equal(migrations.at(-1).name, '0101_missioncontrol_assertion_owner_context.sql');
 assert.equal(new Set(migrations.map(m => m.name.slice(0, 4))).size, migrations.length);
 const expected = migrations.map(({ name, checksum }) => ({ name, checksum }));
 assert.throws(() => planMigrations(migrations, [expected[1]]), /Noncontiguous/);
@@ -120,7 +120,7 @@ try {
   await migrate(fresh.client);
   assert.deepEqual(await ledger(fresh.client), expected);
   const freshSchema = schema(fresh.name);
-  check('fresh ordered application ledger and all historical checksums', { application: 94, factory: 12, central: 2 });
+  check('fresh ordered application ledger and all historical checksums', { application: migrations.length, factory: 12, central: 2 });
   check('duplicate, noncontiguous and unsupported Phase 2 ledger identities are rejected');
   const originalLedger = (await fresh.client.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
   await migrate(fresh.client);
