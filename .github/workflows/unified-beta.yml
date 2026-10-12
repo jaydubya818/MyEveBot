@@ -397,12 +397,14 @@ jobs:
     - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
     - run: npx tsc --noEmit --project apps/eve/tsconfig.json
     - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts
-        components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
+        components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts lib/login-destination.test.ts
       working-directory: apps/eve
     - name: Actual password login, delayed persistence, reconnect and failed save
       run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
     - name: Tester feedback rendered states and response-loss recovery
       run: node apps/eve/test/browser/beta-feedback.mjs "$RUNNER_TEMP/checkpoint-h/feedback"
+    - name: Same-origin login and truthful candidate evidence
+      run: node apps/eve/test/baseline-security.browser.mjs "$RUNNER_TEMP/checkpoint-h/baseline-security"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:

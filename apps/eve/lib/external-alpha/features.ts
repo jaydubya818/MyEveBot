@@ -6,7 +6,9 @@ import { externalAlphaInstallation } from "./policy.ts";
  * reviewer classifies it; features.test.ts enumerates the source tree and fails
  * when something is unclassified.
  *
- * The allowlist is closed: EVE_ENABLED_FEATURES can only narrow it. */
+ * EVE_ENABLED_FEATURES can only narrow the base allowlist. The separately
+ * installed MissionControl extension admits only its signed receivers and
+ * owner feedback routes; route visibility is not execution authority. */
 
 export const ALLOWED_FAMILIES = [
   "CORE", // sign-in, health, static assets, readiness

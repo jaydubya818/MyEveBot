@@ -387,8 +387,8 @@
     },
     "agent/lib/orgo.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Gate 4 review: External-alpha hosted/Gateway computer tasks deny before VM acquisition, credentials or model selection; boundary tripwires confirm zero contact.",
-      "sha256": "8486183271e1f29fff0dd4d10b9e73bb4a49ab5c36a9abea149be46260dfe3b5"
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Gate 4 review: External-alpha hosted/Gateway computer tasks deny before VM acquisition, credentials or model selection; boundary tripwires confirm zero contact. Direct alpha lifecycle and desktop transport also denies before key lookup or provider reads; eleven method tripwires preserve canonical mutation denial.",
+      "sha256": "8c5afbf6896ec0cf01ba6795a2059511ac8707b0bcbc6c4e9e0908063a8dccd5"
     },
     "agent/lib/owner-gate.ts": {
       "classification": "INTERNAL",
@@ -437,8 +437,8 @@
     },
     "agent/lib/session-settings.ts": {
       "classification": "INTERNAL",
-      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions.",
-      "sha256": "5ecab9a6e037545c1ad7f9a696c119ab29601847ca5f3888246a194b46294eff"
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions. Client model and reasoning context accepts only user-role messages; assistant, system and tool messages cannot select settings.",
+      "sha256": "4e98943bb803a7a0759745c93aba8a48d379a720889810a14b229365d1b9b01a"
     },
     "agent/lib/settings-db.ts": {
       "classification": "INTERNAL",
@@ -4127,7 +4127,7 @@
     "lib/external-alpha/features.ts": {
       "classification": "ENFORCED",
       "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged. Classifies only two signed MissionControl POST endpoints and its owner tool under explicit installed mode. Default external-alpha scope and unrelated denied families remain closed.82 ingress/schema/client regressions pass; route authorization remains in the signed handlers. Narrow beta feedback page and GET/POST route only under explicit installed mode; unrelated admin/learning/connected-apps remain denied.",
-      "sha256": "5e1f1d70ac01bb03a43790495d459cc0ecf4a4df7f7c523c4f255fe33b2752b2"
+      "sha256": "25b4093814bfff34d99eb3a185376b087560ae9f1ed13b4b135f79ed559798ea"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4464,6 +4464,11 @@
       "classification": "ENFORCED",
       "reason": "Default-inactive local owner bootstrap shares canonical Work/capability database and existing signed auth/Inbox/AlphaTasks runtime. Trusted content-addressed source intake reads bounded regular owned files with no symlinks, reconstructs exact signed candidate tree, and prepares canonical Result provenance without approving installation. Current custody/capability rechecked on effects. Cache detects changed/removed registration; unregistered startup has no IO. Local signed-session cold-start PostgreSQL and registry/source-store denial coverage pass. Clarifies that legacy local web bindings do not grant Sofie registry availability; implementation and grants unchanged.",
       "sha256": "e053b35f39a8e6edad80a32ee4d8fa442b14f909b2ce89fc249787799d36fb0d"
+    },
+    "lib/login-destination.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure post-login destination normalization. Resolves against the trusted browser origin and rejects cross-origin navigation; grants no authentication or execution authority.",
+      "sha256": "07ea142fbfa2bac86880234b57d00b5a791ee84c74b1ea41817725d1d1b954b5"
     }
   }
 }
