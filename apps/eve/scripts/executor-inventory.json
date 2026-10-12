@@ -2637,8 +2637,8 @@
     },
     "lib/thread-owner-conflict.ts": {
       "classification": "INTERNAL",
-      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers. Thread identifiers are URL-encoded before transport so path and query syntax cannot target a different route.",
-      "sha256": "ae36aa80138d312e79d521e5b522f05b2447f2f38056fafc3a8a28cf20d8cb4e"
+      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers. Thread identifiers are URL-encoded before transport so path and query syntax cannot target a different route. Rejects empty, dot-only and malformed Unicode identifiers before any GET, PUT or DELETE transport.",
+      "sha256": "bc72a2685bbd2ffa7d035d13e7facbffd6e4731938afa533572aabe05ba62a71"
     },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",

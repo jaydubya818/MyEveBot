@@ -3,6 +3,22 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 beforeEach(() => vi.resetModules());
 afterEach(() => vi.unstubAllGlobals());
 
+it.each(["", ".", "..", "\uD800"])("rejects unsafe thread identifier %j without a request", async (id) => {
+  const fetch = vi.fn();
+  vi.stubGlobal("fetch", fetch);
+  const { threadApiPath, saveThreadForCurrentOwner } = await import("./thread-owner-conflict");
+  expect(threadApiPath(id)).toBeNull();
+  expect(await saveThreadForCurrentOwner(id, {})).toBe(false);
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+it.each(["ordinary-id", "%2e%2e", "a/b?c#d"])("keeps thread identifier %j in one URL segment", async (id) => {
+  const { threadApiPath } = await import("./thread-owner-conflict");
+  const path = threadApiPath(id);
+  expect(path).toBe(`/api/threads/${encodeURIComponent(id)}`);
+  expect(new URL(path!, "https://example.test").pathname).toBe(path);
+});
+
 it("keeps path and query syntax inside the thread identifier", async () => {
   const fetch = vi.fn(async (_url: string) => Response.json({ ok: true }));
   vi.stubGlobal("fetch", fetch);

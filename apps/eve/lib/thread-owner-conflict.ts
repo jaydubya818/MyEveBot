@@ -2,6 +2,16 @@
 const blockedThreadIds = new Set<string>();
 const listeners = new Set<(id: string) => void>();
 
+export function threadApiPath(id: string): string | null {
+  // URL parsers normalize these segments even after encodeURIComponent.
+  if (!id || id === "." || id === "..") return null;
+  try {
+    return `/api/threads/${encodeURIComponent(id)}`;
+  } catch {
+    return null;
+  }
+}
+
 export function threadHasOwnerConflict(id: string): boolean {
   return blockedThreadIds.has(id);
 }
@@ -13,8 +23,10 @@ export function subscribeToThreadOwnerConflicts(listener: (id: string) => void):
 
 export async function saveThreadForCurrentOwner(id: string, body: unknown): Promise<boolean> {
   if (threadHasOwnerConflict(id)) return false;
+  const url = threadApiPath(id);
+  if (!url) return false;
   try {
-    const response = await fetch(`/api/threads/${encodeURIComponent(id)}`, {
+    const response = await fetch(url, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),

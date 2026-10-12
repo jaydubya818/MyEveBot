@@ -111,6 +111,7 @@ import { latestTurnFailed, latestTurnContextLimit } from "@/app/chat-turn-failur
 import {
   saveThreadForCurrentOwner,
   subscribeToThreadOwnerConflicts,
+  threadApiPath,
   threadHasOwnerConflict,
 } from "@/lib/thread-owner-conflict";
 
@@ -332,7 +333,9 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
 }
 
 function deleteThreadOnServer(id: string): void {
-  void fetch(`/api/threads/${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => undefined);
+  const url = threadApiPath(id);
+  if (!url) return;
+  void fetch(url, { method: "DELETE" }).catch(() => undefined);
 }
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
@@ -347,8 +350,10 @@ async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
 }
 
 async function fetchServerChat(id: string): Promise<SavedChat | null> {
+  const url = threadApiPath(id);
+  if (!url) return null;
   try {
-    const response = await fetch(`/api/threads/${encodeURIComponent(id)}`);
+    const response = await fetch(url);
     if (!response.ok) return null;
     const body = (await response.json()) as { chat?: SavedChat };
     return body.chat ?? null;
