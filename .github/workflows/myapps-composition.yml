@@ -133,7 +133,7 @@ jobs:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
         run: |
-          node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/composed-tests.json
+          node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile="${{ github.workspace }}/composed-tests.json"
           node scripts/myapps-composition/assert-report.mjs composed "${{ github.workspace }}/composed-tests.json" "$PWD"
       - name: QE criterion evidence and recovery contracts
         if: always()
@@ -141,7 +141,7 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: |
-          node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/qe-tests.json
+          node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile="${{ github.workspace }}/qe-tests.json"
           node scripts/myapps-composition/assert-report.mjs qe "${{ github.workspace }}/qe-tests.json" "$PWD"
       - name: Factory QE verifier, custody and accounting contracts
         if: always()
@@ -194,7 +194,7 @@ jobs:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
-          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/allowance-postgres.test.ts --reporter=default --reporter=json --outputFile=${{ github.workspace }}/baseline-allowance-tests.json
+          node_modules/.bin/vitest run --config apps/eve/vitest.config.ts apps/eve/lib/external-alpha/allowance-postgres.test.ts --reporter=default --reporter=json --outputFile="${{ github.workspace }}/baseline-allowance-tests.json"
           node "${{ github.workspace }}/myeve/scripts/myapps-composition/assert-report.mjs" baseline-allowance "${{ github.workspace }}/baseline-allowance-tests.json" "$PWD"
       - name: Existing browser and performance regressions
         if: always()

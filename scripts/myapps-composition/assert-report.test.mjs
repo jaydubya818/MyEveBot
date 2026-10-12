@@ -2,15 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {assertReport} from './assert-report.mjs';
 
-const expected = {'suite/a.test.ts': {passed: 1, skipped: []}, 'suite/b.test.ts': {passed: 1, skipped: ['separate Docker gate']}};
-const passing = () => ({success: true, numTotalTests: 3, numPassedTests: 2, numPendingTests: 1, numFailedTests: 0, numTodoTests: 0, numFailedTestSuites: 0,
+const expected = {'suite/a.test.ts': {passed: 2, passedNames: ['first qualified case', 'second qualified case'], skipped: []}, 'suite/b.test.ts': {passed: 1, passedNames: ['third qualified case'], skipped: ['separate Docker gate']}};
+const passing = () => ({success: true, numTotalTests: 4, numPassedTests: 3, numPendingTests: 1, numFailedTests: 0, numTodoTests: 0, numFailedTestSuites: 0,
   testResults: Object.entries(expected).map(([name, contract]) => ({name: '/source/' + name, status: 'passed', assertionResults: [
-    {fullName: name + ' qualified case', status: 'passed', failureMessages: []},
+    ...contract.passedNames.map(fullName => ({fullName, status: 'passed', failureMessages: []})),
     ...contract.skipped.map(fullName => ({fullName, status: 'skipped', failureMessages: []})),
   ]}))});
 
 test('qualifies exact files and counts while retaining explicitly separate skipped scope', () => {
-  assert.deepEqual(assertReport(passing(), expected, '/source'), {files: 2, total: 3, passed: 2, skipped: 1});
+  assert.deepEqual(assertReport(passing(), expected, '/source'), {files: 2, total: 4, passed: 3, skipped: 1});
 });
 test('rejects forged green totals, incomplete or foreign files, and changed skipped cases', () => {
   const changes = [
@@ -29,6 +29,8 @@ test('rejects forged green totals, incomplete or foreign files, and changed skip
     r => {r.testResults[0].assertionResults[0].status = 'skipped';},
     r => {r.testResults[0].assertionResults[0].status = 'todo';},
     r => {r.testResults[0].assertionResults[0].failureMessages = ['failure'];},
+    r => {r.testResults[0].assertionResults[0].fullName = 'substituted passing case';},
+    r => {r.testResults[0].assertionResults[0].fullName = r.testResults[0].assertionResults[1].fullName;},
     r => {r.testResults[1].assertionResults[1].fullName = 'different omitted case';},
     r => {r.testResults[1].assertionResults[1].status = 'passed';},
   ];

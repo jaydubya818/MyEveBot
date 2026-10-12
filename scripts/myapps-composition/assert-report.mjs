@@ -23,12 +23,14 @@ export function assertReport(report, expected, sourceRoot) {
     assert.equal(file.status, 'passed', 'Suite failed: ' + name);
     assert.ok(Array.isArray(file.assertionResults), 'Missing assertions: ' + name);
     assert.equal(file.assertionResults.length, contract.passed + contract.skipped.length, 'Assertion count changed: ' + name);
-    const actualSkipped = [];
+    assert.equal(contract.passedNames.length, contract.passed, 'Invalid expected passing count: ' + name);
+    assert.equal(new Set(contract.passedNames).size, contract.passed, 'Duplicate expected passing identity: ' + name);
+    const actualSkipped = [], actualPassed = [];
     let filePassed = 0;
     for (const test of file.assertionResults) {
       assert.equal(typeof test.fullName, 'string', 'Missing assertion identity');
       assert.ok(test.fullName.length > 0, 'Empty assertion identity');
-      if (test.status === 'passed') filePassed++;
+      if (test.status === 'passed') {filePassed++; actualPassed.push(test.fullName);}
       else {
         assert.equal(test.status, 'skipped', 'Nonpassing assertion: ' + test.fullName);
         actualSkipped.push(test.fullName);
@@ -36,6 +38,7 @@ export function assertReport(report, expected, sourceRoot) {
       assert.deepEqual(test.failureMessages, [], 'Retained assertion failure: ' + test.fullName);
     }
     assert.equal(filePassed, contract.passed, 'Passing count changed: ' + name);
+    assert.deepEqual(actualPassed.sort(), [...contract.passedNames].sort(), 'Passing identities changed: ' + name);
     assert.deepEqual(actualSkipped.sort(), [...contract.skipped].sort(), 'Skipped cases changed: ' + name);
     total += file.assertionResults.length; passed += filePassed; skipped += actualSkipped.length;
   }

@@ -1,5 +1,6 @@
 /** Local actual-service composition. Synthetic identities and FakeFactory only. */
 import assert from 'node:assert/strict';
+import { measureFixturePreparation } from './fixture-timing.mjs';
 import { requireLocalPostgres } from './local-database.mjs';
 import { finishQualification, bounded } from './cleanup.mjs';
 import { fork, execFileSync } from 'node:child_process';
@@ -35,7 +36,8 @@ for (const root of [resolve('.'), mcRoot, relayRoot])
     if (execFileSync('git', ['-C', root, 'status', '--porcelain', '--untracked-files=no'], { encoding: 'utf8' }).trim())
         throw Error('Tracked source changes cannot qualify an exact commit');
 report.trackedSourcesClean = true;
-report.harnessDigests = Object.fromEntries(await Promise.all(['journey.mts', 'relay-fixture.mts', 'cleanup.mjs', 'local-database.mjs'].map(async (file) => [file, createHash('sha256').update(await readFile(resolve('scripts/composed-admission', file))).digest('hex')])));
+report.harnessDigests = Object.fromEntries(await Promise.all(['journey.mts', 'relay-fixture.mts', 'cleanup.mjs', 'local-database.mjs', 'fixture-timing.mjs'].map(async (file) => [file, createHash('sha256').update(await readFile(resolve('scripts/composed-admission', file))).digest('hex')])));
+const journeyStartedAt = performance.now();
 const nativeFetch = globalThis.fetch;
 let env: any, mc: any, child: any, receiverServer: any, role: string | undefined;
 let childCompletion: Promise<{
@@ -46,14 +48,7 @@ let rpc: (operation: string, args?: any) => Promise<any>;
 const note = (name: string) => { report.checks.push(name); console.log('PASS ' + name); };
 try {
     const { startFixtureDatabase } = await import(pathToFileURL(mcRoot + '/scripts/enterprise-compatibility/database.mjs').href);
-    const preparingAt = performance.now();
-    try {
-        mc = await startFixtureDatabase(mcRoot, { installedPermits: true });
-        report.fixturePreparation = { status: 'PASS', elapsedMs: Math.round(performance.now() - preparingAt), commandDeadlineMs: 60000 };
-    } catch (error) {
-        report.fixturePreparation = { status: 'FAIL', elapsedMs: Math.round(performance.now() - preparingAt), commandDeadlineMs: 60000 };
-        throw error;
-    }
+    mc = await measureFixturePreparation(report, () => startFixtureDatabase(mcRoot, { installedPermits: true }));
     env = await Env.create();
     const work = await env.seedWork();
     const now = Date.now(), hash = 'a'.repeat(64), signing = generateKeyPairSync('ed25519');
@@ -297,5 +292,6 @@ finally {
     ]);
     if (!confirmed)
         process.exitCode = 1;
+    report.journeyElapsedMs = Math.round(performance.now() - journeyStartedAt);
     await writeFile(output, JSON.stringify(report, null, 2) + '\n');
 }
