@@ -53,6 +53,7 @@ for(const width of [1440,390])test(`Work state, Proof and reconnect presentation
  // The same read-only card follows the conversation, including repeated reads.
  await page.route('**/api/work-thread?*',route=>route.fulfill({json:{works:[{projection:current}],nextOffset:null}}));
  await page.goto('/chat');await expect(page.locator('.owner-work-summary')).toHaveCount(1);await expect(page.locator('.owner-work-summary')).toContainText('Couldn’t complete');
- await page.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(page.locator('.owner-work-summary')).toHaveCount(1);
- await page.addStyleTag({content:'nextjs-portal{display:none!important}'});await capture(page,`sofie-inline-work-${width}.png`);
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(page.locator('.owner-work-summary')).toHaveCount(1);
+  if(width<768)await (await import('../browser/mobile-conversation-layout.mjs')).checkMobileConversationLayout(page);
+  await page.addStyleTag({content:'nextjs-portal{display:none!important}'});await capture(page,`sofie-inline-work-${width}.png`);
 });
