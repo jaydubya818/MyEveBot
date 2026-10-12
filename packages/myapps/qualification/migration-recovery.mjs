@@ -273,6 +273,16 @@ try {
     await fresh.client.query('INSERT INTO myapps_installations VALUES($1,$2,$3,$4)', [ownerId, 'fixture-app', 'migration-fixture', JSON.stringify({ ownerId, appId: 'fixture-app' })]);
     await fresh.client.query("INSERT INTO myapps_audit(owner_id,app_id,action,actor,evidence) VALUES($1,'fixture-app','restore-fixture',$1,'{}')", [ownerId]);
   }
+  // Inert database custody fixture: no package, remote enrollment or execution authority.
+  const receiptAdmission={schema:'myapps.execution-admission/v1',ownerId:'fixture-owner-a',actorId:'fixture-owner-a',kind:'human',permission:'apps.run',
+    appId:'fixture-app',receiptId:'restore-admission',requestHash:'a'.repeat(64),operationId:randomUUID(),mode:'INVOKE',packageVersion:1,
+    packageDigest:'b'.repeat(64),originDigest:'c'.repeat(64),sourceClosureDigest:'d'.repeat(64),runtimeDigest:'e'.repeat(64),operation:'list',
+    inputDigest:'f'.repeat(64),beforeStateDigest:'1'.repeat(64),executionDigest:'2'.repeat(64),appRevision:1,dataRevision:0,
+    workVersion:1,workGeneration:1,policyRevision:1,receivingIdentity:null};
+  await fresh.client.query('INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response,execution_admission) VALUES($1,$2,$3,$4,$5,$6)',
+    [receiptAdmission.ownerId,receiptAdmission.appId,receiptAdmission.receiptId,receiptAdmission.requestHash,{status:'RUNNING',operationId:receiptAdmission.operationId},receiptAdmission]);
+  await fresh.client.query("UPDATE myapps_receipts SET response=response||'{\"status\":\"UNKNOWN\",\"cleanup\":\"UNKNOWN\"}'::jsonb WHERE id='restore-admission'");
+  await fresh.client.query("INSERT INTO myapps_receipts(owner_id,app_id,id,request_hash,response) VALUES('fixture-owner-a','fixture-app','historical-null',$1,'{}')",['3'.repeat(64)]);
   for (const original of [fresh, central]) {
     const target = await create('restore');
     const backup = join(temporary, original.name + '.dump');
@@ -286,10 +296,21 @@ try {
       await admin.query(`CREATE ROLE "${role}" NOLOGIN`); roles.push(role);
       await target.client.query(`GRANT USAGE ON SCHEMA public TO "${role}"`);
       await target.client.query(`GRANT SELECT,INSERT ON myapps_installations TO "${role}"`);
+      await target.client.query(`GRANT SELECT,UPDATE,DELETE ON myapps_receipts TO "${role}"`);
       await target.client.query(`SET ROLE "${role}"`);
       await target.client.query("SELECT set_config('myeve.myapps_owner','fixture-owner-a',false)");
       assert.deepEqual((await target.client.query('SELECT owner_id FROM myapps_installations')).rows, [{ owner_id: 'fixture-owner-a' }]);
       await assert.rejects(target.client.query("INSERT INTO myapps_installations VALUES('fixture-owner-b','foreign','foreign','{\"ownerId\":\"fixture-owner-b\",\"appId\":\"foreign\"}')"), /row-level security/);
+      const restoredAdmission=(await target.client.query("SELECT response,execution_admission FROM myapps_receipts WHERE id='restore-admission'")).rows[0];
+      assert.deepEqual(restoredAdmission.execution_admission,receiptAdmission);
+      assert.deepEqual(restoredAdmission.response,{status:'UNKNOWN',operationId:receiptAdmission.operationId,cleanup:'UNKNOWN'});
+      await assert.rejects(target.client.query("UPDATE myapps_receipts SET execution_admission=NULL WHERE id='restore-admission'"),/MYAPPS_EXECUTION_ADMISSION_IMMUTABLE/);
+      await assert.rejects(target.client.query("UPDATE myapps_receipts SET execution_admission=jsonb_set(execution_admission,'{actorId}','\"other\"') WHERE id='restore-admission'"),/MYAPPS_EXECUTION_ADMISSION_IMMUTABLE/);
+      await assert.rejects(target.client.query("UPDATE myapps_receipts SET execution_admission=$1 WHERE id='historical-null'",[receiptAdmission]),/MYAPPS_EXECUTION_ADMISSION_IMMUTABLE/);
+      await assert.rejects(target.client.query("DELETE FROM myapps_receipts WHERE id='restore-admission'"),/MYAPPS_EXECUTION_ADMISSION_IMMUTABLE/);
+      await target.client.query("SELECT set_config('myeve.myapps_owner','fixture-owner-b',false)");
+      assert.equal((await target.client.query('SELECT * FROM myapps_receipts')).rows.length,0);
+      check('restored admitted receipt retains immutable custody, historical NULL, owner isolation and UNKNOWN');
       await target.client.query('RESET ROLE');
       await assert.rejects(target.client.query("UPDATE myapps_audit SET action='tampered'"), /immutable/);
       check('restored application enforces owner RLS and immutable evidence');
