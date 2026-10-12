@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { ArtifactKind } from "@/agent/lib/effect/artifacts";
 import { Markdown } from "@/components/markdown";
+import { markdownPreviewDocument } from "@/lib/markdown-preview";
 
 const SpreadsheetPreview = dynamic(
   () =>
@@ -34,15 +35,6 @@ function PreviewLoading() {
       <Loader size={20} />
     </div>
   );
-}
-
-function htmlDocument(content: string): string {
-  const policy =
-    "default-src 'none'; img-src data: blob:; media-src data: blob:; style-src 'unsafe-inline'; font-src data:; script-src 'unsafe-inline'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'";
-  const csp = `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
-  return /<head[\s>]/i.test(content)
-    ? content.replace(/<head([^>]*)>/i, `<head$1>${csp}`)
-    : `<!doctype html><html><head>${csp}</head><body>${content}</body></html>`;
 }
 
 export function ArtifactPreview({
@@ -89,7 +81,7 @@ export function ArtifactPreview({
   }, [contentUrl, kind, text]);
 
   const safeHtml = useMemo(
-    () => (loadedText === null ? null : htmlDocument(loadedText)),
+    () => (loadedText === null ? null : markdownPreviewDocument(loadedText)),
     [loadedText],
   );
 
@@ -107,13 +99,18 @@ export function ArtifactPreview({
     return safeHtml === null ? (
       <PreviewLoading />
     ) : (
-      <iframe
-        title={`Preview of ${filename}`}
-        sandbox="allow-scripts"
-        referrerPolicy="no-referrer"
-        srcDoc={safeHtml}
-        className="min-h-0 flex-1 bg-white"
-      />
+      <>
+        <p className="px-4 py-2 text-xs text-kumo-subtle">
+          Static preview. Scripts and external resources are disabled.
+        </p>
+        <iframe
+          title={`Preview of ${filename}`}
+          sandbox=""
+          referrerPolicy="no-referrer"
+          srcDoc={safeHtml}
+          className="min-h-0 flex-1 bg-white"
+        />
+      </>
     );
   }
   if (kind === "pdf") {

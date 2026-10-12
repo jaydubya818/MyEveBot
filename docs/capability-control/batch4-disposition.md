@@ -29,3 +29,9 @@ No migration of installed databases, paid operations, custody attempt, productio
 - MissionControl companion: full Convex 1791 passed before the final additional historical-key test; final affected verifier/cache tests 35 passed; full typechecks and eight UI tests passed; component browser and axe passed. Exact-SHA hosted CI remains a separate receipt.
 
 These source tests use synthetic identities and disposable databases. They are not authenticated installed custody, real user binding, production integration, merge authorization or tester activation.
+
+## G05-8 residual review closure
+
+Claude's current-code review reproduced two remaining leaks: a comment-wrapped head or image before the head bypassed artifact CSP injection, and a retained picture/source could substitute a different host after image consent. The exact original loopback reproduction fetched B, C and TRACKER. HTML artifacts now use the same fixed-prefix policy and static sandbox as code-block previews; picture wrappers are inert and source elements are removed. Consent therefore selects only the displayed image URL, including after viewport changes.
+
+HTML artifact previews intentionally no longer execute inline scripts; the UI labels this static behavior. Other artifact formats and existing open/download paths are unchanged. This is rendering isolation, not a claim that deliberate user navigation to an ordinary link is prohibited. Eighteen actual-component browser checks cover both original artifact parsing bypasses, pre/post-consent responsive sources, script navigation, meta refresh and positive static rendering with all external requests intercepted. Exact hosted successor qualification remains separate.

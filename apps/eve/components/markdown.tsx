@@ -165,6 +165,9 @@ const bareComponents: Components = {
   th: "th",
   td: "td",
   img: MarkdownImage,
+  // Responsive sources must not substitute a different URL after image consent.
+  picture: ({ children }) => <>{children as ReactNode}</>,
+  source: () => null,
   hr: "hr",
   sup: "sup",
   sub: "sub",

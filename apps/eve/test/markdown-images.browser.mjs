@@ -9,9 +9,10 @@ import {createRequire} from 'node:module';
 const app=resolve('apps/eve'), output=resolve(process.argv[2]);
 const require=createRequire(join(app,'package.json'));
 await mkdir(output,{recursive:true});
-await build({stdin:{contents:`import React from 'react';import{createRoot}from'react-dom/client';import{Markdown}from'${app}/components/markdown.tsx';const root=createRoot(document.getElementById('root'));window.renderMarkdown=text=>root.render(<Markdown>{text}</Markdown>);`,loader:'tsx',resolveDir:app},
+await build({stdin:{contents:`import React from 'react';import{createRoot}from'react-dom/client';import{Markdown}from'${app}/components/markdown.tsx';import{ArtifactPreview}from'${app}/components/artifact-preview.tsx';const root=createRoot(document.getElementById('root'));window.renderMarkdown=text=>root.render(<Markdown>{text}</Markdown>);window.renderArtifact=text=>root.render(<ArtifactPreview kind="html" filename="untrusted.html" mimeType="text/html" contentUrl="/unused" text={text}/>);`,loader:'tsx',resolveDir:app},
   bundle:true,format:'esm',outfile:join(output,'app.js'),jsx:'automatic',
   alias:{'@':app,react:dirname(require.resolve('react/package.json')),'react-dom':dirname(require.resolve('react-dom/package.json'))},
+  plugins:[{name:'unused-artifact-formats',setup(build){build.onResolve({filter:/^next\/dynamic$/},()=>({path:'next/dynamic',namespace:'fixture'}));build.onLoad({filter:/.*/,namespace:'fixture'},()=>({contents:'export default function dynamic(){return function UnsupportedPreview(){throw Error("Non-HTML artifact path is outside this fixture")}}',loader:'js'}));}}],
   define:{'process.env.NODE_ENV':'"production"'}});
 const server=createServer(async(req,res)=>{
   if(req.url==='/app.js'){res.setHeader('content-type','application/javascript');res.end(await readFile(join(output,'app.js')));return;}
@@ -67,6 +68,35 @@ try{
   await page.getByRole('button',{name:'Preview HTML',exact:true}).click();
   await expect(page.getByTitle('HTML preview')).toHaveAttribute('sandbox','');
   await page.waitForTimeout(300);assert.equal(requests.length,before);
-  report.checks.push('Static HTML preview blocks image, CSS and script network requests');report.status='PASS';
+  report.checks.push('Static HTML preview blocks image, CSS and script network requests');
+  for(const media of ['', ' media="(min-width: 1px)"']) {
+    const before=requests.length,chosen='https://chosen.invalid/approved'+(media?'media':'plain');
+    await render(`<picture><source${media} srcset="https://tracker.invalid/alternate 1x, https://tracker2.invalid/alternate 2x"><img src="${chosen}" alt="Chosen host"></picture>`);
+    await expect(page.getByText('Chosen host · chosen.invalid')).toBeVisible();
+    assert.equal(requests.length,before);await expect(page.locator('picture,source')).toHaveCount(0);
+    await page.getByRole('button',{name:'Load image',exact:true}).click();
+    await expect.poll(()=>requests.length).toBe(before+1);assert.equal(requests.at(-1),chosen);
+    await page.setViewportSize({width:390,height:844});await page.waitForTimeout(200);
+    assert.equal(requests.length,before+1);await page.setViewportSize({width:1280,height:720});
+    report.checks.push('Picture '+(media?'media ':'')+'sources cannot replace the displayed consent destination');
+  }
+  for(const [name,content] of Object.entries({
+    noHead:'<img src="https://attacker.invalid/A">',
+    commentHead:'<!--<head>--><img src="https://attacker.invalid/B">',
+    imageBeforeHead:'<img src="https://attacker.invalid/C"><html><head></head><body></body></html>',
+    normalHead:'<html><head></head><body><img src="https://attacker.invalid/D"></body></html>',
+    scriptNavigation:'<script>location.replace("https://attacker.invalid/navigation")</script>',
+    metaRefresh:'<meta http-equiv="refresh" content="0;url=https://attacker.invalid/refresh">',
+  })) {
+    const before=requests.length;
+    await page.evaluate(content=>window.renderArtifact('<h1>Safe static preview</h1>'+content),content);
+    await expect(page.getByText('Static preview. Scripts and external resources are disabled.',{exact:true})).toBeVisible();
+    const preview=page.getByTitle('Preview of untrusted.html');await expect(preview).toHaveAttribute('sandbox','');
+    await expect(page.frameLocator('iframe').getByRole('heading',{name:'Safe static preview'})).toBeVisible();
+    await page.waitForTimeout(300);assert.equal(requests.length,before);
+    assert.equal(page.frames()[1].url(),'about:srcdoc');
+    report.checks.push('Actual HTML artifact blocks '+name+' automatic requests and renders static content');
+  }
+  assert.deepEqual(errors,[]);report.status='PASS';
 }catch(error){report.status='FAIL';report.error=String(error);throw error;}
 finally{await browser.close();await new Promise(resolve=>server.close(resolve));await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}
