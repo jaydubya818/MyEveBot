@@ -50,10 +50,14 @@ for (const denied of [{...principal,ownerId:'owner-b'},{...principal,kind:'agent
 }
 assert.equal(admitted,3);
 assert.equal((await handleInstalledApps(new Request('http://localhost/api/myapps/ui'),async()=>null)).status,401);
-const tool=await dynamic.events['step.started']({},context(owner));
-assert.equal(tool.availableInSubagents,false);
-principal={...principal,ownerId:'owner-b'};
+// This credential-free export has no registered installation or persisted
+// Agent permission. A trusted asset binding alone must not expose a tool.
+// The mandatory registered-owner PostgreSQL/Docker journey in unified-beta.yml
+// separately exercises successful tool creation and execution with those gates.
+assert.equal(getCapability('tool.installed_apps').availability.status,'disabled');
+assert.ok(!getAvailableCapabilities().some(entry=>entry.id==='tool.installed_apps'));
 for (const ctx of [context({...owner,principalId:'owner-b'}),context(owner,'parent-session'),context({...owner,attributes:{owner:'true',role:'guest'}}),context(owner)]) {
-  await assert.rejects(tool.execute({request:'Show me my CRM.',requestId:'00000000-0000-4000-8000-000000000001'},ctx), /APP_UNAVAILABLE/);
+  assert.equal(await dynamic.events['step.started']({},ctx),null);
 }
-console.log('PASS: generated production/Vercel/opt-in denials; guest, role, subagent and foreign-owner denials; three authenticated local assets; no execution.');
+assert.equal(admitted,3,'tool discovery must not invoke the asset runtime');
+console.log('PASS: generated production/Vercel/opt-in denials; no executable tool without registration and Agent permission for owner, guest, subagent or foreign owner; three authenticated local assets; no execution.');
