@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0102_missioncontrol_owner_alpha_exclusion.sql";
+export const CURRENT_DATABASE_MIGRATION = "0103_missioncontrol_admission_isolation.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.

@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Installed MissionControl mode requires additive exact admission custody through0100; existing other installation schema requirements remain unchanged. Unified approved nonproduction requires additive0101 explicitowner-context assertions; historical installation requirements remain unchanged. Additive0102 is the current explicitly enabled MissionControl schema; older installation rollout requirements remain unchanged.",
-      "sha256": "cd0b04b3fc882b214b4eb6540f574516931cb8a50ad7c116dbfd779e6efb7264"
+      "reason": "Installed MissionControl mode requires additive exact admission custody through0100; existing other installation schema requirements remain unchanged. Unified approved nonproduction requires additive0101 explicitowner-context assertions; historical installation requirements remain unchanged. Additive0103 is the current explicitly enabled MissionControl schema; older installation rollout requirements remain unchanged.",
+      "sha256": "8d932bb3bdf6140cfdfc7259ac2eb3715b2ff9e358b25730da41f02e081ba0a9"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
