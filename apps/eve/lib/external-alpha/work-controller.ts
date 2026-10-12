@@ -323,7 +323,22 @@ export class ExternalAlphaWorkController {
     readonly config: ExternalAlphaWorkConfig,
     readonly keys: ReadonlyMap<string, KeyObject>,
     readonly clock: () => number = Date.now,
+    readonly retainReadback?: (authority: WorkAuthorityRecord, original: unknown) => Promise<void>,
   ) {}
+  /** Refresh evidence for the already dispatched request, including terminal
+   * Results. This method cannot issue, claim, stop, settle or replay execution. */
+  async refreshReadback(work: {id:string;version:number;generation:number}) {
+    const record=await this.authority.forWork(work.id);
+    if(!record||record.state==='ISSUED')return null;
+    if(record.workVersion!==work.version||record.workGeneration!==work.generation)
+      throw Error('EXTERNAL_ALPHA_READBACK_WORK_CHANGED');
+    const binding=await dispatchBinding(this.authority.database,record),challenge=readbackChallenge();
+    const original=await this.factory.read(record.requestId,challenge);
+    if(original===null)return null;
+    const verified=verifyReadback(original,record,this.keys,binding,challenge,this.clock());
+    await this.retainReadback?.(record,original);
+    return verified;
+  }
   async start(work: Work, effect?: { sessionId: string; callId: string }): Promise<StartOutcome> {
     const record = await this.authority.issue(work, this.config.allowedFiles, {
       now: new Date(this.clock()),
@@ -362,6 +377,7 @@ export class ExternalAlphaWorkController {
     let readback: FactoryReadback;
     try {
       readback = verifyReadback(response, record, this.keys, binding, challenge, this.clock());
+      await this.retainReadback?.(record,response);
     } catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "RECEIPT_UNVERIFIED" }).catch(() => {});
       throw Error("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
@@ -392,7 +408,8 @@ export class ExternalAlphaWorkController {
     const raw = await this.factory.read(record.requestId, challenge);
     if (raw === null) return { state: record.state }; // sweep fences an unresolved dispatch after expiry
     let readback: FactoryReadback;
-    try { readback = verifyReadback(raw, record, this.keys, binding, challenge, this.clock()); }
+    try { readback = verifyReadback(raw, record, this.keys, binding, challenge, this.clock());
+      await this.retainReadback?.(record,raw); }
     catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "READBACK_UNVERIFIED" });
       return { state: "UNKNOWN" as const };
@@ -504,7 +521,8 @@ export class ExternalAlphaWorkController {
     const binding = await dispatchBinding(this.authority.database, record);
     await sharedAlphaAccounting(this.authority.database).workPhase(this.authority.database,this.authority.policy,record.allowanceId,record.id,"hold_work");
     const raw = await this.factory.stop(record.requestId, challenge);
-    try { verifyReadback(raw, record, this.keys, binding, challenge, this.clock()); }
+    try { verifyReadback(raw, record, this.keys, binding, challenge, this.clock());
+      await this.retainReadback?.(record,raw); }
     catch {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "STOP_READBACK_UNVERIFIED" });
       return { state: "UNKNOWN" as const };

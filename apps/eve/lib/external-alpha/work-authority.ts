@@ -479,6 +479,12 @@ export class ExternalAlphaWorkAuthority {
       // fence. Returning it never reacquires dispatch or mints another grant.
       return existing;
     }
+    // Enrolled installations must present current owner approval before reserving
+    // shared money. The database repeats this check during admission and claim.
+    const [missionControlSchema]=await this.database.query("SELECT to_regprocedure('public.missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text)') IS NOT NULL AS installed");
+    if(missionControlSchema?.installed)await this.database.query('SELECT missioncontrol_assert_dispatch($1,$2,$3,$4,false,$5)',
+      [this.policy.ownerId, work.id, work.version, work.generation, this.policy.factoryVersion]);
+    else if(process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')throw Error('MISSIONCONTROL_SCHEMA_REQUIRED');
     const shared = sharedAlphaAccounting(this.database);
     const admission = await shared.reserve(this.policy, { kind: "WORK", bindingId: document.idempotencyKey, requestSha256: document.idempotencyKey });
     const row = await this.call<Record<string, any>>("work_admit", {

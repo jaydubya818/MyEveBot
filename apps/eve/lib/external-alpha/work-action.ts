@@ -14,6 +14,7 @@ import {
   type ExternalAlphaFactoryClient,
 } from "./work-controller.ts";
 import { alphaTasksCriteria, canonicalAlphaTasksWork } from "./work-tuple.ts";
+import { MissionControlBindings } from '../missioncontrol/permit-store.ts';
 
 const actionSchema = z
   .object({
@@ -66,6 +67,19 @@ export interface ExternalAlphaActionDependencies {
    * DISPATCHING) is never cancelled from here, so a concurrent claim cannot be overwritten. */
   ownerDirectStop?: boolean;
 }
+export function createExternalAlphaWorkController(store:WorkStore,dependencies:ExternalAlphaActionDependencies={}) {
+  const env=dependencies.env??process.env,policy=externalAlphaPolicy(env),config=externalAlphaWorkConfig(env);
+  if(!policy||!config)throw new WorkError('EXTERNAL_ALPHA_POLICY_REQUIRED','EXTERNAL_ALPHA_POLICY_REQUIRED',403);
+  const p=store.principal;
+  if(p.scopeKind!=='personal'||p.scopeId!==policy.ownerId||p.actorId!==policy.ownerId)
+    throw new WorkError('alpha_owner','Owner scope denied.',403);
+  const bindings=env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION'
+    ?new MissionControlBindings(store.database,policy.ownerId):undefined;
+  return new ExternalAlphaWorkController(
+    new ExternalAlphaWorkAuthority(dependencies.database??(store.database as ExecutionDatabase),policy,dependencies.signer??WorkAuthoritySigner.fromEnv(env)),
+    dependencies.factory??new HttpExternalAlphaFactoryClient(config,{projectId:policy.projectId},{env}),config,receiptKeys(config),Date.now,
+    bindings?(authority,original)=>bindings.retainFactoryReadback(authority,original):undefined);
+}
 /** The only entry from a Sofie tool call to the external-owner Work path. */
 export async function externalAlphaFactoryAction(
   store: WorkStore,
@@ -86,16 +100,7 @@ export async function externalAlphaFactoryAction(
   const work = await store.get(workId);
   if (work.version !== input.expectedWorkVersion || work.generation !== input.expectedWorkGeneration)
     throw new WorkError("factory_work_changed", "Reload the current Work before acting.");
-  const controller = new ExternalAlphaWorkController(
-    new ExternalAlphaWorkAuthority(
-      dependencies.database ?? (store.database as ExecutionDatabase),
-      policy,
-      dependencies.signer ?? WorkAuthoritySigner.fromEnv(env),
-    ),
-    dependencies.factory ?? new HttpExternalAlphaFactoryClient(config, { projectId: policy.projectId }),
-    config,
-    receiptKeys(config),
-  );
+  const controller = createExternalAlphaWorkController(store,dependencies);
   if (dependencies.ownerDirectStop) {
     if (input.operation !== "stop") throw new WorkError("work_operation_unsupported", "Only stop is available here.", 400);
     const current = await controller.authority.forWork(workId);

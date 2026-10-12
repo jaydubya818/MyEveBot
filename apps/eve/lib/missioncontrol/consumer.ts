@@ -30,8 +30,13 @@ export function enterpriseConfig(env: NodeJS.ProcessEnv = process.env): Enterpri
 }
 
 export function signedCommand(config:EnterpriseConfig, input:EnterpriseInput, commandId:string=randomUUID(), now=Date.now()) {
-  const request={...enterpriseInput.parse(input),connectionId:config.connectionId},payloadJson=JSON.stringify(request);
-  const envelope={serviceId:APPLICATION,capability:input.operation,projectId:config.projectId,repositoryId:'connection:'+config.connectionId,
+  return signedServiceCommand(config,input.operation,{...enterpriseInput.parse(input),connectionId:config.connectionId},commandId,now);
+}
+
+export function signedServiceCommand(config:Pick<EnterpriseConfig,'projectId'|'connectionId'|'secret'>,
+  capability:string, payload:unknown, commandId:string=randomUUID(), now=Date.now()) {
+  const payloadJson=JSON.stringify(payload);
+  const envelope={serviceId:APPLICATION,capability,projectId:config.projectId,repositoryId:'connection:'+config.connectionId,
     commandId,issuedAt:now,expiresAt:now+60000,payloadDigest:'sha256='+createHash('sha256').update(payloadJson).digest('hex')};
   const bytes=['mc-service-command-v1',envelope.serviceId,envelope.capability,envelope.projectId,envelope.repositoryId,
     envelope.commandId,String(envelope.issuedAt),String(envelope.expiresAt),envelope.payloadDigest].join('\n');
