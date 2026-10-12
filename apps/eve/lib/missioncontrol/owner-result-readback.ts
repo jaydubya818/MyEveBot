@@ -2,7 +2,7 @@ import {digest} from '../engineering/contract.ts';
 import {WorkStore,type WorkDatabase} from '../engineering/store.ts';
 import {readJourneyAccounting} from '../engineering/journey-accounting.ts';
 import {workSpendV2Schema,validateSpendBinding} from '../engineering/factory-spend.ts';
-import type {ExecutionPermit} from './execution-permit.ts';
+import {admissionEnvelopeSchema,type ExecutionPermit} from './execution-permit.ts';
 
 /** Projection of original owner Factory custody, never an alpha authority or a new Result. */
 export async function ownerFactoryResultReadback(database:WorkDatabase,permit:ExecutionPermit,now=Date.now()) {
@@ -22,7 +22,10 @@ export async function ownerFactoryResultReadback(database:WorkDatabase,permit:Ex
   if(binding.factoryRequestId!==row.factory_request_id||digest(binding.factoryBinding)!==digest(q)
     ||binding.origin.tupleSha256!==permit.work.tupleSha256||digest(binding.origin.tupleMaterial)!==permit.work.tupleSha256)
     throw Error('MISSIONCONTROL_RESULT_INTEGRITY');
-  const admission={schema:'mc-owner-factory-admission/v1' as const,binding,originalFactoryReadback:observation??null,
+  const [receiptRow]=await database.query('SELECT envelope,receipt_sha256 FROM missioncontrol_admission_receipts WHERE owner_id=$1 AND command_id=$2 AND permit_id=$3',[permit.ownerId,binding.commandId,permit.permitId]);
+  const admissionReceipt=admissionEnvelopeSchema.parse(receiptRow?.envelope);
+  if(digest(admissionReceipt)!==binding.receiptSha256||receiptRow.receipt_sha256!==binding.receiptSha256)throw Error('MISSIONCONTROL_RESULT_INTEGRITY');
+  const admission={admissionReceipt,schema:'mc-owner-factory-admission/v1' as const,binding,originalFactoryReadback:observation??null,
     dispatchState:row.dispatch_state,quiescence:row.quiescence,fencedAt:row.fenced_at?new Date(row.fenced_at).toISOString():null};
   if(!row.envelope||!row.proof)return {status:'PENDING' as const,admission,result:null};
   const signedResult=JSON.parse(row.envelope),manifest=JSON.parse(Buffer.from(signedResult.encoded,'base64url').toString('utf8'));

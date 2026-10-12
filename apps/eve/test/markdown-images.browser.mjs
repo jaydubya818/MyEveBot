@@ -61,6 +61,12 @@ try{
   await render('[Ordinary link](https://example.invalid/reference)');
   await expect(page.getByRole('link',{name:'Ordinary link'})).toHaveAttribute('href','https://example.invalid/reference');
   assert.equal(requests.length,3);assert.deepEqual(errors,[]);
-  report.checks.push('Ordinary links remain usable without automatic requests');report.status='PASS';
+  report.checks.push('Ordinary links remain usable without automatic requests');
+  const before=requests.length;
+  await render('```html\n<img src="https://attacker.invalid/preview"><script>fetch("https://attacker.invalid/script")</script><style>body{background:url(https://attacker.invalid/css)}</style>\n```');
+  await page.getByRole('button',{name:'Preview HTML',exact:true}).click();
+  await expect(page.getByTitle('HTML preview')).toHaveAttribute('sandbox','');
+  await page.waitForTimeout(300);assert.equal(requests.length,before);
+  report.checks.push('Static HTML preview blocks image, CSS and script network requests');report.status='PASS';
 }catch(error){report.status='FAIL';report.error=String(error);throw error;}
 finally{await browser.close();await new Promise(resolve=>server.close(resolve));await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}

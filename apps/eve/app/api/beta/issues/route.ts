@@ -1,3 +1,4 @@
+import {installedMissionControlEligibility} from '../../../../lib/missioncontrol/installed-eligibility.ts';
 import { z } from 'zod';
 import { authenticateWebPrincipal,requireSameOrigin } from '../../../../lib/web-auth.ts';
 import { betaIntegration } from '../../../../lib/beta-integration/runtime.ts';
@@ -12,6 +13,7 @@ async function handle(request:Request) {
     const principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
     if(!principal)return Response.json({error:'Sign in to view or send feedback.'},{status:401,headers});
     if(principal.id!==process.env.MYEVE_OWNER_ID||requireSameOrigin(request))return Response.json({error:'Use your own workspace to send feedback.'},{status:403,headers});
+    if(!await installedMissionControlEligibility(principal.id))return Response.json({error:'Beta feedback setup is unavailable.'},{status:503,headers});
     const feedback=new BetaFeedback(betaIntegration().pool,principal.id);
     if(request.method==='GET')return Response.json(await feedback.list(new URL(request.url).searchParams.get('before')??undefined),{headers});
     const report=await feedback.save(await boundedJson(new Response(request.body),16000));

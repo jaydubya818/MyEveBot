@@ -299,10 +299,11 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(result.result).toMatchObject({resultId:retained.receiptId,nativeResultId:retained.native.id,proofHash:retained.native.contentHash,
       signedResult:retained.signed,cleanupConfirmed:true,exposureUnknown:false,acceptance:null});
     expect(result.result?.proof).toEqual(retained.native.proof);
+    const {rows:[receipt]}=await env.pool.query('SELECT envelope FROM missioncontrol_admission_receipts WHERE owner_id=$1 AND command_id=$2',[env.owner,(result.admission as any).binding.commandId]);
     const composition=await qualifyOwnerResultConsumer(result,request,fixture.document,{schema:'mc-owner-factory-result-pins/v1',
       factoryId:x.binding.factoryId,sourceDigest:x.binding.sourceDigest,configurationDigest:x.binding.configurationDigest,
       profileHash:digest(x.config.engineering.profile),verifierPolicySha256:retained.manifest.verification!.policySha256,
-      resultKeys:[env.resultKeys.key],checkCommands:x.config.commands,allowedFiles:x.config.engineering.profile.allowedPaths});
+      resultKeys:[env.resultKeys.key],checkCommands:x.config.commands,allowedFiles:x.config.engineering.profile.allowedPaths},{document:receipt.envelope.document,enrollment:fixture.enrollment});
     expect(composition.status).toBe(process.env.MYEVE_OWNER_RESULT_MC_SOURCE?'PASS':'NOT_RUN');
     expect(retained.native.proof.evidence).toHaveLength(x.work.criteria.length);
     expect(retained.native.proof.evidence.every(e=>e.state==='PASS')).toBe(true);

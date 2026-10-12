@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
-import { randomUUID } from 'node:crypto';
+import { randomUUID,generateKeyPairSync } from 'node:crypto';
+import {capabilityConfiguration} from '../../../apps/eve/lib/capability-control/runtime.ts';
+import {externalAlphaLimits} from '../../../apps/eve/lib/external-alpha/policy.ts';
+import {digest} from '../../../apps/eve/lib/engineering/contract.ts';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -188,4 +191,38 @@ test('CAS requires a durable commit even when the restricted login defaults to a
     await admin.query(`ALTER ROLE ${witnessRole} RESET synchronous_commit`);
     await closeRecoveryWitnessDatabases();
   }
+});
+
+
+test('hosted guard derives the exact binding checked by every independent policy read and command',async()=>{
+ const policy={version:1,kind:'TWO_EXTERNAL_OWNERS_V1',cohortId:randomUUID(),slot:'1',ownerId:randomUUID(),projectId:'prj_hostedFixture',
+  clientId:'external-alpha-'+'a'.repeat(32),repository:'fixture/myeve-alpha-workspace-01',baseSha:'a'.repeat(40),treeSha:'b'.repeat(40),
+  workspacePolicy:'ISOLATED_WORKSPACE_V1',dayBoundary:'UTC_MIDNIGHT',model:'openai/gpt-5.4-mini',provider:'vercel-ai-gateway/openai',
+  sourceDigest:'c'.repeat(64),factoryVersion:'d'.repeat(64),limits:{...externalAlphaLimits},publication:false,automaticRepair:false,fallback:false};
+ const origin='https://hosted.example.test',installationId='hosted-fixture';
+ const installationDigest=digest({schema:'myeve-hosted-capability-installation/v1',installationId,origin,ownerId:policy.ownerId,projectId:policy.projectId,
+  policyDigest:digest(policy),sourceDigest:policy.sourceDigest,factoryVersion:policy.factoryVersion,mode:'APPROVED_NONPRODUCTION'});
+ const w={...witness,enrollmentId:'hosted-enrollment',epoch:'hosted-epoch',installationDigest};
+ const env={NODE_ENV:'production' as const,VERCEL:'1',VERCEL_ENV:'production',VERCEL_PROJECT_ID:policy.projectId,EVE_PROJECT_NAME:'myeve-alpha-tester-1',
+  MYEVE_OWNER_ID:policy.ownerId,MYEVE_EXTERNAL_ALPHA_POLICY:JSON.stringify(policy),MYEVE_EXTERNAL_ALPHA_POLICY_SHA256:digest(policy),
+  MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY:generateKeyPairSync('ed25519').privateKey.export({type:'pkcs8',format:'pem'}).toString(),
+  MYEVE_MISSIONCONTROL_MODE:'APPROVED_NONPRODUCTION',MYEVE_CAPABILITY_CONTROL_ENABLED:'true',MYEVE_CAPABILITY_INSTALLATION_ID:installationId,
+  MYEVE_CAPABILITY_ORIGIN:origin,MYEVE_CAPABILITY_ENVIRONMENT:'qualification',MYEVE_CAPABILITY_DATABASE_URL:url(appName,appRole),
+  MYEVE_CAPABILITY_RECOVERY_EPOCH:w.epoch,MYEVE_CAPABILITY_RECOVERY_WITNESS_DATABASE_URL:w.databaseUrl,
+  MYEVE_CAPABILITY_RECOVERY_WITNESS_ENROLLMENT_ID:w.enrollmentId,MYEVE_CAPABILITY_RECOVERY_WITNESS_INSTALLATION_DIGEST:installationDigest,
+  MYEVE_CAPABILITY_RECOVERY_WITNESS_QUALIFICATION_DIGEST:w.qualificationDigest};
+ const config=capabilityConfiguration(env),hostedScope={ownerId:policy.ownerId,organizationId:'organization',installationId};
+ const current=()=>new CapabilityStore(runtime,config,{ownerId:policy.ownerId,source:'settings'},undefined,configuredRecoveryWitness(env));
+ await app.query("INSERT INTO capability_control.installations VALUES($1,'organization','qualification',true)",[installationId]);
+ await app.query('INSERT INTO capability_control.owner_state(installation_id,owner_id) VALUES($1,$2)',[installationId,policy.ownerId]);
+ await app.query('INSERT INTO capability_control.recovery_enrollments VALUES($1,$2,$3)',[installationId,policy.ownerId,w.epoch]);
+ await assert.rejects(current().inspect(),/WITNESS_UNAVAILABLE/);
+ const head=await recoveryHead(app,hostedScope,w);
+ await witnessAdmin.query("INSERT INTO capability_witness.enrollments VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp()+interval '1 hour')",[w.enrollmentId,hostedScope.organizationId,installationId,policy.ownerId,w.epoch,witnessRole,w.qualificationDigest,w.installationDigest]);
+ await witnessAdmin.query('INSERT INTO capability_witness.heads VALUES($1,$2,$3,$4,$5,$6)',[w.enrollmentId,hostedScope.organizationId,installationId,policy.ownerId,head.revision,head.digest]);
+ assert.equal((await current().inspect()).revision,1);
+ assert.equal((await current().command(command(1))).revision,2);
+ await app.query('UPDATE capability_control.owner_state SET revision=1 WHERE installation_id=$1 AND owner_id=$2',[installationId,policy.ownerId]);
+ await assert.rejects(current().inspect(),/QUARANTINED/);
+ await assert.rejects(current().command(command(1)),/QUARANTINED/);
 });

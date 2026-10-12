@@ -1,14 +1,14 @@
 import { digest } from "../engineering/contract.ts";
 import { WorkStore } from "../engineering/store.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
-import { db } from "../../agent/lib/receipts-db.ts";
 import { externalAlphaPolicy } from "./policy.ts";
 import { sharedAlphaAccounting } from "./shared-accounting.ts";
 import { assertExternalAlphaWorkBinding, externalAlphaWorkConfig } from "./work-config.ts";
 import type { WorkAuthoritySigner } from "./work-authority.ts";
 import type { ExternalAlphaWorkController, ExternalAlphaFactoryClient } from "./work-controller.ts";
 import { createExternalAlphaWorkController } from './work-action.ts';
-import { capabilityWorkDatabase } from '../capability-control/admission.ts';
+import { canonicalWorkDatabase } from '../capability-control/admission.ts';
+import {installedMissionControlEligibility} from '../missioncontrol/installed-eligibility.ts';
 import { pollMissionControlControls } from '../missioncontrol/control-runtime.ts';
 
 /** Resumes ONLY retained authority readback. This caller has no path to issue,
@@ -49,14 +49,17 @@ export async function runExternalAlphaReconciliation(deps: { env?: NodeJS.Proces
   const policy = externalAlphaPolicy(env), config = externalAlphaWorkConfig(env);
   if (!policy || !config) return { checked: 0, inactive: true as const };
   assertExternalAlphaWorkBinding(policy, config, env);
-  const installed=env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
-  const database = deps.database ?? (installed?capabilityWorkDatabase():(db() as ExecutionDatabase));
+  const database=deps.database??canonicalWorkDatabase();
   let accountingRepair: "RECONCILED" | "UNAVAILABLE" = "RECONCILED";
   try { await sharedAlphaAccounting(database, env).reconcile(database, policy); }
   catch { accountingRepair = "UNAVAILABLE"; }
   const store=new WorkStore({scopeKind:'personal',scopeId:policy.ownerId,actorId:policy.ownerId},database);
   const controller=createExternalAlphaWorkController(store,{...deps,database,env});
-  const controls=installed?await pollMissionControlControls(store,controller,env)
-    .catch(()=>({status:'DELIVERY_UNAVAILABLE' as const})):null;
+  let controls:Awaited<ReturnType<typeof pollMissionControlControls>>|{status:'DELIVERY_UNAVAILABLE'}|null;
+  try{
+    const installed=await installedMissionControlEligibility(policy.ownerId,env,'control',database);
+    controls=installed?await pollMissionControlControls(store,controller,env):null;
+  }catch{controls={status:'DELIVERY_UNAVAILABLE'};}
+
   return { ...await reconcileExternalAlphaAuthorities(controller,store),accountingRepair,controls };
 }

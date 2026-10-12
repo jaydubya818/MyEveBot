@@ -1,5 +1,7 @@
 "use client";
 
+import {markdownPreviewDocument} from "../lib/markdown-preview";
+
 import { CheckIcon, CopyIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import {
   isValidElement,
@@ -33,7 +35,7 @@ function codeLanguage(children: ReactNode): string | null {
 }
 
 // A bare <pre> wrapped with hover actions: copy, and for HTML blocks a live
-// preview rendered in a sandboxed iframe (scripts allowed, same-origin not).
+// static preview rendered without script or network access.
 // The wrapper stays outside typeset's element styles; buttons opt out via
 // not-typeset.
 function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
@@ -61,8 +63,8 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
       {previewHtml !== null && (
         <iframe
           title="HTML preview"
-          sandbox="allow-scripts"
-          srcDoc={previewHtml}
+          sandbox=""
+          srcDoc={markdownPreviewDocument(previewHtml)}
           className="not-typeset h-96 w-full rounded-lg bg-white ring ring-kumo-hairline"
         />
       )}

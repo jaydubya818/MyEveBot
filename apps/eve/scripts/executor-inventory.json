@@ -4126,8 +4126,8 @@
     },
     "lib/external-alpha/features.ts": {
       "classification": "ENFORCED",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged. Classifies only two signed MissionControl POST endpoints and its owner tool under explicit installed mode. Default external-alpha scope and unrelated denied families remain closed.82 ingress/schema/client regressions pass; route authorization remains in the signed handlers. Narrow beta feedback page and GET/POST route only under explicit installed mode; unrelated admin/learning/connected-apps remain denied.",
-      "sha256": "25b4093814bfff34d99eb3a185376b087560ae9f1ed13b4b135f79ed559798ea"
+      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged. Classifies only two signed MissionControl POST endpoints and its owner tool under explicit installed mode. Default external-alpha scope and unrelated denied families remain closed.82 ingress/schema/client regressions pass; route authorization remains in the signed handlers. Narrow beta feedback page and GET/POST route only under explicit installed mode; unrelated admin/learning/connected-apps remain denied. Batch4 explicitly classifies installed routes as candidates only; the server proxy and handlers require canonical enrollment and owner authentication. Configuration is not authority.",
+      "sha256": "31e7295b3736f494ad03e8d279f41e04b2269aae51a5954c740db840eb37a51e"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4151,8 +4151,8 @@
     },
     "lib/external-alpha/reconciliation.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Installed runtime reuses canonical transactional database, controller and immutable evidence retention. Pull control recovery can only reduce existing authority; unavailable delivery is reported and ordinary reconciliation preserves accounting. No issue/claim/redispatch in scheduled recovery.",
-      "sha256": "afd6b2c8aa4e5e9c833554c19847402f183bef18355e6451a8931419b38d4195"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Installed runtime reuses canonical transactional database, controller and immutable evidence retention. Pull control recovery can only reduce existing authority; unavailable delivery is reported and ordinary reconciliation preserves accounting. No issue/claim/redispatch in scheduled recovery. Batch4 isolates enrollment/control-delivery failures as unavailable while continuing existing Work accounting repair, readback and expiry sweep on the canonical database.",
+      "sha256": "91eefb405b41c00305038d45a30b5cea76a31c7a2c71a6629286bf1e2e9508f5"
     },
     "lib/external-alpha/shared-accounting.ts": {
       "classification": "ENFORCED",
@@ -4276,8 +4276,8 @@
     },
     "lib/capability-control/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit isolated installation/database gate; signed owner authentication and same-origin mutations. Trusted configuration delivers signed policy and lifecycle observations after commit; development requires independently retained recovery witness. No execution authority or automatic enrollment. Real PostgreSQL recovery/HTTP lifecycle and signed-session bypass qualification pass; production/hosted remains rejected.",
-      "sha256": "a599f29fd8387a22a4c88b7b2de4a970f8c786a63d72780db713be26b8df6669"
+      "reason": "Canonical installation configuration and signed owner/same-origin boundary. The explicitly authorized hosted source exception requires unchanged external-alpha policy, HTTPS qualification origin and independently enrolled PostgreSQL witness configuration with deterministic owner/project/source/FactoryVersion/policy/mode digest. Actual Store/admission checks remain uncached and fail closed; configuration creates no enrollment, execution authority or installed qualification. Runtime negative tests and independent PostgreSQL restore/CAS tests cover this source.",
+      "sha256": "6fd944511c00b04be90a42d93f848df10cc3291f51fc605d5c732b16f0f48c0f"
     },
     "lib/capability-control/sofie.ts": {
       "classification": "ENFORCED",
@@ -4296,14 +4296,14 @@
     },
     "lib/capability-control/admission.ts": {
       "classification": "INTERNAL",
-      "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
-      "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+      "reason": "Canonical Work connectivity is independent of capability enablement, so retained cleanup does not select a different ledger. New admission still requires exact configured Work/policy database, owner/agent scope, pinned transaction, current policy and independent recovery witness checks before and after backend admission. No execution authority or fallback is created by opening the connection. Full-schema owner isolation, stale-snapshot and concurrency regressions preserved.",
+      "sha256": "1810d870416ef94e6d051520d25a11c3726fba6d07aaeebce9bfe9b3ef363e87"
     },
     "agent/lib/missioncontrol.ts": {
       "classification": "ENFORCED",
       "disposition": "gateway",
-      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority. Installed owner and initiator must be canonical web-session owner, no child/guest/Role. Exact enrolled connection is resolved server-side; existing ActionGateway authority/provider consumption wraps draft and approval preparation. Preparation binds current canonical Work and creates no spending authority. Legacy owner-denial regressions and real PostgreSQL prepare-without-reservation checks pass.",
-      "sha256": "0ca11006ccf47a1b6f061890e144751523a5c69f4fbf5dc872b476b0cc5ca502"
+      "reason": "Exact configured owner web-session current/initiator and primary-Agent checks precede ActionGateway; adapter consumes action and provider authority before transport. Live proposal inspection precedes cached receipt replay, submit requires canonical owner approval, and every Result is a fresh authenticated read. Forged authority, foreign owner/guest/child/non-web sessions, revoked/cached/stale receipts and duplicate delivery covered by missioncontrol-consumer tests and hosted consumer qualification. No execution or acceptance authority. Installed owner and initiator must be canonical web-session owner, no child/guest/Role. Exact enrolled connection is resolved server-side; existing ActionGateway authority/provider consumption wraps draft and approval preparation. Preparation binds current canonical Work and creates no spending authority. Legacy owner-denial regressions and real PostgreSQL prepare-without-reservation checks pass. Batch4 requires canonical exact-owner enrollment before selecting installed transport; configuration mode alone cannot authorize it.",
+      "sha256": "bb2fda796d48e25cc524c37a8e5506b642f599755a4e9e798a39aeca603e837c"
     },
     "agent/tools/mission_control.ts": {
       "classification": "ENFORCED",
@@ -4392,8 +4392,8 @@
     },
     "app/api/beta/issues/route.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical signed owner session and exact deployment owner, same-origin writes,16KiBbody,strict report model,private no-store response. Session/foreign-owner/cross-origin tests and restricted-role PostgreSQL tests.",
-      "sha256": "8de15e4dfed1054dbc793d1de4979d17304c0c4622bd7d01f26f7b5911316136"
+      "reason": "Canonical signed owner session and exact deployment owner, same-origin writes,16KiBbody,strict report model,private no-store response. Session/foreign-owner/cross-origin tests and restricted-role PostgreSQL tests. Batch4 also requires canonical installed enrollment after owner authentication; absent/unavailable enrollment never opens report storage.",
+      "sha256": "d1a4760c303d5fff820cb7f50aa58d651f98fe3e15aac8cec67c1ece69374236"
     },
     "lib/beta-feedback.ts": {
       "classification": "ENFORCED",
@@ -4437,8 +4437,8 @@
     },
     "lib/missioncontrol/owner-result-readback.ts": {
       "classification": "READ_ONLY",
-      "reason": "Projects exact retained owner route/writer admission, original signed Gate C receipt and native Proof through authenticated Mission Result channel. Requires fresh backend observation and current canonical accounting. No Alpha authority or manufactured Result; installed qualification remains outstanding.",
-      "sha256": "a43ea465259cfbd1fe899388f579a9e11dd08b733c668472f352650c5a013ba8"
+      "reason": "Projects exact retained owner route/writer admission, original signed Gate C receipt and native Proof through authenticated Mission Result channel. Requires fresh backend observation and current canonical accounting. No Alpha authority or manufactured Result; installed qualification remains outstanding. Batch4 adds only the original signed admission envelope from exact owner/permit/command custody, checked against its retained digest; receiving MissionControl independently binds it to its canonical receipt. No re-signing or changed accounting.",
+      "sha256": "38eab8202a1adcf82e06605637f3ac603c68e5dfdf7a3597e0a64a59ec69623c"
     },
     "lib/missioncontrol/owner-result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4474,6 +4474,16 @@
       "classification": "ENFORCED",
       "reason": "Dormant canonical receiving-admission helper called by AlphaTasksApps inside its owner-locked transaction with a freshly authenticated principal. Exact immutable receipt, actor, permission, package/input/state/revisions and enrolled receiving identity must match; EXECUTE repeats current canonical host authorization, and READ/FENCE narrow to original recovery custody. Expiry is rechecked. No HTTP entrypoint, bootstrap, paid call, new ledger or physical backend fence; cross-database immediate revocation and restore incarnation remain unqualified installation boundaries.",
       "sha256": "3077f5195a1f497c32538824c6cd75e520420214c3b95c7ef09718db77f04611"
+    },
+    "lib/missioncontrol/installed-eligibility.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads exact owner enrollment from canonical Work PostgreSQL through the existing scoped enrollment function. Validates owner/installation/connection and current admission configuration; missing or unavailable evidence cannot enable ingress or tool use. Control-purpose lookup preserves expired/revoked Work cleanup only; signed commands and retained permits remain independently required. Restricted-role PostgreSQL and route/principal/expiry regressions.",
+      "sha256": "8d9343b608ed0a3f47c90ae9ec12193320317bda239cc97b143ce92cf81df467"
+    },
+    "lib/markdown-preview.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure static HTML wrapper. Leading restrictive CSP and empty iframe sandbox prohibit scripts and network loads; no execution/provider authority. Actual Chromium exfiltration regression and independent meta-refresh probe.",
+      "sha256": "2932411e47ffc43e33d68cc91220dcaf0aafe985972e1d265e5721fc08b2bf9b"
     }
   }
 }

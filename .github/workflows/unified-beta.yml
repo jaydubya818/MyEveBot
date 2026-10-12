@@ -104,7 +104,8 @@ jobs:
         import assert from 'node:assert/strict';
         import {readFileSync} from 'node:fs';
         const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/registered-owner-journey.json','utf8'));
-        assert.equal(result.success,true);assert.equal(result.numPassedTests,1);assert.equal(result.numPendingTests,0);
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,1);assert.equal(result.numPassedTests,1);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
         NODE
     - name: Dormant signed remote isolation, durable delivery and offline runtime
       env:
@@ -180,7 +181,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: b2b1958f28e8aae2b2c24089534e4c40cbe890cb
+        ref: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
         path: missioncontrol
         persist-credentials: false
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -223,8 +224,8 @@ jobs:
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
         MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
-        MYEVE_OWNER_RESULT_MC_SHA: b2b1958f28e8aae2b2c24089534e4c40cbe890cb
-      run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
+        MYEVE_OWNER_RESULT_MC_SHA: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
+      run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts apps/eve/lib/missioncontrol/installed-eligibility.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
     - name: Caller context, owner/Alpha and legacy isolation, immutable migration lineage
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
@@ -234,7 +235,8 @@ jobs:
         import assert from 'node:assert/strict';
         import {readFileSync} from 'node:fs';
         const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-alpha-exclusion.json','utf8'));
-        assert.equal(result.success,true);assert.equal(result.numPassedTests,18);assert.equal(result.numPendingTests,0);
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,18);assert.equal(result.numPassedTests,18);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
         NODE
         node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-legacy-isolation.json"
         node --input-type=module - <<'NODE'
@@ -272,7 +274,7 @@ jobs:
         lib/missioncontrol/admission-receipt.test.ts lib/missioncontrol/permit-control.test.ts
         lib/missioncontrol/result-protocol.test.ts lib/missioncontrol/installed-client.test.ts
         lib/missioncontrol/relay-lease-client.test.ts lib/beta-feedback-route.test.ts
-        lib/external-alpha/features.test.ts lib/database-schema.test.ts agent/tools/installed_apps.test.ts
+        lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/external-alpha/reconciliation.test.ts lib/missioncontrol/installed-eligibility.test.ts lib/capability-control/runtime.test.ts lib/database-schema.test.ts agent/tools/installed_apps.test.ts
         lib/myapps/local-bootstrap.test.ts lib/myapps-capability-boundary.test.ts lib/myapps-packaging.test.ts
     - run: npm run test --workspace=eve-agent -- lib/relay lib/external-alpha/relay-link.test.ts
     - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
@@ -427,7 +429,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: b2b1958f28e8aae2b2c24089534e4c40cbe890cb
+        ref: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa

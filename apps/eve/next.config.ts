@@ -6,6 +6,12 @@ import { dirname, join, relative } from "node:path";
 const qaLocalOrigin =
   process.env.MYEVE_QA_LOCAL_ORIGIN?.trim() ?? process.env.SOFIE_QA_LOCAL_ORIGIN?.trim();
 const nextConfig: NextConfig = {
+  async headers() {
+    return [{source:"/:path*",headers:[
+      {key:"Content-Security-Policy",value:"object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; img-src 'self' https: data: blob:"},
+      {key:"Referrer-Policy",value:"no-referrer"},
+    ]}];
+  },
   // Local browser automation reaches the dev server over the Mac's LAN IP.
   // Keep the extra origin opt-in so production never inherits a local address.
   allowedDevOrigins: ["127.0.0.1", ...(qaLocalOrigin ? [qaLocalOrigin] : [])],

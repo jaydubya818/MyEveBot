@@ -5,14 +5,23 @@ import { WorkError, type Work } from '../engineering/types.ts';
 import { capabilityConfiguration } from './runtime.ts';
 
 let pool: pg.Pool | undefined;
+let poolUrl:string|undefined;
 
 /** Qualification requires canonical policy and Work in the same database, never a copied cache. */
 export function capabilityWorkDatabase(): WorkDatabase {
   const config = capabilityConfiguration();
   if (config.databaseUrl !== process.env.DATABASE_URL)
     throw new WorkError('capability_database_binding', 'Work and canonical capability policy require one qualified database.', 503);
+  return canonicalWorkDatabase();
+}
+
+/** Connection to the existing Work store; this supplies no admission authority. */
+export function canonicalWorkDatabase():WorkDatabase {
+  const databaseUrl=process.env.DATABASE_URL;
+  if(!databaseUrl||poolUrl&&poolUrl!==databaseUrl)throw new WorkError('work_database_binding','Canonical Work storage is unavailable.',503);
   if (!pool) {
-    pool = new pg.Pool({ connectionString: config.databaseUrl, max: 4,
+    poolUrl=databaseUrl;
+    pool = new pg.Pool({ connectionString: databaseUrl, max: 4,
       connectionTimeoutMillis: 5000, statement_timeout: 5000, idle_in_transaction_session_timeout: 5000 });
     pool.on('error', () => console.error('Capability Work database idle connection failed.'));
   }
@@ -35,7 +44,7 @@ export function capabilityWorkDatabase(): WorkDatabase {
 }
 
 export async function closeCapabilityWorkDatabase() {
-  const current = pool; pool = undefined;
+  const current = pool; pool = undefined;poolUrl=undefined;
   await current?.end();
 }
 

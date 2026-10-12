@@ -5,8 +5,7 @@ import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAu
 import { CAPABILITY, enterpriseConfig, enterpriseInput, sendEnterpriseCommand, validateResponse, explainEnterpriseResult, type EnterpriseConfig, type EnterpriseInput } from '../../lib/missioncontrol/consumer.ts';
 import { toolActionRequest } from './action-context.ts';
 import { capabilityWorkDatabase } from '../../lib/capability-control/admission.ts';
-import { MissionControlBindings } from '../../lib/missioncontrol/permit-store.ts';
-import { installedMissionControlConfig } from '../../lib/missioncontrol/installed-client.ts';
+import {installedMissionControlEligibility} from '../../lib/missioncontrol/installed-eligibility.ts';
 import { missionControlToolInput,prepareMissionControlExecution,type MissionControlToolInput } from '../../lib/missioncontrol/prepare-execution.ts';
 import { WorkStore } from '../../lib/engineering/store.ts';
 
@@ -36,7 +35,9 @@ export async function executeEnterpriseTool(raw:MissionControlToolInput,ctx:Pick
       || !ownerId || principal.principalId!==ownerId || principal.attributes.owner!=='true' || principal.attributes.role==='guest'
       || principal.attributes.myeveRoleId || ctx.session.parent)throw new ActionBlocked('denied','enterprise_owner_session_required');
   }
-  const config=installed?installedMissionControlConfig(await new MissionControlBindings(capabilityWorkDatabase(),ownerId!).enrollment(),ownerId!):enterpriseConfig();
+  const eligible=installed?await installedMissionControlEligibility(ownerId!,process.env,'admission',capabilityWorkDatabase()):null;
+  if(installed&&!eligible)throw new ActionBlocked('denied','enterprise_installed_connection_required');
+  const config=eligible?.config??enterpriseConfig();
   const action=await toolActionRequest(ctx,{capabilityId:CAPABILITY,actionClass:['enterprise.read','enterprise.inspect','enterprise.result'].includes(input.operation)?'read':'create',parameters:input});
   if(action.ownerId!==config.ownerId || action.trigger.kind!=='owner_chat' || action.executor.kind!=='primary-agent')throw new ActionBlocked('denied','enterprise_owner_session_required');
   if(input.operation==='enterprise.prepare_execution'){

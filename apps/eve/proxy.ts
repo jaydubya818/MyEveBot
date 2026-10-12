@@ -1,6 +1,7 @@
 import {cloudRuntimeEnabled,cloudIngressAllowed} from './lib/engineering/cloud-runtime-guard';
 import { cloudQualificationProject } from "./lib/engineering/cloud-access-qualification";
 import { qualificationEnabled, qualifyIngress } from "./lib/qualification/client";
+import {installedMissionControlEligibility} from './lib/missioncontrol/installed-eligibility';
 import { externalAlphaIngress } from "./lib/external-alpha/features";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -13,6 +14,18 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // an unclassified or denied route. Anything not listed is a plain 404.
   const alphaIngress = externalAlphaIngress(request.nextUrl.pathname, request.method);
   if (alphaIngress && !alphaIngress.allowed) return new NextResponse(null, { status: 404 });
+  if(alphaIngress&&['MISSION_CONTROL','BETA_FEEDBACK'].includes(alphaIngress.family)){
+    try{
+      const control=request.nextUrl.pathname==='/api/missioncontrol/control';
+      const ownerId=process.env.MYEVE_OWNER_ID;
+      if(!ownerId||!await installedMissionControlEligibility(ownerId,process.env,control?'control':'admission'))
+        return new NextResponse(null,{status:404});
+      if(alphaIngress.family==='BETA_FEEDBACK'){
+        const principal=await authenticateWebPrincipal(request);
+        if(principal?.id!==ownerId)return new NextResponse(null,{status:404});
+      }
+    }catch{return new NextResponse(null,{status:404});}
+  }
   // The dedicated preview exposes only the deterministic, authenticated journey.
   // An absent installation flag keeps every productive entry closed.
   if (cloudQualificationProject()) {

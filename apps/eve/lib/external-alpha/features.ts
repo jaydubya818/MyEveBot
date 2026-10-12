@@ -8,7 +8,8 @@ import { externalAlphaInstallation } from "./policy.ts";
  *
  * EVE_ENABLED_FEATURES can only narrow the base allowlist. The separately
  * installed MissionControl extension admits only its signed receivers and
- * owner feedback routes; route visibility is not execution authority. */
+ * owner feedback route candidates. The proxy requires current canonical enrollment
+ * before admitting those routes; this pure classification is not authorization. */
 
 export const ALLOWED_FAMILIES = [
   "CORE", // sign-in, health, static assets, readiness
