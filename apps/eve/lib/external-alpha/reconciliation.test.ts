@@ -6,7 +6,7 @@ vi.mock('./shared-accounting.ts',()=>({sharedAlphaAccounting:()=>({reconcile:m.r
 vi.mock('./work-authority.ts',()=>({WorkAuthoritySigner:{fromEnv:()=>({})},ExternalAlphaWorkAuthority:class{
  policy=m.policy;database:any;constructor(database:any){this.database=database;}forWork=async()=>({workVersion:1,workGeneration:1});sweep=m.sweep;
 }}));
-vi.mock('./work-controller.ts',()=>({receiptKeys:()=>[],HttpExternalAlphaFactoryClient:class{},ExternalAlphaWorkController:class{
+vi.mock('./work-controller.ts',()=>({externalAlphaWorkConfig:()=>m.config,receiptKeys:()=>[],HttpExternalAlphaFactoryClient:class{},ExternalAlphaWorkController:class{
  authority:any;constructor(authority:any){this.authority=authority;}reconcile=m.read;
 }}));
 vi.mock('../engineering/store.ts',()=>({WorkStore:class{
@@ -16,6 +16,6 @@ import {runExternalAlphaReconciliation} from './reconciliation.ts';
 it('a shared repair outage does not prevent existing authority readback, cleanup or expiry sweep',async()=>{
  m.repair.mockRejectedValue(Error('shared unavailable'));m.read.mockResolvedValue({state:'COMPLETED'});m.sweep.mockResolvedValue({expired:0});
  const database={query:vi.fn().mockResolvedValue([{work_id:'work-a'}])};
- expect(await runExternalAlphaReconciliation({database,env:{NODE_ENV:'test'},factory:{} as any,signer:{} as any})).toEqual({checked:1,outcomes:[{workId:'work-a',state:'COMPLETED'}],sweep:{expired:0},accountingRepair:'UNAVAILABLE'});
+ expect(await runExternalAlphaReconciliation({database,env:{NODE_ENV:'test'},factory:{} as any,signer:{} as any})).toEqual({checked:1,outcomes:[{workId:'work-a',state:'COMPLETED'}],sweep:{expired:0},accountingRepair:'UNAVAILABLE',controls:null});
  expect(m.read).toHaveBeenCalledOnce();expect(m.sweep).toHaveBeenCalledOnce();
 });
