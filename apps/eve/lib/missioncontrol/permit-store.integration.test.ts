@@ -1,6 +1,11 @@
+import {composeLocalAlphaTasks} from '../myapps/alpha-tasks-host.ts';
+import {validateRuntime} from '../../../../packages/myapps/src/alpha-tasks/contracts.ts';
+// @ts-ignore Public synthetic profile only; no candidate runtime executes in this authorization test.
+import {fixture as appProfileFixture} from '../../../../packages/myapps/test/alpha-tasks/fixtures.mjs';
 import {requestOwnerFactoryAdmission} from './admit-execution.ts';
 import {qualifyOwnerResultConsumer} from '../../../../scripts/composed-admission/owner-result-consumer.mts';
 import {deliverMissionControlControl,pollOwnerFactoryControls,runOwnerFactoryReconciliation} from './owner-reconciliation.ts';
+import {retainedOwnerTasksOrigin} from '../myapps/owner-tasks-result.ts';
 import {ownerResultFixtureConfig,retainOwnerResultFixture} from './owner-result-test-fixture.ts';
 import {prepareAuthenticatedFactoryInput} from '../engineering/factory-authenticated-result.ts';
 import {RouteAdmissionService} from '../engineering/route-admission.ts';
@@ -299,6 +304,59 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(await env.count('external_alpha_work_authority')).toBe(0);
     await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{backendObservedAt}',to_jsonb((clock_timestamp()-interval '1 minute')::text)) WHERE id=$1",[x.decisionId]);
     await expect(missionControlResultReadback(database,request)).rejects.toThrow('MISSIONCONTROL_RESULT_REQUEST_EXPIRED');
+  });
+  async function retainedOwnerAppFixture(){
+    const {x,admit}=await canonicalOwnerRoute(false,true),admitted=await admit();
+    const retained=await retainOwnerResultFixture({store:new WorkStore(x.workStore.principal,env.db),config:x.config,
+      keys:env.resultKeys,work:x.work,binding:x.binding,requestId:x.requestId,runId:admitted.runId,decisionId:x.decisionId});
+    const read=()=>retainedOwnerTasksOrigin(database,env.owner,retained.receiptId,{kind:'OWNER_FACTORY',readConfig:async()=>x.config});
+    return {x,admitted,retained,read};
+  }
+  it('imports owner MyApps origin from original signed custody without manufacturing Alpha authority or refreshing Proof',async()=>{
+    const {x,admitted,retained,read}=await retainedOwnerAppFixture(),result=await read();
+    expect(result.origin).toMatchObject({schema:'myapps.owner-factory-origin/v1',ownerId:env.owner,workId:x.work.id,
+      missionId:fixture.document.missionId,permitId:fixture.document.permitId,admissionCommandId:fixture.challenge.commandId,
+      routeRunId:admitted.runId,resultId:retained.receiptId,nativeResultId:retained.native.id,proofHash:retained.native.contentHash});
+    expect(result.origin).not.toHaveProperty('authorityId');expect(result.originalProof).toEqual(retained.native.proof);
+    expect(result.acceptance).toBeNull();expect(await env.count('external_alpha_work_authority')).toBe(0);
+    await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{backendObservedAt}',to_jsonb((clock_timestamp()-interval '1 hour')::text)) WHERE id=$1",[x.decisionId]);
+    expect(await read()).toEqual(result); // Immutable terminal custody can back retained app use without a fresh execution lease.
+    await expect(retainedOwnerTasksOrigin(database,'foreign-owner',retained.receiptId,{kind:'OWNER_FACTORY',readConfig:async()=>x.config})).rejects.toThrow('APP_OWNER_MISMATCH');
+    const control=fixture.signControl();await store.fence(fixture.document.permitId,control,controlDigest(control.document));
+    await expect(read()).rejects.toThrow('APP_MISSION_BINDING');
+  });
+  it.each(['foreign-backend','missing-ledger','unknown-ledger','unverified-workspace'] as const)('denies owner MyApps origin with %s custody',async scenario=>{
+    const {x,read}=await retainedOwnerAppFixture();await read();
+    if(scenario==='foreign-backend')await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{value,identity,dispatchIdentity}',to_jsonb($2::text)) WHERE id=$1",[x.decisionId,randomUUID()]);
+    if(scenario==='missing-ledger')await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=factory_observation #- '{value,spend}' WHERE id=$1",[x.decisionId]);
+    if(scenario==='unknown-ledger'){
+      const observation=(await env.pool.query('SELECT factory_observation FROM engineering_routing_decisions WHERE id=$1',[x.decisionId])).rows[0].factory_observation;
+      const spend=observation.value.spend;
+      Object.assign(spend,{status:'UNKNOWN',accountingComplete:false,retainedMicrousd:1000,availableMicrousd:1299000,
+        productiveAllowanceRemainingMicrousd:1298000,unknownExposureMicrousd:1000,paidOperationsUsed:1,
+        operations:[{operationId:randomUUID(),workId:x.work.id,workGeneration:1,dispatchIdentity:observation.value.identity.dispatchIdentity,
+          requestId:x.binding.requestId,workOrderId:x.binding.workOrderId,factoryVersion:x.binding.factoryVersion,runId:x.binding.runId,
+          model:'synthetic',pricingRevision:spend.pricingRevision,reservedMicrousd:1000,actualMicrousd:null,providerRequestId:null,usage:null,state:'unknown',phase:'productive'}]});
+      await env.pool.query('UPDATE engineering_routing_decisions SET factory_observation=$2 WHERE id=$1',[x.decisionId,observation]);
+    }
+    if(scenario==='unverified-workspace')await env.pool.query("UPDATE engineering_direct_workspaces SET phase='VERIFICATION_FAILED' WHERE work_id=$1",[x.work.id]);
+    await expect(read()).rejects.toThrow();
+    expect(await env.count('external_alpha_work_authority')).toBe(0);
+  });
+  it('owner MyApps host checks current canonical capability in the same custody transaction',async()=>{
+    const {x,read}=await retainedOwnerAppFixture(),{origin}=await read(),profile=appProfileFixture();
+    vi.stubEnv('NODE_ENV','test');vi.stubEnv('VERCEL','');
+    const app=composeLocalAlphaTasks({} as any,{runtimeId:'synthetic-owner-runtime',target:'local-qualification',
+      installationId:fixture.enrollment.installationId,agentId:'fixture-agent',custody:{kind:'OWNER_FACTORY',readConfig:async()=>x.config},
+      profiles:[validateRuntime(profile.runtime)],source:async()=>{throw Error('No execution is allowed in this authorization test');},
+      env:{NODE_ENV:'test',MYAPPS_LOCAL_INTEGRATION:'1'}});
+    const principal={ownerId:env.owner,actorId:env.owner,kind:'human' as const,allowedOperations:['apps.run']};
+    const authorize=()=>database.atomic!(tx=>app.host.authorize({query:async(sql,values)=>({rows:await tx.query(sql,values)}),release:()=>{}},
+      principal,origin,'apps.run'));
+    expect(await authorize()).toMatchObject({workVersion:1,workGeneration:1,policyRevision:1});
+    await env.pool.query("UPDATE capability_control.owner_state SET preferences=jsonb_set(preferences,'{myapps}','\"DISABLED\"') WHERE owner_id=$1",[env.owner]);
+    await expect(authorize()).rejects.toThrow('POLICY_BLOCKED:myapps');
+    expect((await read()).origin).toEqual(origin); // Retained evidence is unchanged; present permission separately denies use.
   });
   it('assertion helpers reject a different owner without switching caller context',async()=>{
     await env.pool.query(`GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),

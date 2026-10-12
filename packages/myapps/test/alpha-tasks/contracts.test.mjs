@@ -59,3 +59,17 @@ test("data and operations retain exact priorities and reject arbitrary executabl
     validateOperation("update", { id: 1, patch: { ownerId: "foreign" } }),
   );
 });
+
+test('owner Factory origin keeps its own writer and receipt identity without an alpha authority', () => {
+  const {pkg}=fixture();
+  const {authorityId,authoritySha256,...shared}=pkg.origin;
+  const origin={...shared,schema:'myapps.owner-factory-origin/v1',tupleSha256:'f'.repeat(64),nativeResultId:'native-result',
+    routeRunId:'owner-route',routeDecisionId:'owner-decision',writerGeneration:2,dispatchIdentity:'dispatch',
+    permitId:'owner-permit',admissionCommandId:'owner-command',admissionReceiptDigest:'a'.repeat(64),attemptNumber:2};
+  assert.deepEqual(validateAlphaTasksPackage({...pkg,origin}).origin,origin);
+  for(const replacement of [{...origin,authorityId,authoritySha256},{...origin,schema:'unknown'},
+    {...origin,writerGeneration:0},{...origin,admissionReceiptDigest:'not-a-hash'},{...origin,attemptNumber:0}])
+    assert.throws(()=>validateAlphaTasksPackage({...pkg,origin:replacement}));
+  const {schema,...missing}=origin;
+  assert.throws(()=>validateAlphaTasksPackage({...pkg,origin:missing}));
+});

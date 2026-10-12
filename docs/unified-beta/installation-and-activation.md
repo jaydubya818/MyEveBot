@@ -24,14 +24,14 @@ Prepare exactly one record for the platform owner and one for each of the two ex
 - active runtime role, operator role, schema lineage, credential reference and rotation status;
 - private MyApps source closure, immutable runtime image, adapter/data-contract digests and qualified host.
 
-No secret values belong in the release record, logs or invitation. An absent binding remains unqualified.
+No secret values belong in the release record, logs or invitation. An absent binding remains unqualified. The two tester enrollment documents must not contain `ownerFactoryAdapter`; only the separately qualified platform owner may use that adapter. Verify that the deployed application credential cannot write enrollment documents.
 
 ## Migration and role sequence
 
 1. Inventory the actual installed schema and checksum ledger using the approved read-only process. Reject unknown or mixed lineage. Match a rehearsed upgrade path before proposing an installation change.
 2. Capture an authorized backup and verify restoration in an isolated database. Preserve accounting, immutable receipts, permissions and pending/UNKNOWN states.
 3. Stop new admissions through the existing controls and reconcile active execution. Backend cleanup and known accounting require authoritative evidence; neither elapsed time nor an operator note clears UNKNOWN.
-4. Under the existing explicit migration authorization, apply the canonical forward migrations and separately qualified capability/accounting schema sequence. The unified supplement preserves all historical checksums. Migration 0099 is the owner admission adapter; 0100 retains exact External Alpha ISSUE/DISPATCH admission custody. No historical permit relationship is inferred or backfilled. Migration0101 requires an explicit matching owner context before either admission assertion runs.
+4. Under the existing explicit migration authorization, apply the canonical forward migrations and separately qualified capability/accounting schema sequence. The unified supplement preserves all historical checksums. Intermediate disposable databases that applied0100 before0099 are not supported installation prefixes: use a fresh fixture for those historical tests, and reject such a ledger on a real target until a separately reviewed recovery is defined. Migration 0099 is the owner admission adapter; 0100 retains exact External Alpha ISSUE/DISPATCH admission custody. No historical permit relationship is inferred or backfilled. Migration0101 requires an explicit matching owner context before either admission assertion runs.
 5. Apply only the reviewed role grants. The application must not own protected tables/functions, disable triggers, TRUNCATE evidence, mutate owner enrollments or policy evidence, write triage history, or write exact admission custody directly. Verify these denials with the actual deployed role, including inheritance. Operator credentials stay outside the application. Owner GUC-based RLS guards against application mistakes; it does not isolate a compromised runtime role that can set its own context. Verify actual separate tester database/credential boundaries.
 6. Verify installed source, schema, enrollment and current policy readbacks before enabling any admission. Compare the independent PostgreSQL witness identity, digest and expiry with the exact installation.
 

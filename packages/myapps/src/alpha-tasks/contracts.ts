@@ -11,7 +11,7 @@ export const PROFILE = "alpha-tasks-node-json-v1" as const;
 export const TUPLE =
   "22768f0af6d9aa49f6f0c6553bf1a44ee7599377c1b1935904b998167bf70577";
 export type Hash = `sha256:${string}`;
-export interface Origin {
+export interface ExternalAlphaOrigin {
   ownerId: string;
   installationId: string;
   connectionId: string;
@@ -45,6 +45,23 @@ export interface Origin {
   candidateCommit: string;
   candidateTree: string;
   patchDigest: string;
+}
+/** Canonical owner Factory lineage is explicit; it never impersonates an alpha authority. */
+export interface OwnerFactoryOrigin extends Omit<ExternalAlphaOrigin,"authorityId"|"authoritySha256"|"attemptNumber"> {
+  schema: "myapps.owner-factory-origin/v1";
+  nativeResultId: string;
+  routeRunId: string;
+  routeDecisionId: string;
+  writerGeneration: number;
+  dispatchIdentity: string;
+  permitId: string;
+  admissionCommandId: string;
+  admissionReceiptDigest: string;
+  attemptNumber: number;
+}
+export type Origin = ExternalAlphaOrigin | OwnerFactoryOrigin;
+export function isOwnerFactoryOrigin(origin: Origin): origin is OwnerFactoryOrigin {
+  return "schema" in origin && origin.schema === "myapps.owner-factory-origin/v1";
 }
 export interface RuntimeProfile {
   profile: typeof PROFILE;
@@ -106,21 +123,26 @@ const originGit = [
 const positive = (v: unknown): v is number =>
   Number.isSafeInteger(v) && Number(v) > 0;
 export function validateOrigin(value: unknown): Origin {
+  const owner=Boolean(value&&typeof value==='object'&&'schema' in value);
+  const strings=owner ? [...originStrings.filter(k=>k!=='authorityId'),'nativeResultId','routeRunId','routeDecisionId',
+    'dispatchIdentity','permitId','admissionCommandId'] : [...originStrings];
+  const hashes=owner ? [...originHashes.filter(k=>k!=='authoritySha256'),'admissionReceiptDigest'] : [...originHashes];
   keys(value, [
-    ...originStrings,
-    ...originHashes,
+    ...strings,
+    ...hashes,
     ...originGit,
     "workVersion",
     "workGeneration",
     "planDigest",
     "attemptNumber",
+    ...(owner ? ['schema','writerGeneration'] : []),
   ]);
   requireValue(
-    isDigest(value.planDigest) && value.attemptNumber === 1,
+    isDigest(value.planDigest) && (owner ? value.schema==='myapps.owner-factory-origin/v1'&&positive(value.attemptNumber)&&positive(value.writerGeneration) : value.attemptNumber === 1),
     "APP_RESULT_BINDING",
   );
-  for (const k of originStrings) text(value[k], 200);
-  for (const k of originHashes)
+  for (const k of strings) text(value[k], 200);
+  for (const k of hashes)
     requireValue(
       typeof value[k] === "string" && /^[a-f0-9]{64}$/.test(value[k]),
       "APP_RESULT_BINDING",
@@ -133,7 +155,7 @@ export function validateOrigin(value: unknown): Origin {
   requireValue(
     positive(value.workVersion) &&
       positive(value.workGeneration) &&
-      value.tupleSha256 === TUPLE,
+      (owner || value.tupleSha256 === TUPLE),
     "APP_RESULT_BINDING",
   );
   canonical(value);

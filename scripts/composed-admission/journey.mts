@@ -8,7 +8,6 @@ import { generateKeyPairSync, createHash, randomUUID, randomBytes } from 'node:c
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Env, files } from '../../apps/eve/lib/external-alpha/work-test-fixture.ts';
 import { FakeFactory } from '../../apps/eve/lib/external-alpha/factory-test-fixture.ts';
 import { readExternalAlphaWork } from '../../apps/eve/lib/external-alpha/work-readback.ts';
 import { publicKeyId } from '../../apps/eve/lib/external-alpha/work-authority.ts';
@@ -25,7 +24,10 @@ import { InstalledMissionControlClient, installedMissionControlConfig } from '..
 import { capabilityRegistry } from '@mission-control/capability-control';
 import { signPolicyMessage, verifyPolicyMessage, policyMessageHash } from '../../packages/capability-enforcement/src/ordering-wire.ts';
 const mcRoot = process.env.COMPOSED_MC_ROOT!, relayRoot = process.env.COMPOSED_RELAY_ROOT!, output = process.env.COMPOSED_REPORT!;
-requireLocalPostgres(process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE);
+process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE = requireLocalPostgres(process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE);
+// The fixture captures its URL at import time; load it after normalization so
+// MyEve and the Relay child receive the same validated connection string.
+const { Env, files } = await import('../../apps/eve/lib/external-alpha/work-test-fixture.ts');
 if (!mcRoot || !relayRoot || !output)
     throw Error('Explicit disposable sources and database required');
 const report: any = { scope: 'LOCAL_REAL_CONVEX_POSTGRES_SYNTHETIC_IDENTITIES_FAKEFACTORY', status: 'RUNNING', source: { myeve: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), missioncontrol: execFileSync('git', ['-C', mcRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), relay: execFileSync('git', ['-C', relayRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() }, checks: [], installedAuthentication: 'NOT_RUN', factoryExecution: 'FakeFactory', paidOperations: 0, productionIntegration: 'NOT_RUN', externalAlphaImpact: 'NONE' };

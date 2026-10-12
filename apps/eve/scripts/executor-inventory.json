@@ -527,8 +527,8 @@
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing operations monitor now also resumes retained external-alpha readback and expiry fencing under installed owner/policy/configuration pins. No authority issuance, paid retry, dispatch, activation or model call. Existing beta schedule and monitoring paths remain intact.",
-      "sha256": "7834703136c04330ede0dced397abb720483d4ff44eaf479ea484e30a2a726f0"
+      "reason": "Existing monitor schedules bounded owner and External Alpha reconciliation. Owner recovery polls idle and terminal original permits, persists denying controls and calls exact-run stop/readback only. No authority issuance, dispatch, verification retry, activation or model call.",
+      "sha256": "380b1f149e4f9d5d10bdf31dba03ccbf12f8c5085fc48383b07b56a5a770ad3a"
     },
     "agent/schedules/reminders.ts": {
       "classification": "INTERNAL",
@@ -4327,8 +4327,8 @@
     },
     "app/api/missioncontrol/control/route.ts": {
       "classification": "ENFORCED",
-      "reason": "Bounded signed deny-only ingress selects configured owner and operator enrollment. Ed25519 control verification and immutable local fence precede canonical stop and authenticated ACK; no request-selected destination. Cleanup is pending unless existing canonical evidence proves it. Signed-control and real PostgreSQL revoke/UNKNOWN tests cover the called enforcement path. Installed hosting remains unqualified.",
-      "sha256": "4271ad0c4fd0eb467c66fffe65993e861294b651d20cb3ae5e10900bb1873697"
+      "reason": "Bounded signed deny-only ingress authenticates configured owner/enrollment. Exact retained Work origin selects owner or Alpha control. Ed25519 verification and immutable fence precede canonical exact-run stop and authenticated ACK. No request-selected destination; unproven cleanup remains PENDING. Installed hosted activation remains held.",
+      "sha256": "1f3fdf02dd3615d58caf829c75eef6fed3e0e18b5cdff55a2082406d3f2eea4e"
     },
     "app/api/missioncontrol/result/route.ts": {
       "classification": "ENFORCED",
@@ -4342,8 +4342,8 @@
     },
     "lib/missioncontrol/control-runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed exact owner/permit control commits immutable monotonic fence before network ACK. Revoke calls existing stop; disable-new never stops active Work. UNKNOWN and reservations are preserved; cleanup requires canonical evidence. Real PostgreSQL control and duplicate-delivery tests pass. Retain exact MC acknowledgment response after committed denying fence; bounded per-permit errors preserve later control delivery. Never confirm UNKNOWN cleanup. Real PostgreSQL regression coverage. Reviewed durable attempt before I/O, per-permit failure isolation and bounded safe diagnostic codes; ACK alone requires exact confirmed backend evidence.",
-      "sha256": "404a8732f2ae11ae7394f17443dac9afc72657113ff9cc9c42bae6517f9509a4"
+      "reason": "Signed owner-scoped Alpha controls commit immutable monotonic fences before network ACK. Canonical stop only for revoke; UNKNOWN and reservations preserved. Exact origin matching excludes owner permits from the Alpha poller. Bounded fair retries and per-permit failure isolation retain denying state on lost acknowledgments.",
+      "sha256": "5dd571bee182e90fa307a3ca84cdeae54bc91b8b0f9aa669ae22ce3a719cd8ca"
     },
     "lib/missioncontrol/execution-permit.ts": {
       "classification": "INTERNAL",
@@ -4357,8 +4357,8 @@
     },
     "lib/missioncontrol/permit-store.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing immutable owner-scoped permit custody and durable control scheduling now include canonical owner Factory controls with exact original-run revocation and lost-ACK recovery. Fresh and retained control fairness remains enforced. Owner0099 independent review and real two-writer PostgreSQL regression pass.",
-      "sha256": "5a0e94f716be9449721eee4987593f60757a701b9e570edc936bed75d86db878"
+      "reason": "Immutable owner-scoped custody and durable bounded control scheduling select exact Work version/generation/tuple across mixed Alpha and owner history. Owner permits remain eligible after expiry until signed revoke cleanup is confirmed. Fresh and retained controls share fair retry capacity; no permit or accounting rewrite.",
+      "sha256": "f6a1d345a9115cf033cd149ec2b192bdbd617dd6cc87981fc68e512884b31097"
     },
     "lib/missioncontrol/permit-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4377,13 +4377,13 @@
     },
     "lib/missioncontrol/result-readback.ts": {
       "classification": "READ_ONLY",
-      "reason": "Selects explicit canonical owner Factory evidence or original External Alpha readback. Alpha follows migration0100 exact DISPATCH binding; owner retains original Gate C/native Proof and writer custody. No latest-permit fallback or fabricated Alpha authority. Owner0099 independent review and affected PostgreSQL tests pass.",
-      "sha256": "c4fb19121f6e162682ae8eec42d0bf53c09aa67f391fe94158a4cc791f3d555b"
+      "reason": "Explicit original permit Work version/generation/tuple selects canonical owner evidence or existing Alpha readback. Original signed Gate C/native Proof and exact writer retained. Alpha follows immutable0100 dispatch custody; no latest-permit fallback or fabricated authority across backend changes.",
+      "sha256": "82888beef88e360898d250c06b8f9d018b7559cb7554f364957cb810b20f0755"
     },
     "lib/missioncontrol/admit-execution.ts": {
       "classification": "ENFORCED",
-      "reason": "Explicit configured owner Factory adapter reuses canonical FactoryWorkDriver admission, verified Mission permit/challenge, Relay lease, and current capability policy. External Alpha still uses its existing authority path. No new ledger, implicit owner enrollment, profile, or execution grant. Owner0099 independent review and 127 affected tests pass.",
-      "sha256": "5dae86606550647dd67b7ac5783982ee6916fcc77b5e5c2cd08aeb1ffcfcba6d"
+      "reason": "Configured owner adapter reuses canonical Factory admission, signed Mission permit/challenge, Relay lease and current capability. Explicit enrollment lookup permits unchanged query-only legacy behavior only for truly unenrolled owners; all enrolled owners require an atomic transaction. No RLS-hidden origin interpreted as absent, implicit enrollment or new ledger.",
+      "sha256": "32c4d33a22206d54ffe752e59aa6d8f57315542fa4bef052fa0bfd858a0a9633"
     },
     "lib/missioncontrol/relay-lease-client.ts": {
       "classification": "ENFORCED",
@@ -4407,8 +4407,8 @@
     },
     "lib/myapps/alpha-tasks-host.ts": {
       "classification": "ENFORCED",
-      "reason": "Actual process and supplied config must both be nonproduction/non-Vercel with local opt-in. Trusted immutable profiles/source only. Canonical signed Result origin and current capability verified in same transaction. Original Work/Result/Factory identity retained; no hosted bootstrap.",
-      "sha256": "0ddb3b6e57087a5952134b4d9e39ac42d24a6777a5e6416b4e86f0a3595001d7"
+      "reason": "Actual process and supplied configuration must both remain local nonproduction/non-Vercel. Trusted immutable profile/source only. Explicit owner versus Alpha custody must match package origin; current signed Result, original Proof, exact accounting and current capability are verified in the operation transaction. Owner PostgreSQL tests cover revoked permits and current policy denial.",
+      "sha256": "0091c9e613d47ff4ea777fca73833d94138eb7ab3d73e09181195055cfc4260d"
     },
     "lib/myapps/alpha-tasks-result.ts": {
       "classification": "READ_ONLY",
@@ -4427,13 +4427,13 @@
     },
     "lib/missioncontrol/owner-control-runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Factory stopRun targets the exact retained original writer, persists remote quiescence and retries lost acknowledgments. Fresh observation and exact dispatch identity required; active verifier is fenced. Current-writer-first processing also retries unresolved old controls. Real Work-version successor regression and independent review pass.",
-      "sha256": "7c7fc55579d5208e51b32d55c50b8f7b07c40c9279f322df33598e8a63f1b167"
+      "reason": "Canonical stopRun targets the retained original writer. Signed fence precedes stop/ACK. Cleanup requires fresh exact original request/run/dispatch/Factory identity and deadline, terminal quiescence, known bound spend, complete canonical accounting and no pending verifier. Foreign, stale or UNKNOWN evidence retains PENDING. Enrolled query-only stores fail closed.",
+      "sha256": "f5cb029ab34deec896011c58dc4fd8b7fa53986df842de9661c48149a6355bf1"
     },
     "lib/missioncontrol/owner-factory-binding.ts": {
       "classification": "ENFORCED",
-      "reason": "Validates existing owner enrollment and current qualified Factory configuration/profile, repository, budget and duration. Persists immutable exact Work origin under the canonical Work lock before approval; does not create configuration, credentials, accounting or dispatch authority. Owner0099 PostgreSQL qualification and independent review pass.",
-      "sha256": "a31251f4823b83160f83b2629d851952debc1e683f73bc3e83360e188ee1fb21"
+      "reason": "Validates current operator owner enrollment, qualified Factory profile/configuration, repository, budget and duration. Immutable origin persists under canonical Work lock before approval. Same-query explicit owner context and security-definer enrollment lookup distinguish truly unenrolled legacy stores from missing atomic support. No credential, ledger or authority issuance.",
+      "sha256": "6890f76db21fede18e8f422810e937e003642142880bf243982e34f42d8dc59f"
     },
     "lib/missioncontrol/owner-result-readback.ts": {
       "classification": "READ_ONLY",
@@ -4442,8 +4442,18 @@
     },
     "lib/missioncontrol/owner-result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Disposable synthetic signed custody helper only: real Gate C and NativeResultStore verification with explicitly seeded terminal fixture. No producer run, cleanup qualification, installed keys or runtime import. Independent scoped fixture review passes.",
-      "sha256": "af36c16ffa4a1dfaa6af0ca8bf12b0e1cc85d54c21b35fd866542545afbab987"
+      "reason": "Disposable synthetic signed custody helper only. Uses canonical bytes decoded from its signed manifest, real Gate C/native Proof verification and explicitly controlled terminal/accounting fixture. No installed producer execution, cleanup qualification or deployed key. Test imports only.",
+      "sha256": "bfd0ecfa0e8e289e13dc57553b61bf2cdc099c31a5b5b0f47486d6e719d9e0a7"
+    },
+    "lib/missioncontrol/owner-reconciliation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Deny-only callback and bounded fair scheduled recovery reuse current authenticated owner enrollment and existing hosted guard. Exact Work version/generation/tuple chooses owner versus Alpha history. Signed fence is retained before lazy runtime construction; revoked idle/terminal permits remain recoverable. No new Work, dispatch, paid retry or verification authority.",
+      "sha256": "09b7bf15b55f00d52f557781eaa78114a39a4ac3c3efeab4aa500160bf22eeea"
+    },
+    "lib/myapps/owner-tasks-result.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only canonical owner custody under enrollment and Work locks. Verifies original Gate C signature, exact immutable MissionControl permit and admission receipt, writer/request/Factory identity, protected evidence and original native Proof, current enrollment/configuration, known exact-attempt spend, complete canonical accounting and quiescence. Rejects revoked, foreign, missing, UNKNOWN and unverified custody; emits explicit owner provenance, never an Alpha authority. No new execution or accounting mutation.",
+      "sha256": "ef5bccd627b3911bed645eea48fa3c379c2a21cc5fa9909625075d98c10fe277"
     }
   }
 }

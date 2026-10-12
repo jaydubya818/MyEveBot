@@ -121,6 +121,12 @@ jobs:
         node --test scripts/composed-admission/*.test.mjs
         COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard.json" node --import tsx scripts/composed-admission/journey.mts
         COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown.json" node --import tsx scripts/composed-admission/journey.mts
+    - name: Exact owner Factory Result through the MissionControl verifier and MyApps custody
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
+        MYEVE_OWNER_RESULT_MC_SHA: 5b3728bba1cec864663006483089abc8ff6ab262
+      run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:

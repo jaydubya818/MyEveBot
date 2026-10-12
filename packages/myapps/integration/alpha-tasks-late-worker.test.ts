@@ -16,12 +16,13 @@ describe.skipIf(!connection)('late MyApps worker cannot supersede durable recove
  const human={ownerId:owner,actorId:owner,kind:'human' as const,allowedOperations:['apps.read','apps.manage','apps.install','apps.run']};
  beforeEach(async()=>{
   env=await Env.create();role='myapps_late_'+env.name.slice(8);
-  await env.pool.query(`CREATE ROLE ${role} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
+  const password=randomUUID();
+  await env.pool.query(`CREATE ROLE ${role} LOGIN PASSWORD '${password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
   await env.pool.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
   for(const {tablename} of (await env.pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'myapps_%'")).rows)
    await env.pool.query(`GRANT SELECT,INSERT,UPDATE ON ${tablename} TO ${role}`);
   await env.pool.query(`GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO ${role}`);
-  const url=new URL(connection!);url.pathname='/'+env.name;url.username=role;
+  const url=new URL(connection!);url.pathname='/'+env.name;url.username=role;url.password=password;
   appPool=new pg.Pool({connectionString:url.href});
   let announce!:()=>void;started=new Promise(resolve=>{announce=resolve;});
   const held=new Promise<void>(resolve=>{release=resolve;});

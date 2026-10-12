@@ -13,6 +13,7 @@ import type {Work} from '../engineering/types.ts';
 import type {WorkStore} from '../engineering/store.ts';
 import type {FactoryRuntime} from '../engineering/factory-routing.ts';
 import type {Candidate} from '../engineering/execution.ts';
+import type {ResultManifest} from '../engineering/factory-producer-protocol.ts';
 
 /** Disposable test configuration only. No installation, cloud resource or authority is created. */
 export function ownerResultFixtureConfig(work:Work,keys:FixtureResultKeys):FactoryRuntime {
@@ -40,8 +41,11 @@ export async function retainOwnerResultFixture(input:{store:WorkStore;config:Fac
   // Only the generic signed Result builder's source inputs are supplied. No Alpha authority row is created or consumed.
   const source={id:randomUUID(),requestId:q.requestId,workGeneration:work.generation,envelope:{document:{source:{
     allowedFiles:config.engineering.profile.allowedPaths,baseSha:q.inputCommit,treeSha:'2'.repeat(40)}}}};
-  const {signed,manifest}=buildSignedResult({authority:source as any,work,workOrderId:q.workOrderId,keys,
+  const {signed}=buildSignedResult({authority:source as any,work,workOrderId:q.workOrderId,keys,
     opts:{runId:q.runId,requestDigest:q.requestDigest}});
+  // The real verifier reads the canonical signed bytes, not the builder's
+  // insertion-ordered object. Preserve that representation in artifact hashes.
+  const manifest=JSON.parse(Buffer.from(signed.encoded,'base64url').toString('utf8')) as ResultManifest;
   const receipts=new FactoryReceiptStore(store.principal,db);
   const admission=await admitFactoryResult(receipts,requestId,signed,{keys:async()=>[keys.key]});
   if(admission.status!=='ADMITTED')throw Error('Fixture Gate C rejected: '+admission.reason);

@@ -7,6 +7,7 @@ import {
   validateRuntime,
   type AlphaTasksPackage,
   type RuntimeProfile,
+  isOwnerFactoryOrigin,
 } from "../../../../packages/myapps/src/alpha-tasks/contracts.ts";
 import { LocalAlphaTasksIsolation } from "../../../../packages/myapps/src/alpha-tasks/isolation.ts";
 import type { SourceClosure } from "../../../../packages/myapps/src/alpha-tasks/source.ts";
@@ -15,6 +16,7 @@ import {
   type AlphaTasksCustody,
 } from "./alpha-tasks-result.ts";
 import { AlphaTasksApps, type AlphaTasksHost } from "./alpha-tasks.ts";
+import {retainedOwnerTasksOrigin,type OwnerFactoryTasksCustody} from './owner-tasks-result.ts';
 
 /** Explicit local composition only. These registrations are operator inputs, not API bodies.
  * Actual private profile/runtime qualification is NOT established by creating this object. */
@@ -25,7 +27,7 @@ export function composeLocalAlphaTasks(
     target: string;
     installationId: string;
     agentId: string;
-    custody: AlphaTasksCustody;
+    custody: AlphaTasksCustody | OwnerFactoryTasksCustody;
     profiles: RuntimeProfile[];
     source: (pkg: AlphaTasksPackage) => Promise<SourceClosure>;
     env?: NodeJS.ProcessEnv;
@@ -71,11 +73,13 @@ export function composeLocalAlphaTasks(
         atomic: async <T>(fn: (db: any) => Promise<T>): Promise<T> =>
           fn(database),
       };
-      const current = await retainedAlphaTasksOrigin(
+      const ownerCustody='kind' in input.custody&&input.custody.kind==='OWNER_FACTORY';
+      requireValue(ownerCustody===isOwnerFactoryOrigin(origin),'APP_RESULT_BINDING');
+      const current = ownerCustody ? await retainedOwnerTasksOrigin(database,p.ownerId,origin.resultId,input.custody as OwnerFactoryTasksCustody) : await retainedAlphaTasksOrigin(
         database,
         p.ownerId,
         origin.resultId,
-        input.custody,
+        input.custody as AlphaTasksCustody,
       );
       requireValue(
         canonical(current.origin) === canonical(origin),
