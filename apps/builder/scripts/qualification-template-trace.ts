@@ -33,6 +33,18 @@ try {
   assert.notEqual(denied.status, 0, "An untracked file added after tracing must fail the mandatory build gate");
   assert.match(denied.stderr, /exact template inventory only/);
 } finally { await writeFile(tracePath, originalTrace); }
+// The two exact generated contexts must not turn .next into an allowed directory.
+const unexpectedGenerated = path.join(root, ".next/synthetic-private-package.json");
+await mkdir(path.dirname(unexpectedGenerated), { recursive: true });
+await writeFile(unexpectedGenerated, "SYNTHETIC_UNQUALIFIED_GENERATED_METADATA", { flag: "wx" });
+try {
+  const tampered = JSON.parse(originalTrace.toString());
+  tampered.files.push(path.relative(path.dirname(tracePath), unexpectedGenerated));
+  await writeFile(tracePath, JSON.stringify(tampered));
+  const denied = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+  assert.notEqual(denied.status, 0, "An unrelated generated file must fail the mandatory build gate");
+  assert.match(denied.stderr, /exact template inventory only/);
+} finally { await writeFile(tracePath, originalTrace); await rm(unexpectedGenerated); }
 const metadataPath = path.join(root, "node_modules/next/package.json");
 const metadataBytes = await readFile(metadataPath);
 try {
@@ -86,5 +98,5 @@ try {
   await assert.rejects(assembleDeployment(input, options), /Builder source inventory mismatch/);
   console.log(JSON.stringify({ status: "PASS", routes, templateInputs: inputs.length, exportedFiles: actual.length,
     inventorySha256: createHash("sha256").update(await readFile(path.join(root, TEMPLATE_SOURCE_MANIFEST))).digest("hex"),
-    exactTraceInventory: true, injectedTraceDenied: true, alteredMetadataDenied: true, generatedMetadataTamperDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
+    exactTraceInventory: true, injectedTraceDenied: true, alteredMetadataDenied: true, generatedMetadataTamperDenied: true, unexpectedGeneratedTraceDenied: true, noGitByteParity: true, changedSourceDenied: true, syntheticOnly: true, deployment: "NOT_RUN" }, null, 2));
 } finally { process.chdir(cwd); await rm(bundle, { recursive: true, force: true }); await rm(tripwire); }
