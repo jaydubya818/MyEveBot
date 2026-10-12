@@ -2,7 +2,7 @@
   "format": "myapps.unified-source-successors.v1",
   "historicalPins": "phase3/sources.json",
   "myapps": "ab331cd5b7785632e7c0539ef16aab4338222b31",
-  "missionControlAuthority": "47d7b88287f4f8b3dab53a7bf81a06dc52819176",
+  "missionControlAuthority": "4f6deaec5b0bb5f83bc54546f37f08c853853e7e",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
   "migration": "0100_missioncontrol_alpha_admission_custody.sql",

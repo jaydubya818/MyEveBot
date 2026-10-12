@@ -13,7 +13,7 @@ const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-succes
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
  expect(unified.myapps).toBe('ab331cd5b7785632e7c0539ef16aab4338222b31');
- expect(unified.missionControlAuthority).toBe('47d7b88287f4f8b3dab53a7bf81a06dc52819176');
+ expect(unified.missionControlAuthority).toBe('4f6deaec5b0bb5f83bc54546f37f08c853853e7e');
  expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
  expect(unified.authorityFiles).toEqual(['work-authority.ts']);
  for(const path of ['runtime.ts','api.ts','workflow.ts','hosting.ts']){
