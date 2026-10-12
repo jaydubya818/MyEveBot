@@ -9,11 +9,16 @@ import {requiredDatabaseMigration} from '../../../apps/eve/lib/database-schema.t
 import {localAppsAllowed} from '../../../apps/eve/lib/myapps/hosting.ts';
 const composed=process.env.MYAPPS_COMPOSITION_REHEARSAL==='1';
 const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'utf8'));
+const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
-test.skipIf(!composed)('composition preserves qualified app runtime and existing alpha authority bytes',async()=>{
+test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
+ expect(unified.myapps).toBe('ab331cd5b7785632e7c0539ef16aab4338222b31');
+ expect(unified.missionControlAuthority).toBe('47d7b88287f4f8b3dab53a7bf81a06dc52819176');
+ expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
+ expect(unified.authorityFiles).toEqual(['work-authority.ts']);
  for(const path of ['runtime.ts','api.ts','workflow.ts','hosting.ts']){
   const name='apps/eve/lib/myapps/'+path;
-  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.phase2,name));
+  expect(readFileSync(name,'utf8')).toBe(source(unified.myappsFiles.includes(path)?unified.myapps:pins.myeve.phase2,name));
  }
  for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
@@ -25,7 +30,7 @@ test.skipIf(!composed)('composition preserves qualified app runtime and existing
  expect(pins.myeve.externalAlphaSuccessor).toBe('4cceb253d21f28b17f645bd88d90a6b764ddc073');
  for(const path of ['work-authority.ts','shared-accounting-zero-gap.sql']){
   const name='apps/eve/lib/external-alpha/'+path;
-  expect(readFileSync(name,'utf8')).toBe(source(pins.myeve.externalAlphaSuccessor,name));
+  expect(readFileSync(name,'utf8')).toBe(source(unified.authorityFiles.includes(path)?unified.missionControlAuthority:pins.myeve.externalAlphaSuccessor,name));
  }
  for(const branch of ['codex/myapps-phase3-readiness','codex/myapps-phase3b-reconciliation',pins.preparationBranch])
   expect(JSON.parse(readFileSync('apps/eve/vercel.json','utf8')).git.deploymentEnabled[branch]).toBe(false);
@@ -63,7 +68,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(migrations.at(-1)?.name).toBe(pins.migration.rehearsal);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0098_unified_beta_feedback_initial_state.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');
@@ -77,7 +82,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   expect(afterHistory.slice(0,-1)).toEqual(beforeHistory);
   for(const table of ['myapps_installations','myapps_admissions','myapps_candidates','external_alpha_policy','external_alpha_allowance','external_alpha_operation','external_alpha_work_authority','engineering_factory_requests','engineering_candidate_publications'])
    expect((await pool.query('SELECT count(*) n FROM '+table)).rows[0].n).toBe('0');
-  expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(pins.migration.rehearsal);
+  expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(unified.migration);
  }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
 });
 

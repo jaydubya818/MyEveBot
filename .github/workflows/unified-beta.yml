@@ -7,6 +7,121 @@ name: Unified beta exact-source qualification
 permissions:
   contents: read
 jobs:
+  myapps-alpha:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '24'
+    - run: npm ci --no-audit --no-fund
+    - run: node node_modules/playwright/cli.js install --with-deps chromium
+    - name: Retrieve the exact offline runtime image
+      run: |
+        docker pull --platform=linux/arm64 node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+        node --import tsx --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {execFileSync} from 'node:child_process';
+        import {image} from './packages/myapps/test/alpha-tasks/fixtures.mjs';
+        const [actual]=JSON.parse(execFileSync('docker',['image','inspect',image],{encoding:'utf8'}));
+        assert.equal(actual.Id,image);assert.equal(actual.Os,'linux');assert.equal(actual.Architecture,'arm64');
+        NODE
+    - name: Existing CRM, strict source contracts and isolated candidate denial tests
+      env:
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+      run: node --import tsx --test packages/myapps/test/*.test.mjs packages/myapps/test/alpha-tasks/*.test.mjs
+    - name: Signed owner UI and real PostgreSQL installation, update, rollback and recovery
+      env:
+        MYAPPS_POSTGRES_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+        MYAPPS_ALPHA_BROWSER_TEST: '1'
+        MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
+      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: unified-alpha-tasks-browser
+        path: ${{ runner.temp }}/myapps-alpha
+        if-no-files-found: error
+  composed-admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: myeve
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        path: myeve
+        persist-credentials: false
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: jaydubya818/MissionControl
+        ref: d90956db8134308d914bedb4434c6e8fcb4ec2e8
+        path: missioncontrol
+        persist-credentials: false
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: jaydubya818/relay
+        ref: b25a90c3ebeaeff731c26690e289331142dae904
+        path: relay
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '24'
+    - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      with:
+        version: 9.0.0
+        package_json_file: missioncontrol/package.json
+    - run: npm ci --no-audit --no-fund
+    - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+      working-directory: missioncontrol
+    - run: pnpm install --frozen-lockfile --ignore-scripts
+      working-directory: relay
+    - name: Fetch checksum-qualified disposable Convex backend
+      run: |
+        curl --fail --location --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+        echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+        unzip "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+        chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+    - name: Real Convex, Relay and MyEve admission with synthetic identity and FakeFactory
+      env:
+        COMPOSED_MC_ROOT: ${{ github.workspace }}/missioncontrol
+        COMPOSED_RELAY_ROOT: ${{ github.workspace }}/relay
+        MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        MC_COMPATIBILITY_PORT: '3398'
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        mkdir -p "$RUNNER_TEMP/composed-admission"
+        node --test scripts/composed-admission/cleanup.test.mjs
+        COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard.json" node --import tsx scripts/composed-admission/journey.mts
+        COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown.json" node --import tsx scripts/composed-admission/journey.mts
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: unified-composed-admission
+        path: ${{ runner.temp }}/composed-admission
+        if-no-files-found: error
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +141,7 @@ jobs:
         lib/missioncontrol/admission-receipt.test.ts lib/missioncontrol/permit-control.test.ts
         lib/missioncontrol/result-protocol.test.ts lib/missioncontrol/installed-client.test.ts
         lib/missioncontrol/relay-lease-client.test.ts lib/beta-feedback-route.test.ts
-        lib/external-alpha/features.test.ts lib/database-schema.test.ts
+        lib/external-alpha/features.test.ts lib/database-schema.test.ts agent/tools/installed_apps.test.ts
     - run: npm run test --workspace=eve-agent -- lib/relay lib/external-alpha/relay-link.test.ts
     - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
     - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts
@@ -173,7 +288,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: e216be6e63c9d15012a1db0aafa279971d328fd4
+        ref: d90956db8134308d914bedb4434c6e8fcb4ec2e8
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa

@@ -72,6 +72,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/engineering_work.ts",
   // Canonical MyApps source ships, but activation remains owner + local-only.
   "agent/tools/installed_apps.ts",
+  "agent/tools/installed_apps.test.ts",
   "agent/tools/engineering_direct.ts",
   "agent/tools/engineering_factory.ts",
   "agent/tools/mission_control.ts",
