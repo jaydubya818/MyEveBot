@@ -10,6 +10,42 @@ name: Unified beta exact-source qualification
 permissions:
   contents: read
 jobs:
+  builder-packaging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '24'
+    - run: npm ci --no-audit --no-fund
+    - name: Builder contracts, types and source manifest
+      run: |
+        node --import tsx --test apps/builder/lib/*.test.ts
+        npx tsc --project apps/builder/tsconfig.json --noEmit
+        node --import tsx apps/builder/scripts/check-manifest.ts
+    - name: Build with a synthetic untracked source tripwire
+      env:
+        NEXT_TELEMETRY_DISABLED: '1'
+      run: |
+        mkdir -p "$RUNNER_TEMP/builder-packaging"
+        node --import tsx apps/builder/scripts/qualification-template-trace.ts --prepare
+        npm run build --workspace=eveclaw-builder 2>&1 | tee "$RUNNER_TEMP/builder-packaging/build.log"
+        cp apps/builder/.next/template-trace-verification.json "$RUNNER_TEMP/builder-packaging/trace-verification.json"
+    - name: Verify exact traces, no-Git byte parity and tamper denial
+      run: node --import tsx apps/builder/scripts/qualification-template-trace.ts 2>&1 | tee "$RUNNER_TEMP/builder-packaging/qualification.log"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: unified-builder-packaging
+        path: ${{ runner.temp }}/builder-packaging
+        if-no-files-found: warn
   myapps-alpha:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 25
@@ -405,6 +441,8 @@ jobs:
       run: node apps/eve/test/browser/beta-feedback.mjs "$RUNNER_TEMP/checkpoint-h/feedback"
     - name: Same-origin login and truthful candidate evidence
       run: node apps/eve/test/baseline-security.browser.mjs "$RUNNER_TEMP/checkpoint-h/baseline-security"
+    - name: Markdown images require explicit user action
+      run: node apps/eve/test/markdown-images.browser.mjs "$RUNNER_TEMP/checkpoint-h/markdown-images"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
