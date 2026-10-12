@@ -13,7 +13,7 @@ const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-succes
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
  expect(unified.myapps).toBe('ab331cd5b7785632e7c0539ef16aab4338222b31');
- expect(unified.missionControlAuthority).toBe('4f6deaec5b0bb5f83bc54546f37f08c853853e7e');
+ expect(unified.missionControlAuthority).toBe('053751d5aa065c396bf0fdec6a67fd0259e8431c');
  expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
  expect(unified.authorityFiles).toEqual(['work-authority.ts']);
  for(const path of ['runtime.ts','api.ts','workflow.ts','hosting.ts']){
@@ -68,7 +68,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(unified.migration).toBe('0100_missioncontrol_alpha_admission_custody.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0101_missioncontrol_assertion_owner_context.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');
