@@ -47,6 +47,11 @@ for (const features of [[], [...FEATURE_IDS]]) {
       for (const [, reference] of source.matchAll(/(?:from\s*|import\s*)["']([^"']*packages\/(?:myapps|capability-control|capability-enforcement)\/[^"']+)["']/g)) {
         assert.ok(byPath.has(path.posix.normalize(path.posix.join(path.posix.dirname(file), reference))), `closed import ${file}: ${reference}`);
       }
+      if (file.startsWith("packages/")) {
+        for (const [, reference] of source.matchAll(/(?:from\s*|import\s*)["'](\.[^"']+)["']/g)) {
+          assert.ok(byPath.has(path.posix.normalize(path.posix.join(path.posix.dirname(file), reference))), `closed shared import ${file}: ${reference}`);
+        }
+      }
     }
     const hosting = byPath.get("lib/myapps/hosting.ts")!.toString();
     assert.match(hosting, /NODE_ENV !== "production"/);

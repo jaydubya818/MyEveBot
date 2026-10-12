@@ -42,6 +42,7 @@ export const SHARED_CAPABILITY_FILES = [
   "packages/capability-enforcement/src/lifecycle-source.ts",
   "packages/capability-enforcement/src/lifecycle-transport.ts",
   "packages/capability-enforcement/src/recovery-witness.ts",
+  "packages/capability-enforcement/src/postgres-recovery-witness.ts",
 ] as const;
 
 export const DEPENDENCY_SECURITY_FILES = [
