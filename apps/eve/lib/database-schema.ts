@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0094_missioncontrol_permit_bindings.sql";
+export const CURRENT_DATABASE_MIGRATION = "0095_missioncontrol_control_acknowledgments.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.

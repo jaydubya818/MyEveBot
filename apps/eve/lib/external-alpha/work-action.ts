@@ -15,6 +15,7 @@ import {
 } from "./work-controller.ts";
 import { alphaTasksCriteria, canonicalAlphaTasksWork } from "./work-tuple.ts";
 import { MissionControlBindings } from '../missioncontrol/permit-store.ts';
+import { admitMissionControlExecution } from '../missioncontrol/admit-execution.ts';
 
 const actionSchema = z
   .object({
@@ -113,6 +114,12 @@ export async function externalAlphaFactoryAction(
   }
   if (input.operation === "start") {
     await assertBusinessEffect(store, workId, { operation: "execute_factory" });
+    if (env.MYEVE_MISSIONCONTROL_MODE === 'APPROVED_NONPRODUCTION') {
+      const existing = await controller.authority.forWork(workId);
+      // A consumed/terminal request is read back through the canonical controller.
+      // Fresh approval is required only when this call could claim execution.
+      if (!existing || existing.state === 'ISSUED') await admitMissionControlExecution(store, work, env);
+    }
     const out = await controller.start(work, effect).catch((error: unknown) => {
       // One active Work per cohort (QE-017): explicit, non-retryable-until-free capacity denial.
       // The shared reservation was refused before any charge, authority or Factory call.

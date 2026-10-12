@@ -38,7 +38,8 @@ export async function applyMissionControlControl(store:WorkStore,controller:Exte
     // The receiving fence remains committed when the resource is unavailable.
   }
   const result={...acknowledgment,cleanup};
-  await client.acknowledgeControl(result,randomUUID());
+  const response=await client.acknowledgeControl(result,randomUUID());
+  await bindings.retainControlAcknowledgment(result,response);
   return result;
 }
 
@@ -47,10 +48,12 @@ export async function pollMissionControlControls(store:WorkStore,controller:Exte
   const bindings=new MissionControlBindings(store.database,store.principal.scopeId),enrollment=await bindings.enrollment();
   const client=providedClient??new InstalledMissionControlClient(installedMissionControlConfig(enrollment,store.principal.scopeId,env,'control'));
   const permits=await bindings.controlCandidates();
-  const outcomes=[];
+  const outcomes=[],failures:string[]=[];
   for(const permitId of permits){
-    const input=controlReadSchema.parse(await client.readControl(permitId,randomUUID()));
-    if(input.status==='CONTROL')outcomes.push(await applyMissionControlControl(store,controller,input,client));
+    try{
+      const input=controlReadSchema.parse(await client.readControl(permitId,randomUUID()));
+      if(input.status==='CONTROL')outcomes.push(await applyMissionControlControl(store,controller,input,client));
+    }catch{failures.push(permitId);}
   }
-  return {checked:permits.length,outcomes};
+  return {checked:permits.length,outcomes,failures};
 }

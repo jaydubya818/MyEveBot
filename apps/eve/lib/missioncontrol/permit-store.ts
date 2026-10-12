@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { z } from 'zod';
 import type { WorkDatabase } from '../engineering/store.ts';
 import { WorkStore } from '../engineering/store.ts';
 import { assertCanonicalAlphaWork, alphaTasksTupleSha256 } from '../external-alpha/work-tuple.ts';
@@ -108,10 +109,30 @@ export class MissionControlBindings {
       const rows=await database.query(`SELECT p.permit_id FROM missioncontrol_execution_permits p
         WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
           OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
-            AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN')))
+            AND a.work_version=p.work_version AND a.work_generation=p.work_generation AND a.state IN('ISSUED','DISPATCHING','CONSUMED','UNKNOWN'))
+          OR EXISTS(SELECT 1 FROM missioncontrol_permit_controls c WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id
+            AND c.sequence=(SELECT max(latest.sequence) FROM missioncontrol_permit_controls latest
+              WHERE latest.owner_id=c.owner_id AND latest.permit_id=c.permit_id)
+            AND NOT EXISTS(SELECT 1 FROM missioncontrol_control_acknowledgments a WHERE a.owner_id=c.owner_id
+              AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest AND a.cleanup='CONFIRMED')))
         ORDER BY p.created_at,p.permit_id LIMIT 101`,[this.ownerId]);
       if(rows.length>100)throw Error('MISSIONCONTROL_CONTROL_BACKLOG');
       return rows.map(row=>String(row.permit_id));
+    });
+  }
+  async retainControlAcknowledgment(expected:{permitId:string;sequence:number;controlDigest:string;
+    authority:'FENCED'|'NEW_ADMISSIONS_DENIED';cleanup:'PENDING_BACKEND'|'CONFIRMED'},value:unknown) {
+    const response=z.object({permitId:z.literal(expected.permitId),sequence:z.literal(expected.sequence),
+      authority:z.literal(expected.authority),cleanup:z.literal(expected.cleanup),accounting:z.literal('UNCHANGED')}).strict().parse(value);
+    return this.atomic(async database=>{
+      const rows=await database.query(`INSERT INTO missioncontrol_control_acknowledgments(owner_id,permit_id,sequence,control_digest,cleanup,response)
+        SELECT $1,$2,$3,$4,$5,$6 FROM missioncontrol_permit_controls
+        WHERE owner_id=$1 AND permit_id=$2 AND sequence=$3 AND control_digest=$4
+        ON CONFLICT DO NOTHING RETURNING permit_id`,[this.ownerId,expected.permitId,expected.sequence,expected.controlDigest,expected.cleanup,response]);
+      if(!rows.length){const [prior]=await database.query(`SELECT response FROM missioncontrol_control_acknowledgments
+        WHERE owner_id=$1 AND permit_id=$2 AND sequence=$3 AND cleanup=$4 AND control_digest=$5`,
+        [this.ownerId,expected.permitId,expected.sequence,expected.cleanup,expected.controlDigest]);
+        if(canonicalPermitJson(prior?.response)!==canonicalPermitJson(response))return denied();}
     });
   }
   async fence(permitId:string,value:unknown,expectedDigest:string,now=Date.now()) {
