@@ -31,7 +31,7 @@ const envelope={
     'Verify exact approved non-alpha targets, current ledgers/checksums, roles and tested backups; reject missing identity.',
     'Qualify empty-target central accounting base then recovery SQL separately; existing-target upgrade requires an exact baseline and its own approval. Never apply base SQL over existing accounting history.',
     'Reconcile Factory migration ledger in manifest order without installation registration, production grants or source-identity reuse.',
-    'Reconcile application migrations through 0103 with the separately hashed 0094–0103 supplement, preserving original published 0099 bytes. Reject altered 0099 ledgers without rewriting checksums; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
+    'Reconcile application migrations through 0105 using the exact hashed applicationMigrations catalog, preserving original published 0099 bytes. Reject altered 0099 ledgers without rewriting checksums; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
     'Capability qualification SQL is a separate additive source contract, never automatic application startup. Require exact same-transaction policy/Work topology, trusted enrollment and independently retained witness before any installation claim.',
     'Keep all execution disabled; qualify successor FactoryVersion, bootstrap, custody/signers, rollback and owner isolation before separate activation approval.'
   ],
