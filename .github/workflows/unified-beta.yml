@@ -181,7 +181,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
+        ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
         path: missioncontrol
         persist-credentials: false
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -224,7 +224,7 @@ jobs:
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
         MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
-        MYEVE_OWNER_RESULT_MC_SHA: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
+        MYEVE_OWNER_RESULT_MC_SHA: f9bcd0df4bb970a36a43599b00d724b07f300ad0
       run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts apps/eve/lib/missioncontrol/installed-eligibility.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
     - name: Caller context, owner/Alpha and legacy isolation, immutable migration lineage
       env:
@@ -429,7 +429,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: 4ae5d50d4dabc93c1a54dd1c777b0e5d4dff87e5
+        ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
