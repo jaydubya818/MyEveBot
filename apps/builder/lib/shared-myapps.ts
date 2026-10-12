@@ -14,6 +14,10 @@ export const SHARED_MYAPPS_FILES = [
   "packages/myapps/src/alpha-tasks/contracts.ts",
   "packages/myapps/src/alpha-tasks/source.ts",
   "packages/myapps/src/alpha-tasks/isolation.ts",
+  // Canonical admission imports the signed protocol types. Keep that module's
+  // explicit runtime closure available to standalone TypeScript consumers.
+  "packages/myapps/src/alpha-tasks/remote-isolation.ts",
+  "packages/myapps/src/alpha-tasks/remote-journal.ts",
   "packages/myapps/src/alpha-tasks/runner.mjs",
   "packages/myapps/prototype/index.html",
   "packages/myapps/prototype/app.js",
@@ -66,7 +70,7 @@ const RELOCATED_CONSUMERS = new Set([
   "lib/myapps/alpha-tasks.ts", "lib/myapps/alpha-tasks-api.ts",
   "lib/myapps/alpha-tasks-result.ts", "lib/myapps/owner-tasks-result.ts",
   "lib/myapps/local-bootstrap.ts", "lib/myapps/local-configuration.ts",
-  "lib/myapps/alpha-tasks-host.ts",
+  "lib/myapps/alpha-tasks-host.ts", "lib/myapps/remote-admission.ts",
 ]);
 const REPOSITORY_PREFIX = "../../../../packages/myapps/";
 

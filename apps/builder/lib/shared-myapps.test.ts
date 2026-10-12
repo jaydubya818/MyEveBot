@@ -61,6 +61,7 @@ for (const features of [[], [...FEATURE_IDS]]) {
 test("unknown shared consumers and references fail closed", () => {
   assert.throws(() => relocateMyAppsReferences("lib/unexpected.ts", Buffer.from('import "../../../../packages/myapps/src/store.ts"')), /Unexpected/);
   assert.throws(() => relocateMyAppsReferences("lib/myapps/api.ts", Buffer.from('import "../../../../packages/myapps/test/secrets.ts"')), /Unowned/);
+  assert.throws(() => relocateMyAppsReferences("lib/myapps/remote-admission.ts", Buffer.from('import "../../../../packages/myapps/src/alpha-tasks/remote-http.ts"')), /Unowned/);
 });
 
 test("output collisions and noncanonical paths fail closed", () => {
@@ -159,7 +160,10 @@ test("AlphaTasks packaging preserves exact tracked adapter bytes and its runtime
     const original = await import(pathToFileURL(path.join(repository, adapter)).href);
     const packaged = await import(pathToFileURL(path.join(out, adapter)).href);
     assert.equal(await packaged.localAlphaTasksAdapterDigest(), await original.localAlphaTasksAdapterDigest());
-    for (const file of ["lib/myapps/local-bootstrap.ts", "lib/myapps/alpha-tasks-host.ts", "lib/myapps/local-configuration.ts", "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/permit-store.ts"]) {
+    const protocol = await import(pathToFileURL(path.join(out, "packages/myapps/src/alpha-tasks/remote-isolation.ts")).href);
+    assert.equal(typeof protocol.RemoteAlphaTasksIsolation, "function", "protocol resolves its exported dependency closure without repository files");
+    assert.ok(!files.some(entry => /\/remote-(http\.ts|isolation\.sql)$/.test(entry.file)), "unregistered host transport and host database setup stay outside the application export");
+    for (const file of ["lib/myapps/local-bootstrap.ts", "lib/myapps/alpha-tasks-host.ts", "lib/myapps/local-configuration.ts", "lib/myapps/alpha-tasks.ts", "lib/myapps/remote-admission.ts", "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/permit-store.ts"]) {
       const expected = (await readFile(path.join(root, file), "utf8")).replaceAll("../../../../packages/", "../../packages/");
       assert.equal(Buffer.from(files.find(entry => entry.file === file)!.data, "base64").toString(), expected, `only imports relocated; authority unchanged: ${file}`);
     }
