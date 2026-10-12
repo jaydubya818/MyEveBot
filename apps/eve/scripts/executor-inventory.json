@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Installed MissionControl mode requires additive exact admission custody through0100; existing other installation schema requirements remain unchanged. Unified approved nonproduction requires additive0101 explicitowner-context assertions; historical installation requirements remain unchanged. Additive0103 is the current explicitly enabled MissionControl schema; older installation rollout requirements remain unchanged.",
-      "sha256": "8d932bb3bdf6140cfdfc7259ac2eb3715b2ff9e358b25730da41f02e081ba0a9"
+      "reason": "Only explicitly enabled approved nonproduction MissionControl mode advances to additive0105 immutable MyApps execution-admission custody. Reviewed0103/0104 READ COMMITTED requirements, historical installation schema requirements and all rollout conditions remain unchanged.",
+      "sha256": "e840c13f445a137d42c2f0935e1d78f51ac1992ce941c3d9a57ba27d18aafd98"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -4402,8 +4402,8 @@
     },
     "lib/myapps/alpha-tasks.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-scoped serialized PostgreSQL. Canonical custody and current capability checked at admission and commit. Immutable source/runtime binding, exact human inbox approval, isolated execution, durable request identity and confirmed cleanup. RUNNING/UNKNOWN fences new effects. Lost commit ACK never overwrites success. Catalog is bounded retained owner data, never code execution. Both preview and operation commits require the exact receipt still RUNNING with original operation UUID; RETURNING cardinality fences late success and rolls back every data, revision, preview and audit change after recovery/UNKNOWN/replacement. Six controlled ordinary-role real-schema races and eight operator-recovery tests pass.",
-      "sha256": "4df1f2920699758005da72c66e10973c1dc4753293cbc50dff895248c94768d7"
+      "reason": "Owner-scoped serialized PostgreSQL. Canonical custody and current capability checked at admission and commit. Immutable source/runtime binding, exact human inbox approval, isolated execution, durable request identity and confirmed cleanup. RUNNING/UNKNOWN fences new effects. Lost commit ACK never overwrites success. Catalog is bounded retained owner data, never code execution. Both preview and operation commits require the exact receipt still RUNNING with original operation UUID; RETURNING cardinality fences late success and rolls back every data, revision, preview and audit change after recovery/UNKNOWN/replacement. Six controlled ordinary-role real-schema races and eight operator-recovery tests pass. Additive0105 retains immutable original execution admission in the existing receipt. Dormant remote authorization requires freshly authenticated principal, original actor/permission and exact receiving identity; local-only receipts cannot gain remote authority. No route or bootstrap is registered.",
+      "sha256": "48d9f9e149ed0482eee113318d487cdcd969385ad70eb356bfcd7b756efc0427"
     },
     "lib/myapps/alpha-tasks-host.ts": {
       "classification": "ENFORCED",
@@ -4469,6 +4469,11 @@
       "classification": "INTERNAL",
       "reason": "Pure post-login destination normalization. Resolves against the trusted browser origin and rejects cross-origin navigation; grants no authentication or execution authority.",
       "sha256": "07ea142fbfa2bac86880234b57d00b5a791ee84c74b1ea41817725d1d1b954b5"
+    },
+    "lib/myapps/remote-admission.ts": {
+      "classification": "ENFORCED",
+      "reason": "Dormant canonical receiving-admission helper called by AlphaTasksApps inside its owner-locked transaction with a freshly authenticated principal. Exact immutable receipt, actor, permission, package/input/state/revisions and enrolled receiving identity must match; EXECUTE repeats current canonical host authorization, and READ/FENCE narrow to original recovery custody. Expiry is rechecked. No HTTP entrypoint, bootstrap, paid call, new ledger or physical backend fence; cross-database immediate revocation and restore incarnation remain unqualified installation boundaries.",
+      "sha256": "3077f5195a1f497c32538824c6cd75e520420214c3b95c7ef09718db77f04611"
     }
   }
 }
