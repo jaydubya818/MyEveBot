@@ -495,7 +495,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(await env.count('missioncontrol_control_acknowledgments')).toBe(1);
     expect(factory.posts).toBe(0);
   });
-  it('delivers a new revoke behind more than 100 unresolved controls across bounded durable pages',async()=>{
+  it('prioritizes a fresh revoke over 101 pending controls without starving retries under continuing arrivals',async()=>{
     await accept();
     const factory=new FakeFactory({myeveKeys:new Map([[env.signer.keyId,env.signer.publicKey]]),policy:env.policy,allowedFiles:files,now:Date.now});
     const config=env.workConfig([{keyId:publicKeyId(factory.receiptKey.publicKey),publicKey:factory.receiptKey.publicKey.export({type:'spki',format:'pem'}) as string}]);
@@ -513,17 +513,42 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       await env.pool.query(`INSERT INTO missioncontrol_permit_controls(owner_id,permit_id,sequence,operation,control_digest,envelope)
         VALUES($1,$2,1,'revoke',$3,$4)`,[env.owner,document.permitId,controlDigest(control.document),control]);
     }
-    const control=fixture.signControl(),delivered:string[]=[];
+    const control=fixture.signControl(),delivered:string[]=[],requested:string[]=[];
     const client={readControl:async(permitId:string)=>{
+      requested.push(permitId);
+      if(permitId.startsWith('fresh-'))return {status:'NO_CONTROL'};
       if(permitId!==fixture.document.permitId)throw Error('SYNTHETIC_TRANSPORT_OUTAGE');
       delivered.push(permitId);return {status:'CONTROL',control,controlDigest:controlDigest(control.document)};
     },acknowledgeControl:async(value:unknown)=>acknowledgmentResponse(value)};
     const principal={scopeKind:'personal' as const,scopeId:env.owner,actorId:env.owner};
     const first=await pollMissionControlControls(new WorkStore(principal,database),controller,undefined,client);
-    expect(first.checked).toBe(100);expect(first.pageFull).toBe(true);expect(delivered).toEqual([]);
-    const second=await pollMissionControlControls(new WorkStore(principal,database),controller,undefined,client);
-    expect(second.checked).toBe(100);expect(delivered).toEqual([fixture.document.permitId]);
-    expect(second.outcomes).toMatchObject([{authority:'FENCED',cleanup:'PENDING_BACKEND'}]);
+    expect(first.checked).toBe(100);expect(first.pageFull).toBe(true);
+    expect(requested[0]).toBe(fixture.document.permitId);expect(delivered).toEqual([fixture.document.permitId]);
+    expect(first.outcomes).toMatchObject([{authority:'FENCED',cleanup:'PENDING_BACKEND'}]);
+    // Each new poll has more than a page of fresh arrivals. Pending UNKNOWN
+    // controls must still rotate through a reserved half-page in durable polls.
+    const retried=new Set<string>();
+    for(let page=0;page<3;page++){
+      for(let i=0;i<101;i++){
+        const document={...fixture.document,permitId:`fresh-${page}-${String(i).padStart(3,'0')}`};
+        await env.pool.query(`INSERT INTO missioncontrol_execution_permits(owner_id,permit_id,work_id,work_version,work_generation,permit_sha256,envelope)
+          VALUES($1,$2,$3,1,1,$4,$5)`,[env.owner,document.permitId,work.id,permitDigest(document),fixture.signPermit(document)]);
+      }
+      // A previously polled NO_CONTROL permit can acquire a remote revoke.
+      // Never-attempted arrivals must not indefinitely outrank its older poll.
+      const previouslyPolled=`fresh-${page}-100`;
+      await store.recordControlAttempt(previouslyPolled);
+      await env.pool.query(`UPDATE missioncontrol_control_attempts SET attempted_at=clock_timestamp()-interval '1 minute'
+        WHERE owner_id=$1 AND permit_id=$2`,[env.owner,previouslyPolled]);
+      requested.length=0;
+      const next=await pollMissionControlControls(new WorkStore(principal,database),controller,undefined,client);
+      expect(next.checked).toBe(100);expect(next.pageFull).toBe(true);
+      expect(requested.slice(0,50).every(id=>id.startsWith('fresh-'))).toBe(true);
+      expect(requested[0]).toBe(previouslyPolled);
+      expect(requested.slice(50).every(id=>!id.startsWith('fresh-'))).toBe(true);
+      for(const id of requested)if(id.startsWith('pending-'))retried.add(id);
+    }
+    expect(retried.size).toBe(101);
     expect((await env.svc.forWork(work.id))?.state).toBe('UNKNOWN');
     expect(await env.count('missioncontrol_control_acknowledgments')).toBe(1);
     expect(await env.count('external_alpha_cohort_admission')).toBe(1);expect(factory.posts).toBe(1);

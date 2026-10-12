@@ -106,7 +106,15 @@ export class MissionControlBindings {
   }
   async controlCandidates():Promise<string[]> {
     return this.atomic(async database=>{
-      const rows=await database.query(`SELECT p.permit_id FROM missioncontrol_execution_permits p
+      // A not-yet-observed control may be a fresh revoke. Check those permits
+      // first, but reserve half each full page for retained controls so a stream
+      // of new permits cannot starve pending cleanup or lost acknowledgments.
+      // Within each group, durable attempt time keeps unavailable peers rotating.
+      const rows=await database.query(`WITH candidates AS (
+        SELECT p.permit_id,p.created_at,attempt.attempted_at,
+          EXISTS(SELECT 1 FROM missioncontrol_permit_controls c
+            WHERE c.owner_id=p.owner_id AND c.permit_id=p.permit_id) AS retained_control
+        FROM missioncontrol_execution_permits p
         LEFT JOIN missioncontrol_control_attempts attempt ON attempt.owner_id=p.owner_id AND attempt.permit_id=p.permit_id
         WHERE p.owner_id=$1 AND ((p.envelope#>>'{document,expiresAt}')::bigint>extract(epoch FROM clock_timestamp())*1000
           OR EXISTS(SELECT 1 FROM external_alpha_work_authority a WHERE a.owner_id=p.owner_id AND a.work_id=p.work_id
@@ -116,7 +124,11 @@ export class MissionControlBindings {
               WHERE latest.owner_id=c.owner_id AND latest.permit_id=c.permit_id)
             AND NOT EXISTS(SELECT 1 FROM missioncontrol_control_acknowledgments a WHERE a.owner_id=c.owner_id
               AND a.permit_id=c.permit_id AND a.sequence=c.sequence AND a.control_digest=c.control_digest AND a.cleanup='CONFIRMED')))
-        ORDER BY attempt.attempted_at ASC NULLS FIRST,p.created_at,p.permit_id LIMIT 100`,[this.ownerId]);
+        ), ranked AS (
+          SELECT *,row_number() OVER(PARTITION BY retained_control
+            ORDER BY COALESCE(attempted_at,created_at),created_at,permit_id) AS ordinal FROM candidates
+        ) SELECT permit_id FROM ranked
+        ORDER BY (ordinal-1)/50,retained_control,ordinal LIMIT 100`,[this.ownerId]);
       return rows.map(row=>String(row.permit_id));
     });
   }
