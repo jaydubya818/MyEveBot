@@ -28,6 +28,7 @@ for(const role of ['ordinary','platform'] as const) {
     vi.stubEnv('NODE_ENV','development');vi.stubEnv('VERCEL','');vi.stubEnv('MYAPPS_LOCAL_INTEGRATION','1');
     const list=vi.fn(),policy=vi.fn();
     bindLocalApps({apps:{list} as unknown as Parameters<typeof bindLocalApps>[0]['apps'],policy});
+    expect(getCapability('tool.installed_apps',process.env)?.availability.status).toBe('disabled');
     expect((await handleInstalledApps(new Request('http://localhost/api/myapps/ui'),async()=>null)).status).toBe(401);
     expect(policy).not.toHaveBeenCalled();expect(list).not.toHaveBeenCalled();
     policy.mockResolvedValue({ownerId:'foreign-owner',kind:'human'});

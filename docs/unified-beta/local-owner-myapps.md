@@ -29,4 +29,6 @@ Open `/apps/installed`. Preview the release, review the retained Inbox decision,
 
 Sofie exposes Alpha Tasks only when the exact registered primary agent's current capability policy allows it. Execution repeats that check and canonical MyApps authorization. Partner, Routine, owner-channel, role, guest and subagent contexts do not gain this tool. The agent cannot approve an installation. This registration does not qualify the legacy CRM adapter or `/api/myapps/ui`; use the Alpha Tasks page and API. Unrelated Inbox actions continue to their existing consumer.
 
+An explicit legacy CRM binding continues to support its local web adapter. It does not make `tool.installed_apps` available in the real capability registry, so CRM through Sofie is unavailable in this beta. The retained CRM tool parser's mocked unit case verifies compatibility of input handling only; it is not a discovery or execution qualification. Do not bypass the registry or register the Alpha Tasks profile to enable CRM.
+
 Before any actual installation claim, qualify the real role, enrollment, source/profile and authenticated session; exercise installation, a task edit, update, rollback, cold restart, policy disable and UNKNOWN recovery. The shipped tests use public synthetic source and disposable databases. They do not authorize or certify a real installation.

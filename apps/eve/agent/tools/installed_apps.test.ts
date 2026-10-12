@@ -1,13 +1,17 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   enabled: true,
+  realRegistry: false,
   agentAllowed: true,
   owner: "owner-a",
   catalog: vi.fn(),
   operate: vi.fn(),
   sofie: vi.fn(),
 }));
-vi.mock('../../lib/capability-registry.ts',()=>({getCapability:()=>({availability:{status:state.enabled?'available':'disabled'}})}));
+vi.mock('../../lib/capability-registry.ts',async importOriginal=>{
+  const actual=await importOriginal<typeof import('../../lib/capability-registry.ts')>();
+  return {...actual,getCapability:(...args:Parameters<typeof actual.getCapability>)=>state.realRegistry?actual.getCapability(...args):{availability:{status:state.enabled?'available':'disabled'}}};
+});
 vi.mock('../../lib/agents.ts',()=>({effectiveCapability:()=>({allowed:state.agentAllowed})}));
 vi.mock('../lib/session-settings.ts',()=>({resolveSessionAgent:async()=>({id:'configured-agent'})}));
 vi.mock('../../lib/myapps/local-bootstrap.ts',()=>({ensureConfiguredLocalApps:()=>null}));
@@ -58,10 +62,18 @@ const id = "11111111-1111-4111-8111-111111111111",
 beforeEach(() => {
   vi.clearAllMocks();
   state.enabled = true;
+  state.realRegistry = false;
   state.agentAllowed = true;
   state.owner = "owner-a";
   state.catalog.mockResolvedValue([]);
   state.operate.mockResolvedValue({ status: "COMPLETED" });
+});
+afterEach(()=>vi.unstubAllEnvs());
+it('the real registry denies Sofie legacy CRM even when a local adapter is bound',async()=>{
+  state.realRegistry=true;
+  vi.stubEnv('NODE_ENV','test');vi.stubEnv('VERCEL','');vi.stubEnv('MYAPPS_LOCAL_INTEGRATION','1');
+  vi.stubEnv('MYAPPS_LOCAL_REGISTRATION',undefined);
+  expect(await tool()).toBeNull();expect(state.sofie).not.toHaveBeenCalled();
 });
 it('returns no executable resolver for a denied agent and rechecks policy after discovery',async()=>{
   state.agentAllowed=false;expect(await tool()).toBeNull();
@@ -162,7 +174,7 @@ it("rejects identity changes, role/guest/subagent callers, disabled hosts and fo
   await expect(t.execute(input, context())).rejects.toThrow("APP_UNAVAILABLE");
   expect(state.catalog).not.toHaveBeenCalled();
 });
-it("allows no install decision, arbitrary package or body-authored owner and preserves CRM requests", async () => {
+it("allows no install decision, arbitrary package or body-authored owner; retains the legacy parser under mocked availability", async () => {
   const t = await tool();
   for (const operation of [
     "install",

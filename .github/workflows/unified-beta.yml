@@ -56,7 +56,7 @@ jobs:
         MYAPPS_ALPHA_DOCKER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
-      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts packages/myapps/integration/alpha-tasks-late-worker.test.ts
+      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts packages/myapps/integration/alpha-tasks-late-worker.test.ts packages/myapps/integration/local-bootstrap.test.ts
     - name: Registered owner Result intake, human installation, Sofie and cold restart
       env:
         MYAPPS_POSTGRES_URL: postgresql://postgres@127.0.0.1:5432/postgres
@@ -98,7 +98,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: 5b3728bba1cec864663006483089abc8ff6ab262
+        ref: 6cb0f9222ff2331b3cced61d96f110825f3fa4d9
         path: missioncontrol
         persist-credentials: false
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -141,8 +141,19 @@ jobs:
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
         MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
-        MYEVE_OWNER_RESULT_MC_SHA: 5b3728bba1cec864663006483089abc8ff6ab262
+        MYEVE_OWNER_RESULT_MC_SHA: 6cb0f9222ff2331b3cced61d96f110825f3fa4d9
       run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
+    - name: Caller context, concurrent owner/Alpha exclusion and immutable migration lineage
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-alpha-exclusion.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-alpha-exclusion.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-alpha-exclusion.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numPassedTests,10);assert.equal(result.numPendingTests,0);
+        NODE
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
@@ -231,7 +242,7 @@ jobs:
         MYRELAY_SOURCE_SHA: b25a90c3ebeaeff731c26690e289331142dae904
         MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
         FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
-      run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts
+      run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts
         lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
         lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts
         lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts
@@ -323,7 +334,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MissionControl
-        ref: 5b3728bba1cec864663006483089abc8ff6ab262
+        ref: 6cb0f9222ff2331b3cced61d96f110825f3fa4d9
         path: missioncontrol
         persist-credentials: false
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa

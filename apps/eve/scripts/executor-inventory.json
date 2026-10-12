@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Installed MissionControl mode requires additive exact admission custody through0100; existing other installation schema requirements remain unchanged. Unified approved nonproduction requires additive0101 explicitowner-context assertions; historical installation requirements remain unchanged.",
-      "sha256": "74c0ee412dcf1cd61a8be4dc9cbb537af34c48e1184acbbf3ff0de8e54c5013e"
+      "reason": "Installed MissionControl mode requires additive exact admission custody through0100; existing other installation schema requirements remain unchanged. Unified approved nonproduction requires additive0101 explicitowner-context assertions; historical installation requirements remain unchanged. Additive0102 is the current explicitly enabled MissionControl schema; older installation rollout requirements remain unchanged.",
+      "sha256": "cd0b04b3fc882b214b4eb6540f574516931cb8a50ad7c116dbfd779e6efb7264"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -4462,8 +4462,8 @@
     },
     "lib/myapps/local-bootstrap.ts": {
       "classification": "ENFORCED",
-      "reason": "Default-inactive local owner bootstrap shares canonical Work/capability database and existing signed auth/Inbox/AlphaTasks runtime. Trusted content-addressed source intake reads bounded regular owned files with no symlinks, reconstructs exact signed candidate tree, and prepares canonical Result provenance without approving installation. Current custody/capability rechecked on effects. Cache detects changed/removed registration; unregistered startup has no IO. Local signed-session cold-start PostgreSQL and registry/source-store denial coverage pass.",
-      "sha256": "533ca0038d328402db73c118cffc7443f8c2d9b7b9d3dda2c86f346844376093"
+      "reason": "Default-inactive local owner bootstrap shares canonical Work/capability database and existing signed auth/Inbox/AlphaTasks runtime. Trusted content-addressed source intake reads bounded regular owned files with no symlinks, reconstructs exact signed candidate tree, and prepares canonical Result provenance without approving installation. Current custody/capability rechecked on effects. Cache detects changed/removed registration; unregistered startup has no IO. Local signed-session cold-start PostgreSQL and registry/source-store denial coverage pass. Clarifies that legacy local web bindings do not grant Sofie registry availability; implementation and grants unchanged.",
+      "sha256": "e053b35f39a8e6edad80a32ee4d8fa442b14f909b2ce89fc249787799d36fb0d"
     }
   }
 }

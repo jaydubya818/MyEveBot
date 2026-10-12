@@ -46,8 +46,8 @@ export function createLocalOwnerApps(pool:GoalPool,config:Configuration) {
     if(!localAppsAllowed()||ownerId!==config.ownerId)throw Error('APP_UNAVAILABLE');
     return {ownerId,actorId:ownerId,kind:'human' as const,allowedOperations:['apps.read','apps.manage','apps.install','apps.run']};
   };
-  // This registration qualifies Alpha Tasks only. Existing explicitly bound CRM
-  // compositions remain supported, but no unverified CRM intake is enabled here.
+  // This registration qualifies Alpha Tasks only. Explicit legacy bindings still
+  // serve their local web adapter, but do not grant Sofie registry availability.
   const apps=new PersistentApps(pool,{runtimeId:config.runtimeId,target:config.target,enabled:()=>false,
     verifyResult:async()=>{throw Error('APP_RUNTIME_UNQUALIFIED');}});
   return {apps,alphaTasks,policy,legacyAvailable:false,async prepareResult(resultId:string,version:number){

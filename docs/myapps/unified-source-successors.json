@@ -6,6 +6,6 @@
   "missionControlAuthority": "053751d5aa065c396bf0fdec6a67fd0259e8431c",
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
-  "migration": "0101_missioncontrol_assertion_owner_context.sql",
+  "migration": "0102_missioncontrol_owner_alpha_exclusion.sql",
   "scope": "Explicit reviewed-source comparisons; historical pins and accounting SQL remain unchanged. Source identity does not grant deployment or execution authority."
 }
