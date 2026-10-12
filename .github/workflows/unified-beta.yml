@@ -179,7 +179,7 @@ jobs:
         MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
         MYEVE_OWNER_RESULT_MC_SHA: b2b1958f28e8aae2b2c24089534e4c40cbe890cb
       run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
-    - name: Caller context, concurrent owner/Alpha exclusion and immutable migration lineage
+    - name: Caller context, owner/Alpha and legacy isolation, immutable migration lineage
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
       run: |
@@ -189,6 +189,17 @@ jobs:
         import {readFileSync} from 'node:fs';
         const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-alpha-exclusion.json','utf8'));
         assert.equal(result.success,true);assert.equal(result.numPassedTests,18);assert.equal(result.numPendingTests,0);
+        NODE
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-legacy-isolation.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-legacy-isolation.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,23);assert.equal(result.numPassedTests,23);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,23);
+        assert.ok(result.testResults[0].name.endsWith('/apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts'));
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
         NODE
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
