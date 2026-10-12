@@ -159,7 +159,12 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await expect(env.pool.query('DELETE FROM missioncontrol_owner_work_origins WHERE owner_id=$1',[env.owner])).rejects.toThrow('MISSIONCONTROL_ORIGIN_IMMUTABLE');
     expect(await env.count('engineering_route_runs')).toBe(0);
     expect(await env.count('missioncontrol_execution_permits')).toBe(0);
-    await expect(env.pool.query('INSERT INTO external_alpha_work_authority(owner_id,work_id) VALUES($1,$2)',[env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
+    await expect(env.pool.query('INSERT INTO external_alpha_work_authority(owner_id,work_id) VALUES($1,$2)',[env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_CONTEXT_REQUIRED');
+    const client=await env.pool.connect();
+    try{
+      await client.query('BEGIN');await client.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[env.owner]);
+      await expect(client.query('INSERT INTO external_alpha_work_authority(owner_id,work_id) VALUES($1,$2)',[env.owner,x.work.id])).rejects.toThrow('MISSIONCONTROL_OWNER_ROUTE_REQUIRED');
+    }finally{await client.query('ROLLBACK');client.release();}
   });
   it('fails closed on missing exact owner metadata and changed qualified configuration',async()=>{
     const x=await ownerFixture();
