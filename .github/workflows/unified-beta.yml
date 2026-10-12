@@ -53,7 +53,7 @@ jobs:
         MYAPPS_ALPHA_DOCKER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_TEST: '1'
         MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
-      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts
+      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
@@ -118,7 +118,7 @@ jobs:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
       run: |
         mkdir -p "$RUNNER_TEMP/composed-admission"
-        node --test scripts/composed-admission/cleanup.test.mjs
+        node --test scripts/composed-admission/*.test.mjs
         COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard.json" node --import tsx scripts/composed-admission/journey.mts
         COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown.json" node --import tsx scripts/composed-admission/journey.mts
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
