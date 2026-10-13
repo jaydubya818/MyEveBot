@@ -10,7 +10,7 @@ export function workState(work: EngineeringWorkerProjection, publication: Public
   const display = ownerWorkPresentation(work);
   if (display.status === 'Outcome unconfirmed') return {lane:'Needs You', detail:display.summary};
   if (display.status === 'Stopped') return {lane:'Stopped',detail:display.summary};
-  if (display.status === 'Couldn’t complete' || display.status === 'Needs You') return {lane:'Needs You',detail:display.summary};
+  if (display.status === 'Couldn’t complete' || display.status === 'Needs You' || display.status === 'Not admitted') return {lane:'Needs You',detail:display.summary};
   if (work.externalAlpha?.result?.current && display.status === 'Verified candidate') return {lane:'Ready',detail:display.summary};
   if (work.lifecycle === 'accepted') return {lane:'Completed',detail:'Accepted'};
   if (work.lifecycle === 'cancelled' || work.lifecycle === 'superseded') return {lane:'Completed',detail:work.lifecycle === 'cancelled' ? 'Cancelled' : 'Superseded'};

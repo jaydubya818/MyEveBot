@@ -20,11 +20,27 @@ describe('owner Work presentation never upgrades authority or stale evidence',()
  it('a conflicting duplicate criterion is not a pass',()=>{const p=ownerWorkPresentation(fixture({nativeResult:{...result,proof:{...result.proof,evidence:[...result.proof.evidence,{...result.proof.evidence[0],state:'FAIL'}]}}}));expect(p.verified).toBe(false);expect(p.checksTotal).toBe(1);expect(p.checksPassed).toBe(0);});
  it('zero recorded checks never means verified',()=>expect(ownerWorkPresentation(fixture({nativeResult:{...result,proof:{...result.proof,evidence:[]}}})).verified).toBe(false));
  it('all current Work criteria must have passing evidence',()=>{const p=ownerWorkPresentation(fixture({criteria:[{id:'criterion-a',statement:'First',method:'test'},{id:'criterion-b',statement:'Second',method:'test'}],nativeResult:result}));expect(p.checksTotal).toBe(2);expect(p.checksPassed).toBe(1);expect(p.verified).toBe(false);});
- it('UNKNOWN overrides retained verification',()=>expect(ownerWorkPresentation(fixture({nativeResult:result,externalAlpha:{state:'UNKNOWN'} as any})).status).toBe('Outcome unconfirmed'));
+ it('UNKNOWN overrides retained verification without deleting the retained Proof',()=>{
+  const work=fixture({nativeResult:result,externalAlpha:{state:'UNKNOWN'} as any});
+  expect(ownerWorkPresentation(work)).toMatchObject({status:'Outcome unconfirmed',verified:false,currentResult:false,checksPassed:0,checksTotal:0});
+  expect(work.nativeResult).toBe(result);
+ });
  it('reserved unknown model usage is not working or success',()=>expect(ownerWorkPresentation(fixture({nativeResult:result,nativeRuntime:{usageUnknown:true,inflight:true} as any})).status).toBe('Outcome unconfirmed'));
  it('a paused Work is stopped rather than queued execution',()=>expect(ownerWorkPresentation(fixture({control:'paused'})).status).toBe('Stopped'));
  it('an issued external request does not prove current liveness',()=>expect(ownerWorkPresentation(fixture({externalAlpha:{state:'ISSUED'} as any})).status).toBe('Queued'));
  it('a confirmed active run is working',()=>expect(ownerWorkPresentation(fixture({runTruth:{activeRun:{id:'run'}} as any})).status).toBe('Working'));
+ it('a definite admission decline is not queued, working or a verified Result',()=>{
+  const work=fixture({status:'Not admitted',nativeResult:result,runTruth:{activeRun:{id:'historical-run'}} as any});
+  expect(ownerWorkPresentation(work)).toMatchObject({status:'Not admitted',tone:'attention',verified:false,currentResult:false,checksPassed:0,checksTotal:0});
+  expect(ownerWorkPresentation(work).summary).toContain('reservation stays held');
+  expect(workState(work)).toMatchObject({lane:'Needs You',detail:ownerWorkPresentation(work).summary});
+  expect(work.nativeResult).toBe(result);
+ });
+ it('UNKNOWN accounting retains precedence over a definite decline',()=>{
+  const work=fixture({status:'Not admitted',nativeRuntime:{usageUnknown:true,inflight:true} as any});
+  expect(ownerWorkPresentation(work).status).toBe('Outcome unconfirmed');
+  expect(workState(work).lane).toBe('Needs You');
+ });
  it('a current verification request is verifying',()=>expect(ownerWorkPresentation(fixture({nativeDevelopment:{current:true,phase:'VERIFICATION_REQUESTED'} as any})).status).toBe('Verifying'));
  it('verified private partial results are ready for review, not completed',()=>expect(workState(fixture({nativeResult:result,externalAlpha:{result:{current:true}} as any})).lane).toBe('Ready'));
  it('a decision takes precedence over a verified result',()=>expect(workState(fixture({nativeResult:result,externalAlpha:{result:{current:true}} as any,pendingDecisions:['decision']})).lane).toBe('Needs You'));

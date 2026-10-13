@@ -11,7 +11,8 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
  const lock=useRef(false),freshRead=useRef<EngineeringWorkerProjection|null>(null);
  useEffect(()=>{if(freshRead.current&&freshRead.current!==work){freshRead.current=null;lock.current=false;setBusy(false);setError('');}},[work]);
  const view=ownerWorkPresentation(work);
- const operation=work.lifecycle==='active'&&!work.externalAlpha&&view.status!=='Outcome unconfirmed'&&!view.currentResult&&!work.attention&&!work.pendingDecisions.length
+ const terminalAdmission=view.status==='Not admitted'||work.status==='Needs reconciliation';
+ const operation=work.lifecycle==='active'&&!work.externalAlpha&&!terminalAdmission&&view.status!=='Outcome unconfirmed'&&!view.currentResult&&!work.attention&&!work.pendingDecisions.length
   ? work.control==='paused'?'resume':work.control==='agent'?'pause':null
   // Alpha: a running Work fences paid chat turns, so the owner stops it here, without a Sofie turn.
   : work.lifecycle==='active'&&work.externalAlpha&&!work.externalAlpha.result&&!work.externalAlpha.factoryOutcome&&work.externalAlpha.state==='CONSUMED'?'stop':null;
@@ -30,6 +31,6 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
   {message&&<p role="status">{message}</p>}
   {error&&<div role="alert"><p>{error}</p><button onClick={()=>{freshRead.current=work;onRefresh();}}>Refresh Work</button></div>}
   <div className="owner-actions">{operation&&<button disabled={busy} onClick={()=>void change()}>{busy?'Saving…':operation==='stop'?'Stop Work':operation==='resume'?'Resume Work':'Pause Work'}</button>}<Link href={`/chat?work=${encodeURIComponent(work.workId)}`}>Discuss with Sofie →</Link></div>
-  <p className="owner-muted">{work.externalAlpha || view.currentResult ? 'Open a conversation about this Work to review the outcome and next steps.' : 'Open a conversation about this Work to review the outcome or ask Sofie to continue.'}</p>
+  <p className="owner-muted">{terminalAdmission ? 'Discuss the retained terminal receipt with Sofie. Its reservation remains held; do not retry this preparation.' : work.externalAlpha || view.currentResult || view.status==='Outcome unconfirmed' ? 'Open a conversation about this Work to review the outcome and next steps.' : 'Open a conversation about this Work to review the outcome or ask Sofie to continue.'}</p>
  </section>;
 }

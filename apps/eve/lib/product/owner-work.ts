@@ -1,6 +1,6 @@
 import type { EngineeringWorkerProjection } from '../engineering/worker-projection.ts';
 
-export type OwnerWorkStatus = 'Queued' | 'Working' | 'Verifying' | 'Needs You' | 'Completed' | 'Verified candidate' | 'Couldn’t complete' | 'Stopped' | 'Outcome unconfirmed';
+export type OwnerWorkStatus = 'Queued' | 'Working' | 'Verifying' | 'Needs You' | 'Completed' | 'Verified candidate' | 'Couldn’t complete' | 'Stopped' | 'Outcome unconfirmed' | 'Not admitted';
 export interface OwnerWorkPresentation {
   status: OwnerWorkStatus;
   tone: 'neutral' | 'active' | 'attention' | 'success' | 'warning';
@@ -24,7 +24,9 @@ export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerW
   const base = { verified, checksPassed, checksTotal, currentResult };
   const state = (status: OwnerWorkStatus, tone: OwnerWorkPresentation['tone'], summary: string) => ({ ...base, status, tone, summary });
   if (work.externalAlpha?.state === 'UNKNOWN' || work.conversationRuntime?.usageUnknown || work.nativeRuntime?.usageUnknown || work.status === 'Needs reconciliation')
-    return state('Outcome unconfirmed', 'warning', 'The outcome could not be confirmed. Review the retained details before any further action.');
+    return { ...state('Outcome unconfirmed', 'warning', 'The outcome could not be confirmed. Review the retained details before any further action.'), verified: false, currentResult: false, checksPassed: 0, checksTotal: 0 };
+  if (work.status === 'Not admitted')
+    return { ...state('Not admitted', 'attention', 'Factory confirmed that this request was not admitted. Its reservation stays held.'), verified: false, currentResult: false, checksPassed: 0, checksTotal: 0 };
   if (work.lifecycle === 'cancelled' || work.lifecycle === 'superseded' || work.control === 'stopping' || work.externalAlpha?.factoryOutcome === 'CANCELLED')
     return state('Stopped', 'neutral', work.lifecycle === 'superseded' ? 'This Work was replaced. Its history is preserved.' : 'This Work has stopped or is stopping. Its history is preserved.');
   if (work.lifecycle === 'failed' || work.externalAlpha?.factoryOutcome === 'FAILED' || work.nativeResult?.current && work.nativeResult.proof.outcome === 'FAILED')
