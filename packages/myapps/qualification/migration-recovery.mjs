@@ -44,15 +44,15 @@ for (const entry of historical.files) {
 assert.equal(result.historical.length, 103);
 const migrations = await loadMigrations(pathToFileURL(join(eve, 'apps/eve/migrations/')));
 // The historical catalog remains byte-for-byte frozen. This separately reviewed
-// supplement qualifies only the twelve new additive unified-beta migrations.
+// supplement qualifies only the fourteen new additive unified-beta migrations.
 const supplementBytes=readFileSync(new URL('./unified-migration-supplement.json',import.meta.url));
 const supplement=JSON.parse(supplementBytes);
 assert.equal(supplement.schema,'unified-beta-migration-supplement/v1');
-assert.equal(supplement.files.length,12);
+assert.equal(supplement.files.length,14);
 assert.deepEqual(migrations.slice(89).map(({name,checksum})=>({name,sha256:checksum})),supplement.files);
 result.supplementSha256=sha(supplementBytes);
-assert.equal(migrations.length, 101, 'Review any new application migration explicitly');
-assert.equal(migrations.at(-1).name, '0105_myapps_execution_admission.sql');
+assert.equal(migrations.length, 103, 'Review any new application migration explicitly');
+assert.equal(migrations.at(-1).name, '0107_factory_preparation_generation_guard.sql');
 assert.equal(new Set(migrations.map(m => m.name.slice(0, 4))).size, migrations.length);
 const expected = migrations.map(({ name, checksum }) => ({ name, checksum }));
 assert.throws(() => planMigrations(migrations, [expected[1]]), /Noncontiguous/);
@@ -120,7 +120,7 @@ try {
   await migrate(fresh.client);
   assert.deepEqual(await ledger(fresh.client), expected);
   const freshSchema = schema(fresh.name);
-  check('fresh ordered application ledger and all historical checksums', { application: migrations.length, factory: 12, central: 2 });
+  check('fresh ordered application ledger and all historical checksums', { application: migrations.length, factory: 14, central: 2 });
   check('duplicate, noncontiguous and unsupported Phase 2 ledger identities are rejected');
   const originalLedger = (await fresh.client.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
   await migrate(fresh.client);
@@ -227,22 +227,24 @@ try {
   check('checksum corruption and reconciled ownership schema drift fail closed');
 
   const factoryNames = readdirSync(join(factory, 'apps/cloud-control/migrations')).filter(n => n.endsWith('.sql')).sort();
-  assert.equal(factoryNames.length, 12);
+  assert.equal(factoryNames.length, 14);
   for (const name of factoryNames) await driver(fresh.client).transaction([{ sql: readFileSync(join(factory, 'apps/cloud-control/migrations', name), 'utf8') }]);
   assert.equal((await fresh.client.query('SELECT environment FROM factory.environment')).rows[0].environment, 'staging');
   assert.equal((await fresh.client.query('SELECT count(*)::int n FROM factory.external_alpha_host_registration')).rows[0].n, 0);
   assert.equal((await fresh.client.query('SELECT count(*)::int n FROM factory.production_work_authority')).rows[0].n, 0);
   assert.deepEqual(await ledger(fresh.client), expected);
-  check('all 12 Factory schemas coexist with application schema without authority or host registration');
+  check('all 14 Factory schemas coexist with application schema without authority or host registration');
   const factorySchema = schema(fresh.name), factoryRows = await snapshot(fresh.client);
   // Migration 012 contains non-idempotent DDL. Atomic replay rejects duplication,
   // and interruption cannot leave a partially applied host-registration boundary.
-  const factoryLast = readFileSync(join(factory, 'apps/cloud-control/migrations', factoryNames.at(-1)), 'utf8');
+  const factoryBoundary = '012-external-alpha-host-registration.sql';
+  assert(factoryNames.includes(factoryBoundary), 'Factory host-registration boundary migration required');
+  const factoryLast = readFileSync(join(factory, 'apps/cloud-control/migrations', factoryBoundary), 'utf8');
   await assert.rejects(driver(fresh.client).transaction([{ sql: factoryLast }]), /already exists/);
   assert.equal(schema(fresh.name), factorySchema);
   assert.deepEqual(await snapshot(fresh.client), factoryRows);
   const factoryUpgrade = await create('factory');
-  for (const name of factoryNames.slice(0, -1)) await driver(factoryUpgrade.client).transaction([{ sql: readFileSync(join(factory, 'apps/cloud-control/migrations', name), 'utf8') }]);
+  for (const name of factoryNames.slice(0, factoryNames.indexOf(factoryBoundary))) await driver(factoryUpgrade.client).transaction([{ sql: readFileSync(join(factory, 'apps/cloud-control/migrations', name), 'utf8') }]);
   const factoryBefore = schema(factoryUpgrade.name), factoryPreviousRows = await snapshot(factoryUpgrade.client);
   await assert.rejects(driver(factoryUpgrade.client).transaction([{ sql: factoryLast }, { sql: 'SELECT myapps_deliberate_factory_failure()' }]), /myapps_deliberate_factory_failure/);
   assert.equal(schema(factoryUpgrade.name), factoryBefore);

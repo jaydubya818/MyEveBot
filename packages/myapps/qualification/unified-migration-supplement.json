@@ -49,6 +49,14 @@
     {
       "sha256": "24a067d2362da34ee2cee7f9f9c78a05b533d377865d8ef202a29c92c5933875",
       "name": "0105_myapps_execution_admission.sql"
+    },
+    {
+      "name": "0106_factory_preparation_terminal.sql",
+      "sha256": "8e4cc0122c5c53e8cc2910c5f8c477a9c2621b21fc1670d2d651e05ae8c741fc"
+    },
+    {
+      "name": "0107_factory_preparation_generation_guard.sql",
+      "sha256": "0915d5b8325218910e1edef47b09847b1a9a5c894a3448330d3644fb2a1db336"
     }
   ]
 }

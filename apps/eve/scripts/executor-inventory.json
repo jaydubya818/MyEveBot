@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Only explicitly enabled approved nonproduction MissionControl mode advances to additive0105 immutable MyApps execution-admission custody. Reviewed0103/0104 READ COMMITTED requirements, historical installation schema requirements and all rollout conditions remain unchanged.",
-      "sha256": "e840c13f445a137d42c2f0935e1d78f51ac1992ce941c3d9a57ba27d18aafd98"
+      "reason": "Only explicitly enabled approved nonproduction MissionControl mode advances to additive0105 immutable MyApps execution-admission custody. Reviewed0103/0104 READ COMMITTED requirements, historical installation schema requirements and all rollout conditions remain unchanged. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): additive 0106/0107 preparation-terminal and generation-guard catalog entries; no rollout condition weakened.",
+      "sha256": "7f0157320291435bc931c594202f944716316cfb655c5954afb07830717b503e"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3504,8 +3504,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "e258bbff032a4842d4af04bbb19ae47d9adf393aa324485798c43eac8e135ee6"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): projection surfaces the most recent terminal for the current generation across work_version (M1 closure); read-only.",
+      "sha256": "f1e0398f1b9adcc6b5e531915263cd1a404cb342204d263c77c84cb49d2ea87d"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3610,13 +3610,13 @@
     },
     "lib/engineering/factory-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
-      "sha256": "5b45ee139bf54e0d889a3c231b76097d8bf3bb040af2d5f65220836f8e0bcbe4"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): owner constructor wires FactoryCapabilityClient with sourcePermit/relayPermit callbacks; no paid dispatch enabled.",
+      "sha256": "66d2fb6b66bd736c53f7e918a88a8913ea9930c75fb6d7f7470de8cf0267e48f"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "3f5a6951c5087f0e50e3bff224d7abba59b29ca54341b624e98a29c1031b56ff"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): unsigned legacy prepare path excluded for a receiver-enrolled Factory; capability client mandatory (M3 closure).",
+      "sha256": "05cd58d74a70e68d898c51551b624e646f418d4019483bf44b16525f1e820c3b"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3630,8 +3630,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass.",
-      "sha256": "f71c55f3722511fb3c7de2ee0764deeada6cc3712cd6fb2b14ea29c281cbf1cf"
+      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): sealed terminal is Work/generation-scoped; a version bump cannot reopen preparation (M1 closure); ADMISSION_UNCERTAIN requires an explicit new generation.",
+      "sha256": "b2ffe3790f79400192065e90ce89eec734eebb653faa56ac4e5148d0e6e2deb0"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3946,8 +3946,8 @@
     },
     "lib/product/work-state.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "8d64f792331fecb584b42661a09e7db631c64a26ed63f5efde2ac0f5b3011484"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal state surfaced read-only across versions; no transition authority added.",
+      "sha256": "3406631ef50a1e965571a076f64c8b2f45ed5371ec88c17edc6221b0a908185d"
     },
     "lib/product/work-inbox.ts": {
       "classification": "READ_ONLY",
@@ -4226,8 +4226,8 @@
     },
     "lib/product/owner-work.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "59c0b043039f2a2618ca41c17847ed6e4c5c53eefaf19f2c0160e03cf3f53d00"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal HOLD/decline/UNKNOWN readback presentation only; no release or dispatch authority added.",
+      "sha256": "f1116f39aa2f0f4a2b616b6c7cf915e3cc226da16302d381ef823b39e18820b0"
     },
     "agent/tools/installed_apps.ts": {
       "classification": "ENFORCED",
@@ -4382,8 +4382,8 @@
     },
     "lib/missioncontrol/admit-execution.ts": {
       "classification": "ENFORCED",
-      "reason": "Configured owner adapter reuses canonical Factory admission, signed Mission permit/challenge, Relay lease and current capability. Explicit enrollment lookup permits unchanged query-only legacy behavior only for truly unenrolled owners; all enrolled owners require an atomic transaction. No RLS-hidden origin interpreted as absent, implicit enrollment or new ledger.",
-      "sha256": "32c4d33a22206d54ffe752e59aa6d8f57315542fa4bef052fa0bfd858a0a9633"
+      "reason": "Configured owner adapter reuses canonical Factory admission, signed Mission permit/challenge, Relay lease and current capability. Explicit enrollment lookup permits unchanged query-only legacy behavior only for truly unenrolled owners; all enrolled owners require an atomic transaction. No RLS-hidden origin interpreted as absent, implicit enrollment or new ledger. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): enrolled-Factory admission requires the capability client; the no-client form is rejected for a receiver-enrolled configuration (M3 closure).",
+      "sha256": "0790ebfede70694eddfe3584166a4755c881d5224020c83205d094f5586bf0ac"
     },
     "lib/missioncontrol/relay-lease-client.ts": {
       "classification": "ENFORCED",
@@ -4484,6 +4484,26 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Pure static HTML wrapper. Leading restrictive CSP and empty iframe sandbox prohibit scripts and network loads; no execution/provider authority. Actual Chromium exfiltration regression and independent meta-refresh probe.",
       "sha256": "2932411e47ffc43e33d68cc91220dcaf0aafe985972e1d265e5721fc08b2bf9b"
+    },
+    "lib/engineering/factory-capability-client.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owned Factory capability transport: signed MissionControl-derived challenge and Factory PERMIT exchange for one retained preparation; strict signed terminal readback before any challenge; a sealed or readback terminal aborts before any permit. No publication, release, settlement or paid authority. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "sha256": "1163e87d505626d20f5ec6a8316b25bf7ff761a2e3a92a20a08d9da4842fee24"
+    },
+    "lib/engineering/factory-capability-source.ts": {
+      "classification": "ENFORCED",
+      "reason": "Capability issuer: rebuilds the challenge from the retained preparation and the verified MissionControl permit, binds the backend-specific policy destination and approved expiry, and refuses when a terminal is sealed for the Work/generation. Issues no authority beyond the verified permit; no reservation effect. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "sha256": "752c0a9296d8d5adda1c0669eac21e62fe9113a68f553594d06239c0bf0359b6"
+    },
+    "lib/engineering/factory-preparation-terminal.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Strict terminal domain: exact-field signed receipt parse and expected-binding equality (requestId/owner/FactoryVersion/Work/generation); ADMISSION_UNCERTAIN requires RESTORE_OR_COMMIT_AMBIGUITY; settlement/RELEASED fields rejected. Pure validation; no execution, dispatch or accounting effect. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "sha256": "3cd9f735e6176306db5e4b3ac67044a018b0d27695cbabad3d4d74e29973a150"
+    },
+    "lib/engineering/factory-relay-lease-client.ts": {
+      "classification": "INTERNAL",
+      "reason": "Relay lease pairing for an owned Factory attempt: Relay PERMIT verified with relayKey and sourcePermitHash, maxCalls 1, idempotency per source hash, enrollment-scoped approval/reservation references attached unchanged. Relay owns the reservation lifecycle; no MyEve release, refund or settlement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "sha256": "c93f314e34eb3d85dfc4a3be7322ab4bcfab6725586685b2b78446fe5c1a86e7"
     }
   }
 }
