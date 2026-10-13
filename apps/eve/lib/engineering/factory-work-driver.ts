@@ -245,7 +245,17 @@ export class FactoryWorkDriver {
   }
  }
  async stop(id:string,reason:'cancel'|'takeover'='cancel'){
-  const work=await this.store.get(id),retained=await factoryPreparationForGeneration(this.store,id,work.generation);
+  const work=await this.store.get(id);
+  // Legacy duplicate preparation metadata cannot disable a uniquely bound
+  // retained writer's stop. Scope and original writer identity are revalidated
+  // by stopRun; ambiguity never chooses or broadens execution authority.
+  const runs=await this.store.database.query(`SELECT r.id FROM engineering_route_runs r
+    JOIN engineering_routing_decisions d ON d.id=r.decision_id AND d.scope_id=r.scope_id AND d.scope_kind=r.scope_kind AND d.work_id=r.work_id
+    WHERE r.scope_id=$1 AND r.scope_kind=$2 AND r.work_id=$3 AND d.factory_preparation#>>'{request,workGeneration}'=$4 LIMIT 2`,
+    [...this.scope(id),String(work.generation)]);
+  if(runs.length>1)throw new WorkError('factory_writer_conflict','Multiple retained writers require reconciliation before choosing a stop target.');
+  if(runs[0])return this.stopRun(id,runs[0].id,reason);
+  const retained=await factoryPreparationForGeneration(this.store,id,work.generation);
   if(retained?.factory_preparation?.terminal)return {state:retained.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
   const decision=await this.decision(id);if(!decision?.factory_preparation)throw new WorkError('factory_prepare_missing','No Factory preparation exists.');
   const [row]=await this.store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);

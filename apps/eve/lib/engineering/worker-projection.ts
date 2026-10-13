@@ -22,6 +22,8 @@ export interface EngineeringWorkerProjection {
   factoryAccounting?:FactorySpendSummary;
   journeyAccounting?:JourneyAccounting;
   factoryPreparation?: {requestId:string;state:string;blocker:string|null};
+  factoryReservationHolds?: {requestId:string;generation:number;state:string;accounting:'HOLD'}[];
+  factoryReservationHistoryIncomplete?:boolean;
   factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary}};
   workId: string;
   title: string;
@@ -153,7 +155,7 @@ export class EngineeringWorkerProjectionStore {
     const [completionFunction]=await this.workStore.database.query(
       "SELECT to_regprocedure('engineering_completion_remaining(text,uuid)') AS present");
     const holdExpression=completionFunction?.present ? "engineering_completion_remaining(b.scope_id,b.work_id)" : "NULL::bigint";
-    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows, preparationRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows, preparationRows, heldPreparationRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -222,7 +224,22 @@ export class EngineeringWorkerProjectionStore {
         `SELECT factory_preparation,factory_observation FROM engineering_routing_decisions
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation#>>'{request,workGeneration}'=$4
            AND factory_preparation IS NOT NULL ORDER BY (factory_preparation ? 'terminal') DESC,created_at DESC LIMIT 1`,[...scope,String(work.generation)]),
+      this.workStore.database.query(
+        `SELECT factory_preparation AS held_preparation FROM engineering_routing_decisions
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation ? 'terminal'
+         ORDER BY created_at DESC LIMIT 129`,scope),
     ]);
+    let factoryReservationHistoryIncomplete=heldPreparationRows.length>128;
+    const factoryReservationHolds:NonNullable<EngineeringWorkerProjection['factoryReservationHolds']>=[];
+    for(const row of heldPreparationRows.slice(0,128)){
+      try{
+        const terminal=row.held_preparation.terminal;
+        factoryTerminalActivity(terminal); // retained immutable HOLD, not authority
+        if(terminal.receipt.workId!==id||terminal.receipt.ownerId!==this.workStore.principal.scopeId)throw Error('FACTORY_HOLD_SCOPE');
+        factoryReservationHolds.push({requestId:String(terminal.receipt.requestId),generation:Number(terminal.receipt.generation),
+          state:String(terminal.receipt.outcome),accounting:'HOLD'});
+      }catch{factoryReservationHistoryIncomplete=true;}
+    }
     const accounting=conversationRows[0];
     const ceilingUsd=Math.min(work.maxCostUsd,Number(accounting?.ceiling_microusd??work.maxCostUsd*1_000_000)/1_000_000);
     const heldUsd=accounting?.held_microusd!=null ? Number(accounting.held_microusd)/1_000_000 : completionFunction?.present && !accounting ? 0 : null;
@@ -490,7 +507,7 @@ export class EngineeringWorkerProjectionStore {
     const projection: EngineeringWorkerProjection = {
       externalAlpha,
       publicationReadback,
-      journeyAccounting,factoryAccounting,factoryPreparation, factoryWriter, runTruth,
+      journeyAccounting,factoryAccounting,factoryPreparation,factoryReservationHolds,factoryReservationHistoryIncomplete, factoryWriter, runTruth,
       verification: externalAlpha?.result ? { candidateSha: externalAlpha.result.candidateSha, status: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,
         jobStatus: "RETAINED", evidenceCount: externalAlpha.result.proof.evidence.length, evidenceHashes: externalAlpha.result.proof.artifactRefs.filter(r => r.startsWith("factory-evidence:")) } : verification,
       draft, completionBudget, candidateHistory: externalAlpha?.result ? [{ sha: externalAlpha.result.candidateSha, checks: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,

@@ -28,6 +28,8 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
   }catch{setError('The change was not confirmed. Refresh Work before trying again.');}
  }
  return <section aria-label="Work actions" className="owner-card">
+  {work.factoryReservationHolds?.some(hold=>hold.generation<work.workGeneration)&&<p role="status">Earlier Factory requests still hold their reservations. Review them with Sofie.</p>}
+  {work.factoryReservationHistoryIncomplete&&<p role="status">Some earlier reservation records need reconciliation. Discuss them with Sofie.</p>}
   {message&&<p role="status">{message}</p>}
   {error&&<div role="alert"><p>{error}</p><button onClick={()=>{freshRead.current=work;onRefresh();}}>Refresh Work</button></div>}
   <div className="owner-actions">{operation&&<button disabled={busy} onClick={()=>void change()}>{busy?'Saving…':operation==='stop'?'Stop Work':operation==='resume'?'Resume Work':'Pause Work'}</button>}<Link href={`/chat?work=${encodeURIComponent(work.workId)}`}>Discuss with Sofie →</Link></div>
