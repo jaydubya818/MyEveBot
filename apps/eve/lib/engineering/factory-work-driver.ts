@@ -1,4 +1,4 @@
-import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal} from './factory-preparation-terminal.ts';
+import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal,factoryPreparationForGeneration} from './factory-preparation-terminal.ts';
 import {pollOwnerFactoryWorkControl} from '../missioncontrol/owner-control-runtime.ts';
 import {requestOwnerFactoryAdmission} from '../missioncontrol/admit-execution.ts';
 import {productionCloudConfiguration} from './production-runtime-guard.ts';
@@ -55,6 +55,7 @@ export class FactoryWorkDriver {
   const work=await this.store.get(id),config=await this.authority.readConfig();
   const repairWorkOrderId=repairWorkOrderFor(config.connection,work);
   if(work.version!==expectedVersion||work.generation!==expectedGeneration)throw new WorkError('factory_work_changed','Select the current Work revision.');
+  if(await factoryPreparationForGeneration(this.store,id,work.generation))return this.step(id);
   let decision=await this.decision(id);
   if(decision?.work_version===work.version&&decision.factory_preparation)return this.step(id);
   const snapshot=await this.authority.assess(work),request={route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]};
@@ -99,6 +100,9 @@ export class FactoryWorkDriver {
   return this.step(id);
  }
  async step(id:string){
+  const work=await this.store.get(id),generationPreparation=await factoryPreparationForGeneration(this.store,id,work.generation);
+  if(generationPreparation?.factory_preparation?.terminal)return {state:generationPreparation.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
+  if(generationPreparation&&generationPreparation.work_version!==work.version)return {state:'HISTORICAL',accounting:'HOLD'};
   await pollOwnerFactoryWorkControl(this.store,this,id);
   const retained=await this.decision(id);
   if(retained?.factory_preparation?.terminal)return {state:retained.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
@@ -226,7 +230,7 @@ export class FactoryWorkDriver {
    return {state:result.proof.outcome,result};
   }catch(error){
    if(error instanceof FactoryPreparationTerminalReceived){
-    await sealFactoryPreparationTerminal(store,decision,error);
+    await sealFactoryPreparationTerminal(store,decision,error,adapter.terminalVerification(preparation.request));
     return {state:error.receipt.outcome,accounting:'HOLD'};
    }
    if(error instanceof EvidenceWaiting&&!decision.factory_preparation.validationProtocol){
@@ -241,6 +245,8 @@ export class FactoryWorkDriver {
   }
  }
  async stop(id:string,reason:'cancel'|'takeover'='cancel'){
+  const work=await this.store.get(id),retained=await factoryPreparationForGeneration(this.store,id,work.generation);
+  if(retained?.factory_preparation?.terminal)return {state:retained.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
   const decision=await this.decision(id);if(!decision?.factory_preparation)throw new WorkError('factory_prepare_missing','No Factory preparation exists.');
   const [row]=await this.store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
   if(!row&&decision.factory_preparation.terminal)return {state:decision.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};

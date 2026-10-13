@@ -220,8 +220,8 @@ export class EngineeringWorkerProjectionStore {
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
       this.workStore.database.query(
         `SELECT factory_preparation,factory_observation FROM engineering_routing_decisions
-         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND work_version=$4
-           AND factory_preparation IS NOT NULL ORDER BY created_at DESC LIMIT 1`,[...scope,work.version]),
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation#>>'{request,workGeneration}'=$4
+           AND factory_preparation IS NOT NULL ORDER BY (factory_preparation ? 'terminal') DESC,created_at DESC LIMIT 1`,[...scope,String(work.generation)]),
     ]);
     const accounting=conversationRows[0];
     const ceilingUsd=Math.min(work.maxCostUsd,Number(accounting?.ceiling_microusd??work.maxCostUsd*1_000_000)/1_000_000);

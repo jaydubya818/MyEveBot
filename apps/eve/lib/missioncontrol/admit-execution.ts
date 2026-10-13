@@ -66,7 +66,10 @@ export async function requestOwnerFactoryAdmission(store:WorkStore,work:Work,con
     await database.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[ownerId]);
     return ownerFactoryOrigin(database,ownerId,work.id);
   });
-  if(!origin)return null;
+  if(!origin){
+    if(await hasMissionControlEnrollment(store.database,ownerId))throw Error('MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED');
+    return null;
+  }
   const enrollment=await new MissionControlBindings(store.database,ownerId).enrollment();
   const tupleSha256=assertOwnerFactoryConfiguration(work,enrollment,config);
   if(origin.work_version!==work.version||origin.work_generation!==work.generation||origin.document.tupleSha256!==tupleSha256)

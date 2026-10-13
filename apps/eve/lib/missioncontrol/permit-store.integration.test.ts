@@ -179,6 +179,13 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     await accept();
     await expect(x.insert()).rejects.toThrow('MISSIONCONTROL_FACTORY_CORRELATION_REQUIRED');
   });
+  it('an enrolled owner without an original Factory origin cannot fall back to unsigned admission',async()=>{
+    const workStore=new WorkStore({scopeId:env.owner,scopeKind:'personal',actorId:env.owner},database);
+    const work=await workStore.get(fixture.document.work.id);
+    const send=vi.fn();
+    await expect(requestOwnerFactoryAdmission(workStore,work,{connection:{}} as never,{NODE_ENV:'test'},send)).rejects.toThrow('MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED');
+    expect(send).not.toHaveBeenCalled();
+  });
   it('retains exact original Factory request attempt and writer under the signed owner permit',async()=>{
     const x=await ownerRoute();await accept();
     const run=(await x.insert()).rows[0];
@@ -466,24 +473,24 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const x=await ownerRoute();await accept();await x.insert();await seedOwnerCustody(x);
     const oldPermit=fixture.document.permitId,control=fixture.signControl();
     await store.fence(oldPermit,control,controlDigest(control.document));
-    await env.pool.query('UPDATE engineering_work SET version=2 WHERE id=$1',[x.work.id]);
+    await env.pool.query('UPDATE engineering_work SET version=2,generation=2 WHERE id=$1',[x.work.id]);
     const nextWork=await x.workStore.get(x.work.id);
     fixture.document.workOrderRevisionId=randomUUID();
     const nextOrigin=await prepareOwnerFactoryOrigin(x.workStore,nextWork,x.config,{...x.input,expectedWorkOrderRevisionId:fixture.document.workOrderRevisionId});
-    fixture.document.work={...fixture.document.work,version:2,tupleSha256:nextOrigin.tupleSha256};
+    fixture.document.work={...fixture.document.work,version:2,generation:2,tupleSha256:nextOrigin.tupleSha256};
     fixture.document.permitId=randomUUID();fixture.challenge.commandId=randomUUID();
-    const source=JSON.parse(pair.myeve.message);source.referenceId=fixture.challenge.commandId;
+    const source=JSON.parse(pair.myeve.message);source.referenceId=fixture.challenge.commandId;source.workGeneration=2;
     pair.myeve.message=JSON.stringify(source);pair.relay.message=JSON.stringify({...source,authority:'relay',sourcePermitHash:'a'.repeat(64)});
     fixture.challenge.policyPairSha256=capabilityPairDigest(pair);await accept();
     const requestId=randomUUID(),decisionId=randomUUID(),runId=randomUUID();
-    const binding={...x.binding,workVersion:2,requestId:randomUUID(),runId:randomUUID()};
+    const binding={...x.binding,workVersion:2,workGeneration:2,requestId:randomUUID(),runId:randomUUID()};
     await env.pool.query('UPDATE engineering_factory_requests SET current=false WHERE id=$1',[x.requestId]);
     await env.pool.query(`INSERT INTO engineering_factory_requests(id,scope_id,scope_kind,work_id,actor_id,agent_id,factory_id,operation_id,binding)
       VALUES($1,$2,'personal',$3,$2,'fixture-agent','owner-fixture',$4,$5)`,[requestId,env.owner,x.work.id,'5'.repeat(64),binding]);
     const [prior]=(await env.pool.query('SELECT * FROM engineering_routing_decisions WHERE id=$1',[x.decisionId])).rows;
     const snapshot={...prior.admission_authority_snapshot,factory:{...prior.admission_authority_snapshot.factory,requestId},
       missionControl:{permitId:fixture.document.permitId,commandId:fixture.challenge.commandId,tupleSha256:fixture.document.work.tupleSha256,factoryRequestId:requestId}};
-    const preparation={...prior.factory_preparation,request:{...prior.factory_preparation.request,requestId:binding.requestId}};
+    const preparation={...prior.factory_preparation,request:{...prior.factory_preparation.request,requestId:binding.requestId,workGeneration:2}};
     await env.pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,
       eligible_routes,rejected_routes,constraints,provider_id,provider_version,actor_id,admission_authority_snapshot,factory_preparation)
       VALUES($1,$2,'personal',$3,2,'MYFACTORY','next writer','POLICY','{}','[]','[]','[]','owner-fixture',$4,$2,$5,$6)`,
@@ -492,7 +499,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       admission_policy_id='fixture',admission_policy_version=1,admission_request='{}',admission_context_snapshot='{}',
       admission_context_hash=$2,admission_authority_hash=$2 WHERE id=$1`,[decisionId,'sha256:'+'1'.repeat(64)]);
     await env.pool.query(`INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,provider_id,provider_version,status,decision_id,work_version,work_generation)
-      VALUES($1,$2,'personal',$3,'MYFACTORY','owner-fixture',$4,'QUEUED',$5,2,1)`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId]);
+      VALUES($1,$2,'personal',$3,'MYFACTORY','owner-fixture',$4,'QUEUED',$5,2,2)`,[runId,env.owner,x.work.id,binding.factoryVersion,decisionId]);
     const checked:string[]=[],stopped:string[]=[],driver={store:x.workStore,stopRun:async(_work:string,run:string)=>{stopped.push(run);return {} as any;}};
     const client={readControl:async(id:string)=>{checked.push(id);return id===oldPermit?{status:'CONTROL',control,controlDigest:controlDigest(control.document)}:{status:'NO_CONTROL'};},
       acknowledgeControl:async(value:any)=>acknowledgmentResponse(value)};

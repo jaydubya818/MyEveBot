@@ -6,6 +6,7 @@ import type {MissionControlAdmissionProof} from '../missioncontrol/admit-executi
 import type {FactoryRuntime} from './factory-routing.ts';
 import {WorkStore} from './store.ts';
 import {digest} from './factory-producer-protocol.ts';
+import {factoryPreparationForGeneration} from './factory-preparation-terminal.ts';
 
 /** A Factory destination is distinct from the MissionControl destination. The
  * signed permit adds a necessary policy condition; native admission retains
@@ -18,6 +19,8 @@ export async function issueFactorySourcePermit(store:WorkStore,config:FactoryRun
  return store.database.atomic(async database=>{
   await database.query("SELECT set_config('myeve.missioncontrol_owner',$1,true),set_config('myeve.capability_owner',$1,true),set_config('myeve.capability_installation',$2,true)",[ownerId,enrollment.installationId]);
   const work=await new WorkStore(store.principal,database).get(nativeRequest.workId);
+  const generationPreparation=await factoryPreparationForGeneration(new WorkStore(store.principal,database),work.id,work.generation);
+  if(generationPreparation?.factory_preparation?.terminal)throw Error('FACTORY_SOURCE_PREPARATION');
   const tuple=assertOwnerFactoryConfiguration(work,enrollment,config);
   const origin=await ownerFactoryOrigin(database,ownerId,work.id);
   if(!origin||origin.work_version!==work.version||origin.work_generation!==work.generation||origin.document.tupleSha256!==tuple)throw Error('FACTORY_SOURCE_BINDING');

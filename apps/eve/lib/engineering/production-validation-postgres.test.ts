@@ -16,6 +16,7 @@ import * as productionRuntime from './production-runtime-guard.ts';
 import * as routing from '../digital-worker/routing.ts';
 import {manifestForSnapshot} from './base-preflight.ts';
 import {materializeValidationGrant} from '../../scripts/production-validation-materializer.ts';
+import {issueFactorySourcePermit} from './factory-capability-source.ts';
 import {FactoryCapabilityClient} from './factory-capability-client.ts';
 import {signFactoryPreparationTerminal} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
 import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal} from './factory-preparation-terminal.ts';
@@ -25,9 +26,10 @@ import {FactoryValidationGrantPending} from './factory-live-adapter.ts';
 const connection=process.env.MYEVE_VALIDATION_POSTGRES_URL;
 const pg=createRequire(import.meta.url)('pg');
 describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonical lineage',()=>{
- let admin:any,pool:any,upgrade:any;const names=['validation_fresh_','validation_upgrade_'].map(p=>p+randomUUID().replaceAll('-',''));
+ let admin:any,pool:any,upgrade:any,terminalKey:any;const names=['validation_fresh_','validation_upgrade_'].map(p=>p+randomUUID().replaceAll('-',''));
  const database=(p:any)=>({atomic:async<T,>(action:(db:any)=>Promise<T>)=>{const c=await p.connect();try{await c.query('BEGIN');const result=await action({query:async(sql:string,args?:unknown[])=>(await c.query(sql,args)).rows});await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}},query:async(sql:string,args?:unknown[])=>(await p.query(sql,args)).rows,transaction:async(statements:{sql:string;params?:unknown[]}[])=>{const c=await p.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}});
  beforeAll(async()=>{
+  const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);terminalKey={keyId:'original-fixture-key',jwk:await crypto.subtle.exportKey('jwk',pair.privateKey)};
   const url=new URL(connection!);if(!['127.0.0.1','localhost'].includes(url.hostname))throw Error('LOCAL_TEST_DATABASE_REQUIRED');
   admin=new pg.Pool({connectionString:connection});
   for(const name of names)await admin.query('CREATE DATABASE '+name);
@@ -102,34 +104,59 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   return {p,store,work,preparation,decisionId,driver,lifecycle,cleanup,bytes,original:await bytes()};
  }
  const attempt=(f:Awaited<ReturnType<typeof fixture>>)=>vi.spyOn(f.driver as unknown as {stepAttempt:(id:string,guard:()=>Promise<void>)=>Promise<any>},'stepAttempt');
- const terminalFor=(f:Awaited<ReturnType<typeof fixture>>,outcome='ADMISSION_UNCERTAIN')=>{
+ const terminalBindingFor=(f:Awaited<ReturnType<typeof fixture>>)=>({ownerId:f.store.principal.scopeId,organizationId:'fixture-org',installationId:'fixture-install',agentId:'fixture-agent',clientId:'fixture-client',backendId:'fixture-backend',incarnation:'fixture-incarnation',enrollmentVersion:1,requestId:f.preparation.request.requestId,workId:f.work.id,generation:f.work.generation,missionId:'fixture-mission',factoryId:'fixture-factory',factoryVersion:f.preparation.environment.binding.factoryVersion,sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),nativeRequestDigest:digest(f.preparation.request)});
+ const verificationFor=(f:Awaited<ReturnType<typeof fixture>>)=>({key:terminalKey,expected:terminalBindingFor(f),originalRequest:f.preparation.request,nativeRequest:f.preparation.request});
+ const terminalFor=async(f:Awaited<ReturnType<typeof fixture>>,outcome='ADMISSION_UNCERTAIN')=>{
   const receipt={schema:'factory-capability-preparation-terminal/v1',ownerId:f.store.principal.scopeId,organizationId:'fixture-org',installationId:'fixture-install',agentId:'fixture-agent',clientId:'fixture-client',backendId:'fixture-backend',incarnation:'fixture-incarnation',enrollmentVersion:1,
    requestId:f.preparation.request.requestId,workId:f.work.id,generation:f.work.generation,missionId:'fixture-mission',factoryId:'fixture-factory',factoryVersion:f.preparation.environment.binding.factoryVersion,
-   sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),nativeRequestDigest:'c'.repeat(64),planId:'plan',planDigest:'d'.repeat(64),receiverSequence:3,receiverHeadDigest:'e'.repeat(64),outcome,
+   sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),nativeRequestDigest:digest(f.preparation.request),planId:'plan',planDigest:'d'.repeat(64),receiverSequence:3,receiverHeadDigest:'e'.repeat(64),outcome,
    reasonCode:outcome==='ADMISSION_UNCERTAIN'?'RESTORE_OR_COMMIT_AMBIGUITY':'NATIVE_REVALIDATION_FAILED',nativeOutcomeDigest:'f'.repeat(64),issuedAt:Date.now(),expiresAt:Date.now()+30000};
-  return new FactoryPreparationTerminalReceived(receipt as never,{message:JSON.stringify(receipt),keyId:'fixture-key',signature:'fixture-only'});
+  return new FactoryPreparationTerminalReceived(receipt as never,await signFactoryPreparationTerminal(receipt as never,terminalKey));
  };
  const decisionFor=(f:Awaited<ReturnType<typeof fixture>>)=>({id:f.decisionId,work_id:f.work.id,factory_preparation:f.preparation});
  it('immutable terminal seals preserve preparation and HOLD; concurrent exact delivery is idempotent',async()=>{
-  const f=await fixture(),terminal=terminalFor(f),decision=decisionFor(f);
-  const results=await Promise.all([sealFactoryPreparationTerminal(f.store,decision,terminal),sealFactoryPreparationTerminal(f.store,decision,terminal)]);
+  const f=await fixture(),terminal=await terminalFor(f),decision=decisionFor(f);
+  const results=await Promise.all([sealFactoryPreparationTerminal(f.store,decision,terminal,verificationFor(f)),sealFactoryPreparationTerminal(f.store,decision,terminal,verificationFor(f))]);
   expect(results[0]).toEqual(results[1]);expect(results[0].accounting).toBe('HOLD');
   const sealed=JSON.parse(await f.bytes());const {terminal:stored,...original}=sealed;expect(original).toEqual(f.preparation);expect(stored.receipt.outcome).toBe('ADMISSION_UNCERTAIN');
   for(const sql of ["UPDATE engineering_routing_decisions SET factory_preparation=factory_preparation-'terminal' WHERE id=$1","UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{terminal,accounting}','\"RELEASED\"') WHERE id=$1","DELETE FROM engineering_routing_decisions WHERE id=$1"])
    await expect(f.p.query(sql,[f.decisionId])).rejects.toThrow();
   expect(await f.driver.step(f.work.id)).toEqual({state:'ADMISSION_UNCERTAIN',accounting:'HOLD'});expect(await f.lifecycle.read()).not.toBeNull();
-  await expect(sealFactoryPreparationTerminal(f.store,decision,terminalFor(f,'DEFINITELY_NOT_ADMITTED'))).rejects.toThrow('SEAL_CONFLICT');
+  await expect(sealFactoryPreparationTerminal(f.store,decision,await terminalFor(f,'DEFINITELY_NOT_ADMITTED'),verificationFor(f))).rejects.toThrow('SEAL_CONFLICT');
+ });
+ it('same-generation terminal survives a version-only mutation and denies another preparation',async()=>{
+  const f=await fixture(),terminal=await terminalFor(f);
+  await sealFactoryPreparationTerminal(f.store,decisionFor(f),terminal,verificationFor(f));
+  await f.p.query('UPDATE engineering_work SET version=version+1 WHERE id=$1',[f.work.id]);
+  const changed=await f.store.get(f.work.id);expect(changed.generation).toBe(f.work.generation);
+  expect(await f.driver.start(f.work.id,changed.version,changed.generation)).toEqual({state:'ADMISSION_UNCERTAIN',accounting:'HOLD'});
+  const id=randomUUID();
+  await f.p.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,eligible_routes,rejected_routes,constraints,actor_id)
+   VALUES($1,$2,'personal',$3,$4,'MYFACTORY','Version change test','POLICY','{}','["MYFACTORY"]','[]','[]',$2)`,[id,f.store.principal.scopeId,f.work.id,changed.version]);
+  await expect(f.p.query('UPDATE engineering_routing_decisions SET factory_preparation=$2 WHERE id=$1',[id,{...f.preparation,request:{...f.preparation.request,requestId:randomUUID()}}])).rejects.toThrow('current writer-free');
+  expect(await f.driver.step(f.work.id)).toEqual({state:'ADMISSION_UNCERTAIN',accounting:'HOLD'});
+  f.cleanup.mockRestore();expect(await f.driver.stop(f.work.id)).toEqual({state:'ADMISSION_UNCERTAIN',accounting:'HOLD'});
+  await expect(issueFactorySourcePermit(f.store,{connection:{source:{}}} as never,{ownerId:f.store.principal.scopeId,installationId:'fixture-install'} as never,'fixture-backend',terminalKey,{} as never,{workId:f.work.id},{} as never)).rejects.toThrow('FACTORY_SOURCE_PREPARATION');
+  expect((await f.p.query('SELECT count(*) FROM engineering_route_runs WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('0');
+ });
+ it('forged or receipt-mismatched terminal objects cannot reach the durable seal',async()=>{
+  const f=await fixture(),valid=await terminalFor(f);
+  await expect(sealFactoryPreparationTerminal(f.store,decisionFor(f),new FactoryPreparationTerminalReceived(valid.receipt,{...valid.envelope,signature:'fixture-only'}),verificationFor(f))).rejects.toThrow();
+  await expect(sealFactoryPreparationTerminal(f.store,decisionFor(f),new FactoryPreparationTerminalReceived({...valid.receipt,ownerId:'foreign'},valid.envelope),verificationFor(f))).rejects.toThrow();
+  await expect(sealFactoryPreparationTerminal(f.store,decisionFor(f),valid,undefined as never)).rejects.toThrow('VERIFICATION_REQUIRED');
+  await expect(sealFactoryPreparationTerminal(f.store,decisionFor(f),valid,{...verificationFor(f),expected:{...terminalBindingFor(f),nativeRequestDigest:'0'.repeat(64)}})).rejects.toThrow('SEAL_CONFLICT');
+  expect(await f.bytes()).toBe(f.original);
  });
  it('signed transport terminal passes through the actual validation driver, seals once, and reconnects without admission or retry',async()=>{
   for(const outcome of ['DEFINITELY_NOT_ADMITTED','ADMISSION_UNCERTAIN'] as const){
    const f=await fixture();f.cleanup.mockRestore();
-   const receipt={...terminalFor(f,outcome).receipt,nativeRequestDigest:digest(f.preparation.request)};
+   const receipt={...(await terminalFor(f,outcome)).receipt,nativeRequestDigest:digest(f.preparation.request)};
    const generated=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);const key={keyId:'original-fixture-key',jwk:await crypto.subtle.exportKey('jwk',generated.privateKey)};
    const envelope=await signFactoryPreparationTerminal(receipt,key);
    const {schema,requestId,workId,generation,nativeRequestDigest,planId,planDigest,receiverSequence,receiverHeadDigest,outcome:state,reasonCode,nativeOutcomeDigest,issuedAt,expiresAt,...binding}=receipt;
    let reads=0,issuances=0;
    const client=new FactoryCapabilityClient({origin:'https://fixture.invalid',binding,key,headers:async()=>({}),sourcePermit:async()=>{issuances++;throw Error('UNEXPECTED_SOURCE_PERMIT');},relayPermit:async()=>{issuances++;throw Error('UNEXPECTED_RELAY_PERMIT');}},async()=>{reads++;return Response.json(envelope);});
-   vi.spyOn(f.driver,'adapterFor').mockReturnValue({prepare:(request:any,proof:any)=>client.prepare(request,proof)} as never);
+   vi.spyOn(f.driver,'adapterFor').mockReturnValue({prepare:(request:any,proof:any)=>client.prepare(request,proof),terminalVerification:(request:any)=>client.terminalVerification(request)} as never);
    const result=await f.driver.step(f.work.id);expect(result).toEqual({state:outcome,accounting:'HOLD'});
    expect((await f.lifecycle.read()).state).toBe('HALTED');expect(reads).toBe(1);expect(issuances).toBe(0);
    expect((await f.p.query('SELECT count(*) FROM engineering_route_runs WHERE decision_id=$1',[f.decisionId])).rows[0].count).toBe('0');
@@ -139,14 +166,14 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   }
  });
  it('terminal guard rejects null/missing outcome, foreign scope/request/FV, and identity rewriting',async()=>{
-  const f=await fixture(),base=terminalFor(f),value={accounting:'HOLD',receipt:base.receipt,envelope:base.envelope};
+  const f=await fixture(),base=await terminalFor(f),value={accounting:'HOLD',receipt:base.receipt,envelope:base.envelope};
   const missing={...base.receipt} as any;delete missing.outcome;
   const cases=[missing,{...base.receipt,outcome:null},{...base.receipt,outcome:'ADMITTED'},{...base.receipt,ownerId:'foreign'},
    {...base.receipt,requestId:randomUUID()},{...base.receipt,factoryVersion:'0'.repeat(64)},{...base.receipt,generation:f.work.generation+1}];
   for(const receipt of cases)await expect(f.p.query("UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{terminal}',$2::jsonb,true) WHERE id=$1",[f.decisionId,{...value,receipt}])).rejects.toThrow('immutable');
   expect(await f.bytes()).toBe(f.original);
   const foreign=new WorkStore({scopeId:'foreign',scopeKind:'personal',actorId:'foreign'},database(f.p));
-  await expect(sealFactoryPreparationTerminal(foreign,decisionFor(f),base)).rejects.toThrow('SEAL_CONFLICT');
+  await expect(sealFactoryPreparationTerminal(foreign,decisionFor(f),base,verificationFor(f))).rejects.toThrow('SEAL_CONFLICT');
  });
  it('fresh installation and upgrade preserve the failed historical attempt and trigger',async()=>{
   const f=await fixture({db:upgrade,legacy:true});

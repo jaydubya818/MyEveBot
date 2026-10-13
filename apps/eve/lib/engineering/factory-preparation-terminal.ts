@@ -1,17 +1,27 @@
-import {canonical} from './factory-producer-protocol.ts';
-import {parseFactoryPreparationTerminal,type FactoryPreparationTerminal} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
-import type {SignedPolicyMessage} from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
+import {canonical,digest} from './factory-producer-protocol.ts';
+import {parseFactoryPreparationTerminal,verifyFactoryPreparationTerminal,type FactoryPreparationTerminal,type TerminalBinding} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
+import type {SignedPolicyMessage,PolicyKey} from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import type {WorkStore} from './store.ts';
 
-/** Constructed only after strict signed readback verification by the enrolled adapter. */
+/** Carries a candidate terminal receipt; the durable seal verifies it independently. */
 export class FactoryPreparationTerminalReceived extends Error {
   constructor(readonly receipt: FactoryPreparationTerminal, readonly envelope: SignedPolicyMessage) {
     super('FACTORY_PREPARATION_TERMINAL');
   }
 }
 export async function sealFactoryPreparationTerminal(store: WorkStore, decision: Record<string,any>,
-  terminal: FactoryPreparationTerminalReceived) {
+  terminal: FactoryPreparationTerminalReceived, verification:{key:PolicyKey;expected:TerminalBinding;originalRequest:Record<string,any>;nativeRequest:Record<string,any>}) {
   if(store.principal.scopeKind!=='personal'||store.principal.scopeId!==terminal.receipt.ownerId||typeof decision.id!=='string'||decision.work_id!==terminal.receipt.workId||!decision.factory_preparation)throw Error('FACTORY_TERMINAL_SEAL_CONFLICT');
+  // The error object carries no authority. Reverify using the original adapter's
+  // enrolled key and request binding immediately before the durable mutation.
+  if(!verification)throw Error('FACTORY_TERMINAL_VERIFICATION_REQUIRED');
+  if(canonical(verification.originalRequest)!==canonical(decision.factory_preparation.request)
+    ||digest(verification.nativeRequest)!==verification.expected.nativeRequestDigest
+    ||verification.expected.requestId!==decision.factory_preparation.request.requestId
+    ||verification.expected.workId!==decision.work_id||verification.expected.generation!==decision.factory_preparation.request.workGeneration)
+    throw Error('FACTORY_TERMINAL_SEAL_CONFLICT');
+  const verified=await verifyFactoryPreparationTerminal(terminal.envelope,verification.key,verification.expected);
+  if(canonical(verified)!==canonical(terminal.receipt))throw Error('FACTORY_TERMINAL_SEAL_CONFLICT');
   const scope = [store.principal.scopeId,store.principal.scopeKind,decision.work_id,decision.id];
   const value = {accounting:'HOLD',receipt:terminal.receipt,envelope:terminal.envelope};
   // The exact preparation comparison prevents stop/resume or config changes from
@@ -26,6 +36,16 @@ export async function sealFactoryPreparationTerminal(store: WorkStore, decision:
     WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4`,scope);
   if (canonical(current?.factory_preparation?.terminal) !== canonical(value)) throw Error('FACTORY_TERMINAL_SEAL_CONFLICT');
   return current.factory_preparation.terminal;
+}
+
+/** A version change cannot create another request for a retained generation. */
+export async function factoryPreparationForGeneration(store:WorkStore,workId:string,generation:number){
+ const rows=await store.database.query(`SELECT * FROM engineering_routing_decisions
+  WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation IS NOT NULL
+    AND factory_preparation#>>'{request,workGeneration}'=$4 ORDER BY created_at LIMIT 2`,
+  [store.principal.scopeId,store.principal.scopeKind,workId,String(generation)]);
+ if(rows.length>1)throw Error('FACTORY_PREPARATION_GENERATION_CONFLICT');
+ return rows[0]??null;
 }
 
 export function factoryTerminalActivity(value:unknown){

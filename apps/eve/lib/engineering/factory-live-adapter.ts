@@ -54,7 +54,8 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  readonly config:FactoryConnection;
  private readonly fetcher:typeof fetch;
  private readonly transport:ReturnType<typeof factoryTransport>;
- constructor(config:FactoryConnection,fetcher:typeof fetch=fetch,private readonly capability?:FactoryCapabilityClient){
+ constructor(config:FactoryConnection,fetcher:typeof fetch=fetch,private readonly capability?:FactoryCapabilityClient,
+  private readonly admission:{requireOrderedAdmission:boolean}={requireOrderedAdmission:false}){
   this.config=factoryConnectionSchema.parse(config);this.fetcher=fetcher;
   this.transport=factoryTransport(this.config);
   if(capability&&(capability.config.origin!==config.origin||capability.config.binding.factoryId!==config.factoryId
@@ -90,7 +91,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  }
  async prepare(request:FactoryPrepareRequest,proof:MissionControlAdmissionProof|null=null){
   this.repairRequest(request);
-  if(proof&&!this.capability)throw Error('FACTORY_ORDERED_ADMISSION_REQUIRED');
+  if((proof||this.admission.requireOrderedAdmission)&&!this.capability)throw Error('FACTORY_ORDERED_ADMISSION_REQUIRED');
   let body:unknown=request;
   if('transport' in this.config){
    const source=this.config.source;
@@ -102,11 +103,20 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  }
  async prepared(request:FactoryPrepareRequest){
   this.repairRequest(request);
+  if(this.admission.requireOrderedAdmission&&!this.capability)throw Error('FACTORY_ORDERED_ADMISSION_REQUIRED');
   const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
   const body='source' in this.config?{protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,source:this.config.source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}}:request;
   const data=this.capability?await this.capability.read(body) as FactoryReadback:await this.request('/'+encodeURIComponent(request.requestId));
   if(!data)throw Error('FACTORY_PREPARATION_UNAVAILABLE');
   return this.validatePreparation(request,data);
+ }
+ terminalVerification(request:FactoryPrepareRequest){
+  if(!this.capability)throw Error('FACTORY_TERMINAL_VERIFICATION_REQUIRED');
+  const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
+  const body='source' in this.config?{protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,
+   workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,
+   source:this.config.source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}}:request;
+  return {...this.capability.terminalVerification(body),originalRequest:request};
  }
  private validatePreparation(request:FactoryPrepareRequest,data:FactoryReadback){
   if(request.repairWorkOrderId&&data.workOrderId!==request.repairWorkOrderId)throw Error('Factory returned a different repair WorkOrder');

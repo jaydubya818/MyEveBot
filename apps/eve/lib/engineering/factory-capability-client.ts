@@ -31,6 +31,8 @@ export class FactoryCapabilityClient{
   }
   return value;
  }
+ terminalVerification(request:Record<string,any>){return {key:this.config.key,originalRequest:request,nativeRequest:request,expected:{...this.config.binding,
+  requestId:request.requestId,workId:request.workId,generation:request.workGeneration,nativeRequestDigest:digest(request)}};}
  async read(request:Record<string,any>){return this.terminal(await this.request('readback',
   {schema:'factory-capability-admission-readback/v1',request,missionId:this.config.binding.missionId}),request);}
  async prepare(request:Record<string,any>,proof:MissionControlAdmissionProof|null=null){

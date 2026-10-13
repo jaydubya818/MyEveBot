@@ -14,10 +14,11 @@ import type {WorkStore} from "./store.ts";
 let data:typeof retained;
 let queries:string[];
 let held:number|null=null;
+let terminalPreparation:any=null;
 const work={...fixture().work,id:retained.workspace.work_id,version:2,generation:2,criteriaVersion:1,control:"agent" as const,lifecycle:"active" as const};
 function reader(authority=vi.fn().mockRejectedValue(new Error("revoked"))){
  const store={principal:{scopeId:"authenticated-native-fixture",scopeKind:"personal",actorId:"authenticated-native-fixture"},get:async()=>work,database:{query:async(sql:string)=>{
- queries.push(sql);if(sql.includes('jsonb_agg(c)'))return [{calls:[],observations:[],legacy:{spent_microusd:0,reserved_microusd:0,usage_unknown:false}}];if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
+ queries.push(sql);if(sql.includes('SELECT factory_preparation,factory_observation'))return terminalPreparation?[terminalPreparation]:[];if(sql.includes('jsonb_agg(c)'))return [{calls:[],observations:[],legacy:{spent_microusd:0,reserved_microusd:0,usage_unknown:false}}];if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
  if(sql.includes("SELECT engineering_completion_remaining"))throw new Error("Budget and hold must use one SQL snapshot");
  if(sql.includes("FROM engineering_direct_workspaces n"))return[data.workspace];
  if(sql.includes("FROM engineering_native_runtime"))return[data.runtime];
@@ -27,7 +28,7 @@ function reader(authority=vi.fn().mockRejectedValue(new Error("revoked"))){
  }}} as unknown as WorkStore;
  return new EngineeringWorkerProjectionStore(store,"auth-native-sofie",authority);
 }
-beforeEach(()=>{Object.assign(work,{control:"agent",version:2,generation:2});data=structuredClone(retained);queries=[];held=null;mocks.execution.mockResolvedValue(null);mocks.routing.mockResolvedValue({decision:{id:data.workspace.decision_id,status:"ADMITTED",workVersion:2},runs:[{id:data.run.id,route:"DEEP_AGENT",providerId:"myeve-native-sofie",status:"RUNNING",decisionId:data.workspace.decision_id,workVersion:2,workGeneration:2}],transitions:[]});});
+beforeEach(()=>{Object.assign(work,{control:"agent",version:2,generation:2});data=structuredClone(retained);queries=[];held=null;terminalPreparation=null;mocks.execution.mockResolvedValue(null);mocks.routing.mockResolvedValue({decision:{id:data.workspace.decision_id,status:"ADMITTED",workVersion:2},runs:[{id:data.run.id,route:"DEEP_AGENT",providerId:"myeve-native-sofie",status:"RUNNING",decisionId:data.workspace.decision_id,workVersion:2,workGeneration:2}],transitions:[]});});
 describe("retained failed journey Current Truth",()=>{
  it("D: preserves failed candidate, checks, unverified repair draft and immutable Result",async()=>{const before=JSON.stringify(data);const {projection:p}=await reader().get(work.id);expect(p.runTruth.activeRun).toBeNull();expect(p.currentRun).toBeNull();expect(p.runTruth.latestRun?.id).toBe(data.run.id);expect(p.draft?.revision).toBe(6);expect(p.draft?.differsFromCandidate).toBe(true);expect(p.verification.status).toBe("FAIL");expect(p.verification.evidenceCount).toBe(10);expect(p.nativeResult?.proof.outcome).toBe("FAILED");expect(p.readiness.ready).toBe(false);expect(p.readiness.reasons.join()).not.toContain("verification is PARTIAL");expect(p.conversationRuntime?.spentUsd).toBe(.777654);expect(JSON.stringify(data)).toBe(before);expect(queries.every(s=>s.trimStart().startsWith("SELECT"))).toBe(true);});
  it("E: binds repaired-candidate PASS to its own proof and protected evidence",async()=>{const candidate=data.workspace.candidates[0];candidate.sha="a".repeat(40);candidate.files=data.workspace.draft_files;data.job.candidate_sha=candidate.sha;data.workspace.native_proof.resultRevision=candidate.sha;data.workspace.native_proof.outcome="PARTIAL";for(const e of data.workspace.native_proof.evidence){e.resultRevision=candidate.sha;e.state="PASS";}
@@ -49,4 +50,13 @@ it("paused later-generation Work preserves its historical Result without claimin
  expect(p.latestResult).not.toBeNull();expect(p.activity).toContain('prior execution');
  expect(p.nextStep).toContain('retained Result and Proof');expect(p.nextStep).not.toContain('No execution has started');
  expect(p.authoritySummary.admitted).toBe(false);expect(p.readiness.ready).toBe(false);expect(JSON.stringify(data)).toBe(before);
+});
+
+it('same-generation terminal remains visible after Work version changes',async()=>{
+ work.version=3;
+ const now=Date.now();
+ terminalPreparation={factory_preparation:{request:{requestId:'request',workGeneration:2},terminal:{accounting:'HOLD',receipt:{schema:'factory-capability-preparation-terminal/v1',ownerId:'owner',organizationId:'org',installationId:'install',agentId:'agent',clientId:'client',backendId:'backend',incarnation:'epoch',enrollmentVersion:1,requestId:'request',workId:work.id,generation:2,missionId:'mission',factoryId:'factory',factoryVersion:'a'.repeat(64),sourceDigest:'b'.repeat(64),configurationDigest:'c'.repeat(64),nativeRequestDigest:'d'.repeat(64),planId:'plan',planDigest:'e'.repeat(64),receiverSequence:3,receiverHeadDigest:'f'.repeat(64),outcome:'ADMISSION_UNCERTAIN',reasonCode:'RESTORE_OR_COMMIT_AMBIGUITY',nativeOutcomeDigest:'a'.repeat(64),issuedAt:now,expiresAt:now+30000}}}};
+ const {projection:p}=await reader().get(work.id);
+ expect(p.factoryPreparation?.state).toBe('ADMISSION_UNCERTAIN');expect(p.activity).toContain('reservation stays held');expect(p.nextStep).toContain('Do not resend');
+ const query=queries.find(sql=>sql.includes('SELECT factory_preparation,factory_observation'))!;expect(query).toContain("'{request,workGeneration}'=$4");expect(query).not.toContain('work_version=$4');
 });
