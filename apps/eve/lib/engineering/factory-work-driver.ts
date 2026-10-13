@@ -1,3 +1,4 @@
+import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal} from './factory-preparation-terminal.ts';
 import {pollOwnerFactoryWorkControl} from '../missioncontrol/owner-control-runtime.ts';
 import {requestOwnerFactoryAdmission} from '../missioncontrol/admit-execution.ts';
 import {productionCloudConfiguration} from './production-runtime-guard.ts';
@@ -99,6 +100,8 @@ export class FactoryWorkDriver {
  }
  async step(id:string){
   await pollOwnerFactoryWorkControl(this.store,this,id);
+  const retained=await this.decision(id);
+  if(retained?.factory_preparation?.terminal)return {state:retained.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
   const decision=await this.decision(id),preparation=decision?.factory_preparation;
   const config=await this.authority.readConfig();
   const validation='releaseValidation' in config.connection||'productionCanary' in config.connection||preparation?.validationProtocol!==undefined||preparation?.validationState!==undefined;
@@ -117,6 +120,9 @@ export class FactoryWorkDriver {
    const result=await this.stepAttempt(id,assertActive,lifecycle.fencedStore(claimed.claim));
    await assertActive();
    if('result' in result&&result.state==='PARTIAL'){await lifecycle.finish(claimed.claim,'COMPLETED');return result;}
+   if(['DEFINITELY_NOT_ADMITTED','ADMISSION_UNCERTAIN'].includes(result.state)&&'accounting' in result&&result.accounting==='HOLD'){
+    await halt('FACTORY_PREPARATION_'+result.state);return result;
+   }
    if(result.state!=='DISPATCHED')return halt('VALIDATION_UNPROVEN_RESULT');
    await lifecycle.finish(claimed.claim,'IDLE');return result;
   }catch(error){
@@ -133,6 +139,7 @@ export class FactoryWorkDriver {
   const observation=(workId:string,decisionId:string,value:unknown,authenticatedReadback=false)=>this.observation(workId,decisionId,value,store,authenticatedReadback);
   let decision=await this.decision(id);
   if(!decision?.factory_preparation)return {state:'NOT_PREPARED'};
+  if(decision.factory_preparation.terminal)return {state:decision.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
   const work=await store.get(id),config=await this.authority.readConfig(),adapter=this.adapterFor(config.connection);
   const preparation=decision.factory_preparation as {request:FactoryPrepareRequest;configurationHash:string};
   if(work.version!==decision.work_version||work.generation!==preparation.request.workGeneration)return {state:'HISTORICAL'};
@@ -142,7 +149,7 @@ export class FactoryWorkDriver {
     // Owner approval and current remote policy precede even Factory preparation.
     const missionControl=await requestOwnerFactoryAdmission(store,work,config);
     await assertActive();
-    const response=await adapter.prepare(preparation.request);await assertActive();await observation(id,decision.id,response,true);
+    const response=await adapter.prepare(preparation.request,missionControl);await assertActive();await observation(id,decision.id,response,true);
     if(!response.snapshot){if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:response.state};}
     assertFactorySpendCanStart(response.spend);
     const s=response.snapshot;
@@ -218,6 +225,10 @@ export class FactoryWorkDriver {
    await observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
    return {state:result.proof.outcome,result};
   }catch(error){
+   if(error instanceof FactoryPreparationTerminalReceived){
+    await sealFactoryPreparationTerminal(store,decision,error);
+    return {state:error.receipt.outcome,accounting:'HOLD'};
+   }
    if(error instanceof EvidenceWaiting&&!decision.factory_preparation.validationProtocol){
     await observation(id,decision.id,{...(await this.decision(id))?.factory_observation?.value,state:'WAITING_FOR_EVIDENCE',reason:error.message});
     return {state:'WAITING_FOR_EVIDENCE'};
@@ -232,6 +243,7 @@ export class FactoryWorkDriver {
  async stop(id:string,reason:'cancel'|'takeover'='cancel'){
   const decision=await this.decision(id);if(!decision?.factory_preparation)throw new WorkError('factory_prepare_missing','No Factory preparation exists.');
   const [row]=await this.store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
+  if(!row&&decision.factory_preparation.terminal)return {state:decision.factory_preparation.terminal.receipt.outcome,accounting:'HOLD'};
   if(!row)throw new WorkError('factory_prepare_pending','Preparation has no productive writer; resume preparation to reconcile its identity.');
   return this.stopRun(id,row.id,reason);
  }

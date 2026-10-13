@@ -1,3 +1,4 @@
+import {factoryTerminalActivity} from './factory-preparation-terminal.ts';
 import { readExternalAlphaWork, type ExternalAlphaWorkReadback } from "../external-alpha/work-readback.ts";
 import { currentPublicationReadback, type PublicationReadback } from './publication-contract.ts';
 import { readJourneyAccounting, type JourneyAccounting } from "./journey-accounting.ts";
@@ -251,13 +252,13 @@ export class EngineeringWorkerProjectionStore {
     const factoryRun=runRows.filter(row=>row.factory_request_id).sort((a,b)=>Number(b.writer_generation)-Number(a.writer_generation))[0];
     const factoryWriter=factoryRun?{requestId:factoryRun.factory_binding?.requestId,dispatchIdentity:factoryRun.dispatch_identity,remoteRunId:factoryRun.factory_binding?.runId,runId:String(factoryRun.id),writerGeneration:Number(factoryRun.writer_generation),state:String(factoryRun.dispatch_state),stopReason:factoryRun.stop_reason??null,candidateProducer:factoryRun.factory_candidate?"MYFACTORY":null,factoryId:factoryRun.factory_binding?.factoryId,factoryVersion:factoryRun.factory_binding?.factoryVersion,workOrderId:factoryRun.factory_binding?.workOrderId,attempt:factoryRun.factory_binding?.attemptNumber,receiptId:factoryRun.factory_receipt_id??undefined,observation:factoryRun.factory_observation?.value}:undefined;
     const preparation=preparationRows[0],observation=preparation?.factory_observation?.value;
-    const factoryPreparation=preparation?{requestId:String(preparation.factory_preparation.request.requestId),state:String(observation?.state??'PREPARING'),blocker:observation?.reason??observation?.blocker??null}:undefined;
+    const factoryPreparation=preparation?{requestId:String(preparation.factory_preparation.request.requestId),state:String(preparation.factory_preparation.terminal?.receipt.outcome??observation?.state??'PREPARING'),blocker:observation?.reason??observation?.blocker??null}:undefined;
     const factoryAccounting=observation?.accounting as FactorySpendSummary|undefined;
     const factoryCurrent=!!factoryRun && factoryRun.id===currentRouteRun?.id;
-    const factoryActivity=factoryPreparation?.state==="WAITING_FOR_EVIDENCE" ? {status:"Waiting",activity:"Candidate retained; waiting for Factory evidence.",nextStep:"Reconcile this retained attempt. No new execution is needed."} : factoryCurrent ? factoryRun.dispatch_state!=="TERMINAL"
+    const factoryActivity=factoryTerminalActivity(preparation?.factory_preparation.terminal)??(factoryPreparation?.state==="WAITING_FOR_EVIDENCE" ? {status:"Waiting",activity:"Candidate retained; waiting for Factory evidence.",nextStep:"Reconcile this retained attempt. No new execution is needed."} : factoryCurrent ? factoryRun.dispatch_state!=="TERMINAL"
       ? {status:factoryRun.dispatch_state==="DISPATCHED"?"Working":"Needs reconciliation",activity:`MyFactory writer: ${factoryRun.dispatch_state}.`,nextStep:factoryRun.dispatch_state==="PREPARED"?"Dispatch the exact admitted request once.":"Inspect the exact Factory attempt. Stop or timeout is not quiescence; native and human productive access remain blocked."}
       : {status:nativeRow?.producer==="MYFACTORY"?(nativeRow.phase==="VERIFICATION_PASSED"?"Partial result":"Needs verification"):"Needs attention",activity:"Factory writer is terminal and fenced. Retained provenance grants no writer authority.",nextStep:nativeRow?.producer!=="MYFACTORY"?"Inspect the terminal outcome and authenticated receipt; establish eligible candidate custody separately.":nativeRow.phase==="VERIFICATION_FAILED"?"Factory is off. Review protected failure and request a new normal native admission for repair.":nativeRow.phase==="VERIFICATION_PASSED"?"Review the PARTIAL local result. Publication and acceptance remain unqualified.":"Run MyEve protected verification against the exact Factory candidate in custody."}
-      :null;
+      :null);
 
     if (nativeRow && this.coordinatingAgentId && nativeRow.agent_id !== this.coordinatingAgentId)
       throw new WorkError("projection_binding", "Native development is bound to a different Agent.", 403);
