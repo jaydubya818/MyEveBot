@@ -41,10 +41,12 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
   let readbacks = 0;
   const server = createServer(async (request, response) => {
     try {
-      if (!/^\/(declined|uncertain)$/.test(request.url ?? '')) { response.writeHead(404); response.end(); return; }
+      if (!/^\/(declined|uncertain|generic)$/.test(request.url ?? '')) { response.writeHead(404); response.end(); return; }
       const saved = JSON.parse(await readFile(file, 'utf8'));
       const terminal = saved[request.url === '/declined' ? 0 : 1];
-      const activity = factoryTerminalActivity(terminal);
+      const activity = request.url === '/generic'
+        ? { status: 'Needs reconciliation', activity: 'The current draft needs reconciliation.', nextStep: 'Review the current draft.' }
+        : factoryTerminalActivity(terminal);
       const projection = {
         workId: 'fixture-work', workVersion: 1, workGeneration: 1, criteriaVersion: 1,
         title: 'Retained Factory request', objective: 'Review the retained terminal receipt.',
@@ -55,7 +57,7 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
         candidateHistory: [], completionStatus: 'NOT_CONFIRMED',
         completionBudget: { ceilingUsd: 0, heldUsd: null, remainingUsd: null },
         readiness: { ready: false, reasons: [activity.activity] },
-        factoryPreparation: { requestId: 'fixture-request', state: 'TERMINAL', blocker: activity.activity },
+        factoryPreparation: request.url === '/generic' ? null : { requestId: 'fixture-request', state: terminal.receipt.outcome, blocker: activity.activity },
       };
       readbacks++;
       response.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store',
@@ -65,7 +67,7 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
   });
   let browser;
   try {
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
     browser = await chromium.launch({ headless: true,
       ...(process.env.MYEVE_BROWSER_EXECUTABLE ? { executablePath: process.env.MYEVE_BROWSER_EXECUTABLE } : {}),
     });
@@ -94,7 +96,12 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
         await context.close();
       }
     }
-    assert.equal(readbacks, 8);
+    const generic = await browser.newPage();
+    await generic.goto(`http://127.0.0.1:${server.address().port}/generic`);
+    assert.equal(await generic.locator('.owner-status').innerText(), 'Outcome unconfirmed');
+    assert.doesNotMatch(await generic.getByRole('region', { name: 'Work actions' }).innerText(), /terminal receipt|reservation remains held|retry this preparation/);
+    await generic.close();
+    assert.equal(readbacks, 9);
     assert.equal(await readFile(file, 'utf8'), persisted);
   } finally {
     await browser?.close();

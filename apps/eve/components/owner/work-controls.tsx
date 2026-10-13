@@ -11,7 +11,7 @@ export function WorkControls({work,onRefresh}:{work:EngineeringWorkerProjection;
  const lock=useRef(false),freshRead=useRef<EngineeringWorkerProjection|null>(null);
  useEffect(()=>{if(freshRead.current&&freshRead.current!==work){freshRead.current=null;lock.current=false;setBusy(false);setError('');}},[work]);
  const view=ownerWorkPresentation(work);
- const terminalAdmission=view.status==='Not admitted'||work.status==='Needs reconciliation';
+ const terminalAdmission=work.factoryPreparation?.state==='DEFINITELY_NOT_ADMITTED'||work.factoryPreparation?.state==='ADMISSION_UNCERTAIN';
  const operation=work.lifecycle==='active'&&!work.externalAlpha&&!terminalAdmission&&view.status!=='Outcome unconfirmed'&&!view.currentResult&&!work.attention&&!work.pendingDecisions.length
   ? work.control==='paused'?'resume':work.control==='agent'?'pause':null
   // Alpha: a running Work fences paid chat turns, so the owner stops it here, without a Sofie turn.
