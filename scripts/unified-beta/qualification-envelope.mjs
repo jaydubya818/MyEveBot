@@ -11,7 +11,7 @@ for(const name of ['myeve','myfactory']) {
   assert.equal(git('status','--porcelain'),'','Qualification source must be clean');
   evidence.snapshots[name]={snapshot:git('rev-parse','HEAD'),tree:git('rev-parse','HEAD^{tree}'),path};
 }
-assert.equal(evidence.snapshots.myfactory.snapshot,'416a633c7c7d2d9a31feb98a89e716c0bb74de52');
+assert.equal(evidence.snapshots.myfactory.snapshot,'ac72412e7a522e6fcd1067eebc344405f56ea799');
 const fileRecord=(name,path)=>({path,sha256:createHash('sha256').update(readFileSync(join(output,name,path))).digest('hex')});
 const migrations=(name,path)=>readdirSync(join(output,name,path)).filter(file=>file.endsWith('.sql')).sort().map(file=>fileRecord(name,path+'/'+file));
 const envelope={
@@ -32,7 +32,7 @@ const envelope={
     'Verify exact approved non-alpha targets, current ledgers/checksums, roles and tested backups; reject missing identity.',
     'Qualify empty-target central accounting base then recovery SQL separately; existing-target upgrade requires an exact baseline and its own approval. Never apply base SQL over existing accounting history.',
     'Reconcile Factory migration ledger in manifest order without installation registration, production grants or source-identity reuse.',
-    'Reconcile application migrations through 0106 using the exact hashed applicationMigrations catalog, preserving original published 0099 bytes and the additive immutable Factory terminal guard. Reject altered 0099 ledgers without rewriting checksums; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
+    'Reconcile application migrations through 0107 using the exact hashed applicationMigrations catalog, preserving original published 0099 bytes and the additive immutable Factory terminal and generation guards. Reject altered 0099 ledgers without rewriting checksums; existing Phase2 0085 MyApps ledgers require a separately reviewed transfer.',
     'Capability qualification SQL is a separate additive source contract, never automatic application startup. Require exact authenticated versioned MyEve and Relay admission references, receiving-backend revalidation with native admission/accounting in one local transaction, original trusted enrollment and an independent recovery witness before any installation claim. No distributed transaction or competing ledger.',
     'Keep all execution disabled; qualify successor FactoryVersion, bootstrap, custody/signers, rollback and owner isolation before separate activation approval.'
   ],

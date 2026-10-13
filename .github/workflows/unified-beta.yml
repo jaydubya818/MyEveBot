@@ -190,7 +190,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/relay
-        ref: 4709afd9ffeb363cd62ed1fa64a565d2dc0d49e9
+        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
         path: relay
         persist-credentials: false
     - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -315,12 +315,12 @@ jobs:
       with:
         persist-credentials: false
         repository: jaydubya818/MyFactory
-        ref: 416a633c7c7d2d9a31feb98a89e716c0bb74de52
+        ref: ac72412e7a522e6fcd1067eebc344405f56ea799
         path: .qualification/myfactory
     - uses: actions/checkout@v4
       with:
         repository: jaydubya818/relay
-        ref: 4709afd9ffeb363cd62ed1fa64a565d2dc0d49e9
+        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
         path: .qualification/relay
         persist-credentials: false
     - name: Retain the historical installed Relay comparison object
@@ -349,7 +349,7 @@ jobs:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
         MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
         MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
-        MYRELAY_SOURCE_SHA: 4709afd9ffeb363cd62ed1fa64a565d2dc0d49e9
+        MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
         MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
         FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
       run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts
@@ -553,7 +553,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MyFactory
-        ref: 416a633c7c7d2d9a31feb98a89e716c0bb74de52
+        ref: ac72412e7a522e6fcd1067eebc344405f56ea799
         persist-credentials: false
         fetch-depth: 0
         path: myfactory
