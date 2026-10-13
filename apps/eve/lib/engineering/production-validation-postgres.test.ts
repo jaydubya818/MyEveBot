@@ -150,7 +150,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   expect(p.factoryReservationHolds).toEqual([]);expect(p.factoryPreparation).toBeUndefined();expect(p.workGeneration).toBe(changed.generation);expect(p.control).toBe(changed.control);
   expect(await f.bytes()).toBe(prior);expect((await f.p.query('SELECT count(*) FROM engineering_route_runs WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('0');
   const foreign=new WorkStore({scopeId:'foreign-fixture-owner',scopeKind:'personal',actorId:'foreign-fixture-owner'},database(f.p));
-  await expect(new EngineeringWorkerProjectionStore(foreign,'synthetic-sofie',async()=>{}).get(f.work.id)).rejects.toThrow();
+  await expect(new EngineeringWorkerProjectionStore(foreign,'synthetic-sofie',async()=>{throw Error('NO_INSTALLED_AUTHORITY');}).get(f.work.id)).rejects.toThrow();
  });
  it('forged or receipt-mismatched terminal objects cannot reach the durable seal',async()=>{
   const f=await fixture(),valid=await terminalFor(f);
