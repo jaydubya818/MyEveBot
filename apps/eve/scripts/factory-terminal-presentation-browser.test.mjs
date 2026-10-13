@@ -41,10 +41,10 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
   let readbacks = 0;
   const server = createServer(async (request, response) => {
     try {
-      if (!/^\/(declined|uncertain|generic|historical|limited)$/.test(request.url ?? '')) { response.writeHead(404); response.end(); return; }
+      if (!/^\/(declined|uncertain|generic|historical|limited|unresolved)$/.test(request.url ?? '')) { response.writeHead(404); response.end(); return; }
       const saved = JSON.parse(await readFile(file, 'utf8'));
       const terminal = saved[request.url === '/declined' ? 0 : 1];
-      const historical=['/historical','/limited'].includes(request.url);
+      const historical=['/historical','/limited','/unresolved'].includes(request.url);
       const activity = historical?{status:'Working',activity:'Current Work is active.',nextStep:'Review current Work.'}:request.url === '/generic'
         ? { status: 'Needs reconciliation', activity: 'The current draft needs reconciliation.', nextStep: 'Review the current draft.' }
         : factoryTerminalActivity(terminal);
@@ -59,7 +59,8 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
         completionBudget: { ceilingUsd: 0, heldUsd: null, remainingUsd: null },
         readiness: { ready: false, reasons: [activity.activity] },
         nativeRuntime:historical?{inflight:true}:undefined,
-        factoryReservationHolds:historical?[{requestId:terminal.receipt.requestId,generation:1,state:terminal.receipt.outcome,accounting:'HOLD'}]:[],
+        factoryUnresolvedPreparations:request.url==='/unresolved'?[{requestId:'unresolved-request',generation:1,state:'UNRESOLVED',accounting:'UNRESOLVED'}]:[],
+        factoryReservationHolds:historical&&request.url!=='/unresolved'?[{requestId:terminal.receipt.requestId,generation:1,state:terminal.receipt.outcome,accounting:'HOLD'}]:[],
         factoryReservationHistoryIncomplete:request.url==='/limited',
         factoryPreparation: historical||request.url === '/generic' ? null : { requestId: 'fixture-request', state: terminal.receipt.outcome, blocker: activity.activity },
       };
@@ -100,13 +101,16 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
         await context.close();
       }
     }
-    for(const viewport of [{width:1280,height:800},{width:390,height:844}])for(const path of ['historical','limited']){
+    for(const viewport of [{width:1280,height:800},{width:390,height:844}])for(const path of ['historical','limited','unresolved']){
       const context=await browser.newContext({viewport}),page=await context.newPage();
       await page.goto(`http://127.0.0.1:${server.address().port}/${path}`);
       for(let read=0;read<2;read++){
         assert.equal(await page.locator('.owner-status').innerText(),'Working');
         assert.equal(await page.getByRole('button',{name:'Pause Work',exact:true}).count(),1);
-        assert.match(await page.getByRole('region',{name:'Work actions'}).innerText(),/Earlier Factory requests still hold their reservations/);
+        if(path==='unresolved'){
+          assert.match(await page.getByRole('region',{name:'Work actions'}).innerText(),/Earlier Factory requests have unresolved admission or reservation evidence/);
+          assert.doesNotMatch(await page.getByRole('region',{name:'Work actions'}).innerText(),/still hold their reservations|terminal receipt/);
+        }else assert.match(await page.getByRole('region',{name:'Work actions'}).innerText(),/Earlier Factory requests still hold their reservations/);
         if(path==='limited')assert.match(await page.getByRole('region',{name:'Work actions'}).innerText(),/Some earlier reservation records need reconciliation/);
         await page.addScriptTag({path:axePath});assert.deepEqual((await page.evaluate(async()=>await window.axe.run(document))).violations,[]);
         if(read===0)await page.reload();
@@ -118,7 +122,7 @@ test('Factory terminal UI preserves decline, UNKNOWN and HOLD across browser rec
     assert.equal(await generic.locator('.owner-status').innerText(), 'Outcome unconfirmed');
     assert.doesNotMatch(await generic.getByRole('region', { name: 'Work actions' }).innerText(), /terminal receipt|reservation remains held|retry this preparation/);
     await generic.close();
-    assert.equal(readbacks, 17);
+    assert.equal(readbacks, 21);
     assert.equal(await readFile(file, 'utf8'), persisted);
   } finally {
     await browser?.close();

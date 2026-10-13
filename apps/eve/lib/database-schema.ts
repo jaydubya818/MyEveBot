@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0106_factory_preparation_terminal.sql";
+export const CURRENT_DATABASE_MIGRATION = "0107_factory_preparation_generation_guard.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.

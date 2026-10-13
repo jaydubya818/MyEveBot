@@ -10,6 +10,8 @@ import {localAppsAllowed} from '../../../apps/eve/lib/myapps/hosting.ts';
 const composed=process.env.MYAPPS_COMPOSITION_REHEARSAL==='1';
 const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'utf8'));
 const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
+const terminal=JSON.parse(readFileSync(resolve('docs/myapps/terminal-source-qualification-20261012.json'),'utf8'));
+import {factory as selectedFactory} from '../../../scripts/myapps-composition/current-pins.mjs';
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
  expect(unified.myapps).toBe('e907feb1bd026aaa9015fcc26e3e72a6af9e9c05');
@@ -47,7 +49,7 @@ test.skipIf(!composed)('composition preserves historical bytes except explicitly
  const zeroGapPath='apps/eve/lib/external-alpha/shared-accounting-zero-gap.sql';
  expect(envelope.centralAccountingSql).toContainEqual({path:zeroGapPath,sha256:createHash('sha256').update(readFileSync(zeroGapPath)).digest('hex')});
  expect(Object.values(envelope.capabilityBinding).every(value=>value===null)).toBe(true);
- expect(envelope.capabilityTopology).toMatchObject({qualification:'NOT_QUALIFIED_FOR_INSTALLATION',sameTransactionRequired:true,lockOrder:null,historicalBindingBackfill:'FORBIDDEN',witnessReset:'FORBIDDEN'});
+ expect(envelope.capabilityTopology).toMatchObject({qualification:'NOT_QUALIFIED_FOR_INSTALLATION',nativeAdmissionTransactionRequired:true,lockOrder:null,historicalBindingBackfill:'FORBIDDEN',witnessReset:'FORBIDDEN'});
  expect(envelope.capabilityControlSql).toHaveLength(5);
  expect(envelope.capabilityControlSql.map((sql:{path:string})=>sql.path).sort()).toEqual(['decisions.sql','enforcement.sql','lifecycle.sql','migration.sql','ordering.sql'].map(file=>'docs/capability-control/'+file));
  for(const sql of envelope.capabilityControlSql)expect(sql.sha256).toBe(createHash('sha256').update(source(pins.myeve.main,sql.path)).digest('hex'));
@@ -72,7 +74,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(migrations.at(-1)?.name).toBe(unified.migration);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(terminal.historicalMigration).toBe(unified.migration);expect(terminal.currentMigration).toBe('0107_factory_preparation_generation_guard.sql');expect(migrations.at(-1)?.name).toBe(terminal.currentMigration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');
@@ -86,7 +88,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   expect(afterHistory.slice(0,-1)).toEqual(beforeHistory);
   for(const table of ['myapps_installations','myapps_admissions','myapps_candidates','external_alpha_policy','external_alpha_allowance','external_alpha_operation','external_alpha_work_authority','engineering_factory_requests','engineering_candidate_publications'])
    expect((await pool.query('SELECT count(*) n FROM '+table)).rows[0].n).toBe('0');
-  expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(unified.migration);
+  expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(terminal.currentMigration);
  }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
 });
 
@@ -94,7 +96,14 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
  const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
  expect(check.status,check.stderr).toBe(0);
- const successor=JSON.parse(readFileSync(resolve(root!,'docs/myapps/current-main-composition-qualification.json'),'utf8'));
+ expect(terminal.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
+ expect(terminal.factorySource).toBe(selectedFactory);
+ expect(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()).toBe(selectedFactory);
+ expect(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim()).toBe('');
+ const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${terminal.factoryRecord}`],{cwd:root,encoding:'utf8'});
+ expect(readFileSync(resolve(root!,terminal.factoryRecord),'utf8')).toBe(selectedRecord);
+ const successor=JSON.parse(selectedRecord);
+ expect(successor.sourceDigest).toBe(terminal.sourceDigest);expect(successor.factoryVersion).toBe(terminal.factoryVersion);
  expect(successor.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
  expect(JSON.parse(check.stdout).sourceDigest).toBe(successor.sourceDigest);
  expect(successor.sourceDigest).not.toBe(successor.predecessorSourceDigest);
@@ -102,11 +111,17 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  // positive control and historical source/contract rejection cases unchanged.
  const factoryAdapter=JSON.parse(readFileSync(resolve('docs/myapps/phase3/factory-capability-compatibility.json'),'utf8'));
  expect(factoryAdapter.source).toBe(pins.myfactory.capabilityCompatibility);
- expect(createHash('sha256').update(readFileSync(resolve(root!,'apps/cloud-control/test/source-identity-qualification.test.mjs'))).digest('hex')).toBe(factoryAdapter.files['apps/cloud-control/test/source-identity-qualification.test.mjs'].sourceSha256);
+ const identityPath='apps/cloud-control/test/source-identity-qualification.test.mjs';
+ // Historical fixture provenance remains bound to its original Git object.
+ expect(createHash('sha256').update(execFileSync('git',['show',`${factoryAdapter.source}:${identityPath}`],{cwd:root})).digest('hex')).toBe(factoryAdapter.files[identityPath].sourceSha256);
+ const currentIdentity=execFileSync('git',['show',`${selectedFactory}:${identityPath}`],{cwd:root});
+ expect(readFileSync(resolve(root!,identityPath))).toEqual(currentIdentity);
+ expect(createHash('sha256').update(currentIdentity).digest('hex')).toBe(terminal.factoryIdentityTestSha256);
+ expect(terminal.factoryIdentityTestCount).toBe(3);
  const grants=spawnSync(process.execPath,['--test','--test-reporter=tap','apps/cloud-control/test/source-identity-qualification.test.mjs'],{cwd:root,encoding:'utf8'});
  expect(grants.status,grants.stderr+grants.stdout).toBe(0);
  expect(grants.stdout).toContain('coherent historical source or contract grants cannot consume successor authority');
- expect(grants.stdout).toMatch(/# pass 2\b/);
+ expect(grants.stdout).toMatch(/# pass 3\b/);
  expect(grants.stdout).toMatch(/# fail 0\b/);
  expect(grants.stdout).toMatch(/# skipped 0\b/);
 });

@@ -6,6 +6,7 @@ import {digest} from './contract.ts';
 import {randomUUID} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {loadMigrations,runMigrations} from '../../scripts/migration-runner.ts';
+import {EngineeringWorkerProjectionStore} from './worker-projection.ts';
 import {FactoryEvidenceStore} from './factory-evidence-store.ts';
 import {FactoryReceiptStore} from './factory-receipt-store.ts';
 import {evidenceReference,evidenceSha} from './factory-evidence.ts';
@@ -138,6 +139,18 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   f.cleanup.mockRestore();expect(await f.driver.stop(f.work.id)).toEqual({state:'ADMISSION_UNCERTAIN',accounting:'HOLD'});
   await expect(issueFactorySourcePermit(f.store,{connection:{source:{}}} as never,{ownerId:f.store.principal.scopeId,installationId:'fixture-install'} as never,'fixture-backend',terminalKey,{} as never,{workId:f.work.id},{} as never)).rejects.toThrow('FACTORY_SOURCE_PREPARATION');
   expect((await f.p.query('SELECT count(*) FROM engineering_route_runs WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('0');
+ });
+ it('owner revision retains unresolved prior preparation in exact scoped history without changing its bytes or current controls',async()=>{
+  const f=await fixture(),prior=await f.bytes();
+  const changed=await f.store.change(f.work.id,{operation:'revise',expectedVersion:f.work.version,criteria:f.work.criteria});
+  expect(changed.generation).toBe(f.work.generation+1);
+  const projection=new EngineeringWorkerProjectionStore(f.store,'synthetic-sofie',async()=>{throw Error('NO_INSTALLED_AUTHORITY');});
+  const p=(await projection.get(f.work.id)).projection;
+  expect(p.factoryUnresolvedPreparations).toEqual([{requestId:f.preparation.request.requestId,generation:f.work.generation,state:'UNRESOLVED',accounting:'UNRESOLVED'}]);
+  expect(p.factoryReservationHolds).toEqual([]);expect(p.factoryPreparation).toBeUndefined();expect(p.workGeneration).toBe(changed.generation);expect(p.control).toBe(changed.control);
+  expect(await f.bytes()).toBe(prior);expect((await f.p.query('SELECT count(*) FROM engineering_route_runs WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('0');
+  const foreign=new WorkStore({scopeId:'foreign-fixture-owner',scopeKind:'personal',actorId:'foreign-fixture-owner'},database(f.p));
+  await expect(new EngineeringWorkerProjectionStore(foreign,'synthetic-sofie',async()=>{}).get(f.work.id)).rejects.toThrow();
  });
  it('forged or receipt-mismatched terminal objects cannot reach the durable seal',async()=>{
   const f=await fixture(),valid=await terminalFor(f);

@@ -37,6 +37,7 @@ export const SHARED_CAPABILITY_FILES = [
   "packages/capability-enforcement/src/decisions.ts",
   "packages/capability-enforcement/src/ordering-source.ts",
   "packages/capability-enforcement/src/ordering-wire.ts",
+  "packages/capability-enforcement/src/factory-preparation-terminal.ts",
   "packages/capability-enforcement/src/ordering-transport.ts",
   "packages/capability-enforcement/src/lifecycle-wire.ts",
   "packages/capability-enforcement/src/lifecycle-source.ts",
@@ -128,7 +129,9 @@ export function relocateCapabilityReferences(file: string, data: Buffer): Buffer
   if (!["lib/capability-control/store.ts", "lib/capability-control/runtime.ts",
     "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/capability-source.ts",
     "lib/missioncontrol/installed-client.ts", "lib/missioncontrol/permit-store.ts",
-    "lib/missioncontrol/relay-lease-client.ts", "lib/myapps/alpha-tasks-host.ts"].includes(file)) {
+    "lib/missioncontrol/relay-lease-client.ts", "lib/myapps/alpha-tasks-host.ts",
+    "lib/engineering/factory-capability-client.ts", "lib/engineering/factory-capability-source.ts",
+    "lib/engineering/factory-preparation-terminal.ts", "lib/engineering/factory-relay-lease-client.ts"].includes(file)) {
     throw new Error(`Unexpected shared capability consumer: ${file}`);
   }
   const relocated = source.replace(/\.\.\/\.\.\/\.\.\/\.\.\/packages\/(capability-[^"'`\s]*)/g, (reference, suffix: string) => {

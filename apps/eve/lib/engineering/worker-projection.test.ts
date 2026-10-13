@@ -19,7 +19,7 @@ let heldPreparations:any[]=[];
 const work={...fixture().work,id:retained.workspace.work_id,version:2,generation:2,criteriaVersion:1,control:"agent" as const,lifecycle:"active" as const};
 function reader(authority=vi.fn().mockRejectedValue(new Error("revoked"))){
  const store={principal:{scopeId:"authenticated-native-fixture",scopeKind:"personal",actorId:"authenticated-native-fixture"},get:async()=>work,database:{query:async(sql:string)=>{
- queries.push(sql);if(sql.includes('SELECT factory_preparation AS held_preparation'))return heldPreparations;if(sql.includes('SELECT factory_preparation,factory_observation'))return terminalPreparation?[terminalPreparation]:[];if(sql.includes('jsonb_agg(c)'))return [{calls:[],observations:[],legacy:{spent_microusd:0,reserved_microusd:0,usage_unknown:false}}];if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
+ queries.push(sql);if(sql.includes('SELECT d.factory_preparation AS held_preparation'))return heldPreparations;if(sql.includes('SELECT factory_preparation,factory_observation'))return terminalPreparation?[terminalPreparation]:[];if(sql.includes('jsonb_agg(c)'))return [{calls:[],observations:[],legacy:{spent_microusd:0,reserved_microusd:0,usage_unknown:false}}];if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
  if(sql.includes("SELECT engineering_completion_remaining"))throw new Error("Budget and hold must use one SQL snapshot");
  if(sql.includes("FROM engineering_direct_workspaces n"))return[data.workspace];
  if(sql.includes("FROM engineering_native_runtime"))return[data.runtime];
@@ -71,4 +71,16 @@ it('prior-generation reservation HOLD remains visible without replacing current-
  expect(p.factoryPreparation).toEqual(before.factoryPreparation);expect(p.status).toBe(before.status);expect(p.control).toBe(before.control);expect(p.runTruth).toEqual(before.runTruth);
  heldPreparations=Array(129).fill(heldPreparations[0]);const limited=(await reader().get(work.id)).projection;expect(limited.factoryReservationHolds).toHaveLength(128);expect(limited.factoryReservationHistoryIncomplete).toBe(true);expect(limited.status).toBe(before.status);expect(limited.control).toBe(before.control);
  heldPreparations=[{held_preparation:{terminal:{accounting:'HOLD',receipt:{...receipt,ownerId:'foreign'}}}}];const foreign=(await reader().get(work.id)).projection;expect(foreign.factoryReservationHolds).toEqual([]);expect(foreign.factoryReservationHistoryIncomplete).toBe(true);expect(foreign.control).toBe(before.control);
+});
+
+it('retains unresolved prior preparations across owner revision without inventing terminal or accounting truth',async()=>{
+ const before=(await reader().get(work.id)).projection;
+ const row={scope_id:'authenticated-native-fixture',scope_kind:'personal',work_id:work.id,
+  held_preparation:{request:{requestId:'unresolved-request',workId:work.id,workGeneration:1},state:'BLOCKED'}};
+ heldPreparations=[row];const p=(await reader().get(work.id)).projection;
+ expect(p.factoryUnresolvedPreparations).toEqual([{requestId:'unresolved-request',generation:1,state:'UNRESOLVED',accounting:'UNRESOLVED'}]);
+ expect(p.factoryReservationHolds).toEqual([]);expect(p.factoryPreparation).toEqual(before.factoryPreparation);expect(p.status).toBe(before.status);expect(p.control).toBe(before.control);expect(p.runTruth).toEqual(before.runTruth);
+ expect(queries.find(sql=>sql.includes('SELECT d.factory_preparation AS held_preparation'))).toContain('NOT EXISTS(SELECT 1 FROM engineering_route_runs');
+ heldPreparations=Array(129).fill(row);const bounded=(await reader().get(work.id)).projection;expect(bounded.factoryUnresolvedPreparations).toHaveLength(128);expect(bounded.factoryReservationHistoryIncomplete).toBe(true);expect(bounded.control).toBe(before.control);
+ heldPreparations=[{...row,scope_id:'foreign'}];const foreign=(await reader().get(work.id)).projection;expect(foreign.factoryUnresolvedPreparations).toEqual([]);expect(foreign.factoryReservationHistoryIncomplete).toBe(true);expect(foreign.status).toBe(before.status);
 });

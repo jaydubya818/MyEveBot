@@ -24,6 +24,7 @@ export interface EngineeringWorkerProjection {
   factoryPreparation?: {requestId:string;state:string;blocker:string|null};
   factoryReservationHolds?: {requestId:string;generation:number;state:string;accounting:'HOLD'}[];
   factoryReservationHistoryIncomplete?:boolean;
+  factoryUnresolvedPreparations?: {requestId:string;generation:number;state:'UNRESOLVED';accounting:'UNRESOLVED'}[];
   factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary}};
   workId: string;
   title: string;
@@ -225,15 +226,26 @@ export class EngineeringWorkerProjectionStore {
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation#>>'{request,workGeneration}'=$4
            AND factory_preparation IS NOT NULL ORDER BY (factory_preparation ? 'terminal') DESC,created_at DESC LIMIT 1`,[...scope,String(work.generation)]),
       this.workStore.database.query(
-        `SELECT factory_preparation AS held_preparation FROM engineering_routing_decisions
-         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND factory_preparation ? 'terminal'
-         ORDER BY created_at DESC LIMIT 129`,scope),
+        `SELECT d.factory_preparation AS held_preparation,d.scope_id,d.scope_kind,d.work_id FROM engineering_routing_decisions d
+         WHERE d.scope_id=$1 AND d.scope_kind=$2 AND d.work_id=$3 AND d.factory_preparation IS NOT NULL
+           AND (d.factory_preparation ? 'terminal' OR NOT EXISTS(SELECT 1 FROM engineering_route_runs r
+             WHERE r.decision_id=d.id AND r.scope_id=d.scope_id AND r.scope_kind=d.scope_kind AND r.work_id=d.work_id))
+         ORDER BY d.created_at DESC LIMIT 129`,scope),
     ]);
     let factoryReservationHistoryIncomplete=heldPreparationRows.length>128;
     const factoryReservationHolds:NonNullable<EngineeringWorkerProjection['factoryReservationHolds']>=[];
+    const factoryUnresolvedPreparations:NonNullable<EngineeringWorkerProjection['factoryUnresolvedPreparations']>=[];
     for(const row of heldPreparationRows.slice(0,128)){
       try{
         const terminal=row.held_preparation.terminal;
+        if(!terminal){
+          const request=row.held_preparation.request;
+          if(row.scope_id!==this.workStore.principal.scopeId||row.scope_kind!==this.workStore.principal.scopeKind||row.work_id!==id
+            ||request?.workId!==id||typeof request.requestId!=='string'||!request.requestId||request.requestId.length>128
+            ||!Number.isSafeInteger(request.workGeneration)||request.workGeneration<1)throw Error('FACTORY_PREPARATION_SCOPE');
+          factoryUnresolvedPreparations.push({requestId:request.requestId,generation:request.workGeneration,state:'UNRESOLVED',accounting:'UNRESOLVED'});
+          continue;
+        }
         factoryTerminalActivity(terminal); // retained immutable HOLD, not authority
         if(terminal.receipt.workId!==id||terminal.receipt.ownerId!==this.workStore.principal.scopeId)throw Error('FACTORY_HOLD_SCOPE');
         factoryReservationHolds.push({requestId:String(terminal.receipt.requestId),generation:Number(terminal.receipt.generation),
@@ -507,7 +519,7 @@ export class EngineeringWorkerProjectionStore {
     const projection: EngineeringWorkerProjection = {
       externalAlpha,
       publicationReadback,
-      journeyAccounting,factoryAccounting,factoryPreparation,factoryReservationHolds,factoryReservationHistoryIncomplete, factoryWriter, runTruth,
+      journeyAccounting,factoryAccounting,factoryPreparation,factoryReservationHolds,factoryReservationHistoryIncomplete,factoryUnresolvedPreparations, factoryWriter, runTruth,
       verification: externalAlpha?.result ? { candidateSha: externalAlpha.result.candidateSha, status: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,
         jobStatus: "RETAINED", evidenceCount: externalAlpha.result.proof.evidence.length, evidenceHashes: externalAlpha.result.proof.artifactRefs.filter(r => r.startsWith("factory-evidence:")) } : verification,
       draft, completionBudget, candidateHistory: externalAlpha?.result ? [{ sha: externalAlpha.result.candidateSha, checks: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,

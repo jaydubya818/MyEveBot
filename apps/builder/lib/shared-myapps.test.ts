@@ -30,6 +30,13 @@ for (const features of [[], [...FEATURE_IDS]]) {
       assert.equal(byPath.get(file)?.toString(), (await readFile(path.join(root, file), "utf8"))
         .replaceAll("../../../../packages/capability-", "../../packages/capability-"));
     }
+    for(const file of ['lib/engineering/factory-capability-client.ts','lib/engineering/factory-capability-source.ts',
+      'lib/engineering/factory-preparation-terminal.ts','lib/engineering/factory-relay-lease-client.ts']) {
+      assert.equal(byPath.get(file)?.toString(),(await readFile(path.join(root,file),'utf8'))
+        .replaceAll('../../../../packages/capability-','../../packages/capability-'),`exact original capability consumer: ${file}`);
+    }
+    assert.deepEqual(byPath.get('packages/capability-enforcement/src/factory-preparation-terminal.ts'),
+      await readFile(path.resolve(root,'../../packages/capability-enforcement/src/factory-preparation-terminal.ts')));
     const repository = JSON.parse(await readFile(path.resolve(root, "../../package.json"), "utf8"));
     const application = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
     const packaged = JSON.parse(byPath.get("package.json")!.toString());
