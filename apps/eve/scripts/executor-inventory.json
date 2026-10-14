@@ -4496,13 +4496,13 @@
       "sha256": "752c0a9296d8d5adda1c0669eac21e62fe9113a68f553594d06239c0bf0359b6"
     },
     "lib/engineering/factory-preparation-terminal.ts": {
-      "classification": "READ_ONLY",
-      "reason": "Strict terminal domain: exact-field signed receipt parse and expected-binding equality (requestId/owner/FactoryVersion/Work/generation); ADMISSION_UNCERTAIN requires RESTORE_OR_COMMIT_AMBIGUITY; settlement/RELEASED fields rejected. Pure validation; no execution, dispatch or accounting effect. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "classification": "INTERNAL",
+      "reason": "Factory preparation terminal seal: verifies the signed terminal readback against the retained preparation, then performs one fenced durable UPDATE of engineering_routing_decisions.factory_preparation.terminal (CAS on the exact prior preparation, cannot overwrite an existing terminal) recording accounting HOLD, receipt and envelope. Scoped durable state; no execution, dispatch, release, refund or settlement. Reclassified READ_ONLY->INTERNAL by independent review 2026-10-14 (previous reason described the imported parser, not this file).",
       "sha256": "3cd9f735e6176306db5e4b3ac67044a018b0d27695cbabad3d4d74e29973a150"
     },
     "lib/engineering/factory-relay-lease-client.ts": {
-      "classification": "INTERNAL",
-      "reason": "Relay lease pairing for an owned Factory attempt: Relay PERMIT verified with relayKey and sourcePermitHash, maxCalls 1, idempotency per source hash, enrollment-scoped approval/reservation references attached unchanged. Relay owns the reservation lifecycle; no MyEve release, refund or settlement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
+      "classification": "ENFORCED",
+      "reason": "Relay PERMIT pairing for an owned attempt bound to a verified source permit; maxCalls 1; idempotency per source hash; enrollment-scoped approval/reservation references attached unchanged; returns only the remote permit. Relay owns the reservation lifecycle; no MyEve release/refund/settlement. Classified ENFORCED for consistency with lib/missioncontrol/relay-lease-client.ts, lib/relay/client.ts and lib/relay/installed-client.ts (independent review 2026-10-14).",
       "sha256": "c93f314e34eb3d85dfc4a3be7322ab4bcfab6725586685b2b78446fe5c1a86e7"
     }
   }
