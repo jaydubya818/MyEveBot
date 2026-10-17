@@ -34,3 +34,14 @@ node_modules
 
 # Build-derived Builder source inventory; never source authority.
 /apps/eve/.builder-template-source.*
+
+# Common local build/test output (Hark hygiene audit 2026-10-17)
+dist/
+coverage/
+test-results/
+playwright-report/
+.eve/
+npm-debug.log*
+
+# Assembled CLOUD P0 evidence is published by its isolated test runner.
+/output/playwright/consolidation-cloud/
