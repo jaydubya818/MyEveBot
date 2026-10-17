@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { bindOwnerBrowserStorage, ownerLocalStorage, ownerSessionStorage } from './owner-browser-storage';
+import { bindOwnerBrowserStorage, invalidateOwnerBrowserSession, OWNER_BROWSER_EVENT, ownerLocalStorage, ownerSessionStorage } from './owner-browser-storage';
 function quotaStorage() {
   const values=new Map<string,string>();
   return {get length(){return values.size;},key:(i:number)=>[...values.keys()][i]??null,
@@ -39,4 +39,25 @@ it('requires a signed owner even when using the current-page fallback',()=>{
  vi.stubGlobal('localStorage',quotaStorage());bindOwnerBrowserStorage('',false);
  expect(()=>ownerLocalStorage.setItem('chat','private')).toThrow('signed owner');
  expect(()=>ownerLocalStorage.getItem('chat')).toThrow('signed owner');
+});
+
+it.each(['QuotaExceededError','SecurityError'])('does not block successful sign-in when notification storage throws %s',(name)=>{
+ const dispatchEvent=vi.fn();
+ vi.stubGlobal('window',{localStorage:{setItem:()=>{throw new DOMException('Storage unavailable',name);}},dispatchEvent});
+ vi.stubGlobal('localStorage',quotaStorage());
+ bindOwnerBrowserStorage('owner-before-login',false);
+ ownerLocalStorage.setItem('chat','private fallback');
+ expect(()=>invalidateOwnerBrowserSession()).not.toThrow();
+ expect(dispatchEvent).toHaveBeenCalledOnce();
+ expect(dispatchEvent.mock.calls[0][0].type).toBe(OWNER_BROWSER_EVENT);
+ expect(()=>ownerLocalStorage.getItem('chat')).toThrow('signed owner');
+ bindOwnerBrowserStorage('owner-before-login',false);
+ expect(ownerLocalStorage.getItem('chat')).toBeNull();
+});
+it('still notifies other tabs and the current page when browser storage is available',()=>{
+ const setItem=vi.fn(),dispatchEvent=vi.fn();
+ vi.stubGlobal('window',{localStorage:{setItem},dispatchEvent});
+ invalidateOwnerBrowserSession();
+ expect(setItem).toHaveBeenCalledWith(OWNER_BROWSER_EVENT,expect.any(String));
+ expect(dispatchEvent).toHaveBeenCalledOnce();
 });

@@ -14,6 +14,7 @@ export function invalidateOwnerBrowserSession() {
  owner=null;
  clearFallback();
  try { window.localStorage.setItem(OWNER_BROWSER_EVENT, crypto.randomUUID()); }
+ catch { /* Cross-tab notification is best-effort when storage is full or blocked. */ }
  finally { window.dispatchEvent(new Event(OWNER_BROWSER_EVENT)); }
 }
 function storage(session: boolean) {
