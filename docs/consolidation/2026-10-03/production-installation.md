@@ -2,7 +2,7 @@
 
 Status: **IMPLEMENTED / LOCAL QUALIFICATION PASS; LIVE INSTALLATION PENDING**. First paid canary: **NOT_READY**.
 
-The separately provisioned Factory project is `myfactory-cloud-production` (`prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK`). Only `sofie-personal-agent` (`prj_L6faw25wnFGUZtrLKBIccg8gIDLR`) Production may become its cross-project trusted source. Preview and Development are excluded. The exact rule is prepared but not saved pending the browser tool's required action-time confirmation. This is the same short-lived workload-identity architecture, with independent application and Work authorization retained.
+The separately provisioned Factory project is `myfactory-cloud-production` (`<vercel-project-id-B>`). Only `sofie-personal-agent` (`<vercel-project-id-A>`) Production may become its cross-project trusted source. Preview and Development are excluded. The exact rule is prepared but not saved pending the browser tool's required action-time confirmation. This is the same short-lived workload-identity architecture, with independent application and Work authorization retained.
 
 Fresh resources, connected only to that project's Production environment:
 

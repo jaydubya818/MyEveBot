@@ -14,7 +14,10 @@ const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).
 assert.equal(sha,'d817c848a7f6797fe04787e28ac96081b69359ae');
 assert.equal(execFileSync('git',['status','--porcelain','--untracked-files=no'],{cwd:source,encoding:'utf8'}).trim(),'');
 assert.equal(MAX_FEDERATION_SIGNING_BYTES,262057);
-const version='projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1';
+// Exact Cloud KMS key version resource name and operator gcloud account come from the environment so
+// no project name or personal address is committed. Example: projects/<gcp-project-id>/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1
+const version=process.env.FQ_KMS_PROBE_KEY_VERSION;
+assert.ok(version&&version.startsWith('projects/'),'FQ_KMS_PROBE_KEY_VERSION must be set to the exact KMS key version resource name');
 const audience='relay://fq-owner-b/fq-agent-b',issuer='https://relay.synthetic.invalid';
 const createdAt=new Date().toISOString(),expiresAt=new Date(Date.now()+600000).toISOString();
 const pair=generateKeyPairSync('ed25519');
@@ -59,7 +62,9 @@ for(const fixture of fixtures){
 const report={observedAt:new Date().toISOString(),relaySha:sha,keyVersion:version,status:'NOT_RUN',federationEnabled:false,externalGates:{independentSecurity:'NOT_RUN',productionPlatform:'NOT_RUN'},cases:fixtures.map(({name,rawBytes,base64Bytes,localCanonicalVerification})=>({name,rawBytes,base64Bytes,localCanonicalVerification,kms:'NOT_RUN',relayVerification:'NOT_RUN'})),requests:[]};
 if(process.argv.includes('--prepare-only')){console.log(JSON.stringify(report,null,2));process.exit(0);}
 assert.equal(process.env.FQ_KMS_PROBE_AUTHORIZED,'qualification-only-new-key');
-const token=execFileSync('gcloud',['auth','print-access-token','--account=jaydubya818@gmail.com'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const operatorEmail=process.env.OPERATOR_EMAIL;
+assert.ok(operatorEmail,'OPERATOR_EMAIL must be set to the gcloud account authorized for the probe');
+const token=execFileSync('gcloud',['auth','print-access-token',`--account=${operatorEmail}`],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 const request=async(url,init={})=>{
  assert.ok(String(url).startsWith('https://cloudkms.googleapis.com/v1/'+version));
  const response=await fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(15000)});

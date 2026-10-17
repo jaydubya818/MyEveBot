@@ -14,7 +14,7 @@ FactoryVersion: `cb0a31aabb471688a87198e901edc733f7aecd0a134c76727b25689e30ae5b2
 
 ## Preflight and write boundary
 
-The production marker matched project `prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK`, database `dry-morning-22844424` (`myfactory-cloud-production-db`, store `store_vUOtU0sIkDLU6TY4`), and private custody store `store_qBuivS8MmRxnBNnU`. Eight qualified Factory migrations were present. Active grants and paid-operation rows were zero. Owner security smoke passed; general Work and publication remained disabled.
+The production marker matched project `<vercel-project-id-B>`, database `dry-morning-22844424` (`myfactory-cloud-production-db`, store `store_vUOtU0sIkDLU6TY4`), and private custody store `store_qBuivS8MmRxnBNnU`. Eight qualified Factory migrations were present. Active grants and paid-operation rows were zero. Owner security smoke passed; general Work and publication remained disabled.
 
 The Vercel query console Read-Only guard was enabled before the approved temporary window. It was disabled solely for insertion and revocation of the exact grant. This is the console write guard, not a server-wide PostgreSQL read-only setting. No schema changes, credential changes or unrelated record repairs were made.
 

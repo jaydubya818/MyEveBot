@@ -3,7 +3,7 @@
   "mode": "read-only metadata; no secret values, database rows or deployment changes",
   "projects": {
     "myeve": {
-      "id": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "id": "<vercel-project-id-A>",
       "name": "sofie-personal-agent",
       "framework": "nextjs",
       "rootDirectory": "apps/eve",
@@ -275,14 +275,14 @@
       "targets": {
         "production": {
           "id": "dpl_CjbdgUWpszU2nV8srA2m2egmoKgY",
-          "url": "sofie-personal-agent-l90txxv0t-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "readyState": "READY",
           "createdAt": 1789920815133,
           "target": "production"
         },
         "preview": {
           "id": "dpl_95jNGPuqEGhuBe2QXpkcUnh8v9U7",
-          "url": "sofie-personal-agent-2fbhzhmq6-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "readyState": "READY",
           "createdAt": 1789920444595,
           "target": null
@@ -291,7 +291,7 @@
       "deployments": [
         {
           "uid": "dpl_CjbdgUWpszU2nV8srA2m2egmoKgY",
-          "url": "sofie-personal-agent-l90txxv0t-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": "production",
           "created": 1789920815133,
@@ -300,7 +300,7 @@
         },
         {
           "uid": "dpl_95jNGPuqEGhuBe2QXpkcUnh8v9U7",
-          "url": "sofie-personal-agent-2fbhzhmq6-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789920444595,
@@ -309,7 +309,7 @@
         },
         {
           "uid": "dpl_7AjZfo1bTQHVMZCQLM4iuTCLtiaQ",
-          "url": "sofie-personal-agent-iukm29ajz-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789842736312,
@@ -318,7 +318,7 @@
         },
         {
           "uid": "dpl_6U7w8e3nSW6xzPhYk7mm94Rpzy21",
-          "url": "sofie-personal-agent-gjmswlb56-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789841604258,
@@ -327,7 +327,7 @@
         },
         {
           "uid": "dpl_Dgqs7CnkJdpxtQKZZbcyrnnsrQ1g",
-          "url": "sofie-personal-agent-feklu3c4w-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789839341434,
@@ -336,7 +336,7 @@
         },
         {
           "uid": "dpl_CwW1fLESsFjnGHdFjsYT8DAzaqw2",
-          "url": "sofie-personal-agent-43tlsvmcz-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789839221350,
@@ -345,7 +345,7 @@
         },
         {
           "uid": "dpl_4SNdmPTi8wcpPGoGFmFFJ1B9R3dB",
-          "url": "sofie-personal-agent-g2notabz8-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789784898099,
@@ -354,7 +354,7 @@
         },
         {
           "uid": "dpl_8vodNqG71Le2LqvwvAjD7M2B6SNB",
-          "url": "sofie-personal-agent-l3h5o8y69-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789770000549,
@@ -363,7 +363,7 @@
         },
         {
           "uid": "dpl_68KXZNPtrZFu1YAkVzQGFuNRoX9k",
-          "url": "sofie-personal-agent-58sbcmzyk-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789768149339,
@@ -372,7 +372,7 @@
         },
         {
           "uid": "dpl_5w2NRkPuE5rD15dQv35acXyyjwtE",
-          "url": "sofie-personal-agent-q92s2hwlz-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789766353627,
@@ -382,7 +382,7 @@
       ],
       "domains": [
         {
-          "name": "sofie-personal-agent.vercel.app",
+          "name": "<sofie-production-host>",
           "gitBranch": null,
           "customEnvironmentId": null,
           "verified": true
@@ -394,7 +394,7 @@
       }
     },
     "relay": {
-      "id": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
+      "id": "<vercel-project-id-E>",
       "name": "relay",
       "framework": null,
       "rootDirectory": null,
@@ -829,14 +829,14 @@
       "targets": {
         "production": {
           "id": "dpl_4SZwzNJ4jML9ACR2DCdWC7jLTwos",
-          "url": "relay-4j3wj2jrq-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "readyState": "READY",
           "createdAt": 1789922266714,
           "target": "production"
         },
         "preview": {
           "id": "dpl_3aa1PgPAHzpw6PSuczJDc5ifgyhr",
-          "url": "relay-lne28pb5e-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "readyState": "READY",
           "createdAt": 1789921940934,
           "target": null
@@ -845,7 +845,7 @@
       "deployments": [
         {
           "uid": "dpl_4SZwzNJ4jML9ACR2DCdWC7jLTwos",
-          "url": "relay-4j3wj2jrq-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": "production",
           "created": 1789922266714,
@@ -854,7 +854,7 @@
         },
         {
           "uid": "dpl_3aa1PgPAHzpw6PSuczJDc5ifgyhr",
-          "url": "relay-lne28pb5e-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789921940934,
@@ -863,7 +863,7 @@
         },
         {
           "uid": "dpl_787DTV4K82jzTm5L2k1GriWYTEP8",
-          "url": "relay-dt2vgcduv-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789921279318,
@@ -872,7 +872,7 @@
         },
         {
           "uid": "dpl_8GCcV5W3tW6yUibicAE2xDKBqCoT",
-          "url": "relay-3gkmoh8b1-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789920988075,
@@ -881,7 +881,7 @@
         },
         {
           "uid": "dpl_6MJoya2a5y2SNkSAEnEbXaQ5Y1w3",
-          "url": "relay-e9js34mnb-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789839391453,
@@ -890,7 +890,7 @@
         },
         {
           "uid": "dpl_9pNSqSUQptf5armoorvys7pTzvjW",
-          "url": "relay-mebk7iqox-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789838747864,
@@ -899,7 +899,7 @@
         },
         {
           "uid": "dpl_n8Qhw41kvSvbrmRfQjBLmvX5ZKAz",
-          "url": "relay-pefatdp6m-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789838522602,
@@ -908,7 +908,7 @@
         },
         {
           "uid": "dpl_EjtNHm5q5a3r9DCakqsv3gR3c3wA",
-          "url": "relay-17ovkloko-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789837183887,
@@ -917,7 +917,7 @@
         },
         {
           "uid": "dpl_7geHA5r5odBzYQagj3zNeyDsWbCs",
-          "url": "relay-o0zrtzjmm-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789836234194,
@@ -926,7 +926,7 @@
         },
         {
           "uid": "dpl_6jdPscb1mUgUU5KgKmBr4W2z7LmF",
-          "url": "relay-gi7gwyqbj-jaydubya818.vercel.app",
+          "url": "<vercel-preview-host>",
           "state": "READY",
           "target": null,
           "created": 1789835802895,
@@ -936,7 +936,7 @@
       ],
       "domains": [
         {
-          "name": "relay-sage-nine.vercel.app",
+          "name": "<relay-production-host>",
           "gitBranch": null,
           "customEnvironmentId": null,
           "verified": true
