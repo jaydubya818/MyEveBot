@@ -6,7 +6,7 @@ Status: **PARTIAL** overall. Owner sign-in is complete. The production applicati
 
 The initially saved exact Sofie Production → Factory Production trust rule was correct, but Factory Standard Protection left the production alias outside deployment protection. Earlier anonymous401 observations came from Factory application authentication and did not qualify Vercel source isolation. A fresh Development identity exposed that distinction. Those earlier observations retain their narrower meaning.
 
-Automatic approval review rejected the persistent change to All Deployments as outside the earlier exact trust-rule authorization. The owner then explicitly approved changing only Factory project `prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK` to All Deployments. The change was saved; API readback confirms `deploymentType: all` and the unchanged sole cross-project production→production allow rule. No static bypass or broader trusted source was added.
+Automatic approval review rejected the persistent change to All Deployments as outside the earlier exact trust-rule authorization. The owner then explicitly approved changing only Factory project `<vercel-project-id-B>` to All Deployments. The change was saved; API readback confirms `deploymentType: all` and the unchanged sole cross-project production→production allow rule. No static bypass or broader trusted source was added.
 
 ## Live observations after protection correction
 

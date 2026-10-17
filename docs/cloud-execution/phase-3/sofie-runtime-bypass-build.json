@@ -2,7 +2,7 @@
   "checkedAt": "2026-10-02T16:48:59.529Z",
   "evidenceClass": "CONNECTED",
   "deploymentId": "dpl_B1j3imBHBYX7eUp2hoKCwBQ4AemJ",
-  "origin": "https://sofie-cloud-qualification-5lqkv19y7-jaydubya818.vercel.app",
+  "origin": "https://<vercel-preview-host>",
   "target": "preview",
   "browserBundleScan": {
     "status": "PASS",

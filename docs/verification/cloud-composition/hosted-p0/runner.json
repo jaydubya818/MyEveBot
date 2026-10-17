@@ -3,7 +3,7 @@
   "commit": "0502e8b14ee283ed89760139cdf63a47ed4419cc",
   "trigger": {
     "attempt": 5,
-    "origin": "https://sofie-cloud-qualification-824wbmd9r-jaydubya818.vercel.app",
+    "origin": "https://<vercel-preview-host>",
     "factoryVersion": "da7b51a56a62980ee8f96a029b1a60fc84f495fd7897438fbb74ede3a0e161fe",
     "paidModelOperations": 0,
     "publication": "DISABLED",

@@ -19,9 +19,9 @@ environment variables. Each placeholder tree contains only a disabled notice and
 
 | Installation | Existing project | Qualification branch | Sensitive entries |
 | --- | --- | --- | --- |
-| MyEve A | `prj_L6faw25wnFGUZtrLKBIccg8gIDLR` | `codex/fq-a-6384519e0e01` | 26 |
+| MyEve A | `<vercel-project-id-A>` | `codex/fq-a-6384519e0e01` | 26 |
 | MyEve B, independently operated peer | same MyEve project | `codex/fq-b-6384519e0e01` | 26 |
-| Relay | `prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK` | `codex/fq-relay-6384519e0e01` | 26 |
+| Relay | `<vercel-project-id-E>` | `codex/fq-relay-6384519e0e01` | 26 |
 
 All entries are `sensitive`, target **preview only**, exact branch only. Fresh
 synthetic application passwords were generated in memory and sent to the managed

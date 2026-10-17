@@ -5,7 +5,7 @@
 **Deployment PASS; full qualification FAIL/BLOCKED by a newly observed task-binding compatibility defect.** These results supersede the initial rollout status below. The historical record remains intact.
 
 - Explicitly approved candidate `2ce3c2d2a3b7874377184d63687a406eb3a9bd06` deployed through the canonical scoped Vercel production process from an exact clean source snapshot.
-- Deployment `dpl_AiYwttfVFRq6SSPcoM3dVHJt1XSp`, READY, immutable URL https://sofie-personal-agent-r3n13stnq-jaydubya818.vercel.app.
+- Deployment `dpl_AiYwttfVFRq6SSPcoM3dVHJt1XSp`, READY, immutable URL https://<vercel-preview-host>.
 - At `2026-10-01T04:40:30Z`, production alias still resolved to that SHA; Sofie and Relay health both HTTP 200 / ready. See [final deployment receipt](computer-federation-production-2026-10-01/sofie-compatibility-final-receipt.json).
 - Remote main was fetched before deployment and remained `fc5ed14a893a690b341666e18e88884cc7bf4779` at the final check. Prior Computer base `fff8feef84ccfa8e43c81201653dab08182adacd` is its ancestor. A merge-tree reconciliation with the candidate was conflict-free (`cdbdd09e20c697ede9ecbdbb6d02cf9e51d37f78`). Candidate changes do not modify Factory admission/execution source. No canonical merge, main push, history rewrite or new branch was performed because the qualification gate failed.
 - Real-Factory approval and approved-Work production settings remained absent. The isolated Private Alpha admission deployment, repair and execution ownership were not changed.
@@ -60,8 +60,8 @@ The next compatibility repair must make starting a durable task in an existing o
 
 - Approved and deployed source: `fff8feef84ccfa8e43c81201653dab08182adacd`.
 - Vercel deployment: `dpl_DjiW59cXWYfNiJkbtmHrtoGtjuJb`, READY.
-- Production: https://sofie-personal-agent.vercel.app
-- Immutable deployment: https://sofie-personal-agent-o6pkt76c1-jaydubya818.vercel.app
+- Production: https://<sofie-production-host>
+- Immutable deployment: https://<vercel-preview-host>
 - Alias/source confirmed at `2026-10-01T01:04:18Z`. Sofie `/eve/v1/health` and Relay `/api/health` both returned HTTP 200 and ready database/runtime status.
 - Remote main had advanced to `63cd10fe45c1d0a139c72bdd7c665b1362e1e69b`. The approved SHA remained its ancestor. The advancement was the separate Factory admission-proposal guidance repair; no Computer/federation contract or migration changed. Its isolated deployment and execution settings were preserved. This release used an exact clean snapshot of the approved SHA, not the newer main.
 - Existing migration 0077 and prepared five Computer scopes were retained. Real-Factory approval/approved-Work production settings remained absent. No real Factory execution, retry, admission repair, custody or Result was attempted here.

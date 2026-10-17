@@ -3,7 +3,7 @@
   "commit": "3e79b42124ac4d186c6c6b64c98839a4671a1f06",
   "trigger": {
     "attempt": "consolidation-1",
-    "origin": "https://sofie-cloud-qualification-6w6edaoqx-jaydubya818.vercel.app",
+    "origin": "https://<vercel-preview-host>",
     "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
     "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
     "myeveSourceSha": "4860ecce1af8089378aadf1321ed5c4bdabee6b1",

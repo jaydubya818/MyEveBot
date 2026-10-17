@@ -1,6 +1,6 @@
 {
   "kind": "CONNECTED",
-  "origin": "https://sofie-cloud-qualification-o6y025hei-jaydubya818.vercel.app",
+  "origin": "https://<vercel-preview-host>",
   "deploymentId": "dpl_FGV97kwxwwsaUtijz6C6YTEU2v7S",
   "checkedAt": "2026-10-02T21:13:18.396Z",
   "factoryInfrastructureCredentialsInRunner": 0,
