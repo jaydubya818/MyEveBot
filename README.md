@@ -1,5 +1,7 @@
 # MyEve
 
+[![CI](https://github.com/jaydubya818/MyEveBot/actions/workflows/ci.yml/badge.svg)](https://github.com/jaydubya818/MyEveBot/actions/workflows/ci.yml)
+
 MyEve is the owner-facing application for a persistent personal AI agent. Sofie is its primary assistant: conversation, persistent specialists, private context, goals, Work, decisions, Files and verifiable Results live in one product. MyEve Builder configures and deploys an isolated installation from the same application source.
 
 MyEve coordinates work; it does not treat a model response, a queued request or a healthy provider as proof that work succeeded. Substantial software work crosses a separate MyFactory execution boundary, and communication with other agents crosses independently authorized Relay boundaries.
@@ -193,7 +195,9 @@ npm run db:migrate
 npm run dev --workspace=eve-agent -- --port 3001
 ```
 
-Open `http://localhost:3001/chat`. The root `npm run dev` starts the default app and Builder development servers. Next.js mounts the Eve service under `/eve/v1/**`; wait for the Eve backend to start before testing chat.
+`npm ci` also runs the `postinstall` dependency patch step (`scripts/security/apply-dependency-patches.mjs`); verify it with `npm run security:patches`.
+
+Open `http://localhost:3001/chat`. The root `npm run dev` starts the default app and Builder development servers. To run only the Builder, copy `apps/builder/.env.example` to `apps/builder/.env.local` and run `npm run dev --workspace=eveclaw-builder` (port 3100). Next.js mounts the Eve service under `/eve/v1/**`; wait for the Eve backend to start before testing chat.
 
 | Configuration family | Purpose |
 | --- | --- |
@@ -216,6 +220,8 @@ Use the qualified operator migration procedure when the selected database transp
 ```bash
 npm test                         # Core Node/script regressions
 npm test --workspace=eve-agent    # Agent/application regressions
+npm test --workspace=eveclaw-builder                 # Builder regressions
+npm test --workspace=@mission-control/capability-control  # Capability control package
 npm run typecheck                # Types, manifests and governance
 npm run db:migrations:check       # File/order validation; no database mutation
 npm run build
