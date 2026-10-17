@@ -10,7 +10,7 @@
   "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
   "approvedRepositoryBase": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
   "qualificationExpiresAt": "2026-10-02T23:59:59.000Z",
-  "productionAlias": "sofie-personal-agent.vercel.app",
+  "productionAlias": "<sofie-production-host>",
   "productionAliasDeploymentUnchanged": "dpl_GXhSL7ooxnYeoYgjNkDG7udhhPPx",
   "sourceReconciliation": "Normal merge on existing release branch, then fast-forward remote main; no reset or force push",
   "unrelatedComputerActivation": "NOT_PERFORMED",

@@ -31,12 +31,12 @@
         "body": "test(cloud): qualify hosted deterministic journey attempt 5\n",
         "author": {
           "name": "jaydubya818",
-          "email": "jaydubya818@gmail.com",
+          "email": "<operator-email>",
           "time": 1791009206000
         },
         "committer": {
           "name": "jaydubya818",
-          "email": "jaydubya818@gmail.com",
+          "email": "<operator-email>",
           "time": 1791009206000
         },
         "branch": "codex/cloud-execution"
@@ -62,12 +62,12 @@
             "body": "test(cloud): qualify hosted deterministic journey attempt 5\n",
             "author": {
               "name": "jaydubya818",
-              "email": "jaydubya818@gmail.com",
+              "email": "<operator-email>",
               "time": 1791009206000
             },
             "committer": {
               "name": "jaydubya818",
-              "email": "jaydubya818@gmail.com",
+              "email": "<operator-email>",
               "time": 1791009206000
             },
             "branch": "codex/cloud-execution"

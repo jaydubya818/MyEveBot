@@ -2,9 +2,9 @@
 
 Google Cloud KMS rejected a valid canonical Relay delivery signing input of **132,693 bytes** with HTTP 400 / INVALID_ARGUMENT: “Request field data must have length of at least 0, but not more than 65536. Provided value had length 132693.” No protocol, verifier limit, canonical serialization or signed bytes were changed. Signing stopped on this first incompatibility; no retry or smaller substitute was used.
 
-Project `relay-local-qualification` (`1079783030880`), region `us-east4`. Created only keyring `fq-compatibility-probe`, CryptoKey `fq-ed25519-probe`, initial version `1`: SOFTWARE / EC_SIGN_ED25519 / ENABLED.
+Project `<gcp-project-id>` (`<gcp-project-number>`), region `us-east4`. Created only keyring `fq-compatibility-probe`, CryptoKey `fq-ed25519-probe`, initial version `1`: SOFTWARE / EC_SIGN_ED25519 / ENABLED.
 
-Exact version: `projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1`.
+Exact version: `projects/<gcp-project-id>/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1`.
 
 | Raw signing bytes | Base64 transport bytes | KMS | Relay verification |
 |---|---|---|---|

@@ -2,25 +2,25 @@
   "observedAt": "2026-10-03T22:36:22.051349+00:00",
   "deployments": [
     {
-      "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "projectId": "<vercel-project-id-A>",
       "deploymentId": "dpl_36hKEptYUniSfWPnQT3JYUwi5U3d",
       "state": "READY",
       "target": "production",
       "sha": "c5ad88eb7819c53b7736f672484a2beb253eef9e",
       "expectedSha": "c5ad88eb7819c53b7736f672484a2beb253eef9e",
       "canonicalMatch": true,
-      "url": "sofie-personal-agent-4z7dcupzb-jaydubya818.vercel.app",
+      "url": "<vercel-preview-host>",
       "forbiddenProductionEnvironmentKeys": []
     },
     {
-      "projectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+      "projectId": "<vercel-project-id-B>",
       "deploymentId": "dpl_5bxij4TrCDFvgySPRkQfHCxEcjiy",
       "state": "READY",
       "target": "production",
       "sha": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
       "expectedSha": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
       "canonicalMatch": true,
-      "url": "myfactory-cloud-production-3c45kn9fj-jaydubya818.vercel.app",
+      "url": "<vercel-preview-host>",
       "forbiddenProductionEnvironmentKeys": []
     }
   ],

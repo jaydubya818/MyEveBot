@@ -1,7 +1,7 @@
 {
-  "sourceProject": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+  "sourceProject": "<vercel-project-id-A>",
   "sourceEnvironment": "development",
-  "destinationProject": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+  "destinationProject": "<vercel-project-id-B>",
   "destinationEnvironment": "production",
   "httpStatus": 403,
   "protectionHtml": false,
