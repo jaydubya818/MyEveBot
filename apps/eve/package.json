@@ -51,7 +51,7 @@
     "@spectrum-ts/core": "^12.4.0",
     "@spectrum-ts/imessage": "^12.4.0",
     "@vercel/blob": "^2.6.1",
-    "@vercel/connect": "0.4.0",
+    "@vercel/connect": "2.5.2",
     "@vercel/functions": "^3.7.6",
     "@vercel/oidc": "3.8.10",
     "@vercel/otel": "^2.1.3",
