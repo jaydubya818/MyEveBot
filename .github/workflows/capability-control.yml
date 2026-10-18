@@ -29,7 +29,7 @@ jobs:
       - name: Disposable PostgreSQL, real HTTP, browser, and accessibility
         working-directory: apps/eve
         run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node --import tsx scripts/qualify-capability-control.mjs --browser
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: capability-control-evidence
