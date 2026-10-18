@@ -97,7 +97,7 @@
   },
   "myeveDeployment": {
     "id": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV",
-    "url": "sofie-personal-agent-knrqrs6a2-jaydubya818.vercel.app",
+    "url": "<vercel-preview-host>",
     "readyState": "READY",
     "status": "READY",
     "gitSource": {
@@ -107,9 +107,9 @@
       "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
     },
     "alias": [
-      "sofie-personal-agent.vercel.app",
-      "sofie-personal-agent-jaydubya818.vercel.app",
-      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
+      "<sofie-production-host>",
+      "<vercel-preview-host>",
+      "<vercel-preview-host>"
     ]
   },
   "hostedActivation": {
@@ -182,8 +182,8 @@
       "authentication": "PROJECT_SCOPED_VERCEL_OIDC",
       "sdk": "@vercel/oidc@3.8.4",
       "identityScope": {
-        "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
-        "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
+        "projectId": "<vercel-project-id-A>",
+        "teamId": "<vercel-team-id>",
         "issuer": "https://oidc.vercel.com/jaydubya818",
         "audience": "https://vercel.com/jaydubya818",
         "environment": "development"

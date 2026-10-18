@@ -16,12 +16,12 @@
     "policy": "PRESERVE_UNCHANGED_NEVER_RETRY"
   },
   "installation": {
-    "myeveProjectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+    "myeveProjectId": "<vercel-project-id-A>",
     "myeveCanonicalSha": "a3a92e749227abf20b223433104b4fba88c36d97",
     "myeveReviewedTree": "ead8d303df1869e4358aff2a1254ec5f36512bfa",
-    "factoryProjectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+    "factoryProjectId": "<vercel-project-id-B>",
     "factoryCanonicalSha": "a591127a26f3d134289f9a3a4a8bd2a8628f41",
-    "factoryOrigin": "https://myfactory-cloud-production.vercel.app",
+    "factoryOrigin": "https://<factory-production-host>",
     "factoryDatabase": "myfactory-cloud-production-db",
     "factoryDatabaseResourceId": "dry-morning-22844424",
     "factoryDatabaseStoreId": "store_vUOtU0sIkDLU6TY4",
@@ -29,7 +29,7 @@
     "environment": "CLOUD_PRODUCTION",
     "configurationRedeployment": {
       "requiredAfterApproval": true,
-      "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "projectId": "<vercel-project-id-A>",
       "sourceSha": "a3a92e749227abf20b223433104b4fba88c36d97",
       "configurationSha256": "e879f3a63d02295ad917078e5f40bcde13c82d6f65f82acdc1c683b6fb85023d",
       "purpose": "Install exact new Work configuration into production runtime; not a generated application deployment",
@@ -273,7 +273,7 @@
       }
     },
     "installation": {
-      "projectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+      "projectId": "<vercel-project-id-B>",
       "databaseResourceId": "dry-morning-22844424",
       "custodyStoreId": "store_qBuivS8MmRxnBNnU"
     },

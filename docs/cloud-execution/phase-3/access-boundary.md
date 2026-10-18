@@ -2,7 +2,7 @@
 
 Jay approved the dedicated MyFactory staging deployment-protection bypass on
 2026-10-02. It is stored only in sensitive preview server configuration of
-`sofie-cloud-qualification` (`prj_XU7fJW735PtsnKoAYtGfzdnsotIB`). The bypass is
+`sofie-cloud-qualification` (`<vercel-project-id-C>`). The bypass is
 not an application identity and is not injected into Factory deployments.
 
 The server-only `/api/cloud-qualification/access` operator diagnostic uses the

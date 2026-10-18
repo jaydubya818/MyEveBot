@@ -3,7 +3,7 @@
   "commit": "9845def7e9b6d4f08d8c931e2087ef98c02f1685",
   "trigger": {
     "attempt": "consolidation-readback-2",
-    "origin": "https://sofie-cloud-qualification-pebguiohn-jaydubya818.vercel.app",
+    "origin": "https://<vercel-preview-host>",
     "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
     "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
     "myeveSourceSha": "138480b7f9a5820b45beecff2dd01fed546e5ac4",

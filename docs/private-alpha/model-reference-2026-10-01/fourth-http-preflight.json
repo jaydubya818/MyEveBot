@@ -1,7 +1,7 @@
 {
   "observedAt": "2026-10-01T05:10:32.006374+00:00",
   "deploymentId": "dpl_FRqrGYeRrYRq5ucPoPdNnspVStXp",
-  "url": "https://sofie-personal-agent-n04imwv18-jaydubya818.vercel.app",
+  "url": "https://<vercel-preview-host>",
   "deploymentAccess": "PASS_EXISTING_PROJECT_CREDENTIAL",
   "canonicalEveHealth": "PASS",
   "ownerAuthenticationEnforced": "PASS",

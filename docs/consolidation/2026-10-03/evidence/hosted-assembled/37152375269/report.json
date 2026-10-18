@@ -31,12 +31,12 @@
         "body": "test(consolidation): qualify assembled hosted deterministic journey\n",
         "author": {
           "name": "jaydubya818",
-          "email": "jaydubya818@gmail.com",
+          "email": "<operator-email>",
           "time": 1791060017000
         },
         "committer": {
           "name": "jaydubya818",
-          "email": "jaydubya818@gmail.com",
+          "email": "<operator-email>",
           "time": 1791060017000
         },
         "branch": "codex/final-alpha-convergence"
@@ -62,12 +62,12 @@
             "body": "test(consolidation): qualify assembled hosted deterministic journey\n",
             "author": {
               "name": "jaydubya818",
-              "email": "jaydubya818@gmail.com",
+              "email": "<operator-email>",
               "time": 1791060017000
             },
             "committer": {
               "name": "jaydubya818",
-              "email": "jaydubya818@gmail.com",
+              "email": "<operator-email>",
               "time": 1791060017000
             },
             "branch": "codex/final-alpha-convergence"

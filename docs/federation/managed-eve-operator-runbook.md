@@ -6,7 +6,7 @@ This is an operator-only CLI. It runs from a clean, reviewed MyEve source commit
 
 Set `MYEVE_CONTROL_REGISTRY_PATH` to an absolute file in a 0700 directory. Provision and upgrade input JSON must be 0600. The registry is atomically checkpointed with a local `.bak` file, but this is **not** an off-host disaster-recovery copy. Arrange a secure off-host copy before adding more testers. Each mutation verifies the exact project marker and expected IDs; never reassign a tester to an existing unmarked project. The registry holds no password or database URL.
 
-The Orchis operator files on Jay's Mac are under `~/Library/Application Support/MyEve/managed-beta/`. The live environment ID is `5b646d3c-946e-4d03-a864-21552697c961`, project ID `prj_DNqQD6ursrd4IWL3vg65ClRwpBBZ`, dedicated Neon store ID `store_0V3uNIss6c909jIT`, and public URL `https://orchis-eve-beta.vercel.app`. Do not paste the private config or registry into an issue, PR, or email.
+The Orchis operator files on Jay's Mac are under `~/Library/Application Support/MyEve/managed-beta/`. The live environment ID is `5b646d3c-946e-4d03-a864-21552697c961`, project ID `<vercel-project-id-F>`, dedicated Neon store ID `store_0V3uNIss6c909jIT`, and public URL `https://<eve-beta-host>`. Do not paste the private config or registry into an issue, PR, or email.
 
 ## Commands
 
@@ -14,7 +14,7 @@ From the MyEve root, with Node 24, Vercel CLI authentication, and a clean checko
 
 ```sh
 export MYEVE_CONTROL_REGISTRY_PATH='/absolute/private/registry.json'
-export MYEVE_CONTROL_TEAM_ID='team_p8z8exJRTGfOPk1GC9vUOpv3'
+export MYEVE_CONTROL_TEAM_ID='<vercel-team-id>'
 export MYEVE_CONTROL_TEAM_SLUG='jaydubya818'
 node --import tsx apps/builder/scripts/managed-eve.ts status
 node --import tsx apps/builder/scripts/managed-eve.ts monitor '/absolute/private/tester-provision.json'

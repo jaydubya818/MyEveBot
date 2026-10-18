@@ -73,4 +73,4 @@ Applied 0076_completed_chat_tasks.sql
 Applied 0077_computer_revocation.sql
 Applied 0078_owner_task_lifecycle.sql
 Applied 0079_candidate_publication.sql
-{"status":"PASS","projectId":"prj_XU7fJW735PtsnKoAYtGfzdnsotIB","resourceId":"store_fOPC5aF0CPD0FfOW","databaseInitiallyEmpty":true,"latestMigration":"0079_candidate_publication.sql","ownerDataCopied":false,"modelOperations":0}
+{"status":"PASS","projectId":"<vercel-project-id-C>","resourceId":"store_fOPC5aF0CPD0FfOW","databaseInitiallyEmpty":true,"latestMigration":"0079_candidate_publication.sql","ownerDataCopied":false,"modelOperations":0}
