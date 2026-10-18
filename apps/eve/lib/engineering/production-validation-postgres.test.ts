@@ -206,7 +206,11 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const capability=await capabilityPolicyFixture(pool,schema,isolated,{[grant.clientId]:installation.ownerScope});
   try {
   const factory=new PostgresDispatchStore(capability.pool,{capabilityBindings:capability.bindings,custodyPrefix:'factory/production',assertAuthority,verificationPolicySha256:policySha256}),spend=new PostgresSpendLedger(capability.pool);
-  const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:productionSpendPlan,verificationPolicy:{policy,policySha256}});
+  // Test fixture only: this case qualifies authority/revocation, not rate-card freshness. Factory's production
+  // rate card carries a calendar review expiry (validUntil), so pin a fresh window relative to now instead of
+  // inheriting the wall-clock date. Production pricing and its expiry enforcement are unchanged.
+  const fixtureSpendPlan=Object.freeze({...productionSpendPlan,validUntil:new Date(Date.now()+3600000).toISOString()});
+  const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:fixtureSpendPlan,verificationPolicy:{policy,policySha256}});
   for(const revoked of [false,true]){
    const f=await fixture({repository:grant.source.repository,factoryVersion}),r=f.preparation.request;
    const request={protocol:'MYFACTORY_EXECUTION_V2',...r,source:grant.source,maxSpendUsd:1,input:{title:'Disposable lifecycle',description:'Actual production authority, no providers',kind:'feature',acceptanceCriteria:['Bounded'],allowedPaths:grant.allowedPaths,checkCommands:grant.commands}};
