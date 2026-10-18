@@ -38,7 +38,7 @@
     "@agent-browser/sandbox": "^0.38.1",
     "@ai-sdk/mcp": "2.0.19",
     "@base-ui/react": "^1.6.0",
-    "@braintrust/otel": "^0.3.0",
+    "@braintrust/otel": "^1.0.2",
     "@cloudflare/kumo": "^2.8.0",
     "@mission-control/capability-control": "*",
     "@neondatabase/serverless": "^1.1.0",
