@@ -14,6 +14,12 @@ updates:
         update-types:
           - minor
           - patch
+        # eve is a 0.x framework (minor bumps change its public types) and
+        # effect is pinned to a 4.0 beta; both need a reviewed migration, so
+        # they arrive as individual PRs instead of breaking the grouped bump.
+        exclude-patterns:
+          - "eve"
+          - "effect"
 
   - package-ecosystem: github-actions
     directory: /
