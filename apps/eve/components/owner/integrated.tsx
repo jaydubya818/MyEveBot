@@ -23,6 +23,7 @@ import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
 import { WorkSummary } from "./work-summary";
 import { ProductShell } from "./product-shell";
+import { ResultCollectionState } from "./result-collection-state";
 
 type CanonicalWork = Awaited<
   ReturnType<
@@ -88,6 +89,7 @@ export function IntegratedExperience({
     [brief, setBrief] = useState<Brief | null>(null),
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
+  const [resultsConfirmed, setResultsConfirmed] = useState(false);
   const [canonical, setCanonical] = useState<CanonicalWork | null>(null);
   const [activity, setActivity] = useState<
     Array<{
@@ -126,6 +128,7 @@ export function IntegratedExperience({
     let authenticationLost = false;
     setLoading(true);
     setErrors([]);
+    setResultsConfirmed(false);
     const read = async <T,>(
       path: string,
       label: string,
@@ -144,6 +147,7 @@ export function IntegratedExperience({
             setWorks([]);
             setCanonical(null);
             setResults([]);
+            setResultsConfirmed(false);
             setInbox([]);
             setFacts([]);
             setFamilies([]);
@@ -183,9 +187,11 @@ export function IntegratedExperience({
           setCanonical(d.canonical ?? null);
         },
       ),
-      read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
-        setResults(d.results),
-      ),
+      read<{ results: Result[] }>("/api/beta/results", "Results", (d) => {
+        if (!Array.isArray(d.results)) throw new Error("Results returned incomplete data.");
+        setResults(d.results);
+        setResultsConfirmed(true);
+      }),
       read<{ items: AttentionView[]; nextCursor: string | null }>(
         "/api/beta/inbox?limit=100",
         "Needs you",
@@ -485,9 +491,7 @@ export function IntegratedExperience({
           </Card>;
         })
     ) : (
-      <Empty title="No retained Results">
-        Verified outputs and their evidence will appear here.
-      </Empty>
+      <ResultCollectionState confirmed={resultsConfirmed} />
     );
   }
   return (
@@ -612,7 +616,7 @@ export function IntegratedExperience({
                       ))}
                     </ul>
                   ) : (
-                    <p>No retained Results recorded.</p>
+                    <ResultCollectionState confirmed={resultsConfirmed} />
                   )}
                 </Card>
               </>

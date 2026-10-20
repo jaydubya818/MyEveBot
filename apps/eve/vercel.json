@@ -4,6 +4,7 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
+      "codex/production-readback-errors-20261020": false,
       "codex/checkpoint-h-authenticated-enterprise": false,
       "codex/missioncontrol-enterprise-consumer": false,
       "codex/peer-message-answers": false,
