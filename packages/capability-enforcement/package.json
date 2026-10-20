@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@mission-control/capability-control": "*",
-    "zod": "4.4.3"
+    "zod": "4.6.7"
   },
   "scripts": {
     "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts src/ordering-source.ts src/ordering-transport.ts src/lifecycle-wire.ts src/lifecycle-source.ts src/lifecycle-transport.ts src/recovery-witness.ts"
