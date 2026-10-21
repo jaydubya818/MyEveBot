@@ -2,11 +2,13 @@ import { propagateCapabilityPolicy } from '../../../../packages/capability-enfor
 import { reconcileBackendControls } from '../../../../packages/capability-enforcement/src/lifecycle-transport.ts';
 import type { PolicyKey } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import pg from 'pg';
+import {externalAlphaPolicy} from '../external-alpha/policy.ts';
+import {digest} from '../engineering/contract.ts';
 import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
 import { CapabilityError, type CapabilityActor } from './contracts.ts';
 import { CapabilityStore } from './store.ts';
-import { configuredRecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
+import { configuredRecoveryWitness, isPostgresRecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
 
 const configuration = z.object({
   id: z.string().min(1).max(200),
@@ -21,12 +23,23 @@ const configuration = z.object({
 let pool: pg.Pool | undefined;
 
 export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
-  if (env.MYEVE_CAPABILITY_CONTROL_ENABLED !== 'true' || env.VERCEL || env.VERCEL_ENV === 'production')
+  if (env.MYEVE_CAPABILITY_CONTROL_ENABLED !== 'true')
     throw new CapabilityError('capabilities_unavailable', 'Capability controls require an isolated testing installation.', 503);
   const result = configuration.safeParse({ id: env.MYEVE_CAPABILITY_INSTALLATION_ID,
     environment: env.MYEVE_CAPABILITY_ENVIRONMENT, databaseUrl: env.MYEVE_CAPABILITY_DATABASE_URL,
     origin: env.MYEVE_CAPABILITY_ORIGIN });
   if (!result.success) throw new CapabilityError('capabilities_setup_required', 'Capability controls have not been configured for this installation.', 503);
+  if (env.VERCEL || env.VERCEL_ENV === 'production') {
+    const policy=externalAlphaPolicy(env),witness=configuredRecoveryWitness(env);
+    if(env.MYEVE_MISSIONCONTROL_MODE!=='APPROVED_NONPRODUCTION'||!policy||result.data.environment!=='qualification'
+      ||new URL(result.data.origin).protocol!=='https:'||!witness||!isPostgresRecoveryWitness(witness))
+      throw new CapabilityError('capabilities_unavailable','This hosted installation is not qualified.',503);
+    const installationDigest=digest({schema:'myeve-hosted-capability-installation/v1',installationId:result.data.id,
+      origin:result.data.origin,ownerId:policy.ownerId,projectId:policy.projectId,policyDigest:digest(policy),
+      sourceDigest:policy.sourceDigest,factoryVersion:policy.factoryVersion,mode:env.MYEVE_MISSIONCONTROL_MODE});
+    if(witness.installationDigest!==installationDigest)
+      throw new CapabilityError('capabilities_unavailable','This hosted installation binding is not qualified.',503);
+  }
   if (result.data.environment === 'development' && !configuredRecoveryWitness(env))
     throw new CapabilityError('recovery_setup_required', 'This installation requires its independently retained recovery witness.', 503);
   return result.data;

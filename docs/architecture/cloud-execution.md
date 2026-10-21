@@ -43,7 +43,7 @@ The next coordinated milestone needs a versioned authenticated HTTPS contract, F
 
 ## Dedicated staging approved and provisioned
 
-Owner approved the dedicated MyFactory boundary. Created `myfactory-cloud-staging` (`<vercel-project-id-D>`), separate free-plan Neon database, private Blob custody store and private worker registry in iad1. Only staging preview receives credentials. No Factory state or credentials live in Sofie preview resources; no owner records were copied. Producer/verifier identities and canonical cloud Work admission are still pending qualification.
+Owner approved the dedicated MyFactory boundary. Created `myfactory-cloud-staging` (`prj_IRXTY6HOzS2q9wRPdabsJnmddzl4`), separate free-plan Neon database, private Blob custody store and private worker registry in iad1. Only staging preview receives credentials. No Factory state or credentials live in Sofie preview resources; no owner records were copied. Producer/verifier identities and canonical cloud Work admission are still pending qualification.
 
 [Phase 2 evidence](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/phase-2/README.md) records resource IDs, test counts and the verified preview deployment. Hosted liveness succeeds; authenticated readiness reports dependencies available but `ready=false`, `admission=DISABLED`. Vercel's automatic first-deployment production labeling affected only the new staging project; that deployment was removed and a real preview verified.
 

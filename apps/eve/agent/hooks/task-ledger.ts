@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
 import { defineHook } from "eve/hooks";
 
@@ -24,6 +25,7 @@ export default defineHook({
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)throw new Error('Retained summaries cannot request actions.');
     },
     async "compaction.requested"(_event,ctx){
+      denyExternalAlphaPaidPath("context-compaction");
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)throw new Error('Retained evidence summaries cannot call an auxiliary model.');
       if(ownerRuntimeFromAuth(ctx.session.auth))throw new Error("External request cannot start an unreserved compaction call.");
     },

@@ -1,6 +1,6 @@
 # Local Mac access acceptance — 2026-09-30
 
-Production: https://<sofie-production-host>
+Production: https://sofie-personal-agent.vercel.app
 
 Final hosted deployment: `dpl_8LcoMWxteaMkAMccpeBNtbSschy7`, source `f607aad`, based on the exact previously live release `f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12`.
 Local companion source: `e926284` (adds tested filename wildcards; no hosted runtime change).

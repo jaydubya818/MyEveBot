@@ -1,0 +1,162 @@
+name: Owner UX
+on:
+  push:
+    branches: [main, codex/unified-beta-myeve-20261011, codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010, claude/external-alpha-zero-gap-qe014-qe017-20261010]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  owner-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: docker.io/library/postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+        env:
+          POSTGRES_USER: ux_fixture
+          POSTGRES_PASSWORD: local-only
+          POSTGRES_DB: blocker_fixes
+        ports: ['55491:5432']
+        options: >-
+          --health-cmd "pg_isready -U ux_fixture -d blocker_fixes"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      MYEVE_TEST_DATABASE_URL: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.1
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
+      - run: npx playwright install --with-deps chrome chromium
+      - name: Focused policy and owner-boundary contracts
+        working-directory: apps/eve
+        run: npx vitest run lib/external-alpha/context.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/patch-scope.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/relay
+          ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+          path: .qualification/relay
+      - name: Keep pinned fixture source outside the qualified application checkout
+        run: mv .qualification/relay "$RUNNER_TEMP/external-alpha-canonical-relay"
+      - name: Complete Relay and context-budget regression
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+          MYRELAY_SOURCE_ROOT: ${{ runner.temp }}/external-alpha-canonical-relay
+          MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+          MYEVE_OWNER_CHANNEL_TESTS: '1'
+          MYEVE_OWNER_TEST_PORT: '55491'
+          USER: ux_fixture
+          PGPASSWORD: local-only
+        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/relay lib/external-alpha/relay-link.test.ts lib/external-alpha/bounded-context.test.ts lib/external-alpha/qe-014-context-limitations.test.ts lib/external-alpha/qe-014-limitations-budget.test.ts lib/external-alpha/qe-014-context-headroom.test.ts lib/external-alpha/owner-stop-route.test.ts agent/lib/context-assembly.test.ts
+      - name: PostgreSQL authority and thread isolation
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+        run: npx vitest run --maxWorkers=2 --testTimeout=60000 lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/shared-accounting-zero-gap-upgrade-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts lib/relay/connect-concurrency.test.ts lib/external-alpha/private-acceptance-postgres.test.ts lib/external-alpha/chat-recovery-postgres.test.ts lib/external-alpha/model-recovery-postgres.test.ts lib/external-alpha/conversation-readback.test.ts
+      - name: Context failure recovery
+        working-directory: apps/eve
+        run: |
+          node scripts/migrate-database.ts --check
+          npx vitest run lib/database-schema.test.ts lib/external-alpha/reconciliation.test.ts
+          node --import tsx --test test/chat-turn-failure.test.mjs
+      - name: Initialize disposable database and server
+        working-directory: apps/eve
+        run: |
+          test -z "$(git status --porcelain)"
+          node --import tsx test/owner-ux/setup.ts
+          MYEVE_OWNER_UX_BUILD=1 node test/owner-ux/local-server.cjs > /tmp/owner-ux-server.log 2>&1 &
+          echo $! > /tmp/owner-ux-fixture.pid
+          for attempt in $(seq 1 600); do curl -fsS http://127.0.0.1:3173/login >/dev/null && break; sleep 2; done
+          curl --max-time 90 -fsS http://127.0.0.1:3173/api/auth/status >/dev/null
+      - name: Browser, accessibility, and owner isolation
+        working-directory: apps/eve
+        run: npx playwright test -c test/owner-ux/playwright.config.cjs
+      - name: Read-only terminal receipt presentation and browser reconnect
+        env:
+          MYEVE_TERMINAL_BROWSER: '1'
+          TSX_TSCONFIG_PATH: apps/eve/tsconfig.json
+        run: node --import tsx --test apps/eve/scripts/factory-terminal-presentation-browser.test.mjs
+      - name: Repeat the clean production fixture without retained process state
+        working-directory: apps/eve
+        run: |
+          mv ../../output/owner-ux/test-results ../../output/owner-ux/run-1
+          kill -TERM "$(cat /tmp/owner-ux-fixture.pid)"
+          for attempt in $(seq 1 30); do if ! curl -fsS http://127.0.0.1:3173/login >/dev/null; then break; fi; sleep 1; done
+          node --import tsx test/owner-ux/setup.ts
+          MYEVE_OWNER_UX_MODE=production node test/owner-ux/local-server.cjs > /tmp/owner-ux-server-repeat.log 2>&1 &
+          for attempt in $(seq 1 60); do curl -fsS http://127.0.0.1:3173/login >/dev/null && break; sleep 2; done
+          npx playwright test -c test/owner-ux/playwright.config.cjs
+      - name: TypeScript
+        working-directory: apps/eve
+        run: npx tsc --noEmit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owner-ux-evidence
+          path: |
+            output/owner-ux
+            /tmp/owner-ux-server.log
+            /tmp/owner-ux-server-repeat.log
+  owner-golden-journey:
+    strategy:
+      fail-fast: false
+      matrix:
+        journey: [golden, e3, independent]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: docker.io/library/postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+        env:
+          POSTGRES_USER: ux_fixture
+          POSTGRES_PASSWORD: local-only
+          POSTGRES_DB: blocker_fixes
+        ports: ['55491:5432']
+        options: >-
+          --health-cmd "pg_isready -U ux_fixture -d blocker_fixes"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.1
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated unpaid journey fixture
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+        run: |
+          node --import tsx test/owner-journey/runner-prod.ts > /tmp/owner-journey-server.log 2>&1 &
+          for attempt in $(seq 1 600); do grep -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log && break; sleep 2; done
+          grep -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log
+          curl --max-time 90 -fsS http://127.0.0.1:3183/api/auth/status >/dev/null
+      - name: Private acceptance, completion, and same-conversation readback
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+          MYEVE_OWNER_JOURNEY: '1'
+          QE_EVIDENCE_DIR: /tmp/qe-journey
+          QE_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p /tmp/qe-journey
+          case "${{ matrix.journey }}" in
+            golden) npx playwright test -c test/owner-journey/playwright.config.cjs ;;
+            e3) npx playwright test -c test/owner-journey/e3.config.cjs ;;
+            independent) npx playwright test -c test/owner-journey/independent.config.cjs ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qe-journey-${{ matrix.journey }}-${{ github.sha }}
+          path: |
+            /tmp/qe-journey
+            /tmp/owner-journey-server.log

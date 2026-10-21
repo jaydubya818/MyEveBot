@@ -1,0 +1,62 @@
+{
+  "schema": "unified-beta-migration-supplement/v1",
+  "historicalCatalog": "historical-migrations.json",
+  "files": [
+    {
+      "name": "0094_missioncontrol_permit_bindings.sql",
+      "sha256": "3ee188389aabb091c8bf864160f849ca85c772e283111c812acdc288a81cb05d"
+    },
+    {
+      "name": "0095_missioncontrol_control_acknowledgments.sql",
+      "sha256": "6b2fcb0bcc4e1227eaac88931b983e62648d9a095956b5f2bffe420fcd531f0a"
+    },
+    {
+      "name": "0096_unified_beta_feedback.sql",
+      "sha256": "67e193cbd393d0f4c58bf7b6b0b30d6c5a428a88131b65fa0bca9e1511e52d03"
+    },
+    {
+      "name": "0097_missioncontrol_control_attempts.sql",
+      "sha256": "cddbc57333052ea999e9a81dab8310f592f324790a9a8bc08090fa46d012223e"
+    },
+    {
+      "name": "0098_unified_beta_feedback_initial_state.sql",
+      "sha256": "9d2f26eb1895b32395202727ddbdf965878ff57bbbff28c038db68d8b1ff246e"
+    },
+    {
+      "name": "0099_missioncontrol_owner_factory.sql",
+      "sha256": "52478de2d2e680949406b4f1c76e3bb4c3220dbf07d8c4dc521ff9e51787bc8c"
+    },
+    {
+      "name": "0100_missioncontrol_alpha_admission_custody.sql",
+      "sha256": "1af0da23805a4da821ca57dc0de11153143f810e512131a616ca99493aafb0dd"
+    },
+    {
+      "name": "0101_missioncontrol_assertion_owner_context.sql",
+      "sha256": "4f83cd12c3b460ac5d2393332eb1183a7abb08826d5346db489675384d09bcd2"
+    },
+    {
+      "name": "0102_missioncontrol_owner_alpha_exclusion.sql",
+      "sha256": "e71395195756a1667e248760816d4f6fa8f414bdedd3051298e2e15ec3f3f1e6"
+    },
+    {
+      "name": "0103_missioncontrol_admission_isolation.sql",
+      "sha256": "f5ef8222df77f0e39178658792d8aea4167d5680ce6d043a1b2c9bb62e6a1003"
+    },
+    {
+      "name": "0104_missioncontrol_legacy_writer_isolation.sql",
+      "sha256": "a600b7926cd155c3053c6bb271270e0aaea4123fe98dc3c7411b7b56a690dc3d"
+    },
+    {
+      "sha256": "24a067d2362da34ee2cee7f9f9c78a05b533d377865d8ef202a29c92c5933875",
+      "name": "0105_myapps_execution_admission.sql"
+    },
+    {
+      "name": "0106_factory_preparation_terminal.sql",
+      "sha256": "8e4cc0122c5c53e8cc2910c5f8c477a9c2621b21fc1670d2d651e05ae8c741fc"
+    },
+    {
+      "name": "0107_factory_preparation_generation_guard.sql",
+      "sha256": "0915d5b8325218910e1edef47b09847b1a9a5c894a3448330d3644fb2a1db336"
+    }
+  ]
+}

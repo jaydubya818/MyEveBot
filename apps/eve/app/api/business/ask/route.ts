@@ -1,3 +1,4 @@
+import { externalAlphaPaidPathDenied } from "@/lib/external-alpha/paid-paths";
 import { gateway, generateText } from "ai";
 import { z } from "zod";
 import { businessScopes } from "@/lib/business-runtime";
@@ -9,6 +10,7 @@ const inputSchema=z.object({question:z.string().trim().min(1).max(4000),context:
 ])}).strict();
 export async function POST(request:Request){
  const headers={'cache-control':'no-store'};
+ if(externalAlphaPaidPathDenied('business-ask'))return new Response(null,{status:404,headers});
  const owner=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!owner)return Response.json({error:'Sign in to continue.'},{status:401,headers});
  if(requireSameOrigin(request))return Response.json({error:'Same-origin request required.'},{status:403,headers});

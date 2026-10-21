@@ -1,3 +1,4 @@
+import { externalAlphaInstallation } from "./external-alpha/policy.ts";
 import { deploymentOwnerId } from "./owner-identity.ts";
 export const PARTNER_PRIVATE_TOOLS = new Set(['remember','get_knowledge','search_knowledge','inspect_owner_knowledge','search_owner_knowledge']);
 export function isPartnerPrincipal(id:string|undefined,env:NodeJS.ProcessEnv=process.env){
@@ -12,5 +13,5 @@ export function partnerPrivateRoute(path:string,method:string){
 }
 export function omitDeploymentInstructions(ctx:{session:{auth:{current:{principalId:string;attributes:Readonly<Record<string,unknown>>}|null}}}){
  const current=ctx.session.auth.current;
- return isPartnerPrincipal(current?.principalId) || (!!process.env.MYEVE_PARTNER_OWNER_ID && current?.attributes.myeveEngineeringWorkId!==undefined);
+ return externalAlphaInstallation() || isPartnerPrincipal(current?.principalId) || (!!process.env.MYEVE_PARTNER_OWNER_ID && current?.attributes.myeveEngineeringWorkId!==undefined);
 }

@@ -10,7 +10,7 @@ test.afterAll(async()=>{await reset();await pool.end();});
 for(const [label,expected,pushes,prs] of [['Open a pull request','PR_OPEN',1,1],['Push branch only','BRANCH_PUBLISHED',1,0],['Keep private','Kept private.',0,0],['Reject candidate','Candidate rejected.',0,0]] as const){
  test(`P0 real retained Result → Proof → owner decision → ${label}`,async({page},info)=>{
   await page.goto('/results');await page.getByRole('link',{name:'Review owner decision'}).click();
-  await expect(page.getByRole('heading',{name:'Sofie finished the work'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Review retained candidate'})).toBeVisible();
   await expect(page.getByText('$0.019032',{exact:true})).toBeVisible();
   await page.getByText('Proof of Work',{exact:true}).click();await expect(page.getByText(/Verified tree: ddcb301/)).toBeVisible();
   await page.getByText('Canonical evidence references',{exact:true}).click();
@@ -20,7 +20,7 @@ for(const [label,expected,pushes,prs] of [['Open a pull request','PR_OPEN',1,1],
   await page.getByRole('button',{name:'Review decision'}).click();await expect(page.getByRole('heading',{name:'Confirm: '+label})).toBeVisible();
   await page.getByRole('button',{name:'Confirm decision',exact:true}).click();
   await expect(page.getByText(new RegExp(expected.replace('.','\\.'))).first()).toBeVisible();
-  await page.reload();await expect(page.getByRole('heading',{name:'Sofie finished the work'})).toBeVisible();
+  await page.reload();await expect(page.getByRole('heading',{name:'Review retained candidate'})).toBeVisible();
   await expect.poll(async()=> (await pool.query('SELECT pushes,prs FROM publication_boundary_fixture')).rows[0]).toEqual({pushes,prs});
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
@@ -46,6 +46,8 @@ test('P0 current CI/review supplements immutable Proof and never implies owner a
  await service.retainReadback('owner',workId,{binding:b,observedAt:new Date().toISOString(),branchCount:1,prCount:1,candidate:b.candidate,tree:b.verifiedTree,baseRef:b.baseRef,baseSha:b.expectedBaseSha,prNumber:1,prUrl:`https://github.com/${b.repository}/pull/1`,draft:true,merged:false,files:b.allowedPaths,ci:{status:'PASS',workflow:'quantity-ci',candidate:b.candidate,runId:'controlled',url:'https://github.com/example/controlled',checks:[{name:'quantity-ci',candidate:b.candidate,result:'PASS'}]},review:{status:'FAIL',candidate:b.candidate,reviewer:'independent-controlled-review',mode:'INDEPENDENT_READ_ONLY',reportHash:'a'.repeat(64),summary:'Numeric range requires separate candidate lifecycle.',testsPassed:11,findings:['Precision loss'],limitations:[]},ownerAcceptance:'NOT_RUN',merge:'NOT_RUN',deployment:'NOT_RUN'});
  await page.reload();await page.getByText('Proof of Work',{exact:true}).click();
  await expect(page.getByText(/GitHub CI: PASS · Independent review: FAIL/)).toBeVisible();
+ await expect(page.getByText(/was implemented and independently verified/)).toHaveCount(0);
+ await expect(page.getByLabel('Current publication evidence')).not.toContainText('): PASS');
  await expect(page.getByText('Current Result: PARTIAL. Owner acceptance remains NOT_RUN.')).toBeVisible();
  expect((await service.view('owner',workId)).proof).toEqual(v.proof);
  await page.goto('/results');await page.getByText('Proof of Work',{exact:true}).click();

@@ -43,7 +43,7 @@
     },
     {
       "path": "docs/federation/production-readiness/evidence/kms-preparation/secret-status.json",
-      "sha256": "78a2e40549b74398c1405217f5269d874e0492f86b8d802b7a274c7fdda260ec"
+      "sha256": "887d8e5a17f243e1b410855da79bb3ab6e1c83892b89fff2ec62f718e235bab8"
     },
     {
       "path": "docs/federation/production-readiness/evidence/kms-preparation/worker-credit.json",

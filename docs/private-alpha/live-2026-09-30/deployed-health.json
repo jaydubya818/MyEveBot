@@ -16,32 +16,32 @@
   "provider": "PASS_SCOPED_OIDC_AUTHENTICATED_EXACT_MODEL_ELIGIBILITY_NO_GENERATION",
   "http": [
     {
-      "url": "https://<sofie-production-host>/login",
+      "url": "https://sofie-personal-agent.vercel.app/login",
       "status": 200,
       "pass": true
     },
     {
-      "url": "https://<sofie-production-host>/eve/v1/health",
+      "url": "https://sofie-personal-agent.vercel.app/eve/v1/health",
       "status": 200,
       "pass": true
     },
     {
-      "url": "https://<sofie-production-host>/api/beta/work",
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/work",
       "status": 401,
       "pass": true
     },
     {
-      "url": "https://<sofie-production-host>/api/beta/results",
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/results",
       "status": 401,
       "pass": true
     },
     {
-      "url": "https://<relay-production-host>/api/health",
+      "url": "https://relay-sage-nine.vercel.app/api/health",
       "status": 200,
       "pass": true
     },
     {
-      "url": "https://<relay-production-host>/api/health/ready",
+      "url": "https://relay-sage-nine.vercel.app/api/health/ready",
       "status": 200,
       "pass": true
     }

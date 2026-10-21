@@ -1,0 +1,17 @@
+{
+  "schema": "myapps-terminal-source-qualification/v1",
+  "authority": "ISOLATED_SOURCE_QUALIFICATION_ONLY",
+  "factorySource": "a29f6926dad7bf8b4f72ef82b9392639e4cc057e",
+  "factorySourcePredecessor": "137fc02d94b9240278a0626f75432e07bbece8c4",
+  "factorySourceAdvanced": "2026-10-13: test-only Factory successor a29f6926 (H7); sourceDigest/factoryVersion/identity test unchanged",
+  "factoryRecord": "docs/capability-control/receiver-recovery-20261012/successor.json",
+  "sourceDigest": "b791f78e5f2bc3f78c5b392790c478aeed7d3b33f0fa48c2a7fb89e1d1e1e387",
+  "factoryVersion": "d04ec5de6b53bbeb23bb1dfbed91ea656c19591baacf5d3116efb1f81c790572",
+  "factoryIdentityTestSha256": "a39f9e8316a21c57554d28335f68e671b8acd04488e8b39aedd1e4430c3f8ecf",
+  "factoryIdentityTestCount": 3,
+  "historicalMigration": "0105_myapps_execution_admission.sql",
+  "currentMigration": "0107_factory_preparation_generation_guard.sql",
+  "historicalRecords": "UNCHANGED",
+  "installedAuthority": "NONE",
+  "productionIntegration": "NOT_RUN"
+}

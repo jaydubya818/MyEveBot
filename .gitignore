@@ -23,16 +23,14 @@ node_modules
 # Credential-scanned CLOUD P0 evidence is published by its isolated test runner.
 /output/playwright/cloud/
 
+# Disposable browser qualification evidence is delivered separately.
+/output/owner-ux/
+
+# Synthetic MyApps reference qualification output.
+/output/playwright/myapps/
+
 # Capability browser artifacts are uploaded separately by isolated CI.
 /output/playwright/capability-control/
 
-# Common local build/test output (Hark hygiene audit 2026-10-17)
-dist/
-coverage/
-test-results/
-playwright-report/
-.eve/
-npm-debug.log*
-
-# Assembled CLOUD P0 evidence is published by its isolated test runner.
-/output/playwright/consolidation-cloud/
+# Build-derived Builder source inventory; never source authority.
+/apps/eve/.builder-template-source.*

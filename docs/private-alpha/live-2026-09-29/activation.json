@@ -15,8 +15,8 @@
   "deployment": {
     "sha": "6cfb0ccbf217c5f931c42a2ecf76ec1f29644350",
     "id": "dpl_ABAhGLUvVxSYTMRiVGMW1VeTjsUh",
-    "url": "https://<vercel-preview-host>",
-    "alias": "https://<sofie-production-host>",
+    "url": "https://sofie-personal-agent-lzu9ofv1s-jaydubya818.vercel.app",
+    "alias": "https://sofie-personal-agent.vercel.app",
     "state": "READY"
   },
   "restrictedRoles": {

@@ -1,6 +1,8 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { createHash, randomUUID } from "node:crypto";
 
 import { db } from "./receipts-db.ts";
+import { externalAlphaInstallation } from "../../lib/external-alpha/policy.ts";
 import {
   allowedMemoryScopes,
   rankScopedMemories,
@@ -79,8 +81,16 @@ class SupermemoryError extends MemoryProviderError {
   }
 }
 
+/** Supermemory is a third party. An external-alpha installation behaves as if no
+ * key exists, even when one is present: Memory there is the local PostgreSQL
+ * store and no owner data is ever sent to the provider. */
+function supermemoryKey(): string | undefined {
+  return externalAlphaInstallation() ? undefined : process.env.SUPERMEMORY_API_KEY;
+}
+
 async function api<T>(path: string, method: string, body?: unknown): Promise<T> {
-  const apiKey = process.env.SUPERMEMORY_API_KEY;
+  denyExternalAlphaPaidPath("semantic-memory-provider");
+  const apiKey = supermemoryKey();
   if (!apiKey) throw new MemoryProviderError("SUPERMEMORY_API_KEY is not set.");
   let response: Response;
   let text: string;
@@ -281,7 +291,7 @@ export const memoryStore = {
     // local-only row atomically before the external side effect below.
     // A previous legacy import may have succeeded while the key was present.
     // If it has since been removed, this write cannot have reached Supermemory.
-    if (!providerAvailable || !process.env.SUPERMEMORY_API_KEY?.trim()) return rowEntry(local, "local", false);
+    if (!providerAvailable || !supermemoryKey()?.trim()) return rowEntry(local, "local", false);
 
     // Persist uncertainty before an external write. If the response is lost,
     // deletion and correction must not assume the remote copy is absent.

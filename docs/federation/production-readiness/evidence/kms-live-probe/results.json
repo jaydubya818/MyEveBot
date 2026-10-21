@@ -1,7 +1,7 @@
 {
   "observedAt": "2026-09-21T04:57:45.569Z",
   "relaySha": "d817c848a7f6797fe04787e28ac96081b69359ae",
-  "keyVersion": "projects/<gcp-project-id>/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1",
+  "keyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1",
   "status": "FAILED",
   "federationEnabled": false,
   "externalGates": {

@@ -1,3 +1,6 @@
+import {FactoryCapabilityClient} from './factory-capability-client.ts';
+import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal} from './factory-preparation-terminal.ts';
+import {signFactoryPreparationTerminal} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
 import {describe,it,expect,vi,beforeEach,afterEach} from 'vitest';
 import {randomUUID} from 'node:crypto';
 import {LiveFactoryAdapter,type FactoryConnection,type FactoryPrepareRequest} from './factory-live-adapter.ts';
@@ -14,6 +17,31 @@ const config:FactoryConnection={transport:'CLOUD',protocol:'MYFACTORY_EXECUTION_
 const request=():FactoryPrepareRequest=>({requestId:randomUUID(),workId:randomUUID(),workGeneration:1,repository:source.repository,deadline:new Date(Date.now()+60000).toISOString(),maxSpendUsd:1,input:{title:'Quantity',description:'Implement positive integer validation.',kind:'feature',baseRef:source.commit,acceptanceCriteria:['Tests pass'],reproductionCommand:null,expectedFailureText:null,checkCommands:['node --test'],allowedPaths:['quantity.mjs'],workerProfile:'container'}});
 describe('dedicated staging Factory transport',()=>{
  it.each(['http://127.0.0.1:8000','http://myfactory-cloud-staging-abc-jaydubya818.vercel.app','https://evil.invalid','https://sofie-personal-agent-abc-jaydubya818.vercel.app','https://myfactory-cloud-staging-abc-jaydubya818.vercel.app/other','https://myfactory-cloud-staging-abc-jaydubya818.vercel.app:8443'])('rejects credential destination %s',origin=>{expect(()=>new LiveFactoryAdapter({...config,origin})).toThrow();});
+ it('enrolled remote admission refuses a missing client while retained resource observation remains available',async()=>{
+  const fetcher=vi.fn(async(_url:URL|RequestInfo)=>new Response(null,{status:503}));
+  const adapter=new LiveFactoryAdapter(config,fetcher,undefined,{requireOrderedAdmission:true});
+  for(const operation of ['prepare','prepared'] as const)await expect(adapter[operation](request())).rejects.toThrow('FACTORY_ORDERED_ADMISSION_REQUIRED');
+  expect(fetcher).not.toHaveBeenCalled();
+  await expect(adapter.stop({requestId:'retained-original-request'} as never)).rejects.toThrow('Factory control unavailable');
+  expect(fetcher).toHaveBeenCalledOnce();expect(String(fetcher.mock.calls[0][0])).toContain('/retained-original-request/stop');
+ });
+ it('the cloud terminal seal revalidates the signed canonical request against the original preparation',async()=>{
+  const input=request(),pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const key={keyId:'original-receiver',jwk:await crypto.subtle.exportKey('jwk',pair.privateKey)};
+  const binding={ownerId:'synthetic-owner',organizationId:'org',installationId:'install',agentId:'agent',clientId:'client',backendId:'backend',incarnation:'epoch',enrollmentVersion:1,missionId:'mission',factoryId:config.factoryId,factoryVersion:config.factoryVersion,sourceDigest:config.sourceDigest,configurationDigest:config.configurationDigest};
+  const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=input.input;
+  const native={protocol:'MYFACTORY_EXECUTION_V2',requestId:input.requestId,workId:input.workId,workGeneration:1,repository:input.repository,deadline:input.deadline,maxSpendUsd:input.maxSpendUsd,source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}};
+  const now=Date.now(),receipt={schema:'factory-capability-preparation-terminal/v1' as const,...binding,requestId:input.requestId,workId:input.workId,generation:1,nativeRequestDigest:digest(native),planId:'plan',planDigest:'d'.repeat(64),receiverSequence:3,receiverHeadDigest:'e'.repeat(64),outcome:'ADMISSION_UNCERTAIN' as const,reasonCode:'RESTORE_OR_COMMIT_AMBIGUITY' as const,nativeOutcomeDigest:'f'.repeat(64),issuedAt:now,expiresAt:now+30000};
+  const envelope=await signFactoryPreparationTerminal(receipt,key);
+  const client=new FactoryCapabilityClient({origin:config.origin,binding,key,headers:async()=>({}),sourcePermit:async()=>{throw Error('UNEXPECTED_ISSUANCE');},relayPermit:async()=>{throw Error('UNEXPECTED_ISSUANCE');}},async()=>Response.json(envelope));
+  const adapter=new LiveFactoryAdapter(config,vi.fn(),client,{requireOrderedAdmission:true});
+  const terminal=await adapter.prepare(input,{} as never).catch(error=>error);expect(terminal).toBeInstanceOf(FactoryPreparationTerminalReceived);
+  const verification=adapter.terminalVerification(input);expect(verification.expected.nativeRequestDigest).toBe(digest(native));expect(verification.expected.nativeRequestDigest).not.toBe(digest(input));
+  const decision={id:'decision',work_id:input.workId,factory_preparation:{request:input}},query=vi.fn(async()=>[{factory_preparation:{terminal:{accounting:'HOLD',receipt,envelope}}}]);
+  const store={principal:{scopeId:binding.ownerId,scopeKind:'personal'},database:{query}} as never;
+  await expect(sealFactoryPreparationTerminal(store,decision,terminal,{...verification,originalRequest:{...input,maxSpendUsd:2}})).rejects.toThrow('SEAL_CONFLICT');expect(query).not.toHaveBeenCalled();
+  expect(await sealFactoryPreparationTerminal(store,decision,terminal,verification)).toMatchObject({accounting:'HOLD',receipt:{nativeRequestDigest:digest(native)}});expect(query).toHaveBeenCalledOnce();
+ });
  it('does not promote a local repair binding into Cloud authority',async()=>{
   const input=request(),repairBinding={workId:input.workId,workVersion:1,workGeneration:1,workOrderId:randomUUID()};
   const fetcher=vi.fn();

@@ -1,26 +1,26 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
 
       - run: npm ci --no-audit --no-fund
       - name: Apply and verify reviewed dependency source mitigation
@@ -29,6 +29,8 @@ jobs:
       - run: node scripts/protocol-convergence/check-contract.mjs
 
       - run: npm run test --workspace=eve-agent -- lib/relay
+
+      - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
 
       - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
 
@@ -55,24 +57,87 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: 18fda16843257a673ea040195ce0ca145a447e6c
+          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
           path: .qualification/myfactory
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/relay
+          ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+          path: .qualification/relay
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Apply and verify reviewed dependency source mitigation
         run: npm run postinstall && npm run security:patches
       - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
+      - name: Isolated receiving transaction and independent witness PostgreSQL
+        working-directory: .qualification/myfactory
+        run: |
+          docker pull postgres:17
+          node scripts/qualify-factory-receiver.mjs
+      - name: Cache offline qualification image
+        run: docker pull node:24-bookworm
+      - name: Canonical pricing freshness and historical approval denials
+        run: node --test apps/cloud-control/test/pricing-qualification.test.mjs
+        working-directory: .qualification/myfactory
       - name: Real PostgreSQL lifecycle and exact Factory authority
         env:
           MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+          MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+          MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+          MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: "1"
+          FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
         # Separate test databases share cluster-wide roles; initialize those fixtures serially.
         # Concurrency and race assertions inside each test file still run unchanged.
-        run: npm exec --workspace apps/eve -- vitest run --no-file-parallelism lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+      - name: Durable owner budget concurrency and UNKNOWN recovery
+        env:
+          MYEVE_OWNER_CHANNEL_TESTS: '1'
+          MYEVE_OWNER_TEST_USER: postgres
+          MYEVE_OWNER_TEST_PORT: '5432'
+        run: npm exec --workspace apps/eve -- vitest run lib/relay/owner/model-budget.integration.test.mjs
+
+  protected-verifier:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
+      - name: Retrieve exact existing offline verifier image
+        env:
+          PROTECTED_VERIFIER_IMAGE: node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+        run: |
+          docker pull --platform=linux/arm64 "$PROTECTED_VERIFIER_IMAGE"
+          docker image inspect "$PROTECTED_VERIFIER_IMAGE" > "$RUNNER_TEMP/protected-verifier-image.json"
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const [image] = JSON.parse(readFileSync(process.env.RUNNER_TEMP + '/protected-verifier-image.json', 'utf8'));
+          assert.equal(process.arch, 'arm64');
+          assert.equal(image.Os, 'linux');
+          assert.equal(image.Architecture, 'arm64');
+          assert.ok(image.RepoDigests.includes(process.env.PROTECTED_VERIFIER_IMAGE));
+          console.log(JSON.stringify({image:process.env.PROTECTED_VERIFIER_IMAGE,imageId:image.Id,os:image.Os,architecture:image.Architecture}));
+          NODE
+      - name: Offline protected positive and failed-review controls
+        env:
+          QUANTITY_PROTECTED_CORPUS: '1'
+        run: node --import tsx --test apps/eve/test/numeric-range-protected.test.mjs

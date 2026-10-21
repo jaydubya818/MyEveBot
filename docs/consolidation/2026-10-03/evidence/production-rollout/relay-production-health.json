@@ -1,5 +1,5 @@
 {
-  "url": "https://<relay-production-host>/api/health/ready",
+  "url": "https://relay-sage-nine.vercel.app/api/health/ready",
   "httpStatus": 200,
   "body": {
     "ok": true,

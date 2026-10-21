@@ -92,7 +92,7 @@ Implement Option 2. Keep the other 13 skills deferred until a combined routing e
 **By:** Codex
 
 **Actions:**
-- Published Preview: `https://<vercel-preview-host>/manage/skills`.
+- Published Preview: `https://sofie-personal-agent-bilaeeifc-jaydubya818.vercel.app/manage/skills`.
 - Opened stacked pull request: `https://github.com/jaydubya818/eveclaw/pull/3` against `feat/proactive-review-delivery`.
 
 ## Notes

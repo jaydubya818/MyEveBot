@@ -18,9 +18,9 @@
     "security:patches": "node scripts/security/apply-dependency-patches.mjs --check"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1",
-    "pg": "^8.23.1",
-    "turbo": "^2.11.9"
+    "@playwright/test": "^1.63.0",
+    "pg": "^8.20.0",
+    "turbo": "^2.10.5"
   },
   "engines": {
     "node": "24.x"

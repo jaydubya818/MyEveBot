@@ -2,6 +2,9 @@ import {FACTORY_START_PROPOSAL_CONTRACT} from "./engineering/factory-proposal-co
 import { configuredLocalCapabilities, type LocalComputerCapability } from "./local-computer-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "./engineering/deployment-mode.ts";
 import { getCapabilityStatuses } from "./capabilities.ts";
+import { externalAlphaCapabilityAllowed, externalAlphaEnabledFeatures, externalAlphaMemoryApproved } from "./external-alpha/features.ts";
+import { externalAlphaInstallation } from "./external-alpha/policy.ts";
+import {localOwnerAppsConfigured} from './myapps/local-configuration.ts';
 
 export const BROWSER_TOOL_CAPABILITIES: Record<string, string> = {
   click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
@@ -446,6 +449,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("bash", { description: "Run a bounded read-only diagnostic command in the active Agent computer sandbox.", permissions: ["terminal.execute"], risk: "medium", riskCategories: ["code-execution", "sandbox-data"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["terminal.execute"], keywords: ["terminal", "diagnostic", "command"] }),
   tool("read_file", { description: "Read a file from the active Agent computer workspace.", permissions: ["files.read"], configuration: ["DATABASE_URL"], dependencies: ["files.read"], keywords: ["file", "read", "workspace"] }),
   tool("write_file", { description: "Write a bounded file in the active Agent computer workspace.", permissions: ["files.write"], risk: "medium", riskCategories: ["sandbox-data"], configuration: ["DATABASE_URL"], dependencies: ["files.write"], keywords: ["file", "write", "workspace"] }),
+  tool("installed_apps", { description: "Read or update the current owner's qualified local task apps or explicitly bound CRM. Prepare private installation decisions; only the owner can approve. No publication, deployment, Skills or Work authority.", permissions: ["apps.query", "apps.command"], risk: "medium", riskCategories: ["durable-data"], approval: "owner_policy", keywords: ["apps", "tasks", "crm", "local"] }),
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
   tool("engineering_factory", { description: FACTORY_START_PROPOSAL_CONTRACT, permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG or MYEVE_FACTORY_WORKER_ENABLED"], keywords: ["engineering", "factory", "work", "recovery"] }),
   tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
@@ -546,6 +550,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("query_receipts", { description: "Search recorded receipts.", feature: "receipts", permissions: ["finance.read"], configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["receipt", "expense", "search"] }),
   tool("spending_summary", { description: "Summarize recorded spending by time and category.", feature: "receipts", permissions: ["finance.read"], configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["spending", "summary", "budget"] }),
   tool("delete_receipt", { description: "Delete a recorded receipt.", feature: "receipts", permissions: ["finance.delete"], risk: "high", riskCategories: ["durable-delete", "financial-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["receipt", "delete"] }),
+  tool("mission_control", { description: "Prepare and inspect isolated enterprise Mission drafts; owner approval remains in MissionControl.", feature: "missioncontrol-readiness", permissions: ["enterprise.draft", "enterprise.read"], risk: "medium", approval: "none", configuration: ["MYEVE_MISSIONCONTROL_MODE", "MYEVE_MISSIONCONTROL_URL", "MYEVE_MISSIONCONTROL_SECRET", "MYEVE_MISSIONCONTROL_OWNER_ID", "MYEVE_MISSIONCONTROL_OPERATOR_ID", "MYEVE_MISSIONCONTROL_TENANT_ID", "MYEVE_MISSIONCONTROL_PROJECT_ID", "MYEVE_MISSIONCONTROL_CONNECTION_ID"], evidence: { supported: true, required: true, types: ["enterprise-proposal", "enterprise-status"] }, keywords: ["missioncontrol", "enterprise", "mission", "quality gate"] }),
   tool("create_factory_work_order", { description: "Submit signed intake to the local MyFactory through Linear; no execution or publication authority.", feature: "myfactory", permissions: ["factory.workorder.create"], risk: "medium", riskCategories: ["external-side-effect"], approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_REPOSITORY"], evidence: { supported: true, required: true, types: ["linear-issue", "factory-receipt"] }, keywords: ["myfactory", "local factory", "work order"] }),
   tool("get_factory_work_order", { description: "Read a signed local factory receipt for a previous handoff.", feature: "myfactory", permissions: ["factory.workorder.read"], risk: "low", approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_RECEIPT_PUBLIC_KEY"], evidence: { supported: true, required: true, types: ["factory-receipt"] }, keywords: ["myfactory", "local factory", "work order", "status"] }),
   tool("delegate_foreman_issue", { description: "Create and delegate a scoped Linear issue to Foreman from explicit owner chat; draft PR only.", feature: "integrations", permissions: ["linear.issue.create", "linear.issue.delegate"], risk: "medium", riskCategories: ["external-side-effect", "metered-action"], approval: "none", configuration: ["FOREMAN_LINEAR_CONNECTOR", "FOREMAN_LINEAR_WORKSPACE_ID", "FOREMAN_LINEAR_TEAM_ID", "FOREMAN_LINEAR_DELEGATE_ID", "FOREMAN_REPO"], evidence: { supported: true, required: true, types: ["linear-issue", "agent-session"] }, keywords: ["foreman", "linear", "issue", "software factory", "delegate"] }),
@@ -554,6 +559,8 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
 ] as const;
 
 function enabledFeatures(env: NodeJS.ProcessEnv): Set<string> {
+  // External-alpha installations fail closed: an unset list never means "all".
+  if (externalAlphaInstallation(env)) return externalAlphaEnabledFeatures(env);
   const raw = env.EVE_ENABLED_FEATURES;
   if (raw === undefined || raw.trim().length === 0) {
     return new Set(["memory", "proactive", "receipts", "skills", "file-sharing", "integrations", "browser", "utilities", "goals", "knowledge"]);
@@ -576,6 +583,22 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  // External alpha: an explicit allowlist, enforced here for discovery and by the
+  // execution hook and action gateway (both require "available"). Anything new is
+  // unavailable until a reviewer adds it to features.ts.
+  if (externalAlphaInstallation(env)) {
+    if (!externalAlphaCapabilityAllowed(definition.id, env))
+      return { status: "disabled", configured: false, reason: "Not part of the external alpha." };
+    // Approved Memory is the local PostgreSQL backend; it needs no third-party key.
+    if (externalAlphaMemoryApproved(env) && ["memory.supermemory", "tool.remember", "tool.search_memory", "tool.list_memories", "tool.forget"].includes(definition.id))
+      return { status: "available", configured: true };
+  }
+  // Packaging does not make the local-only adapter generally discoverable or
+  // grant activation. Its existing owner/local binding gates remain canonical.
+  if (definition.id === "tool.installed_apps") {
+    if(localOwnerAppsConfigured(env))return {status:'available',configured:true};
+    return { status: "disabled", configured: false, reason: "MyApps requires separately authorized trusted local composition." };
+  }
   // Discovery is gated; execution retains the canonical owner, Work and provider fences.
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
       (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {

@@ -4,7 +4,7 @@
   "repairCodeSha": "b41b81507bda08da1b299bf7db50086a4ba820e8",
   "deployment": {
     "id": "dpl_J949enNVwma9nndmqD4F4gpchyL9",
-    "url": "<vercel-preview-host>",
+    "url": "sofie-personal-agent-g4vvieciu-jaydubya818.vercel.app",
     "readyState": "READY",
     "gitSource": {
       "type": "github",
@@ -13,8 +13,8 @@
       "sha": "5196df982be2b2e55fed996289eb45b70229a158"
     },
     "alias": [
-      "<vercel-preview-host>",
-      "<vercel-preview-host>"
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-5196df982be2b2e55fe-a00932-jaydubya818.vercel.app"
     ],
     "autoAssignCustomDomains": false
   },
@@ -54,7 +54,7 @@
   "hostedHealth": {
     "observedAt": "2026-09-30T23:47:50.737458+00:00",
     "deploymentId": "dpl_J949enNVwma9nndmqD4F4gpchyL9",
-    "url": "https://<vercel-preview-host>",
+    "url": "https://sofie-personal-agent-g4vvieciu-jaydubya818.vercel.app",
     "deploymentAccess": "PASS_EXISTING_PROJECT_CREDENTIAL",
     "canonicalEveHealth": "PASS",
     "ownerAuthenticationEnforced": "PASS",

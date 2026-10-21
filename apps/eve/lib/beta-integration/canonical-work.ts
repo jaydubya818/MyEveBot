@@ -1,3 +1,4 @@
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import { hostedFactoryQueue } from "../engineering/deployment-mode.ts";
 import { factoryAction } from "../engineering/factory-api.ts";
 import { factoryConfig } from "../engineering/factory-routing.ts";
@@ -52,6 +53,14 @@ export class CanonicalBetaWork {
           "Refresh the current Work before changing control.",
           409,
         );
+      // Issuance takes this same Work lock. A generic control change must not
+      // invalidate an outstanding external-alpha request or its retained Result.
+      // Sofie's canonical stop/takeover path reconciles cleanup before control.
+      const [external] = (await c.query(
+        "SELECT id FROM external_alpha_work_authority WHERE owner_id=$1 AND work_id=$2 LIMIT 1",
+        [owner, workId],
+      )).rows;
+      if (external) throw new WorkError("external_alpha_control_required", "Review this Work with Sofie before changing its control.", 409);
       if (operation === "continue") {
         await c.query(
           "SELECT pg_advisory_xact_lock(hashtextextended($1,719))",
@@ -126,6 +135,10 @@ export class CanonicalBetaWork {
         "Refresh the current Work before admission.",
         409,
       );
+    // Owner Resume records control intent only. External-alpha execution has
+    // exactly one start entry: the owner-bound Sofie action, never a legacy
+    // canary queue or native admission fallback from this web surface.
+    if (externalAlphaInstallation()) return { status: "SOFIE_REQUIRED", reason: "Work is resumed. Ask Sofie to start this exact Work; current external-alpha policy, allowance and authority must still qualify.", receipt: null };
     // Queue only after the same owner response/CAS checks. A queued request is never admission.
     if (hostedFactoryQueue()) {
       const receipt = await factoryAction(store, workId, {operation: "start", expectedWorkVersion: version, expectedWorkGeneration: generation});

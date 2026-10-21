@@ -50,7 +50,7 @@
           "unsupportedCapabilities": [],
           "provenance": {
             "source": "Relay owner registration",
-            "relayOrigin": "https://<relay-production-host>",
+            "relayOrigin": "https://relay-sage-nine.vercel.app",
             "verification": "OWNER_REGISTERED"
           },
           "authority": "NOT_GRANTED",

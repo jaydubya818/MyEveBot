@@ -2,9 +2,9 @@
   "id": "dpl_5bxij4TrCDFvgySPRkQfHCxEcjiy",
   "state": "READY",
   "target": "production",
-  "projectId": "<vercel-project-id-B>",
+  "projectId": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
   "sha": "7e60ad2044b2805f5c7caad7dca4811fca777e33",
-  "url": "<vercel-preview-host>",
+  "url": "myfactory-cloud-production-3c45kn9fj-jaydubya818.vercel.app",
   "untrustedChecks": [
     {
       "identity": "absent",

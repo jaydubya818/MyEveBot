@@ -1,17 +1,22 @@
+import { assertExternalAlphaTool } from "../../lib/external-alpha/tool-authority.ts";
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 
-import { getTaskRun, listTaskRuns, taskOwnerFromAuth } from "../../lib/task-runs.ts";
+import {
+  getTaskRun,
+  listTaskRuns,
+  taskOwnerFromAuth,
+} from "../../lib/task-runs.ts";
 import { agentName, ownerName } from "../lib/owner.ts";
 
 export default defineTool({
-  description:
-    `Read ${ownerName()}'s audited ${agentName()} tasks, including status, guardrails, specialist progress, acceptance checks, evidence metadata, and milestones. Use a task ID for one task or omit it for recent tasks.`,
+  description: `Read ${ownerName()}'s audited ${agentName()} tasks, including status, guardrails, specialist progress, acceptance checks, evidence metadata, and milestones. Use a task ID for one task or omit it for recent tasks.`,
   inputSchema: z.object({
     taskId: z.string().startsWith("task_").optional(),
     threadId: z.string().min(1).max(200).optional(),
   }),
   async execute(input, ctx) {
+    await assertExternalAlphaTool(ctx, "inspect_tasks");
     const ownerId = taskOwnerFromAuth(ctx.session.auth);
     if (input.taskId !== undefined) {
       const task = await getTaskRun(ownerId, input.taskId);

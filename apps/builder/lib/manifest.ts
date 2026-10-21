@@ -14,6 +14,7 @@ import type { FeatureId } from "./config";
 /** Path prefixes / exact files never included in a deployment. */
 export const EXCLUDED = [
   ".agents/",
+  ".builder-template-source.",
   ".env",
   ".eve/",
   ".gitignore",
@@ -32,6 +33,14 @@ export const EXCLUDED = [
   "tsconfig.tsbuildinfo",
   "test/",
   "scripts/qualification-",
+  // Canonical capability qualification uses fixture authorities and repository paths.
+  "scripts/qualify-capability-browser.mjs",
+  "scripts/qualify-capability-composed-browser.mjs",
+  "scripts/qualify-capability-control.mjs",
+  "scripts/qualify-capability-enforcement.mjs",
+  "scripts/qualify-capability-lifecycle.mjs",
+  "scripts/qualify-capability-ordering.mjs",
+  "scripts/qualify-capability-recovery.mjs",
 ] as const;
 
 /** Directories whose files must all be claimed by some feature (or core). */
@@ -48,7 +57,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/capabilities.ts",
   "agent/instructions/channel.ts",
   "agent/instructions/computer-runtime.ts",
-  "agent/instructions/connection-reporting.md",
+  "agent/instructions/connection-reporting.ts",
   "agent/instructions/delegation.ts",
   "agent/instructions/installed-skills.ts",
   "agent/instructions/persistent-agent.ts",
@@ -62,8 +71,12 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   // Internal engineering tools stay dormant behind their existing owner/runtime gates.
   "agent/tools/engineering_work.ts",
+  // Canonical MyApps source ships, but activation remains owner + local-only.
+  "agent/tools/installed_apps.ts",
+  "agent/tools/installed_apps.test.ts",
   "agent/tools/engineering_direct.ts",
   "agent/tools/engineering_factory.ts",
+  "agent/tools/mission_control.ts",
   // Claimed for source completeness; isExcluded still removes tests from deployments.
   "agent/tools/engineering_direct.test.ts",
   "agent/tools/engineering_factory.test.ts",
@@ -105,8 +118,8 @@ export const CORE_PRUNABLE_FILES = [
 /** Feature → the prunable files it owns. */
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   knowledge: [
-    "agent/instructions/knowledge.md",
-    "agent/instructions/jev.md",
+    "agent/instructions/knowledge.ts",
+    "agent/instructions/jev.ts",
     "agent/tools/evaluate_with_jev.ts",
     "agent/tools/record_fact.ts",
     "agent/tools/record_observation.ts",
@@ -217,7 +230,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/verify_card_code.ts",
   ],
   browser: [
-    "agent/instructions/browser.md",
+    "agent/instructions/browser.ts",
     "agent/tools/browser__click.ts",
     "agent/tools/browser__close.ts",
     "agent/tools/browser__fill.ts",
@@ -236,7 +249,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
 };
 
 export function isExcluded(relativePath: string): boolean {
-  return /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
+  return relativePath.split("/").some((part) => part.startsWith(".env") || ["output", ".local-computer", ".git", "node_modules", ".eve", ".next", ".output", ".turbo", ".vercel"].includes(part)) || /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
     (entry) =>
       relativePath === entry ||
       (entry.endsWith("/") ? relativePath.startsWith(entry) : relativePath.startsWith(entry)),

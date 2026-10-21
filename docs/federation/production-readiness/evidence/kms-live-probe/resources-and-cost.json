@@ -1,6 +1,6 @@
 {
-  "projectId": "<gcp-project-id>",
-  "projectNumber": "<gcp-project-number>",
+  "projectId": "relay-local-qualification",
+  "projectNumber": "1079783030880",
   "location": "us-east4",
   "keyring": "fq-compatibility-probe",
   "cryptoKey": "fq-ed25519-probe",

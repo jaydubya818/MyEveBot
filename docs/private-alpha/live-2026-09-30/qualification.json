@@ -78,7 +78,7 @@
   "productionMigration": "0074_alpha_conversation_budget.sql",
   "deployment": {
     "id": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV",
-    "url": "<vercel-preview-host>",
+    "url": "sofie-personal-agent-knrqrs6a2-jaydubya818.vercel.app",
     "readyState": "READY",
     "status": "READY",
     "gitSource": {
@@ -88,9 +88,9 @@
       "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
     },
     "alias": [
-      "<sofie-production-host>",
-      "<vercel-preview-host>",
-      "<vercel-preview-host>"
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
     ]
   },
   "activationConfiguration": {
@@ -110,7 +110,7 @@
   },
   "previousDeployment": {
     "id": "dpl_3wAghoftDkr7x7CLCBkCy4N5Xzxx",
-    "url": "<vercel-preview-host>",
+    "url": "sofie-personal-agent-raeljfbzz-jaydubya818.vercel.app",
     "readyState": "READY",
     "gitSource": {
       "type": "github",
@@ -119,9 +119,9 @@
       "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
     },
     "alias": [
-      "<sofie-production-host>",
-      "<vercel-preview-host>",
-      "<vercel-preview-host>"
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
     ],
     "errorCode": null,
     "errorMessage": null

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import type { FederationStore } from "./store.ts";
 
 export const messageReplySettingsSchema = z.object({
@@ -7,6 +8,9 @@ export const messageReplySettingsSchema = z.object({
 }).strict().refine(value => !value.enabled || value.publicProfile.length > 0, "Add the information your Agent may share before enabling replies.");
 export type MessageReplySettings = z.infer<typeof messageReplySettingsSchema>;
 export async function messageReplySettings(store: Pick<FederationStore, "ownerId" | "database">): Promise<MessageReplySettings> {
+  // An external-alpha installation never auto-replies to a Relay peer, whatever
+  // a stored value says (Relay there is a view and a link only).
+  if (externalAlphaInstallation()) return { enabled: false, publicProfile: "" };
   // A storage error must not silently turn an enabled answer into a receipt.
   const [row] = await store.database.query("SELECT value FROM app_settings WHERE name=$1", [`relay-message-replies:${store.ownerId}`]);
   const value = row?.value;
@@ -15,6 +19,8 @@ export async function messageReplySettings(store: Pick<FederationStore, "ownerId
 }
 export async function saveMessageReplySettings(store: Pick<FederationStore, "ownerId" | "database">, input: unknown) {
   const settings = messageReplySettingsSchema.parse(input);
+  if (externalAlphaInstallation() && settings.enabled)
+    throw new Error("EXTERNAL_ALPHA_RELAY_OPERATION_DENIED:message-replies");
   await store.database.query(
     "INSERT INTO app_settings(name,value) VALUES($1,$2) ON CONFLICT(name) DO UPDATE SET value=EXCLUDED.value,updated_at=now()",
     [`relay-message-replies:${store.ownerId}`, JSON.stringify(settings)],

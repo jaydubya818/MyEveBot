@@ -3,7 +3,7 @@
   "mode": "READ_ONLY_METADATA",
   "projects": {
     "myeve": {
-      "id": "<vercel-project-id-A>",
+      "id": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
       "oidcTokenConfig": {
         "enabled": true,
         "issuerMode": "team"
@@ -23,7 +23,7 @@
       "environmentInspectionError": null
     },
     "relay": {
-      "id": "<vercel-project-id-E>",
+      "id": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
       "oidcTokenConfig": {
         "enabled": true,
         "issuerMode": "team"
@@ -44,7 +44,7 @@
     }
   },
   "team": {
-    "id": "<vercel-team-id>",
+    "id": "team_p8z8exJRTGfOPk1GC9vUOpv3",
     "slug": "jaydubya818",
     "plan": "pro",
     "inspectionError": null

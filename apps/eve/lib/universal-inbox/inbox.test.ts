@@ -287,3 +287,16 @@ it("freezes response Work context so a later source cannot redirect an accepted 
   await inbox.respond(answerFor(item));
   await expect(inbox.ingest({ ...decisionEvent(3), action: null, kind: "MESSAGE" })).rejects.toThrow("RESPONSE_WORK_LINK_FROZEN");
 });
+
+it('decision history keeps saved pending answers without including unrelated results', async () => {
+  const { inbox, repository } = setup();
+  await inbox.ingest(eventSchema.parse({ ...decisionEvent(), correlationId: 'unrelated-result', kind: 'RESULT', action: null, disposition: 'resolve', source: { ...decisionEvent().source, eventId: 'unrelated-result' } }));
+  const decision = await inbox.ingest(decisionEvent());
+  expect((await inbox.list({view:'decision_history'})).items).toHaveLength(0);
+  await inbox.respond(answerFor(decision));
+  expect((await inbox.list({view:'decision_history'})).items.map(item=>item.id)).toEqual([decision.id]);
+  await inbox.deliver({accept: async ()=>'saved-continuation'});
+  expect((await inbox.list({view:'decision_history'})).items.map(item=>item.id)).toEqual([decision.id]);
+  const foreign=new UniversalInbox('owner-b',repository,()=>FIXTURE_NOW);
+  expect((await foreign.list({view:'decision_history'})).items).toHaveLength(0);
+});

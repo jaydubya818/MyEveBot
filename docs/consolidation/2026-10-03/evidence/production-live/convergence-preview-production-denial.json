@@ -1,9 +1,9 @@
 {
   "check": "production-trust-preview-denial",
   "status": "PASS",
-  "sourceProject": "<vercel-project-id-A>",
+  "sourceProject": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
   "sourceEnvironment": "preview",
-  "destinationProject": "<vercel-project-id-B>",
+  "destinationProject": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
   "destinationEnvironment": "production",
   "httpStatus": 403,
   "denial": "TRUSTED_SOURCES_ENVIRONMENT_MISMATCH",
@@ -13,5 +13,5 @@
   "tokenPersisted": false,
   "sourceCommit": "6206a9ddb587cb9c61b8ef2d6b22d11b56a9de3a",
   "deploymentId": "dpl_2rn3DeE17iVBnek37Roit8aewzjk",
-  "deploymentUrl": "https://<vercel-preview-host>"
+  "deploymentUrl": "https://sofie-personal-agent-qtqw33aut-jaydubya818.vercel.app"
 }

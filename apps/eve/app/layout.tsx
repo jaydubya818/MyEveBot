@@ -2,7 +2,11 @@ import { OwnerSessionBoundary } from "@/components/owner-session-boundary";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
+import { ApplicationShell } from "@/components/owner/application-shell";
 import { AppearanceSync } from "@/components/appearance-sync";
+import { DestinationGate } from "@/components/owner/destination-gate";
+import { productDestinations } from "@/components/owner/destinations";
+import { allowedDestinationHrefs } from "@/lib/external-alpha/features";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -20,7 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: AGENT_NAME,
+  title: "MyEve",
   description: `Chat with your personal ${AGENT_NAME} agent`,
 };
 
@@ -29,6 +33,8 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // null outside an external-alpha installation; otherwise only allowlisted pages are linked.
+  const hrefs = allowedDestinationHrefs(productDestinations);
   return (
     <html
       lang="en"
@@ -38,7 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="antialiased">
         <OwnerSessionBoundary><AppearanceSync />
-        {children}</OwnerSessionBoundary>
+        <DestinationGate hrefs={hrefs} feedbackEnabled={process.env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION'}><ApplicationShell>{children}</ApplicationShell></DestinationGate></OwnerSessionBoundary>
       </body>
     </html>
   );

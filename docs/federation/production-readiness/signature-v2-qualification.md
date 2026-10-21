@@ -15,7 +15,7 @@ The original failed raw-signing result remains preserved at MyEve readiness `254
 ## Live probe
 
 Exact existing version:
-`projects/<gcp-project-id>/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1`
+`projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1`
 
 SOFTWARE / EC_SIGN_ED25519 / ENABLED. Six synthetic calls; all succeeded. Canonical header.payload sizes were **1,169; 23,071; 61,803; 132,771; 260,000; 262,057 bytes**. Every provider input was **179 bytes** (240 base64 transport characters). The last complete token was **262,144 characters**. Every case verified exact provider version, CRC32C, 64-byte Ed25519 signature, KMS public key, Relay verifier and MyEve verifier. Both verifiers rejected payload-bit, purpose, version and key-ID substitution for every case. Local adversarial tests separately reject altered preimage purpose/version/hash, exact provider-version substitution and wrong-key results; no call was made to an unauthorized key version.
 

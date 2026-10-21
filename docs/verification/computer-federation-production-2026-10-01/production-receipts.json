@@ -3,11 +3,11 @@
   "production": {
     "checkedAt": "2026-10-01T01:04:18.860581+00:00",
     "id": "dpl_DjiW59cXWYfNiJkbtmHrtoGtjuJb",
-    "url": "<vercel-preview-host>",
+    "url": "sofie-personal-agent-o6pkt76c1-jaydubya818.vercel.app",
     "state": "READY",
     "alias": [
-      "<sofie-production-host>",
-      "<vercel-preview-host>"
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app"
     ],
     "sha": "fff8feef84ccfa8e43c81201653dab08182adacd"
   },
