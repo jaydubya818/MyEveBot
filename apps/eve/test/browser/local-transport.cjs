@@ -4,6 +4,8 @@ const { Agent, Dispatcher, setGlobalDispatcher } = require('undici');
 const configured = new URL(process.env.MYEVE_TEST_DATABASE_URL || '');
 if (!['localhost', '127.0.0.1'].includes(configured.hostname) || !configured.port || configured.pathname !== '/blocker_fixes') throw new Error('Use the isolated local blocker_fixes database.');
 const pool = new Pool({connectionString: configured.href, max:8});
+// @neondatabase/serverless >=1.2 appends an application_name label; every other part of the URL must match exactly.
+const sameDatabase = (a, b) => { const x = new URL(a); x.searchParams.delete('application_name'); return x.href === new URL(b).href; };
 const originalFetch = globalThis.fetch;
 const fixtureOrigin = 'http://127.0.0.1:3074';
 const localAgent = new Agent();
@@ -23,7 +25,7 @@ globalThis.fetch = async (input, init) => {
   const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
   const connection = headers.get('Neon-Connection-String');
   if (connection) {
-    if (new URL(connection).href !== configured.href) throw new Error('Non-isolated database denied');
+    if (!sameDatabase(connection, configured.href)) throw new Error('Non-isolated database denied');
     const body = JSON.parse(init.body), client = await pool.connect();
     try {
       if (body.queries) await client.query('BEGIN');
