@@ -1,0 +1,33 @@
+name: Pricing window guard
+
+# Non-deploying, read-only. Fails (and so notifies) when the pinned Factory source's price windows are expired or end
+# within 3 days. It never edits a price. Renewal steps and owners: docs/ops/PRICING-RENEWAL.md.
+on:
+  schedule:
+    - cron: '17 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pricing-window:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Fetch the pinned Factory source (exact ref from current-pins.mjs; no new pin is introduced here)
+        run: |
+          ref=$(grep -oE "export const factory = '[a-f0-9]{40}'" scripts/myapps-composition/current-pins.mjs | grep -oE "[a-f0-9]{40}")
+          test -n "$ref"
+          git init -q .qualification/myfactory
+          git -C .qualification/myfactory fetch -q --depth 1 https://github.com/jaydubya818/MyFactory.git "$ref"
+          git -C .qualification/myfactory checkout -q --detach FETCH_HEAD
+          test "$(git -C .qualification/myfactory rev-parse HEAD)" = "$ref"
+      - name: Check price windows
+        run: node scripts/unified-beta/pricing-window-check.mjs --root .qualification/myfactory --warn-days 3
