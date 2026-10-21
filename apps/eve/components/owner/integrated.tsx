@@ -1,5 +1,5 @@
 "use client";
-import type { PublicationReadback } from '@/lib/engineering/publication-contract';
+import { canReviewRetainedResult, resultPublicationReadback, type RetainedResultBinding } from "./result-readback";
 import {
   useEffect,
   useRef,
@@ -19,9 +19,10 @@ import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
 import { Responsibilities } from "./responsibilities";
-import { AgentOverview } from "./agent-overview";
+import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
-import { OwnerNavigation } from "./navigation";
+import { WorkSummary } from "./work-summary";
+import { ProductShell } from "./product-shell";
 
 type CanonicalWork = Awaited<
   ReturnType<
@@ -30,12 +31,11 @@ type CanonicalWork = Awaited<
 >;
 type Today = Awaited<ReturnType<GoalWorkQueries["today"]>>;
 type Brief = Awaited<ReturnType<GoalWorkQueries["brief"]>>;
-type Result = {
+type Result = RetainedResultBinding & {
   id: string;
   work_id: string;
   proof: ProofOfWork;
   journeyAccounting?: JourneyAccounting;
-  publicationReadback?: PublicationReadback | null;
   content_hash: string;
   source: "LOCAL_FIXTURE" | "CANONICAL";
   created_at: string;
@@ -79,6 +79,8 @@ export function IntegratedExperience({
   selectedId?: string;
   selectedKind?: "goal" | "work";
 }) {
+  const destinationAllowed = useDestinationAllowed();
+  const advancedAvailable = destinationAllowed("/manage");
   const [today, setToday] = useState<Today | null>(null),
     [works, setWorks] = useState<Work[]>([]),
     [results, setResults] = useState<Result[]>([]),
@@ -156,11 +158,6 @@ export function IntegratedExperience({
       }
     };
     const jobs = [
-      read<{ changes: typeof activity }>(
-        "/api/beta/activity",
-        "Memory and learning changes",
-        (d) => setActivity(d.changes),
-      ),
       selectedKind === "goal" && selectedId
         ? read<{ goal: Today["goals"][number] }>(
             `/api/beta/goals?goalId=${encodeURIComponent(selectedId)}`,
@@ -198,6 +195,7 @@ export function IntegratedExperience({
         },
       ),
     ];
+    if (["brief", "activity", "memory"].includes(view)) jobs.push(read<{ changes: typeof activity }>("/api/beta/activity", "Activity", (d) => setActivity(d.changes)));
     if (view === "brief" || view === "activity")
       jobs.push(
         read<Brief>(
@@ -222,6 +220,12 @@ export function IntegratedExperience({
     });
     return () => controller.abort();
   }, [view, revision, memoryWork, selectedId, selectedKind]);
+  useEffect(() => {
+    const refreshVisible = () => { if (document.visibilityState === "visible") refresh(); };
+    window.addEventListener("online", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
+    return () => { window.removeEventListener("online", refreshVisible); document.removeEventListener("visibilitychange", refreshVisible); };
+  }, [refresh]);
   async function mutate(action: () => Promise<unknown>, success: string) {
     if (pending.current) return;
     pending.current = true;
@@ -368,15 +372,17 @@ export function IntegratedExperience({
         .filter(
           (r) => !selectedId || r.id === selectedId || r.work_id === selectedId,
         )
-        .map((r) => (
-          <Card
+        .map((r) => {
+          const work = errors.length ? undefined : works.find(w => w.id === r.work_id);
+          const publication = resultPublicationReadback(r, work);
+          return <Card
             key={r.id}
             title={
               works.find((w) => w.id === r.work_id)?.title ?? "Retained Result"
             }
           >
             <p>
-              <State value={r.proof.outcome} />
+              Retained proof outcome: <State value={r.proof.outcome} />
             </p>
             <p className="owner-muted">
               {r.source === "LOCAL_FIXTURE"
@@ -393,7 +399,7 @@ export function IntegratedExperience({
             <p className="owner-muted">
               Candidate: {r.candidate_sha ?? r.proof.resultRevision}
             </p>
-            {r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS") && <p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></p>}
+            {advancedAvailable && r.route === "MYFACTORY" && canReviewRetainedResult(r, work) && <p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></p>}
             <p>
               Work revision {r.proof.workVersion} · Criteria revision{" "}
               {r.proof.criteriaVersion}
@@ -401,7 +407,12 @@ export function IntegratedExperience({
             <details>
               <summary>Proof of Work</summary>
               {r.journeyAccounting && <p>{journeyCostText(r.journeyAccounting)}</p>}
-              {r.publicationReadback && <p>Current publication: PASS · GitHub CI: {r.publicationReadback.ci.status} · Independent review: {r.publicationReadback.review.status}. {r.publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result: PARTIAL.</p>}
+              {publication ? <section aria-label="Publication readback">
+                <p>GitHub CI: {publication.ci.status} · Independent review: {publication.review.status}.</p>
+                <p>{publication.review.summary}</p>
+                <p>Owner acceptance: {publication.ownerAcceptance} · Merge: {publication.merge} · Deployment: {publication.deployment}.</p>
+                <p className="owner-muted">Observed {date(publication.observedAt)}. Owner acceptance remains a separate decision.</p>
+              </section> : <p>Current publication evidence is unavailable. Retained proof does not establish current readiness.</p>}
               <ul className="owner-list">
                 {r.proof.evidence.map((e) => (
                   <li key={e.criterionId}>
@@ -422,7 +433,7 @@ export function IntegratedExperience({
             </details>
             <div className="owner-actions">
               <Link href={`/work?kind=work&id=${r.work_id}`}>Open Work</Link>
-              <label>
+              {destinationAllowed("/memory") && <><label>
                 Learning scope
                 <select
                   value={feedbackScope}
@@ -469,10 +480,10 @@ export function IntegratedExperience({
               >
                 Prefer source citations
               </button>
-              <Link href={`/memory?workId=${r.work_id}`}>Review learning</Link>
+              <Link href={`/memory?workId=${r.work_id}`}>Review learning</Link></>}
             </div>
-          </Card>
-        ))
+          </Card>;
+        })
     ) : (
       <Empty title="No retained Results">
         Verified outputs and their evidence will appear here.
@@ -480,33 +491,7 @@ export function IntegratedExperience({
     );
   }
   return (
-    <div className="owner-shell">
-      <a className="owner-skip" href="#owner-content">
-        Skip to content
-      </a>
-      <header className="owner-top">
-        <Link href="/today" className="owner-brand">
-          MyEve<span className="owner-muted"> / Sofie</span>
-        </Link>
-        <OwnerNavigation />
-      </header>
-      <main id="owner-content" tabIndex={-1} className="owner-content">
-        <header className="owner-heading">
-          <div>
-            <span className="owner-eyebrow">Your outcomes, in focus</span>
-            <h1>{titles[view]}</h1>
-            <p className="owner-muted">
-              Goals, decisions, evidence, and progress in one place.
-            </p>
-          </div>
-          <div className="owner-actions">
-            <button onClick={refresh} disabled={loading}>
-              Refresh
-            </button>
-            <Link href="/work/new">New Goal</Link>
-          </div>
-        </header>
-        <details className="owner-muted"><summary>Private-alpha availability</summary><p>Open each Work for its admitted execution and Proof. General cloud background execution remains under qualification.</p></details>
+    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : "Your work, in context."}>
         {loading && <p role="status">Checking your current state…</p>}
         {!!errors.length && (
           <div className="owner-notice" role="alert">
@@ -514,7 +499,7 @@ export function IntegratedExperience({
             {errors.map((e) => (
               <p key={e}>{e}</p>
             ))}
-            <Link href="/login">Sign in</Link>
+            <button onClick={refresh}>Try again</button>
           </div>
         )}
         {notice && (
@@ -563,12 +548,16 @@ export function IntegratedExperience({
             )}
             {view === "today" && (
               <>
+                <section className="owner-today-welcome" aria-label="Ask Sofie">
+                  <h2>{!works.length && !goals.length && !needs.length && !errors.length ? "Welcome to MyEve" : "What would you like to accomplish?"}</h2>
+                  <p className="owner-muted">Sofie is ready. Bring her an idea, a question, or something you need done.</p>
+                  <Link className="owner-ask" href="/chat"><span>Ask Sofie…</span><span aria-hidden="true">↗</span></Link>
+                </section>
                 <WorkInbox overview />
                 {needs.length>0&&<Card title="Owner attention"><ul className="owner-list">{needs.slice(0,3).map(item=><li key={item.id}><strong>{item.title}</strong><p>{item.summary}</p></li>)}</ul><Link href="/needs-you">Review all decisions and approvals</Link></Card>}
-                <AgentOverview />
-                <Responsibilities />
-                <div className="owner-grid">
-                  <Card title="Current Goals">
+
+                {goals.length > 0 && <div className="owner-grid">
+                  <Card title="Goals">
                     {goalList()}
                     {today?.nextCursor && (
                       <button
@@ -579,7 +568,7 @@ export function IntegratedExperience({
                       </button>
                     )}
                   </Card>
-                </div>
+                </div>}
               </>
             )}
             {view === "brief" && (
@@ -676,173 +665,12 @@ export function IntegratedExperience({
                   </Card>
                 ) : selectedWork ? (
                   <>
-                    <Card title={selectedWork.title}>
-                      <p>{selectedWork.objective}</p>
-                      <p>
-                        Control: {selectedWork.control} ·{" "}
-                        {selectedWork.lifecycle}
-                      </p>
-                      <p>
-                        Revision {selectedWork.version} ·{" "}
-                        {selectedWork.repository}
-                      </p>
-                      <p>
-                        Generation {selectedWork.generation}. Creating Work does
-                        not authorize execution.
-                      </p>
-                      {canonical?.admission && (
-                        <p role="status">
-                          {canonical.admission.current
-                            ? "Admission"
-                            : "Historical admission"}
-                          : {String(canonical.admission.status)} ·{" "}
-                          {String(canonical.admission.reason)}
-                        </p>
-                      )}
-                      <div className="owner-actions">
-                        {selectedWork.lifecycle === "active" &&
-                          ["start", "reconcile", "stop", "takeover"].map(
-                            (operation) => (
-                              <button
-                                key={"factory-" + operation}
-                                disabled={busy}
-                                onClick={() =>
-                                  void mutate(
-                                    () =>
-                                      post("factory", {
-                                        workId: selectedWork.id,
-                                        operation,
-                                        expectedWorkVersion:
-                                          selectedWork.version,
-                                        expectedWorkGeneration:
-                                          selectedWork.generation,
-                                      }),
-                                    "Factory request saved. Review Current Truth; execution requires qualified admission.",
-                                  )
-                                }
-                              >
-                                {operation === "start"
-                                  ? "Start MyFactory"
-                                  : operation === "reconcile"
-                                    ? "Refresh MyFactory"
-                                    : operation === "stop"
-                                      ? "Stop MyFactory"
-                                      : "Take over MyFactory"}
-                              </button>
-                            ),
-                          )}
-                      </div>
-                      <div className="owner-actions">
-                        {selectedWork.lifecycle === "active" &&
-                          (selectedWork.control === "paused"
-                            ? ["resume", "admit"]
-                            : ["pause", "admit"]
-                          ).map((operation) => (
-                            <button
-                              key={operation}
-                              disabled={busy}
-                              onClick={() =>
-                                void mutate(
-                                  () =>
-                                    post("work", {
-                                      operation,
-                                      workId: selectedWork.id,
-                                      expectedVersion: selectedWork.version,
-                                      expectedGeneration:
-                                        selectedWork.generation,
-                                    }),
-                                  operation === "admit"
-                                    ? "Admission evaluated. Review the retained outcome."
-                                    : "Work control saved. Review current admission before proceeding.",
-                                )
-                              }
-                            >
-                              {operation === "admit"
-                                ? "Check admission"
-                                : operation === "resume"
-                                  ? "Resume Work"
-                                  : "Pause Work"}
-                            </button>
-                          ))}
-                        {selectedWork.lifecycle === "active" &&
-                          selectedWork.control === "paused" &&
-                          canonical?.continuations
-                            .filter(
-                              (c) =>
-                                c.status === "ELIGIBLE" &&
-                                c.work_version === selectedWork.version &&
-                                c.work_generation === selectedWork.generation,
-                            )
-                            .map((c) => (
-                              <button
-                                key={String(c.response_id)}
-                                disabled={busy}
-                                onClick={() =>
-                                  void mutate(
-                                    () =>
-                                      post("work", {
-                                        operation: "continue",
-                                        workId: selectedWork.id,
-                                        expectedVersion: selectedWork.version,
-                                        expectedGeneration:
-                                          selectedWork.generation,
-                                        responseId: c.response_id,
-                                      }),
-                                    "Decision applied to Work control. Current admission is evaluated separately.",
-                                  )
-                                }
-                              >
-                                Continue from decision
-                              </button>
-                            ))}
-                      </div>
-                      <ul>
-                        {selectedWork.criteria.map((c) => (
-                          <li key={c.id}>{c.statement}</li>
-                        ))}
-                      </ul>
-                      <Link href={`/memory?workId=${selectedWork.id}`}>
-                        Memory used for this Work
-                      </Link>
-                    </Card>
-                    {resultCards()}
+                    {canonical?.projection ? <WorkSummary work={canonical.projection} /> : <Card title={selectedWork.title}><p>{selectedWork.objective}</p><p role="status">Detailed progress is unavailable.</p><button onClick={refresh}>Try again</button></Card>}
+
                   </>
                 ) : (
                   <>
-                    <Card title="Goals">
-                      {goalList()}
-                      {today?.nextCursor && (
-                        <button
-                          disabled={busy}
-                          onClick={() => void more("goals")}
-                        >
-                          Load more Goals
-                        </button>
-                      )}
-                    </Card>
-                    <Card title="Work intents">
-                      {works.length ? (
-                        <ul className="owner-list">
-                          {works.map((w) => (
-                            <li key={w.id}>
-                              <Link href={`/work?kind=work&id=${w.id}`}>
-                                {w.title}
-                              </Link>
-                              <p className="owner-muted">
-                                {w.lifecycle} ·{" "}
-                                {w.control === "paused"
-                                  ? "Awaiting admission"
-                                  : w.control}
-                              </p>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <Empty title="No Work yet">
-                          A Goal and Task create a durable Work intent.
-                        </Empty>
-                      )}
-                    </Card>
+                    <WorkInbox />
                   </>
                 )}
               </>
@@ -892,8 +720,8 @@ export function IntegratedExperience({
                   </Card>
                 ))
               ) : (
-                <Empty title="Nothing needs your judgment">
-                  Resolved decisions remain in the durable Inbox history.
+                <Empty title="You’re all caught up">
+                  Sofie will bring decisions here when she needs you.
                 </Empty>
               ))}
             {view === "needs-you" && inboxCursor && (
@@ -901,7 +729,7 @@ export function IntegratedExperience({
                 Load more Inbox items
               </button>
             )}
-            {view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
+            {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">
@@ -1143,7 +971,6 @@ export function IntegratedExperience({
             )}
           </>
         )}
-      </main>
-    </div>
+    </ProductShell>
   );
 }

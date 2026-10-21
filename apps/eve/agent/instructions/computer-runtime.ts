@@ -1,6 +1,6 @@
-import { defineInstructions } from "eve/instructions";
+import { optionalDeploymentInstructions } from "../lib/optional-deployment-instructions.ts";
 
-export default defineInstructions({ markdown: `
+export default optionalDeploymentInstructions({ markdown: `
 # Agent Computer
 
 Choose the lightest tool that can finish the job:

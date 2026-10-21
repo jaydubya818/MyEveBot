@@ -1,3 +1,6 @@
+import { externalAlphaEnabledFeatures } from "./external-alpha/features.ts";
+import { externalAlphaInstallation } from "./external-alpha/policy.ts";
+
 export const CAPABILITY_IDS = [
   "appearance",
   "reminders",
@@ -36,6 +39,8 @@ const ALL_FEATURES = [
 ] as const;
 
 function enabledSet(env: NodeJS.ProcessEnv): Set<string> {
+  // An external-alpha installation fails closed: an unset list never means "all".
+  if (externalAlphaInstallation(env)) return externalAlphaEnabledFeatures(env);
   const raw = env.EVE_ENABLED_FEATURES;
   if (raw === undefined || raw.trim().length === 0) return new Set(ALL_FEATURES);
   return new Set(
@@ -77,7 +82,9 @@ export function getCapabilityStatuses(
       reason: "Event triggers need a database to store webhooks and run history.",
       setupHint: "Add DATABASE_URL, then reload this page.",
     }),
-    status("memory", enabled.has("memory"), hasEnv(env, "SUPERMEMORY_API_KEY"), {
+    // External-alpha Memory is the local PostgreSQL backend (no third party), so the
+    // Supermemory key is neither required nor ever used there.
+    status("memory", enabled.has("memory"), externalAlphaInstallation(env) || hasEnv(env, "SUPERMEMORY_API_KEY"), {
       reason: "Long-term memory is not connected yet.",
       setupHint: "Add SUPERMEMORY_API_KEY, then reload this page.",
     }),

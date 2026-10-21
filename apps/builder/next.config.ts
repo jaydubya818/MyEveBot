@@ -1,5 +1,8 @@
 import path from "node:path";
 
+import { prepareTemplateTrace, templateTraceExcludes, traceLiteral } from "./lib/template-build";
+import { STANDALONE_SOURCE_INPUTS } from "./lib/shared-myapps";
+
 import type { NextConfig } from "next";
 
 // The deploy and update APIs assemble the agent deployment from apps/eve
@@ -10,32 +13,13 @@ import type { NextConfig } from "next";
 // deployment.
 const TEMPLATE_ROUTES = ["/api/deploy", "/api/update", "/api/template-version"] as const;
 
-// Keep this as an allowlist instead of tracing the whole sibling workspace.
-// Eve's local runtime creates linked dependency trees under `.eve/`; Turbopack
-// can attempt to hash those directory links as files before excludes apply.
-const templateIncludes = [
-  "../eve/.eve-template-release",
-  "../eve/agent/**",
-  "../eve/app/**",
-  "../eve/components/**",
-  "../eve/components.json",
-  "../eve/lib/**",
-  "../eve/migrations/**",
-  "../eve/next-env.d.ts",
-  "../eve/next.config.ts",
-  "../eve/package.json",
-  "../eve/postcss.config.mjs",
-  "../eve/proxy.ts",
-  "../eve/public/**",
-  "../eve/skills-lock.json",
-  "../eve/test/**",
-  "../eve/tsconfig.json",
-  "../eve/vercel.json",
-];
 const templateExcludes = [
   "../eve/node_modules/**",
   "../eve/.next/**",
   "../eve/.env*",
+  "../eve/**/.env*",
+  "../eve/**/output/**",
+  "../eve/**/.local-computer/**",
   "../eve/.eve/**",
   "../eve/.turbo/**",
   "../eve/.output/**",
@@ -43,7 +27,14 @@ const templateExcludes = [
   "../eve/*.tsbuildinfo",
 ];
 
-const nextConfig: NextConfig = {
+export default async function nextConfig(): Promise<NextConfig> {
+  const files = await prepareTemplateTrace(path.join(import.meta.dirname, "../eve"));
+  const excludes = [...templateExcludes, ...await templateTraceExcludes(path.join(import.meta.dirname, "../eve"), files)];
+  const templateIncludes = [
+    ...files.map(file => `../eve/${traceLiteral(file)}`),
+    ...STANDALONE_SOURCE_INPUTS.map(file => `../../${file}`),
+  ];
+  return {
   // Instant Navigations (Next 16.3): dynamic data must stream inside a
   // Suspense boundary or be wrapped in `use cache`, and links prefetch one
   // reusable shell per route instead of one payload per link.
@@ -54,8 +45,7 @@ const nextConfig: NextConfig = {
     TEMPLATE_ROUTES.map((route) => [route, templateIncludes]),
   ),
   outputFileTracingExcludes: Object.fromEntries(
-    TEMPLATE_ROUTES.map((route) => [route, templateExcludes]),
+    TEMPLATE_ROUTES.map((route) => [route, excludes]),
   ),
-};
-
-export default nextConfig;
+  };
+}

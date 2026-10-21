@@ -1,3 +1,5 @@
+import type {MissionControlAdmissionProof} from '../missioncontrol/admit-execution.ts';
+import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
@@ -52,9 +54,13 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  readonly config:FactoryConnection;
  private readonly fetcher:typeof fetch;
  private readonly transport:ReturnType<typeof factoryTransport>;
- constructor(config:FactoryConnection,fetcher:typeof fetch=fetch){
+ constructor(config:FactoryConnection,fetcher:typeof fetch=fetch,private readonly capability?:FactoryCapabilityClient,
+  private readonly admission:{requireOrderedAdmission:boolean}={requireOrderedAdmission:false}){
   this.config=factoryConnectionSchema.parse(config);this.fetcher=fetcher;
   this.transport=factoryTransport(this.config);
+  if(capability&&(capability.config.origin!==config.origin||capability.config.binding.factoryId!==config.factoryId
+    ||capability.config.binding.factoryVersion!==config.factoryVersion||capability.config.binding.sourceDigest!==config.sourceDigest
+    ||capability.config.binding.configurationDigest!==config.configurationDigest))throw Error('FACTORY_CAPABILITY_CONFIGURATION');
   if(digest({sourceDigest:config.sourceDigest,configurationDigest:config.configurationDigest})!==config.factoryVersion)
    throw Error('Exact configured loopback producer and FactoryVersion are required');
  }
@@ -83,8 +89,9 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   const binding=this.config.repairBinding;
   if(request.repairWorkOrderId!==binding?.workOrderId||(binding&&(request.workId!==binding.workId||request.workGeneration!==binding.workGeneration)))throw Error('Repair preparation differs from reviewed host binding');
  }
- async prepare(request:FactoryPrepareRequest){
+ async prepare(request:FactoryPrepareRequest,proof:MissionControlAdmissionProof|null=null){
   this.repairRequest(request);
+  if((proof||this.admission.requireOrderedAdmission)&&!this.capability)throw Error('FACTORY_ORDERED_ADMISSION_REQUIRED');
   let body:unknown=request;
   if('transport' in this.config){
    const source=this.config.source;
@@ -92,9 +99,25 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
    const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
    body={protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}};
   }else if(!request.input.repositoryPath?.startsWith('/')||request.input.workerProfile!=='mac')throw Error('Local preparation requires the qualified local profile');
-  const data=await this.request('',body);return this.validatePreparation(request,data);
+  const data=this.capability?await this.capability.prepare(body as Record<string,any>,proof) as FactoryReadback:await this.request('',body);return this.validatePreparation(request,data);
  }
- async prepared(request:FactoryPrepareRequest){this.repairRequest(request);const data=await this.request('/'+encodeURIComponent(request.requestId));return this.validatePreparation(request,data);}
+ async prepared(request:FactoryPrepareRequest){
+  this.repairRequest(request);
+  if(this.admission.requireOrderedAdmission&&!this.capability)throw Error('FACTORY_ORDERED_ADMISSION_REQUIRED');
+  const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
+  const body='source' in this.config?{protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,source:this.config.source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}}:request;
+  const data=this.capability?await this.capability.read(body) as FactoryReadback:await this.request('/'+encodeURIComponent(request.requestId));
+  if(!data)throw Error('FACTORY_PREPARATION_UNAVAILABLE');
+  return this.validatePreparation(request,data);
+ }
+ terminalVerification(request:FactoryPrepareRequest){
+  if(!this.capability)throw Error('FACTORY_TERMINAL_VERIFICATION_REQUIRED');
+  const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
+  const body='source' in this.config?{protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,
+   workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,
+   source:this.config.source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}}:request;
+  return {...this.capability.terminalVerification(body),originalRequest:request};
+ }
  private validatePreparation(request:FactoryPrepareRequest,data:FactoryReadback){
   if(request.repairWorkOrderId&&data.workOrderId!==request.repairWorkOrderId)throw Error('Factory returned a different repair WorkOrder');
   if(data.requestId!==request.requestId)throw Error('Factory preparation request mismatch');

@@ -1,4 +1,2 @@
-import { ApprovalCenter } from "@/components/owner/approval-center";
-export default function Page() {
-  return <ApprovalCenter />;
-}
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/needs-you"); }

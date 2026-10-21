@@ -4,6 +4,7 @@ import { randomUUID, createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { getAgent } from "../agents.ts";
 import { getKnowledge } from "../knowledge.ts";
+import { assertExternalAlphaRotationConfirmed } from "../external-alpha/relay-link.ts";
 import {
   capabilitySchema,
   grantSchema,
@@ -35,12 +36,16 @@ const selectionSchema = z
   })
   .strict();
 export async function connectOwner(store: FederationStore, value: unknown) {
+  return store.withOwnerConnectLock(()=>connectOwnerLocked(store,value));
+}
+async function connectOwnerLocked(store: FederationStore, value: unknown) {
   const input = z
     .object({
       email: z.string().email(),
       password: z.string().min(1).max(1000),
       localAgentId: z.string(),
       relayAgentId: z.string().optional(),
+      confirmCredentialRotation: z.string().max(300).optional(),
     })
     .strict()
     .parse(value);
@@ -61,6 +66,13 @@ export async function connectOwner(store: FederationStore, value: unknown) {
     );
   if (existing && existing.local_agent_id !== local.id)
     throw new Error("Reconnect the same local Agent.");
+  // Linking an existing Relay Agent rotates its credential. Under an external-alpha
+  // installation that requires the owner's explicit, disclosed confirmation
+  // before any network call is made.
+  assertExternalAlphaRotationConfirmed(
+    existing?.relay_agent_id ?? input.relayAgentId,
+    input.confirmCredentialRotation,
+  );
   const publicKey = process.env.MYEVE_RELAY_PUBLIC_KEY;
   const keyId = process.env.MYEVE_RELAY_KEY_ID;
   if (
@@ -109,7 +121,7 @@ export async function connectOwner(store: FederationStore, value: unknown) {
       })),
       discovery: "HIDDEN",
       publicName: local.name,
-      primary: local.isPrimary,
+      primary: selectedId ? local.isPrimary : false,
     },
   });
   if (
@@ -118,10 +130,10 @@ export async function connectOwner(store: FederationStore, value: unknown) {
     registered.address !== `relay://${owner.relayOwnerId}/${agentId}`
   )
     throw new Error("Relay registration identity mismatch.");
-  await store.database.query(
+  const retained=await store.database.query(
     `INSERT INTO myeve_relay_connections(owner_id,local_agent_id,relay_owner_id,relay_agent_id,address,issuer,signing_key_id,signing_public_key,agent_credential_encrypted,owner_session_encrypted)
     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT(owner_id) DO UPDATE SET agent_credential_encrypted=EXCLUDED.agent_credential_encrypted,owner_session_encrypted=EXCLUDED.owner_session_encrypted,status='active',updated_at=now()
-    WHERE myeve_relay_connections.relay_owner_id=EXCLUDED.relay_owner_id AND myeve_relay_connections.relay_agent_id=EXCLUDED.relay_agent_id AND myeve_relay_connections.local_agent_id=EXCLUDED.local_agent_id`,
+    WHERE myeve_relay_connections.relay_owner_id=EXCLUDED.relay_owner_id AND myeve_relay_connections.relay_agent_id=EXCLUDED.relay_agent_id AND myeve_relay_connections.local_agent_id=EXCLUDED.local_agent_id RETURNING relay_agent_id`,
     [
       store.ownerId,
       local.id,
@@ -135,6 +147,16 @@ export async function connectOwner(store: FederationStore, value: unknown) {
       encryptSecret(store.ownerId, owner.ownerSession),
     ],
   );
+  if(retained.length!==1 || retained[0].relay_agent_id!==agentId) {
+    // Revoke only the newly created, proven losing credential. Never revoke or
+    // rotate an existing canonical Agent on an ambiguous upload outcome.
+    if(!selectedId)await ownerClient.request(`/api/agents/${encodeURIComponent(agentId)}/credentials`,{},true,"DELETE");
+    throw Error("Relay link binding conflict. The canonical connection was preserved.");
+  }
+  if(!selectedId)await ownerClient.owner({operation:"register",input:{
+    agentId,platform:"myeve",capabilities:capabilitySchema.options.map(name=>({name,version:"1.0"})),
+    discovery:"HIDDEN",publicName:local.name,primary:local.isPrimary,
+  }});
   await ownerClient.owner({
     operation: "availability",
     id: agentId,
@@ -419,8 +441,9 @@ async function messageDelegation(store: FederationStore, connection: Awaited<Ret
   );
   return issued.credential;
 }
-export async function rotateOrRevoke(store: FederationStore, revoke = false) {
+export async function rotateOrRevoke(store: FederationStore, revoke = false, confirmation?: unknown) {
   const connection = await store.connection();
+  if (!revoke) assertExternalAlphaRotationConfirmed(connection.agentId, confirmation);
   const client = new RelayClient(
     connection.credential,
     connection.ownerSession,

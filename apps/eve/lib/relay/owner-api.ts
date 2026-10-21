@@ -1,4 +1,9 @@
 import { isPartnerPrincipal } from "../private-owner-boundary.ts";
+import {
+  assertExternalAlphaRelayOperation,
+  ExternalAlphaRelayDenied,
+  ExternalAlphaRelayRotationConfirmation,
+} from "../external-alpha/relay-link.ts";
 import { messageReplySettings, saveMessageReplySettings } from "./message-reply-settings.ts";
 import { settingsStore } from "../../agent/lib/settings-db.ts";
 import { grantDurationSchema } from "./grant-duration.ts";
@@ -154,6 +159,9 @@ export async function ownerCommand(
   value: unknown,
 ): Promise<unknown> {
   const { operation, id = "", input } = commandSchema.parse(value);
+  // Under an external-alpha installation Relay is view/link only: everything else
+  // is refused before any handler (publication, grants, peers, replies, sends).
+  assertExternalAlphaRelayOperation(operation);
   switch (operation) {
     case "connect":
       return connectOwner(store, input);
@@ -183,7 +191,11 @@ export async function ownerCommand(
     case "revoke-grant":
       return revokeGrant(store, id);
     case "rotate":
-      return rotateOrRevoke(store);
+      return rotateOrRevoke(
+        store,
+        false,
+        (input as { confirmCredentialRotation?: unknown } | null | undefined)?.confirmCredentialRotation,
+      );
     case "revoke-credential":
       return rotateOrRevoke(store, true);
     case "retire":
@@ -267,6 +279,13 @@ export async function handleOwnerRequest(request: Request) {
       { headers },
     );
   } catch (error) {
+    if (error instanceof ExternalAlphaRelayRotationConfirmation)
+      return Response.json(
+        { error: error.disclosure, code: error.code, confirmation: error.confirmation },
+        { status: 409, headers },
+      );
+    if (error instanceof ExternalAlphaRelayDenied)
+      return Response.json({ error: "This Relay action is not part of the external alpha." }, { status: 404, headers });
     const auth =
       error instanceof Error && /Sign in|Same-origin/.test(error.message);
     const expiredRelayOwner =

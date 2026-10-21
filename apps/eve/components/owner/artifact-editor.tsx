@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import type { ArtifactDetail } from "@/lib/artifact-client";
 import { ArtifactWorkspace } from "@/components/artifact-workspace";
 import { ProductShell, ResourceState } from "./product-shell";
@@ -9,13 +10,15 @@ export function ArtifactEditor({ id }: { id: string }) {
   );
   return (
     <ProductShell
-      title="Artifact workspace"
-      description="Review an exact revision, leave comments, and explicitly control sharing."
+      title={source.data?.artifact.title ?? "File"}
+      description="Preview your file, review versions and leave comments."
     >
+      <p><Link href="/workspace">← All files</Link></p>
       <ResourceState {...source} />
       {source.data && (
         <div className="product-artifact-editor">
           <ArtifactWorkspace
+            hideLibrary
             threadId={source.data.artifact.originThreadId ?? undefined}
             initialArtifactId={id}
           />

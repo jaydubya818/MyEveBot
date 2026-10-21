@@ -1,3 +1,6 @@
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
+import { PrivateResultAcceptance } from "../external-alpha/private-acceptance.ts";
+import { readExternalAlphaProofEvidence } from "../external-alpha/work-readback.ts";
 import { FactoryEvidenceStore } from "../engineering/factory-evidence-store.ts";
 import { currentPublicationReadback } from '../engineering/publication-contract.ts';
 import {cloudRuntimeEnabled} from '../engineering/cloud-runtime-guard.ts';
@@ -353,6 +356,13 @@ export class BetaIntegration {
       accept: async (r) => {
         if (r.status === "STALE")
           return { status: "stale", receipt: `goal-response-stale:${r.id}` };
+        // Local-only MyApps consumer rechecks retained owner decisions; production remains disabled.
+        if (r.action.id.startsWith("sha256:")) {
+          const { consumeInstalledAppResponse } = await import("../myapps/hosting.ts");
+          const installed = await consumeInstalledAppResponse(r);
+          if (installed) return installed;
+        }
+        if (r.workId && !r.goal && r.action.id.startsWith("private-result:")) return new PrivateResultAcceptance(this).accept(r);
         if (r.workId && !r.goal) return new CanonicalBetaWork(this).accept(r);
         const receipt = await consumer.accept({ ...r, status: r.status });
         return {
@@ -445,10 +455,13 @@ export async function betaRequest(
       const reference = z.string().regex(/^factory-evidence:sha256:[a-f0-9]{64}$/).parse(params.get("reference"));
       const evidenceOwner = params.get("owner") ?? owner;
       if (evidenceOwner !== owner) {
+        if (externalAlphaInstallation()) throw new WorkError("EXTERNAL_ALPHA_EVIDENCE_OWNER", "Owner scope required.", 403);
         // Only this exact explicitly shared Result is authorized, never arbitrary owner APIs.
         await new BusinessScopes(owner, beta).read({ scope: "BUSINESS_SHARED" }, { kind: "RESULT", id: resultId, owner: evidenceOwner });
       }
-      const evidence = await new FactoryEvidenceStore(beta.store(evidenceOwner)).readProof(workId, resultId, reference);
+      const evidenceStore = beta.store(evidenceOwner);
+      const evidence = await readExternalAlphaProofEvidence(evidenceStore, workId, resultId, reference)
+        ?? await new FactoryEvidenceStore(evidenceStore).readProof(workId, resultId, reference);
       return new Response(new Uint8Array(evidence.bytes), { headers: { ...headers,
         "content-type": "application/octet-stream", "x-content-type-options": "nosniff",
         "content-disposition": `attachment; filename="${evidence.ref.kind}-${evidence.ref.sha256.slice(0,12)}.${evidence.ref.kind === "TestEvidence" ? "json" : "diff"}"`,
@@ -468,6 +481,9 @@ export async function betaRequest(
         },
       })(request);
     if (resource === "inbox") {
+      // Existing decisions remain readable when no execution policy is installed.
+      // Creating or accepting private Result decisions still requires a valid policy.
+      if (request.method === "GET" && externalAlphaInstallation() && process.env.MYEVE_EXTERNAL_ALPHA_POLICY) await new PrivateResultAcceptance(beta).refresh(owner);
       const response = await createInboxApi({
         repository: beta.repository(),
         authenticate: signedGoalAuthenticator(),
@@ -480,6 +496,15 @@ export async function betaRequest(
         },
       })(request);
       if (request.method === "POST" && response.ok) await beta.deliver(owner);
+      if (request.method === "GET" && response.ok) {
+        const page = await response.json() as import("../universal-inbox/contracts.ts").InboxPage;
+        const decisions = await Promise.all(page.items.filter(item => item.responseId).map(async item => {
+          const saved = await beta.responses().read(owner, item.responseId!);
+          if (!saved || saved.itemId !== item.id) return null;
+          return { itemId: item.id, prompt: saved.action.prompt, answer: saved.answer, status: saved.status, at: saved.createdAt, approvalId: saved.action.approval?.id ?? null };
+        }));
+        return Response.json({ ...page, decisions: decisions.filter(Boolean) }, { headers });
+      }
       return response;
     }
     const url = new URL(request.url),
@@ -597,6 +622,7 @@ export async function betaRequest(
               responseId: z.string().min(1).max(255),
             })
             .strict(),
+          binding.extend({ operation: z.literal("stop") }).strict(),
           binding
             .extend({
               operation: z.literal("request_decision"),
@@ -606,6 +632,23 @@ export async function betaRequest(
             .strict(),
         ])
         .parse(await boundedJson(new Response(request.body), 16000));
+      if (input.operation === "stop") {
+        // Alpha owner stop (zero-gap fencing makes every paid chat turn wait while a
+        // Work runs, so stopping must not require one). No model call, no new
+        // authority: the same authenticated Factory stop + reconcile as Sofie's tool,
+        // with the same owner-scope and Work version/generation checks.
+        if (!externalAlphaInstallation())
+          throw new WorkError("work_operation_unsupported", "Stop is only available for alpha Work.", 400);
+        const { externalAlphaFactoryAction } = await import("../external-alpha/work-action.ts");
+        const result = await externalAlphaFactoryAction(
+          new WorkStore({ scopeKind: "personal", scopeId: owner, actorId: owner }),
+          input.workId,
+          { operation: "stop", expectedWorkVersion: input.expectedVersion, expectedWorkGeneration: input.expectedGeneration },
+          { sessionId: "owner-work-controls", callId: crypto.randomUUID() },
+          { ownerDirectStop: true },
+        );
+        return Response.json(result, { headers });
+      }
       const canonical = new CanonicalBetaWork(beta);
       if (input.operation === "request_decision")
         return Response.json(

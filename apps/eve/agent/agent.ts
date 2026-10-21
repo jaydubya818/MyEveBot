@@ -1,3 +1,5 @@
+import {externalAlphaInstallation} from '../lib/external-alpha/policy.ts';
+import {externalAlphaModel} from '../lib/external-alpha/model.ts';
 import {selectedAlphaWork} from "../lib/engineering/alpha-selected-work.ts";
 import {retainedSummaryBinding,retainedWorkSummaryModel} from './lib/retained-work-summary.ts';
 import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
@@ -42,7 +44,7 @@ export default defineAgent({
   // Keep native and build-tool packages out of eve's hosted bundle. The
   // framework traces them into the Vercel output for runtime Node resolution.
   build: {
-    externalDependencies: ["@remotion/bundler", "@remotion/renderer", "heif2jpeg"],
+    externalDependencies: ["@remotion/bundler", "@remotion/renderer", "heif2jpeg", "js-tiktoken"],
   },
   // The dynamic fallback is newer than the framework's bundled Gateway
   // catalog. Use a conservative known window so compaction can compile and
@@ -65,6 +67,10 @@ export default defineAgent({
           const agent=await resolveSessionAgent({ownerId:binding.ownerId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true});
           if(!agent?.isPrimary)throw Error('RETAINED_SUMMARY_PRIMARY_AGENT');
           return {model:retainedWorkSummaryModel(binding),modelContextWindowTokens:200_000};
+        }
+        if(externalAlphaInstallation()){
+          if('parent' in ctx.session&&ctx.session.parent)throw Error('EXTERNAL_ALPHA_DELEGATION_DISABLED');
+          return {model:externalAlphaModel({ownerId:ctx.session.auth.current?.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true,stepKey:ownerModelStepKey(_event)}),modelContextWindowTokens:32000};
         }
         if(process.env.MYEVE_ALPHA_OWNER_BINDING){
           const current=ctx.session.auth.current,selected=selectedAlphaWork(current?.attributes.myeveEngineeringWorkId);
@@ -109,10 +115,18 @@ export default defineAgent({
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
         };
-        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected; return typeof value==='string'?gateway(value):value; };
+        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected;
+          // agent-model-selection: an external-alpha installation can only dispatch through its budgeted model (or the deterministic evidence summary).
+          if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
+          return typeof value==='string'?gateway(value):value; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
           doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
-          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},modelContextWindowTokens:200_000};
+          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},
+          // Eve estimates its full catalog before the alpha wrapper removes
+          // unavailable capabilities. Keep the existing framework token window;
+          // alpha admission separately enforces 32,000 bytes before any dispatch.
+          // Paid compaction remains denied, including on oversized histories.
+          modelContextWindowTokens:200_000};
       },
     },
   }),

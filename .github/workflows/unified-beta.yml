@@ -1,0 +1,674 @@
+name: Unified beta exact-source qualification
+'on':
+  push:
+    branches:
+    - main
+    - codex/unified-beta-myeve-20261011
+  pull_request:
+    branches: [main]
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  builder-packaging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - run: npm ci --no-audit --no-fund
+    - name: Builder contracts, types and source manifest
+      run: |
+        node --import tsx --test apps/builder/lib/*.test.ts
+        npx tsc --project apps/builder/tsconfig.json --noEmit
+        node --import tsx apps/builder/scripts/check-manifest.ts
+    - name: Build with a synthetic untracked source tripwire
+      env:
+        NEXT_TELEMETRY_DISABLED: '1'
+      run: |
+        mkdir -p "$RUNNER_TEMP/builder-packaging"
+        node --import tsx apps/builder/scripts/qualification-template-trace.ts --prepare
+        npm run build --workspace=eveclaw-builder 2>&1 | tee "$RUNNER_TEMP/builder-packaging/build.log"
+        cp apps/builder/.next/template-trace-verification.json "$RUNNER_TEMP/builder-packaging/trace-verification.json"
+    - name: Verify exact traces, no-Git byte parity and tamper denial
+      run: node --import tsx apps/builder/scripts/qualification-template-trace.ts 2>&1 | tee "$RUNNER_TEMP/builder-packaging/qualification.log"
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-builder-packaging
+        path: ${{ runner.temp }}/builder-packaging
+        if-no-files-found: warn
+  myapps-alpha:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - run: npm ci --no-audit --no-fund
+    - run: node node_modules/playwright/cli.js install --with-deps chromium
+    - name: Retrieve the exact offline runtime image
+      run: |
+        docker pull --platform=linux/arm64 node@sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0
+        node --import tsx --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {execFileSync} from 'node:child_process';
+        import {appendFileSync,mkdirSync,writeFileSync} from 'node:fs';
+        const artifact='node@sha256:3d27e5c11e5786e309ec3e03f93ae536eb36e6e5eb3714d5eb3300a36157add0';
+        const [actual]=JSON.parse(execFileSync('docker',['image','inspect',artifact],{encoding:'utf8'}));
+        assert.match(actual.Id,/^sha256:[a-f0-9]{64}$/);assert.equal(actual.Os,'linux');assert.equal(actual.Architecture,'arm64');
+        assert.ok(actual.RepoDigests.includes(artifact));
+        appendFileSync(process.env.GITHUB_ENV,'MYAPPS_ALPHA_TEST_IMAGE_ID='+actual.Id+'\n');
+        const output=process.env.RUNNER_TEMP+'/myapps-alpha';mkdirSync(output,{recursive:true});
+        writeFileSync(output+'/runtime-image.json',JSON.stringify({artifact,imageId:actual.Id,os:actual.Os,architecture:actual.Architecture},null,2));
+        NODE
+    - name: Existing CRM, strict source contracts and isolated candidate denial tests
+      env:
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+      run: node --import tsx --test packages/myapps/test/*.test.mjs packages/myapps/test/alpha-tasks/*.test.mjs
+    - name: Signed owner UI and real PostgreSQL installation, update, rollback and recovery
+      env:
+        MYAPPS_POSTGRES_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+        MYAPPS_ALPHA_BROWSER_TEST: '1'
+        MYAPPS_ALPHA_BROWSER_OUTPUT: ${{ runner.temp }}/myapps-alpha
+      run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/alpha-tasks.test.ts packages/myapps/integration/alpha-tasks-result.test.ts packages/myapps/integration/alpha-tasks-guard.test.ts packages/myapps/integration/alpha-tasks-recovery.test.ts packages/myapps/integration/alpha-tasks-late-worker.test.ts packages/myapps/integration/local-bootstrap.test.ts
+    - name: Registered owner Result intake, human installation, Sofie and cold restart
+      env:
+        MYAPPS_POSTGRES_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+      run: |
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/local-owner-apps.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/myapps-alpha/registered-owner-journey.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/registered-owner-journey.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,1);assert.equal(result.numPassedTests,1);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,1);
+        assert.equal(result.testResults[0].name,process.cwd()+'/apps/eve/lib/missioncontrol/local-owner-apps.integration.test.ts');
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+    - name: Dormant signed remote isolation, durable delivery and offline runtime
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYAPPS_ALPHA_DOCKER_TEST: '1'
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/remote-isolation.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/myapps-alpha/remote-isolation.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/remote-isolation.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,44);assert.equal(result.numPassedTests,44);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,44);
+        assert.ok(result.testResults[0].name.endsWith('/packages/myapps/integration/remote-isolation.test.ts'));
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+    - name: Canonical remote admission and immutable operation custody
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/canonical-remote-admission.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/myapps-alpha/canonical-remote-admission.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/canonical-remote-admission.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,51);assert.equal(result.numPassedTests,51);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,51);
+        assert.ok(result.testResults[0].name.endsWith('/packages/myapps/integration/canonical-remote-admission.test.ts'));
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+    - name: Bounded signed HTTP and durable lost-response recovery
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts packages/myapps/integration/remote-http.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/myapps-alpha/remote-http.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/myapps-alpha/remote-http.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,44);assert.equal(result.numPassedTests,44);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,44);
+        assert.ok(result.testResults[0].name.endsWith('/packages/myapps/integration/remote-http.test.ts'));
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-alpha-tasks-browser
+        path: ${{ runner.temp }}/myapps-alpha
+        if-no-files-found: error
+  composed-admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: myeve
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        path: myeve
+        persist-credentials: false
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        repository: jaydubya818/MissionControl
+        ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
+        path: missioncontrol
+        persist-credentials: false
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        repository: jaydubya818/relay
+        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+        path: relay
+        persist-credentials: false
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      with:
+        version: 9.0.0
+        package_json_file: missioncontrol/package.json
+    - run: npm ci --no-audit --no-fund
+    - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+      working-directory: missioncontrol
+    - run: pnpm install --frozen-lockfile --ignore-scripts
+      working-directory: relay
+    - name: Fetch checksum-qualified disposable Convex backend
+      run: |
+        curl --fail --location --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+        echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+        unzip "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+        chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+    - name: Real Convex, Relay and MyEve admission with synthetic identity and FakeFactory
+      env:
+        COMPOSED_MC_ROOT: ${{ github.workspace }}/missioncontrol
+        COMPOSED_RELAY_ROOT: ${{ github.workspace }}/relay
+        MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        MC_COMPATIBILITY_PORT: '3398'
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        mkdir -p "$RUNNER_TEMP/composed-admission"
+        node --test scripts/composed-admission/*.test.mjs
+        # Two required clean passes, not a retry: any failure stops the step.
+        # Each journey creates and destroys its own Convex/PostgreSQL fixtures.
+        for pass in 1 2; do
+          COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/standard-$pass.json" node --import tsx scripts/composed-admission/journey.mts
+          COMPOSED_UNKNOWN=1 COMPOSED_REPORT="$RUNNER_TEMP/composed-admission/unknown-$pass.json" node --import tsx scripts/composed-admission/journey.mts
+        done
+    - name: Exact owner Factory Result through the MissionControl verifier and MyApps custody
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+        MYEVE_OWNER_RESULT_MC_SOURCE: ${{ github.workspace }}/missioncontrol
+        MYEVE_OWNER_RESULT_MC_SHA: f9bcd0df4bb970a36a43599b00d724b07f300ad0
+      run: node_modules/.bin/vitest run apps/eve/lib/missioncontrol/permit-store.integration.test.ts apps/eve/lib/missioncontrol/owner-dispatch-race.integration.test.ts apps/eve/lib/missioncontrol/installed-eligibility.integration.test.ts | tee "$RUNNER_TEMP/composed-admission/owner-result.log"
+    - name: Caller context, owner/Alpha and legacy isolation, immutable migration lineage
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://postgres@127.0.0.1:5432/postgres
+      run: |
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-alpha-exclusion.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-alpha-exclusion.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-alpha-exclusion.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,18);assert.equal(result.numPassedTests,18);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,18);
+        assert.equal(result.testResults[0].name,process.cwd()+'/apps/eve/lib/missioncontrol/owner-alpha-exclusion.integration.test.ts');
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+        node_modules/.bin/vitest run apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/composed-admission/owner-legacy-isolation.json"
+        node --input-type=module - <<'NODE'
+        import assert from 'node:assert/strict';
+        import {readFileSync} from 'node:fs';
+        const result=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/composed-admission/owner-legacy-isolation.json','utf8'));
+        assert.equal(result.success,true);assert.equal(result.numTotalTests,23);assert.equal(result.numPassedTests,23);
+        assert.equal(result.numFailedTests,0);assert.equal(result.numPendingTests,0);assert.equal(result.numTodoTests,0);
+        assert.equal(result.testResults.length,1);assert.equal(result.testResults[0].assertionResults.length,23);
+        assert.ok(result.testResults[0].name.endsWith('/apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts'));
+        assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
+        NODE
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-composed-admission
+        path: ${{ runner.temp }}/composed-admission
+        if-no-files-found: error
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+    - run: npm ci --no-audit --no-fund
+    - name: Apply and verify reviewed dependency source mitigation
+      run: npm run postinstall && npm run security:patches
+    - run: node scripts/protocol-convergence/check-contract.mjs
+    - name: Installed permits, feedback authentication and fail-closed feature boundaries
+      run: npm exec --workspace apps/eve -- vitest run lib/missioncontrol/execution-permit.test.ts
+        lib/missioncontrol/admission-receipt.test.ts lib/missioncontrol/permit-control.test.ts
+        lib/missioncontrol/result-protocol.test.ts lib/missioncontrol/installed-client.test.ts
+        lib/missioncontrol/relay-lease-client.test.ts lib/beta-feedback-route.test.ts
+        lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/external-alpha/reconciliation.test.ts lib/missioncontrol/installed-eligibility.test.ts lib/capability-control/runtime.test.ts lib/database-schema.test.ts agent/tools/installed_apps.test.ts
+        lib/myapps/local-bootstrap.test.ts lib/myapps-capability-boundary.test.ts lib/myapps-packaging.test.ts
+    - run: npm run test --workspace=eve-agent -- lib/relay lib/external-alpha/relay-link.test.ts
+    - run: npm run test --workspace=eve-agent -- lib/external-alpha/productive-sandbox-test-fixture.test.ts
+    - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts
+        agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts
+        lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
+    - run: npm run typecheck
+    - run: npm run db:migrations:check
+    - run: npm test
+    - run: npm run build
+    timeout-minutes: 35
+  postgres-validation:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+        - 5432:5432
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+        repository: jaydubya818/MyFactory
+        ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+        path: .qualification/myfactory
+    - uses: actions/checkout@v7
+      with:
+        repository: jaydubya818/relay
+        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+        path: .qualification/relay
+        persist-credentials: false
+    - name: Retain the historical installed Relay comparison object
+      working-directory: .qualification/relay
+      run: git fetch --no-tags --depth=1 https://github.com/jaydubya818/relay.git 8a8678d675adc8ac7f799d7660071de2256bb231
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+    - run: npm ci --no-audit --no-fund
+    - name: Apply and verify reviewed dependency source mitigation
+      run: npm run postinstall && npm run security:patches
+    - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
+    - name: Isolated receiving transaction and independent witness PostgreSQL
+      working-directory: .qualification/myfactory
+      run: |
+        docker pull postgres:17
+        node scripts/qualify-factory-receiver.mjs
+    - name: Cache offline qualification image
+      run: docker pull node:24-bookworm
+    - name: Canonical pricing freshness and historical approval denials
+      run: node --test apps/cloud-control/test/pricing-qualification.test.mjs
+      working-directory: .qualification/myfactory
+    - name: Real PostgreSQL lifecycle and exact Factory authority
+      env:
+        MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+        MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+        MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+        MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+        MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
+        FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
+      run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts
+        lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
+        lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts
+        lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts
+        lib/missioncontrol/permit-store.integration.test.ts
+        lib/beta-feedback-postgres.test.ts
+        lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+    - name: Historical installed Relay schema compatibility (not the selected release)
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
+        MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
+        MYRELAY_SOURCE_SHA: 8a8678d675adc8ac7f799d7660071de2256bb231
+      run: npm exec --workspace apps/eve -- vitest run lib/relay/installation-validation.test.ts
+    - name: Durable owner budget concurrency and UNKNOWN recovery
+      env:
+        MYEVE_OWNER_CHANNEL_TESTS: '1'
+        MYEVE_OWNER_TEST_USER: postgres
+        MYEVE_OWNER_TEST_PORT: '5432'
+      run: npm exec --workspace apps/eve -- vitest run lib/relay/owner/model-budget.integration.test.mjs
+    - name: Independent witness privilege, concurrent CAS and real restore qualification
+      env:
+        CAPABILITY_WITNESS_TEST_DATABASE_URL: postgresql://postgres@127.0.0.1:5432/postgres
+        CAPABILITY_TEST_POSTGRES_BIN: /usr/lib/postgresql/16/bin
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-16
+        node --import tsx --test packages/capability-enforcement/test/postgres-recovery-witness.test.ts
+    timeout-minutes: 35
+  protected-verifier:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 35
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: 24
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - run: npm run postinstall && npm run security:patches
+    - name: Retrieve exact existing offline verifier image
+      env:
+        PROTECTED_VERIFIER_IMAGE: node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+      run: 'docker pull --platform=linux/arm64 "$PROTECTED_VERIFIER_IMAGE"
+
+        docker image inspect "$PROTECTED_VERIFIER_IMAGE" > "$RUNNER_TEMP/protected-verifier-image.json"
+
+        node --input-type=module - <<''NODE''
+
+        import assert from ''node:assert/strict'';
+
+        import {readFileSync} from ''node:fs'';
+
+        const [image] = JSON.parse(readFileSync(process.env.RUNNER_TEMP + ''/protected-verifier-image.json'', ''utf8''));
+
+        assert.equal(process.arch, ''arm64'');
+
+        assert.equal(image.Os, ''linux'');
+
+        assert.equal(image.Architecture, ''arm64'');
+
+        assert.ok(image.RepoDigests.includes(process.env.PROTECTED_VERIFIER_IMAGE));
+
+        console.log(JSON.stringify({image:process.env.PROTECTED_VERIFIER_IMAGE,imageId:image.Id,os:image.Os,architecture:image.Architecture}));
+
+        NODE
+
+        '
+    - name: Offline protected positive and failed-review controls
+      env:
+        QUANTITY_PROTECTED_CORPUS: '1'
+      run: node --import tsx --test apps/eve/test/numeric-range-protected.test.mjs
+  missioncontrol-consumer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+        path: myeve
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - run: npm run postinstall && npm run security:patches
+    - run: node --import tsx --test apps/eve/test/missioncontrol-consumer.test.mjs apps/eve/test/myfactory-protocol.test.mjs
+        apps/eve/test/factory-evidence.test.mjs
+    - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+    - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        repository: jaydubya818/MissionControl
+        ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
+        path: missioncontrol
+        persist-credentials: false
+    - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      with:
+        version: 9.0.0
+        package_json_file: missioncontrol/package.json
+    - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+      working-directory: missioncontrol
+    - name: Fetch exact test storage and checksum-qualified backend
+      run: 'docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+
+        curl --fail --location --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+
+        echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+
+        unzip "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+
+        chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+
+        '
+    - name: Install locked browser
+      run: node node_modules/playwright/cli.js install --with-deps chromium
+    - name: Prepare isolated deterministic production browser
+      env:
+        MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
+      run: 'test -z "$(git status --porcelain --untracked-files=no)"
+
+        node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE/myeve" "$RUNNER_TEMP/sofie-browser-source"
+
+        '
+    - name: Authenticated production browser, actual tool, transactional storage and recovery
+      env:
+        MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/missioncontrol
+        MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        MYEVE_CHECKPOINT_H_BROWSER: '1'
+        MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
+      run: node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/sofie-consumer"
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-sofie-consumer
+        path: ${{ runner.temp }}/sofie-consumer
+        if-no-files-found: error
+    defaults:
+      run:
+        working-directory: myeve
+  authenticated-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+    - run: npm run postinstall && npm run security:patches
+    - run: npx playwright install --with-deps chromium
+    - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+    - run: npx tsc --noEmit --project apps/eve/tsconfig.json
+    - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts
+        components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts lib/login-destination.test.ts
+      working-directory: apps/eve
+    - name: Actual password login, delayed persistence, reconnect and failed save
+      run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
+    - name: Tester feedback rendered states and response-loss recovery
+      run: node apps/eve/test/browser/beta-feedback.mjs "$RUNNER_TEMP/checkpoint-h/feedback"
+    - name: Same-origin login and truthful candidate evidence
+      run: node apps/eve/test/baseline-security.browser.mjs "$RUNNER_TEMP/checkpoint-h/baseline-security"
+    - name: Markdown images require explicit user action
+      run: node apps/eve/test/markdown-images.browser.mjs "$RUNNER_TEMP/checkpoint-h/markdown-images"
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-authenticated-browser
+        path: ${{ runner.temp }}/checkpoint-h
+        if-no-files-found: error
+  myapps-composition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ux_fixture
+          POSTGRES_PASSWORD: local-only
+          POSTGRES_DB: blocker_fixes
+        ports:
+        - 55591:5432
+        options: --health-cmd "pg_isready -U ux_fixture -d blocker_fixes" --health-interval 5s --health-timeout 5s --health-retries
+          10
+    defaults:
+      run:
+        working-directory: myeve
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+        fetch-depth: 0
+        path: myeve
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        repository: jaydubya818/MyFactory
+        ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+        persist-credentials: false
+        fetch-depth: 0
+        path: myfactory
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: '24'
+    - name: Recover exact historical comparison objects
+      run: git fetch --no-tags origin 500f17a463682b6e4a2c445f99a04fcf77eaea74 afa65bd4c2d3ce26691a07132030cad1a1ef140e cec0d19761da06c01780796ed0a16f88286ea12f
+        474bd465c2773bf55536b1914045c646deaa644f 396631afa4739e5ca8ac0c5c81781f82f3160403 d64f2f96003818b2f51341b54a2edd6f426a0dae
+        4cceb253d21f28b17f645bd88d90a6b764ddc073
+    - name: Record exact source and retained release holds
+      run: node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
+    - run: 'npm ci --ignore-scripts --no-audit --no-fund
+
+        npm run postinstall && npm run security:patches'
+    - run: npm ci --ignore-scripts --no-audit --no-fund
+      working-directory: myfactory
+    - run: mkdir -p "$RUNNER_TEMP/unified-myapps"
+    - run: node node_modules/playwright/cli.js install --with-deps chromium
+    - name: Exact composed FactoryVersion identity receipt
+      working-directory: ${{ github.workspace }}/myfactory
+      run: 'node packages/app-builder/scripts/qualify-myapps-identity.mjs create ${{ github.workspace }}/myeve ${{ github.workspace
+        }}/myfactory ${{ runner.temp }}/unified-myapps/factoryversion-identity.json
+
+        node packages/app-builder/scripts/qualify-myapps-identity.mjs verify ${{ github.workspace }}/myeve ${{ github.workspace
+        }}/myfactory ${{ runner.temp }}/unified-myapps/factoryversion-identity.json
+
+        '
+    - name: Contracts, migration catalog and shared runtime types
+      working-directory: ${{ github.workspace }}/myeve
+      run: 'node --test packages/myapps/test/*.test.mjs
+
+        node --test scripts/myapps-composition/materialize.test.mjs scripts/myapps-composition/assert-report.test.mjs scripts/myapps-composition/current-pins.test.mjs
+
+        npm run db:migrations:check
+
+        npm run build --workspace @myeve/myapps-reference
+
+        node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
+
+        '
+    - name: PostgreSQL 17 isolated server and backup tools
+      run: "pg_bin=/usr/lib/postgresql/17/bin\nif [ ! -x \"$pg_bin/pg_dump\" ] || [ ! -x \"$pg_bin/pg_restore\" ] || [ ! -x\
+        \ \"$pg_bin/initdb\" ] || [ ! -x \"$pg_bin/pg_ctl\" ]; then\n  # Capability qualification creates its own private\
+        \ cluster. Client\n  # tools alone cannot supply initdb/pg_ctl. Use the signed PGDG source.\n  sudo install -d /usr/share/postgresql-common/pgdg\n\
+        \  sudo curl --fail --silent --show-error --location \\\n    https://www.postgresql.org/media/keys/ACCC4CF8.asc \\\
+        \n    --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n  source /etc/os-release\n  echo \"deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc]\
+        \ https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main\" \\\n    | sudo tee /etc/apt/sources.list.d/myapps-pgdg.list\n\
+        \  sudo apt-get update\n  sudo apt-get install --yes postgresql-17 postgresql-client-17\nfi\nfor pg_tool in pg_dump\
+        \ pg_restore initdb pg_ctl; do\n  test -x \"$pg_bin/$pg_tool\"\n  \"$pg_bin/$pg_tool\" --version\ndone\necho \"$pg_bin\"\
+        \ >> \"$GITHUB_PATH\"\n"
+    - name: Disposable migration interruption and real restore qualification
+      working-directory: ${{ github.workspace }}/myeve
+      env:
+        MYAPPS_MIGRATION_REHEARSAL: '1'
+        MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
+        MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+      run: 'node --import tsx packages/myapps/qualification/migration-recovery.mjs ${{ github.workspace }}/myeve ${{ github.workspace
+        }}/myfactory ${{ runner.temp }}/unified-myapps/migration-recovery.json
+
+        node --test packages/myapps/qualification/migration-recovery-failure.test.mjs
+
+        '
+    - name: Factory custody and Result contracts
+      working-directory: ${{ github.workspace }}/myfactory
+      env:
+        MYEVE_SOURCE_ROOT: ${{ github.workspace }}/myeve
+      run: node --test packages/app-builder/test/*.test.mjs apps/cloud-control/test/cloud-verification.test.mjs
+    - name: Real database, browser, Proof, isolation, accounting and recovery
+      working-directory: ${{ github.workspace }}/myeve
+      env:
+        MYAPPS_COMPOSITION_REHEARSAL: '1'
+        MYAPPS_POSTGRES_URL: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+        MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/composition.config.ts --reporter=default --reporter=json --outputFile="${{ runner.temp }}/unified-myapps/composed-tests.json"
+        node scripts/myapps-composition/assert-report.mjs composed "${{ runner.temp }}/unified-myapps/composed-tests.json" "$PWD"
+    - name: QE criterion evidence and recovery contracts
+      if: always()
+      working-directory: ${{ github.workspace }}/myeve
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+      run: |
+        node_modules/.bin/vitest run --config packages/myapps/composition-qe.config.ts --reporter=default --reporter=json --outputFile="${{ runner.temp }}/unified-myapps/qe-tests.json"
+        node scripts/myapps-composition/assert-report.mjs qe "${{ runner.temp }}/unified-myapps/qe-tests.json" "$PWD"
+    - name: Factory QE verifier, custody and accounting contracts
+      if: always()
+      working-directory: ${{ github.workspace }}/myfactory
+      env:
+        FACTORY_LOCAL_QE_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+      run: node --test apps/cloud-control/test/external-alpha-verifier.test.mjs apps/cloud-control/test/postgres-alpha-criteria-local.test.mjs
+        apps/cloud-control/test/production-model-ledger.test.mjs apps/cloud-control/test/production-model-provider.test.mjs
+        apps/cloud-control/test/external-alpha-model-provider.test.mjs apps/cloud-control/test/cloud-harness-ledger.test.mjs
+        packages/hosted-routing/test/protocol.test.mjs
+    - name: Existing browser and performance regressions
+      if: always()
+      working-directory: ${{ github.workspace }}/myeve
+      run: 'node packages/myapps/browser/journey.mjs
+
+        node packages/myapps/browser/performance.mjs
+
+        '
+    - name: Browser fixture startup failure and owned cleanup regressions
+      working-directory: ${{ github.workspace }}/myeve
+      env:
+        MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
+      run: node --import tsx --test scripts/myapps-composition/browser-cleanup.postgres.mjs
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      if: always()
+      with:
+        name: unified-myapps-composition
+        path: '${{ runner.temp }}/unified-myapps/
+
+          ${{ github.workspace }}/authorization-envelope.json
+
+          ${{ github.workspace }}/myeve/output/playwright/myapps/'
+        if-no-files-found: error

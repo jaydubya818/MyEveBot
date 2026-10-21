@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import { selectedWorkRecall } from "./work-recall-context.ts";
 import { repairModelOptions } from "./native-repair-context.ts";
 import { nativePlanSchema, type NativeExecutionCapsule } from "./native-execution-controller.ts";
@@ -104,6 +105,7 @@ export function nativeToolInput(input: string): string {
 export function nativeBudgetedModel(input: { store: WorkStore; workId: string; sessionId: string; stepKey: string; modelId: string },
   dependencies: { authority?: NativeRouteAuthority; budget?: NativeModelBudget;
     catalog?: typeof gateway.getAvailableModels; currentTruth?:()=>Promise<string[]>; completionState?:()=>ReturnType<typeof nativeCompletionState>; model?: (id: string) => Model } = {}): Model {
+  denyExternalAlphaPaidPath("engineering-native-model");
   const authority = dependencies.authority ?? new NativeRouteAuthority(input.store);
   const budget = dependencies.budget ?? new NativeModelBudget(input.store, authority);
   async function generate(options: Options): Promise<Result> {

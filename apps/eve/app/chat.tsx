@@ -1,6 +1,6 @@
 "use client";
 import { ChatWorkContext } from "@/components/owner/chat-work-context";
-import { chatWorkHeaders, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
+import { chatWorkHeaders, chatWorkOptions, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
 
 import { toolPresentation } from "@/lib/tool-presentation";
@@ -48,14 +48,18 @@ import {
   UsersThreeIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { persistChatUpload, inspectChatUploads } from "@/lib/chat-file-client";
 import type { ChatFileView } from "@/lib/files-api";
 
 import { CommandPalette } from "@/components/command-palette";
 import { ChannelsWorkspace } from "@/components/channels-workspace";
-import { ComputerWorkspace } from "@/components/computer-workspace";
+import dynamic from "next/dynamic";
+const ComputerWorkspace = dynamic(() => import("@/components/computer-workspace").then(module => module.ComputerWorkspace), {
+  ssr: false,
+  loading: () => <p role="status">Opening Computer…</p>,
+});
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
 import {
@@ -67,7 +71,8 @@ import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
-import { OwnerNavigation } from "@/components/owner/navigation";
+
+import { useDestinationAllowed, useExternalLinksAllowed } from "@/components/owner/destination-gate";
 import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
@@ -94,6 +99,7 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
+import { EnterpriseMissionCard } from "@/components/enterprise-mission-card";
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
 import type { CapabilityStatus } from "@/lib/capabilities";
@@ -101,10 +107,11 @@ import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 import { reconcileChatSession } from "@/lib/chat-session";
-import { latestTurnFailed } from "@/app/chat-turn-failure";
+import { latestTurnFailed, latestTurnContextLimit } from "@/app/chat-turn-failure";
 import {
   saveThreadForCurrentOwner,
   subscribeToThreadOwnerConflicts,
+  threadApiPath,
   threadHasOwnerConflict,
 } from "@/lib/thread-owner-conflict";
 
@@ -183,6 +190,8 @@ function loadSavedModel(): string {
 function chatKey(threadId: string): string {
   return `eve-web-chat:${threadId}`;
 }
+
+type ComposerFocus = { threadId: string; start: number; end: number; direction: "forward" | "backward" | "none" };
 
 interface SavedChat {
   workSelection?: ChatWorkSelection;
@@ -324,7 +333,9 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
 }
 
 function deleteThreadOnServer(id: string): void {
-  void fetch(`/api/threads/${id}`, { method: "DELETE" }).catch(() => undefined);
+  const url = threadApiPath(id);
+  if (!url) return;
+  void fetch(url, { method: "DELETE" }).catch(() => undefined);
 }
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
@@ -339,8 +350,10 @@ async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
 }
 
 async function fetchServerChat(id: string): Promise<SavedChat | null> {
+  const url = threadApiPath(id);
+  if (!url) return null;
   try {
-    const response = await fetch(`/api/threads/${id}`);
+    const response = await fetch(url);
     if (!response.ok) return null;
     const body = (await response.json()) as { chat?: SavedChat };
     return body.chat ?? null;
@@ -652,6 +665,8 @@ type MainView =
   | "files";
 
 function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initialPrompt?: string }) {
+  const [handoffWorkId] = useState(() => new URL(window.location.href).searchParams.get("work"));
+  const [handoffPending, setHandoffPending] = useState(Boolean(handoffWorkId));
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -706,6 +721,18 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [pendingDraft, setPendingDraft] = useState<{ threadId: string; text: string } | null>(
     null,
   );
+  // A server refresh remounts ChatThread. Retain focus only for its active composer.
+  const focusedComposerThread = useRef<ComposerFocus | null>(null);
+  useLayoutEffect(() => () => { focusedComposerThread.current = null; }, [index.activeId]);
+  useEffect(() => {
+    const clearOtherFocus = (event: FocusEvent) => {
+      if (!(event.target instanceof HTMLElement) || !event.target.hasAttribute("data-thread-composer")) {
+        focusedComposerThread.current = null;
+      }
+    };
+    document.addEventListener("focusin", clearOtherFocus);
+    return () => document.removeEventListener("focusin", clearOtherFocus);
+  }, []);
   // Threads with a turn still running, so background threads get a dot.
   const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
   const [conflictedThreadIds, setConflictedThreadIds] = useState<ReadonlySet<string>>(() => new Set());
@@ -731,6 +758,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [capabilityNotice, setCapabilityNotice] = useState<CapabilityNoticeState>({
     kind: "loading",
   });
+  const destinationAllowed = useDestinationAllowed();
+  const externalLinksAllowed = useExternalLinksAllowed();
   const [goalsIncluded, setGoalsIncluded] = useState(true);
   const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
 
@@ -770,6 +799,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }, []);
 
   useEffect(() => {
+    if (!externalLinksAllowed) return;
     void fetch("/api/models")
       .then((response) => (response.ok ? response.json() : null))
       .then((body: { models?: ModelOption[] } | null) => {
@@ -1024,8 +1054,10 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         setCommandPaletteOpen((prev) => !prev);
       }
     }
+    const openCommands = () => setCommandPaletteOpen(true);
+    window.addEventListener("myeve:commands", openCommands);
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => { window.removeEventListener("keydown", onKeyDown); window.removeEventListener("myeve:commands", openCommands); };
   }, []);
 
   // Deep link from the /manage page: /?thread=<id> opens that thread. The
@@ -1124,9 +1156,9 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     showView("chat");
   }
 
-  function startPromptThread(title: string, text: string) {
+  function startPromptThread(title: string, text: string, workSelection?: ChatWorkSelection) {
     const meta = { ...newThreadMeta(), title, renamed: true };
-    saveLocalChat(meta.id, {});
+    saveLocalChat(meta.id, workSelection ? { workSelection } : {});
     putThreadMetaToServer(meta);
     setPendingDraft({ threadId: meta.id, text });
     setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
@@ -1134,16 +1166,38 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     showView("chat");
   }
 
+  // A Work handoff opens a fresh conversation only after an owner-scoped read.
+  // It never sends, resumes Work, or changes the context of existing history.
+  useEffect(() => {
+    if (!handoffWorkId) return;
+    const abort = new AbortController();
+    void fetch(`/api/chat-work?workId=${encodeURIComponent(handoffWorkId)}`, { cache: 'no-store', signal: AbortSignal.any([abort.signal, AbortSignal.timeout(15000)]) })
+      .then(async response => {
+        if (!response.ok) throw Error('Work unavailable');
+        const body = await response.json();
+        const work = chatWorkOptions(body.works).find(item => item.id === handoffWorkId);
+        if (!work || body.selectionAvailable === false) throw Error('Work unavailable');
+        if (abort.signal.aborted) return;
+        startPromptThread(work.title, '', {workId:work.id,title:work.title,intent:'observe'});
+        const url = new URL(window.location.href);url.searchParams.delete('work');
+        window.history.replaceState(null, '', url.pathname + url.search);
+        setHandoffPending(false);
+      }).catch(() => { if (!abort.signal.aborted) window.location.assign(`/work?kind=work&id=${encodeURIComponent(handoffWorkId)}`); });
+    return () => abort.abort();
+    // The immutable URL selection is consumed once; normal thread updates are unrelated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handoffWorkId]);
+
   // A reviewed owner-UX handoff only prefills the existing composer; it never sends.
   const initialPromptConsumed = useRef(false);
   useEffect(() => {
-    if (!initialPrompt || initialPromptConsumed.current) return;
+    if (!initialPrompt || handoffWorkId || initialPromptConsumed.current) return;
     initialPromptConsumed.current = true;
     startPromptThread("Plan my work", initialPrompt);
     try { ownerSessionStorage.removeItem("myeve-owner-conversation-draft"); } catch { /* Optional draft cleanup. */ }
     // Consume once: startPromptThread intentionally uses the current thread state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialPrompt]);
+  }, [initialPrompt, handoffWorkId]);
 
   function useRole(role: RoleDefinition) {
     const meta: ThreadMeta = { ...newThreadMeta(), title: `Use ${role.name}`, renamed: true, roleId: role.id, roleName: role.name };
@@ -1188,6 +1242,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function deleteThread(id: string) {
     try {
       ownerLocalStorage.removeItem(chatKey(id));
+      ownerLocalStorage.removeItem(`eve-web-draft:${id}`);
     } catch {
       // Ignore storage failures.
     }
@@ -1268,8 +1323,9 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     });
   }
 
+  if (handoffPending) return <p role="status" className="p-6">Opening your Work conversation…</p>;
   return (
-    <div className="flex h-dvh w-full">
+    <div className="owner-conversation flex h-dvh w-full">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
@@ -1280,7 +1336,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
       <aside
         ref={sidebarRef}
-        aria-label="App navigation"
+        aria-label="Conversations"
         className={cn(
           "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
           sidebarOpen && "visible translate-x-0",
@@ -1298,7 +1354,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           </button>
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
-          <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
+          {destinationAllowed("/manage") && <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
             {goalsIncluded && <Button
               variant="ghost"
@@ -1333,7 +1389,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "results" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => window.location.assign("/results")}
             />
-            <Button
+            {destinationAllowed("/computer") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1343,7 +1399,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Agent computer sessions"
               className={cn(view === "computer" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "computer" ? "chat" : "computer")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1355,7 +1411,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "agents" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "agents" ? "chat" : "agents")}
             />
-            {goalsIncluded && <Button
+            {goalsIncluded && destinationAllowed("/review") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1366,7 +1422,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "review" ? "chat" : "review")}
             />}
-            <Button
+            {destinationAllowed("/channels") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1376,7 +1432,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Email, Slack, iMessage, and push"
               className={cn(view === "channels" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "channels" ? "chat" : "channels")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1388,7 +1444,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "files" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "files" ? "chat" : "files")}
             />
-            <Button
+            {destinationAllowed("/manage") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1398,7 +1454,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Manage: reminders, triggers, memory, connections, skills"
               className={cn(view === "manage" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "manage" ? "chat" : "manage")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1409,11 +1465,10 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               onClick={newThread}
             />
           </div>
-          </details>
+          </details>}
         </div>
-        <OwnerNavigation compact />
         <Button variant="secondary" className="mx-3 mb-3 min-h-11" icon={PlusIcon} onClick={newThread}>New conversation</Button>
-        {process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
+        {externalLinksAllowed && process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
           <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
             className="mx-3 mb-2 flex min-h-11 items-center justify-between rounded-md border border-kumo-hairline px-3 text-sm hover:bg-kumo-tint"
             aria-label="Open Linear workspace (opens in a new tab)">
@@ -1585,8 +1640,17 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
           }
+          onDraftChange={text => setPendingDraft({threadId:index.activeId,text})}
+          composerFocus={focusedComposerThread}
+          onComposerFocus={element => { focusedComposerThread.current = element ? { threadId: index.activeId, start: element.selectionStart, end: element.selectionEnd, direction: element.selectionDirection } : null; }}
           onTitle={(title) => setThreadTitle(index.activeId, title)}
           onActivity={(title) => touchThread(index.activeId, title)}
+          onPrepareSend={async () => {
+            const meta = indexRef.current.threads.find((thread) => thread.id === index.activeId);
+            if (!meta || !await saveThreadForCurrentOwner(meta.id, threadMetaBody(meta))) {
+              throw new Error("Your conversation could not be saved. Your draft is still here; try again.");
+            }
+          }}
           onPersist={(chat) => persistChat(index.activeId, chat)}
           onBusyChange={(busy) => setThreadBusy(index.activeId, busy)}
           onOpenSidebar={() => setSidebarOpen(true)}
@@ -1800,8 +1864,12 @@ function ChatThread({
   roleName,
   initialChat: savedInitialChat,
   initialDraft,
+  onDraftChange,
+  composerFocus,
+  onComposerFocus,
   onTitle,
   onActivity,
+  onPrepareSend,
   onPersist,
   onBusyChange,
   onOpenSidebar,
@@ -1827,8 +1895,12 @@ function ChatThread({
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
+  onDraftChange: (text:string) => void;
+  composerFocus: { current: ComposerFocus | null };
+  onComposerFocus: (element: HTMLTextAreaElement | null) => void;
   onTitle: (title: string) => void;
   onActivity: (title?: string) => void;
+  onPrepareSend: () => Promise<void>;
   onPersist: (chat: SavedChat) => void;
   onBusyChange: (busy: boolean) => void;
   onOpenSidebar: () => void;
@@ -1866,8 +1938,41 @@ function ChatThread({
     };
   }
   const activeLabel = roleName ?? agentName;
-  const [draft, setDraft] = useState(initialDraft ?? "");
+  const draftKey = `eve-web-draft:${threadId}`;
+  const [storedDraft, setDraftState] = useState(() => {
+    if (initialDraft !== undefined) return initialDraft;
+    try { return ownerLocalStorage.getItem(draftKey) ?? ""; } catch { return ""; }
+  });
+  // A transcript refresh can prepare a replacement while the current composer
+  // is still receiving input. Prefer the parent's latest draft over the value
+  // captured when that replacement first rendered.
+  const draft = initialDraft ?? storedDraft;
+  const draftRef = useRef(draft);
+  useLayoutEffect(() => { draftRef.current = draft; }, [draft]);
+  const [composerReady, setComposerReady] = useState(false);
+  // Complete readiness and focus restoration before the browser can deliver
+  // another keystroke to a replacement composer. SSR stays disabled until mount.
+  useLayoutEffect(() => setComposerReady(true), []);
+  // Server reconciliation may remount this thread while the owner is typing.
+  // Keep the composer in the existing owner-partitioned local store.
+  function setDraft(next: string | ((previous: string) => string)) {
+    const value = typeof next === "function" ? next(draftRef.current) : next;
+    draftRef.current = value;
+    try {
+      if (value) ownerLocalStorage.setItem(draftKey, value);
+      else ownerLocalStorage.removeItem(draftKey);
+    } catch { /* The mounted composer still retains the draft if storage is full. */ }
+    setDraftState(value);
+    onDraftChange(value);
+  }
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const savedFocus = composerFocus.current, composer = composerRef.current;
+    if (composerReady && composer && savedFocus?.threadId === threadId) {
+      composer.focus({ preventScroll: true });
+      composer.setSelectionRange(savedFocus.start, savedFocus.end, savedFocus.direction);
+    }
+  }, [composerReady, composerFocus, threadId]);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
   // rides along on its first send only.
@@ -1878,6 +1983,8 @@ function ChatThread({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const uploadInProgress = useRef(false);
+  const preparingSend = useRef(false);
+  const [savingConversation, setSavingConversation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   // dragenter/dragleave fire for every child; count to avoid overlay flicker.
@@ -2065,6 +2172,8 @@ function ChatThread({
     return projected.messages;
   }, [agent.data.messages, events, resumedEvents]);
   const failedTurn = useMemo(() => latestTurnFailed(events), [events]);
+  const contextLimit = useMemo(() => latestTurnContextLimit(events), [events]);
+  const accountingFence = useMemo(()=>JSON.stringify(events.findLast(event=>event.type==="turn.failed")??{}).includes("EXTERNAL_ALPHA_SHARED_FENCED"),[events]);
 
   // Backfill titles for threads restored from storage (e.g. the migrated
   // pre-threads chat) whose meta still has the placeholder title.
@@ -2213,7 +2322,18 @@ function ChatThread({
   async function sendDraft() {
     if (ownerConflict) return;
     const text = draft.trim();
-    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
+    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current || preparingSend.current) return;
+    preparingSend.current = true;
+    setSavingConversation(true);
+    setUploadError(null);
+    try { await onPrepareSend(); }
+    catch {
+      setUploadError("Your conversation could not be saved. Your draft is still here; try again.");
+      return;
+    } finally {
+      preparingSend.current = false;
+      setSavingConversation(false);
+    }
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
@@ -2285,9 +2405,17 @@ function ChatThread({
     composerRef.current?.focus();
   }
 
-  function retryMessage(text: string) {
+  async function retryMessage(text: string) {
     if (ownerConflict) return;
-    if (isBusy || text.length === 0) return;
+    if (isBusy || text.length === 0 || preparingSend.current) return;
+    preparingSend.current = true;
+    setSavingConversation(true);
+    setUploadError(null);
+    try { await onPrepareSend(); }
+    catch {
+      setUploadError("Your conversation could not be saved. Try again when it is available.");
+      return;
+    } finally { preparingSend.current = false; setSavingConversation(false); }
     onActivity();
     void agent.send(text);
   }
@@ -2387,6 +2515,7 @@ function ChatThread({
         void addFiles(event.dataTransfer.files);
       }}
     >
+      <h1 className="sr-only">{activeLabel}</h1>
       {dragging && (
         <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-kumo-canvas/80 backdrop-blur-sm">
           <div className="flex items-center gap-2 rounded-xl border-2 border-dashed border-kumo-interact px-8 py-6 text-sm font-medium">
@@ -2396,15 +2525,17 @@ function ChatThread({
         </div>
       )}
       <div className="mx-auto flex size-full max-w-3xl min-h-0 flex-col px-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          shape="square"
-          icon={SidebarSimpleIcon}
-          className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
-          aria-label="Open threads"
-          onClick={onOpenSidebar}
-        />
+        <div className="flex shrink-0 py-2 md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="min-h-11 min-w-11"
+            aria-label="Open threads"
+            onClick={onOpenSidebar}
+          />
+        </div>
 
         {agentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
@@ -2429,7 +2560,7 @@ function ChatThread({
             persistLive();
           }}
         />}
-        <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+        <OwnerChatNotice state={capabilityNotice} onReview={onReviewSystem} />
 
         {ownerConflict && (
           <div role="status" className="mx-10 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
@@ -2455,8 +2586,8 @@ function ChatThread({
                         : agentId
                         ? `${agentName} can use only the capabilities assigned on its Agent record.`
                         : capabilityNotice.kind === "ready"
-                        ? "Ask me anything — I have your memory, a browser, and all your connected apps."
-                        : "Ask me anything — available capabilities stay active while setup is completed."}
+                        ? "What would you like to accomplish?"
+                        : "Bring me an idea, a question, or something you need done."}
                     </p>
                   </div>
                 )}
@@ -2485,7 +2616,13 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
-                {!ownerConflict && <WorkThread key={threadId} threadId={threadId} />}
+                {!ownerConflict && <WorkThread key={threadId} threadId={threadId} onCreatedWork={work=>{
+                  // The server confirms this exact Work was created in this
+                  // owner's conversation. Never replace an existing selection.
+                  if(workSelectionRef.current || roleId) return;
+                  const selection={...work,intent:'observe' as const};
+                  workSelectionRef.current=selection;setWorkSelection(selection);persistLive();
+                }}/>}
                 {!ownerConflict && <TaskRunCard threadId={threadId} />}
                 {!ownerConflict && showThinking && (
                   <MessageScrollerItem messageId="thinking">
@@ -2502,8 +2639,8 @@ function ChatThread({
                     <Bubble variant="destructive">
                       <BubbleContent role="alert">
                         <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
-                        <p>Review the selected model and system status, then retry or send a new message.</p>
-                        <Button
+                        <p>{contextLimit ? "This conversation contains more context than Sofie can safely use. Start a new conversation with a shorter request. For existing Work, open it and choose Discuss with Sofie to keep its saved context." : accountingFence ? "Sofie can't start a paid turn while a Work or another paid operation is running, or while an earlier operation has an unresolved accounting condition. No further model call was made; any allowance already reserved for this turn stays charged. To stop a running Work, open it and choose Stop Work. Try again after the Work finishes, and review Work and system status if this persists." : "Review the selected model and system status, then retry or send a new message."}</p>
+                        {contextLimit ? <Button className="mt-3" size="sm" variant="secondary" onClick={onNewThread}>New conversation</Button> : <><Button
                           className="mt-3 me-2"
                           size="sm"
                           variant="secondary"
@@ -2521,6 +2658,7 @@ function ChatThread({
                         >
                           Review setup
                         </Button>
+                        </>}
                       </BubbleContent>
                     </Bubble>
                   </MessageScrollerItem>
@@ -2575,6 +2713,8 @@ function ChatThread({
             }}
           >
             {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
+            {!composerReady && <p role="status">Preparing your conversation…</p>}
+            {savingConversation && <p role="status" className="px-2 py-1 text-sm">Saving conversation…</p>}
             {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
             {attachments.length > 0 && (
               <AttachmentGroup className="px-1 pb-2">
@@ -2609,15 +2749,20 @@ function ChatThread({
             )}
             <InputArea
               ref={composerRef}
-              disabled={uploading}
+              disabled={!composerReady || uploading || savingConversation}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
+              data-thread-composer={threadId}
+              onFocus={event => onComposerFocus(event.currentTarget)}
+              onSelect={event => onComposerFocus(event.currentTarget)}
+              onBlur={() => onComposerFocus(null)}
               autoResize
               minRows={1}
               maxRows={7}
               className="w-full rounded-none bg-transparent px-1 text-sm ring-0 focus:ring-0"
               onChange={(event) => {
+                onComposerFocus(event.currentTarget);
                 setDraft(event.target.value);
                 setPaletteDismissed(false);
               }}
@@ -2674,15 +2819,14 @@ function ChatThread({
                 variant="ghost"
                 shape="square"
                 icon={PlusIcon}
-                disabled={uploading}
+                disabled={uploading || savingConversation}
                 aria-label="Attach files"
                 title="Attach files"
                 className="text-kumo-subtle"
                 onClick={() => fileInputRef.current?.click()}
               />
               <div className="ms-auto flex items-center gap-1">
-                <ReasoningPicker reasoning={reasoning} onSelect={onReasoningChange} />
-                <ModelPicker model={model} models={models} onSelect={onModelChange} />
+                <QualifiedModelControls model={model} models={models} onModelChange={onModelChange} reasoning={reasoning} onReasoningChange={onReasoningChange} />
                 {speechSupported && (
                   <Button
                     type="button"
@@ -2716,7 +2860,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
+                    disabled={!composerReady || uploading || savingConversation || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>
@@ -2823,6 +2967,18 @@ function ReasoningPicker({
       )}
     </div>
   );
+}
+
+function OwnerChatNotice(props: { state: CapabilityNoticeState; onReview: () => void }) {
+  const allowed = useDestinationAllowed();
+  if (!allowed("/manage")) return props.state.kind === "unavailable" ? <p role="status" className="px-5 py-3 text-sm text-kumo-subtle">Service status could not be checked. Your saved conversations remain available.</p> : null;
+  return <CapabilityNotice {...props} />;
+}
+
+function QualifiedModelControls(props: { model: string; models: ModelOption[]; onModelChange: (id: string) => void; reasoning: ReasoningId; onReasoningChange: (value: ReasoningId) => void }) {
+  const allowed = useDestinationAllowed();
+  if (!allowed("/manage")) return null;
+  return <><ReasoningPicker reasoning={props.reasoning} onSelect={props.onReasoningChange} /><ModelPicker model={props.model} models={props.models} onSelect={props.onModelChange} /></>;
 }
 
 function ModelPicker({
@@ -3058,7 +3214,7 @@ function ChatMessage({
     <Message align={align}>
       <MessageContent className="gap-2">
         {message.parts.map((part, index) => (
-          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} />
+          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} onEnterpriseRefresh={!busy && !readOnly ? onRetry : undefined} />
         ))}
         {message.role === "assistant" && text.length > 0 && (
           <div className={cn(actionRowClass, !assistantDone && "invisible")}>
@@ -3136,11 +3292,13 @@ function ChatMessage({
 }
 
 function ChatPart({
+  onEnterpriseRefresh,
   part,
   role,
   readOnly,
   onRespond,
 }: {
+  onEnterpriseRefresh?: (message: string) => void;
   part: EveMessagePart;
   role: "assistant" | "user";
   readOnly: boolean;
@@ -3229,6 +3387,7 @@ function ChatPart({
 
       return (
         <div className="flex flex-col gap-2">
+          {part.toolName === "mission_control" && part.state === "output-available" && <EnterpriseMissionCard input={part.input} output={part.output} onRefresh={onEnterpriseRefresh} />}
           {expandable ? (
             <details>
               <summary aria-label={`${label}. Open Proof of Work / Advanced`} className="w-fit cursor-pointer list-none rounded-md hover:brightness-125 [&::-webkit-details-marker]:hidden">

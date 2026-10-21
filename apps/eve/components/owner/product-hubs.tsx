@@ -39,7 +39,7 @@ export function TeamHub() {
   );
 }
 
-export function AppsHub() {
+export function AppsHub({installedAppsAvailable=false}:{installedAppsAvailable?:boolean}) {
   const source = useProductResource<{
     connections: {
       toolkit: string;
@@ -59,6 +59,7 @@ export function AppsHub() {
         </Link>
         <Link href="/inbox">Channel setup</Link>
         <Link href="/approvals">Review approvals</Link>
+        {installedAppsAvailable && <Link href="/apps/installed">Installed apps</Link>}
       </div>
       <ResourceState {...source} />
       {source.data?.catalogComplete === false && (

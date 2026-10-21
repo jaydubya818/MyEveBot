@@ -1,0 +1,700 @@
+{
+  "composed": {
+    "apps/eve/lib/database-schema.test.ts": {
+      "passed": 2,
+      "skipped": [],
+      "passedNames": [
+        "explicit schema rollout preserves existing personal installation requirements",
+        "explicit schema rollout requires the newest reviewed schema only for the configured external alpha installation"
+      ]
+    },
+    "apps/eve/lib/external-alpha/accounting-postgres.test.ts": {
+      "passed": 9,
+      "skipped": [],
+      "passedNames": [
+        "external alpha shared accounting limits (real PostgreSQL) Work first, then ten chats: same ceiling",
+        "external alpha shared accounting limits (real PostgreSQL) allows exactly ten chat turns plus one Work per owner per UTC day ($2.30) and nothing more",
+        "external alpha shared accounting limits (real PostgreSQL) allows today's full $2.30 after four spent days and then exactly reaches $11.50",
+        "external alpha shared accounting limits (real PostgreSQL) bounds each chat turn at two operations and $0.10 of reserved exposure",
+        "external alpha shared accounting limits (real PostgreSQL) counts days at UTC midnight boundaries, not local time",
+        "external alpha shared accounting limits (real PostgreSQL) enforces the five-day owner allocation ($11.50) independently of the daily counters",
+        "external alpha shared accounting limits (real PostgreSQL) keeps isolated local owner allocations non-transferable; shared cohort ceilings are qualified separately",
+        "external alpha shared accounting limits (real PostgreSQL) serializes 30 concurrent reservations: one dispatch at a time, never more exposure than the allowance",
+        "external alpha shared accounting limits (real PostgreSQL) settles exactly once and refuses to release or reuse UNKNOWN exposure"
+      ]
+    },
+    "apps/eve/lib/external-alpha/allowance-postgres.test.ts": {
+      "passed": 7,
+      "skipped": [],
+      "passedNames": [
+        "external alpha durable allowances atomically admits at most ten daily chat turns without recycling settled allowances",
+        "external alpha durable allowances cannot replace/reset/delete policy or reactivate revoked authority",
+        "external alpha durable allowances does not duplicate one admission across concurrent tabs and rejects changed binding",
+        "external alpha durable allowances installs an inert schema and denies all spending before explicit activation",
+        "external alpha durable allowances linearizes exact-once tool acceptance against policy revocation and preserves accepted outcomes",
+        "external alpha durable allowances serializes calls and retains ambiguous exposure without fallback or new admission",
+        "external alpha durable allowances uses the same UTC day for staggered owner activations"
+      ]
+    },
+    "apps/eve/lib/external-alpha/features.test.ts": {
+      "passed": 77,
+      "skipped": [],
+      "passedNames": [
+        "EVE_ENABLED_FEATURES fails closed for installations a declared list can narrow but never widen",
+        "EVE_ENABLED_FEATURES fails closed for installations an unset or empty list never means all features",
+        "EVE_ENABLED_FEATURES fails closed for installations leaves every non-installation deployment as it was (unset = all)",
+        "Memory stays OFF for the qualified release a legacy local-postgres flag cannot enable Memory",
+        "Memory stays OFF for the qualified release denies Memory routes by default, whatever EVE_ENABLED_FEATURES says",
+        "Memory stays OFF for the qualified release denies Memory tools and provider capabilities with and without the legacy flag",
+        "external-alpha route allowlist (default-deny) allows / GET",
+        "external-alpha route allowlist (default-deny) allows /_next/static/chunks/a.js GET",
+        "external-alpha route allowlist (default-deny) allows /api/agents GET",
+        "external-alpha route allowlist (default-deny) allows /api/agents/a1/home GET",
+        "external-alpha route allowlist (default-deny) allows /api/beta/results GET",
+        "external-alpha route allowlist (default-deny) allows /api/files GET",
+        "external-alpha route allowlist (default-deny) allows /api/relay GET",
+        "external-alpha route allowlist (default-deny) allows /api/relay POST",
+        "external-alpha route allowlist (default-deny) allows /api/threads POST",
+        "external-alpha route allowlist (default-deny) allows /api/work-inbox GET",
+        "external-alpha route allowlist (default-deny) allows /chat GET",
+        "external-alpha route allowlist (default-deny) allows /eve/v1/info GET",
+        "external-alpha route allowlist (default-deny) allows /eve/v1/session POST",
+        "external-alpha route allowlist (default-deny) allows /inbox GET",
+        "external-alpha route allowlist (default-deny) allows /login GET",
+        "external-alpha route allowlist (default-deny) allows /needs-you GET",
+        "external-alpha route allowlist (default-deny) allows /results GET",
+        "external-alpha route allowlist (default-deny) allows /sofie GET",
+        "external-alpha route allowlist (default-deny) allows /team GET",
+        "external-alpha route allowlist (default-deny) allows /today GET",
+        "external-alpha route allowlist (default-deny) allows /work GET",
+        "external-alpha route allowlist (default-deny) allows /work/new GET",
+        "external-alpha route allowlist (default-deny) allows /workspace GET",
+        "external-alpha route allowlist (default-deny) allows the allowed families with their declared methods only",
+        "external-alpha route allowlist (default-deny) applies only to installations and never to other deployments",
+        "external-alpha route allowlist (default-deny) classifies every app/ route handler and page, and no rule is stale",
+        "external-alpha route allowlist (default-deny) denies agent card connect",
+        "external-alpha route allowlist (default-deny) denies agent channel webhook",
+        "external-alpha route allowlist (default-deny) denies agent hook",
+        "external-alpha route allowlist (default-deny) denies agent schedule",
+        "external-alpha route allowlist (default-deny) denies anything unclassified, traversal, encoded separators and lookalikes",
+        "external-alpha route allowlist (default-deny) denies automations",
+        "external-alpha route allowlist (default-deny) denies browser computer websocket",
+        "external-alpha route allowlist (default-deny) denies business ask",
+        "external-alpha route allowlist (default-deny) denies canary queue",
+        "external-alpha route allowlist (default-deny) denies capsules",
+        "external-alpha route allowlist (default-deny) denies computer",
+        "external-alpha route allowlist (default-deny) denies connected apps",
+        "external-alpha route allowlist (default-deny) denies email",
+        "external-alpha route allowlist (default-deny) denies every route of every denied family, for every method",
+        "external-alpha route allowlist (default-deny) denies imessage",
+        "external-alpha route allowlist (default-deny) denies manual auxiliary compaction",
+        "external-alpha route allowlist (default-deny) denies owner computer worker",
+        "external-alpha route allowlist (default-deny) denies owner data export",
+        "external-alpha route allowlist (default-deny) denies owner publication page",
+        "external-alpha route allowlist (default-deny) denies peer permissions",
+        "external-alpha route allowlist (default-deny) denies phone",
+        "external-alpha route allowlist (default-deny) denies production canary",
+        "external-alpha route allowlist (default-deny) denies public share link",
+        "external-alpha route allowlist (default-deny) denies publication / generated PR decisions",
+        "external-alpha route allowlist (default-deny) denies push",
+        "external-alpha route allowlist (default-deny) denies rooms",
+        "external-alpha route allowlist (default-deny) denies routine run",
+        "external-alpha route allowlist (default-deny) denies routines",
+        "external-alpha route allowlist (default-deny) denies slack",
+        "external-alpha route allowlist (default-deny) denies unrestricted federation",
+        "external-alpha route allowlist (default-deny) denies voice",
+        "external-alpha route allowlist (default-deny) names each required allowed family and each required denied family",
+        "external-alpha route allowlist (default-deny) opens only signed MissionControl POST receivers in explicitly installed mode",
+        "navigation never links a denied surface every linked href is actually served (no dead links)",
+        "navigation never links a denied surface links only allowlisted destinations, even with legacy Memory approval",
+        "tools and integrations are an explicit allowlist does not expose tool.browser",
+        "tools and integrations are an explicit allowlist does not expose tool.composio",
+        "tools and integrations are an explicit allowlist does not expose tool.computer",
+        "tools and integrations are an explicit allowlist does not expose tool.engineering_direct",
+        "tools and integrations are an explicit allowlist does not expose tool.publish",
+        "tools and integrations are an explicit allowlist does not expose tool.send_email",
+        "tools and integrations are an explicit allowlist does not expose tool.slack",
+        "tools and integrations are an explicit allowlist every allowlisted id exists in the registry (no dead entries)",
+        "tools and integrations are an explicit allowlist leaves a non-installation registry untouched",
+        "tools and integrations are an explicit allowlist only allowlisted capability ids are ever available to an installation, even with every credential configured"
+      ]
+    },
+    "apps/eve/lib/external-alpha/paid-paths.test.ts": {
+      "passed": 20,
+      "skipped": [],
+      "passedNames": [
+        "denial under an external-alpha installation (no provider is reached) Jev decision provider",
+        "denial under an external-alpha installation (no provider is reached) Orgo lifecycle and desktop reads deny before provider contact",
+        "denial under an external-alpha installation (no provider is reached) Realtime denies before microphone, peer connection or provider contact",
+        "denial under an external-alpha installation (no provider is reached) Relay peer reply",
+        "denial under an external-alpha installation (no provider is reached) automatic compaction rejects ordinary owner sessions before auxiliary model dispatch",
+        "denial under an external-alpha installation (no provider is reached) business ask route returns 404 before authentication or any model call",
+        "denial under an external-alpha installation (no provider is reached) computer-use loop",
+        "denial under an external-alpha installation (no provider is reached) engineering conversation model",
+        "denial under an external-alpha installation (no provider is reached) engineering native model",
+        "denial under an external-alpha installation (no provider is reached) hosted computer inference denies before VM acquisition, key lookup or provider contact",
+        "denial under an external-alpha installation (no provider is reached) no provider call was attempted by any denied path",
+        "denial under an external-alpha installation (no provider is reached) owner-channel model",
+        "denial under an external-alpha installation (no provider is reached) partner private model",
+        "denial under an external-alpha installation (no provider is reached) qualification model hook",
+        "denial under an external-alpha installation (no provider is reached) the guard denies from the installation name alone, so absent policy stays closed",
+        "denial under an external-alpha installation (no provider is reached) voice client secret minting fails closed",
+        "paid-path inventory (external alpha) NOT_PAID paths contain no provider inference call",
+        "paid-path inventory (external alpha) every DENIED path guards its dispatch site and every entry has an explicit disposition",
+        "paid-path inventory (external alpha) lists every source file that can dispatch a paid model request",
+        "paid-path inventory (external alpha) the model selector refuses any provider other than the budgeted external-alpha model"
+      ]
+    },
+    "apps/eve/lib/external-alpha/policy.test.ts": {
+      "passed": 16,
+      "skipped": [],
+      "passedNames": [
+        "external alpha installation policy accepts only the complete owner/project production binding",
+        "external alpha installation policy denies mismatched MYEVE_EXTERNAL_ALPHA_POLICY_SHA256",
+        "external alpha installation policy denies mismatched MYEVE_OWNER_ID",
+        "external alpha installation policy denies mismatched VERCEL_ENV",
+        "external alpha installation policy denies mismatched VERCEL_PROJECT_ID",
+        "external alpha installation policy does not fall through to unbudgeted defaults when policy is removed",
+        "external alpha installation policy rejects inherited authority MYEVE_ALPHA_OWNER_BINDING",
+        "external alpha installation policy rejects inherited authority MYEVE_CLOUD_QUALIFICATION_CONFIG",
+        "external alpha installation policy rejects inherited authority MYEVE_PRODUCTION_CANARY_CONFIG",
+        "external alpha installation policy rejects wider limits, fallback, publication and the other workspace",
+        "runtime policy-field enforcement accepts an escaped-newline PEM as provisioned through environment tooling",
+        "runtime policy-field enforcement derives the slot from the immutable project name and refuses a mismatch",
+        "runtime policy-field enforcement fails closed without a usable signing key and never echoes it",
+        "runtime policy-field enforcement slot 2 policy needs the slot 2 project and the slot 2 workspace",
+        "runtime policy-field enforcement the repository suffix must match the slot (schema and runtime)",
+        "runtime policy-field enforcement treats the tester family and the policy variable as an installation, anything else as not"
+      ]
+    },
+    "apps/eve/lib/external-alpha/private-acceptance-postgres.test.ts": {
+      "passed": 15,
+      "skipped": [],
+      "passedNames": [
+        "canonical private acceptance (real PostgreSQL) accepts once, completes the exact Work, and retains immutable PARTIAL Proof across restart and duplicate delivery",
+        "canonical private acceptance (real PostgreSQL) cannot accept verification FAIL or promote PARTIAL",
+        "canonical private acceptance (real PostgreSQL) cannot accept verification UNKNOWN or promote PARTIAL",
+        "canonical private acceptance (real PostgreSQL) cannot accept verification none or promote PARTIAL",
+        "canonical private acceptance (real PostgreSQL) denies fabricated, conflicting and cross-owner decisions through the canonical inbox",
+        "canonical private acceptance (real PostgreSQL) refuses accounting UNKNOWN and preserves its exposure",
+        "canonical private acceptance (real PostgreSQL) rejects cancelled mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects candidate mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects factory mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects generation mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects owner mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects proof mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects revoked mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) rejects work mismatch without completion",
+        "canonical private acceptance (real PostgreSQL) terminates an obsolete saved answer and continues delivering later decisions"
+      ]
+    },
+    "apps/eve/lib/external-alpha/proxy.test.ts": {
+      "passed": 8,
+      "skipped": [],
+      "passedNames": [
+        "installed route eligibility does not open installed receivers with a flag alone or unavailable canonical evidence",
+        "installed route eligibility requires the enrolled owner principal on actual feedback routes",
+        "installed route eligibility uses control-purpose canonical eligibility only for the signed control receiver",
+        "navigation gate shows everything outside an installation and only allowlisted hrefs inside one",
+        "proxy: server-side default-deny for external-alpha installations does not change any deployment that is not an installation",
+        "proxy: server-side default-deny for external-alpha installations keeps Memory and manual compaction denied even with legacy configuration",
+        "proxy: server-side default-deny for external-alpha installations lets allowlisted routes continue to the normal authentication chain",
+        "proxy: server-side default-deny for external-alpha installations returns 404 for denied and unclassified routes, before authentication or any other branch"
+      ]
+    },
+    "apps/eve/lib/external-alpha/result-ingestion-postgres.test.ts": {
+      "passed": 19,
+      "skipped": [],
+      "passedNames": [
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) a candidate that touches files outside the authorized set is retained as FAIL",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) an unsigned readback hint can only lower trust",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) does not accept aggregate PASS with legacy criterion evidence",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) does not accept aggregate PASS with missing criterion evidence",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) does not accept aggregate PASS with wrong-id criterion evidence",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) does not let a changed Work version retain a Result for stale authority",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) is idempotent: a replay returns the original; different bytes conflict; one row each",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) refuses another owner, another Work, a foreign policy and a non-consumed authority",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) rejects tampered, substituted, mis-keyed and mis-bound evidence without retaining anything",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) retained history is immutable and a settled Result cannot be resettled or deleted",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) retains an independently verified Result for the owner, readable through the owner readback tables, never as COMPLETED",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) retains signed unsupported patch metadata as FAIL: diff --git \"a/private\\tfile\" \"b/private\\tfile\"\n",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) retains signed unsupported patch metadata as FAIL: diff --git a/src/app.ts b/src/app.ts\nindex 1111111..2222222 160000\n",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) serializes 16 concurrent deliveries into exactly one retained Result",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) settles accounting and cleanup exactly once under concurrency, then closes the authority",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) shows verifier FAIL as FAIL and never promotes it to PASS",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) shows verifier UNKNOWN as PARTIAL and never promotes it to PASS",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) shows verifier none as PARTIAL and never promotes it to PASS",
+        "external alpha Result/Proof ingestion (real PostgreSQL, synthetic fixtures only) unconfirmed verifier cleanup and UNKNOWN Factory exposure settle as a fenced UNKNOWN, never as clean completion"
+      ]
+    },
+    "apps/eve/lib/external-alpha/shared-accounting-postgres.test.ts": {
+      "passed": 15,
+      "skipped": [],
+      "passedNames": [
+        "authoritative accounting across two isolated app databases (real PostgreSQL) UNKNOWN is irrevocable even with an authenticated late settlement and retained known response",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) a lost pre-provider lease acknowledgment cancels the unsent operation without redispatch or refund",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) a revoked cohort denies both owners and cannot recycle retained admissions",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) allows restricted accounting callers only the authenticated function and denies raw tables or schema creation",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) enrolled credentials cannot create allowance while the shared cohort is inactive",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) fails closed without a separate accounting configuration and never leaks credentials in errors",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) installing the shared schema creates no enrolled or activated spending authority",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) keeps UNKNOWN exposed and fences the other owner even when the central UNKNOWN acknowledgment fails",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) preserves cancelled and expired reservations across UTC rollover and enforces the $23 trial cap",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) recovers lost settlement after restart from durable local usage without redispatch or refund",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) rejects cross-owner, wrong-policy, third-slot and changed-request reservations without borrowing",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) retains durable Work UNKNOWN when shared fencing is temporarily unavailable",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) retains one charge across duplicate delivery, lost central commit acknowledgment and lost local mirror acknowledgment",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) serializes concurrent chat plus Work admissions from both app DBs at the $4.60 daily ceiling",
+        "authoritative accounting across two isolated app databases (real PostgreSQL) zero-gap: an authenticated RUNNING Work still fences every owner's chat and model dispatch; ceilings retained (Decision D)"
+      ]
+    },
+    "apps/eve/lib/external-alpha/work-authority-postgres.test.ts": {
+      "passed": 19,
+      "skipped": [],
+      "passedNames": [
+        "external alpha exact Work authority (real PostgreSQL) cancels before dispatch, refuses to send afterwards, and keeps the whole allowance charged",
+        "external alpha exact Work authority (real PostgreSQL) consumes once with a bound receipt and refuses reuse in every later state",
+        "external alpha exact Work authority (real PostgreSQL) denies a stale Work version/generation after the Work changes and never admits against the old revision",
+        "external alpha exact Work authority (real PostgreSQL) denies admission when the policy is not activated and when the policy row is absent",
+        "external alpha exact Work authority (real PostgreSQL) denies in the database every tampered bound field (independent of the TypeScript builder)",
+        "external alpha exact Work authority (real PostgreSQL) denies in the database when the Work row itself is not the canonical eligible Work",
+        "external alpha exact Work authority (real PostgreSQL) denies the TypeScript builder for any non-canonical Work, owner, repository, limit or control",
+        "external alpha exact Work authority (real PostgreSQL) expires unsent authority and turns an unresolved dispatch into an UNKNOWN fence",
+        "external alpha exact Work authority (real PostgreSQL) fences all further paid dispatch for the owner/cohort once any authority is UNKNOWN",
+        "external alpha exact Work authority (real PostgreSQL) is idempotent: parallel and later duplicate admissions resolve to one authority, allowance and writer identity",
+        "external alpha exact Work authority (real PostgreSQL) issues one exact signed single-use authority bound to every field and charges the whole Work allowance",
+        "external alpha exact Work authority (real PostgreSQL) lets exactly one concurrent caller claim dispatch; duplicates and refreshes never send again",
+        "external alpha exact Work authority (real PostgreSQL) linearizes revocation against dispatch claim (race 1): a claim after committed revocation never succeeds",
+        "external alpha exact Work authority (real PostgreSQL) linearizes revocation against dispatch claim (race 2): a claim after committed revocation never succeeds",
+        "external alpha exact Work authority (real PostgreSQL) linearizes revocation against dispatch claim (race 3): a claim after committed revocation never succeeds",
+        "external alpha exact Work authority (real PostgreSQL) recovers from a lost response: the retry returns the same record and does not mint another",
+        "external alpha exact Work authority (real PostgreSQL) rejects a returned record whose signature does not verify (database tampering is detected)",
+        "external alpha exact Work authority (real PostgreSQL) rolls back the allowance when authority insertion fails after reservation (fault injection)",
+        "external alpha exact Work authority (real PostgreSQL) sweeps a DISPATCHING authority that never resolved into UNKNOWN"
+      ]
+    },
+    "packages/myapps/integration/alpha-tasks-guard.test.ts": {
+      "passed": 4,
+      "skipped": [],
+      "passedNames": [
+        "disabled local composition fails before touching custody or candidate source",
+        "the real hosted host cannot be bypassed by a caller-supplied local env",
+        "the real production host cannot be bypassed by a caller-supplied local env",
+        "the shared command adapter accepts no body-authored principal, descriptor, execution command or install approval"
+      ]
+    },
+    "packages/myapps/integration/alpha-tasks-late-worker.test.ts": {
+      "passed": 6,
+      "skipped": [],
+      "passedNames": [
+        "late MyApps worker cannot supersede durable recovery create success rolls back after recovery fences the original worker",
+        "late MyApps worker cannot supersede durable recovery create success rolls back after replacement fences the original worker",
+        "late MyApps worker cannot supersede durable recovery create success rolls back after unknown fences the original worker",
+        "late MyApps worker cannot supersede durable recovery preview success rolls back after recovery fences the original worker",
+        "late MyApps worker cannot supersede durable recovery preview success rolls back after replacement fences the original worker",
+        "late MyApps worker cannot supersede durable recovery preview success rolls back after unknown fences the original worker"
+      ]
+    },
+    "packages/myapps/integration/alpha-tasks-recovery.test.ts": {
+      "passed": 8,
+      "skipped": [],
+      "passedNames": [
+        "operator-only exact RUNNING receipt recovery never clears a COMPLETED receipt",
+        "operator-only exact RUNNING receipt recovery never clears a UNKNOWN receipt",
+        "operator-only exact RUNNING receipt recovery operator recovery role cannot change installation owner or state",
+        "operator-only exact RUNNING receipt recovery records cleanup evidence and prior response without changing data, then denies a repeated recovery",
+        "operator-only exact RUNNING receipt recovery rejects a mismatched evidence_sha256 before audit or mutation",
+        "operator-only exact RUNNING receipt recovery rejects a mismatched operation before audit or mutation",
+        "operator-only exact RUNNING receipt recovery rejects a mismatched owner before audit or mutation",
+        "operator-only exact RUNNING receipt recovery rejects a mismatched request_hash before audit or mutation"
+      ]
+    },
+    "packages/myapps/integration/alpha-tasks-result.test.ts": {
+      "passed": 8,
+      "skipped": [],
+      "passedNames": [
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) keeps the exact dispatch permit even when another valid permit exists for the same Work",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) preserves accepted Work historical identity and original PARTIAL Proof without writes or renewed execution",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) refuses historical provenance without an exact dispatch custody record",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) rejects PARTIAL without promoting historical evidence",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) rejects UNKNOWN without promoting historical evidence",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) rejects revoked-permit without promoting historical evidence",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) rejects revoked-policy without promoting historical evidence",
+        "read-only retained Alpha Tasks provenance (synthetic PostgreSQL) rejects stale-work without promoting historical evidence"
+      ]
+    },
+    "packages/myapps/integration/alpha-tasks.test.ts": {
+      "passed": 0,
+      "skipped": [
+        "isolated candidate, canonical Needs You, duplicate-safe data, package update and rollback preserve same Mission/original Result",
+        "stale policy or installed base invalidates approval; revocation prevents operations",
+        "ordinary role enforces owner RLS and legacy CRM does not interpret Alpha Tasks state",
+        "clean failure preserves data; UNKNOWN preview fences further execution and installation",
+        "signed owner browser installs, updates, rolls back and safely retries an actual isolated app"
+      ],
+      "passedNames": []
+    },
+    "packages/myapps/integration/canonical-remote-admission.test.ts": {
+      "passed": 51,
+      "skipped": [],
+      "passedNames": [
+        "canonical remote admission custody (ordinary-role PostgreSQL) canonical operation composes signed HTTP and backend journal (lost response)",
+        "canonical remote admission custody (ordinary-role PostgreSQL) canonical operation composes signed HTTP and backend journal (positive)",
+        "canonical remote admission custody (ordinary-role PostgreSQL) composes signed canonical admission and separate backend custody (lost outcome)",
+        "canonical remote admission custody (ordinary-role PostgreSQL) composes signed canonical admission and separate backend custody (positive replay)",
+        "canonical remote admission custody (ordinary-role PostgreSQL) current capability policy denies controls='{\"myapps\":\"PAUSE_REQUESTED\"}'::jsonb while retaining recovery",
+        "canonical remote admission custody (ordinary-role PostgreSQL) current capability policy denies controls='{\"myapps\":\"REVOKE_REQUESTED\"}'::jsonb while retaining recovery",
+        "canonical remote admission custody (ordinary-role PostgreSQL) current capability policy denies preferences=jsonb_set(preferences,'{myapps}','\"DISABLED\"') while retaining recovery",
+        "canonical remote admission custody (ordinary-role PostgreSQL) current capability policy denies revision=revision+1 while retaining recovery",
+        "canonical remote admission custody (ordinary-role PostgreSQL) disable committed before waiting admission is observed after policy row lock",
+        "canonical remote admission custody (ordinary-role PostgreSQL) fresh authentication failure cannot use the durable owner receipt",
+        "canonical remote admission custody (ordinary-role PostgreSQL) historical null custody cannot be filled or authorize execution",
+        "canonical remote admission custody (ordinary-role PostgreSQL) lease expiry during current policy validation denies authorization",
+        "canonical remote admission custody (ordinary-role PostgreSQL) local-only admission remains local and cannot acquire remote identity later",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot delete custody; legal status transition preserves it",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: app_id='other'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: execution_admission='{}'::jsonb",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: execution_admission=NULL",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: execution_admission=jsonb_set(execution_admission,'{actorId}','\"other\"')",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: id='other'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: owner_id='other'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary role cannot mutate admitted custody: request_hash='other'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) ordinary-role insert rejects mismatched receipt binding and duplicate operation identity",
+        "canonical remote admission custody (ordinary-role PostgreSQL) original Sofie session can execute and read but cannot owner-fence",
+        "canonical remote admission custody (ordinary-role PostgreSQL) positively revalidates invoke with durable exact custody",
+        "canonical remote admission custody (ordinary-role PostgreSQL) positively revalidates preview with durable exact custody",
+        "canonical remote admission custody (ordinary-role PostgreSQL) recovery rejects non-owner fencing and changed command fingerprint",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects agent-impersonation",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving agentId",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving enrollmentDigest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving hostId",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving installationId",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving operationId",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving originDigest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving packageDigest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving runtimeDigest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects changed receiving sourceClosureDigest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects current-enrollment",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects execution",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects expired",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects foreign-actor",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects foreign-owner",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects future",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects old-wire",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects permission",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects request-digest",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE capability_control.evidence SET expires_at=clock_timestamp()-interval '1 second'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE capability_control.relay_agent_evidence SET status='REVOKED'",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE myapps_candidates SET revoked=true",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE myapps_installations SET state=jsonb_set(state,'{dataRevision}',to_jsonb((state->>'dataRevision')::int+1))",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE myapps_installations SET state=jsonb_set(state,'{enabled}','false')",
+        "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE myapps_installations SET state=jsonb_set(state,'{revision}',to_jsonb((state->>'revision')::int+1))"
+      ]
+    },
+    "packages/myapps/integration/composition.test.ts": {
+      "passed": 3,
+      "skipped": [],
+      "passedNames": [
+        "combined Factory source cannot inherit the installed production source identity",
+        "composition preserves historical bytes except explicitly pinned unified successors",
+        "real PostgreSQL upgrades canonical UX schema without activating policy or changing Work"
+      ]
+    },
+    "packages/myapps/integration/golden.test.ts": {
+      "passed": 1,
+      "skipped": [],
+      "passedNames": [
+        "canonical PostgreSQL Work -> Factory -> verifier -> Result -> preview -> owner install -> UI/agent state -> successor update"
+      ]
+    },
+    "packages/myapps/integration/local-bootstrap.test.ts": {
+      "passed": 2,
+      "skipped": [],
+      "passedNames": [
+        "cold Inbox delivery preserves an unrelated hashed action without activating the legacy adapter",
+        "cold web entrypoint initializes exact local owner without manual binding and keeps signed authentication"
+      ]
+    },
+    "packages/myapps/integration/persistent.test.ts": {
+      "passed": 4,
+      "skipped": [],
+      "passedNames": [
+        "PostgreSQL canonical Work/Factory/Needs You, restart, shared state, additive migration and rollback",
+        "browser: Sofie request -> canonical Work -> preview -> Needs You -> PostgreSQL app -> UI/agent -> successor field",
+        "native MyEve UI adapter and fresh-process PostgreSQL readback",
+        "security: stale Work, expired preview, changed runtime, wrong app, RLS and HTTP authority"
+      ]
+    },
+    "packages/myapps/integration/remote-http.test.ts": {
+      "passed": 44,
+      "skipped": [],
+      "passedNames": [
+        "dormant bounded remote HTTP transport HTTP 401 is UNKNOWN, never proof of no effect",
+        "dormant bounded remote HTTP transport HTTP 403 is UNKNOWN, never proof of no effect",
+        "dormant bounded remote HTTP transport HTTP 429 is UNKNOWN, never proof of no effect",
+        "dormant bounded remote HTTP transport HTTP 500 is UNKNOWN, never proof of no effect",
+        "dormant bounded remote HTTP transport HTTP 503 is UNKNOWN, never proof of no effect",
+        "dormant bounded remote HTTP transport aborts a stalled real response within the configured deadline without retry",
+        "dormant bounded remote HTTP transport bounds chunked body bytes when Content-Length is absent",
+        "dormant bounded remote HTTP transport bounds real response bytes and rejects non-JSON",
+        "dormant bounded remote HTTP transport cancels a slow request body before dispatch",
+        "dormant bounded remote HTTP transport does not call the signed receiver for a foreign enrollment",
+        "dormant bounded remote HTTP transport never follows HTTP 301 redirects",
+        "dormant bounded remote HTTP transport never follows HTTP 302 redirects",
+        "dormant bounded remote HTTP transport never follows HTTP 303 redirects",
+        "dormant bounded remote HTTP transport never follows HTTP 307 redirects",
+        "dormant bounded remote HTTP transport never follows HTTP 308 redirects",
+        "dormant bounded remote HTTP transport preserves JSON/signature bytes over real loopback and snapshots the enrolled endpoint",
+        "dormant bounded remote HTTP transport redacts receiver errors and never treats them as a signed denial",
+        "dormant bounded remote HTTP transport rejects expired commands and oversized source before transport",
+        "dormant bounded remote HTTP transport rejects foreign agentId before any network call",
+        "dormant bounded remote HTTP transport rejects foreign enrollmentDigest before any network call",
+        "dormant bounded remote HTTP transport rejects foreign hostId before any network call",
+        "dormant bounded remote HTTP transport rejects foreign installationId before any network call",
+        "dormant bounded remote HTTP transport rejects foreign ownerId before any network call",
+        "dormant bounded remote HTTP transport rejects invalid deadline -1",
+        "dormant bounded remote HTTP transport rejects invalid deadline 0",
+        "dormant bounded remote HTTP transport rejects invalid deadline 30001",
+        "dormant bounded remote HTTP transport rejects invalid deadline NaN",
+        "dormant bounded remote HTTP transport rejects invalid request encoding before parsing or dispatch",
+        "dormant bounded remote HTTP transport rejects invalid request length before parsing or dispatch",
+        "dormant bounded remote HTTP transport rejects invalid request type before parsing or dispatch",
+        "dormant bounded remote HTTP transport rejects malformed JSON and invalid UTF-8 without revealing body or errors",
+        "dormant bounded remote HTTP transport rejects oversized observations",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint ftp://example.invalid",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint http://example.invalid",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint https://example.invalid/myapps/remote-isolation/v2#fragment",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint https://example.invalid/myapps/remote-isolation/v2?x=1",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint https://example.invalid/wrong",
+        "dormant bounded remote HTTP transport rejects unqualified endpoint https://user:pass@example.invalid",
+        "dormant bounded remote HTTP transport rejects wrong route and method without receiver dispatch or CORS permission",
+        "dormant bounded remote HTTP transport requires explicit loopback qualification",
+        "dormant bounded remote HTTP transport retains the concurrency slot after timeout until actual receiver completion",
+        "dormant bounded remote HTTP transport test loopback opt-in cannot override production",
+        "dormant bounded remote HTTP transport test loopback opt-in cannot override vercel",
+        "real signed HTTP response loss recovers the durable PostgreSQL outcome without redispatch"
+      ]
+    },
+    "packages/myapps/integration/remote-isolation.test.ts": {
+      "passed": 43,
+      "skipped": [
+        "dormant signed MyApps executor delivery custody signed loopback through actual offline Docker preserves the existing runtime profile"
+      ],
+      "passedNames": [
+        "dormant signed MyApps executor delivery custody adapter maps unauthenticated transport failure to UNKNOWN, never confirmed cleanup",
+        "dormant signed MyApps executor delivery custody admits once, returns signed exact output, and replays after controller restart",
+        "dormant signed MyApps executor delivery custody caller mutation while awaiting authorization cannot replace verified source or input",
+        "dormant signed MyApps executor delivery custody changed payload cannot reuse an operation, even with a valid signature",
+        "dormant signed MyApps executor delivery custody claim persisted before launch is never redispatched after process loss",
+        "dormant signed MyApps executor delivery custody cleanup is not invoked after its authority expires during journal custody",
+        "dormant signed MyApps executor delivery custody concurrent duplicates never launch a second worker",
+        "dormant signed MyApps executor delivery custody crash after effect before durable completion remains UNKNOWN after restart",
+        "dormant signed MyApps executor delivery custody denies current capability changes on replay and without touching retained outcome",
+        "dormant signed MyApps executor delivery custody denies signed foreign agentId before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign enrollmentDigest before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign hostId before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign installationId before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign originDigest before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign ownerId before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign packageDigest before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign runtimeDigest before execution",
+        "dormant signed MyApps executor delivery custody denies signed foreign sourceClosureDigest before execution",
+        "dormant signed MyApps executor delivery custody denies stale or corrupt expiry",
+        "dormant signed MyApps executor delivery custody denies stale or corrupt key",
+        "dormant signed MyApps executor delivery custody denies stale or corrupt revision",
+        "dormant signed MyApps executor delivery custody denies stale or corrupt signature",
+        "dormant signed MyApps executor delivery custody denies stale or corrupt source",
+        "dormant signed MyApps executor delivery custody executor cannot mutate the before-state to hide a read mutation",
+        "dormant signed MyApps executor delivery custody expiry during the last enrollment await never launches or redispatches",
+        "dormant signed MyApps executor delivery custody expiry during the last journal await never launches or redispatches",
+        "dormant signed MyApps executor delivery custody foreign cleanup acknowledgment cannot clear the fence hold",
+        "dormant signed MyApps executor delivery custody known isolated failure is denied only when cleanup was confirmed",
+        "dormant signed MyApps executor delivery custody late worker output cannot overwrite a concurrent fence or change canonical app state",
+        "dormant signed MyApps executor delivery custody lost response recovers from the durable outcome without another execution",
+        "dormant signed MyApps executor delivery custody missing authority and a revision changed during authorization fail closed",
+        "dormant signed MyApps executor delivery custody qualified backend fencing prevents a delayed launcher after confirmed cleanup",
+        "dormant signed MyApps executor delivery custody rejects a foreign or malformed signed response: binding",
+        "dormant signed MyApps executor delivery custody rejects a foreign or malformed signed response: output",
+        "dormant signed MyApps executor delivery custody rejects a foreign or malformed signed response: request",
+        "dormant signed MyApps executor delivery custody rejects a foreign or malformed signed response: signature",
+        "dormant signed MyApps executor delivery custody response that expires during final enrollment read is rejected and only fresh readback can recover",
+        "dormant signed MyApps executor delivery custody revoked enrollment still permits exact recovery while new execution is denied",
+        "dormant signed MyApps executor delivery custody separates authority fencing from confirmed cleanup and idempotent confirmed replay",
+        "dormant signed MyApps executor delivery custody transport deadline is UNKNOWN and does not authorize another delivery",
+        "dormant signed MyApps executor delivery custody unavailable cleanup remains PENDING_BACKEND and blocks delayed admission",
+        "dormant signed MyApps executor delivery custody unknown execution never becomes a cleaned denial without exact backend evidence",
+        "dormant signed MyApps executor delivery custody uses a non-superuser journal role with no canonical application rights"
+      ]
+    }
+  },
+  "qe": {
+    "apps/eve/lib/external-alpha/chat-recovery-postgres.test.ts": {
+      "passed": 7,
+      "skipped": [],
+      "passedNames": [
+        "chat no-send recovery (real PostgreSQL) cancels only the canonical unsent Sofie step inside a Work allowance",
+        "chat no-send recovery (real PostgreSQL) concurrent cancellation and provider claims have one winner; UNKNOWN stays reserved",
+        "chat no-send recovery (real PostgreSQL) never cancels a legacy/provider-started operation or accepts wrong owner/hash/allowance",
+        "chat no-send recovery (real PostgreSQL) records blocked acknowledgment as unsent, preserving Work lease and allowance charge",
+        "chat no-send recovery (real PostgreSQL) repairs a lost shared grant acknowledgment and rejects its late duplicate",
+        "chat no-send recovery (real PostgreSQL) restart cancels only aged preparations, including a lost cancellation acknowledgment",
+        "chat no-send recovery (real PostgreSQL) revocation can cancel unsent preparation but cannot authorize a provider claim or refund"
+      ]
+    },
+    "apps/eve/lib/external-alpha/context.test.ts": {
+      "passed": 11,
+      "skipped": [],
+      "passedNames": [
+        "accepts only the complete known catalog, including Eve's single trailing description newline",
+        "bounds verbose Work history for natural follow-up Can you explain the result? without discarding policy",
+        "bounds verbose Work history for natural follow-up Is anything else needed? without discarding policy",
+        "bounds verbose Work history for natural follow-up Thanks \u2014 anything else to review? without discarding policy",
+        "bounds verbose Work history for natural follow-up What changed? without discarding policy",
+        "bounds verbose Work history for natural follow-up What did you change? without discarding policy",
+        "defers optional deployment instructions only for external alpha",
+        "defers unrelated management tools in a selected-Work conversation without altering retained schemas",
+        "fits a clean-owner first message without changing mandatory policy or owner text",
+        "never drops policy, oversized owner requests, history, or tool schemas to fit",
+        "pins the framework formatter version used by the compatibility adapter"
+      ]
+    },
+    "apps/eve/lib/external-alpha/conversation-readback.test.ts": {
+      "passed": 4,
+      "skipped": [],
+      "passedNames": [
+        "counterfactual publication readback binds the exact owner, Work, Result, revision and candidate",
+        "does not select another Work when conversation evidence is absent or ambiguous",
+        "never swallows a compound message, non-text input or unbound readback",
+        "only acknowledges the exact completed canonical tool call in this owner/session/turn"
+      ]
+    },
+    "apps/eve/lib/external-alpha/model-recovery-postgres.test.ts": {
+      "passed": 2,
+      "skipped": [],
+      "passedNames": [
+        "provider boundary accounting recovery a provider timeout retains UNKNOWN across restart and never dispatches again",
+        "provider boundary accounting recovery lost shared settlement acknowledgment never poisons durable known usage"
+      ]
+    },
+    "apps/eve/lib/external-alpha/qe-002-per-criterion-repro-postgres.test.ts": {
+      "passed": 1,
+      "skipped": [],
+      "passedNames": [
+        "QE-002 per-criterion verifier evidence records each criterion with the verifier's own per-criterion result"
+      ]
+    },
+    "apps/eve/lib/external-alpha/work-controller-postgres.test.ts": {
+      "passed": 76,
+      "skipped": [],
+      "passedNames": [
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-1: an undispatched Work reservation holds the single slot and fences new chat admission until its deadline",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-2: concurrent Work admission from both owners acquires the slot exactly once",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-3: fairness: after A's Work settles and its admission expires, B is admitted and A cannot reacquire the slot the same UTC day",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-4: UNKNOWN or FENCED Work keeps the slot even after its deadline",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-5: a rolled-back admission transaction consumes no capacity or ceiling",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-6: replayed admission (same binding) returns the original reservation and never acquires a second slot",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-7: the owner-facing Work start action reports explicit capacity denial with nothing charged or started",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: FENCED Work exposure denies another owner's Work before any Factory call",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: OVERDUE Work exposure denies another owner's Work before any Factory call",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: UNKNOWN Work exposure denies another owner's Work before any Factory call",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: one active Work per cohort; the second owner is denied with explicit capacity before any Factory call (Decision A)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) RACE-1: a chat admitted before the Work cannot dispatch between the Work's reservation and its dispatch; the Work still runs",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) RACE-2: a definitive central dispatch refusal cancels the claimed authority before any Factory call (never DISPATCHING\u2192UNKNOWN)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) STOP-1: the owner stops a running alpha Work without a paid turn; the fence clears only from the authenticated terminal fact",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) STOP-2: the owner page never cancels a Work that is still starting, so a concurrent claim cannot be overwritten",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) Sofie takeover transfers control only after exact confirmed cleanup (bare-label)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) Sofie takeover transfers control only after exact confirmed cleanup (known)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) Sofie takeover transfers control only after exact confirmed cleanup (unknown)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) Sofie tool action: idempotent start, owner and revision binding, missing signing key fails closed",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-1: Work UNKNOWN with the central fence unreachable never admits another owner",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-2: Factory-reported UNKNOWN operation with the central fence unreachable never admits another owner",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-3: no second owner's Work can be dispatched during an unrecorded UNKNOWN (no overlapping RUNNING)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-4: restart repair records the local UNKNOWN centrally, idempotently, without releasing any reservation",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-5: lost fence acknowledgment (committed centrally) fences other owners",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-6: an in-flight Sofie call whose local UNKNOWN never reached central still fences",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-7: stale or replayed running_work evidence cannot reopen admission or capacity",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-8: no fault, delayed central write: no admission inside the local-UNKNOWN window",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-9: an allowance admitted before the Work cannot dispatch a paid call while the Work is RUNNING or UNKNOWN",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a definitive Factory denial cancels the authority without fencing, and the allowance is still charged",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost post-commit reconciliation acknowledgement restarts from the immutable terminal fact without another dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a replayed readback challenge fences without recording its forged terminal accounting",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a restarted durable caller retains a later Result once under duplicate sweep delivery without redispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a revoked policy blocks the send even after issuance",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) an ambiguous transport failure becomes UNKNOWN, is never re-sent, and fences all further paid dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) an unverifiable Factory receipt fences as UNKNOWN",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) canonical Sofie journey replays durable FAIL Result and exact evidence after reconnect/restart without another dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) canonical Sofie journey replays durable PASS Result and exact evidence after reconnect/restart without another dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) canonical Sofie journey replays durable UNKNOWN Result and exact evidence after reconnect/restart without another dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) caps combined Sofie and Factory model operations at five and $1.30 per Work, with exact-once settlement",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) charges the remaining Factory UNKNOWN envelope once across multiple ambiguous operation reports",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) closed readback repeats exact CANCELLED terminal truth without a Factory read or mutation",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) closed readback repeats exact FAILED terminal truth without a Factory read or mutation",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) closed readback repeats exact NOT_DISPATCHED terminal truth without a Factory read or mutation",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) denies generic owner controls after external authority exists without invalidating its Work generation",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) durable expiry sweep fences or expires CONSUMED without restarting or reclaiming the writer",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) durable expiry sweep fences or expires DISPATCHING without restarting or reclaiming the writer",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) durable expiry sweep fences or expires ISSUED without restarting or reclaiming the writer",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) durable reconciliation stops the exact consumed request after owner cancel and never projects stale evidence",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) durable reconciliation stops the exact consumed request after owner takeover and never projects stale evidence",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) fences when the Factory reports more operations than its authority permits",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) ingests the signed Result before closing: pending until published, retained once, PARTIAL shown as PARTIAL, replay and tamper safe",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) keeps UNKNOWN Factory exposure charged at its full reservation and fences the owner/cohort",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) preserves authenticated execution truth when optional observation storage fails",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) receipt-only and tampered signed spend readbacks never qualify",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) records Factory productive and completion operations in the same ledger exactly once and completes at quiescence",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) records authenticated Factory UNKNOWN immediately after retaining its consumption receipt",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) records original consumed and observed cancelled Work revisions separately and never projects a new candidate",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) rejects foreign owner, forged receipt/spend/run and terminal labels without authenticated cleanup facts",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) requires enrollment before charging when installed mode is enabled, while preserving unenrolled legacy execution",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains a signed useful candidate for terminal CANCELLED with an honest failed/partial Proof",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains a signed useful candidate for terminal FAILED with an honest failed/partial Proof",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains immutable authenticated no-candidate terminal CANCELLED cleanup/accounting facts",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains immutable authenticated no-candidate terminal FAILED cleanup/accounting facts",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains immutable authenticated no-candidate terminal NOT_DISPATCHED cleanup/accounting facts",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) retains the first dispatch bytes immutably and rejects a different deadline for the same request",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) runs the exact path: canonical Work, durable allowance, signed authority, independent Factory validation, one consumption, receipt",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) sends exactly once under 24 concurrent duplicate deliveries, and never on later refreshes",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) still retains a published Result when Factory exposure is UNKNOWN, and settles it as a fence; unpublished + UNKNOWN fences at once",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) stops: before dispatch it cancels the authority; after consumption it stops the exact request and closes",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) terminal reserved exposure is retained at its full amount and fences rather than appearing settled",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) the Factory denies a tampered bound field presented with a valid signature elsewhere",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) the actual shared lease stays fenced for a bare consumed cancellation but clears from the exact authenticated terminal fact",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) the reference Factory consumes once even if MyEve replays the same authority (defence in depth)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) unsigned compatibility fields cannot close an authority or settle spend"
+      ]
+    },
+    "apps/eve/lib/relay/connect-concurrency.test.ts": {
+      "passed": 3,
+      "skipped": [],
+      "passedNames": [
+        "QE-007 16 concurrent first links retain one native Agent and credential",
+        "QE-007 2 concurrent first links retain one native Agent and credential",
+        "QE-007 server instances share the owner PostgreSQL lock"
+      ]
+    },
+    "packages/myapps/qualification/accounting-upgrade.test.ts": {
+      "passed": 1,
+      "skipped": [],
+      "passedNames": [
+        "QE accounting upgrade preserves legacy exposure and cannot reopen UNKNOWN or held Work"
+      ]
+    }
+  },
+  "baseline-allowance": {
+    "apps/eve/lib/external-alpha/allowance-postgres.test.ts": {
+      "passed": 7,
+      "skipped": [],
+      "passedNames": [
+        "external alpha durable allowances atomically admits at most ten daily chat turns without recycling settled allowances",
+        "external alpha durable allowances cannot replace/reset/delete policy or reactivate revoked authority",
+        "external alpha durable allowances does not duplicate one admission across concurrent tabs and rejects changed binding",
+        "external alpha durable allowances installs an inert schema and denies all spending before explicit activation",
+        "external alpha durable allowances linearizes exact-once tool acceptance against policy revocation and preserves accepted outcomes",
+        "external alpha durable allowances serializes calls and retains ambiguous exposure without fallback or new admission",
+        "external alpha durable allowances uses the same UTC day for staggered owner activations"
+      ]
+    }
+  }
+}

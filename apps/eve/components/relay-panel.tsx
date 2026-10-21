@@ -38,12 +38,21 @@ export function RelayPanel() {
     setError("");
     setNotice("");
     try {
-      const r = await fetch("/api/relay", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ operation, input, id }),
-      });
-      const d = await r.json();
+      const send = (body: unknown) =>
+        fetch("/api/relay", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ operation, input: body, id }),
+        });
+      let r = await send(input);
+      let d = await r.json();
+      // Linking or rotating an existing Agent replaces its credential. The server
+      // discloses that and proceeds only after the owner explicitly confirms it.
+      if (r.status === 409 && d.code === "RELAY_ROTATION_CONFIRMATION_REQUIRED") {
+        if (!window.confirm(d.error)) throw new Error("Nothing was changed. The Agent credential was not rotated.");
+        r = await send({ ...(input as object | undefined), confirmCredentialRotation: d.confirmation });
+        d = await r.json();
+      }
       if (!r.ok) throw new Error(d.error);
       await refresh();
       setNotice("Saved. Current Relay state is shown below.");

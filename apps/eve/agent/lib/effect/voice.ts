@@ -1,3 +1,4 @@
+import { externalAlphaPaidPathDenied } from "../../../lib/external-alpha/paid-paths.ts";
 // Voice persona + OpenAI Realtime client-secret minting for the voice orb.
 // Effect v4 program (AGENTS.md: external HTTP clients run on Effect).
 import { Data, Effect } from "effect";
@@ -158,6 +159,11 @@ function safeProfile(): Effect.Effect<MemoryProfile | null> {
 
 export function mintVoiceClientSecret(): Effect.Effect<VoiceSecret, VoiceError> {
   return Effect.gen(function* () {
+    if (externalAlphaPaidPathDenied("voice-client-secret")) {
+      return yield* Effect.fail(
+        new VoiceError({ reason: "not_configured", message: "EXTERNAL_ALPHA_PAID_PATH_DENIED:voice-client-secret" }),
+      );
+    }
     const apiKey = process.env.OPENAI_API_KEY ?? "";
     if (apiKey.length === 0) {
       return yield* Effect.fail(

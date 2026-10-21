@@ -1,5 +1,7 @@
 "use client";
 
+import {markdownPreviewDocument} from "../lib/markdown-preview";
+
 import { CheckIcon, CopyIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import {
   isValidElement,
@@ -33,7 +35,7 @@ function codeLanguage(children: ReactNode): string | null {
 }
 
 // A bare <pre> wrapped with hover actions: copy, and for HTML blocks a live
-// preview rendered in a sandboxed iframe (scripts allowed, same-origin not).
+// static preview rendered without script or network access.
 // The wrapper stays outside typeset's element styles; buttons opt out via
 // not-typeset.
 function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
@@ -61,8 +63,8 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
       {previewHtml !== null && (
         <iframe
           title="HTML preview"
-          sandbox="allow-scripts"
-          srcDoc={previewHtml}
+          sandbox=""
+          srcDoc={markdownPreviewDocument(previewHtml)}
           className="not-typeset h-96 w-full rounded-lg bg-white ring ring-kumo-hairline"
         />
       )}
@@ -105,6 +107,36 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
   );
 }
 
+// Model and tool text must not initiate image requests without a user action.
+// Do not forward srcSet or other source attributes from untrusted HTML.
+function MarkdownImage({ src, alt }: ComponentProps<"img"> & { node?: unknown }) {
+  const [approvedSource, setApprovedSource] = useState<string | null>(null);
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  if (typeof src !== "string" || !src) return <span>{alt || "Image unavailable"}</span>;
+  let location: string;
+  try {
+    const url = new URL(src, "https://workspace.invalid");
+    if (!["http:", "https:", "blob:"].includes(url.protocol)) return <span>{alt || "Image unavailable"}</span>;
+    // A relative URL follows the base origin. This keeps SSR and hydration identical.
+    const relative = url.origin !== new URL(src, "https://relative-check.invalid").origin;
+    location = relative || url.protocol === "blob:" ? "this workspace" : url.hostname;
+  } catch {
+    return <span>{alt || "Image unavailable"}</span>;
+  }
+  if (approvedSource === src && failedSource !== src) {
+    return <img src={src} alt={alt || "Image"} referrerPolicy="no-referrer" onError={() => setFailedSource(src)} />;
+  }
+  return (
+    <span className="not-typeset inline-flex flex-col gap-1 rounded-md border p-3">
+      <span>{alt || "Image"} · {location}</span>
+      {failedSource === src && <span role="status">Image could not be loaded.</span>}
+      <button type="button" className="text-left underline" onClick={() => { setFailedSource(null); setApprovedSource(src); }}>
+        {failedSource === src ? "Retry image" : "Load image"}
+      </button>
+    </span>
+  );
+}
+
 // Streamdown's default components carry their own Tailwind typography, which
 // would fight shadcn/typeset. Mapping every element to its bare intrinsic tag
 // keeps Streamdown's streaming-safe parsing while typeset owns all styling.
@@ -132,7 +164,10 @@ const bareComponents: Components = {
   tr: "tr",
   th: "th",
   td: "td",
-  img: "img",
+  img: MarkdownImage,
+  // Responsive sources must not substitute a different URL after image consent.
+  picture: ({ children }) => <>{children as ReactNode}</>,
+  source: () => null,
   hr: "hr",
   sup: "sup",
   sub: "sub",

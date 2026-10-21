@@ -1,0 +1,85 @@
+name: MyApps current-source deterministic reference
+on:
+  push:
+    branches: [main, codex/myapps-foundation, codex/myapps-phase2, codex/unified-beta-myeve-20261011]
+  pull_request:
+    paths: ['packages/myapps/**', 'scripts/unified-beta/qualification-envelope.mjs', 'apps/eve/lib/myapps/**', 'apps/eve/migrations/**', 'apps/eve/lib/database-schema*', 'apps/eve/lib/beta-integration/runtime.ts', 'apps/eve/agent/tools/installed_apps.ts', 'apps/eve/app/api/myapps/**', 'apps/eve/app/apps/installed/**', '.github/workflows/myapps-reference.yml']
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myeve
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: myeve
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node --test packages/myapps/test/*.test.mjs
+  composed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: myeve
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: myeve
+      - uses: actions/checkout@v7
+        with:
+          repository: jaydubya818/MyFactory
+          persist-credentials: false
+          fetch-depth: 0
+          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          path: myfactory
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Bind the selected release sources and retain activation holds
+        run: node scripts/unified-beta/qualification-envelope.mjs "$GITHUB_WORKSPACE"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run postinstall && npm run security:patches
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: myfactory
+      - run: npm run db:migrations:check
+      - run: node_modules/.bin/tsc --project apps/eve/lib/myapps/tsconfig.json
+      - run: node node_modules/playwright/cli.js install --with-deps chromium
+      - run: npm run build --workspace @myeve/myapps-reference
+      - run: node packages/myapps/browser/journey.mjs
+      - run: cp -R output/playwright/myapps /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/journey.mjs
+        env:
+          MYAPPS_VISUAL_BASELINE_ROOT: /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/performance.mjs
+      - run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts
+        env:
+          MYAPPS_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/myfactory
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: synthetic-myapps-qualification
+          path: |
+            myeve/output/playwright/myapps/
+            authorization-envelope.json
+          retention-days: 7

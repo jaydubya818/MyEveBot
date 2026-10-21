@@ -6,11 +6,7 @@ import { ArrowRightIcon, LockKeyIcon, WarningCircleIcon } from "@phosphor-icons/
 import { type FormEvent, useEffect, useState } from "react";
 
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
-
-function safeDestination(): string {
-  const requested = new URLSearchParams(window.location.search).get("returnTo");
-  return requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/";
-}
+import { safeLoginDestination } from "@/lib/login-destination";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -40,7 +36,7 @@ export default function LoginPage() {
         throw new Error(message ?? "Could not sign in.");
       }
       invalidateOwnerBrowserSession();
-      window.location.replace(safeDestination());
+      window.location.replace(safeLoginDestination(window.location.search, window.location.origin));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not sign in.");
       setSubmitting(false);
