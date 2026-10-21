@@ -73,6 +73,7 @@ import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
 
 import { useDestinationAllowed, useExternalLinksAllowed } from "@/components/owner/destination-gate";
+import { AlphaQualificationNotice } from "@/components/owner/alpha-qualification-label";
 import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
@@ -1326,6 +1327,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   if (handoffPending) return <p role="status" className="p-6">Opening your Work conversation…</p>;
   return (
     <div className="owner-conversation flex h-dvh w-full">
+      <AlphaQualificationNotice />
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
