@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions src/index.ts"
   },
   "devDependencies": {
-    "tsx": "^4.23.15",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   },
   "engines": { "node": ">=20" }
