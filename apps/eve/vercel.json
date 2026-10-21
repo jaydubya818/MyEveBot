@@ -4,6 +4,7 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
+      "codex/chat-unqualified-label-20261021": false,
       "codex/checkpoint-h-authenticated-enterprise": false,
       "codex/missioncontrol-enterprise-consumer": false,
       "codex/peer-message-answers": false,
