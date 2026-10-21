@@ -25,13 +25,13 @@ jobs:
           --health-cmd "pg_isready -U ux_fixture -d blocker_fixes"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
           path: myeve
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
@@ -41,19 +41,19 @@ jobs:
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
         run: git -C myfactory fetch --no-tags origin 16e9075e0b9025b4b75cca3db8790805be77689e 18e59dbedbe04275858327ca47d2bd7ec01a407c 92299fbd88004cc1da9178d52664bd0a9cd28647
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
           ref: 92299fbd88004cc1da9178d52664bd0a9cd28647
           fetch-depth: 0
           path: .qualification/factory-reviewed-history
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           ref: afa65bd4c2d3ce26691a07132030cad1a1ef140e
           path: .qualification/qe-baseline
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - name: Recover exact historical comparison objects
@@ -253,7 +253,7 @@ jobs:
           node ../../scripts/myapps-composition/verify-tokenizer-trace.mjs ../.. "$fixture_source/apps/eve/.output/server" "$QE_EVIDENCE_DIR/tokenizer-trace.json"
           npx playwright test -c ../../scripts/myapps-composition/composer-browser.config.cjs
           npx playwright test -c test/owner-journey/independent.config.cjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: inactive-myapps-composition
@@ -269,13 +269,13 @@ jobs:
       run:
         working-directory: ${{ github.workspace }}/myeve
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
           path: myeve
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
@@ -285,7 +285,7 @@ jobs:
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
         run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - name: Bind packaging to the selected release sources
@@ -315,7 +315,7 @@ jobs:
       - name: Generated application authority and asset gates
         working-directory: /tmp/myapps-standalone
         run: node --import tsx ${{ github.workspace }}/myeve/apps/builder/scripts/qualification-myapps-gates.mjs /tmp/myapps-standalone
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: inactive-myapps-standalone
@@ -336,13 +336,13 @@ jobs:
       run:
         working-directory: myeve
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
           path: myeve
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
@@ -352,7 +352,7 @@ jobs:
       - name: Fetch exact independently reviewed capability compatibility source
         working-directory: ${{ github.workspace }}
         run: git -C myfactory fetch --no-tags origin 92299fbd88004cc1da9178d52664bd0a9cd28647
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - name: Bind capability qualification to the selected release sources
@@ -373,7 +373,7 @@ jobs:
       - name: Source lock, PostgreSQL, policy lifecycle, restore witness, HTTP and browser
         working-directory: ${{ github.workspace }}/myeve/apps/eve
         run: CAPABILITY_TEST_POSTGRES_BIN="$(pg_config --bindir)" node --import tsx scripts/qualify-capability-control.mjs --browser
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: inactive-myapps-capability-boundaries

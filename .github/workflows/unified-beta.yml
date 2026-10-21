@@ -17,11 +17,11 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - run: npm ci --no-audit --no-fund
@@ -40,7 +40,7 @@ jobs:
         cp apps/builder/.next/template-trace-verification.json "$RUNNER_TEMP/builder-packaging/trace-verification.json"
     - name: Verify exact traces, no-Git byte parity and tamper denial
       run: node --import tsx apps/builder/scripts/qualification-template-trace.ts 2>&1 | tee "$RUNNER_TEMP/builder-packaging/qualification.log"
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-builder-packaging
@@ -57,11 +57,11 @@ jobs:
         ports: ['5432:5432']
         options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - run: npm ci --no-audit --no-fund
@@ -156,7 +156,7 @@ jobs:
         assert.ok(result.testResults[0].name.endsWith('/packages/myapps/integration/remote-http.test.ts'));
         assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
         NODE
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-alpha-tasks-browser
@@ -176,24 +176,24 @@ jobs:
       run:
         working-directory: myeve
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         ref: ${{ github.sha }}
         path: myeve
         persist-credentials: false
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         repository: jaydubya818/MissionControl
         ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
         path: missioncontrol
         persist-credentials: false
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         repository: jaydubya818/relay
         ref: 4167fb9169be2e246f3986b60e3e913df6b60776
         path: relay
         persist-credentials: false
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
@@ -259,7 +259,7 @@ jobs:
         assert.ok(result.testResults[0].name.endsWith('/apps/eve/lib/missioncontrol/owner-legacy-isolation.integration.test.ts'));
         assert.ok(result.testResults[0].assertionResults.every(test=>test.status==='passed'));
         NODE
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-composed-admission
@@ -268,11 +268,11 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: 24
     - run: npm ci --no-audit --no-fund
@@ -307,17 +307,17 @@ jobs:
         - 5432:5432
         options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         persist-credentials: false
         repository: jaydubya818/MyFactory
         ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
         path: .qualification/myfactory
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         repository: jaydubya818/relay
         ref: 4167fb9169be2e246f3986b60e3e913df6b60776
@@ -326,7 +326,7 @@ jobs:
     - name: Retain the historical installed Relay comparison object
       working-directory: .qualification/relay
       run: git fetch --no-tags --depth=1 https://github.com/jaydubya818/relay.git 8a8678d675adc8ac7f799d7660071de2256bb231
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: 24
     - run: npm ci --no-audit --no-fund
@@ -384,11 +384,11 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 35
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: 24
     - run: npm ci --ignore-scripts --no-audit --no-fund
@@ -429,12 +429,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         persist-credentials: false
         ref: ${{ github.sha }}
         path: myeve
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - run: npm ci --ignore-scripts --no-audit --no-fund
@@ -443,7 +443,7 @@ jobs:
         apps/eve/test/factory-evidence.test.mjs
     - run: npx tsc --noEmit --project apps/eve/tsconfig.json
     - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         repository: jaydubya818/MissionControl
         ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
@@ -484,7 +484,7 @@ jobs:
         MYEVE_CHECKPOINT_H_BROWSER: '1'
         MC_COMPOSED_BROWSER_OUTPUT: ${{ runner.temp }}/sofie-consumer/browser
       run: node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/sofie-consumer"
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-sofie-consumer
@@ -497,11 +497,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         persist-credentials: false
         ref: ${{ github.sha }}
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - run: npm ci --ignore-scripts --no-audit --no-fund
@@ -520,7 +520,7 @@ jobs:
       run: node apps/eve/test/baseline-security.browser.mjs "$RUNNER_TEMP/checkpoint-h/baseline-security"
     - name: Markdown images require explicit user action
       run: node apps/eve/test/markdown-images.browser.mjs "$RUNNER_TEMP/checkpoint-h/markdown-images"
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-authenticated-browser
@@ -544,20 +544,20 @@ jobs:
       run:
         working-directory: myeve
     steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         ref: ${{ github.sha }}
         persist-credentials: false
         fetch-depth: 0
         path: myeve
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         repository: jaydubya818/MyFactory
         ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
         persist-credentials: false
         fetch-depth: 0
         path: myfactory
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
       with:
         node-version: '24'
     - name: Recover exact historical comparison objects
@@ -662,7 +662,7 @@ jobs:
       env:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
       run: node --import tsx --test scripts/myapps-composition/browser-cleanup.postgres.mjs
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       if: always()
       with:
         name: unified-myapps-composition

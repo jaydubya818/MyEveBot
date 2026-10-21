@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
@@ -20,7 +20,7 @@ jobs:
       - run: node --import tsx --test apps/eve/test/missioncontrol-consumer.test.mjs apps/eve/test/myfactory-protocol.test.mjs apps/eve/test/factory-evidence.test.mjs
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
       - run: node --import tsx apps/eve/scripts/check-capability-registry.ts
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: jaydubya818/MissionControl
           ref: f9bcd0df4bb970a36a43599b00d724b07f300ad0
