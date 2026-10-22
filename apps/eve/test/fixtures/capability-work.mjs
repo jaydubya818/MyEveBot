@@ -34,10 +34,10 @@ export function engineeringTestAdminUrl(defaultPort) {
 
 // Provision only inside the empty database created by the integration script.
 // Synthetic qualification facts are local fixtures, never deployment qualification.
-export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agentId, capabilityIds, selectedAlternatives = {} }) {
+export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agentId, capabilityIds, selectedAlternatives = {}, nativeProgressEvents = false }) {
   const url = new URL(databaseUrl);
   assert.equal(url.hostname, '127.0.0.1');
-  assert.match(url.pathname, /^\/(direct_work|direct_verifier|route_admission|gap2b)_[a-f0-9]+$/);
+  assert.match(url.pathname, /^\/(direct_work|direct_verifier|route_admission|gap2b|admission_context)_[a-f0-9]+$/);
   const suffix = randomUUID().replaceAll('-', '');
   const role = `work_runtime_${suffix}`;
   const installationId = `synthetic-install-${suffix}`, organizationId = `synthetic-org-${suffix}`;
@@ -83,6 +83,15 @@ export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agent
   await admin.query(`GRANT EXECUTE ON FUNCTION business_assert_effect(text,uuid,integer,integer,text,jsonb),business_lock_authority() TO ${role}`);
   await admin.query(`GRANT SELECT ON ALL TABLES IN SCHEMA capability_control TO ${role}`);
   await admin.query(`GRANT EXECUTE ON FUNCTION capability_control.lock_admission_policy(text,text,text) TO ${role}`);
+  assert.equal(typeof nativeProgressEvents, 'boolean');
+  if (nativeProgressEvents) {
+    // This role may append/read only this owner's native progress. The existing
+    // event RLS stays enabled; no UPDATE/DELETE policy or broader role is granted.
+    const { rows: [{ literal }] } = await admin.query('SELECT quote_literal($1::text) AS literal', [ownerId]);
+    const scope = `owner_id=${literal} AND source_type='native-engineering'`;
+    await admin.query(`CREATE POLICY ${role}_native_read ON public.eve_events FOR SELECT TO ${role} USING (${scope})`);
+    await admin.query(`CREATE POLICY ${role}_native_insert ON public.eve_events FOR INSERT TO ${role} WITH CHECK (${scope})`);
+  }
   url.username = role; url.password = '';
   const runtime = new pg.Pool({ connectionString: url.href, max: 6 });
   const settings = {
@@ -96,11 +105,18 @@ export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agent
   // Check that the adapter actually uses restricted policy reads and cannot author policy.
   assert.equal((await database.query('SELECT * FROM capability_control.owner_state')).length, 0);
   await assert.rejects(database.query('DELETE FROM capability_control.evidence'), /permission denied/);
+  if (nativeProgressEvents) await assert.rejects(database.query(`INSERT INTO eve_events(id,owner_id,type,source_type,summary)
+    VALUES($1,$2,'NATIVE_OPERATION','native-engineering','Synthetic foreign-owner denial')`,
+    [`synthetic-denial-${suffix}`, `${ownerId}-foreign`]), /row-level security/);
   // `url` is the restricted runtime URL for forked fixture children (process.env carries the capability settings).
   return { database, installationId, url: url.href, cleanup: async () => {
     await runtime.end();
     for (const [key, value] of Object.entries(previous)) {
       if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+    if (nativeProgressEvents) {
+      await admin.query(`DROP POLICY ${role}_native_read ON public.eve_events`);
+      await admin.query(`DROP POLICY ${role}_native_insert ON public.eve_events`);
     }
     await admin.query(`DROP OWNED BY ${role}`);
     await admin.query(`DROP ROLE ${role}`);

@@ -35,7 +35,8 @@
       "codex/unified-beta-myeve-20261011": false,
       "codex/ir02-native-fixtures-20261021": false,
       "codex/integration-capability-fixtures-20261022": false,
-      "beta/unified-candidate-20261022": false
+      "beta/unified-candidate-20261022": false,
+      "codex/admission-context-fixtures-20261022": false
     }
   },
   "functions": {

@@ -7,8 +7,13 @@ import { join } from "node:path";
 
 // Only the database transport and external model are replaced. All auth,
 // assembly, projection, model selection, tools, gateway and admission code is real.
-const local = vi.hoisted(() => ({ query: vi.fn(), provider: vi.fn(), catalog: vi.fn() }));
+const local = vi.hoisted(() => ({ query: vi.fn(), provider: vi.fn(), catalog: vi.fn(), wrapDatabase: vi.fn((database: WorkDatabase) => database) }));
 vi.mock("../../agent/lib/receipts-db.ts", () => ({ db: () => ({ query: local.query }) }));
+vi.mock("../capability-control/admission.ts", async importOriginal => {
+  const original = await importOriginal<typeof import("../capability-control/admission.ts")>();
+  // Keep real configuration/binding checks and the restricted canonical adapter.
+  return { ...original, capabilityWorkDatabase: () => local.wrapDatabase(original.capabilityWorkDatabase()) };
+});
 vi.mock("ai", async importOriginal => {
   const original = await importOriginal<typeof import("ai")>();
   return { ...original, gateway: Object.assign(() => ({ doGenerate: local.provider }), { getAvailableModels: local.catalog }) };
@@ -21,7 +26,9 @@ import contextHook from "../../agent/hooks/engineering-work-context.ts";
 import agentDefinition from "../../agent/agent.ts";
 import toolDefinition from "../../agent/tools/engineering_direct.ts";
 import { loadMigrations, runMigrations } from "../../scripts/migration-runner.ts";
-import { WorkStore } from "./store.ts";
+import { WorkStore, type WorkDatabase } from "./store.ts";
+import { closeCapabilityWorkDatabase } from "../capability-control/admission.ts";
+import { capabilityWorkFixture, engineeringTestAdminUrl } from "../../test/fixtures/capability-work.mjs";
 import { runtimeSchema } from "./runtime.ts";
 import { NativeRouteAuthority, admitNativeWork, nativeProfileHash, NATIVE_PROVIDER } from "./native-routing.ts";
 import { nativeDevelopmentToolSchema } from "./native-input.ts";
@@ -40,7 +47,14 @@ const { Client, Pool } = createRequire(import.meta.url)("pg");
 const owner = "admission-context-owner", agentId = "admission-context-sofie";
 const name = `admission_context_${randomBytes(8).toString("hex")}`;
 let admin: any, pool: any, store: WorkStore, config: ReturnType<typeof runtimeSchema.parse>, directory: string;
+let capability: Awaited<ReturnType<typeof capabilityWorkFixture>> | undefined;
 let admissionRace: (() => Promise<void>) | undefined;
+function interceptQuery(query: WorkDatabase["query"]): WorkDatabase["query"] {
+  return async (sql, params) => {
+    if (admissionRace && sql.includes("WITH locked_work AS MATERIALIZED") && sql.includes("), admitted AS (")) { const race = admissionRace; admissionRace = undefined; await race(); }
+    return query(sql, params);
+  };
+}
 const pricing = { input: "0.000002", output: "0.00001", cachedInputTokens: "0.0000002", cacheCreationInputTokens: "0.0000025" };
 const captured: any[] = [];
 function payloadState(options: any) {
@@ -115,18 +129,25 @@ async function counts(workId: string) {
 describe.skipIf(!enabled)("authenticated production admission context with real PostgreSQL", () => {
   beforeAll(async () => {
     vi.stubGlobal("fetch", vi.fn(() => { throw new Error("Network forbidden in local admission qualification"); }));
-    admin = new Client({ connectionString: "postgresql://postgres@127.0.0.1:55479/postgres" });
+    const adminUrl = engineeringTestAdminUrl(55479);
+    admin = new Client({ connectionString: adminUrl.href });
     await admin.connect(); await admin.query(`CREATE DATABASE ${name}`);
-    pool = new Pool({ connectionString: `postgresql://postgres@127.0.0.1:55479/${name}` });
-    local.query.mockImplementation(async (sql, params) => {
-      if (admissionRace && sql.includes("WITH locked_work AS MATERIALIZED") && sql.includes("), admitted AS (")) { const race = admissionRace; admissionRace = undefined; await race(); }
-      return (await pool.query(sql, params)).rows;
-    });
+    const databaseUrl = new URL(adminUrl); databaseUrl.pathname = `/${name}`;
+    pool = new Pool({ connectionString: databaseUrl.href });
+    // Admin transport is used only for deliberate fixture injection/observation.
+    local.query.mockImplementation(interceptQuery(async (sql, params) => (await pool.query(sql, params)).rows));
     const client = await pool.connect();
     try { await runMigrations({ query: async (s, p) => (await client.query(s, p)).rows, transaction: async statements => {
       await client.query("BEGIN"); try { for (const s of statements) await client.query(s.sql, s.params); await client.query("COMMIT"); }
       catch (error) { await client.query("ROLLBACK"); throw error; }
     } }, await loadMigrations(), () => {}); } finally { client.release(); }
+    capability = await capabilityWorkFixture(pool, databaseUrl.href, { ownerId: owner, agentId,
+      capabilityIds: ["deepagents"], selectedAlternatives: { deepagents: "sofie.local-harness" }, nativeProgressEvents: true });
+    // Preserve the generation race on the actual pinned admission connection.
+    local.wrapDatabase.mockImplementation((database: WorkDatabase): WorkDatabase => ({
+      query: interceptQuery(database.query),
+      atomic: action => database.atomic!(transaction => action({ query: interceptQuery(transaction.query) })),
+    }));
     directory = await mkdtemp(join(tmpdir(), "admission-context-"));
     const issued = JSON.parse(await readFile(new URL("../../../../docs/verification/2026-09-26-gap2b-qualified/fresh-work.json", import.meta.url), "utf8"));
     const historical = JSON.parse(await readFile(new URL("../../../../docs/verification/2026-09-27-gap2b-live/issued-config.json", import.meta.url), "utf8"));
@@ -140,10 +161,12 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     await writeFile(join(directory, "config.json"), JSON.stringify(config));
     for (const [key, value] of Object.entries({ MYEVE_ENGINEERING_MODE: "dogfood", VERCEL_ENV: "development",
       MYEVE_ENGINEERING_CONFIG: join(directory, "config.json"), MYEVE_OWNER_ID: owner,
-      DATABASE_URL: `postgresql://postgres@127.0.0.1:55479/${name}`,
+      DATABASE_URL: capability.url,
       MYEVE_ACCESS_PASSWORD: "local-only-test", MYEVE_SESSION_SECRET: "0123456789abcdef0123456789abcdef" })) vi.stubEnv(key, value);
     await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
-      VALUES($1,$2,'Sofie','sofie','engineer','Bounded local contract test',true,'active',1.3,1800,10)`, [agentId, owner]);
+      VALUES($1,$2,'Sofie','sofie','engineer','Bounded local contract test',true,'active',1.3,1800,10)
+      ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name,slug=EXCLUDED.slug,role=EXCLUDED.role,instructions=EXCLUDED.instructions,
+        status=EXCLUDED.status,max_estimated_cost_usd=EXCLUDED.max_estimated_cost_usd,max_runtime_seconds=EXCLUDED.max_runtime_seconds,max_steps=EXCLUDED.max_steps`, [agentId, owner]);
     store = new WorkStore({ scopeId: owner, scopeKind: "personal", actorId: owner });
     local.catalog.mockResolvedValue({ models: [{ id: "anthropic/claude-sonnet-5", pricing }] });
     local.provider.mockImplementation(async options => {
@@ -156,9 +179,22 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     });
   }, 120000);
   afterAll(async () => {
+    await closeCapabilityWorkDatabase();
+    await capability?.cleanup();
     await pool?.end(); if (admin) { await admin.query(`DROP DATABASE IF EXISTS ${name}`); await admin.end(); }
     if (directory) await rm(directory, { recursive: true, force: true });
     vi.unstubAllEnvs(); vi.unstubAllGlobals();
+  });
+
+  it("disabled owner capability denies an authenticated proposal before a Run or writer exists", async () => {
+    const work = await freshWork(), a = await assembled(work.id), request = await propose(a);
+    await pool.query("UPDATE capability_control.owner_state SET preferences=jsonb_set(preferences,'{deepagents}','\"DISABLED\"') WHERE installation_id=$1 AND owner_id=$2", [capability!.installationId, owner]);
+    try {
+      await expect(a.tool.execute(request, a.ctx)).rejects.toThrow();
+      expect(await counts(work.id)).toEqual({ runs: 0, writers: 0 });
+    } finally {
+      await pool.query("UPDATE capability_control.owner_state SET preferences=jsonb_set(preferences,'{deepagents}','\"ENABLED\"') WHERE installation_id=$1 AND owner_id=$2", [capability!.installationId, owner]);
+    }
   });
 
   it("reproduces the preserved failed payload and refuses missing version or generation", async () => {
