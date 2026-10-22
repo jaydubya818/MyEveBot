@@ -65,7 +65,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: 3f08eabb0fbd322d6fd45d6f17c677f5f7345766
           path: .qualification/myfactory
       - uses: actions/checkout@v4
         with:

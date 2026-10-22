@@ -4,7 +4,7 @@ import {parse} from 'yaml';
 // closure. CI must install that closure before running this tooling; preserve
 // the separately qualified Builder lock bytes rather than repinning metadata.
 
-export const factory = 'a29f6926dad7bf8b4f72ef82b9392639e4cc057e';
+export const factory = '3f08eabb0fbd322d6fd45d6f17c677f5f7345766';
 export const missioncontrol = 'f9bcd0df4bb970a36a43599b00d724b07f300ad0';
 const reports = {'composed-tests.json': 'composed', 'qe-tests.json': 'qe', 'baseline-allowance-tests.json': 'baseline-allowance'};
 const words = line => (line.match(/"[^"]*"|'[^']*'|[^\s]+/g) ?? []).map(word => word.replace(/^(["'])(.*)\1$/, '$2'));
