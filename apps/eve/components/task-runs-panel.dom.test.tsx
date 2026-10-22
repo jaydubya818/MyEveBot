@@ -1,58 +1,120 @@
+// @vitest-environment jsdom
 /**
- * QA-20: TaskRunsPanel must show a stale-data warning when a poll error
- * occurs after the first successful load.
+ * QA-20: TaskRunsPanel shows a stale-data banner when poll errors after the
+ * first successful load; and shows a hard error (not stale) on first-load failure.
  *
- * Revert-check: removing the staleWarning JSX from task-runs-panel.tsx
- * causes the "renders a stale banner" test to fail (element is null).
- * Removing the document.hidden guard causes the visibility-guard tests to fail.
+ * Uses React 19 createRoot + fake timers against the REAL TaskRunsPanel.
+ *
+ * Revert-check: removing the staleWarning JSX from task-runs-panel.tsx causes
+ * the "stale banner appears" assertion to fail. Removing the document.hidden
+ * guard causes the visibility-gate test to fail.
  */
-import { describe, it, expect } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import React from "react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act } from "react-dom/test-utils";
+import { createRoot } from "react-dom/client";
 
-// Inline the stale-banner condition from task-runs-panel.tsx.
-// error !== null && tasks !== null → show banner; otherwise null.
-function makeStaleBanner(error: string | null, tasks: unknown[] | null) {
-  if (error !== null && tasks !== null) {
-    return createElement("p", { className: "stale-warning" }, `Activity data may be stale — ${error}`);
-  }
-  return null;
+vi.mock("@cloudflare/kumo", () => ({
+  Badge: ({ children }: { children?: React.ReactNode }) => React.createElement("span", null, children),
+  Button: ({ children, onClick, disabled }: { children?: React.ReactNode; onClick?: () => void; disabled?: boolean }) =>
+    React.createElement("button", { onClick, disabled }, children),
+  Loader: () => React.createElement("div", { "data-testid": "loader" }),
+}));
+
+vi.mock("@phosphor-icons/react", () => new Proxy({}, {
+  get: (_t, name) => () => React.createElement("span", { "data-icon": String(name) }),
+}));
+
+import { TaskRunsPanel } from "./task-runs-panel";
+
+function mount(onOpenThread = vi.fn()) {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  let root: ReturnType<typeof createRoot>;
+  act(() => {
+    root = createRoot(container);
+    root.render(React.createElement(TaskRunsPanel, { onOpenThread }));
+  });
+  return {
+    get html() { return container.innerHTML; },
+    unmount() {
+      act(() => root!.unmount());
+      document.body.removeChild(container);
+    },
+  };
 }
 
-describe("TaskRunsPanel stale-data banner — QA-20", () => {
-  it("renders a stale banner when error is set and tasks are already loaded", () => {
-    const el = makeStaleBanner("Task activity could not be loaded.", []);
-    expect(el).not.toBeNull();
-    const html = renderToStaticMarkup(el!);
-    expect(html).toContain("Activity data may be stale");
-    expect(html).toContain("Task activity could not be loaded");
-  });
+/** Settle microtasks without advancing fake timers. */
+async function flush() {
+  await act(async () => { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
+}
 
-  it("does NOT render a stale banner when tasks is null (first load error)", () => {
-    expect(makeStaleBanner("err", null)).toBeNull();
-  });
-
-  it("does NOT render a stale banner when there is no error", () => {
-    expect(makeStaleBanner(null, [])).toBeNull();
-  });
-
-  it("does NOT render a stale banner when both error and tasks are null", () => {
-    expect(makeStaleBanner(null, null)).toBeNull();
-  });
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: false });
 });
 
-describe("TaskRunsPanel visibility-based polling guard — QA-20", () => {
-  it("skips the poll callback when document.hidden is true", () => {
-    let polled = false;
-    const hidden = true;
-    if (!hidden) polled = true;
-    expect(polled).toBe(false);
+afterEach(() => {
+  vi.useRealTimers();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
+});
+
+describe("TaskRunsPanel stale-data banner — QA-20", () => {
+  it("shows stale-data banner when poll fails after first successful load", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ tasks: [] }), { status: 200 }))
+      .mockRejectedValueOnce(new Error("poll failed"));
+
+    const panel = mount();
+
+    // Let initial fetch settle.
+    await flush();
+    // First load succeeded: no stale banner yet.
+    expect(panel.html).not.toContain("Activity data may be stale");
+
+    // Advance timer past poll interval (4000ms) to trigger the next load.
+    await act(async () => { vi.advanceTimersByTime(4001); });
+    await flush();
+
+    // After poll failure, stale banner should appear (tasks !== null, error !== null).
+    expect(panel.html).toContain("Activity data may be stale");
+
+    panel.unmount();
+    void fetchMock;
   });
 
-  it("runs the poll callback when document.hidden is false", () => {
-    let polled = false;
-    const hidden = false;
-    if (!hidden) polled = true;
-    expect(polled).toBe(true);
+  it("shows hard error (NOT stale banner) on first-load failure", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValueOnce(new Error("down"));
+
+    const panel = mount();
+    await flush();
+
+    expect(panel.html).not.toContain("Activity data may be stale");
+    expect(panel.html).toContain("could not be loaded");
+
+    panel.unmount();
+  });
+
+  it("does NOT fire poll when document.hidden is true (QA-20 visibility guard)", async () => {
+    Object.defineProperty(document, "hidden", { value: true, configurable: true, writable: true });
+
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ tasks: [] }), { status: 200 }));
+
+    const panel = mount();
+    await flush();
+
+    const callsAfterMount = fetchMock.mock.calls.length;
+
+    // Advance past the poll interval — load should NOT be called because hidden.
+    await act(async () => { vi.advanceTimersByTime(5000); });
+    await flush();
+
+    expect(fetchMock.mock.calls.length).toBe(callsAfterMount);
+
+    Object.defineProperty(document, "hidden", { value: false, configurable: true, writable: true });
+    panel.unmount();
   });
 });

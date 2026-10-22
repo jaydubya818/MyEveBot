@@ -1,57 +1,126 @@
+// @vitest-environment jsdom
 /**
  * QA-21: useProductResource must retain previous good data on a transient
  * fetch error and expose a `stale` flag rather than blanking the view.
  *
- * Tests use pure-function equivalents of the hook's error-handling contract
- * (compatible with React 19 without requiring renderHook + JSDOM).
+ * Uses React 19 createRoot directly (avoids react-dom version conflict with
+ * @testing-library/react in this monorepo). Each test mounts the real hook,
+ * triggers a fetch sequence, and inspects the resulting state.
  *
- * Revert-check: reverting resource.ts to set data:null/stale:false on error
- * makes the "retains stale data" and "stale flag is set" tests fail.
+ * Revert-check: reverting the catch branch in resource.ts to set
+ * `data: null` and `stale: false` makes the first two tests fail.
  */
-import { describe, it, expect } from "vitest";
+import React from "react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { act } from "react-dom/test-utils";
+import { createRoot } from "react-dom/client";
 
-// ──────────────────────────────────────────────────────────────────────────────
-// These helpers mirror the exact catch-branch logic added by the QA-21 fix.
-// Changing applyError to always return data:null/stale:false (the old
-// behavior) causes the first three tests to fail.
-// ──────────────────────────────────────────────────────────────────────────────
+vi.mock("./data", () => ({
+  ownerRequest: vi.fn(),
+  OwnerRequestError: class extends Error {
+    constructor(public status: number) { super(`status ${status}`); }
+  },
+}));
 
-type State<T> = { data: T | null; loading: boolean; error: string | null; stale: boolean };
+import { ownerRequest } from "./data";
+import { useProductResource } from "./resource";
 
-function applyError<T>(lastGood: T | null, msg: string): State<T> {
-  return { data: lastGood, loading: false, error: msg, stale: lastGood !== null };
+const mockRequest = vi.mocked(ownerRequest);
+
+/** Minimal hook harness — mounts the real useProductResource in a live React tree. */
+function mountHook<T>(path: string | null) {
+  let snapshot: ReturnType<typeof useProductResource<T>> | undefined;
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+
+  function Component() {
+    snapshot = useProductResource<T>(path);
+    return null;
+  }
+
+  let root: ReturnType<typeof createRoot>;
+  act(() => {
+    root = createRoot(container);
+    root.render(React.createElement(Component));
+  });
+
+  return {
+    get state() { return snapshot!; },
+    unmount() {
+      act(() => root!.unmount());
+      document.body.removeChild(container);
+    },
+  };
 }
-function applySuccess<T>(data: T): State<T> {
-  return { data, loading: false, error: null, stale: false };
-}
 
-describe("useProductResource data-retention contract — QA-21", () => {
-  it("retains last-good data and sets stale:true on error", () => {
-    const s = applyError({ x: 42 }, "Network error");
-    expect(s.data).toEqual({ x: 42 });
-    expect(s.stale).toBe(true);
-    expect(s.error).toBe("Network error");
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("useProductResource — real hook, QA-21", () => {
+  it("retains last-good data (stale:true) on a transient fetch error", async () => {
+    let resolve: (v: { x: number }) => void;
+    let reject: (e: Error) => void;
+
+    // First request: succeed.
+    mockRequest.mockReturnValueOnce(new Promise<{ x: number }>((res) => { resolve = res; }));
+    const hook = mountHook<{ x: number }>("/api/test");
+
+    // Still loading.
+    expect(hook.state.loading).toBe(true);
+
+    await act(async () => { resolve!({ x: 42 }); });
+    expect(hook.state.data).toEqual({ x: 42 });
+    expect(hook.state.stale).toBe(false);
+    expect(hook.state.loading).toBe(false);
+
+    // Second request: fail — should retain { x: 42 }.
+    mockRequest.mockReturnValueOnce(new Promise<{ x: number }>((_, rej) => { reject = rej; }));
+    await act(async () => { hook.state.refresh(); });
+    // Show stale data while loading the refresh.
+    expect(hook.state.data).toEqual({ x: 42 });
+
+    await act(async () => { reject!(new Error("Network error")); });
+    expect(hook.state.data).toEqual({ x: 42 }); // retained
+    expect(hook.state.stale).toBe(true);
+    expect(hook.state.error).toBeTruthy();
+
+    hook.unmount();
   });
 
-  it("blanks data and keeps stale:false when there is no prior good data", () => {
-    const s = applyError<{ x: number }>(null, "First fetch failed");
-    expect(s.data).toBeNull();
-    expect(s.stale).toBe(false);
-    expect(s.error).toBeTruthy();
+  it("data:null and stale:false when there is no prior good data on first error", async () => {
+    mockRequest.mockRejectedValueOnce(new Error("First fetch failed"));
+    const hook = mountHook<{ x: number }>("/api/test");
+
+    await act(async () => { await Promise.resolve(); });
+    // Give the microtask queue a few turns to settle.
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    expect(hook.state.data).toBeNull();
+    expect(hook.state.stale).toBe(false);
+    expect(hook.state.error).toBeTruthy();
+
+    hook.unmount();
   });
 
-  it("clears stale flag and error on recovery", () => {
-    const s = applySuccess({ x: 99 });
-    expect(s.data).toEqual({ x: 99 });
-    expect(s.stale).toBe(false);
-    expect(s.error).toBeNull();
-  });
+  it("clears stale flag on successful recovery", async () => {
+    mockRequest
+      .mockResolvedValueOnce({ x: 1 })
+      .mockRejectedValueOnce(new Error("transient"))
+      .mockResolvedValueOnce({ x: 2 });
 
-  it("cross-path: error for new path never inherits old path's good data", () => {
-    // When path changes, lastGoodRef is reset to null for the new path.
-    const lastGoodForNewPath: { x: number } | null = null;
-    const s = applyError(lastGoodForNewPath, "err");
-    expect(s.data).toBeNull();
-    expect(s.stale).toBe(false);
+    const hook = mountHook<{ x: number }>("/api/test");
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+    expect(hook.state.data).toEqual({ x: 1 });
+
+    await act(async () => { hook.state.refresh(); await new Promise((r) => setTimeout(r, 10)); });
+    expect(hook.state.stale).toBe(true);
+
+    await act(async () => { hook.state.refresh(); await new Promise((r) => setTimeout(r, 10)); });
+    expect(hook.state.data).toEqual({ x: 2 });
+    expect(hook.state.stale).toBe(false);
+    expect(hook.state.error).toBeNull();
+
+    hook.unmount();
   });
 });
