@@ -197,6 +197,11 @@ interface SavedChat {
    * client context on the fork's first send so the agent knows the history.
    */
   forkContext?: string;
+  /**
+   * Set when a mid-turn reload reattach could not reach the session stream.
+   * The last saved reply may be incomplete; cleared on next user send.
+   */
+  reattachIncomplete?: boolean;
 }
 
 interface ThreadMeta {
@@ -323,8 +328,13 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
   void saveThreadForCurrentOwner(meta.id, threadMetaBody(meta));
 }
 
-function deleteThreadOnServer(id: string): void {
-  void fetch(`/api/threads/${id}`, { method: "DELETE" }).catch(() => undefined);
+async function deleteThreadOnServer(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/threads/${id}`, { method: "DELETE" });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
@@ -687,6 +697,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   // text doesn't blank out during its closing animation.
   const [threadToDelete, setThreadToDelete] = useState<ThreadMeta | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   // The active thread's chat payload; null while it loads from the server.
   // revision bumps when a fresher server copy replaces the mounted one, so
   // ChatThread (keyed on it) remounts with the new events.
@@ -1186,12 +1197,15 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }
 
   function deleteThread(id: string) {
+    setDeleteError(null);
+    // Snapshot the thread so we can restore it on server failure.
+    const threadSnapshot = index.threads.find((t) => t.id === id) ?? null;
     try {
       ownerLocalStorage.removeItem(chatKey(id));
     } catch {
       // Ignore storage failures.
     }
-    deleteThreadOnServer(id);
+    // Optimistically remove from the UI, then confirm with the server.
     setIndex((prev) => {
       const remaining = prev.threads.filter((thread) => thread.id !== id);
       if (remaining.length === 0) {
@@ -1203,6 +1217,16 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           ? [...remaining].sort((a, b) => b.updatedAt - a.updatedAt)[0].id
           : prev.activeId;
       return { activeId, threads: remaining };
+    });
+    void deleteThreadOnServer(id).then((ok) => {
+      if (!ok && threadSnapshot) {
+        // Restore the thread and surface the error so the user knows.
+        setIndex((prev) => ({
+          ...prev,
+          threads: [...prev.threads, threadSnapshot].sort((a, b) => b.updatedAt - a.updatedAt),
+        }));
+        setDeleteError("Conversation could not be deleted. It has been restored.");
+      }
     });
   }
 
@@ -1627,6 +1651,17 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         onTogglePush={push.toggle}
       />
 
+      {deleteError && (
+        <div role="alert" className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm rounded-xl border border-kumo-danger/30 bg-kumo-elevated p-3 text-sm shadow-lg">
+          {deleteError}
+          <button
+            className="ms-2 underline"
+            onClick={() => setDeleteError(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <Dialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <Dialog size="base" className="p-6">
           <Dialog.Title>Delete thread?</Dialog.Title>
@@ -1877,6 +1912,9 @@ function ChatThread({
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [stopError, setStopError] = useState<string | null>(null);
+  // Shown once after a mid-turn reload where the stream was unreachable.
+  const [reattachNote, setReattachNote] = useState(() => initialChat.reattachIncomplete === true);
   const uploadInProgress = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -2012,6 +2050,7 @@ function ChatThread({
     (async () => {
       const client = new Client({ host: window.location.origin, headers: conversationHeaders });
       const session = client.sessions.attach(initialChat.session!.sessionId, { streamIndex: initialChat.session!.streamIndex });
+      let streamUnavailable = false;
       try {
         const collect = (event: HandleMessageStreamEvent) => {
           collected.push(event);
@@ -2036,12 +2075,19 @@ function ChatThread({
       } catch {
         // Stream unavailable (network, pruned session): settle with what we
         // have; the attempt guard keeps this from looping.
+        streamUnavailable = true;
       }
       if (controller.signal.aborted) return;
       clearTimeout(persistTimer);
       onBusyChange(false);
       onActivity();
-      onResumed({ events: [...base, ...collected], session: session.state, ...workContext() });
+      onResumed({
+        events: [...base, ...collected],
+        session: session.state,
+        ...workContext(),
+        // Flag incomplete reattach so the UI can warn the user.
+        reattachIncomplete: streamUnavailable && collected.length === 0,
+      });
     })();
     return () => {
       controller.abort();
@@ -2217,6 +2263,7 @@ function ChatThread({
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
+    setReattachNote(false);
     recognitionRef.current?.stop();
     if (staged.length > 0) {
       uploadInProgress.current = true;
@@ -2265,13 +2312,19 @@ function ChatThread({
   }
 
   async function stopTurn() {
+    setStopError(null);
     // During a reattached turn the agent store is idle; the session id from
     // the saved cursor targets the running turn instead.
     const sessionId = agent.session?.sessionId ?? initialChat.session?.sessionId;
-    if (!resuming) {
-      await agent.cancel().catch(() => undefined);
-    } else if (sessionId) {
-      await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() }).catch(() => undefined);
+    try {
+      if (!resuming) {
+        await agent.cancel();
+      } else if (sessionId) {
+        const response = await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() });
+        if (!response.ok) throw new Error("Cancel request returned an error.");
+      }
+    } catch {
+      setStopError("Stop could not be confirmed — the turn may still be running.");
     }
   }
 
@@ -2531,8 +2584,20 @@ function ChatThread({
           </MessageScroller>
         </MessageScrollerProvider>
 
+        {!ownerConflict && reattachNote && (
+          <div role="status" className="mx-4 mb-2 rounded-lg border border-kumo-warning/30 bg-kumo-warning/5 px-3 py-2 text-sm text-kumo-warning">
+            Reconnect was incomplete — this reply may be partial. Send a new message to continue.
+            <button className="ms-2 text-xs underline" onClick={() => setReattachNote(false)}>Dismiss</button>
+          </div>
+        )}
         {!ownerConflict && (
           <footer className="relative pb-4 pt-2">
+          {stopError && (
+            <p role="alert" className="mb-2 rounded-lg bg-kumo-danger/10 px-3 py-2 text-sm text-kumo-danger">
+              {stopError}
+              <button className="ms-2 text-xs underline" onClick={() => setStopError(null)}>Dismiss</button>
+            </p>
+          )}
           {paletteOpen && (
             <div
               role="listbox"
