@@ -36,9 +36,10 @@ describe("QA-34 — ok-before-json ordering in candidate-decision", () => {
       json: async () => { throw new SyntaxError("Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"); },
     });
     // Must NOT surface the raw SyntaxError; must use the status fallback.
-    const err = await loadWithFix(fetch).catch((e: Error) => e);
-    expect(err.message).toBe("Request failed (504)");
-    expect(err.message).not.toMatch(/Unexpected token/);
+    let err: Error | undefined;
+    try { await loadWithFix(fetch); } catch (e) { err = e instanceof Error ? e : new Error(String(e)); }
+    expect(err?.message).toBe("Request failed (504)");
+    expect(err?.message).not.toMatch(/Unexpected token/);
   });
 
   it("resolves with data on a successful response", async () => {
