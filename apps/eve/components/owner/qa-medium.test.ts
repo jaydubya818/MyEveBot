@@ -14,7 +14,17 @@
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// ActivityCard uses next/link which requires a router context outside Next.js.
+// Mock it with a plain anchor so renderToStaticMarkup can render it.
+vi.mock("next/link", () => ({
+  default: ({ href, children }: { href: string; children: React.ReactNode }) =>
+    createElement("a", { href }, children),
+}));
+
+// primitives/Card also needs to be available; it is a local component, not Next.
+// No mock needed — it renders without router context.
 
 import { deduplicateApiErrors } from "@/lib/error-dedup";
 import { ActivityCard } from "./activity-card";
