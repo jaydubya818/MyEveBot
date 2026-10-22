@@ -1,3 +1,4 @@
+import { capabilityWorkFixture, engineeringTestAdminUrl } from "./fixtures/capability-work.mjs";
 import assert from "node:assert/strict";
 import {randomBytes,randomUUID} from "node:crypto";
 import {Client,Pool} from "pg";
@@ -10,14 +11,11 @@ import {RouteAdmissionService} from "../lib/engineering/route-admission.ts";
 import {RoutingStore} from "../lib/engineering/routing-store.ts";
 import {WorkStore} from "../lib/engineering/store.ts";
 
-const url=new URL(process.env.ENGINEERING_TEST_ADMIN_URL??"postgresql://postgres@127.0.0.1:55479/postgres");
-assert.equal(url.hostname,"127.0.0.1");
-assert(["55479","55469"].includes(url.port));
-assert.equal(url.pathname,"/postgres");
+const url = engineeringTestAdminUrl(55479);
 const admin=new Client({connectionString:url.href});
 await admin.connect();
 const name=`direct_verifier_${randomBytes(8).toString("hex")}`;
-let pool;
+let pool, capability;
 try {
   await admin.query(`CREATE DATABASE ${name}`);
   url.pathname=`/${name}`;
@@ -33,8 +31,9 @@ try {
       }},await loadMigrations());
   } finally {client.release();}
 
-  const database={query:async(sql,params)=>(await pool.query(sql,params)).rows};
   const owner="verifier-owner",agentId="sofie-primary";
+  capability=await capabilityWorkFixture(pool,url.href,{ownerId:owner,agentId,capabilityIds:["deepagents"],selectedAlternatives:{deepagents:"sofie.local-harness"}});
+  const database=capability.database;
   const scope={kind:"personal",id:owner};
   const principal={scopeId:owner,scopeKind:"personal",actorId:owner};
   const workStore=new WorkStore(principal,database);
@@ -150,6 +149,7 @@ try {
   assert.equal(calls,2);
   console.log("M1 protected verifier driver: one claimant, expired-lease fence, explicit clean retry, exact evidence, restart reconciliation passed");
 } finally {
+  await capability?.cleanup();
   await pool?.end();
   url.pathname="/postgres";
   await admin.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);

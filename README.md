@@ -251,3 +251,37 @@ Canonical `main` is the source reference. [Vercel configuration](apps/eve/vercel
 | [Historical checkpoints](docs/verification/readme-historical-checkpoints.md) | Earlier results and their original limits |
 | [Canonical source policy](docs/consolidation/DEVELOPMENT-POLICY.md) | Source durability and integration discipline |
 | [Roadmap](docs/roadmap.md) | Product priorities; read with the current release gates above |
+
+
+## IR-02 disposable Deep Agent integration fixtures
+
+The direct-development, protected-verifier and route-admission scripts provision
+owner-scoped capability installations and their required dependencies in a new
+randomly named local database. Deep Agent explicitly selects the local harness.
+A separate restricted runtime role reads canonical policy under RLS and performs
+Work admission on one pinned transaction. Provisioning retains the separate
+admin connection; the runtime cannot author policy evidence.
+
+Use an empty disposable PostgreSQL cluster whose local admin can create/drop
+databases and roles. Set `ENGINEERING_TEST_ADMIN_URL` to
+`postgresql://postgres@127.0.0.1:<port>/postgres`; an explicit loopback port is
+required. The scripts create and remove only their own databases and roles:
+
+```sh
+node --import tsx apps/eve/test/engineering-direct.integration.mjs
+node --import tsx apps/eve/test/engineering-direct-verifier.integration.mjs
+node --import tsx apps/eve/test/route-admission.integration.mjs
+```
+
+The direct scenario checks disabled capability, revoked Agent policy and expired
+evidence denials before any run/transition, then exercises writer races, exact
+candidate verification, UNKNOWN readback and owner/control fences. Its source
+writer fixture has no model completion contract: the projection must show
+reconciliation and cannot claim a current productive native Run. The separate
+verifier scenario checks one claimant, expired-lease fencing, synthetic resource
+absence checks and restart reconciliation without rerunning retained evidence.
+No model, provider sandbox or existing custody is used by these scripts.
+
+These fixtures are local evidence only. Capability enforcement and application
+code are unchanged. The `codex/ir02-native-fixtures-20261021` correction branch
+explicitly disables Vercel Git deployments; production qualification remains separate.

@@ -1,3 +1,4 @@
+import { capabilityWorkFixture, engineeringTestAdminUrl } from "./fixtures/capability-work.mjs";
 import assert from "node:assert/strict";
 import { randomBytes, randomUUID } from "node:crypto";
 import { Client, Pool } from "pg";
@@ -7,14 +8,11 @@ import { RoutingStore } from "../lib/engineering/routing-store.ts";
 import { EngineeringWorkerProjectionStore } from "../lib/engineering/worker-projection.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
 
-const url = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55479/postgres");
-assert.equal(url.hostname, "127.0.0.1");
-assert.equal(url.port, "55479");
-assert.equal(url.pathname, "/postgres");
+const url = engineeringTestAdminUrl(55479);
 const admin = new Client({ connectionString: url.href });
 await admin.connect();
 const databaseName = `route_admission_${randomBytes(8).toString("hex")}`;
-let pool;
+let pool, capability;
 try {
   await admin.query(`CREATE DATABASE ${databaseName}`);
   url.pathname = `/${databaseName}`;
@@ -41,7 +39,8 @@ try {
     migrationClient.release();
   }
 
-  const adapter = { query: async (sql, params) => (await pool.query(sql, params)).rows };
+  capability=await capabilityWorkFixture(pool,url.href,{ownerId:"route-owner",agentId:"agent-sofie",capabilityIds:["sofie.native"]});
+  const adapter = capability.database;
   const principal = { scopeId: "route-owner", scopeKind: "personal", actorId: "route-owner" };
   const store = new WorkStore(principal, adapter);
   const routes = new RoutingStore(store);
@@ -226,6 +225,7 @@ try {
 
   console.log("Route admission: scoped policy/provider checks, concurrent CAS, durable receipt, version race and legacy writer denial passed");
 } finally {
+  await capability?.cleanup();
   if (pool) await pool.end();
   // Pool shutdown can resolve before PostgreSQL has removed its backend rows.
   // Wait for this disposable database to quiesce instead of killing connections.

@@ -1,3 +1,4 @@
+import { capabilityWorkFixture, engineeringTestAdminUrl } from "./fixtures/capability-work.mjs";
 import assert from "node:assert/strict";
 import { randomBytes, randomUUID } from "node:crypto";
 import { Client, Pool } from "pg";
@@ -11,14 +12,11 @@ import { RoutingStore } from "../lib/engineering/routing-store.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
 import { EngineeringWorkerProjectionStore } from "../lib/engineering/worker-projection.ts";
 
-const url=new URL(process.env.ENGINEERING_TEST_ADMIN_URL??"postgresql://postgres@127.0.0.1:55468/postgres");
-assert.equal(url.hostname,"127.0.0.1");
-assert(["55468","55469"].includes(url.port));
-assert.equal(url.pathname,"/postgres");
+const url = engineeringTestAdminUrl(55468);
 const admin=new Client({connectionString:url.href});
 await admin.connect();
 const name=`direct_work_${randomBytes(8).toString("hex")}`;
-let pool;
+let pool, capability;
 try {
   await admin.query(`CREATE DATABASE ${name}`);
   url.pathname=`/${name}`;
@@ -36,8 +34,9 @@ try {
     },await loadMigrations());
   } finally { migrationClient.release(); }
 
-  const database={query:async(sql,params)=>(await pool.query(sql,params)).rows};
   const owner="direct-owner";
+  capability=await capabilityWorkFixture(pool,url.href,{ownerId:owner,agentId:"sofie-primary",capabilityIds:["deepagents"],selectedAlternatives:{deepagents:"sofie.local-harness"}});
+  const database=capability.database;
   const principal={scopeId:owner,scopeKind:"personal",actorId:owner};
   const workStore=new WorkStore(principal,database);
   const criterion={id:randomUUID(),statement:"Positive integer quantities are parsed",method:"test"};
@@ -101,6 +100,26 @@ try {
       observedAt:new Date(now).toISOString()};
     return {contract,context,facts};
   }};
+  const admitRequest={decisionId:proposal.id,expectedWorkVersion:work.version,
+    request:{route:"DEEP_AGENT",requiredOperations:operations,resourceRefs}};
+  await assert.rejects(new RouteAdmissionService(new WorkStore(principal,{query:database.query}),authority)
+    .admit(work.id,admitRequest),/Transactional capability admission/);
+  for (const [deny,restore,reason] of [
+    ["UPDATE capability_control.owner_state SET preferences=preferences||'{\"deepagents\":\"DISABLED\"}'::jsonb",
+     "UPDATE capability_control.owner_state SET preferences=preferences||'{\"deepagents\":\"ENABLED\"}'::jsonb",/POLICY_BLOCKED:deepagents/],
+    ["UPDATE capability_control.relay_agent_evidence SET status='REVOKED'",
+     "UPDATE capability_control.relay_agent_evidence SET status='ACTIVE'",/AGENT_POLICY_UNAVAILABLE/],
+    ["UPDATE capability_control.evidence SET expires_at=clock_timestamp()-interval '1 second'",
+     "UPDATE capability_control.evidence SET expires_at=clock_timestamp()+interval '1 hour'",/POLICY_EVIDENCE_STALE/],
+  ]) {
+    await pool.query(deny);
+    await assert.rejects(new RouteAdmissionService(workStore,authority).admit(work.id,admitRequest),reason);
+    const denied=await new RoutingStore(workStore).snapshot(work.id);
+    assert.equal(denied.decision.status,"PROPOSED");
+    assert.equal(denied.runs.length,0);
+    assert.equal(denied.transitions.length,0);
+    await pool.query(restore);
+  }
   const admission=await new RouteAdmissionService(workStore,authority).admit(work.id,{
     decisionId:proposal.id,expectedWorkVersion:work.version,
     request:{route:"DEEP_AGENT",requiredOperations:operations,resourceRefs}});
@@ -117,9 +136,12 @@ try {
   const opened=competingOpens.find(result=>result.status==="fulfilled").value;
   assert.equal(opened.phase,"DRAFT");
   let projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
-  assert.equal(projected.status,"Working");
+  // This bounded source/verifier fixture has no model completion contract.
+  // The current projection must retain it conservatively, without claiming live execution authority.
+  assert.equal(projected.status,"Needs reconciliation");
+  assert.equal(projected.runTruth.activeRun,null);
   assert.equal(projected.nativeDevelopment.phase,"DRAFT");
-  assert.equal(projected.nativeDevelopment.current,true);
+  assert.equal(projected.nativeDevelopment.current,false);
   assert.equal(projected.authoritySummary.deadlineCurrent,true);
   assert.equal(opened.routeRunId,admission.runId);
   await assert.rejects(new EngineeringWorkerProjectionStore(workStore,"other-agent").get(work.id),/different Agent/);
@@ -136,7 +158,7 @@ try {
   const {candidate,workspace:submitted}=await direct.submit(work.id,write.revision);
   assert.equal(submitted.phase,"VERIFICATION_REQUESTED");
   projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
-  assert.equal(projected.status,"Needs verification");
+  assert.equal(projected.status,"Needs reconciliation");
   assert.equal(projected.nativeDevelopment.candidateSha,candidate.sha);
   assert.equal(projected.readiness.ready,false);
   assert.deepEqual(candidate.changedPaths,["quantity.mjs"]);
@@ -172,12 +194,14 @@ try {
   const failed={workspace:(await direct.inspect(work.id)).workspace};
   assert.equal(failed.workspace.phase,"VERIFICATION_FAILED");
   projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
-  assert.equal(projected.status,"Needs revision");
+  assert.equal(projected.status,"Needs reconciliation");
+  assert.match(projected.nativeDevelopment.label,/Checks failed/);
   await pool.query(`UPDATE engineering_direct_workspaces
     SET evidence=jsonb_set(evidence,'{0,result}','"UNKNOWN"'::jsonb)
     WHERE work_id=$1`,[work.id]);
   projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
   assert.equal(projected.status,"Needs reconciliation");
+  assert.match(projected.nativeDevelopment.label,/inconclusive/);
   await pool.query(`UPDATE engineering_direct_workspaces
     SET evidence=jsonb_set(evidence,'{0,result}','"FAIL"'::jsonb)
     WHERE work_id=$1`,[work.id]);
@@ -190,20 +214,22 @@ try {
   const passed={workspace:(await direct.inspect(work.id)).workspace};
   assert.equal(passed.workspace.phase,"VERIFICATION_PASSED");
   projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
-  assert.equal(projected.status,"Verified candidate");
+  assert.equal(projected.status,"Needs reconciliation");
   assert.equal(projected.readiness.ready,false);
   assert.equal(passed.workspace.evidence[0].candidate,candidate.sha);
   assert.equal(passed.workspace.evidence[1].candidate,replacement.candidate.sha);
   assert.equal((await new RoutingStore(workStore).snapshot(work.id)).runs[0].status,"RUNNING");
 
+  await pool.query("UPDATE engineering_direct_workspaces SET deadline=clock_timestamp()-interval '1 second' WHERE work_id=$1",[work.id]);
   await workStore.change(work.id,{operation:"pause",expectedVersion:work.version});
   assert.equal((await direct.inspect(work.id)).current,false);
-  await pool.query("UPDATE engineering_direct_workspaces SET deadline=clock_timestamp()-interval '1 second' WHERE work_id=$1",[work.id]);
+  await assert.rejects(pool.query("UPDATE engineering_direct_workspaces SET deadline=clock_timestamp()+interval '1 hour' WHERE work_id=$1",[work.id]),/writer was fenced/);
   projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
   assert.equal(projected.authoritySummary.deadlineCurrent,false);
   await assert.rejects(direct.plan(work.id,passed.workspace.revision,"No more work"),/changed/);
   console.log("M1 direct: admitted native writer, path/revision fences, durable candidate, independent exact evidence, owner and control isolation passed");
 } finally {
+  await capability?.cleanup();
   await pool?.end();
   url.pathname="/postgres";
   await admin.query(`DROP DATABASE IF EXISTS ${name}`);
