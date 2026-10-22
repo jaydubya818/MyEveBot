@@ -33,7 +33,8 @@
       "codex/external-alpha-final-qe-20261010": false,
       "claude/external-alpha-zero-gap-qe014-qe017-20261010": false,
       "codex/unified-beta-myeve-20261011": false,
-      "codex/ir02-native-fixtures-20261021": false
+      "codex/ir02-native-fixtures-20261021": false,
+      "beta/unified-candidate-20261022": false
     }
   },
   "functions": {
