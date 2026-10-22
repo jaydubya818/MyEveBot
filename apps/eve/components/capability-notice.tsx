@@ -21,9 +21,14 @@ export function CapabilityNotice({
   if (state.kind === "loading" || state.kind === "ready") return null;
 
   const unavailable = state.kind === "unavailable";
-  const detail = unavailable
-    ? `${AGENT_NAME} can still chat, but service status could not be verified.`
-    : `${state.labels.join(" and ")} ${state.labels.length === 1 ? "needs" : "need"} setup. Everything else remains available.`;
+  let detail: string;
+  if (unavailable) {
+    detail = `${AGENT_NAME} can still chat, but service status could not be verified.`;
+  } else if (state.labels.length > 3) {
+    detail = `${state.labels[0]}, ${state.labels[1]}, and ${state.labels.length - 2} more need setup. Everything else remains available.`;
+  } else {
+    detail = `${state.labels.join(" and ")} ${state.labels.length === 1 ? "needs" : "need"} setup. Everything else remains available.`;
+  }
 
   return (
     <div
@@ -37,7 +42,7 @@ export function CapabilityNotice({
         </p>
         <p className="mt-0.5 text-xs leading-5 text-kumo-subtle">{detail}</p>
       </div>
-      <Button variant="ghost" size="sm" className="shrink-0" onClick={onReview}>
+      <Button variant="ghost" size="sm" className="shrink-0 min-h-11 md:min-h-8" onClick={onReview}>
         Review setup
       </Button>
     </div>
