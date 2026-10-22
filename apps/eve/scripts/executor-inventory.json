@@ -2652,8 +2652,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "c5e197895b4f586531ce000ed395641a296755e46848b2ef4424d5e775cf8a02"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. QA-32 loopback normalization reviewed: normalizeOriginForComparison maps 127.0.0.1/::1 to localhost only \u2014 applied symmetrically to both origin and request.url; cannot promote a non-loopback origin; sec-fetch-site cross-site check fires before the comparison, blocking real cross-origin requests before loopback logic runs. Regression test in lib/web-auth.test.ts.",
+      "sha256": "1674b5f7c05ebc2950315d4471e1e853b8eb9c0e44cbd8ff08ddb417c68c287b"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -4118,6 +4118,11 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Fetch helpers for the owner-decision beta endpoint. Checks ok before json. No direct execution authority; sends the caller-supplied payload to an existing authenticated route.",
       "sha256": "972a6d813a85c79b19be76ff075b43260a9aad6ec7dfe0446914c727178d4ec4"
+    },
+    "lib/error-dedup.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility function with no network calls, no database access, no external effects. Deduplicates UI error message strings.",
+      "sha256": "7a4cb56dcbad4b9b7b5c65da81e79798a5a83ff01c3d90b3a27706b77bb83a97"
     }
   }
 }
