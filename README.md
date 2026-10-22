@@ -285,3 +285,26 @@ No model, provider sandbox or existing custody is used by these scripts.
 These fixtures are local evidence only. Capability enforcement and application
 code are unchanged. The `codex/ir02-native-fixtures-20261021` correction branch
 explicitly disables Vercel Git deployments; production qualification remains separate.
+
+The opt-in `productive-journey-postgres.test.ts` suite also passes its real
+owner-scoped Factory capability bindings, their digest and the actual restricted
+transaction role through the Factory HTTP handler's configuration loader.
+Missing bindings and a correctly pinned foreign-owner binding must be denied
+before Factory authority, intake, queueing or provider allocation. The runtime
+capability gate and the existing UNKNOWN/Result assertions remain enabled.
+
+Set `MYEVE_EXTERNAL_ALPHA_TEST_DATABASE` to a disposable loopback PostgreSQL admin
+URL, `MYFACTORY_SOURCE_ROOT` to the compatible merged Factory source and
+`MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE=1`. Use a cached Node 24 Docker image
+through `FACTORY_VERIFIER_DOCKER_IMAGE` for protected Linux verification. Run:
+
+```sh
+node node_modules/vitest/vitest.mjs run --root apps/eve --config vitest.config.ts \
+  --fileParallelism=false --testTimeout=60000 --hookTimeout=60000 \
+  lib/external-alpha/productive-journey-postgres.test.ts
+```
+
+Three acceptance cases additionally require the genuine digest-pinned private
+suite at `FACTORY_VERIFIER_CUSTODY_DIR`; without it they remain explicit skips.
+The `codex/integration-capability-fixtures-20261022` branch disables Vercel Git
+deployments. These are synthetic local fixtures, not cloud qualification.
