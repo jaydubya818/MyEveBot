@@ -42,9 +42,22 @@ Keep consumers on `f00ccd885f70f8e088231be4bd6a2f0775714390`. The successor JSON
 
 - Existing Relay READY Preview may still inherit Production Neon host records until an authorized operator deactivates it.
 - Sibling-repo patches are evidence in this repository only until they land on those remotes.
-- Hosted CI on this integration SHA was still running at the time of this note; treat the hosted result as a separate fact.
-- This review does not re-run Playwright locally (no browser install in the worktree). Hosted `owner-fixture-playwright` on #94 restore SHA `67a29071` already passed.
+- This review did not re-run Playwright locally (no browser install in the worktree). Hosted `owner-fixture-playwright` later passed on this integration SHA and on #94 restore SHA `67a29071`.
+
+## Hosted CI (recorded after the first review note)
+
+| Identity | Checks | Result |
+| --- | --- | --- |
+| Integration `31031d42759bb35c25159e4bbe8d5f58ffabbc7c` | verify, postgres-validation, owner-fixture-playwright | SUCCESS ([39821323463](https://github.com/jaydubya818/MyEveBot/actions/runs/39821323463)) |
+| #94 restore `67a2907123219ca24c897605c72740bfdf8338ad` | verify, postgres-validation, owner-fixture-playwright | SUCCESS ([39819189249](https://github.com/jaydubya818/MyEveBot/actions/runs/39819189249)) |
+| #93 docs `ffa737a61966e0bbcfbabe6201efb60636de0e76` | verify | SUCCESS ([39819187228](https://github.com/jaydubya818/MyEveBot/actions/runs/39819187228)) |
+| #91 `924cdec7526d81a4ea7644b8db40faa6ef4bb4ba` | verify, postgres-validation, owner-fixture-playwright | SUCCESS (prior `39741568945`) |
+| #92 `1e35a01147c28fea51cdda4a314c6d42487c7db1` | verify, postgres-validation, owner-fixture-playwright | SUCCESS (prior `39738177995`) |
+| Relay #40 `e1389c0eebb7314244cdd47463fdeed33971bbdf` | quality, owner-browser | SUCCESS (prior `39727578317` / `39727578333`). Isolation guard not on the remote. |
+| MyFactory #21 `f00ccd885f70f8e088231be4bd6a2f0775714390` | prior hosted green | Unchanged qualified pin. Pin-docs not on the remote. |
+
+A later docs commit on this branch must be requalified; it does not inherit the table above.
 
 ## Decision
 
-Ready for the owner’s authorized merge decisions on the six PRs. Default recommendation: merge this candidate to `main` only after hosted CI on this SHA is green **and** explicit release authorization. Do not merge #93 to `main`. Do not deploy Relay Preview or Production, and do not invite testers, under this review.
+Ready for the owner’s authorized merge decisions on the six PRs. Default recommendation: merge this candidate to `main` only with explicit release authorization. Do not merge #93 to `main`. Do not deploy Relay Preview or Production, and do not invite testers, under this review.
