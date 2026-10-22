@@ -19,7 +19,12 @@
       "codex/peer-conversation-ui": false,
       "codex/telegram-current-integration": false,
       "codex/cloud-execution": false,
-      "codex/unified-capability-control-plane": false
+      "codex/unified-capability-control-plane": false,
+      "cursor/qa-silent-failures-b54d": false,
+      "cursor/qa-mobile-forms-b54d": false,
+      "cursor/qa-medium-low-b54d": false,
+      "cursor/qa-deep-agent-b54d": false,
+      "cursor/qa-main-integration-6ef4": false
     }
   },
   "functions": {

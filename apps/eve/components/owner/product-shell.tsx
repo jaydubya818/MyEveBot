@@ -34,7 +34,7 @@ export function ProductShell({
         </header>
         {children}
       </main>
-      <footer className="owner-content owner-actions">
+      <footer className="owner-content owner-actions owner-footer">
         <Link href="/brief">Daily Brief</Link>
         <Link href="/weekly">Weekly Review</Link>
         <Link href="/privacy">Privacy & boundaries</Link>

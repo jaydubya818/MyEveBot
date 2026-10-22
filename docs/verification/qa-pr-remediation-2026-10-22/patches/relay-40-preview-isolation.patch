@@ -1,0 +1,127 @@
+From 301ad372bfd7db7316065c0313d4458cf58173be Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 22 Oct 2026 17:02:09 +0000
+Subject: [PATCH] fix(preview): disable QA-branch Git deploys until DB
+ isolation exists
+
+Preview inherits Neon PGHOST and POSTGRES_URL_NO_SSL records that also
+target Production. PR #40 has no dedicated RELAY_DATABASE_URL. Stop
+automatic Git Previews for cursor/qa-relay-remediation-58c5. Existing
+READY Previews are not cancelled. No production deploy.
+---
+ README.md                                     |  6 ++++
+ ...view-production-db-isolation-2026-10-22.md | 33 +++++++++++++++++++
+ tests/v2/deployment.test.ts                   |  9 +++++
+ vercel.json                                   |  3 +-
+ 4 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 docs/v2/qualification/preview-production-db-isolation-2026-10-22.md
+
+diff --git a/README.md b/README.md
+index bd8bacc..f9164c4 100644
+--- a/README.md
++++ b/README.md
+@@ -18,6 +18,7 @@ In the MyEve system, Relay connects independently owned agents and approved serv
+ - [APIs and SDKs](#apis-and-sdks)
+ - [Tests and release checks](#tests-and-release-checks)
+ - [Operations, limitations and release decisions](#operations-limitations-and-release-decisions)
++- [Preview/Production database isolation](#previewproduction-database-isolation)
+ - [Repository map](#repository-map)
+ 
+ ## Current status
+@@ -32,6 +33,7 @@ In the MyEve system, Relay connects independently owned agents and approved serv
+ | Three synthetic owners | Bounded six-direction messaging, correlation, isolation and revocation qualification completed | Temporary authority is cleaned up; not a general live-provider certification |
+ | Two real external testers | Preparation underway; existing identity must be authenticated before linking | No invitation or access approval; no inherited operator/synthetic credentials |
+ | Broad Relay V2 release | Implementation and substantial automated/local-provider evidence exist | **Not a blanket limited-beta or GA readiness claim**; external/security/provider gates remain independently tracked |
++| PR #40 Preview vs Production database | **NOT ISOLATED** as of 22 October 2026 (America/Los_Angeles) | Shared Neon `PGHOST` / `POSTGRES_URL_NO_SSL` target Production+Preview; QA branch has no dedicated `RELAY_DATABASE_URL`. Automatic Git Preview for `cursor/qa-relay-remediation-58c5` is disabled. See [isolation evidence](docs/v2/qualification/preview-production-db-isolation-2026-10-22.md) |
+ 
+ Earlier preview and managed-beta documents retain their original dates and failures. The historical single-owner preview inventory and time-limited peer grants are not current account inventories or current grant assertions. An expired qualification grant must never be described as active merely because an older report says it was issued.
+ 
+@@ -217,6 +219,10 @@ Broad V2 release still requires its applicable external provider, production top
+ 
+ The current two-tester mission includes qualified owner-facing Relay only. It does not enable unrestricted federation, Rooms, general runtime execution, payments, Factory grants or paid Work through Relay itself.
+ 
++## Preview/Production database isolation
++
++Do not assume Vercel Preview is a disposable copy of Production. On 22 October 2026 (America/Los_Angeles) the `relay` project still had Neon `PGHOST` and `POSTGRES_URL_NO_SSL` records targeting Production, Preview, and Development together. PR #40's branch has no dedicated `RELAY_DATABASE_URL`. Automatic Git Preview for `cursor/qa-relay-remediation-58c5` is therefore disabled in `vercel.json`. Dated evidence: [preview-production-db-isolation-2026-10-22](docs/v2/qualification/preview-production-db-isolation-2026-10-22.md). Existing READY Previews are not cancelled by that source change; merge, Production deploy, and tester activation remain unauthorized.
++
+ ## Repository map
+ 
+ | Path | Responsibility |
+diff --git a/docs/v2/qualification/preview-production-db-isolation-2026-10-22.md b/docs/v2/qualification/preview-production-db-isolation-2026-10-22.md
+new file mode 100644
+index 0000000..6dc571b
+--- /dev/null
++++ b/docs/v2/qualification/preview-production-db-isolation-2026-10-22.md
+@@ -0,0 +1,33 @@
++# Relay Preview vs Production database isolation (2026-10-22)
++
++**Result: NOT ISOLATED.** Do not treat Vercel Preview as a safe database for PR #40.
++
++Observed 22 October 2026, America/Los_Angeles. Read-only Vercel project metadata for `relay` (`prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK`). No secret values, connection strings, or database rows were printed or stored.
++
++## How Preview would get a database
++
++Runtime resolution is `RELAY_DATABASE_URL ?? DATABASE_URL` (`lib/db.ts`). Vercel Preview runs with `NODE_ENV=production`, so a missing URL fails closed at pool creation rather than falling back to loopback.
++
++## What the QA branch actually inherits
++
++| Finding | Evidence |
++| --- | --- |
++| No QA-branch database override | `filter_project_envs` with `gitBranch=cursor/qa-relay-remediation-58c5` returned no branch-specific variables |
++| Shared Neon host/url records | `PGHOST` and `POSTGRES_URL_NO_SSL` are single encrypted records targeting `production`, `preview`, and `development` with `gitBranch=null` |
++| Same Neon store as Production | Those records are integration-store secrets. Additional Neon store secrets exist on the same project; their names were truncated in the inventory snapshot, so they are not assumed safe |
++| Dedicated Relay URLs are elsewhere | `RELAY_DATABASE_URL` and `DATABASE_URL` exist only on preview branch `codex/fq-relay-6384519e0e01`, commented as synthetic federation qualification, incomplete, and out of production scope |
++| Preview already deployed | READY Preview `dpl_9A416c72oobyfiCA3p5EvukyAXEW` for exact SHA `e1389c0eebb7314244cdd47463fdeed33971bbdf` (`cursor/qa-relay-remediation-58c5`) |
++
++A Preview that inherits Production `PGHOST` / `POSTGRES_URL_NO_SSL` (and any sibling Neon `DATABASE_URL` with the same targets) is not an isolated database. Isolation is therefore **UNSAFE**, not UNKNOWN.
++
++## Guard committed on this branch
++
++`vercel.json` sets `git.deploymentEnabled["cursor/qa-relay-remediation-58c5"]=false` so later Git pushes do not create automatic Previews. This is source configuration only. Existing READY Previews were not cancelled, merged, or replaced. Production aliases were not changed.
++
++The already-READY Preview for SHA `e1389c0e…` remains a hosted risk until an authorized operator deactivates it. This document does not authorize that deactivation.
++
++## What this does not do
++
++- It does not prove Production is unused by that Preview at runtime.
++- It does not create a dedicated Preview database.
++- It does not authorize merge, Production deploy, tester activation, or secret rotation.
+diff --git a/tests/v2/deployment.test.ts b/tests/v2/deployment.test.ts
+index a05e70c..3fba190 100644
+--- a/tests/v2/deployment.test.ts
++++ b/tests/v2/deployment.test.ts
+@@ -1,3 +1,4 @@
++import { readFileSync } from "node:fs";
+ import { afterEach, describe, expect, it, vi } from "vitest";
+ import { deploymentMode, privatePreviewEnvironmentIssues, requireRuntimeActionsEnabled, runtimeActionsEnabled } from "@/lib/v2/deployment";
+ 
+@@ -41,4 +42,12 @@ describe("Relay V2 deployment safety", () => {
+       "NEXT_PUBLIC_RELAY_URL must use HTTPS.",
+     ]));
+   });
++
++  it("disables automatic Git preview deploys for the QA remediation branch until Preview databases are isolated", () => {
++    const config = JSON.parse(readFileSync(new URL("../../vercel.json", import.meta.url), "utf8")) as {
++      git?: { deploymentEnabled?: Record<string, boolean> };
++    };
++    expect(config.git?.deploymentEnabled?.main).toBe(false);
++    expect(config.git?.deploymentEnabled?.["cursor/qa-relay-remediation-58c5"]).toBe(false);
++  });
+ });
+diff --git a/vercel.json b/vercel.json
+index 72568c7..2d4e657 100644
+--- a/vercel.json
++++ b/vercel.json
+@@ -9,7 +9,8 @@
+       "codex/authority-expiry-diagnostics": false,
+       "codex/relay-final-integration": false,
+       "codex/telegram-current-integration": false,
+-      "codex/relay-owner-experience": false
++      "codex/relay-owner-experience": false,
++      "cursor/qa-relay-remediation-58c5": false
+     }
+   },
+   "installCommand": "pnpm install --frozen-lockfile",
+-- 
+2.43.0
+

@@ -2007,8 +2007,8 @@
     },
     "lib/capability-notice.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. QA-38: extracted formatLimitedModeDetail helper; pure text formatting, no auth or data effects; regression tests in test/capability-notice.test.mjs.",
+      "sha256": "9dd2a3d7eb1f5d9d914014414126c6f41285f43a4836b6f2d2b262463e215f59"
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2652,8 +2652,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "c5e197895b4f586531ce000ed395641a296755e46848b2ef4424d5e775cf8a02"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. QA-32 loopback normalization reviewed: normalizeOriginForComparison maps 127.0.0.1/::1 to localhost only \u2014 applied symmetrically to both origin and request.url; cannot promote a non-loopback origin; sec-fetch-site cross-site check fires before the comparison, blocking real cross-origin requests before loopback logic runs. Regression test in lib/web-auth.test.ts.",
+      "sha256": "1674b5f7c05ebc2950315d4471e1e853b8eb9c0e44cbd8ff08ddb417c68c287b"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -4098,6 +4098,31 @@
       "classification": "INTERNAL",
       "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
       "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+    },
+    "lib/chat-stop.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility: error-surfacing helper for cancel turns. No network calls, no DB, no external effects. Wraps caller-supplied cancel function to catch and forward errors.",
+      "sha256": "f80e72b5c3d368ddd64408d5261803314cec2b14420127549fce36850aed735f"
+    },
+    "lib/thread-delete.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Thin authenticated fetch wrapper for DELETE /api/threads/:id. Swallows network errors and returns false to the caller; no direct execution authority.",
+      "sha256": "dd964cbed33dba5e22426d3971f9c3c45e8b355367a05c67ecbbc1b8e5368bd8"
+    },
+    "lib/chat-reattach-notice.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "React hook (useReattachNotice) for a dismissible UI notice flag. No network calls, no DB, no external effects. Pure client-side state.",
+      "sha256": "a1eadf060c775cd9edda22f5e837437aae26a01e9f1f131ca87200c9613be6ee"
+    },
+    "lib/candidate-decision-fetch.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Fetch helpers for the owner-decision beta endpoint. Checks ok before json. No direct execution authority; sends the caller-supplied payload to an existing authenticated route.",
+      "sha256": "972a6d813a85c79b19be76ff075b43260a9aad6ec7dfe0446914c727178d4ec4"
+    },
+    "lib/error-dedup.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility function with no network calls, no database access, no external effects. Deduplicates UI error message strings.",
+      "sha256": "7a4cb56dcbad4b9b7b5c65da81e79798a5a83ff01c3d90b3a27706b77bb83a97"
     }
   }
 }

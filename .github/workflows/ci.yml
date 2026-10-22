@@ -30,7 +30,7 @@ jobs:
 
       - run: npm run test --workspace=eve-agent -- lib/relay
 
-      - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
+      - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts components/owner/candidate-decision.test.ts components/qa-silent-failures.test.ts components/owner/resource.dom.test.ts components/task-runs-panel.dom.test.tsx components/owner/owner.test.tsx components/task-run-card.test.tsx components/task-run-card.dom.test.tsx lib/web-auth.test.ts lib/chat-reattach-notice.dom.test.ts components/owner/qa-medium.test.ts
 
       - run: npm run typecheck
 
@@ -39,6 +39,68 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+  # Fixture-mode Playwright tests for QA-12, QA-14, QA-22, QA-39.
+  # No DB, no model, no secrets. The app is built from the branch HEAD and
+  # started in fixture mode (MYEVE_OWNER_ID=beta-ui-fixture, public password).
+  # Tests fail when their specific CSS or auth fix is reverted.
+  owner-fixture-playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
+
+      - name: Build the owner fixture app (no secrets, no DB)
+        run: npm run build --workspace=eve-agent
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start fixture server (background)
+        working-directory: apps/eve
+        run: node test/owner/local-server.cjs &
+
+      - name: Wait for fixture server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3091/api/auth/status >/dev/null 2>&1; then
+              echo "Server ready"; break
+            fi
+            echo "Waiting... ($i)"; sleep 2
+          done
+
+      - name: Run QA Playwright tests (spec files present on this branch)
+        working-directory: apps/eve
+        # Use a glob so only the spec files that exist on this branch run.
+        # Branches carry only the specs whose CSS/auth fixes they include:
+        #   qa-mobile-forms-b54d: qa-viewport.spec.ts + qa-14-bfcache.spec.ts
+        #   qa-medium-low-b54d:   qa-14-bfcache.spec.ts
+        #   qa-silent-failures-b54d: (no qa-*.spec.ts — vitest covers its fixes)
+        run: |
+          SPECS=$(ls test/owner/qa-*.spec.ts 2>/dev/null || true)
+          if [ -z "$SPECS" ]; then
+            echo "No QA Playwright specs on this branch — fixture server readiness confirmed."
+            exit 0
+          fi
+          npx playwright test $SPECS \
+            --config test/owner/playwright.config.ts \
+            --project=desktop \
+            --reporter=list
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-fixture-artifacts
+          path: output/playwright/beta-product-experience/
+          retention-days: 3
 
   postgres-validation:
     runs-on: ubuntu-latest

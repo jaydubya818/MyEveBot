@@ -1,0 +1,72 @@
+From e61ab36079179fbec46c58d3bd0752b0ecae71cd Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 22 Oct 2026 17:02:09 +0000
+Subject: [PATCH] docs(qa-21): pin qualified source SHA for integration
+ consumers
+
+Record f00ccd885f70f8e088231be4bd6a2f0775714390 as the PR #21 integration
+pin. Successor identity remains record-only; this documentation commit
+does not inherit execution qualification. No merge or deploy.
+---
+ README.md                                       |  6 ++++++
+ .../qa-21-integration-pin.md                    | 17 +++++++++++++++++
+ 2 files changed, 23 insertions(+)
+ create mode 100644 docs/capability-control/source-identity-20261022/qa-21-integration-pin.md
+
+diff --git a/README.md b/README.md
+index 097f9db..180f339 100644
+--- a/README.md
++++ b/README.md
+@@ -17,6 +17,7 @@ The repository contains both the original local Factory work desk and the hosted
+ - [Local work desk and Feedback Hub](#local-work-desk-and-feedback-hub)
+ - [Publication and repair are separate](#publication-and-repair-are-separate)
+ - [Connections and integration](#connections-and-integration)
++- [PR #21 integration pin](#pr-21-integration-pin)
+ - [Qualification commands](#qualification-commands)
+ - [Installation, revocation and recovery](#installation-revocation-and-recovery)
+ - [Repository and historical evidence map](#repository-and-historical-evidence-map)
+@@ -37,6 +38,7 @@ The repository contains both the original local Factory work desk and the hosted
+ | Successor intake authority | Exact separately authorized successor Work can receive one intake without erasing prior failed intake history | Not a general intake-limit increase or reusable permission |
+ | Two external testers | Dedicated workspace preparation underway in the companion MyEve mission | Ordinary external-owner Work policy, private source materialization and supported-task verifier remain incomplete |
+ | General Work and generated effects | No blanket production admission | Publication, PR creation, merge, generated deployment and automatic repair remain disabled for the proposed external alpha |
++| PR #21 QA remediation source | Code SHA `f00ccd885f70f8e088231be4bd6a2f0775714390` is the integration pin | Successor identity is record-only; later docs commits on this branch do not inherit execution qualification. See [integration pin](docs/capability-control/source-identity-20261022/qa-21-integration-pin.md) |
+ 
+ The accepted execution path has **zero local runtime dependencies**. Physical Mac power state was not independently observed. A successful journey can still produce a canonical **PARTIAL Result** when publication, external CI or owner acceptance are outside the evidence. Verification PASS applies to the checked candidate and policy, not to all possible product claims.
+ 
+@@ -209,6 +211,10 @@ Approved sibling backends can use scoped connection actions to prepare/dispatch
+ 
+ See [connections](docs/connections.md), [hosted routing](docs/hosted-routing.md), [dispatch API](docs/factory-dispatch.md) and [MyEve V2 spend handoff](docs/my-eve-spend-v2-handoff.md). A received request or signed intake receipt is not a finished candidate.
+ 
++## PR #21 integration pin
++
++Keep PR #21's qualified execution source at [`f00ccd885f70f8e088231be4bd6a2f0775714390`](https://github.com/jaydubya818/MyFactory/commit/f00ccd885f70f8e088231be4bd6a2f0775714390). The [successor identity record](docs/capability-control/source-identity-20261022/qa-remediation-successor.json) already states that FactoryVersion evidence does not inherit. Documentation added after that SHA is record-only. Integration consumers should pin the qualified SHA until a fresh campaign requalifies a later identity. [Pin notes](docs/capability-control/source-identity-20261022/qa-21-integration-pin.md). This README does not authorize merge, deployment, or tester activation.
++
+ ## Qualification commands
+ 
+ ```bash
+diff --git a/docs/capability-control/source-identity-20261022/qa-21-integration-pin.md b/docs/capability-control/source-identity-20261022/qa-21-integration-pin.md
+new file mode 100644
+index 0000000..b739b60
+--- /dev/null
++++ b/docs/capability-control/source-identity-20261022/qa-21-integration-pin.md
+@@ -0,0 +1,17 @@
++# MyFactory PR #21 integration pin
++
++**Qualified git source (do not inherit past this SHA without a fresh campaign):**
++`f00ccd885f70f8e088231be4bd6a2f0775714390` on `cursor/qa-remediation-38cf` (PR #21).
++
++Recorded 22 October 2026, America/Los_Angeles. This pin is for integration consumers. It is not permission to merge, deploy, or run paid Work.
++
++## What stays qualified
++
++PR #21 holds the QA-06/07/08/09/23/24/25/37/39/41/42 supervisor and Playwright remediation that hosted CI accepted on that exact SHA. Successor identity is already recorded as `SOURCE_IDENTITY_RECORD_ONLY_NO_INHERITED_QUALIFICATION` in [`qa-remediation-successor.json`](qa-remediation-successor.json).
++
++## How to consume it
++
++- Pin `MYFACTORY_SOURCE_ROOT` / checkout ref to `f00ccd885f70f8e088231be4bd6a2f0775714390` unless a later SHA is independently requalified.
++- Do not treat a later documentation commit on this branch as the qualified execution source.
++- Do not merge this PR under this document. Merge, installation, owner, execution, and paid-path qualification remain separate decisions.
++- MyEve PRs #91/#92/#94 consolidate on a main-based candidate; this Factory SHA is the sibling pin for that candidate. MyEve #93 stays on its Deep Agent base and must not be merged to `main`.
+-- 
+2.43.0
+
