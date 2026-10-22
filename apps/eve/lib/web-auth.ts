@@ -175,7 +175,8 @@ export function webPrincipal(
 function normalizeOriginForComparison(rawUrl: string): string {
   try {
     const u = new URL(rawUrl);
-    if (u.hostname === "127.0.0.1" || u.hostname === "::1") u.hostname = "localhost";
+    // URL.hostname for IPv6 addresses includes the brackets, e.g. "[::1]".
+    if (u.hostname === "127.0.0.1" || u.hostname === "[::1]") u.hostname = "localhost";
     return u.origin;
   } catch {
     return rawUrl;
