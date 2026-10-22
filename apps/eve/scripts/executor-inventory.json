@@ -3710,8 +3710,8 @@
     },
     "lib/owner-browser-storage.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner namespace before browser persistence or current-page quota fallback; fallback clears on owner change/logout, storage areas remain separate, legacy cache restricted to primary owner. Negative owner/storage and quota recovery tests.",
-      "sha256": "bb0cf9b68746a2770949bdb534e1d2bdcc3a5e49ac97fa874b8c04f602483a0c"
+      "reason": "Signed owner namespace before browser persistence or current-page quota fallback; fallback clears on owner change/logout, storage areas remain separate, legacy cache restricted to primary owner. Negative owner/storage and quota recovery tests. 1582df4a review: cross-tab localStorage broadcast in invalidateOwnerBrowserSession is best-effort (catch); owner reset, fallback clear and same-tab event are unchanged.",
+      "sha256": "9f2257cc93593236c1cec771451daaaabad9dbc439f24645e3bc04e13bce855c"
     },
     "agent/lib/partner-model.ts": {
       "classification": "ENFORCED",
