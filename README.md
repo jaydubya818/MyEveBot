@@ -9,6 +9,7 @@ MyEve coordinates work; it does not treat a model response, a queued request or 
 ## Contents
 
 - [Current status](#current-status)
+- [October 2026 QA PR integration](#october-2026-qa-pr-integration)
 - [The three-repository system](#the-three-repository-system)
 - [Product capabilities](#product-capabilities)
 - [Proposed external-alpha exposure](#proposed-external-alpha-exposure)
@@ -31,12 +32,21 @@ MyEve coordinates work; it does not treat a model response, a queued request or 
 | Two real external testers | Preparation in progress; isolated resources/workspaces being prepared | **NOT_READY_TO_INVITE**; no access or invitation granted |
 | Ordinary external-alpha chat/Work policy | Inactive foundation under [draft PR #65](https://github.com/jaydubya818/MyEveBot/pull/65); scoped review and CI passed | Not in this canonical baseline; ordinary Work/Factory integration and final qualification remain incomplete |
 | Publication, generated PR/merge/deployment, automatic repair | Separate effect contracts exist in the ecosystem | Disabled for the proposed external alpha |
+| October 2026 QA PR close-out | Main-line candidate combines #91/#92/#94; #93 stays on the Deep Agent base; Relay Preview is **NOT ISOLATED**; Factory #21 pin is `f00ccd88…` | No merge, Production deploy, or tester invite. See [QA PR remediation 2026-10-22](docs/verification/qa-pr-remediation-2026-10-22/README.md) |
 
 The successful CLOUD qualification establishes **zero local runtime dependencies**. Physical Mac power state was not independently observed. A successful bounded journey does not establish unrestricted Work readiness, arbitrary repository support, general availability, or permission to invite users.
 
 The retained Result can remain **PARTIAL** even when the bounded execution journey passes: publication, external CI and owner acceptance are separate claims. Full production evidence is retained privately. This README summarizes engineering outcomes without publishing credentials, production resource identities, private paths or raw Result/Proof payloads.
 
 Dated qualification documents describe the scope at their checkpoint. An older `NOT_RUN` or `NOT_READY` entry must not be presented as the current aggregate status, nor should it be rewritten as a historical success.
+
+## October 2026 QA PR integration
+
+PRs [#91](https://github.com/jaydubya818/MyEveBot/pull/91), [#92](https://github.com/jaydubya818/MyEveBot/pull/92), and [#94](https://github.com/jaydubya818/MyEveBot/pull/94) are combined on `cursor/qa-main-integration-6ef4` against `main`. Shared files were unioned so none of those fixes or regression tests are dropped. PR [#93](https://github.com/jaydubya818/MyEveBot/pull/93) remains on `codex/q37-private-alpha-continuation` and must not be merged to `main`.
+
+Relay [#40](https://github.com/jaydubya818/relay/pull/40) Preview is **not** a safe Production database: Neon `PGHOST` and `POSTGRES_URL_NO_SSL` still target Production+Preview together, and the QA branch has no dedicated `RELAY_DATABASE_URL`. MyFactory [#21](https://github.com/jaydubya818/MyFactory/pull/21) stays pinned at `f00ccd885f70f8e088231be4bd6a2f0775714390`; later docs on that branch do not inherit execution qualification.
+
+Automatic Git Preview for this integration branch is disabled in `apps/eve/vercel.json`. Dated identities, patches, and isolation notes: [QA PR remediation 2026-10-22](docs/verification/qa-pr-remediation-2026-10-22/README.md). This section does not authorize merge, deployment, or invitations.
 
 ## The three-repository system
 
@@ -255,5 +265,6 @@ Canonical `main` is the source reference. [Vercel configuration](apps/eve/vercel
 | [Agent communication](docs/setup/agent-communication.md) | Peer setup and response acceptance |
 | [Private-alpha checkpoint](docs/operations/external-alpha-qualification.md) | Dated synthetic-owner evidence and operating procedures |
 | [Historical checkpoints](docs/verification/readme-historical-checkpoints.md) | Earlier results and their original limits |
+| [QA PR remediation 2026-10-22](docs/verification/qa-pr-remediation-2026-10-22/README.md) | Six-PR identities, #91/#92/#94 merge notes, Relay isolation, Factory pin |
 | [Canonical source policy](docs/consolidation/DEVELOPMENT-POLICY.md) | Source durability and integration discipline |
 | [Roadmap](docs/roadmap.md) | Product priorities; read with the current release gates above |
