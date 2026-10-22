@@ -17,7 +17,11 @@
       "codex/relay-renewal-guidance": false,
       "codex/relay-grant-expiry-settings": false,
       "codex/peer-conversation-ui": false,
-      "codex/telegram-current-integration": false
+      "codex/telegram-current-integration": false,
+      "cursor/qa-deep-agent-b54d": false,
+      "cursor/qa-silent-failures-b54d": false,
+      "cursor/qa-mobile-forms-b54d": false,
+      "cursor/qa-medium-low-b54d": false
     }
   }
 }
