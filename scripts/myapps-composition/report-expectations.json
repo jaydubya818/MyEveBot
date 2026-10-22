@@ -548,7 +548,7 @@
         "accepts only the complete known catalog, including Eve's single trailing description newline",
         "bounds verbose Work history for natural follow-up Can you explain the result? without discarding policy",
         "bounds verbose Work history for natural follow-up Is anything else needed? without discarding policy",
-        "bounds verbose Work history for natural follow-up Thanks \u2014 anything else to review? without discarding policy",
+        "bounds verbose Work history for natural follow-up Thanks — anything else to review? without discarding policy",
         "bounds verbose Work history for natural follow-up What changed? without discarding policy",
         "bounds verbose Work history for natural follow-up What did you change? without discarding policy",
         "defers optional deployment instructions only for external alpha",
@@ -584,7 +584,7 @@
       ]
     },
     "apps/eve/lib/external-alpha/work-controller-postgres.test.ts": {
-      "passed": 76,
+      "passed": 79,
       "skipped": [],
       "passedNames": [
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-1: an undispatched Work reservation holds the single slot and fences new chat admission until its deadline",
@@ -599,7 +599,7 @@
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: UNKNOWN Work exposure denies another owner's Work before any Factory call",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) QE-017: one active Work per cohort; the second owner is denied with explicit capacity before any Factory call (Decision A)",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) RACE-1: a chat admitted before the Work cannot dispatch between the Work's reservation and its dispatch; the Work still runs",
-        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) RACE-2: a definitive central dispatch refusal cancels the claimed authority before any Factory call (never DISPATCHING\u2192UNKNOWN)",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) RACE-2: a definitive central dispatch refusal cancels the claimed authority before any Factory call (never DISPATCHING→UNKNOWN)",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) STOP-1: the owner stops a running alpha Work without a paid turn; the fence clears only from the authenticated terminal fact",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) STOP-2: the owner page never cancels a Work that is still starting, so a concurrent claim cannot be overwritten",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) Sofie takeover transfers control only after exact confirmed cleanup (bare-label)",
@@ -616,6 +616,9 @@
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-8: no fault, delayed central write: no admission inside the local-UNKNOWN window",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-9: an allowance admitted before the Work cannot dispatch a paid call while the Work is RUNNING or UNKNOWN",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a definitive Factory denial cancels the authority without fencing, and the allowance is still charged",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial for a request the Factory already holds fences UNKNOWN instead of CANCELLED",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial whose readback cannot be obtained fences UNKNOWN instead of CANCELLED",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial confirmed by an authenticated readback 404 cancels; the allowance stays charged",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost post-commit reconciliation acknowledgement restarts from the immutable terminal fact without another dispatch",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a replayed readback challenge fences without recording its forged terminal accounting",

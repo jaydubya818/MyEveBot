@@ -300,7 +300,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
       binding:x.binding,requestId:x.requestId,runId:admitted.runId,decisionId:x.decisionId});
     const e=fixture.enrollment,request={schema:'mc-result-request/v1' as const,connectionId:e.connectionId,installationId:e.installationId,
       ownerId:env.owner,projectId:e.projectId,issuer:e.issuer,audience:e.audience,permitId:fixture.document.permitId,
-      commandId:randomUUID(),challenge:'a'.repeat(64),issuedAt:Date.now(),expiresAt:Date.now()+30000};
+      commandId:randomUUID(),challenge:'a'.repeat(64),...(t=>({issuedAt:t,expiresAt:t+30000}))(Date.now())};
     const result=await missionControlResultReadback(database,request);
     expect(result.status).toBe('SETTLED');
     expect(result.result).toMatchObject({resultId:retained.receiptId,nativeResultId:retained.native.id,proofHash:retained.native.contentHash,
@@ -951,7 +951,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const projected=await missionControlResultReadback(database,{schema:'mc-result-request/v1',
       connectionId:fixture.enrollment.connectionId,installationId:fixture.enrollment.installationId,ownerId:env.owner,
       projectId:fixture.enrollment.projectId,permitId:fixture.document.permitId,commandId:randomUUID(),challenge:'a'.repeat(64),
-      issuer:fixture.enrollment.issuer,audience:fixture.enrollment.audience,issuedAt:Date.now(),expiresAt:Date.now()+30000});
+      issuer:fixture.enrollment.issuer,audience:fixture.enrollment.audience,...(t=>({issuedAt:t,expiresAt:t+30000}))(Date.now())});
     expect(projected.admission).toMatchObject({authorityId:started.authority.id,requestId:started.authority.requestId});
     expect(alphaReadback(projected).readbackSignature).toBeTruthy();
     expect(alphaReadback(projected).readbackAttestation.state).toBe(stage==='stop'?'CANCELLED':'RUNNING');
@@ -967,7 +967,7 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     const request={schema:'mc-result-request/v1' as const,connectionId:fixture.enrollment.connectionId,
       installationId:fixture.enrollment.installationId,ownerId:env.owner,projectId:fixture.enrollment.projectId,
       permitId:fixture.document.permitId,commandId:'read-result',challenge:'a'.repeat(64),issuer:fixture.enrollment.issuer,
-      audience:fixture.enrollment.audience,issuedAt:Date.now(),expiresAt:Date.now()+30000};
+      audience:fixture.enrollment.audience,...(t=>({issuedAt:t,expiresAt:t+30000}))(Date.now())};
     const running=await missionControlResultReadback(database,request);
     expect(running).toMatchObject({status:'PENDING',missionId:fixture.document.missionId,result:null,
       admission:{authorityId:started.authority.id,requestId:started.authority.requestId}});
