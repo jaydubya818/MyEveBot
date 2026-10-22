@@ -2,13 +2,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fork } from "node:child_process";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { once } from "node:events";
 
 // This tests an actual SIGKILL and fresh Node process with the real SDK and scripted model.
 test("SIGKILL after durable edit resumes pending graph tool once without losing the candidate", { timeout: 15000 }, async () => {
-  const directory = await mkdtemp("/private/tmp/myeve-er2-process-");
+  const directory = await mkdtemp(join(tmpdir(), "myeve-er2-process-"));
   let child: ReturnType<typeof fork> | undefined;
   try {
     const now = Date.now(), workId = randomUUID(), scope = { kind: "personal", id: "owner" };
