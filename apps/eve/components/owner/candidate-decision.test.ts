@@ -1,53 +1,79 @@
 /**
- * QA-34 — candidate-decision load() checks response.ok before calling .json()
+ * Regression test for QA-34.
  *
- * Revert-check: reverting to `const body=await r.json(); if(!r.ok)throw…`
- * causes the "HTML error page body" test to fail with "Unexpected token '<'"
- * instead of the expected application-level error message.
+ * Tests the real fetchOwnerDecision() extracted from candidate-decision.tsx.
+ * The fix checks response.ok BEFORE calling .json() so that HTML error pages
+ * (e.g. Vercel 504) produce a readable status-based message rather than a
+ * raw SyntaxError.
+ *
+ * Revert-check: reverting candidate-decision-fetch.ts to call .json() before
+ * checking .ok causes the "HTML error page" test to reject with
+ * "Unexpected token '<'" instead of "Request failed (504)".
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fetchOwnerDecision } from "@/lib/candidate-decision-fetch";
 
-/**
- * Simulates the post-fix load logic:
- * check ok first, then parse JSON (with a safe fallback for non-JSON bodies).
- */
-async function loadWithFix(fetch: () => Promise<{ ok: boolean; status: number; json: () => Promise<unknown> }>) {
-  const r = await fetch();
-  if (!r.ok) {
-    const body = await r.json().catch(() => null) as { error?: string } | null;
-    throw new Error(body?.error ?? `Request failed (${r.status})`);
-  }
-  return r.json();
-}
+const fetchMock = vi.fn();
+vi.stubGlobal("fetch", fetchMock);
 
-describe("QA-34 — ok-before-json ordering in candidate-decision", () => {
-  it("throws with the error field when the server returns a JSON error body", async () => {
-    const fetch = async () => ({
-      ok: false, status: 500,
-      json: async () => ({ error: "Internal error from server" }),
+beforeEach(() => { vi.clearAllMocks(); });
+
+describe("fetchOwnerDecision — QA-34", () => {
+  it("returns parsed data on a 200 response", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ bindingHash: "abc", decision: null }),
     });
-    await expect(loadWithFix(fetch)).rejects.toThrow("Internal error from server");
+    const result = await fetchOwnerDecision("work-1");
+    expect((result as { bindingHash: string }).bindingHash).toBe("abc");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("work-1"),
+      expect.objectContaining({ cache: "no-store" }),
+    );
   });
 
-  it("throws a status message when the body is an HTML error page (non-JSON)", async () => {
-    const fetch = async () => ({
-      ok: false, status: 504,
-      // Simulates Vercel HTML error page — json() would throw "Unexpected token <"
-      json: async () => { throw new SyntaxError("Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"); },
+  it("throws the server error field when the response is a JSON error body", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: "Internal error from server" }),
     });
-    // Must NOT surface the raw SyntaxError; must use the status fallback.
+    await expect(fetchOwnerDecision("work-2")).rejects.toThrow(
+      "Internal error from server",
+    );
+  });
+
+  it("throws a status-code message when the body is an HTML page (non-JSON)", async () => {
+    // Simulates a Vercel 504 that returns an HTML body.
+    // Before the fix, r.json() throws 'Unexpected token <...' which was surfaced raw.
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 504,
+      json: async () => {
+        throw new SyntaxError(
+          "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+        );
+      },
+    });
     let err: Error | undefined;
-    try { await loadWithFix(fetch); } catch (e) { err = e instanceof Error ? e : new Error(String(e)); }
+    try {
+      await fetchOwnerDecision("work-3");
+    } catch (e) {
+      err = e instanceof Error ? e : new Error(String(e));
+    }
     expect(err?.message).toBe("Request failed (504)");
     expect(err?.message).not.toMatch(/Unexpected token/);
   });
 
-  it("resolves with data on a successful response", async () => {
-    const fetch = async () => ({
-      ok: true, status: 200,
-      json: async () => ({ bindingHash: "abc", decision: null }),
+  it("uses the status fallback when non-OK body has no error field", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 422,
+      json: async () => ({}), // empty JSON, no .error field
     });
-    const result = await loadWithFix(fetch);
-    expect(result).toMatchObject({ bindingHash: "abc" });
+    await expect(fetchOwnerDecision("work-4")).rejects.toThrow(
+      "Request failed (422)",
+    );
   });
 });

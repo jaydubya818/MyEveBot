@@ -50,6 +50,9 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { performCancelTurn } from "@/lib/chat-stop";
+import { deleteThreadOnServer } from "@/lib/thread-delete";
+import { useReattachNotice } from "@/lib/chat-reattach-notice";
 import { persistChatUpload, inspectChatUploads } from "@/lib/chat-file-client";
 import type { ChatFileView } from "@/lib/files-api";
 
@@ -328,14 +331,7 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
   void saveThreadForCurrentOwner(meta.id, threadMetaBody(meta));
 }
 
-async function deleteThreadOnServer(id: string): Promise<boolean> {
-  try {
-    const response = await fetch(`/api/threads/${id}`, { method: "DELETE" });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
+// deleteThreadOnServer is imported from @/lib/thread-delete
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
   try {
@@ -1914,7 +1910,7 @@ function ChatThread({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [stopError, setStopError] = useState<string | null>(null);
   // Shown once after a mid-turn reload where the stream was unreachable.
-  const [reattachNote, setReattachNote] = useState(() => initialChat.reattachIncomplete === true);
+  const { show: reattachNote, clear: clearReattachNote } = useReattachNotice(initialChat.reattachIncomplete);
   const uploadInProgress = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -2263,7 +2259,7 @@ function ChatThread({
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
-    setReattachNote(false);
+    clearReattachNote();
     recognitionRef.current?.stop();
     if (staged.length > 0) {
       uploadInProgress.current = true;
@@ -2316,15 +2312,13 @@ function ChatThread({
     // During a reattached turn the agent store is idle; the session id from
     // the saved cursor targets the running turn instead.
     const sessionId = agent.session?.sessionId ?? initialChat.session?.sessionId;
-    try {
-      if (!resuming) {
-        await agent.cancel();
-      } else if (sessionId) {
+    if (!resuming) {
+      await performCancelTurn(() => agent.cancel(), setStopError);
+    } else if (sessionId) {
+      await performCancelTurn(async () => {
         const response = await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() });
         if (!response.ok) throw new Error("Cancel request returned an error.");
-      }
-    } catch {
-      setStopError("Stop could not be confirmed — the turn may still be running.");
+      }, setStopError);
     }
   }
 
@@ -2587,7 +2581,7 @@ function ChatThread({
         {!ownerConflict && reattachNote && (
           <div role="status" className="mx-4 mb-2 rounded-lg border border-kumo-warning/30 bg-kumo-warning/5 px-3 py-2 text-sm text-kumo-warning">
             Reconnect was incomplete — this reply may be partial. Send a new message to continue.
-            <button className="ms-2 text-xs underline" onClick={() => setReattachNote(false)}>Dismiss</button>
+            <button className="ms-2 text-xs underline" onClick={clearReattachNote}>Dismiss</button>
           </div>
         )}
         {!ownerConflict && (
