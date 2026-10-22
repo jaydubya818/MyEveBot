@@ -206,6 +206,38 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     await expect(controller.start(await e.seedWork())).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
+  it("a Factory denial for a request the Factory already holds fences UNKNOWN instead of CANCELLED", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    // The Factory committed an admission for this request, yet the response was a definitive-looking refusal.
+    factory.failWith = new FactoryDenied("AUTHORITY_CAPABILITY");
+    factory.replayReadback = { requestId: "already-admitted" };
+    await expect(controller.start(work)).rejects.toThrow(/DISPATCH_UNKNOWN/);
+    expect((await e.svc.forWork(work.id))?.state).toBe("UNKNOWN");
+    expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
+    expect(factory.reads).toBe(1);
+  });
+
+  it("a Factory denial whose readback cannot be obtained fences UNKNOWN instead of CANCELLED", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    factory.failWith = new FactoryDenied("PRICING_EXPIRED");
+    factory.read = async () => { throw Error("ECONNRESET"); };
+    await expect(controller.start(work)).rejects.toThrow(/DISPATCH_UNKNOWN/);
+    expect((await e.svc.forWork(work.id))?.state).toBe("UNKNOWN");
+    expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
+  });
+
+  it("a Factory denial confirmed by an authenticated readback 404 cancels; the allowance stays charged", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    factory.failWith = new FactoryDenied("AUTHORITY_CAPABILITY");
+    await expect(controller.start(work)).rejects.toThrow(/AUTHORITY_CAPABILITY/);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    expect(factory.reads).toBe(1);
+    expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(0);
+  });
+
   it("records Factory productive and completion operations in the same ledger exactly once and completes at quiescence", async () => {
     const { e, factory, controller } = await make();
     const work = await e.seedWork();

@@ -376,8 +376,17 @@ export class ExternalAlphaWorkController {
       );
     } catch (error) {
       if (error instanceof FactoryDenied && error.code !== "AUTHORITY_CONSUMED") {
-        await this.authority.finish(record.id, "CANCELLED", { reason: "FACTORY_DENIED:" + error.code });
-        throw error;
+        // A refusal is accepted as definitive only when an authenticated, owner-scoped readback also shows that the
+        // Factory holds no admission for this request (404). A readback that finds the request, or that cannot be
+        // obtained, leaves the outcome ambiguous: the Work may exist, so the authority is fenced UNKNOWN, never CANCELLED.
+        let absent = false;
+        try { absent = (await this.factory.read(record.requestId, readbackChallenge())) === null; } catch { absent = false; }
+        if (absent) {
+          await this.authority.finish(record.id, "CANCELLED", { reason: "FACTORY_DENIED:" + error.code });
+          throw error;
+        }
+        await this.authority.finish(record.id, "UNKNOWN", { reason: "FACTORY_DENIAL_UNCONFIRMED:" + error.code }).catch(() => {});
+        throw Error("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
       }
       // Ambiguous: the Factory may have consumed. Fence; never re-send.
       await this.authority.finish(record.id, "UNKNOWN", { reason: "DISPATCH_AMBIGUOUS" }).catch(() => {});
