@@ -11,7 +11,7 @@ for(const name of ['myeve','myfactory']) {
   assert.equal(git('status','--porcelain'),'','Qualification source must be clean');
   evidence.snapshots[name]={snapshot:git('rev-parse','HEAD'),tree:git('rev-parse','HEAD^{tree}'),path};
 }
-assert.equal(evidence.snapshots.myfactory.snapshot,'3f08eabb0fbd322d6fd45d6f17c677f5f7345766');
+assert.equal(evidence.snapshots.myfactory.snapshot,'3037f5de462f59003498e9e91d976ebfbf09b05f');
 const fileRecord=(name,path)=>({path,sha256:createHash('sha256').update(readFileSync(join(output,name,path))).digest('hex')});
 const migrations=(name,path)=>readdirSync(join(output,name,path)).filter(file=>file.endsWith('.sql')).sort().map(file=>fileRecord(name,path+'/'+file));
 const envelope={
