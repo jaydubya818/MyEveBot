@@ -1301,6 +1301,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
       <aside
         ref={sidebarRef}
         aria-label="App navigation"
+        data-chat-sidebar
+        data-open={sidebarOpen ? "true" : undefined}
         className={cn(
           "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
           sidebarOpen && "visible translate-x-0",
@@ -1509,7 +1511,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
       {view === "channels" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full px-4 py-6 sm:px-6 lg:px-8"><ChannelsWorkspace pushStatus={push.status} onTogglePush={push.toggle} /></div>
         </main>
       ) : view === "email" ? (
@@ -1522,22 +1524,22 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         />
       ) : view === "results" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>
         </main>
       ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerWorkspace /></div>
         </main>
       ) : view === "knowledge" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
         </main>
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
@@ -1549,6 +1551,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1564,6 +1567,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1579,6 +1583,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -2450,6 +2455,7 @@ function ChatThread({
           icon={SidebarSimpleIcon}
           className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
           aria-label="Open threads"
+          data-sidebar-toggle
           onClick={onOpenSidebar}
         />
 
