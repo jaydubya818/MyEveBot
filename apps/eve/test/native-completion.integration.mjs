@@ -26,8 +26,9 @@ import {nativeBudgetedModel} from '../lib/engineering/native-model.ts';
 import {DirectDevelopmentStore} from '../lib/engineering/direct-development.ts';
 import {DirectVerificationDriver} from '../lib/engineering/direct-verification-driver.ts';
 import {NativeResultStore} from '../lib/engineering/native-results.ts';
+import {capabilityWorkFixture} from './fixtures/capability-work.mjs';
 const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55479/postgres'});await admin.connect();
-const name='gap2b_'+randomBytes(8).toString('hex');let pool;
+const name='gap2b_'+randomBytes(8).toString('hex');let pool,capability;
 try {
  await admin.query('CREATE DATABASE '+name);const databaseURL='postgresql://postgres@127.0.0.1:55479/'+name;
  pool=new Pool({connectionString:databaseURL});const client=await pool.connect();
@@ -37,10 +38,14 @@ try {
  const migrationDb={query:async(s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const x of statements)await client.query(x.sql,x.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}};
  await runMigrations(migrationDb,migrations,()=>{});
  } finally { client.release(); }
- const database={query:async(s,p)=>(await pool.query(s,p)).rows};const owner='completion-owner',agentId='completion-sofie';
+ const owner='completion-owner',agentId='completion-sofie';
+ // Restricted runtime role and atomic adapter: native admission runs the real capability gate.
+ capability=await capabilityWorkFixture(pool,databaseURL,{ownerId:owner,agentId,capabilityIds:['deepagents'],selectedAlternatives:{deepagents:'sofie.local-harness'}});const database=capability.database;
  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
- VALUES($1,$2,'Sofie','sofie','engineer','Bounded test engineer',true,'active',1.3,3600,30)`,[agentId,owner]);
+ VALUES($1,$2,'Sofie','sofie','engineer','Bounded test engineer',true,'active',1.3,3600,30) ON CONFLICT (id) DO UPDATE SET owner_id=EXCLUDED.owner_id,name=EXCLUDED.name,slug=EXCLUDED.slug,role=EXCLUDED.role,instructions=EXCLUDED.instructions,is_primary=EXCLUDED.is_primary,status=EXCLUDED.status,max_estimated_cost_usd=EXCLUDED.max_estimated_cost_usd,max_runtime_seconds=EXCLUDED.max_runtime_seconds,max_steps=EXCLUDED.max_steps`,[agentId,owner]);
  const store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database);
+ // The Factory receipt boundary keeps its original privileged fixture connection; only native admission uses the restricted runtime role.
+ const receiptBoundaryStore=new WorkStore(store.principal,{query:async(q,p)=>(await pool.query(q,p)).rows});
  const issued=JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-26-m1er1-window/window-issued-config.json',import.meta.url),'utf8'));
  const criterion=issued.criteria[0];
  const retainedFixture=JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-26-m1er1-window/window-closure.json',import.meta.url),'utf8'));
@@ -59,7 +64,7 @@ try {
  async function crash(stage,w,reservation,action){
   const child=fork(new URL('./native-completion-process.mjs',import.meta.url),[],{execArgv:['--import','tsx'],stdio:['ignore','ignore','pipe','ipc']});let stderr='';child.stderr.on('data',v=>stderr+=v);
   try{const checkpoint=Promise.race([once(child,'message'),once(child,'exit').then(()=>{throw Error('Child exited: '+stderr)}),new Promise((_,reject)=>{const t=setTimeout(()=>reject(Error('Child timeout '+stderr)),60000);t.unref();})]);
-   child.send({databaseURL,config,workId:w.id,stage,reservation,action});const [result]=await checkpoint;assert.equal(result.ready,true);
+   child.send({databaseURL:capability.url,config,workId:w.id,stage,reservation,action});const [result]=await checkpoint;assert.equal(result.ready,true);
    const exit=once(child,'exit');child.kill('SIGKILL');assert.equal((await exit)[1],'SIGKILL');
   }finally{child.kill('SIGKILL');}
  }
@@ -118,10 +123,13 @@ try {
   console.log('PASS: actual SIGKILL after',stage,'preserves contract/exposure without replay');
  }
  for(const mutation of [k=>k.stages[0].calls=null,k=>delete k.stages[1].microUsd,k=>k.qualification.expiresAt=null,k=>delete k.modelId,k=>k.stages[0].calls=1,k=>k.stages[0].calls=5.2,k=>k.stages[0].microUsd=70000.5]){
-  const w=await prepare('malformed contract');const alteredStore=new WorkStore(store.principal,{query:async(sql,params)=>{
+  const w=await prepare('malformed contract');const intercept=(sql,params)=>{
    if(sql.includes('admission_authority_snapshot=$20::jsonb')){params=[...params];const snapshot=JSON.parse(params[19]);mutation(snapshot.completion);params[19]=JSON.stringify(snapshot);}
-   return (await pool.query(sql,params)).rows;
-  }});
+   return params;
+  };
+  // The same interceptor wraps the pinned admission transaction so rejection comes from the malformed contract, not the adapter.
+  const alteredStore=new WorkStore(store.principal,{query:async(sql,params)=>database.query(sql,intercept(sql,params)),
+   atomic:action=>database.atomic(tx=>action({query:async(sql,params)=>tx.query(sql,intercept(sql,params))}))});
   await assert.rejects(admitNativeWork(alteredStore,w.id,w.version,w.generation,new NativeRouteAuthority(alteredStore,async()=>config),'writer'),/completion|qualification|stage/i);
   assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_route_runs WHERE work_id=$1',[w.id])).rows[0].n,0);
  }
@@ -181,7 +189,7 @@ try {
  const admissionResponse=await initialModel.doGenerate(freshOptions);assert.equal(JSON.parse(admissionResponse.content[0].input).request.operation,'admit');
  const proposalFromModel=nativeDevelopmentToolSchema.parse(JSON.parse(admissionResponse.content[0].input)).request;
  await admitNativeWork(store,journey.id,proposalFromModel.expectedWorkVersion,proposalFromModel.expectedWorkGeneration,authority,'writer');
- const assertFactoryUnchanged=explanationVariant==='valid'?await assertReceiptDoesNotGrantAuthority(pool,store,journey,agentId):null;
+ const assertFactoryUnchanged=explanationVariant==='valid'?await assertReceiptDoesNotGrantAuthority(pool,receiptBoundaryStore,journey,agentId):null;
  const initialReceipt=(await pool.query("SELECT reserved_microusd,spent_microusd FROM engineering_work_model_calls WHERE work_id=$1",[journey.id])).rows[0];
  assert(Number(initialReceipt.reserved_microusd)+await held(journey)<=1300000);
  console.log('PASS: actual fresh conversation wrapper/schema/Current Truth plus full completion maximum fit unchanged $1.30',JSON.stringify({conversationBound:Number(initialReceipt.reserved_microusd),completionHold:await held(journey)}));
@@ -245,4 +253,4 @@ try {
  console.log('PASS: '+explanationVariant+' fresh explanation truth/charge; third source repair denied');
  }
 
-} finally {await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name);await admin.end();}
+} finally {await capability?.cleanup();await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name);await admin.end();}

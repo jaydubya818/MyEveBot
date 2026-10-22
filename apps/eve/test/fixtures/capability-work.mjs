@@ -4,6 +4,25 @@ import { readFile } from 'node:fs/promises';
 import pg from 'pg';
 import { capabilityRegistry } from '@mission-control/capability-control';
 
+// Query plus transactional adapter over a pg pool; capability admission requires `atomic`.
+export function atomicDatabase(pool) {
+  return {
+    query: async (sql, values) => (await pool.query(sql, values)).rows,
+    atomic: async action => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const result = await action({ query: async (sql, values) => (await client.query(sql, values)).rows });
+        await client.query('COMMIT');
+        return result;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally { client.release(); }
+    },
+  };
+}
+
 export function engineeringTestAdminUrl(defaultPort) {
   const url = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? `postgresql://postgres@127.0.0.1:${defaultPort}/postgres`);
   assert.equal(url.protocol, 'postgresql:');
@@ -18,7 +37,7 @@ export function engineeringTestAdminUrl(defaultPort) {
 export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agentId, capabilityIds, selectedAlternatives = {} }) {
   const url = new URL(databaseUrl);
   assert.equal(url.hostname, '127.0.0.1');
-  assert.match(url.pathname, /^\/(direct_work|direct_verifier|route_admission)_[a-f0-9]+$/);
+  assert.match(url.pathname, /^\/(direct_work|direct_verifier|route_admission|gap2b)_[a-f0-9]+$/);
   const suffix = randomUUID().replaceAll('-', '');
   const role = `work_runtime_${suffix}`;
   const installationId = `synthetic-install-${suffix}`, organizationId = `synthetic-org-${suffix}`;
@@ -73,25 +92,12 @@ export async function capabilityWorkFixture(admin, databaseUrl, { ownerId, agent
   };
   const previous = Object.fromEntries(Object.keys(settings).map(key => [key, process.env[key]]));
   Object.assign(process.env, settings);
-  const database = {
-    query: async (sql, values) => (await runtime.query(sql, values)).rows,
-    atomic: async action => {
-      const client = await runtime.connect();
-      try {
-        await client.query('BEGIN');
-        const result = await action({ query: async (sql, values) => (await client.query(sql, values)).rows });
-        await client.query('COMMIT');
-        return result;
-      } catch (error) {
-        await client.query('ROLLBACK');
-        throw error;
-      } finally { client.release(); }
-    },
-  };
+  const database = atomicDatabase(runtime);
   // Check that the adapter actually uses restricted policy reads and cannot author policy.
   assert.equal((await database.query('SELECT * FROM capability_control.owner_state')).length, 0);
   await assert.rejects(database.query('DELETE FROM capability_control.evidence'), /permission denied/);
-  return { database, installationId, cleanup: async () => {
+  // `url` is the restricted runtime URL for forked fixture children (process.env carries the capability settings).
+  return { database, installationId, url: url.href, cleanup: async () => {
     await runtime.end();
     for (const [key, value] of Object.entries(previous)) {
       if (value === undefined) delete process.env[key]; else process.env[key] = value;
