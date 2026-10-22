@@ -3,7 +3,7 @@
  * can be imported and tested independently of the full ChatThread component.
  */
 export async function performCancelTurn(
-  cancel: () => Promise<void>,
+  cancel: () => Promise<unknown>,
   onError: (message: string) => void,
 ): Promise<void> {
   try {
