@@ -94,8 +94,8 @@ export function IntegratedExperience({
       summary: string;
       at: string;
       work_id: string | null;
-    }>
-  >([]);
+    }> | null
+  >(null);
   const [feedbackScope, setFeedbackScope] = useState<"WORK" | "REPOSITORY">(
     "WORK",
   );
@@ -511,10 +511,16 @@ export function IntegratedExperience({
         {!!errors.length && (
           <div className="owner-notice" role="alert">
             <h2>Some information is unavailable</h2>
-            {errors.map((e) => (
-              <p key={e}>{e}</p>
+            {/* Deduplicate by the message suffix to avoid showing the same
+                API error repeated for every concurrently-failing endpoint. */}
+            {[...new Set(errors.map((e) => e.replace(/^[^:]+: /, "")))].map((msg) => (
+              <p key={msg}>{msg}</p>
             ))}
-            <Link href="/login">Sign in</Link>
+            <div className="owner-actions">
+              <button onClick={refresh} disabled={loading}>
+                {loading ? "Checking…" : "Try again"}
+              </button>
+            </div>
           </div>
         )}
         {notice && (
@@ -905,7 +911,9 @@ export function IntegratedExperience({
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">
-                {activity.length ? (
+                {activity === null ? (
+                  <p>Memory and learning changes are unavailable right now. Check your connection and reload.</p>
+                ) : activity.length ? (
                   <ul className="owner-list">
                     {activity.map((change) => (
                       <li key={change.id}>

@@ -167,6 +167,21 @@ export function webPrincipal(
   return browserOwner && browserOwner!==principal?.id ? null : principal;
 }
 
+/** Normalize loopback hostnames for the same-origin check so that
+ * http://127.0.0.1:PORT and http://localhost:PORT are treated as the same
+ * origin. Next.js rewrites request.url hostname to `localhost`, but the
+ * browser may send `Origin: http://127.0.0.1:PORT`. This is safe because
+ * both are loopback addresses and never reachable across the network. */
+function normalizeOriginForComparison(rawUrl: string): string {
+  try {
+    const u = new URL(rawUrl);
+    if (u.hostname === "127.0.0.1" || u.hostname === "::1") u.hostname = "localhost";
+    return u.origin;
+  } catch {
+    return rawUrl;
+  }
+}
+
 function isUnsafeCrossOrigin(request: Request): boolean {
   if (["GET", "HEAD", "OPTIONS"].includes(request.method.toUpperCase())) return false;
   const fetchSite = request.headers.get("sec-fetch-site");
@@ -174,7 +189,7 @@ function isUnsafeCrossOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (origin === null) return false;
   try {
-    return new URL(origin).origin !== new URL(request.url).origin;
+    return normalizeOriginForComparison(origin) !== normalizeOriginForComparison(request.url);
   } catch {
     return true;
   }
