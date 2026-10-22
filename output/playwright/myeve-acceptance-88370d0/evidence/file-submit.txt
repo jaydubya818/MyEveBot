@@ -1,0 +1,12 @@
+### Result
+"- main:\n  - status:\n    - paragraph: Limited mode\n    - paragraph: Memory and Connected apps and Skills need setup. Everything else remains available.\n    - button \"Review setup\"\n  - region \"Messages\":\n    - log:\n      - text: \"Read the attached synthetic Project Atlas notes and tell me the target onboarding completion rate. Do not contact anyone or create durable records. [file: atlas-notes.txt]\"\n      - status: Thinking...\n  - button \"Scroll to end\"\n  - textbox \"Message Ava\":\n    - /placeholder: Message Ava... (/ for commands)\n  - button \"Attach files\":\n    - img\n  - button \"Select reasoning effort\":\n    - img\n    - img\n  - button \"Select model\":\n    - text: claude-sonnet-5\n    - img\n  - button \"Start voice input\":\n    - img\n  - button \"Stop\":\n    - img\n  - paragraph"
+### Ran Playwright code
+```js
+await (async page => { if(await page.getByRole("button",{name:"Remove atlas-notes.txt",exact:true}).count()>1)await page.getByRole("button",{name:"Remove atlas-notes.txt",exact:true}).first().click();await page.getByRole("textbox",{name:"Message Ava",exact:true}).fill("Read the attached synthetic Project Atlas notes and tell me the target onboarding completion rate. Do not contact anyone or create durable records.");await page.getByRole("button",{name:"Send",exact:true}).click();await page.waitForTimeout(1000);return await page.locator("main").ariaSnapshot();})(page);
+```
+### Page
+- Page URL: http://localhost:3073/
+- Page Title: Ava
+- Console: 2 errors, 42 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L2115-L2145

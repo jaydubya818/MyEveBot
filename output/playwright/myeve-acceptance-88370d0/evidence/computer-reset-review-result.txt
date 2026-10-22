@@ -1,0 +1,5 @@
+### Error
+TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for getByText('Generation 2 · not shared', { exact: true }) to be visible[22m
+

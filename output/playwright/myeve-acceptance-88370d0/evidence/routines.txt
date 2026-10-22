@@ -1,0 +1,217 @@
+### Page
+- Page URL: http://localhost:3073/manage/routines
+- Page Title: Ava
+- Console: 2 errors, 39 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back to chat" [ref=e5]: Ava
+        - generic [ref=e6]:
+          - button "Goals" [ref=e7] [cursor=pointer]:
+            - img [ref=e8]
+          - button "Knowledge" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+          - button "Results" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Computer" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "Agents" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Review" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - button "Channels" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - button "Files" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Manage" [pressed] [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "New thread" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+      - textbox "Search threads" [ref=e39]
+      - navigation [ref=e40]:
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Today
+          - list [ref=e43]:
+            - listitem [ref=e44]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e45]:
+                - generic [ref=e47]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e48]: 12:46 PM
+              - generic [ref=e49]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e50] [cursor=pointer]:
+                  - img [ref=e51]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e53] [cursor=pointer]:
+                  - img [ref=e54]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e56] [cursor=pointer]:
+                  - img [ref=e57]
+    - main [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - heading "Manage" [level=1] [ref=e62]
+          - paragraph [ref=e63]: Configure what Ava knows, connects to, and handles for you.
+        - generic [ref=e65]:
+          - navigation "Manage sections" [ref=e66]:
+            - generic [ref=e67]:
+              - paragraph [ref=e68]: General
+              - list [ref=e69]:
+                - listitem [ref=e70]:
+                  - button "Getting started Setup and first useful job" [ref=e71]:
+                    - img [ref=e73]
+                    - generic [ref=e75]:
+                      - generic [ref=e76]: Getting started
+                      - generic [ref=e77]: Setup and first useful job
+                - listitem [ref=e78]:
+                  - button "Briefs & reviews Scheduled proactive delivery" [ref=e79]:
+                    - img [ref=e81]
+                    - generic [ref=e83]:
+                      - generic [ref=e84]: Briefs & reviews
+                      - generic [ref=e85]: Scheduled proactive delivery
+                - listitem [ref=e86]:
+                  - button "System Setup and service health" [ref=e87]:
+                    - img [ref=e89]
+                    - generic [ref=e91]:
+                      - generic [ref=e92]: System
+                      - generic [ref=e93]: Setup and service health
+                - listitem [ref=e94]:
+                  - button "Appearance Identity and theme" [ref=e95]:
+                    - img [ref=e97]
+                    - generic [ref=e99]:
+                      - generic [ref=e100]: Appearance
+                      - generic [ref=e101]: Identity and theme
+                - listitem [ref=e102]:
+                  - button "Your data Export, verify, and retention" [ref=e103]:
+                    - img [ref=e105]
+                    - generic [ref=e107]:
+                      - generic [ref=e108]: Your data
+                      - generic [ref=e109]: Export, verify, and retention
+                - listitem [ref=e110]:
+                  - button "Agents Role catalog and persistent Agents" [ref=e111]:
+                    - img [ref=e113]
+                    - generic [ref=e115]:
+                      - generic [ref=e116]: Agents
+                      - generic [ref=e117]: Role catalog and persistent Agents
+            - generic [ref=e118]:
+              - paragraph [ref=e119]: Automations
+              - list [ref=e120]:
+                - listitem [ref=e121]:
+                  - button "Reminders Scheduled follow-ups 0" [ref=e258]:
+                    - img [ref=e124]
+                    - generic [ref=e126]:
+                      - generic [ref=e127]: Reminders
+                      - generic [ref=e128]: Scheduled follow-ups
+                    - generic [ref=e259]: "0"
+                - listitem [ref=e129]:
+                  - button "Triggers Event-driven work 0" [ref=e260]:
+                    - img [ref=e132]
+                    - generic [ref=e134]:
+                      - generic [ref=e135]: Triggers
+                      - generic [ref=e136]: Event-driven work
+                    - generic [ref=e261]: "0"
+            - generic [ref=e137]:
+              - paragraph [ref=e138]: Channels
+              - list [ref=e139]:
+                - listitem [ref=e140]:
+                  - button "Slack Workspace messaging and reactions" [ref=e141]:
+                    - img [ref=e143]
+                    - generic [ref=e145]:
+                      - generic [ref=e146]: Slack
+                      - generic [ref=e147]: Workspace messaging and reactions
+                - listitem [ref=e148]:
+                  - button "iMessage Pairing and shared-number delivery" [ref=e149]:
+                    - img [ref=e151]
+                    - generic [ref=e153]:
+                      - generic [ref=e154]: iMessage
+                      - generic [ref=e155]: Pairing and shared-number delivery
+            - generic [ref=e164]:
+              - paragraph [ref=e165]: Knowledge & tools
+              - list [ref=e166]:
+                - listitem [ref=e167]:
+                  - button "Memory What Ava remembers Setup required" [ref=e262]:
+                    - img [ref=e170]
+                    - generic [ref=e172]:
+                      - generic [ref=e173]: Memory
+                      - generic [ref=e174]: What Ava remembers
+                    - generic "Setup required" [ref=e263]:
+                      - generic [ref=e264]: Setup required
+                - listitem [ref=e175]:
+                  - button "Connections Apps and accounts Setup required" [ref=e265]:
+                    - img [ref=e178]
+                    - generic [ref=e180]:
+                      - generic [ref=e181]: Connections
+                      - generic [ref=e182]: Apps and accounts
+                    - generic "Setup required" [ref=e266]:
+                      - generic [ref=e267]: Setup required
+                - listitem [ref=e183]:
+                  - button "Skills Reusable procedures Setup required" [ref=e268]:
+                    - img [ref=e186]
+                    - generic [ref=e188]:
+                      - generic [ref=e189]: Skills
+                      - generic [ref=e190]: Reusable procedures
+                    - generic "Setup required" [ref=e269]:
+                      - generic [ref=e270]: Setup required
+            - generic [ref=e191]:
+              - paragraph [ref=e192]: Operations
+              - list [ref=e193]:
+                - listitem [ref=e194]:
+                  - button "Routines Readiness and reviewed capabilities" [ref=e195]:
+                    - img [ref=e197]
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Routines
+                      - generic [ref=e201]: Readiness and reviewed capabilities
+                - listitem [ref=e202]:
+                  - button "Relay Owner-controlled external sharing" [ref=e203]:
+                    - img [ref=e205]
+                    - generic [ref=e207]:
+                      - generic [ref=e208]: Relay
+                      - generic [ref=e209]: Owner-controlled external sharing
+                - listitem [ref=e210]:
+                  - button "Control Center Live work and safe controls" [ref=e211]:
+                    - img [ref=e213]
+                    - generic [ref=e215]:
+                      - generic [ref=e216]: Control Center
+                      - generic [ref=e217]: Live work and safe controls
+                - listitem [ref=e218]:
+                  - button "Approvals Exact-action owner decisions" [ref=e219]:
+                    - img [ref=e221]
+                    - generic [ref=e223]:
+                      - generic [ref=e224]: Approvals
+                      - generic [ref=e225]: Exact-action owner decisions
+                - listitem [ref=e226]:
+                  - button "Activity Audited tasks and evidence" [ref=e227]:
+                    - img [ref=e229]
+                    - generic [ref=e231]:
+                      - generic [ref=e232]: Activity
+                      - generic [ref=e233]: Audited tasks and evidence
+                - listitem [ref=e234]:
+                  - button "Finance Recorded receipts" [ref=e235]:
+                    - img [ref=e237]
+                    - generic [ref=e239]:
+                      - generic [ref=e240]: Finance
+                      - generic [ref=e241]: Recorded receipts
+          - generic [ref=e271]:
+            - generic [ref=e273]:
+              - heading "Routines" [level=2] [ref=e1721]
+              - paragraph [ref=e275]: Readiness and reviewed capabilities
+            - region "Routines" [ref=e1722]:
+              - heading "Routines" [level=3] [ref=e1723]
+              - paragraph [ref=e1724]: Existing reminders wait for your review before their next execution. Changes to instructions or schedules require another review.
+              - paragraph [ref=e1725]: Routine execution is disabled for this deployment. Readiness below describes each Routine independently. No Routine will run yet.
+              - generic [ref=e1726]:
+                - text: Readiness filter
+                - combobox "Readiness filter" [ref=e1727]:
+                  - option "ALL" [selected]
+                  - option "READY"
+                  - option "NEEDS CONFIGURATION"
+                  - option "NEEDS APPROVAL"
+                  - option "BLOCKED"
+                  - option "AUTO PAUSED"
+                  - option "DISABLED"
+              - paragraph [ref=e1728]: No Routines yet. Create a Routine for work you want MyEve to handle repeatedly. Ask your Agent to schedule it, then review its capabilities here.
+  - button "Open Next.js Dev Tools" [ref=e253] [cursor=pointer]:
+    - img [ref=e254]
+  - alert [ref=e257]
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L470-L475

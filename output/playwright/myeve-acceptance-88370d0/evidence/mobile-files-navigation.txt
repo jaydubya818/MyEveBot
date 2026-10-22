@@ -1,0 +1,124 @@
+### Page
+- Page URL: http://localhost:3073/files
+- Page Title: Ava
+- Console: 0 errors, 141 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back to chat" [ref=e717]: Ava
+        - generic [ref=e6]:
+          - button "Goals" [ref=e718] [cursor=pointer]:
+            - img [ref=e8]
+          - button "Knowledge" [ref=e719] [cursor=pointer]:
+            - img [ref=e11]
+          - button "Results" [ref=e720] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Computer" [ref=e721] [cursor=pointer]:
+            - img [ref=e17]
+          - button "Agents" [ref=e722] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Review" [ref=e723] [cursor=pointer]:
+            - img [ref=e23]
+          - button "Channels" [ref=e724] [cursor=pointer]:
+            - img [ref=e26]
+          - button "Files" [pressed] [ref=e725] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Manage" [ref=e726] [cursor=pointer]:
+            - img [ref=e32]
+          - button "New thread" [ref=e727] [cursor=pointer]:
+            - img [ref=e35]
+      - textbox "Search threads" [ref=e728]
+      - navigation [ref=e40]:
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Today
+          - list [ref=e43]:
+            - listitem [ref=e866]:
+              - button "Design a quiet routine 1:09 PM" [ref=e867]:
+                - generic [ref=e869]: Design a quiet routine
+                - generic [ref=e870]: 1:09 PM
+              - generic [ref=e871]:
+                - button "Pin Design a quiet routine" [ref=e872] [cursor=pointer]:
+                  - img [ref=e873]
+                - button "Rename Design a quiet routine" [ref=e875] [cursor=pointer]:
+                  - img [ref=e876]
+                - button "Delete Design a quiet routine" [ref=e878] [cursor=pointer]:
+                  - img [ref=e879]
+            - listitem [ref=e881]:
+              - button "Map the account I should connect 1:09 PM" [ref=e882]:
+                - generic [ref=e884]: Map the account I should connect
+                - generic [ref=e885]: 1:09 PM
+              - generic [ref=e886]:
+                - button "Pin Map the account I should connect" [ref=e887] [cursor=pointer]:
+                  - img [ref=e888]
+                - button "Rename Map the account I should connect" [ref=e890] [cursor=pointer]:
+                  - img [ref=e891]
+                - button "Delete Map the account I should connect" [ref=e893] [cursor=pointer]:
+                  - img [ref=e894]
+            - listitem [ref=e896]:
+              - button "Find today’s real priority 1:09 PM" [ref=e897]:
+                - generic [ref=e899]: Find today’s real priority
+                - generic [ref=e900]: 1:09 PM
+              - generic [ref=e901]:
+                - button "Pin Find today’s real priority" [ref=e902] [cursor=pointer]:
+                  - img [ref=e903]
+                - button "Rename Find today’s real priority" [ref=e905] [cursor=pointer]:
+                  - img [ref=e906]
+                - button "Delete Find today’s real priority" [ref=e908] [cursor=pointer]:
+                  - img [ref=e909]
+            - listitem [ref=e911]:
+              - button "Turn an objective into a plan 1:09 PM" [ref=e912]:
+                - generic [ref=e914]: Turn an objective into a plan
+                - generic [ref=e915]: 1:09 PM
+              - generic [ref=e916]:
+                - button "Pin Turn an objective into a plan" [ref=e917] [cursor=pointer]:
+                  - img [ref=e918]
+                - button "Rename Turn an objective into a plan" [ref=e920] [cursor=pointer]:
+                  - img [ref=e921]
+                - button "Delete Turn an objective into a plan" [ref=e923] [cursor=pointer]:
+                  - img [ref=e924]
+            - listitem [ref=e926]:
+              - button "Research one decision 1:09 PM" [ref=e927]:
+                - generic [ref=e929]: Research one decision
+                - generic [ref=e930]: 1:09 PM
+              - generic [ref=e931]:
+                - button "Pin Research one decision" [ref=e932] [cursor=pointer]:
+                  - img [ref=e933]
+                - button "Rename Research one decision" [ref=e935] [cursor=pointer]:
+                  - img [ref=e936]
+                - button "Delete Research one decision" [ref=e938] [cursor=pointer]:
+                  - img [ref=e939]
+            - listitem [ref=e44]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e729]:
+                - generic [ref=e47]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e48]: 12:46 PM
+              - generic [ref=e49]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e730] [cursor=pointer]:
+                  - img [ref=e51]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e731] [cursor=pointer]:
+                  - img [ref=e54]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e732] [cursor=pointer]:
+                  - img [ref=e57]
+    - main [ref=e1211]:
+      - generic [ref=e1212]:
+        - button "Open sidebar" [ref=e1213] [cursor=pointer]:
+          - img [ref=e1214]
+        - generic [ref=e1216]:
+          - heading "Files" [level=1] [ref=e1217]
+          - paragraph [ref=e1218]: Every file uploaded in chat
+        - paragraph [ref=e1219]: 0 files
+      - generic [ref=e1220]:
+        - generic [ref=e1221]:
+          - img
+          - textbox "Search files" [ref=e1222]
+        - generic [ref=e1223]:
+          - img [ref=e1225]
+          - heading "No files yet" [level=2] [ref=e1227]
+          - paragraph [ref=e1228]: Attach an image or file to a chat message and it will appear here.
+          - button "Go to chat" [ref=e1229] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e121] [cursor=pointer]:
+    - img [ref=e122]
+  - alert [ref=e125]
+```

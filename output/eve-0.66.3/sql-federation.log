@@ -1,0 +1,31 @@
+PASS: owner policy saves are durable, idempotent, audited and revision fenced
+PASS: exact native yes resumes original Action once with original payload
+PASS: preparation replay cannot send or renew an expired approval
+PASS: model regeneration cannot execute or create a second Action
+PASS: approval-expired never sends or regenerates approval
+PASS: run-expired never sends or regenerates approval
+PASS: generation-changed never sends or regenerates approval
+PASS: owner-denied never sends or regenerates approval
+PASS: content-changed never sends or regenerates approval
+PASS: peer-changed never sends or regenerates approval
+PASS: request-expired never sends or regenerates approval
+PASS: expired admission creates no Action or approval, and surfaces specific reason
+PASS: fresh recovery preserves historical approval and exact call binding
+PASS: non-Federation and read admission reject expired Run before persistence
+PASS: Run expires between proposal and admission: zero persisted Actions or approvals
+PASS: canonical thread deletion preserves multi-Run evidence and owner isolation
+PASS: Relay MISSING preflight creates no approval or effect
+PASS: Relay EXPIRED preflight creates no approval or effect
+PASS: Relay REVOKED preflight creates no approval or effect
+PASS: Relay RESOURCE_NOT_AUTHORIZED preflight creates no approval or effect
+PASS: Relay CAPABILITY_NOT_AUTHORIZED preflight creates no approval or effect
+PASS: relay-revoked while pending blocks the original approved Action
+PASS: local-revoked while pending blocks the original approved Action
+PASS: local-expired while pending blocks the original approved Action
+PASS: local-revised while pending blocks the original approved Action
+PASS: omitted messaging resource resolves durably and changed binding cannot inherit approval
+PASS: three Runs retain one peer permission and require fresh authority, Actions and approvals
+(node:51486) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS: incoming unsolicited messages require exact approval; revocation blocks continuation
+Targeted SQL approval continuation: 28 passed; mocked Relay sends=2; live Relay effects=0; qualified data unchanged.

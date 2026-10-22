@@ -1,0 +1,142 @@
+[
+  {
+    "state": "running",
+    "taskId": "task_84bee37e-a26c-415e-818e-60b9664fe3f3"
+  },
+  {
+    "state": "paused",
+    "taskId": "task_26eb67b5-cc1b-497d-a341-531373a73016"
+  },
+  {
+    "state": "waiting_for_owner",
+    "taskId": "task_20ca268a-f8e9-48bd-8179-ee6e3d05297b"
+  },
+  {
+    "state": "failed",
+    "taskId": "task_165c12aa-6483-455f-a5c8-3827e0a64cbb"
+  },
+  {
+    "state": "completed",
+    "taskId": "task_534facfb-9f05-4c59-a811-840539a81b64"
+  },
+  {
+    "state": "approve",
+    "taskId": "task_558742fc-b381-40bb-ac05-353aee15975c",
+    "approval": {
+      "decision": "REQUIRE_APPROVAL",
+      "approval": {
+        "id": "approval_225b25c4-7731-4b91-86e5-3f159161c18d",
+        "taskId": "task_558742fc-b381-40bb-ac05-353aee15975c",
+        "goalId": "goal_b96e7077-00db-43dd-913c-372f69f9301e",
+        "goalTaskId": null,
+        "agentId": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "roleId": null,
+        "capabilityId": "web.read",
+        "provider": null,
+        "resource": "urn:myeve:acceptance:atlas-synthetic-notes",
+        "action": "Read the synthetic Atlas acceptance notes",
+        "actionClass": "read",
+        "parameters": {
+          "scope": "synthetic Atlas notes",
+          "fixture": true
+        },
+        "bindingHash": "f1aeeb5670a04f790bdab946f8f3626e151dec9f6f728e36ae9506878e6ddad8",
+        "risk": "low",
+        "effects": [
+          "Read one synthetic local evidence fixture. No external action will execute."
+        ],
+        "estimatedCostUsd": null,
+        "prompt": "Allow this one synthetic read for the acceptance test?",
+        "requestedBy": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "requestedAt": "2026-09-20T20:14:51.933Z",
+        "expiresAt": "2026-09-20T21:14:51.933Z",
+        "status": "pending",
+        "decision": null,
+        "decisionReason": null,
+        "decidedBy": null,
+        "decidedAt": null
+      },
+      "reason": "Registered policy allows this bounded action."
+    }
+  },
+  {
+    "state": "reject",
+    "taskId": "task_e9647246-ef5f-47d5-82cd-44f5403cd644",
+    "approval": {
+      "decision": "REQUIRE_APPROVAL",
+      "approval": {
+        "id": "approval_4a47dc26-898e-41ec-8b10-10b29b3eb7d0",
+        "taskId": "task_e9647246-ef5f-47d5-82cd-44f5403cd644",
+        "goalId": "goal_b96e7077-00db-43dd-913c-372f69f9301e",
+        "goalTaskId": null,
+        "agentId": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "roleId": null,
+        "capabilityId": "web.read",
+        "provider": null,
+        "resource": "urn:myeve:acceptance:atlas-synthetic-notes",
+        "action": "Read the synthetic Atlas acceptance notes",
+        "actionClass": "read",
+        "parameters": {
+          "scope": "synthetic Atlas notes",
+          "fixture": true
+        },
+        "bindingHash": "7a551172ab0f643aa4082dfee65081944e64032bfd3a27bb5e0e17508ff20dde",
+        "risk": "low",
+        "effects": [
+          "Read one synthetic local evidence fixture. No external action will execute."
+        ],
+        "estimatedCostUsd": null,
+        "prompt": "Allow this one synthetic read for the acceptance test?",
+        "requestedBy": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "requestedAt": "2026-09-20T20:14:51.936Z",
+        "expiresAt": "2026-09-20T21:14:51.936Z",
+        "status": "pending",
+        "decision": null,
+        "decisionReason": null,
+        "decidedBy": null,
+        "decidedAt": null
+      },
+      "reason": "Registered policy allows this bounded action."
+    }
+  },
+  {
+    "state": "race",
+    "taskId": "task_56e25857-9f8f-4554-a296-e89f76cc3bef",
+    "approval": {
+      "decision": "REQUIRE_APPROVAL",
+      "approval": {
+        "id": "approval_18b2db4c-a02a-4c5d-908b-1a46f0914a64",
+        "taskId": "task_56e25857-9f8f-4554-a296-e89f76cc3bef",
+        "goalId": "goal_b96e7077-00db-43dd-913c-372f69f9301e",
+        "goalTaskId": null,
+        "agentId": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "roleId": null,
+        "capabilityId": "web.read",
+        "provider": null,
+        "resource": "urn:myeve:acceptance:atlas-synthetic-notes",
+        "action": "Read the synthetic Atlas acceptance notes",
+        "actionClass": "read",
+        "parameters": {
+          "scope": "synthetic Atlas notes",
+          "fixture": true
+        },
+        "bindingHash": "59e2ed06dc6aadd344e14e6fc4ee8f4df940805091fa2da7ee0811fa2a4e4325",
+        "risk": "low",
+        "effects": [
+          "Read one synthetic local evidence fixture. No external action will execute."
+        ],
+        "estimatedCostUsd": null,
+        "prompt": "Allow this one synthetic read for the acceptance test?",
+        "requestedBy": "agent_50e31774-3453-4697-9c92-6c4289f4a44c",
+        "requestedAt": "2026-09-20T20:14:51.939Z",
+        "expiresAt": "2026-09-20T21:14:51.939Z",
+        "status": "pending",
+        "decision": null,
+        "decisionReason": null,
+        "decidedBy": null,
+        "decidedAt": null
+      },
+      "reason": "Registered policy allows this bounded action."
+    }
+  }
+]

@@ -1,0 +1,12 @@
+### Result
+[{"name":"Researcher","draft":""},{"name":"Software architect","draft":""},{"name":"Marketing Engineer","draft":""},{"name":"Founder OS","draft":"Use the Founder OS Solution Pack for this business Goal. Start by asking for the desired outcome, current business state, timeframe, known metrics, and constraints. Diagnose the narrowest current constraint before recommending work. Do not execute consequential actions without explicit owner approval."}]
+### Ran Playwright code
+```js
+await (async page => {const out=[];for(const name of ["Researcher","Software architect","Marketing Engineer"]){await page.goto("http://localhost:3073/agents",{waitUntil:"domcontentloaded"});await page.getByRole("heading",{name:"Role Catalog",exact:true}).waitFor();const ds=page.locator("details");for(let i=0;i<await ds.count();i++){if(await ds.nth(i).getAttribute("open")===null)await ds.nth(i).locator("summary").first().click();}const role=page.getByText(name,{exact:true}).first().locator("xpath=ancestor::details[1]");await role.getByRole("button",{name:"Use Role",exact:true}).click();await page.getByRole("textbox",{name:/Message/}).waitFor();out.push({name,draft:await page.getByRole("textbox",{name:/Message/}).inputValue()});}await page.goto("http://localhost:3073/agents",{waitUntil:"domcontentloaded"});await page.getByRole("button",{name:"Use Founder OS",exact:true}).click();await page.getByRole("textbox",{name:/Message/}).waitFor();out.push({name:"Founder OS",draft:await page.getByRole("textbox",{name:/Message/}).inputValue()});return out;})(page);
+```
+### Page
+- Page URL: http://localhost:3073/
+- Page Title: Ava
+- Console: 2 errors, 1 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L3506-L3593

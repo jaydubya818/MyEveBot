@@ -1,0 +1,40 @@
+
+> eveclaw-builder@0.0.0 build
+> next build --webpack
+
+▲ Next.js 16.3.5 (webpack)
+✓ Running next.config.ts took 13ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.9s
+  Running TypeScript ...
+  Finished TypeScript in 345ms ...
+  Collecting page data using 12 workers ...
+  Generating static pages using 12 workers (0/11) ...
+  Generating static pages using 12 workers (2/11)
+  Generating static pages using 12 workers (5/11)
+  Generating static pages using 12 workers (8/11)
+✓ Generating static pages using 12 workers (11/11) in 427ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/deploy
+├ ƒ /api/deploy/finalize
+├ ƒ /api/deploy/status
+├ ƒ /api/identify
+├ ƒ /api/stores
+├ ƒ /api/template-version
+├ ƒ /api/update
+└ ◐ /update
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)             prerendered as static content
+◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content
+ƒ  (Dynamic)            server-rendered on demand

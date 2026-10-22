@@ -1,0 +1,5 @@
+### Error
+TimeoutError: locator.innerText: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('article')[22m
+

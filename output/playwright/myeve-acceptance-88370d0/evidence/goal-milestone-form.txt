@@ -1,0 +1,181 @@
+### Page
+- Page URL: http://localhost:3073/goals
+- Page Title: Ava
+- Console: 7 errors, 36 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e12]:
+    - complementary [ref=e13]:
+      - generic [ref=e14]:
+        - button [ref=e312]: Ava
+        - generic [ref=e16]:
+          - button [pressed] [ref=e313] [cursor=pointer]:
+            - img [ref=e18]
+          - button [ref=e314] [cursor=pointer]:
+            - img [ref=e21]
+          - button [ref=e315] [cursor=pointer]:
+            - img [ref=e24]
+          - button [ref=e316] [cursor=pointer]:
+            - img [ref=e27]
+          - button [ref=e317] [cursor=pointer]:
+            - img [ref=e30]
+          - button [ref=e318] [cursor=pointer]:
+            - img [ref=e33]
+          - button [ref=e319] [cursor=pointer]:
+            - img [ref=e36]
+          - button [ref=e320] [cursor=pointer]:
+            - img [ref=e39]
+          - button [ref=e321] [cursor=pointer]:
+            - img [ref=e42]
+          - button [ref=e322] [cursor=pointer]:
+            - img [ref=e45]
+      - textbox [ref=e323]:
+        - /placeholder: Search threads
+      - navigation [ref=e50]:
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: Today
+          - list [ref=e53]:
+            - listitem [ref=e54]:
+              - button [ref=e324]:
+                - generic [ref=e57]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e58]: 12:46 PM
+              - generic [ref=e59]:
+                - button [ref=e325] [cursor=pointer]:
+                  - img [ref=e61]
+                - button [ref=e326] [cursor=pointer]:
+                  - img [ref=e64]
+                - button [ref=e327] [cursor=pointer]:
+                  - img [ref=e67]
+    - main [ref=e146]:
+      - generic [ref=e148]:
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - img [ref=e152]
+              - heading [level=1] [ref=e328]: Goals
+            - paragraph [ref=e156]: Your outcomes, current plan, and clearest next move.
+          - button [ref=e329] [cursor=pointer]:
+            - generic [ref=e159]:
+              - img [ref=e160]
+              - text: New goal
+        - generic [ref=e330]:
+          - generic [ref=e331]:
+            - generic [ref=e332]:
+              - img [ref=e333]
+              - heading [level=2] [ref=e335]: Focus now
+            - generic [ref=e336]: Executable next actions only
+          - button [ref=e338]:
+            - paragraph [ref=e339]: Best next move
+            - paragraph [ref=e340]: Interview five pilot prospects
+            - paragraph [ref=e341]: Launch Project Atlas
+        - navigation [ref=e343]:
+          - button [ref=e344]: Active1
+          - button [ref=e345]: Waiting0
+          - button [ref=e346]: Blocked0
+          - button [ref=e347]: Completed0
+          - button [ref=e348]: Archived0
+        - generic [ref=e240]:
+          - complementary [ref=e241]:
+            - list [ref=e242]:
+              - listitem [ref=e243]:
+                - button [ref=e349]:
+                  - generic [ref=e246]: 0%
+                  - generic [ref=e247]:
+                    - paragraph [ref=e248]: Launch Project Atlas
+                    - paragraph [ref=e249]:
+                      - img [ref=e250]
+                      - text: 0/1 · Dec 19, 2026
+          - article [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]:
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: active
+                    - generic [ref=e259]: normal priority
+                  - heading [level=2] [ref=e351]: Launch Project Atlas
+                  - paragraph [ref=e261]: "Launch a phased pilot in 90 days. Milestones: validate demand, build onboarding, run pilot. Dependency: recruit pilot users. Risk: onboarding abandonment. Next action: interview five prospects."
+                - generic [ref=e263]: 0%
+              - generic [ref=e264]:
+                - paragraph [ref=e265]: Done means
+                - list [ref=e266]:
+                  - listitem [ref=e267]:
+                    - img [ref=e268]
+                    - text: 10 pilot customers complete onboarding
+                  - listitem [ref=e270]:
+                    - img [ref=e271]
+                    - text: 80% pilot onboarding completion
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - img [ref=e275]
+                  - text: Dec 19, 2026
+                - generic [ref=e277]: ·
+                - generic [ref=e278]: 0 of 1 tasks complete
+              - generic [ref=e279]:
+                - button [ref=e353] [cursor=pointer]: Edit goal
+                - button [ref=e354] [cursor=pointer]: Pause
+                - button [disabled] [ref=e355]: Complete goal
+            - generic [ref=e356]:
+              - paragraph [ref=e357]:
+                - img [ref=e358]
+                - text: Next action
+              - paragraph [ref=e360]: Interview five pilot prospects
+              - paragraph [ref=e361]: Ready to move this goal forward
+            - generic [ref=e283]:
+              - generic [ref=e284]:
+                - generic [ref=e285]:
+                  - heading [level=3] [ref=e362]: Plan & milestones
+                  - paragraph [ref=e287]: Previous plan versions stay in the activity history.
+                - button [ref=e363] [cursor=pointer]:
+                  - img [ref=e289]
+                  - text: Milestone
+              - paragraph [ref=e291]: No plan yet. Ask Ava to decompose this goal, or add milestones directly.
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - heading [level=3] [ref=e364]: Tasks
+                - paragraph [ref=e295]: Only executable, dependency-free work enters Focus.
+              - generic [ref=e296]:
+                - generic [ref=e297]:
+                  - textbox [ref=e365]:
+                    - /placeholder: Add the next concrete task
+                  - button [disabled] [ref=e366]:
+                    - generic [ref=e301]: Add
+                - generic [ref=e367]:
+                  - combobox [ref=e368]
+                  - combobox [ref=e369]
+              - list [ref=e370]:
+                - listitem [ref=e371]:
+                  - button [ref=e372]:
+                    - img [ref=e373]
+                  - generic [ref=e376]:
+                    - paragraph [ref=e377]: Interview five pilot prospects
+                    - generic [ref=e378]: ready
+                  - combobox [ref=e379]
+            - generic [ref=e303]:
+              - heading [level=3] [ref=e380]: Activity
+              - list [ref=e305]:
+                - listitem [ref=e381]:
+                  - generic [ref=e383]:
+                    - paragraph [ref=e384]: "Created task: Interview five pilot prospects"
+                    - paragraph [ref=e385]: 9/20/2026, 12:47:46 PM
+                - listitem [ref=e306]:
+                  - generic [ref=e308]:
+                    - paragraph [ref=e309]: "Created goal: Launch Project Atlas"
+                    - paragraph [ref=e310]: 9/20/2026, 12:47:16 PM
+                    - paragraph [ref=e311]: Owner intent became a persistent goal
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]:
+    - img [ref=e9]
+  - alert [ref=e115]
+  - dialog "Add milestone" [ref=e389]:
+    - heading "Add milestone" [level=2] [ref=e390]
+    - paragraph [ref=e391]: A meaningful checkpoint, not a loose category.
+    - generic [ref=e392]:
+      - generic [ref=e393]:
+        - text: Milestone
+        - textbox "Milestone" [active] [ref=e394]:
+          - /placeholder: Complete two mock interviews
+      - button "Add milestone" [disabled] [ref=e396]:
+        - generic [ref=e398]: Add milestone
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L211-L213

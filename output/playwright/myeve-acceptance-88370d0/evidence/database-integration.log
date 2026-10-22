@@ -1,0 +1,42 @@
+✔ session and thread Agent bindings are authoritative across requests (57.008208ms)
+✔ persistent Agent repository enforces owner, lifecycle, capabilities, primary, duplication, and run attribution (91.48225ms)
+✔ persistent browser profiles isolate Agents and enforce revocable sharing (88.614208ms)
+✖ Agent Run computer sessions enforce links, isolation, capabilities, limits, actions, and lifecycle (86.749292ms)
+✔ goal repository persists a dependency-aware lifecycle and immutable events (124.457542ms)
+✔ knowledge core preserves typed state, provenance, Goal links, relationships, and owner boundaries (116.889084ms)
+✔ operations telemetry is persisted and appears in the owner report (13.283333ms)
+✔ outcomes and reviews preserve owner scope, lineage, and checkpoints (99.80025ms)
+✔ review delivery preferences schedule durably and deduplicate a period (88.848083ms)
+✖ scoped memory and Context Assembly prove the seeded Agent/Goal isolation path (85.821083ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 8
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10508.645167
+
+✖ failing tests:
+
+test at apps/eve/test/computer-sessions.integration.mjs:23:1
+✖ Agent Run computer sessions enforce links, isolation, capabilities, limits, actions, and lifecycle (86.749292ms)
+  Error: Human Takeover requires an active Run, ComputerSession, BrowserSession, and provider session binding.
+      at assertExactBinding (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/lib/live-session-provider.ts:110:11)
+      at Object.observe (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/lib/live-session-provider.ts:228:5)
+      at resumeComputerSession (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/lib/computer-sessions.ts:289:57)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/test/computer-sessions.integration.mjs:91:19)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at apps/eve/test/scoped-memory.integration.mjs:13:1
+✖ scoped memory and Context Assembly prove the seeded Agent/Goal isolation path (85.821083ms)
+  Error: SUPERMEMORY_API_KEY is not set.
+      at api (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/agent/lib/memory-store.ts:70:22)
+      at Object.list (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/agent/lib/memory-store.ts:101:26)
+      at Object.importLegacyOwnerMemories (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/agent/lib/memory-store.ts:159:40)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///private/tmp/myeve-acceptance-88370d0/apps/eve/test/scoped-memory.integration.mjs:74:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)

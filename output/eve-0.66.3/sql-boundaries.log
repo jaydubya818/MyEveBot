@@ -1,0 +1,104 @@
+PASS: actual Action Context creates and reuses a bounded Run
+PASS: canonical initializer uses current Agent runtime 10
+PASS: canonical initializer uses current Agent runtime 600
+PASS: canonical initializer uses current Agent runtime 86400
+PASS: Agent rejects invalid runtime null
+PASS: Agent rejects invalid runtime 0
+PASS: Agent rejects invalid runtime 1
+PASS: Agent rejects invalid runtime 9
+PASS: Agent rejects invalid runtime 10.5
+PASS: Agent rejects invalid runtime 86401
+PASS: Agent accepts whole seconds 10
+PASS: Agent accepts whole seconds 600
+PASS: Agent accepts whole seconds 86400
+PASS: missing context denies before provider
+PASS: wrong Agent binding denies
+PASS: missing capability denies before preparation
+PASS: terminal Run
+PASS: cost exhausted
+PASS: step limit reached
+PASS: step limit exceeded
+PASS: expired Run / deadline exceeded
+PASS: stale Agent revision at provider boundary denies
+PASS: 22 PostgreSQL/Action Context cases; provider calls=0
+✔ test/action-context.integration.mjs (1366.725792ms)
+PASS upgrade fences unbound legacy without false ownership
+PASS canonical creation and exact lookup
+PASS ownerId mismatch DENY / zero provider calls
+PASS environment mismatch DENY / zero provider calls
+PASS sessionId mismatch DENY / zero provider calls
+PASS resourceName mismatch DENY / zero provider calls
+PASS generation mismatch DENY / zero provider calls
+PASS id mismatch DENY / zero provider calls
+PASS version mismatch DENY / zero provider calls
+PASS owner_id immutable in PostgreSQL
+PASS environment immutable in PostgreSQL
+PASS resource_name immutable in PostgreSQL
+PASS computer_session_id immutable in PostgreSQL
+PASS provision_id immutable in PostgreSQL
+PASS active resource cannot claim automatic reason
+PASS forged Agent authority denied during OWNER control
+PASS OWNER Stop fences input and terminates exact resource
+PASS consumed lifecycle handle replay denies
+PASS cleanup authority cannot execute computer.session.create
+PASS cleanup authority cannot execute browser.navigate
+PASS cleanup authority cannot execute browser.type
+PASS cleanup authority cannot execute file.write
+PASS cleanup authority cannot execute email.send
+PASS cleanup authority cannot execute messaging.send
+PASS cleanup authority cannot execute phone.call
+PASS cleanup authority cannot execute connected_app.write
+PASS terminal tombstone repeated owner cleanup no provider effects
+PASS automatic cancelled cleanup
+PASS automatic completed cleanup
+PASS automatic timeout cleanup
+PASS automatic expired cleanup
+PASS automatic orphan cleanup
+PASS automatic revocation cleanup
+PASS automatic failure cleanup
+PASS late cleanup N cannot fence or terminate replacement N+1
+PASS failure persists pending claim and retry succeeds
+PASS tombstone remains after ComputerSession deletion
+PASS recovery lookup environment isolation
+PASS stale cleanup claim cannot consume provider authority
+PASS shared preparation cannot retire while an owned resource remains
+PASS bound approvals invalidated while unrelated approval and Run outcome remain
+PASS application Owner Stop uses governed provider adapter and is idempotent
+PASS canonical Gateway creation persists ownership before SDK create, then reconnects without create
+PASS actual Agent Stop retains capability denial and exact approval policy
+PASS late provider creation is removed using retained tombstone
+PASS two independent PostgreSQL workers cannot claim the same generation
+PASS last-session application Stop retires owned template and reports Cold
+PASS automatic post-stop template cleanup: single
+PASS automatic post-stop template cleanup: multiple
+PASS automatic post-stop template cleanup: waiter
+PASS automatic post-stop template cleanup: process-loss
+PASS automatic post-stop template cleanup: delete-failure
+PASS automatic post-stop template cleanup: already-absent
+PASS automatic post-stop template cleanup: stop-failure
+PASS automatic post-stop template cleanup: visibility-delay
+PASS automatic post-stop template cleanup: cleanup-wins
+PASS automatic post-stop template cleanup: reuse-wins
+PASS template retirement isolates owner, environment and deployment
+PASS global recovery survives removal of session, Run and Agent rows
+PASS 59 checks; real provider creations 0
+✔ test/computer-resource.integration.mjs (2242.967083ms)
+PASS: executor bypass=0; exact approval; changed recipient/account; expired approval; one-use handles; provider receipt crash recovery without resend; OWNER/stale controller fence; file checksum; old occurrence version; mid-run agent revocation
+PASS: recovery owner isolation, receipt loss, provider inspection before retry, success without resend, definite failure with fresh approval, indeterminate Needs You, recovery race, live/stale worker fence, concurrent one-use handle, expiration and post-claim revocation
+PASS: six capability contract matrices (deny/pending/approved/expired/changed/replay/authority failure/target failure); local Computer AGENT -> Take Over -> denied under OWNER -> Return Control -> AGENT; stale control rejected
+PASS: Sarah/Ava Daily Research Brief: one occurrence, one Run, one winning claim, durable observation/result, one delivery (simulated model/provider)
+PASS: draft once; exact approval; same occurrence/run; one resume claim; send once; one delivery; stale/cross-owner/concurrent recovery decisions fenced
+PASS: signed Relay delivery + Gateway five-case policy matrix; email approval invokes zero effects; Relay cannot attach to Routine Run; distinct trigger audit; exact published projection only, private/ungranted/revoked access denied
+PASS: admission blocked-period uniqueness; zero Run/model/provider/Computer on missing dependency; immutable history; reconnect without replay; server Run Now races; one winning claim; optional delivery unavailable preserves completed result; no failure-counter increment
+PASS: notification authority denial invokes zero providers and preserves completed work with one execution attempt
+PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review
+PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume
+✔ test/execution-reliability.integration.mjs (1957.301125ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2250.334084
