@@ -308,3 +308,25 @@ Three acceptance cases additionally require the genuine digest-pinned private
 suite at `FACTORY_VERIFIER_CUSTODY_DIR`; without it they remain explicit skips.
 The `codex/integration-capability-fixtures-20261022` branch disables Vercel Git
 deployments. These are synthetic local fixtures, not cloud qualification.
+
+The opt-in authenticated admission-context suite uses the same owner-scoped
+capability fixture and real canonical restricted Work adapter. Its generation
+race interceptor wraps the pinned transaction; capability checks, login, tool
+permissions, budgeting and UNKNOWN handling remain active. A disabled owner
+capability denies an authenticated proposal before creating a Run or writer.
+Separate admin access is used only for fixture setup and state injection. The
+fixture role can read/append only its owner's native-progress events under RLS;
+a foreign-owner insert must fail. No broader role or RLS bypass is granted.
+
+From `apps/eve`, set `ADMISSION_CONTEXT_TEST_POSTGRES=1` and optionally
+`ENGINEERING_TEST_ADMIN_URL` to an empty disposable loopback cluster, then run:
+
+```sh
+node ../../node_modules/vitest/vitest.mjs run --config vitest.config.ts \
+  --fileParallelism=false --testTimeout=60000 --hookTimeout=60000 \
+  lib/engineering/admission-context.integration.test.ts
+```
+
+The default test port is 55479. Cleanup remains scoped to the randomly named
+fixture. The `codex/admission-context-fixtures-20261022` branch disables Vercel
+Git deployments. No live provider or existing Work is used.
