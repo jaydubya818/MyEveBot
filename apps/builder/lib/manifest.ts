@@ -72,6 +72,9 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/engineering_work.ts",
   // Native development has the same dogfood gate, plus admission/owner checks.
   "agent/tools/engineering_direct.ts",
+  "agent/tools/engineering_direct.test.ts",
+  // Factory integration for native engineering route.
+  "agent/tools/engineering_factory.ts",
   "agent/tools/list_agents.ts",
   "agent/tools/list_roles.ts",
   "agent/tools/list_solution_packs.ts",
