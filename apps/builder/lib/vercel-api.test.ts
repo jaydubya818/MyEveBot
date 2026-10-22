@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { createBlobStore, createDeployment } from "./vercel-api";
+import { connectStoreToProject, createBlobStore, createDeployment, upsertEnv } from "./vercel-api";
 
 test("a source bundle above Vercel's request cap uploads files by digest", async (context) => {
   const uploaded: string[] = [];
@@ -38,4 +38,29 @@ test("new owner storage is private", async (context) => {
     return Response.json({store: {id: "store_private", access: "private"}});
   });
   assert.equal(await createBlobStore("test-token", "team_test", "isolated-owner-blob"), "store_private");
+});
+
+// Owner credentials must never reach Preview or Development deployments,
+// where any branch build could read or write the owner's production data.
+test("connected stores inject credentials into Production only", async (context) => {
+  context.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+    assert.match(String(input), /\/v1\/storage\/stores\/store_db\/connections/);
+    const body = JSON.parse(String(init?.body));
+    assert.deepEqual(body.envVarEnvironments, ["production"]);
+    return Response.json({});
+  });
+  await connectStoreToProject("test-token", "team_test", "store_db", "prj_owner");
+});
+
+test("owner secrets are written to Production only", async (context) => {
+  context.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body)) as { key: string; target: string[] }[];
+    assert.equal(body.length, 2);
+    for (const entry of body) assert.deepEqual(entry.target, ["production"]);
+    return Response.json({});
+  });
+  await upsertEnv("test-token", "team_test", "prj_owner", [
+    { key: "DATABASE_URL", value: "postgres://example.invalid/db" },
+    { key: "MYEVE_SESSION_SECRET", value: "test-only" },
+  ]);
 });
