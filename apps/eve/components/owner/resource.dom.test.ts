@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+// @vitest-environment happy-dom
 /**
  * QA-21: useProductResource must retain previous good data on a transient
  * fetch error and expose a `stale` flag rather than blanking the view.

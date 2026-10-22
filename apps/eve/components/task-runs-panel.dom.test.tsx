@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+// @vitest-environment happy-dom
 /**
  * QA-20: TaskRunsPanel shows a stale-data banner when poll errors after the
  * first successful load; and shows a hard error (not stale) on first-load failure.
