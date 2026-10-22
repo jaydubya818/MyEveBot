@@ -18,6 +18,8 @@ import type { ProofOfWork } from "@/lib/digital-worker/contracts";
 import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
+import { ActivityCard, type ActivityChange } from "./activity-card";
+import { deduplicateApiErrors } from "@/lib/error-dedup";
 import { Responsibilities } from "./responsibilities";
 import { AgentOverview } from "./agent-overview";
 import { WorkInbox } from "./work-inbox";
@@ -87,15 +89,7 @@ export function IntegratedExperience({
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
   const [canonical, setCanonical] = useState<CanonicalWork | null>(null);
-  const [activity, setActivity] = useState<
-    Array<{
-      id: string;
-      kind: string;
-      summary: string;
-      at: string;
-      work_id: string | null;
-    }> | null
-  >(null);
+  const [activity, setActivity] = useState<ActivityChange[] | null>(null);
   const [feedbackScope, setFeedbackScope] = useState<"WORK" | "REPOSITORY">(
     "WORK",
   );
@@ -513,7 +507,7 @@ export function IntegratedExperience({
             <h2>Some information is unavailable</h2>
             {/* Deduplicate by the message suffix to avoid showing the same
                 API error repeated for every concurrently-failing endpoint. */}
-            {[...new Set(errors.map((e) => e.replace(/^[^:]+: /, "")))].map((msg) => (
+            {deduplicateApiErrors(errors).map((msg) => (
               <p key={msg}>{msg}</p>
             ))}
             <div className="owner-actions">
@@ -910,32 +904,7 @@ export function IntegratedExperience({
             {view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
-              <Card title="Memory and learning changes">
-                {activity === null ? (
-                  <p>Memory and learning changes are unavailable right now. Check your connection and reload.</p>
-                ) : activity.length ? (
-                  <ul className="owner-list">
-                    {activity.map((change) => (
-                      <li key={change.id}>
-                        <strong>{change.kind}</strong>
-                        <p>{change.summary}</p>
-                        <p className="owner-muted">{date(change.at)}</p>
-                        <Link
-                          href={
-                            change.work_id
-                              ? `/memory?workId=${change.work_id}`
-                              : "/memory"
-                          }
-                        >
-                          Review memory and learning
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No memory or learning changes recorded.</p>
-                )}
-              </Card>
+              <ActivityCard changes={activity} />
             )}
             {(view === "brief" || view === "activity") && brief && (
               <>
