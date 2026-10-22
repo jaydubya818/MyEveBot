@@ -9,6 +9,13 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
   },
   test: {
+    // Files that explicitly opt in to a DOM environment use
+    // `// @vitest-environment happy-dom` at the top of the file. The default
+    // environment is 'node' so pure unit and SSR tests are unaffected.
+    environmentMatchGlobs: [
+      ["**/*.dom.test.ts", "happy-dom"],
+      ["**/*.dom.test.tsx", "happy-dom"],
+    ],
     exclude: [
       "**/node_modules/**",
       "**/dist/**",
