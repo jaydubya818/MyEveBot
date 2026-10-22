@@ -77,15 +77,23 @@ jobs:
             echo "Waiting... ($i)"; sleep 2
           done
 
-      - name: Run viewport and BFCache Playwright tests
+      - name: Run QA Playwright tests (spec files present on this branch)
         working-directory: apps/eve
-        run: >
-          npx playwright test
-          test/owner/qa-viewport.spec.ts
-          test/owner/qa-14-bfcache.spec.ts
-          --config test/owner/playwright.config.ts
-          --project=desktop
-          --reporter=list
+        # Use a glob so only the spec files that exist on this branch run.
+        # Branches carry only the specs whose CSS/auth fixes they include:
+        #   qa-mobile-forms-b54d: qa-viewport.spec.ts + qa-14-bfcache.spec.ts
+        #   qa-medium-low-b54d:   qa-14-bfcache.spec.ts
+        #   qa-silent-failures-b54d: (no qa-*.spec.ts — vitest covers its fixes)
+        run: |
+          SPECS=$(ls test/owner/qa-*.spec.ts 2>/dev/null || true)
+          if [ -z "$SPECS" ]; then
+            echo "No QA Playwright specs on this branch — fixture server readiness confirmed."
+            exit 0
+          fi
+          npx playwright test $SPECS \
+            --config test/owner/playwright.config.ts \
+            --project=desktop \
+            --reporter=list
 
       - uses: actions/upload-artifact@v7
         if: failure()
