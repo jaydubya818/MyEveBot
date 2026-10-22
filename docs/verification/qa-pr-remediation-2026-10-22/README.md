@@ -33,6 +33,10 @@ See [relay-preview-production-db-isolation.md](relay-preview-production-db-isola
 
 See [myfactory-21-integration-pin.md](myfactory-21-integration-pin.md). Apply [patches/myfactory-21-integration-pin.patch](patches/myfactory-21-integration-pin.patch) when write access exists. Consumers should keep `f00ccd885f70f8e088231be4bd6a2f0775714390` until a later SHA is requalified.
 
+## Independent review
+
+Second-pass notes: [independent-review.md](independent-review.md). Local combined vitest (109 tests), capability-notice (7), Relay unit (191 pass / 19 skip), protocol contract, and `eve-agent` typecheck passed on this tree. Hosted CI is a separate fact.
+
 ## What remains unauthorized
 
 Merge to `main`, Production deployment, cancellation of live Relay Previews, and tester invitation.
