@@ -315,7 +315,7 @@ jobs:
       with:
         persist-credentials: false
         repository: jaydubya818/MyFactory
-        ref: 3037f5de462f59003498e9e91d976ebfbf09b05f
+        ref: 6f5b58be7ecbf9906042032d45af86005145fad2
         path: .qualification/myfactory
     - uses: actions/checkout@v4
       with:
@@ -553,7 +553,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MyFactory
-        ref: 3037f5de462f59003498e9e91d976ebfbf09b05f
+        ref: 6f5b58be7ecbf9906042032d45af86005145fad2
         persist-credentials: false
         fetch-depth: 0
         path: myfactory
