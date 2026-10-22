@@ -1,5 +1,7 @@
 # MyEveBot
 
+**Deep Agent branch — do not merge PR #93 into `main`.** Head `cursor/qa-deep-agent-b54d` is based on `codex/q37-private-alpha-continuation`, not `main`. QA-43 (cross-platform tmpdir in Deep Agent process-recovery tests) stays on this designated base. The main-line QA candidate is the separate #91/#92/#94 integration branch. See [QA-43 preservation](docs/verification/qa-43-deep-agent-2026-10-22/README.md).
+
 **Q37 private-alpha continuation: local qualification and independent review PASS.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
 
 The dated checkpoints below are historical context; the continuation dossier above controls current producer identity and qualification.
