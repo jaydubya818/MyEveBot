@@ -134,7 +134,8 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     await admin.connect(); await admin.query(`CREATE DATABASE ${name}`);
     const databaseUrl = new URL(adminUrl); databaseUrl.pathname = `/${name}`;
     pool = new Pool({ connectionString: databaseUrl.href });
-    // Admin transport is used only for deliberate fixture injection/observation.
+    // Existing receipts-db mock backs surrounding app queries and fixture state;
+    // Work admission below uses the real restricted capability adapter.
     local.query.mockImplementation(interceptQuery(async (sql, params) => (await pool.query(sql, params)).rows));
     const client = await pool.connect();
     try { await runMigrations({ query: async (s, p) => (await client.query(s, p)).rows, transaction: async statements => {

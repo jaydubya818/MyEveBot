@@ -314,9 +314,12 @@ capability fixture and real canonical restricted Work adapter. Its generation
 race interceptor wraps the pinned transaction; capability checks, login, tool
 permissions, budgeting and UNKNOWN handling remain active. A disabled owner
 capability denies an authenticated proposal before creating a Run or writer.
-Separate admin access is used only for fixture setup and state injection. The
-fixture role can read/append only its owner's native-progress events under RLS;
-a foreign-owner insert must fail. No broader role or RLS bypass is granted.
+Work admission uses the restricted capability adapter. The existing receipts-db
+mock uses the admin pool for surrounding application queries, including context
+verification and ActionGateway persistence, as well as fixture setup and state
+injection. The fixture role can read/append only its owner's native-progress
+events under RLS; a foreign-owner insert must fail. No broader role or RLS bypass
+is granted to that role.
 
 From `apps/eve`, set `ADMISSION_CONTEXT_TEST_POSTGRES=1` and optionally
 `ENGINEERING_TEST_ADMIN_URL` to an empty disposable loopback cluster, then run:
