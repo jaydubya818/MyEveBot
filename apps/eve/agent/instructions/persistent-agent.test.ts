@@ -48,7 +48,8 @@ it("retains Agent policy and canonical authority rules while excluding alpha fal
   const text = JSON.stringify(result);
   expect(text).toContain("Identity Sofie; owner A only; custom policy remains exact.");
   expect(text).toContain("Authenticated owner, Agent, thread and selected Work bindings");
-  expect(text).toContain("backend rechecks current owner intent, version, generation, policy, budget, deadline");
+  expect(text).toContain("This beta currently authorizes chat only");
+  expect(text).toContain("Deep Agent is unavailable until qualified");
   expect(text).toContain("candidate remains PARTIAL");
   expect(text).toContain("Authenticated alpha context:");
   expect(text).not.toContain("Native execution is an experimental fallback");

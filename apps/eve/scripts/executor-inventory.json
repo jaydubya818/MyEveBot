@@ -2008,7 +2008,7 @@
     "lib/capability-notice.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
+      "sha256": "dd3ae8deefb28aa61b1877bf4c65ddad3feb43cef4c16b7a7b0a5e79befc9ad0"
     },
     "lib/capability-registry.ts": {
       "classification": "ENFORCED",
@@ -2688,7 +2688,7 @@
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Signed owner/installation verification plus database credential-version and durable revocation checks; storage failures deny access. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
-      "sha256": "8e77ed0a02a41e6e082edc103e2aa9c6351fdc01c4378b32f04fa96796e5c569"
+      "sha256": "d16e1684d777bd7cc0e28f3ffd0867bf45bf45ab65af23693b6cdada8d47606b"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -4207,7 +4207,7 @@
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",
       "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate.",
-      "sha256": "f2e116e302b057d6b701adc68d8aa1c7bd9da67579ce5f7ce31c877d3e4d6e0b"
+      "sha256": "7562b3eef1b6c2246e354672755885369516411eb6fc28bb1eb2720898aaf3cc"
     },
     "lib/external-alpha/conversation-readback.ts": {
       "classification": "READ_ONLY",
@@ -4534,6 +4534,56 @@
       "classification": "INTERNAL",
       "reason": "Same-origin recovery requires an installation-scoped, expiring, single-use bearer token; replay, collisions and excess attempts denied. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
       "sha256": "e01472fbe118162e024eb66c502cfe16b90aaaf31990291005848bf005c7ef96"
+    },
+    "lib/candidate-decision-fetch.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "224aa1d8d46b33792967a6a37f2891f0364f97fee3b5fffce9d6258a4d47f61a"
+    },
+    "lib/chat-reattach-notice.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "2fc94d65aa51828cabc012e5750060d01151880ed7013aa9172f536c92bc8a0f"
+    },
+    "lib/chat-stop.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "f80e72b5c3d368ddd64408d5261803314cec2b14420127549fce36850aed735f"
+    },
+    "lib/deep-agent-availability.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "0a2ce8e774d81dfae8bf8dadb271828e56089ae8b7d8a4d18193b4cb3282254b"
+    },
+    "lib/error-dedup.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "c5b8aca9faf2eb9d95d6796070aa6f5b2f7d6e4410c162fbe992c53cef2e5a44"
+    },
+    "lib/owner-sign-out.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "1468dd139e706fbd38cee749f8621149bc8a4489f145511683bc85d27b2ffdf4"
+    },
+    "lib/product-resource-state.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "426dc409573c71f0819187eecd1e3aeaae27107c2614c42211f14753052a49c7"
+    },
+    "lib/task-run-actions.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "0931e1c37d218901259f7b60b4c1283a6f7150e90681f688d05f8254367ca7ed"
+    },
+    "lib/task-runs-stale.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "96bec5e6b495bd770374d7eb1a71b484e7faa7b3d88909594285ac3d49904401"
+    },
+    "lib/thread-delete.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "e547c783852b2b26894a810343f95f0a8445eaf997840ee436d888faecafc3bf"
     }
   }
 }

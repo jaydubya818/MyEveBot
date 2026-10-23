@@ -180,6 +180,18 @@ export function webPrincipal(
   return browserOwner && browserOwner!==principal?.id ? null : principal;
 }
 
+/** Loopback hosts are the same origin: Next rewrites request.url to localhost
+ * while the browser may send Origin: http://127.0.0.1:PORT (QA-32). */
+function normalizeOriginForComparison(rawUrl: string): string {
+  try {
+    const u = new URL(rawUrl);
+    if (u.hostname === "127.0.0.1" || u.hostname === "[::1]") u.hostname = "localhost";
+    return u.origin;
+  } catch {
+    return rawUrl;
+  }
+}
+
 function isUnsafeCrossOrigin(request: Request): boolean {
   if (["GET", "HEAD", "OPTIONS"].includes(request.method.toUpperCase())) return false;
   const fetchSite = request.headers.get("sec-fetch-site");
@@ -187,7 +199,7 @@ function isUnsafeCrossOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (origin === null) return false;
   try {
-    return new URL(origin).origin !== new URL(request.url).origin;
+    return normalizeOriginForComparison(origin) !== normalizeOriginForComparison(request.url);
   } catch {
     return true;
   }

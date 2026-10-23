@@ -115,6 +115,9 @@ import {
   threadApiPath,
   threadHasOwnerConflict,
 } from "@/lib/thread-owner-conflict";
+import { performCancelTurn } from "@/lib/chat-stop";
+import { deleteThreadOnServer } from "@/lib/thread-delete";
+import { useReattachNotice } from "@/lib/chat-reattach-notice";
 
 const THREADS_KEY = "eve-web-threads";
 const SEEN_KEY = "eve-web-threads-seen";
@@ -207,6 +210,11 @@ interface SavedChat {
    * client context on the fork's first send so the agent knows the history.
    */
   forkContext?: string;
+  /**
+   * Set when a mid-turn reload reattach could not reach the session stream.
+   * The last saved reply may be incomplete; cleared on next user send.
+   */
+  reattachIncomplete?: boolean;
 }
 
 interface ThreadMeta {
@@ -331,12 +339,6 @@ function putThreadToServer(meta: ThreadMeta, chat: SavedChat): void {
 /** Persists rename/pin changes without re-uploading the chat payload. */
 function putThreadMetaToServer(meta: ThreadMeta): void {
   void saveThreadForCurrentOwner(meta.id, threadMetaBody(meta));
-}
-
-function deleteThreadOnServer(id: string): void {
-  const url = threadApiPath(id);
-  if (!url) return;
-  void fetch(url, { method: "DELETE" }).catch(() => undefined);
 }
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
@@ -669,6 +671,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [handoffWorkId] = useState(() => new URL(window.location.href).searchParams.get("work"));
   const [handoffPending, setHandoffPending] = useState(Boolean(handoffWorkId));
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -1241,13 +1244,13 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }
 
   function deleteThread(id: string) {
+    const threadSnapshot = indexRef.current.threads.find((thread) => thread.id === id);
     try {
       ownerLocalStorage.removeItem(chatKey(id));
       ownerLocalStorage.removeItem(`eve-web-draft:${id}`);
     } catch {
       // Ignore storage failures.
     }
-    deleteThreadOnServer(id);
     setIndex((prev) => {
       const remaining = prev.threads.filter((thread) => thread.id !== id);
       if (remaining.length === 0) {
@@ -1259,6 +1262,17 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           ? [...remaining].sort((a, b) => b.updatedAt - a.updatedAt)[0].id
           : prev.activeId;
       return { activeId, threads: remaining };
+    });
+    void deleteThreadOnServer(id, threadApiPath(id)).then((ok) => {
+      if (!ok && threadSnapshot) {
+        setIndex((prev) => ({
+          ...prev,
+          threads: [...prev.threads.filter((thread) => thread.id !== threadSnapshot.id), threadSnapshot].sort(
+            (a, b) => b.updatedAt - a.updatedAt,
+          ),
+        }));
+        setDeleteError("Conversation could not be deleted. It has been restored.");
+      }
     });
   }
 
@@ -1336,9 +1350,20 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         />
       )}
 
+      {deleteError && (
+        <div role="alert" className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm rounded-xl border border-kumo-danger/30 bg-kumo-elevated p-3 text-sm shadow-lg">
+          {deleteError}
+          <button className="ms-2 underline" onClick={() => setDeleteError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <aside
         ref={sidebarRef}
         aria-label="Conversations"
+        data-chat-sidebar
+        data-open={sidebarOpen ? "true" : undefined}
         className={cn(
           "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
           sidebarOpen && "visible translate-x-0",
@@ -1546,7 +1571,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
       {view === "channels" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full px-4 py-6 sm:px-6 lg:px-8"><ChannelsWorkspace pushStatus={push.status} onTogglePush={push.toggle} /></div>
         </main>
       ) : view === "email" ? (
@@ -1559,22 +1584,22 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         />
       ) : view === "results" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>
         </main>
       ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerWorkspace /></div>
         </main>
       ) : view === "knowledge" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
         </main>
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
@@ -1586,6 +1611,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1601,6 +1627,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1616,6 +1643,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1984,6 +2012,8 @@ function ChatThread({
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [stopError, setStopError] = useState<string | null>(null);
+  const { show: reattachNote, clear: clearReattachNote } = useReattachNotice(initialChat.reattachIncomplete);
   const uploadInProgress = useRef(false);
   const preparingSend = useRef(false);
   const [savingConversation, setSavingConversation] = useState(false);
@@ -2118,6 +2148,7 @@ function ChatThread({
     const base = initialChat.events ?? [];
     const collected: HandleMessageStreamEvent[] = [];
     let persistTimer: ReturnType<typeof setTimeout> | undefined;
+    let streamUnavailable = false;
     (async () => {
       const client = new Client({ host: window.location.origin, headers: conversationHeaders });
       const session = client.sessions.attach(initialChat.session!.sessionId, { streamIndex: initialChat.session!.streamIndex });
@@ -2145,12 +2176,18 @@ function ChatThread({
       } catch {
         // Stream unavailable (network, pruned session): settle with what we
         // have; the attempt guard keeps this from looping.
+        streamUnavailable = true;
       }
       if (controller.signal.aborted) return;
       clearTimeout(persistTimer);
       onBusyChange(false);
       onActivity();
-      onResumed({ events: [...base, ...collected], session: session.state, ...workContext() });
+      onResumed({
+        events: [...base, ...collected],
+        session: session.state,
+        ...workContext(),
+        reattachIncomplete: streamUnavailable && collected.length === 0,
+      });
     })();
     return () => {
       controller.abort();
@@ -2328,6 +2365,7 @@ function ChatThread({
     preparingSend.current = true;
     setSavingConversation(true);
     setUploadError(null);
+    clearReattachNote();
     try { await onPrepareSend(); }
     catch {
       setUploadError("Your conversation could not be saved. Your draft is still here; try again.");
@@ -2387,13 +2425,20 @@ function ChatThread({
   }
 
   async function stopTurn() {
+    setStopError(null);
     // During a reattached turn the agent store is idle; the session id from
     // the saved cursor targets the running turn instead.
     const sessionId = agent.session?.sessionId ?? initialChat.session?.sessionId;
     if (!resuming) {
-      await agent.cancel().catch(() => undefined);
+      await performCancelTurn(() => agent.cancel(), setStopError);
     } else if (sessionId) {
-      await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() }).catch(() => undefined);
+      await performCancelTurn(async () => {
+        const response = await fetch(`/eve/v1/session/${sessionId}/cancel`, {
+          method: "POST",
+          headers: conversationHeaders(),
+        });
+        if (!response.ok) throw new Error("Cancel request returned an error.");
+      }, setStopError);
     }
   }
 
@@ -2527,7 +2572,7 @@ function ChatThread({
         </div>
       )}
       <div className="mx-auto flex size-full max-w-3xl min-h-0 flex-col px-4">
-        <div className="flex shrink-0 py-2 md:hidden">
+        <div className="flex shrink-0 py-2 md:hidden" data-sidebar-toggle-wrap>
           <Button
             variant="ghost"
             size="sm"
@@ -2535,6 +2580,7 @@ function ChatThread({
             icon={SidebarSimpleIcon}
             className="min-h-11 min-w-11"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={onOpenSidebar}
           />
         </div>
@@ -2671,8 +2717,20 @@ function ChatThread({
           </MessageScroller>
         </MessageScrollerProvider>
 
+        {!ownerConflict && reattachNote && (
+          <div role="status" className="mx-4 mb-2 rounded-lg border border-kumo-warning/30 bg-kumo-warning/5 px-3 py-2 text-sm text-kumo-warning">
+            Reconnect was incomplete — this reply may be partial. Send a new message to continue.
+            <button className="ms-2 text-xs underline" onClick={clearReattachNote}>Dismiss</button>
+          </div>
+        )}
         {!ownerConflict && (
           <footer className="relative pb-4 pt-2">
+          {stopError && (
+            <p role="alert" className="mb-2 rounded-lg bg-kumo-danger/10 px-3 py-2 text-sm text-kumo-danger">
+              {stopError}
+              <button className="ms-2 text-xs underline" onClick={() => setStopError(null)}>Dismiss</button>
+            </p>
+          )}
           {paletteOpen && (
             <div
               role="listbox"
@@ -2762,7 +2820,7 @@ function ChatThread({
               autoResize
               minRows={1}
               maxRows={7}
-              className="w-full rounded-none bg-transparent px-1 text-sm ring-0 focus:ring-0"
+              className="w-full rounded-none bg-transparent px-1 text-base ring-0 focus:ring-0"
               onChange={(event) => {
                 onComposerFocus(event.currentTarget);
                 setDraft(event.target.value);

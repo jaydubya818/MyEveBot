@@ -26,6 +26,7 @@ import { DecisionCard } from "./decisions";
 import { Proof, ResultCard } from "./proof";
 import "./owner.css";
 import { IntegratedExperience } from "./integrated";
+import { ACTIVITY_PAGE_DESCRIPTION } from "./destinations";
 
 export type OwnerView =
   | "today"
@@ -341,7 +342,9 @@ function PreviewExperience({
                       ? "The useful changes and next steps, without the noise."
                       : view === "results"
                         ? "What was accomplished, what supports it, and what comes next."
-                        : "A useful next step starts with a clear outcome."}
+                        : view === "activity"
+                          ? ACTIVITY_PAGE_DESCRIPTION
+                          : "A useful next step starts with a clear outcome."}
             </p>
           </div>
           <div className="owner-actions">

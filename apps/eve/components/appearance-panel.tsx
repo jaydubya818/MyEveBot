@@ -1,5 +1,5 @@
 "use client";
-import { invalidateOwnerBrowserSession } from "@/lib/owner-browser-storage";
+import { confirmOwnerSignOut } from "@/lib/owner-sign-out";
 
 import { CheckCircleIcon, SignOutIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
@@ -30,15 +30,13 @@ export function AppearancePanel() {
   async function signOut() {
     setSigningOut(true);
     setSignOutError(null);
-    try {
-      const response = await fetch("/api/auth/logout", { method: "POST" });
-      if (!response.ok) throw new Error("Sign-out not confirmed");
-      invalidateOwnerBrowserSession();
+    const ok = await confirmOwnerSignOut();
+    if (ok) {
       window.location.assign("/login");
-    } catch {
-      setSignOutError("Sign-out could not be confirmed. Try again.");
-      setSigningOut(false);
+      return;
     }
+    setSignOutError("Sign-out could not be confirmed. Try again.");
+    setSigningOut(false);
   }
 
   const options: { value: ThemePreference; label: string; detail: string }[] = [

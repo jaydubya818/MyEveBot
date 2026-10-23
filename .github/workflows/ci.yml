@@ -34,6 +34,9 @@ jobs:
 
       - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
 
+      - name: QA regression and chat-only activation
+        run: npm run test --workspace=eve-agent -- components/qa-silent-failures.test.ts components/owner/candidate-decision.test.ts components/owner/qa-medium.test.ts lib/deep-agent-availability.test.ts lib/owner-sign-out.test.ts lib/product-resource-state.test.ts lib/task-run-actions.test.ts lib/task-runs-stale.test.ts lib/web-auth.test.ts lib/chat-only-activation.test.ts lib/external-alpha/tool-authority.test.ts lib/external-alpha/context.test.ts
+
       - run: npm run typecheck
 
       - run: npm run db:migrations:check
@@ -41,6 +44,59 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+  owner-fixture-playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci --no-audit --no-fund
+      - name: Apply and verify reviewed dependency source mitigation
+        run: npm run postinstall && npm run security:patches
+
+      - name: Build the owner fixture app (no secrets, no DB)
+        run: npm run build --workspace=eve-agent
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start fixture server (background)
+        working-directory: apps/eve
+        run: node test/owner/local-server.cjs &
+
+      - name: Wait for fixture server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3091/api/auth/status >/dev/null 2>&1; then
+              echo "Server ready"; break
+            fi
+            echo "Waiting... ($i)"; sleep 2
+          done
+          curl -sf http://127.0.0.1:3091/api/auth/status >/dev/null
+
+      - name: Run QA Playwright specs
+        working-directory: apps/eve
+        run: |
+          SPECS=$(ls test/owner/qa-*.spec.ts 2>/dev/null || true)
+          if [ -z "$SPECS" ]; then
+            echo "QA Playwright specs are required on this branch."
+            exit 1
+          fi
+          npx playwright test --config test/owner/playwright.qa.config.ts --reporter=list
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-fixture-artifacts
+          path: output/playwright/beta-product-experience/
+          retention-days: 3
 
   postgres-validation:
     runs-on: ubuntu-latest
@@ -100,7 +156,7 @@ jobs:
           FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
         # Separate test databases share cluster-wide roles; initialize those fixtures serially.
         # Concurrency and race assertions inside each test file still run unchanged.
-        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/chat-only-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
       - name: Durable owner budget concurrency and UNKNOWN recovery
         env:
           MYEVE_OWNER_CHANNEL_TESTS: '1'

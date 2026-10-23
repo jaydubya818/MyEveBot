@@ -123,7 +123,7 @@ export function NewWork({
             </p>
           </>
         ) : (
-          <form onSubmit={(event) => void submit(event)}>
+          <form className="owner-form" onSubmit={(event) => void submit(event)}>
             <h2>What should be different when it’s done?</h2>
             <p className="owner-muted">
               A short, concrete assignment is enough. Sofie can help clarify the

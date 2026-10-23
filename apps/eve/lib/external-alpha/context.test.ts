@@ -48,14 +48,16 @@ it("never drops policy, oversized owner requests, history, or tool schemas to fi
     [{ role: "system" as const, content: EXTERNAL_ALPHA_INSTRUCTIONS }, { role: "user" as const, content: [{ type: "text" as const, text: "🙂".repeat(9000) }] }],
     [{ role: "user" as const, content: [{ type: "text" as const, text: catalog + "\n" + "history ".repeat(5000) }] }],
   ]) expect(() => externalAlphaPrompt({ prompt, tools: [] })).toThrow("CONTEXT_BOUND");
-  expect(() => externalAlphaPrompt({ prompt: [], tools: [{ type: "function", name: "engineering_work", description: "schema ".repeat(6000), inputSchema: {} }] })).toThrow("CONTEXT_BOUND");
+  expect(() => externalAlphaPrompt({ prompt: [], tools: [{ type: "function", name: "manage_agent", description: "schema ".repeat(6000), inputSchema: {} }] })).toThrow("CONTEXT_BOUND");
 });
 
-it("defers unrelated management tools in a selected-Work conversation without altering retained schemas", () => {
+it("does not advertise paid Work tools during chat-only activation", () => {
   const work = { type: "function" as const, name: "engineering_work", inputSchema: { type: "object" as const, required: ["operation"] } };
-  const tools = [work, { type: "function" as const, name: "manage_agent", inputSchema: {} }];
-  expect(externalAlphaPrompt({ prompt: [], tools }, true).tools).toEqual([work]);
-  expect(externalAlphaPrompt({ prompt: [], tools }).tools).toEqual(tools);
+  const ask = { type: "function" as const, name: "ask_question", inputSchema: {} };
+  const manage = { type: "function" as const, name: "manage_agent", inputSchema: {} };
+  const tools = [work, ask, manage];
+  expect(externalAlphaPrompt({ prompt: [], tools }, true).tools).toEqual([ask]);
+  expect(externalAlphaPrompt({ prompt: [], tools }).tools).toEqual([ask, manage]);
 });
 
 it("defers optional deployment instructions only for external alpha", async () => {

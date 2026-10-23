@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { OwnerPublication } from "@/lib/engineering/owner-publication";
 import type { OwnerAction } from "@/lib/engineering/publication-contract";
 
+import { fetchOwnerDecision, postOwnerDecision } from "@/lib/candidate-decision-fetch";
 import "./owner.css";
 type View=Awaited<ReturnType<OwnerPublication['view']>>;
 const choices:{id:OwnerAction;label:string;effect:string}[]=[
@@ -16,13 +17,13 @@ const money=(v:number)=>`$${(v/1000000).toFixed(6)}`;
 export function OwnerCandidateDecision({workId,embedded=false}:{workId:string;embedded?:boolean}){
  const titleId=useId();
  const [data,setData]=useState<View|null>(null),[error,setError]=useState(''),[choice,setChoice]=useState<OwnerAction|null>(null),[confirm,setConfirm]=useState(false),[busy,setBusy]=useState(false),[saved,setSaved]=useState(false);
- const load=useCallback(async()=>{const r=await fetch(`/api/beta/owner-decision?workId=${encodeURIComponent(workId)}`,{cache:'no-store'});const body=await r.json();if(!r.ok)throw Error(body.error);setData(body);return body as View;},[workId]);
+ const load=useCallback(async()=>{const body=await fetchOwnerDecision(workId);setData(body);return body;},[workId]);
  useEffect(()=>{load().catch(e=>setError(e.message));},[load]);
  useEffect(()=>{if(!data?.publication||!['APPROVED','PUBLISHING'].includes(data.publication.state))return;const timer=setInterval(()=>load().catch(e=>setError(e.message)),4000);return()=>clearInterval(timer);},[data?.publication,load]);
  const selected=choices.find(c=>c.id===choice);
  async function decide(){if(!data||!choice||busy)return;setBusy(true);setError('');try{
-  const response=await fetch('/api/beta/owner-decision',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workId,bindingHash:data.bindingHash,previousId:data.decision?.id??null,action:choice,confirmed:true})});
-  const body=await response.json();if(!response.ok)throw Error(body.error);await load();setConfirm(false);setSaved(true);
+  await postOwnerDecision({workId,bindingHash:data.bindingHash,previousId:data.decision?.id??null,action:choice,confirmed:true});
+  await load();setConfirm(false);setSaved(true);
  }catch(e){setError(e instanceof Error?e.message:'Decision unavailable.');}finally{setBusy(false);}}
  const content = <>
  {!embedded&&<><Link href="/results">Results</Link><h1>{data?(data.readback?.review.status==='FAIL'||data.readback?.ci.status==='FAIL'?'Result needs attention':'Review retained candidate'):'Owner decision'}</h1></>}
