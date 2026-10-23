@@ -1,6 +1,10 @@
 # Authentication qualification — October 22, 2026
 
-Status: pre-promotion qualification passed; production rollout in progress.
+Status: deployed and verified on both canonical tester URLs.
+
+## Incident diagnosis
+
+Tester 1’s configured password update postdated the deployment actually serving its public alias. Project environment updates affect a new deployment; the existing login handler continued comparing against its older environment snapshot while the source-preserving redeployment was building. Once that existing redeployment became READY, the new password returned HTTP200 and the original owner ID. Chrome confirmed login and reload. Tester 2’s original password was write-only; the user explicitly authorized issuing its independent temporary credential and redeploying its existing source. The application-level implementation now removes this dependency for future changes.
 
 ## Source and scope
 
@@ -27,3 +31,20 @@ Synthetic sessions verified cross-installation denial. A proposed live-cookie cr
 This qualifies authentication only. COMPUTER remains denied for these installations; existing desktop sockets are outside this release. Unrelated MyEve/Factory/MissionControl execution readiness is unchanged. Never roll back to legacy password code after a credential has changed. Preserve Standard Protection on prior deployment URLs.
 
 Owner-issued recovery instructions are in docs/application-passwords.md. Password/reset tokens and cookies are excluded from this report and source control.
+
+## Final production result
+
+Both canonical aliases serve source `7e191bdd12734f59f95ea6410ac9417360de0349`:
+
+| Tester | Serving deployment | Browser login | Existing session |
+| --- | --- | --- | --- |
+| 1 | dpl_8uXJZG4CKWH8XjVcmaUsfuaBKmK6 | Passed | Preserved |
+| 2 | dpl_Gp6haWtUwRNi1GaarJPrLNetA1G3 | Passed | Preserved |
+
+Fresh Chrome logins on the final canonical URLs opened authenticated Today and Settings with Change Password. Production logout, anonymous Forgot Password and missing-reset-link error state also passed. Both database credentials are initialized at version zero under their original serving owner IDs and project namespaces, so owner-issued recovery is available immediately. No production password was changed merely to test revocation; change/reset/revocation transactions were exercised on the same built source with synthetic credentials and real disposable PostgreSQL.
+
+Both migrations added only 0108 and retained all 103 original ledger entries/checksums. Provider environment-reference IDs and update timestamps prove MYEVE_OWNER_ID, DATABASE_URL and MYEVE_SESSION_SECRET were not changed. Vercel Standard Protection remains enabled. Existing signed cookies from before the release still authenticated on their own canonical installation after promotion.
+
+A final provider Turbopack build and TypeScript check passed for each candidate before promotion. Tester 2's archive upload encountered transient TLS/EPIPE errors; the standard per-file upload succeeded without changes to source or TLS verification.
+
+Evidence lives in `/Users/jaywest/Myeve/output/auth-password-management-20261022/`, including production-verification-1.json, production-verification-2.json, screenshots, migration receipts and build/test logs. Credentials and cookies remain outside this directory and source control.
