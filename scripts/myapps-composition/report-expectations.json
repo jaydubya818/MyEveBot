@@ -542,7 +542,7 @@
       ]
     },
     "apps/eve/lib/external-alpha/context.test.ts": {
-      "passed": 11,
+      "passed": 12,
       "skipped": [],
       "passedNames": [
         "accepts only the complete known catalog, including Eve's single trailing description newline",
@@ -552,10 +552,11 @@
         "bounds verbose Work history for natural follow-up What changed? without discarding policy",
         "bounds verbose Work history for natural follow-up What did you change? without discarding policy",
         "defers optional deployment instructions only for external alpha",
-        "defers unrelated management tools in a selected-Work conversation without altering retained schemas",
         "fits a clean-owner first message without changing mandatory policy or owner text",
+        "keeps disabled Work tools unavailable even in a resumed selected-Work conversation",
         "never drops policy, oversized owner requests, history, or tool schemas to fit",
-        "pins the framework formatter version used by the compatibility adapter"
+        "pins the framework formatter version used by the compatibility adapter",
+        "states chat-only purchasing limits before follow-up questions and applies concise preferences to replies"
       ]
     },
     "apps/eve/lib/external-alpha/conversation-readback.test.ts": {
