@@ -74,7 +74,7 @@ function add(family: Family, paths: readonly string[], methods?: readonly string
 }
 
 // ---- API routes (app/api/**/route.ts) -------------------------------------
-add("CORE", ["/api/auth/login", "/api/auth/logout", "/api/auth/status", "/api/features", "/api/readiness", "/api/capabilities", "/api/update-check", "/api/commands"], undefined);
+add("CORE", ["/api/auth/login", "/api/auth/logout", "/api/auth/status", "/api/auth/password", "/api/auth/reset", "/api/features", "/api/readiness", "/api/capabilities", "/api/update-check", "/api/commands"], undefined);
 add("CHAT", ["/api/threads", "/api/threads/[id]", "/api/threads/search", "/api/chat-work", "/api/models"]);
 add("PERSISTENT_AGENTS", ["/api/agents", "/api/agents/[id]", "/api/agents/[id]/[action]", "/api/agents/activity"]);
 add("LIVE_AGENT_CARDS", ["/api/agents/[id]/home"], READ);
@@ -143,7 +143,7 @@ add('BETA_FEEDBACK',['/api/beta/issues'],['GET','POST']);
 add('BETA_FEEDBACK',['/feedback'],READ);
 
 // ---- Pages (app/**/page.tsx) ----------------------------------------------
-add("CORE", ["/", "/login", "/privacy", "/welcome", "/settings"]);
+add("CORE", ["/", "/login", "/forgot-password", "/reset-password", "/privacy", "/welcome", "/settings"]);
 add("CHAT", ["/chat", "/sofie", "/search"]);
 add("PERSISTENT_AGENTS", ["/agents", "/team"]);
 add("TODAY_WORK", ["/today", "/needs-you", "/inbox", "/approvals", "/activity", "/work", "/work-canvas"]);

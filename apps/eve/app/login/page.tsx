@@ -13,9 +13,12 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [setupRequired, setSetupRequired] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     setSetupRequired(new URLSearchParams(window.location.search).get("setup") === "required");
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("passwordChanged") || params.has("passwordReset")) setNotice("Your password has been updated. Sign in with your new password.");
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,7 +34,7 @@ export default function LoginPage() {
       });
       const body = (await response.json().catch(() => null)) as { error?: string | { message?: string } } | null;
       if (!response.ok) {
-        if (response.status === 503) setSetupRequired(true);
+        // A transient database failure must remain retryable without deployment instructions.
         const message = typeof body?.error === "string" ? body.error : body?.error?.message;
         throw new Error(message ?? "Could not sign in.");
       }
@@ -79,13 +82,13 @@ export default function LoginPage() {
             <div>
               <p className="text-sm font-medium text-kumo-strong">Deployment setup required</p>
               <p className="mt-1 text-xs leading-5 text-kumo-subtle">
-                Add the access password and session secret in the deployment environment, then
-                redeploy {AGENT_NAME}.
+                Ask the workspace owner to check sign-in configuration. Your conversations and files remain in place.
               </p>
             </div>
           </div>
         )}
 
+        {notice && <p role="status" className="mt-5 rounded-xl border border-kumo-hairline p-3 text-sm">{notice}</p>}
         <form className={setupRequired ? "mt-5" : "mt-8"} onSubmit={submit}>
           <label htmlFor="password" className="text-xs font-medium text-kumo-default">
             Your access password
@@ -117,9 +120,9 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-7 border-t border-kumo-hairline pt-5 text-xs leading-5 text-kumo-subtle">
-          Your session stays on this device for seven days. The password is stored only in your
-          deployment environment.
+        <a href="/forgot-password" className="mt-4 inline-block min-h-11 py-3 text-sm underline">Forgot your password?</a>
+        <p className="mt-4 border-t border-kumo-hairline pt-5 text-xs leading-5 text-kumo-subtle">
+          Your session stays on this device for up to seven days. Manage your password in Settings.
         </p>
       </section>
     </main>

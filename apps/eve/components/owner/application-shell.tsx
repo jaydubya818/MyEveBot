@@ -9,7 +9,7 @@ import "./owner.css";
  * when a conversation or Work is opened. Page components own their content. */
 export function ApplicationShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  if (["/login", "/product-preview", "/beta-preview"].includes(pathname) || pathname.startsWith("/share/")) return children;
+  if (["/login", "/forgot-password", "/reset-password", "/product-preview", "/beta-preview"].includes(pathname) || pathname.startsWith("/share/")) return children;
   const conversation = pathname === "/chat" || pathname === "/sofie";
   return <div className="owner-shell" data-conversation={conversation}>
     <a className="owner-skip" href="#owner-content">Skip to content</a>

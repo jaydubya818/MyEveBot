@@ -8,7 +8,11 @@ import {
   requireSameOrigin,
   webAuthConfigStatus,
   webAuthRequired,
+  applicationPasswordsEnabled,
 } from "@/lib/web-auth";
+import { authenticatePassword } from "@/lib/password-auth";
+import { authClientKey, consumeAuthAttempt, consumeInstallationAttempt } from "@/lib/password-store";
+import { AuthInputError, authJson, readAuthBody } from "@/lib/auth-request";
 
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 8;
@@ -51,27 +55,42 @@ export async function POST(request: Request): Promise<Response> {
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
-  if (rateLimited(request)) {
+  let limited: boolean;
+  try {
+    limited = applicationPasswordsEnabled()
+      ? !await consumeInstallationAttempt("login-installation", 120)
+        || !await consumeAuthAttempt("login-client", authClientKey(request), 12)
+      : rateLimited(request);
+  } catch { return authJson({ error: "Sign-in is temporarily unavailable. Try again shortly." }, 503); }
+  if (limited) {
     return NextResponse.json(
       { error: "Too many attempts. Try again in a few minutes." },
       { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "900" } },
     );
   }
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(contentLength) && contentLength > 4096) {
-    return NextResponse.json({ error: "Invalid request." }, { status: 413 });
+  let ownerId: string | null = null;
+  let version: number | undefined;
+  try {
+    const body = await readAuthBody(request);
+    if (typeof body.password === "string" && body.password.length <= 128) {
+      if (applicationPasswordsEnabled()) {
+        const credential = await authenticatePassword(body.password);
+        ownerId = credential?.owner_id ?? null;
+        version = credential?.version;
+      } else ownerId = ownerForPassword(body.password);
+    }
+  } catch (error) {
+    return authJson({ error: error instanceof AuthInputError ? error.message : "Sign-in is temporarily unavailable. Try again shortly." }, error instanceof AuthInputError ? 400 : 503);
   }
-  const body = (await request.json().catch(() => null)) as { password?: unknown } | null;
-  const ownerId = typeof body?.password === "string" ? ownerForPassword(body.password) : null;
   if (!ownerId) {
-    recordFailure(request);
+    if (!applicationPasswordsEnabled()) recordFailure(request);
     return NextResponse.json(
       { error: "That password did not match." },
       { status: 401, headers: { "Cache-Control": "no-store" } },
     );
   }
 
-  const token = createWebSessionToken(process.env, Date.now(), ownerId);
+  const token = createWebSessionToken(process.env, Date.now(), ownerId, version);
   if (process.env.MYEVE_DURABLE_WEB_SESSIONS === "true") {
     try {
       const { sessionRevoked } = await import("@/lib/web-session-store");

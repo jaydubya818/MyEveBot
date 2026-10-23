@@ -38,6 +38,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     try { await qualifyIngress(request, /^\/api\/relay\/artifacts\/[^/]+$/); return NextResponse.next(); }
     catch { return new NextResponse(null, {status:403}); }
   }
+  if (["/forgot-password", "/reset-password"].includes(request.nextUrl.pathname)) return NextResponse.next();
   if (/^\/(?:api|eve\/v1|login|_next\/static|_next\/image|favicon\.ico)/.test(request.nextUrl.pathname) || request.nextUrl.pathname.includes(".")) return NextResponse.next();
   if (!webAuthRequired()) return NextResponse.next();
   if ((await authenticateWebPrincipal(request)) !== null) return NextResponse.next();

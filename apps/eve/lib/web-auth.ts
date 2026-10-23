@@ -17,6 +17,8 @@ interface WebSessionPayload {
   sub: string;
   v: 1;
   nonce?: string;
+  credentialVersion?: number;
+  installation?: string;
 }
 
 export interface WebPrincipal {
@@ -45,19 +47,25 @@ export function webAuthConfigStatus(env: NodeJS.ProcessEnv = process.env): WebAu
   const missing: string[] = [];
   const password = configuredAlias(env, "MYEVE_ACCESS_PASSWORD", "SOFIE_ACCESS_PASSWORD");
   const secret = configuredAlias(env, "MYEVE_SESSION_SECRET", "SOFIE_SESSION_SECRET");
-  if (password === null || password.length < MIN_PASSWORD_LENGTH) {
+  if (!applicationPasswordsEnabled(env) && (password === null || password.length < MIN_PASSWORD_LENGTH)) {
     missing.push("MYEVE_ACCESS_PASSWORD");
   }
   if (secret === null || secret.length < MIN_SECRET_LENGTH) {
     missing.push("MYEVE_SESSION_SECRET");
   }
+  if (applicationPasswordsEnabled(env) && !env.DATABASE_URL?.trim()) missing.push("DATABASE_URL");
+  if (applicationPasswordsEnabled(env) && env.VERCEL && !env.VERCEL_PROJECT_ID?.trim()) missing.push("VERCEL_PROJECT_ID");
   const partnerId = configuredValue(env, "MYEVE_PARTNER_OWNER_ID");
   const partnerPassword = configuredValue(env, "MYEVE_PARTNER_ACCESS_PASSWORD");
   if (partnerId || partnerPassword) {
     if (!partnerId || partnerId === deploymentOwnerId(env)) missing.push("MYEVE_PARTNER_OWNER_ID");
-    if (!partnerPassword || partnerPassword.length < MIN_PASSWORD_LENGTH || (password && safeEqual(partnerPassword, password))) missing.push("MYEVE_PARTNER_ACCESS_PASSWORD");
+    if (!applicationPasswordsEnabled(env) && (!partnerPassword || partnerPassword.length < MIN_PASSWORD_LENGTH || (password && safeEqual(partnerPassword, password)))) missing.push("MYEVE_PARTNER_ACCESS_PASSWORD");
   }
   return { configured: missing.length === 0, missing };
+}
+
+export function applicationPasswordsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.MYEVE_APPLICATION_PASSWORDS === "true";
 }
 
 export function webAuthRequired(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -87,6 +95,7 @@ export function createWebSessionToken(
   env: NodeJS.ProcessEnv = process.env,
   now = Date.now(),
   ownerId = deploymentOwnerId(env),
+  credentialVersion?: number,
 ): string {
   const auth = webAuthConfigStatus(env);
   if (!auth.configured) throw new Error("MyEve web authentication is not configured");
@@ -99,6 +108,8 @@ export function createWebSessionToken(
     sub: ownerId,
     v: 1,
     nonce: randomUUID(),
+    ...(credentialVersion === undefined ? {} : { credentialVersion }),
+    ...(applicationPasswordsEnabled(env) ? { installation: env.VERCEL_PROJECT_ID?.trim() || "local" } : {}),
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   return `${encodedPayload}.${signature(encodedPayload, secret)}`;
@@ -109,7 +120,7 @@ export function verifyWebSessionToken(
   env: NodeJS.ProcessEnv = process.env,
   now = Date.now(),
 ): WebPrincipal | null {
-  if (!token || !webAuthConfigStatus(env).configured) return null;
+  if (!token || token.length > 4096 || !webAuthConfigStatus(env).configured) return null;
   const parts = token.split(".");
   if (parts.length !== 2 || parts.some((part) => part.length === 0)) return null;
   const [encodedPayload, suppliedSignature] = parts;
@@ -129,6 +140,8 @@ export function verifyWebSessionToken(
       typeof payload.exp !== "number" ||
       payload.iat > current + 60 ||
       payload.exp <= current
+      || (payload.credentialVersion !== undefined && (!Number.isSafeInteger(payload.credentialVersion) || payload.credentialVersion < 0))
+      || (payload.installation !== undefined && payload.installation !== (env.VERCEL_PROJECT_ID?.trim() || "local"))
     ) {
       return null;
     }
@@ -207,7 +220,7 @@ export async function requireWebAuth(request: Request): Promise<Response | null>
   if (principal === null) {
     return apiError(request, 401, "authentication_required", "Sign in to continue.");
   }
-  if(isPartnerPrincipal(principal.id) && !partnerPrivateRoute(new URL(request.url).pathname,request.method))
+  if(isPartnerPrincipal(principal.id) && !new URL(request.url).pathname.startsWith("/api/auth/") && !partnerPrivateRoute(new URL(request.url).pathname,request.method))
     return apiError(request,403,"deployment_account_private","This connection or service belongs to the deployment owner. It is not shared with your account.");
   return null;
 }
@@ -231,12 +244,21 @@ export async function authenticateWebPrincipal(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<WebPrincipal | null> {
   const principal = webPrincipal(request, env);
-  if (!principal || env.MYEVE_DURABLE_WEB_SESSIONS !== "true") return principal;
+  if (!principal) return null;
   const token = cookieValue(request, WEB_SESSION_COOKIE) ?? cookieValue(request, LEGACY_WEB_SESSION_COOKIE);
+  if (!webAuthRequired(env)) return principal;
   if (!token) return null;
   try {
-    const { sessionRevoked } = await import("./web-session-store.ts");
-    return await sessionRevoked(principal.id, token) ? null : principal;
+    if (applicationPasswordsEnabled(env)) {
+      const { credentialVersion } = await import("./password-store.ts");
+      const payload = JSON.parse(Buffer.from(token.split(".")[0], "base64url").toString("utf8")) as WebSessionPayload;
+      if ((payload.credentialVersion ?? 0) !== await credentialVersion(principal.id, env)) return null;
+    }
+    if (env.MYEVE_DURABLE_WEB_SESSIONS === "true") {
+      const { sessionRevoked } = await import("./web-session-store.ts");
+      if (await sessionRevoked(principal.id, token)) return null;
+    }
+    return principal;
   } catch {
     // Missing migration, unreachable storage and ambiguous readback all deny access.
     return null;

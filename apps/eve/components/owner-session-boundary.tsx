@@ -7,7 +7,7 @@ export function OwnerSessionBoundary({children}:{children:ReactNode}) {
  const [ready,setReady]=useState(false);
  const [failed,setFailed]=useState(false);
  useEffect(()=>{
-  if(window.location.pathname==='/login'){setReady(true);return;}
+  if(['/login','/forgot-password','/reset-password'].includes(window.location.pathname)){setReady(true);return;}
   let disposed=false;
   const original=window.fetch.bind(window);
   const abort = new AbortController();

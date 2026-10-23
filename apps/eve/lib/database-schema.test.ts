@@ -3,6 +3,9 @@ import {CURRENT_DATABASE_MIGRATION, requiredDatabaseMigration} from './database-
 import {loadMigrations} from '../scripts/migration-runner.ts';
 
 describe('explicit schema rollout', () => {
+  it('requires application-password schema only when explicitly enabled', () => {
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true'})).toBe('0108_application_passwords.sql');
+  });
   it('preserves existing personal installation requirements', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production'})).toBe('0082_factory_concrete_grant_binding.sql');
     expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_DURABLE_WEB_SESSIONS: 'true'})).toBe('0083_web_session_revocations.sql');
