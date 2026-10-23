@@ -19,5 +19,9 @@ export const EmptyToolInput = Schema.Record(Schema.String, Schema.Never);
 export function toolSchema<S extends Schema.Constraint & Schema.ConstraintDecoder<unknown>>(
   schema: S,
 ) {
-  return Schema.toStandardJSONSchemaV1(Schema.toStandardSchemaV1(schema));
+  const standard = Schema.toStandardJSONSchemaV1(Schema.toStandardSchemaV1(schema));
+  // Effect schemas are callable classes. Eve's public schema contract reads
+  // Standard Schema metadata from objects, so expose the same validator and
+  // JSON projection through a plain object rather than passing the class.
+  return { "~standard": standard["~standard"] };
 }

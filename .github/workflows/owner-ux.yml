@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay
-          ref: ccd32878759bd03a8d6775141769498487496958
+          ref: f7264e0a8df036c5fb505b61c55ad978f5a81f9e
           path: .qualification/relay
       - name: Keep pinned fixture source outside the qualified application checkout
         run: mv .qualification/relay "$RUNNER_TEMP/external-alpha-canonical-relay"
@@ -48,7 +48,7 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
           MYRELAY_SOURCE_ROOT: ${{ runner.temp }}/external-alpha-canonical-relay
-          MYRELAY_SOURCE_SHA: ccd32878759bd03a8d6775141769498487496958
+          MYRELAY_SOURCE_SHA: f7264e0a8df036c5fb505b61c55ad978f5a81f9e
           MYEVE_OWNER_CHANNEL_TESTS: '1'
           MYEVE_OWNER_TEST_PORT: '55491'
           USER: ux_fixture

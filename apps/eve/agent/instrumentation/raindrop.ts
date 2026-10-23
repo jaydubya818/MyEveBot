@@ -1,7 +1,7 @@
 import { disableInstrumentation } from "eve/instrumentation";
 import { otelIntegration } from "eve/instrumentation/otel";
-import { raindrop } from "./telemetry";
+import { raindropTraceExporter } from "./telemetry";
 
-export default raindrop
-  ? otelIntegration({ spanProcessors: [raindrop.createSpanProcessor()] })
+export default raindropTraceExporter
+  ? otelIntegration({ traceExporter: raindropTraceExporter })
   : disableInstrumentation();

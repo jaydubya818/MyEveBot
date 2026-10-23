@@ -1,6 +1,6 @@
 import { defineState } from "eve/context";
 import { defineHook, type HookContext } from "eve/hooks";
-import type { RaindropProperties } from "raindrop-ai";
+import { RAINDROP_EVENT_BUDGET_MS, type RaindropProperties } from "../lib/raindrop-client";
 
 import {
   RAINDROP_EVENT_NAME,
@@ -83,7 +83,7 @@ async function wait(milliseconds: number): Promise<void> {
 async function observe(name: string, run: () => Promise<void> | void): Promise<boolean> {
   if (raindrop === null) return false;
   try {
-    await raindrop.asCurrent(run);
+    await run();
     return true;
   } catch (error) {
     // A monitoring outage must not turn a successful durable turn into a
@@ -112,12 +112,11 @@ async function beginTurn(
   if (client === null) return;
 
   await observe("begin turn", async () => {
-    client.begin({
+    await client.publish({
       eventId: eventId(ctx, turnId),
       event: RAINDROP_EVENT_NAME,
       userId: raindropUserId(ctx.session.id, ctx.session.auth),
       convoId: ctx.session.id,
-      isPending: false,
       ...(input === undefined ? {} : { input }),
       ...(!RECORD_IO
         ? { output: "Content recording disabled by OTEL_RECORD_IO." }
@@ -129,9 +128,6 @@ async function beginTurn(
       },
       timestamp: startedAt,
     });
-
-    // begin() starts the immediate partial POST but does not return its promise.
-    await client.forceFlush();
   });
 }
 
@@ -172,11 +168,13 @@ async function finishTurn(
       state.output ??
       `Turn ${status} without producing a text response.`)
     : "Content recording disabled by OTEL_RECORD_IO.";
+  const deadline = Date.now() + RAINDROP_EVENT_BUDGET_MS;
 
   for (let attempt = 0; attempt <= TERMINAL_EXPORT_RETRY_DELAYS_MS.length; attempt += 1) {
+    if (Date.now() >= deadline) break;
     const exported = await observe(`finish ${status} turn`, async () => {
-      const interaction = client.resumeInteraction(eventId(ctx, turnId));
-      await interaction.finish({
+      await client.publish({
+        eventId: eventId(ctx, turnId),
         event: RAINDROP_EVENT_NAME,
         userId: raindropUserId(ctx.session.id, ctx.session.auth),
         convoId: ctx.session.id,
@@ -199,7 +197,7 @@ async function finishTurn(
           usage_by_step: state.usageByStep,
         },
         timestamp: state.startedAt,
-      });
+      }, deadline);
     });
 
     if (exported) {
@@ -208,10 +206,12 @@ async function finishTurn(
     }
 
     const retryDelay = TERMINAL_EXPORT_RETRY_DELAYS_MS[attempt];
-    if (retryDelay !== undefined) await wait(retryDelay);
+    if (retryDelay !== undefined && Date.now() < deadline) {
+      await wait(Math.min(retryDelay, deadline - Date.now()));
+    }
   }
 
-  // Monitoring remains best-effort. The SDK already retries each request; this
+  // Monitoring remains best-effort. The client already retries each request; this
   // outer event-level budget handles transient failures without failing the
   // successful Eve turn, then releases state instead of leaking it forever.
   console.warn(`[raindrop] terminal export exhausted retries for turn ${turnId}`);

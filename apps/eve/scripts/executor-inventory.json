@@ -87,8 +87,8 @@
     },
     "agent/hooks/raindrop.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "45061ce938301b30054837eb6af8be0a653a452fa1935fdd1501999859b31045"
+      "reason": "Retains canonical durable turn identity, authenticated owner/conversation, original timestamp and usage-by-step deduplication. Manual full-snapshot terminal publication has one shared 5-second deadline across transport queue, abort and hook retries; safe best-effort cleanup cannot fail a user turn. Actual loopback HTTP failure/restart and privacy regressions independently reviewed. No tool, grant, execution or accounting authority added.",
+      "sha256": "86fb952b4c0efab8a99dd46e0fd946eaa1cc78d47ccbf5670aa9371ee5d822e9"
     },
     "agent/hooks/skill-telemetry.ts": {
       "classification": "INTERNAL",
@@ -317,8 +317,8 @@
     },
     "agent/lib/effect/tool-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3dc371314ab898aaf173f3a7bfac64ff6507795a57b8d28f700b0fe69abdde93"
+      "reason": "Plain-object Standard Schema adapter preserves Effect validator and JSON projection metadata/closures unchanged. Fixes Eve public tool serialization rejecting Effect callable schema objects; ai.asSchema consumer regression and real local Eve startup qualify bridge. No tool executors, input constraints, authorization or denied capabilities changed.",
+      "sha256": "7abd095c7623a3b69c0c518871f745a9b20afd08bee4b3e7466767d772b37cb8"
     },
     "agent/lib/effect/voice.ts": {
       "classification": "INTERNAL",
@@ -2861,8 +2861,8 @@
     },
     "agent/instrumentation/telemetry.ts": {
       "classification": "INTERNAL",
-      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
-      "sha256": "2218f372e69946547ae511c9469a3031aca691d3e0ad81f97f6e9d0a0a3a502b"
+      "reason": "Eve remains the sole tracing provider; canonical event IDs and authenticated attribution unchanged. Test/no-key modes construct no telemetry clients/exporters and cannot probe Workshop. Existing I/O ceiling unchanged. Manual events and same-destination OTLP are separate; startup and privacy tests cover declarations.",
+      "sha256": "a15eaec4da76bea283941fa110125ed365ddd44c6ea0314df8e4b7df3e4d55fa"
     },
     "agent/tools/ask_question.ts": {
       "classification": "INTERNAL",
@@ -2972,8 +2972,8 @@
     },
     "agent/instrumentation/raindrop.ts": {
       "classification": "INTERNAL",
-      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
-      "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
+      "reason": "Declares one same-destination public OTLP exporter in Eve-owned tracing, with explicit server-controlled key/endpoint and existing content ceiling. No automatic AI events, Workshop, new destination or second provider. Public wire-byte, callback failure and deadline tests cover export.",
+      "sha256": "5d59ec9680b7bfd5ba7bdd637658ee9b7f226946524fa076ce6f8d862fab9a26"
     },
     "agent/tools/create_factory_work_order.ts": {
       "classification": "ENFORCED",
@@ -4585,6 +4585,16 @@
       "classification": "INTERNAL",
       "reason": "Single informational label for locked beta UI/instructions; not a qualification predicate, provider binding or execution grant. UI renders only under existing server-derived external-alpha DestinationGate; outside beta availability is not inferred. Covered by gated navigation and chat-only instruction tests.",
       "sha256": "ccbf20f18afc31f1de142e34bb89f92ec001570913a710694b5cb32bd6da561e"
+    },
+    "agent/lib/raindrop-client.ts": {
+      "classification": "INTERNAL",
+      "reason": "Observability-only public HTTP adapter to existing fixed production Raindrop destination; fixture endpoints are internal constructor inputs only. Retains local redaction categories/labels/order, trusted active trace join, canonical full snapshots and per-event ordering. Fail-closed redaction and shared 5-second publication budget with abort/no late retry covered by public-SDK synthetic wire and native loopback tests. Validated Vercel/explicit server provenance only; no Git subprocess, Workshop, provider registration or authority grant.",
+      "sha256": "cc4b1c5841880853ac9e7b966e85a0258c751f67c8af8cf6c46f7ee17df7f5ca"
+    },
+    "agent/lib/raindrop-span-exporter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Observability-only public standard OTLP exporter to existing Raindrop destination with server-held key and 10-second timeout. Retains prior scope admission/AI mappings and complete public span structure without mutation; validated Vercel/explicit provenance with explicit span identity precedence. Synthetic legacy onEnd wire-byte parity, excluded scope, real HTTP failure/deadline and provenance regressions independently reviewed. No private imports/provider registration/authority grant.",
+      "sha256": "7052bfe246c0054ef6456eb04e454c14f970481fd9b855dd7b78ba20c328bfe8"
     }
   }
 }
