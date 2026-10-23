@@ -1,7 +1,7 @@
 {
   "format": "myeve.builder-dependency-metadata.v1",
-  "sourceCommit": "51a6350a115291399c08f0ad11dd4fa9afef1862",
-  "packageLockSha256": "4e3bb89f004ebf70cbd75fc6a7a4e80e4fab371b61120e3795956bbd83b6a1aa",
+  "sourceCommit": "71e929217fc26ff1ee9f3a32998608bad42c1ee6",
+  "packageLockSha256": "43320248056e9a508190374ee9a48793c2c053e216ee8ebceaebea0e17f99b28",
   "scope": "Exact dependency package metadata only; never part of an agent export.",
   "files": {
     "apps/eve/node_modules/@grpc/grpc-js/package.json": {
