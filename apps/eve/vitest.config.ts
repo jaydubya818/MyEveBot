@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 
 // The eve dev runtime keeps full snapshot copies of the app under
@@ -6,7 +7,11 @@ import { defineConfig } from "vitest/config";
 // suite several times over — once per stale snapshot.
 export default defineConfig({
   resolve: {
-    alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL(".", import.meta.url)),
+      "react": path.resolve(import.meta.dirname, "node_modules/react"),
+      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
+    },
   },
   test: {
     exclude: [

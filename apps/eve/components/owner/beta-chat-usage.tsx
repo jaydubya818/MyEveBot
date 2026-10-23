@@ -7,7 +7,7 @@ const money = (microusd: number, measured = false) => `$${(microusd / 1_000_000)
 
 export function BetaChatUsageView({ usage }: { usage: AlphaChatUsage }) {
   const paused = usage.localPaused || usage.state !== "active";
-  return <section aria-label="Beta chat usage" className="mt-2 max-h-40 shrink-0 overflow-y-auto rounded-xl border border-kumo-line px-3 py-2 text-xs text-kumo-subtle">
+  return <section aria-label="Beta chat usage" className="mt-2 max-h-40 shrink-0 overflow-y-auto rounded-xl border border-kumo-line px-3 py-2 text-xs text-kumo-default">
     <p className="font-medium text-kumo-default">{usage.quotaRemaining}/{usage.limits.dailyTurns} chat turns remaining today</p>
     <p>Daily budget reserved: {money(usage.dailyReservedMicrousd)} / {money(usage.limits.dailyMicrousd)} · Trial: {money(usage.trialReservedMicrousd)} / {money(usage.limits.trialMicrousd)}</p>
     {paused && <p role="status">{usage.state === "expired" ? "This chat trial has ended." : usage.state === "revoked" ? "This chat trial is disabled." : usage.state === "inactive" ? "Chat is not activated yet." : "Chat is temporarily paused. Unused quota does not guarantee availability."}</p>}
@@ -55,7 +55,7 @@ export function BetaChatUsage({ refreshKey }: { refreshKey: string }) {
   }, [alpha, refreshKey, revision]);
   if (!alpha) return null;
   if (usage) return <BetaChatUsageView usage={usage} />;
-  return <section aria-label="Beta chat usage" className="mt-2 shrink-0 px-3 py-2 text-xs text-kumo-subtle">
+  return <section aria-label="Beta chat usage" className="mt-2 shrink-0 px-3 py-2 text-xs text-kumo-default">
     <p role="status">{failed ? "Chat usage could not be refreshed. Limits still apply." : "Checking chat allowance…"}</p>
     {failed && <button type="button" className="underline" onClick={() => setRevision(v => v + 1)}>Refresh usage</button>}
   </section>;

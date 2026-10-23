@@ -18,6 +18,8 @@ import type { ProofOfWork } from "@/lib/digital-worker/contracts";
 import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
+import { ActivityCard, type ActivityChange } from "./activity-card";
+import { deduplicateApiErrors } from "@/lib/error-dedup";
 import { Responsibilities } from "./responsibilities";
 import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
@@ -89,15 +91,7 @@ export function IntegratedExperience({
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
   const [canonical, setCanonical] = useState<CanonicalWork | null>(null);
-  const [activity, setActivity] = useState<
-    Array<{
-      id: string;
-      kind: string;
-      summary: string;
-      at: string;
-      work_id: string | null;
-    }>
-  >([]);
+  const [activity, setActivity] = useState<ActivityChange[] | null>(null);
   const [feedbackScope, setFeedbackScope] = useState<"WORK" | "REPOSITORY">(
     "WORK",
   );
@@ -126,6 +120,7 @@ export function IntegratedExperience({
     let authenticationLost = false;
     setLoading(true);
     setErrors([]);
+    if (["brief", "activity"].includes(view)) setActivity(null);
     const read = async <T,>(
       path: string,
       label: string,
@@ -148,7 +143,7 @@ export function IntegratedExperience({
             setFacts([]);
             setFamilies([]);
             setBrief(null);
-            setActivity([]);
+            setActivity(null);
           }
           setErrors((old) => [
             ...old,
@@ -498,10 +493,16 @@ export function IntegratedExperience({
         {!!errors.length && (
           <div className="owner-notice" role="alert">
             <h2>Some information is unavailable</h2>
-            {errors.map((e) => (
-              <p key={e}>{e}</p>
+            {/* Deduplicate by the message suffix to avoid showing the same
+                API error repeated for every concurrently-failing endpoint. */}
+            {deduplicateApiErrors(errors).map((msg) => (
+              <p key={msg}>{msg}</p>
             ))}
-            <button onClick={refresh}>Try again</button>
+            <div className="owner-actions">
+              <button onClick={refresh} disabled={loading}>
+                {loading ? "Checking…" : "Try again"}
+              </button>
+            </div>
           </div>
         )}
         {notice && (
@@ -734,30 +735,7 @@ export function IntegratedExperience({
             {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
-              <Card title="Memory and learning changes">
-                {activity.length ? (
-                  <ul className="owner-list">
-                    {activity.map((change) => (
-                      <li key={change.id}>
-                        <strong>{change.kind}</strong>
-                        <p>{change.summary}</p>
-                        <p className="owner-muted">{date(change.at)}</p>
-                        <Link
-                          href={
-                            change.work_id
-                              ? `/memory?workId=${change.work_id}`
-                              : "/memory"
-                          }
-                        >
-                          Review memory and learning
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No memory or learning changes recorded.</p>
-                )}
-              </Card>
+              <ActivityCard changes={activity} />
             )}
             {(view === "brief" || view === "activity") && brief && (
               <>

@@ -39,7 +39,7 @@ try {
   page.on('pageerror', error => { errors.push(error.message); console.error('Browser error:', error.message); });
   page.on('console', message => { if(message.type()==='error') console.error('Browser console:', message.text()); });
   let failUsage = false, failInbox = false, turn = 9;
-  const thread = { id: '00000000-0000-4000-8000-000000000071', title: 'Preserved beta conversation', updatedAt: Date.now(), agentId: 'fixture-sofie', agentName: 'Sofie' };
+  const thread = { id: '00000000-0000-4000-8000-000000000071', title: 'Preserved beta conversation', updatedAt: Date.now(), agentId: 'fixture-sofie', agentName: 'Sofie', renamed: true };
   const second = { ...thread, id: '00000000-0000-4000-8000-000000000072', title: 'Second beta conversation' };
   const usage = (owner) => ({ version: 1, checkedAt: new Date().toISOString(), dayIndex: Math.floor(Date.now() / 86400000), resetsAt: new Date((Math.floor(Date.now() / 86400000) + 1) * 86400000).toISOString(), activatedAt: '2026-10-23T16:50:12Z', expiresAt: '2026-10-28T16:50:12Z', state: 'active', localPaused: false,
     dailyTurnsUsed: owner === 1 ? turn : 2, quotaRemaining: owner === 1 ? 10 - turn : 8,
@@ -66,6 +66,7 @@ try {
     if (url.pathname === '/api/beta/inbox') return send({ items: [], nextCursor: null });
     if (url.pathname === '/api/capabilities') return send({ capabilities: [] });
     if (url.pathname === '/api/threads') return send({ threads: owner === 1 ? [thread, second] : [] });
+    if (url.pathname.startsWith('/api/threads/') && req.method() === 'DELETE') return send({error:'Synthetic delete outage'},503);
     if (url.pathname.startsWith('/api/threads/')) return send({ chat: { events: [] } });
     if (url.pathname === '/api/agents') return send({ agents: [] });
     if (url.pathname === '/api/commands') return send({ commands: [] });
@@ -91,7 +92,9 @@ try {
   await page.evaluate(({thread, second}) => {
     const prefix = 'myeve-private:feedback-owner-1:';
     localStorage.setItem(prefix + 'eve-web-threads', JSON.stringify({ activeId: thread.id, threads: [thread, second] }));
-    for (const item of [thread, second]) localStorage.setItem(prefix + `eve-web-chat:${item.id}`, JSON.stringify({ events: [] }));
+    const event=(type,data,index)=>({type,data,meta:{id:`fixture-${index}`,at:new Date().toISOString()}});
+    const events=[event('session.started',{sessionId:'fixture',sequence:0},0),event('turn.started',{turnId:'fixture-turn',sequence:1},1),event('message.received',{turnId:'fixture-turn',sequence:2,message:'Unsynced history fixture.',parts:[{type:'text',text:'Unsynced history fixture.'}],kind:'message'},2),event('turn.completed',{turnId:'fixture-turn',sequence:3},3),event('session.waiting',{sessionId:'fixture',sequence:4,wait:'next-user-message'},4)];
+    for (const item of [thread, second]) localStorage.setItem(prefix + `eve-web-chat:${item.id}`, JSON.stringify({ events:item.id===thread.id?events:[], savedAt:Date.now()+60000 }));
   }, { thread, second });
   await page.reload();
   await expect(panel).toContainText('1/10 chat turns remaining today');
@@ -102,6 +105,16 @@ try {
   await expect(panel).toContainText('$0.0412'); await expect(panel).toContainText('Reservations are not refunded');
   await panel.getByText('Usage details and limits', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Message Sofie', exact: true }).fill('Preserve this unsent draft.');
+  await expect(page.getByText('Unsynced history fixture.',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:`Delete ${thread.title}`,exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'Delete',exact:true}).click();
+  await expect(page.getByRole('alert').filter({hasText:'Your messages and draft are still here.'})).toBeVisible();
+  await expect(page.getByRole('textbox',{name:'Message Sofie',exact:true})).toHaveValue('Preserve this unsent draft.');
+  await expect(page.getByText('Unsynced history fixture.',{exact:true})).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('textbox',{name:'Message Sofie',exact:true})).toHaveValue('Preserve this unsent draft.');
+  await expect(page.getByText('Unsynced history fixture.',{exact:true})).toBeVisible();
+  assert.equal(await page.getByRole('button',{name:`Delete ${thread.title}`,exact:true}).count(),1);
   turn = 10;
   await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   await expect(panel).toContainText('0/10 chat turns remaining today');
@@ -120,7 +133,9 @@ try {
     await expect(page.getByRole('textbox', { name: 'Message Sofie', exact: true })).toBeInViewport();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
     await page.evaluate(axe);
-    const serious = await page.evaluate(async () => (await window.axe.run(document.querySelector('[aria-label="Beta chat usage"]'), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.filter(v => ['serious', 'critical'].includes(v.impact)).map(v => v.id));
+    const serious = await page.evaluate(async () => (await window.axe.run(document.querySelector('[aria-label="Beta chat usage"]'), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.filter(v => ['serious', 'critical'].includes(v.impact)).map(v => ({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})));
+    if(serious.length) console.error(JSON.stringify({name,serious}));
+    await page.screenshot({path:resolve(output,`${name}-contrast-check.png`)});
     assert.deepEqual(serious, []); accessibility.push({ name, serious });
     await page.screenshot({ path: resolve(output, `${name}.png`), fullPage: false });
     await panel.getByText('Usage details and limits', { exact: true }).click();
@@ -137,7 +152,7 @@ try {
   await expect(page.getByRole('textbox', { name: 'Message Sofie', exact: true })).toHaveValue('');
   assert.equal(writes.filter(x => x.startsWith('POST /eve/')).length, 0);
   assert.deepEqual(forbidden, []); assert.deepEqual(errors, []);
-  const receipt = { status: 'PASS', productionBuildId: (await readFile(resolve(app, '.next/BUILD_ID'), 'utf8')).trim(), scope: 'Real built application; synthetic resource responses. Model behavior qualified separately.', checks: ['Today ignores failed unused Work endpoint', 'real Work outage remains visible and retryable', 'owner daily and trial reservations distinct from measured cost', 'quota refresh and exhaustion', 'failure removes stale values and retry preserves draft', 'primary Agent chip hidden in alpha', 'desktop/mobile reflow and visible composer', 'usage accessibility', 'same-browser owner switch isolates threads, draft and usage'], accessibility, paidOperations: 0, productionMutations: 0 };
+  const receipt = { status: 'PASS', productionBuildId: (await readFile(resolve(app, '.next/BUILD_ID'), 'utf8')).trim(), scope: 'Real built application; synthetic resource responses. Prompt delivery tested separately; live model behavior not exercised.', checks: ['Today ignores failed unused Work endpoint', 'real Work outage remains visible and retryable', 'owner daily and trial reservations distinct from measured cost', 'quota refresh and exhaustion', 'failure removes stale values and retry preserves draft', 'failed thread deletion preserves unsynced history and draft through reload without duplicate metadata', 'primary Agent chip hidden in alpha', 'desktop/mobile collapsed and expanded details keep composer visible', 'usage accessibility', 'same-browser owner switch isolates threads, draft and usage'], accessibility, paidOperations: 0, productionMutations: 0 };
   await writeFile(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify(receipt));
 } finally { await browser?.close(); await stopOwnedProcess(server); await log.close(); }
