@@ -3,6 +3,7 @@
  * Runs against the owner fixture server (http://127.0.0.1:3091).
  */
 import { test, expect } from "@playwright/test";
+import { openAccountMenu } from "./open-account-menu";
 
 const BASE = "http://127.0.0.1:3091";
 const PASSWORD = "local-beta-ui-fixture-only";
@@ -52,9 +53,7 @@ test.describe("QA-39 account-menu tap targets", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
   test("primary account controls are at least 44px tall at 390×844", async ({ page }) => {
-    await page.goto(`${BASE}/today`, { waitUntil: "domcontentloaded" });
-    const menu = page.getByRole("button", { name: "Menu" });
-    if (await menu.isVisible()) await menu.click();
+    await openAccountMenu(page);
     const signOut = page.getByRole("button", { name: /Sign out/i });
     await expect(signOut).toBeVisible({ timeout: 15000 });
     const box = await signOut.boundingBox();

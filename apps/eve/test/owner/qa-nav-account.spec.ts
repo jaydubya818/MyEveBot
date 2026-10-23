@@ -2,6 +2,7 @@
  * QA-27 / QA-30 / QA-31 owner nav labels on the fixture server.
  */
 import { test, expect } from "@playwright/test";
+import { openAccountMenu } from "./open-account-menu";
 
 const BASE = "http://127.0.0.1:3091";
 const PASSWORD = "local-beta-ui-fixture-only";
@@ -14,12 +15,6 @@ test.beforeEach(async ({ context }) => {
   const state = await context.storageState();
   await context.addCookies(state.cookies.map((c) => ({ ...c, secure: false })));
 });
-
-async function openAccountMenu(page: import("@playwright/test").Page) {
-  await page.goto(`${BASE}/today`, { waitUntil: "domcontentloaded" });
-  const menu = page.getByRole("button", { name: "Menu" });
-  if (await menu.isVisible()) await menu.click();
-}
 
 test("QA-31: Sign out is reachable from the account menu", async ({ page }) => {
   await openAccountMenu(page);
