@@ -36,3 +36,10 @@ test("QA-30: Memory and Results are distinct reachable account destinations", as
   await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Memory" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Activity" })).toBeVisible();
 });
+
+test("QA-40: Activity subtitle describes memory and learning", async ({ page }) => {
+  await page.goto(`${BASE}/activity`, { waitUntil: "load" });
+  await expect(
+    page.getByText("Memory changes, learning updates, and context from recent work."),
+  ).toBeVisible({ timeout: 15000 });
+});
