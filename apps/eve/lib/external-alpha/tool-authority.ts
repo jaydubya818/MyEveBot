@@ -13,6 +13,10 @@ export async function assertExternalAlphaTool(
   toolName: string,
 ) {
   if (!externalAlphaInstallation()) return;
+  // Also deny durable proposals parked before the chat-only release. Hiding a
+  // capability alone cannot revoke an executable or resumed tool call.
+  if (toolName === "engineering_work" || toolName === "engineering_factory")
+    throw Error("EXTERNAL_ALPHA_CHAT_ONLY: Paid Work is disabled for this beta.");
   const policy = externalAlphaPolicy();
   const { current, initiator } = ctx.session.auth;
   if (

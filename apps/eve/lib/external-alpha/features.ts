@@ -17,12 +17,12 @@ export const ALLOWED_FAMILIES = [
   "PERSISTENT_AGENTS",
   "LIVE_AGENT_CARDS",
   "TODAY_WORK", // Today, Work Inbox, Needs You, approvals
-  "OWNER_CLOUD_WORK", // bounded owner CLOUD Work (start/stop is a Sofie tool, never a web route)
   "RESULT_PROOF",
   "FILES",
   "RELAY_LINK", // owner-facing view/link only
 ] as const;
 export const DENIED_FAMILIES = [
+  "OWNER_CLOUD_WORK", // chat-only activation; paid Work requires a separately qualified release
   "MEMORY", // release remains OFF; configuration cannot enable it
   "PUBLICATION", // publication, generated PRs, owner publication decisions
   "MERGE_DEPLOY",
@@ -264,7 +264,6 @@ export const externalAlphaCapabilityAllowlist: ReadonlySet<string> = new Set([
   "files.read", "files.write", "tool.read_file", "tool.write_file",
   "tool.discover_capabilities", "tool.ask_question",
   "tool.list_agents", "tool.get_agent", "tool.manage_agent", "tool.persistent-agent-policy", "tool.list_roles",
-  "tool.engineering_work", "tool.engineering_factory",
 ]);
 export const externalAlphaMemoryCapabilities: ReadonlySet<string> = new Set([
   "memory.supermemory", "tool.remember", "tool.search_memory", "tool.list_memories", "tool.forget",

@@ -83,9 +83,9 @@ describe("external-alpha route allowlist (default-deny)", () => {
 
   it("names each required allowed family and each required denied family", () => {
     expect([...ALLOWED_FAMILIES].sort()).toEqual(
-      ["CHAT", "CORE", "FILES", "LIVE_AGENT_CARDS", "OWNER_CLOUD_WORK", "PERSISTENT_AGENTS", "RELAY_LINK", "RESULT_PROOF", "TODAY_WORK"].sort(),
+      ["CHAT", "CORE", "FILES", "LIVE_AGENT_CARDS", "PERSISTENT_AGENTS", "RELAY_LINK", "RESULT_PROOF", "TODAY_WORK"].sort(),
     );
-    for (const required of ["PUBLICATION", "MERGE_DEPLOY", "AUTO_REPAIR", "OWNER_COMPUTER", "EMAIL_CONNECTED_APPS", "ROOMS", "ROUTINES", "MESSAGING", "COMPUTER", "FEDERATION"])
+    for (const required of ["PUBLICATION", "MERGE_DEPLOY", "AUTO_REPAIR", "OWNER_COMPUTER", "EMAIL_CONNECTED_APPS", "ROOMS", "ROUTINES", "MESSAGING", "COMPUTER", "FEDERATION", "OWNER_CLOUD_WORK"])
       expect(DENIED_FAMILIES).toContain(required);
   });
 
@@ -126,7 +126,7 @@ describe("external-alpha route allowlist (default-deny)", () => {
 
   it.each([
     ["/", "GET"], ["/chat", "GET"], ["/sofie", "GET"], ["/today", "GET"], ["/needs-you", "GET"], ["/inbox", "GET"], ["/work", "GET"],
-    ["/work/new", "GET"], ["/team", "GET"], ["/results", "GET"], ["/workspace", "GET"], ["/api/threads", "POST"], ["/api/agents", "GET"],
+    ["/team", "GET"], ["/results", "GET"], ["/workspace", "GET"], ["/api/threads", "POST"], ["/api/agents", "GET"],
     ["/api/agents/a1/home", "GET"], ["/api/work-inbox", "GET"], ["/api/beta/results", "GET"], ["/api/files", "GET"], ["/api/relay", "GET"],
     ["/api/relay", "POST"], ["/eve/v1/session", "POST"], ["/eve/v1/info", "GET"], ["/_next/static/chunks/a.js", "GET"], ["/login", "GET"],
   ])("allows %s %s", (path, method) => {
@@ -216,7 +216,7 @@ describe("tools and integrations are an explicit allowlist", () => {
     for (const id of [...externalAlphaCapabilityAllowlist, ...externalAlphaMemoryCapabilities]) expect(ids.has(id), id).toBe(true);
   });
   it.each([
-    "tool.composio", "tool.send_email", "tool.browser", "tool.slack", "tool.publish", "tool.engineering_direct", "tool.computer",
+    "tool.composio", "tool.send_email", "tool.browser", "tool.slack", "tool.publish", "tool.engineering_direct", "tool.computer", "tool.engineering_work", "tool.engineering_factory",
   ])("does not expose %s", (id) => {
     const found = getCapability(id, installation({ COMPOSIO_API_KEY: "x" }));
     if (found) expect(found.availability.status).not.toBe("available");
@@ -230,7 +230,7 @@ describe("tools and integrations are an explicit allowlist", () => {
 describe("navigation never links a denied surface", () => {
   it("links only allowlisted destinations, even with legacy Memory approval", () => {
     const hrefs = allowedDestinationHrefs(productDestinations, installation())!;
-    for (const forbidden of ["/business", "/knowledge", "/capsules", "/rooms", "/apps", "/computer", "/brief", "/weekly", "/manage", "/memory"])
+    for (const forbidden of ["/business", "/knowledge", "/capsules", "/rooms", "/apps", "/computer", "/brief", "/weekly", "/manage", "/memory", "/work/new"])
       expect(hrefs, forbidden).not.toContain(forbidden);
     for (const required of ["/today", "/chat", "/work", "/inbox", "/needs-you", "/workspace", "/results", "/team", "/privacy", "/search"])
       expect(hrefs, required).toContain(required);

@@ -1797,8 +1797,8 @@
     },
     "app/api/readiness/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "a964266916c9d074a96d50edc77b7f94dd609c7a0b6916e4fc83272ffde5a512"
+      "reason": "Owner-authenticated readiness retains its default report. Explicit alphaEnrollment=1 independently verifies current production policy and exact authenticated installation owner, then returns only fixed identity/digest fields and SHA256 of the existing high-entropy accounting token for operator enrollment. No raw secret, policy JSON, URL, logging, cache, write, membership, activation or paid grant; nine route regressions qualify denial and exact response allowlist. Independent security review2026-10-23.",
+      "sha256": "69f6a42865ce6278fac2b235b62611df7972c4dd151879ac8037a6c518f93a3d"
     },
     "app/api/relay/artifacts/[id]/route.ts": {
       "classification": "ENFORCED",
@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Only explicitly enabled approved nonproduction MissionControl mode advances to additive0105 immutable MyApps execution-admission custody. Reviewed0103/0104 READ COMMITTED requirements, historical installation schema requirements and all rollout conditions remain unchanged. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): additive 0106/0107 preparation-terminal and generation-guard catalog entries; no rollout condition weakened. Password rollout explicitly requires additive 0108; existing nonpassword rollout requirements remain pinned. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
-      "sha256": "ceafea8ea637b3b7935d7cc43ded46d321958e1e98c383d5c274b3a9b17a1ff1"
+      "reason": "Chat-only release requires additive0109 for installations already carrying external-alpha policy plus application passwords. Other rollout requirements remain unchanged;0109 is inert until separate operator enrollment. Reviewed against database-schema regressions and immutable prior migration lineage.",
+      "sha256": "8bd87cb4561b901d8bb34a4ca505647b2f5dc39cba6185de8dcb5713f1b9a40c"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -4106,13 +4106,13 @@
     },
     "lib/external-alpha/model.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "f3948a52ad8b1cac26e3e72da1b17c948c617093dd5761bee23ce372103c95e0"
+      "reason": "Reviewed chat-only provider boundary: removes Work/Factory schemas; preserves exact authenticated owner/agent/context, fixed model/provider/pricing, bounded operations, pre-dispatch shared/local reservations, known settlement and no redispatch. Shared chat-only PostgreSQL function enforces10 turns/day, $1/$5 owner and $2/$10 cohort bounds with120h expiry and READ COMMITTED guards.",
+      "sha256": "406f45c94c3e2605ec5ace2593ac8efedfe82256f69de35695fa6f7d1331c7d1"
     },
     "lib/external-alpha/tool-authority.ts": {
       "classification": "ENFORCED",
-      "reason": "Original settled proposal and owner/session/Agent/turn binding required at tool execution. Mutations claim once under policy lock; revocation before acceptance denies effects, accepted local effect may finish without new paid or Factory authority. Ambiguous claims are not retried.",
-      "sha256": "371db9fd12f17c8dd57767545cbf4c7675ab1e51d40b4b08a441a80dcaaeb07d"
+      "reason": "Reviewed chat-only executable boundary: rejects engineering_work and engineering_factory before lookup/effect, including resumed proposals; retains exact durable tool-call/owner/agent/allowance checks and exactly-once local effect accounting for remaining tools. No runtime enrollment or paid grant.",
+      "sha256": "c3502cfef60044fcad91bd2daa11d31aedba4aa705323a5466b8e402d4d2acd4"
     },
     "lib/external-alpha/work-tuple.ts": {
       "classification": "INTERNAL",
@@ -4126,8 +4126,8 @@
     },
     "lib/external-alpha/features.ts": {
       "classification": "ENFORCED",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied. Stale pinned canonical inventory fingerprint 8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636 reconciled against independently reviewed source d1e209614b3abfaf17ec4e1224d435534bcc1efecf4247dc671920bbf4258979. MyApps composition adds both existing routes to the denied EMAIL_CONNECTED_APPS family and the current-main capability preference route to denied ADMIN; the allowlist is unchanged. Classifies only two signed MissionControl POST endpoints and its owner tool under explicit installed mode. Default external-alpha scope and unrelated denied families remain closed.82 ingress/schema/client regressions pass; route authorization remains in the signed handlers. Narrow beta feedback page and GET/POST route only under explicit installed mode; unrelated admin/learning/connected-apps remain denied. Batch4 explicitly classifies installed routes as candidates only; the server proxy and handlers require canonical enrollment and owner authentication. Configuration is not authority. Adds only password/recovery routes to CORE; handler authorization remains mandatory and unrelated execution families remain denied. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
-      "sha256": "28543de89963106fd6f024e661cbe0977f1b67cbe1c70ec2d97a1d5fa5395109"
+      "reason": "Reviewed chat-only feature narrowing: owner CLOUD Work creation and engineering Work/Factory capabilities are denied for external-alpha, while existing authenticated chat and password routes remain. Default-deny traversal/method/capability coverage retained; no env flag can widen this release.",
+      "sha256": "37843498ce58cc1aab1190e26071c0d69f07b4ff414f35bbb890bf906753bd22"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4206,8 +4206,8 @@
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure assembly binding and exact optional skill-catalog removal; 32,000-byte hard cap, mandatory owner/Agent/turn policy preserved. Never removes arbitrary policy or grants a capability. Evidence: context, model and persistent-agent regression suites.",
-      "sha256": "bd7a177908341bb4e5e1d54cf6058dee20745c40aa36f89192774e1c59ad5adc"
+      "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate.",
+      "sha256": "f2e116e302b057d6b701adc68d8aa1c7bd9da67579ce5f7ce31c877d3e4d6e0b"
     },
     "lib/external-alpha/conversation-readback.ts": {
       "classification": "READ_ONLY",
