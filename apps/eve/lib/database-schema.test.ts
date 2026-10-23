@@ -5,6 +5,7 @@ import {loadMigrations} from '../scripts/migration-runner.ts';
 describe('explicit schema rollout', () => {
   it('requires application-password schema only when explicitly enabled', () => {
     expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true'})).toBe('0108_application_passwords.sql');
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0109_external_alpha_chat_only.sql');
   });
   it('preserves existing personal installation requirements', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production'})).toBe('0082_factory_concrete_grant_binding.sql');

@@ -105,6 +105,11 @@ beforeEach(() => {
     warnings: [],
   });
 });
+it("omits paid Work schemas from chat even when the caller supplies them", () => {
+  const input=options();
+  input.tools.push({type:"function",name:"engineering_work",inputSchema:{}},{type:"function",name:"engineering_factory",inputSchema:{}});
+  expect(externalAlphaPrompt(input).tools?.map(t=>t.name)).toEqual(["list_agents"]);
+});
 it("rejects missing, stale or user-supplied policy context before pricing or reservation", async () => {
   for (const prompt of [
     [],

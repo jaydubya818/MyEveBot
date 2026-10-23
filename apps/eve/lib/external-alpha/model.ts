@@ -35,8 +35,6 @@ export const externalAlphaTools = new Set([
   "manage_goal_task",
   "list_decisions",
   "record_decision",
-  "engineering_work",
-  "engineering_factory",
 ]);
 export function externalAlphaPrompt(options: Options, selectedWork = false, completedWork = false): Options {
   if (

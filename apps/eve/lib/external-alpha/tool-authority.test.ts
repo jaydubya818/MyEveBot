@@ -92,6 +92,11 @@ it("blocks the real tool execute after a parked approval outlives revocation", a
   expect(m.create).not.toHaveBeenCalled();
   expect(m.active).toHaveBeenCalledWith("original-allowance");
 });
+it.each(["engineering_work", "engineering_factory"])("denies direct or resumed %s before any lookup or side effect", async (name) => {
+  await expect(assertExternalAlphaTool(ctx, name)).rejects.toThrow("EXTERNAL_ALPHA_CHAT_ONLY");
+  expect(m.query).not.toHaveBeenCalled();
+  expect(m.agent).not.toHaveBeenCalled();
+});
 it("binds resumed approval to its original allowance, never the approval turn", async () => {
   await manageAgent.execute!(input, ctx);
   expect(m.active).toHaveBeenCalledWith("original-allowance");
