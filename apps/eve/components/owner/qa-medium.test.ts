@@ -58,8 +58,8 @@ describe("ActivityCard — QA-18", () => {
 
 describe("nav labels — QA-30", () => {
   it("does not title two destinations 'Agents'", () => {
-    const agentLabels = productDestinations.filter((item) => item.label === "Agents");
-    expect(agentLabels).toHaveLength(0);
+    const labels: string[] = productDestinations.map((item) => item.label);
+    expect(labels.filter((label) => label === "Agents")).toHaveLength(0);
     expect(productDestinations.some((item) => item.href === "/team" && item.label === "Team")).toBe(
       true,
     );
