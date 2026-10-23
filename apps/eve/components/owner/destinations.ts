@@ -80,3 +80,6 @@ export const productDestinations = [
     description: "Settings, schedules and diagnostics",
   },
 ] as const;
+
+export const ACTIVITY_PAGE_DESCRIPTION =
+  "Memory changes, learning updates, and context from recent work.";

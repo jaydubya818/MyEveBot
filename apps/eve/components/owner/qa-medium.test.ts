@@ -12,7 +12,7 @@ vi.mock("next/link", () => ({
 
 import { deduplicateApiErrors } from "@/lib/error-dedup";
 import { ActivityCard } from "./activity-card";
-import { productDestinations } from "./destinations";
+import { ACTIVITY_PAGE_DESCRIPTION, productDestinations } from "./destinations";
 import { exampleSnapshot } from "./preview";
 import { DEEP_AGENT_UNAVAILABLE_LABEL } from "@/lib/deep-agent-availability";
 import { formatLimitedModeDetail } from "@/lib/capability-notice";
@@ -86,6 +86,14 @@ describe("Deep Agent availability — QA-27", () => {
 describe("preview outcome identity — QA-16", () => {
   it("keeps a stable runId so preview results are inspectable", () => {
     expect(exampleSnapshot().outcomes[0].runId).toBe("preview-task");
+  });
+});
+
+describe("activity subtitle — QA-40", () => {
+  it("describes memory and learning instead of a generic outcome", () => {
+    expect(ACTIVITY_PAGE_DESCRIPTION).toBe(
+      "Memory changes, learning updates, and context from recent work.",
+    );
   });
 });
 
