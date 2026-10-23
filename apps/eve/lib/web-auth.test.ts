@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  applicationPasswordsEnabled,
   createWebSessionToken,
+  requireSameOrigin,
   verifyWebSessionToken,
   webAuthConfigStatus,
   webPrincipal,
@@ -37,5 +39,26 @@ describe("web owner authentication", () => {
     const token = createWebSessionToken(env, now);
 
     expect(verifyWebSessionToken(`${token}modified`, env, now)).toBeNull();
+  });
+
+  it("treats loopback 127.0.0.1 and localhost as the same origin (QA-32)", () => {
+    const request = new Request("http://localhost:3091/api/auth/login", {
+      method: "POST",
+      headers: { origin: "http://127.0.0.1:3091" },
+    });
+    expect(requireSameOrigin(request)).toBeNull();
+  });
+
+  it("still rejects a different host origin", () => {
+    const request = new Request("http://localhost:3091/api/auth/login", {
+      method: "POST",
+      headers: { origin: "https://attacker.example" },
+    });
+    expect(requireSameOrigin(request)?.status).toBe(403);
+  });
+
+  it("keeps application-password mode off unless explicitly enabled", () => {
+    expect(applicationPasswordsEnabled(env)).toBe(false);
+    expect(applicationPasswordsEnabled({ ...env, MYEVE_APPLICATION_PASSWORDS: "true" })).toBe(true);
   });
 });

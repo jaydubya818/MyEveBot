@@ -548,6 +548,14 @@
 
 /* Canonical action forms retain their full-width input layout. */
 .owner-form { display: grid; gap: 1rem; }
+.owner-form input,
+.owner-form textarea {
+  font-size: 16px;
+}
+.owner-account button {
+  min-height: 44px;
+  width: 100%;
+}
 .owner-page select { width: 100%; }
 
 /* Product navigation stays persistent on desktop and leaves room for the

@@ -5,6 +5,7 @@ import { ArrowClockwiseIcon, ArrowSquareOutIcon, CheckCircleIcon, ClockIcon, Sto
 import { useCallback, useEffect, useState } from "react";
 
 import type { TaskRunView } from "@/lib/task-types";
+import { cancelTaskRun, loadLatestTaskRun } from "@/lib/task-run-actions";
 
 function statusVariant(status: TaskRunView["status"]): "secondary" | "destructive" {
   return status === "failed" || status === "cancelled" ? "destructive" : "secondary";
@@ -13,14 +14,16 @@ function statusVariant(status: TaskRunView["status"]): "secondary" | "destructiv
 export function TaskRunCard({ threadId }: { threadId: string }) {
   const [task, setTask] = useState<TaskRunView | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/task-runs?threadId=${encodeURIComponent(threadId)}`, {
-      cache: "no-store",
-    });
-    if (!response.ok) return;
-    const body = (await response.json()) as { tasks?: TaskRunView[] };
-    setTask(body.tasks?.[0] ?? null);
+    const result = await loadLatestTaskRun(threadId);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    setError(null);
+    setTask(result.task);
   }, [threadId]);
 
   useEffect(() => {
@@ -29,7 +32,13 @@ export function TaskRunCard({ threadId }: { threadId: string }) {
     return () => window.clearInterval(timer);
   }, [load, task?.status]);
 
-  if (task === null) return null;
+  if (task === null) {
+    return error ? (
+      <p role="alert" className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-3 text-sm">
+        {error}
+      </p>
+    ) : null;
+  }
   const passed = task.checks.filter((check) => check.status === "passed").length;
   const completeSpecialists = task.specialists.filter((specialist) => specialist.status === "completed").length;
   const isQa = task.kind === "product_qa";
@@ -39,14 +48,11 @@ export function TaskRunCard({ threadId }: { threadId: string }) {
     if (taskId === undefined) return;
     setUpdating(true);
     try {
-      const response = await fetch(`/api/task-runs/${taskId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "cancel" }),
-      });
-      if (response.ok) {
-        const body = (await response.json()) as { task: TaskRunView };
-        setTask(body.task);
+      const result = await cancelTaskRun(taskId);
+      if (result.error) setError(result.error);
+      else {
+        setError(null);
+        if (result.task) setTask(result.task);
       }
     } finally {
       setUpdating(false);

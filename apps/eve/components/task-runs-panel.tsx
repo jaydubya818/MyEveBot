@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import type { TaskCheckView, TaskRunView } from "@/lib/task-types";
+import { shouldPollTaskRuns, taskRunsAreStale } from "@/lib/task-runs-stale";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 
@@ -60,7 +61,9 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
 
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => void load(), 4000);
+    const timer = window.setInterval(() => {
+      if (shouldPollTaskRuns(document.hidden)) void load();
+    }, 4000);
     return () => window.clearInterval(timer);
   }, [load]);
 
@@ -92,12 +95,14 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
   if (error !== null && tasks === null) {
     return <p className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">{error}</p>;
   }
+  const stale = taskRunsAreStale(error, tasks);
   if (tasks === null) return <div className="flex justify-center py-12"><Loader size={18} /></div>;
   if (tasks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-kumo-hairline px-5 py-10 text-center">
         <p className="text-sm font-medium">No audited tasks yet</p>
         <p className="mt-1 text-sm text-kumo-subtle">Ask {AGENT_NAME} to run the local and isolated-preview self-test.</p>
+        {stale && <p role="status" className="mt-2 text-sm text-kumo-subtle">Task activity may be out of date.</p>}
       </div>
     );
   }
@@ -169,6 +174,7 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
           </div>
 
           {error && <p className="mt-4 text-sm text-kumo-danger">{error}</p>}
+          {stale && <p role="status" className="mt-2 text-sm text-kumo-subtle">Task activity may be out of date.</p>}
           {selected.statusReason && <p className="mt-4 rounded-xl bg-kumo-tint p-3 text-sm">{selected.statusReason}</p>}
 
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

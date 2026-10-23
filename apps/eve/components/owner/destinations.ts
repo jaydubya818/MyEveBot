@@ -34,6 +34,7 @@ export const productDestinations = [
     description: "Artifacts, revisions and conversation files",
   },
   { href: "/results", label: "Results", description: "Verified outputs and proof of Work" },
+  { href: "/activity", label: "Activity", description: "Memory and learning changes" },
   { href: "/memory", label: "Memory", description: "Scoped recall and governed learning" },
   {
     href: "/knowledge",
@@ -43,7 +44,7 @@ export const productDestinations = [
   { href: "/capsules", label: "Capsules", description: "Portable personal memory with reviewed scope" },
   {
     href: "/team",
-    label: "Agents",
+    label: "Team",
     description: "Specialists and their capabilities",
   },
   { href: "/rooms", label: "Rooms", description: "Shared objectives and governed handoffs" },

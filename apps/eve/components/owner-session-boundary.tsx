@@ -11,9 +11,11 @@ export function OwnerSessionBoundary({children}:{children:ReactNode}) {
   let disposed=false;
   const original=window.fetch.bind(window);
   const abort = new AbortController();
-  const changed=()=>{setReady(false); window.location.replace('/login?returnTo='+encodeURIComponent(window.location.pathname));};
+  const changed=()=>{setReady(false); window.location.replace('/login?returnTo='+encodeURIComponent(window.location.pathname+window.location.search));};
   const storage=(event:StorageEvent)=>{if(event.key===OWNER_BROWSER_EVENT)changed();};
   window.addEventListener('storage',storage);window.addEventListener(OWNER_BROWSER_EVENT,changed);
+  const onPageShow=(e:PageTransitionEvent)=>{if(e.persisted)changed();};
+  window.addEventListener('pageshow',onPageShow);
   void original('/api/auth/status',{cache:'no-store',signal:AbortSignal.any([abort.signal,AbortSignal.timeout(15000)])}).then(async response=>{
    if(!response.ok)throw new Error('Session verification unavailable');
    const status=await response.json();
@@ -31,7 +33,7 @@ export function OwnerSessionBoundary({children}:{children:ReactNode}) {
    };
    setReady(true);
   }).catch(()=>{if(!disposed)setFailed(true);});
-  return()=>{disposed=true;abort.abort();window.fetch=original;window.removeEventListener('storage',storage);window.removeEventListener(OWNER_BROWSER_EVENT,changed);};
+  return()=>{disposed=true;abort.abort();window.fetch=original;window.removeEventListener('storage',storage);window.removeEventListener(OWNER_BROWSER_EVENT,changed);window.removeEventListener('pageshow',onPageShow);};
  },[]);
  return ready?children:failed?<main className="p-8" role="alert"><p>Could not verify your session.</p><button className="mt-4 rounded-md border px-4 py-3" onClick={()=>window.location.reload()}>Try again</button></main>:<main className="p-8" role="status">Opening your private workspace…</main>;
 }

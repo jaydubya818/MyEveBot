@@ -4,6 +4,7 @@ import { Button } from "@cloudflare/kumo";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 
 import { AGENT_NAME } from "@/lib/identity";
+import { formatLimitedModeDetail } from "@/lib/capability-notice";
 
 export type CapabilityNoticeState =
   | { kind: "loading" }
@@ -23,7 +24,7 @@ export function CapabilityNotice({
   const unavailable = state.kind === "unavailable";
   const detail = unavailable
     ? `${AGENT_NAME} can still chat, but service status could not be verified.`
-    : `${state.labels.join(" and ")} ${state.labels.length === 1 ? "needs" : "need"} setup. Everything else remains available.`;
+    : formatLimitedModeDetail(state.labels);
 
   return (
     <div
