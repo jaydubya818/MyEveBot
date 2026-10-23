@@ -16,7 +16,7 @@ export function TeamHub() {
   const source = useProductResource<{ agents: AgentView[] }>("/api/agents");
   return (
     <ProductShell
-      title="Agents"
+      title="Team"
       description="Your persisted specialists, their roles, and the capabilities available to them."
     >
       <div className="owner-actions">

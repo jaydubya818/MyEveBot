@@ -50,7 +50,7 @@ jobs:
           repository: jaydubya818/MyFactory
           persist-credentials: false
           fetch-depth: 0
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: c5416e65f786f8f9abf14692a984b5a176271b67
           path: myfactory
       - uses: actions/setup-node@v4
         with:

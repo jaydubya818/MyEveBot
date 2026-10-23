@@ -76,7 +76,16 @@ try {
   });
   await page.goto(origin + '/today');
   await expect(page.getByRole('heading', { name: 'Today', exact: true })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Work', exact: true })).toBeVisible();
+  const account=page.getByRole('navigation',{name:'Primary',exact:true});
+  await expect(account.getByRole('link',{name:'Results',exact:true})).toBeVisible();
+  await expect(account.getByRole('link',{name:'Activity',exact:true})).toBeVisible();
+  await expect(account.getByRole('link',{name:'Memory',exact:true})).toHaveCount(0);
+  await expect(account.getByTestId('deep-agent-unavailable')).toHaveText('Deep Agent is unavailable until qualified');
+  // An empty overview renders no Work cards. Wait for its canonical read rather
+  // than racing the visible loading placeholder against an empty container.
+  await expect(page.getByRole('region', { name: 'Work', exact: true })).toBeAttached();
+  await expect.poll(() => reads.includes('/api/work-inbox')).toBe(true);
+  await expect(page.getByText('Loading your Work…', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Checking your current state…')).toHaveCount(0);
   assert.ok(reads.includes('/api/work-inbox'));
   assert.ok(!reads.includes('/api/beta/work'), 'Today must not make the unused legacy Work request');

@@ -258,7 +258,15 @@ export async function provisionNeonDatabase(
   return result.resource.id;
 }
 
-/** Connects a store to a project; Vercel injects the store's env vars. */
+/**
+ * Owner installations only ever deploy to Production (createDeployment refuses
+ * anything else). Database, Blob and app secrets therefore target Production
+ * only: a Preview or Development deployment must never inherit the owner's
+ * production credentials.
+ */
+export const OWNER_SECRET_TARGETS = ["production"] as const;
+
+/** Connects a store to a project; Vercel injects the store's env vars (Production only). */
 export async function connectStoreToProject(
   token: string,
   teamId: string | null,
@@ -272,7 +280,7 @@ export async function connectStoreToProject(
     body: {
       projectId,
       type: "integration",
-      envVarEnvironments: ["production", "preview", "development"],
+      envVarEnvironments: [...OWNER_SECRET_TARGETS],
     },
     stage: "storage",
   });
@@ -340,7 +348,7 @@ export async function upsertEnv(
       key: entry.key,
       value: entry.value,
       type: "encrypted",
-      target: ["production", "preview", "development"],
+      target: [...OWNER_SECRET_TARGETS],
     })),
     stage: "env",
   });

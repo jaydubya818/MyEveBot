@@ -24,6 +24,7 @@ import { Responsibilities } from "./responsibilities";
 import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
 import { WorkSummary } from "./work-summary";
+import { ACTIVITY_PAGE_DESCRIPTION } from "./destinations";
 import { ProductShell } from "./product-shell";
 
 type CanonicalWork = Awaited<
@@ -488,7 +489,7 @@ export function IntegratedExperience({
     );
   }
   return (
-    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : "Your work, in context."}>
+    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : view === "activity" ? ACTIVITY_PAGE_DESCRIPTION : "Your work, in context."}>
         {loading && <p role="status">Checking your current state…</p>}
         {!!errors.length && (
           <div className="owner-notice" role="alert">

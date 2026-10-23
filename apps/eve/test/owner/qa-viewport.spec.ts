@@ -114,13 +114,16 @@ test.describe("QA-22 composer font size", () => {
 test.describe("QA-39 current account navigation tap targets", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   test("current account links remain at least 44px tall without restoring the obsolete footer", async ({ page }) => {
-    await page.goto(`${BASE}/privacy`, { waitUntil: "domcontentloaded" });
+    // Today resolves the server gate at request time. Privacy is prerendered
+    // using the build's tester gate, while this owned fixture is non-alpha.
+    await page.goto(`${BASE}/today`, { waitUntil: "domcontentloaded" });
     await page.getByRole("button", {name:"Menu",exact:true}).click();
-    for (const name of ["Settings", "Privacy & boundaries"]) {
+    for (const name of ["Results", "Memory", "Activity", "Settings", "Privacy & boundaries"]) {
       const link=page.getByRole("navigation",{name:"Primary",exact:true}).getByRole("link",{name,exact:true});
       await expect(link).toBeVisible();
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(page.locator("footer.owner-footer")).toHaveCount(0);
+    await expect(page.getByTestId("deep-agent-unavailable")).toHaveCount(0);
   });
 });

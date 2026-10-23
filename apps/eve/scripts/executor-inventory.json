@@ -4206,8 +4206,8 @@
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",
-      "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
-      "sha256": "c49768d5de784624d12d53a006b55dd51ac46211b94ca3be81528bced6138154"
+      "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites. Reviewed selective existing PR100 copy reconciliation: names Deep Agent unavailable only in existing locked chat-only instructions; keeps exact turn/spend/disabled-Work/capability honesty and context bounds. No provider or authority grant added; source instruction/feature/navigation regressions.",
+      "sha256": "5d96a998c9501560c8b482a170ef67cbfce6c54f15f960dd038a5e3970d67121"
     },
     "lib/external-alpha/conversation-readback.ts": {
       "classification": "READ_ONLY",
@@ -4580,6 +4580,11 @@
       "disposition": "gateway",
       "reason": "Dormant authored add/get/list operation, not registered or exposed. Canonical signed web owner/Agent -> existing ActionGateway and FederationStore; unregistered separate memory capabilities default DENY. Private one-use Action/provider handles and fresh durable/connection checks precede every real POST. HTTPS exact origin /mcp, bearer only/no owner cookie, per-Action SDK client, 3s request and 10s MCP exchange bounds, 256KiB JSON responses, exact response IDs, zero automatic method resend, error/uncertain result -> existing UNKNOWN. Both alpha installations denied before resolution/network. Independently reviewed with actual selected Relay TLS/disposable SQL and synthetic test-only authority; no production grant.",
       "sha256": "73960f318acc28b6abee3bad68c06a5c443b38751390cacc2368c237eb5653b1"
+    },
+    "lib/deep-agent-availability.ts": {
+      "classification": "INTERNAL",
+      "reason": "Single informational label for locked beta UI/instructions; not a qualification predicate, provider binding or execution grant. UI renders only under existing server-derived external-alpha DestinationGate; outside beta availability is not inferred. Covered by gated navigation and chat-only instruction tests.",
+      "sha256": "ccbf20f18afc31f1de142e34bb89f92ec001570913a710694b5cb32bd6da561e"
     }
   }
 }

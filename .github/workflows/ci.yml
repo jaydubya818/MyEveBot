@@ -121,12 +121,12 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: c5416e65f786f8f9abf14692a984b5a176271b67
           path: .qualification/myfactory
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay
-          ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+          ref: ccd32878759bd03a8d6775141769498487496958
           path: .qualification/relay
       - uses: actions/setup-node@v4
         with:
@@ -151,7 +151,7 @@ jobs:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
           MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
-          MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+          MYRELAY_SOURCE_SHA: ccd32878759bd03a8d6775141769498487496958
           MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: "1"
           FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
         # Separate test databases share cluster-wide roles; initialize those fixtures serially.
