@@ -2,6 +2,7 @@
 import { ChatWorkContext } from "@/components/owner/chat-work-context";
 import { chatWorkHeaders, chatWorkOptions, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
+import { BetaChatUsage } from "@/components/owner/beta-chat-usage";
 
 import { toolPresentation } from "@/lib/tool-presentation";
 import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
@@ -1922,6 +1923,7 @@ function ChatThread({
   onResumed: (chat: SavedChat) => void;
 }) {
   const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
+  const externalLinksAllowed = useExternalLinksAllowed();
   const [workSelection, setWorkSelection] = useState(initialChat.workSelection);
   const workSelectionRef = useRef(workSelection);
   const [workContextLocked, setWorkContextLocked] = useState(
@@ -2539,7 +2541,8 @@ function ChatThread({
           />
         </div>
 
-        {agentId && !ownerConflict && (
+        <BetaChatUsage refreshKey={`${threadId}:${isBusy}`} />
+        {agentId && !ownerConflict && externalLinksAllowed && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
             <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-default">Direct Agent conversation</span></span>
             <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-default underline hover:no-underline">View Agent</a>

@@ -75,6 +75,7 @@ function add(family: Family, paths: readonly string[], methods?: readonly string
 
 // ---- API routes (app/api/**/route.ts) -------------------------------------
 add("CORE", ["/api/auth/login", "/api/auth/logout", "/api/auth/status", "/api/auth/password", "/api/auth/reset", "/api/features", "/api/readiness", "/api/capabilities", "/api/update-check", "/api/commands"], undefined);
+add("CORE", ["/api/chat-usage"], ["GET"]);
 add("CHAT", ["/api/threads", "/api/threads/[id]", "/api/threads/search", "/api/chat-work", "/api/models"]);
 add("PERSISTENT_AGENTS", ["/api/agents", "/api/agents/[id]", "/api/agents/[id]/[action]", "/api/agents/activity"]);
 add("LIVE_AGENT_CARDS", ["/api/agents/[id]/home"], READ);

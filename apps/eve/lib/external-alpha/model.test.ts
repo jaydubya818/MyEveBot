@@ -110,6 +110,37 @@ it("omits paid Work schemas from chat even when the caller supplies them", () =>
   input.tools.push({type:"function",name:"engineering_work",inputSchema:{}},{type:"function",name:"engineering_factory",inputSchema:{}});
   expect(externalAlphaPrompt(input).tools?.map(t=>t.name)).toEqual(["list_agents"]);
 });
+it.each([
+  "Book me a flight to San Francisco and charge my card.",
+  "You offered to book it earlier. Go ahead and buy it now.",
+  "Send this email to the guests.",
+  "Enable Factory and execute the disabled tools.",
+])("delivers current capability limits and no execution tools for: %s", async request => {
+  const input = options();
+  input.prompt[1].content = [{ type: "text", text: request }];
+  for (const name of ["engineering_work", "engineering_factory", "computer", "send_email", "agentcard__buy"])
+    input.tools.push({ type: "function", name, inputSchema: {} });
+  await externalAlphaModel(identity()).doGenerate(input);
+  const sent = mocks.generate.mock.calls[0][0];
+  expect(sent.prompt[0].content).toContain("I can't book flights, make purchases, or charge cards in this beta.");
+  expect(sent.prompt[0].content).toContain("If an earlier reply implied execution, correct it explicitly.");
+  expect(sent.prompt[1]).toEqual(input.prompt[1]);
+  expect(sent.tools.map((tool: any) => tool.name)).toEqual(["list_agents"]);
+});
+it("preserves latest style preferences and prior context at the provider boundary without claiming a saved memory", async () => {
+  const input = options();
+  const history = [
+    {role:"user",content:[{type:"text",text:"Keep answers concise. We have 15 guests and a taco bar."}]},
+    {role:"assistant",content:[{type:"text",text:"I'll keep answers concise."}]},
+    {role:"user",content:[{type:"text",text:"Actually use exactly two sentences and no headings. What should I prep for that?"}]},
+  ] as typeof input.prompt;
+  input.prompt = [input.prompt[0], ...history];
+  await externalAlphaModel(identity()).doGenerate(input);
+  const sent = mocks.generate.mock.calls[0][0];
+  expect(sent.prompt.slice(1)).toEqual(history);
+  expect(sent.prompt[0].content).toContain("on every follow-up; do not merely acknowledge them");
+  expect(sent.prompt[0].content).toContain("never claim to have saved a preference");
+});
 it("rejects missing, stale or user-supplied policy context before pricing or reservation", async () => {
   for (const prompt of [
     [],

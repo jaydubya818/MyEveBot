@@ -175,14 +175,16 @@ export function IntegratedExperience({
               }),
           )
         : read<Today>("/api/beta/goals?limit=20", "Goals", setToday),
-      read<{ works: Work[]; canonical?: CanonicalWork }>(
+      // Today's WorkInbox owns its bounded, canonical Work read, just as /work
+      // does. An unused legacy list must not report a second connection failure.
+      ...(view === "today" ? [] : [read<{ works: Work[]; canonical?: CanonicalWork }>(
         `/api/beta/work${view === "work" && selectedKind === "work" && selectedId ? `?workId=${encodeURIComponent(selectedId)}` : ""}`,
         "Work",
         (d) => {
           setWorks(d.works);
           setCanonical(d.canonical ?? null);
         },
-      ),
+      )]),
       read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
         setResults(d.results),
       ),

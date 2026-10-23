@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { digest } from "../engineering/contract.ts";
 import type { ExternalAlphaPolicy } from "./policy.ts";
+import { alphaChatStatusSchema } from "./usage-contract.ts";
 
 type Admission = {
   id: string;
@@ -45,20 +46,24 @@ export function sharedAlphaAccounting(
  * expiry and unused allowance cannot create more paid authority. */
 export class SharedAlphaAccounting {
   constructor(readonly database: ExecutionDatabase, private readonly credential: string) {}
-  private async call(policy: ExternalAlphaPolicy, payload: Record<string, unknown>): Promise<Admission> {
+  private async call<T = Admission>(policy: ExternalAlphaPolicy, payload: Record<string, unknown>): Promise<T> {
     try {
       const [row] = await this.database.query("SELECT external_alpha_cohort_call($1::jsonb) AS receipt", [JSON.stringify({
         ...payload, cohortId: policy.cohortId, ownerId: policy.ownerId, slot: policy.slot,
         policySha256: digest(policy), credential: this.credential,
       })]);
       if (!row?.receipt) throw Error();
-      return row.receipt as Admission;
+      return row.receipt as T;
     } catch (error) {
       // Database/network errors must never expose the connection URL, token or
       // SQL parameters to the caller, logs, Result or browser.
       const code = /EXTERNAL_ALPHA_SHARED_[A-Z_]+/.exec(error instanceof Error ? error.message : "")?.[0];
       throw Error(code ?? "EXTERNAL_ALPHA_SHARED_UNAVAILABLE");
     }
+  }
+  /** Observes central nonrefundable quota; never admits, binds or reconciles. */
+  async status(policy: ExternalAlphaPolicy) {
+    return alphaChatStatusSchema.parse(await this.call<unknown>(policy, { mode: "status" }));
   }
   async reserve(policy: ExternalAlphaPolicy, input: { kind: "CHAT" | "WORK"; bindingId: string; requestSha256: string }) {
     const row = await this.call(policy, { mode: "reserve", id: randomUUID(), kind: input.kind,

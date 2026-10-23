@@ -9,6 +9,14 @@ const catalog = SKILL_CATALOG_HEADER + "\n" + installedSkills.map(skill =>
   `- ${skill.name}: ${skill.description} (path: $HOME/.agents/skills/${skill.name}/SKILL.md)`,
 ).join("\n");
 const mandatory = "Identity: Sofie. Owner A only. Never expose credentials. Custom policy: do not contact third parties.";
+it("states chat-only purchasing limits before follow-up questions and applies concise preferences to replies", () => {
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("I can't book flights, make purchases, or charge cards in this beta.");
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("You also cannot send emails, contact people, browse live availability, or execute disabled tools.");
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("If an earlier reply implied execution, correct it explicitly.");
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("one short paragraph or at most three short bullets");
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("on every follow-up; do not merely acknowledge them");
+  expect(EXTERNAL_ALPHA_INSTRUCTIONS).toContain("never claim to have saved a preference");
+});
 afterEach(() => vi.unstubAllEnvs());
 
 it("pins the framework formatter version used by the compatibility adapter", () => {
@@ -48,14 +56,14 @@ it("never drops policy, oversized owner requests, history, or tool schemas to fi
     [{ role: "system" as const, content: EXTERNAL_ALPHA_INSTRUCTIONS }, { role: "user" as const, content: [{ type: "text" as const, text: "🙂".repeat(9000) }] }],
     [{ role: "user" as const, content: [{ type: "text" as const, text: catalog + "\n" + "history ".repeat(5000) }] }],
   ]) expect(() => externalAlphaPrompt({ prompt, tools: [] })).toThrow("CONTEXT_BOUND");
-  expect(() => externalAlphaPrompt({ prompt: [], tools: [{ type: "function", name: "engineering_work", description: "schema ".repeat(6000), inputSchema: {} }] })).toThrow("CONTEXT_BOUND");
+  expect(() => externalAlphaPrompt({ prompt: [], tools: [{ type: "function", name: "get_agent", description: "schema ".repeat(6000), inputSchema: {} }] })).toThrow("CONTEXT_BOUND");
 });
 
-it("defers unrelated management tools in a selected-Work conversation without altering retained schemas", () => {
+it("keeps disabled Work tools unavailable even in a resumed selected-Work conversation", () => {
   const work = { type: "function" as const, name: "engineering_work", inputSchema: { type: "object" as const, required: ["operation"] } };
   const tools = [work, { type: "function" as const, name: "manage_agent", inputSchema: {} }];
-  expect(externalAlphaPrompt({ prompt: [], tools }, true).tools).toEqual([work]);
-  expect(externalAlphaPrompt({ prompt: [], tools }).tools).toEqual(tools);
+  expect(externalAlphaPrompt({ prompt: [], tools }, true).tools).toEqual([]);
+  expect(externalAlphaPrompt({ prompt: [], tools }).tools).toEqual([tools[1]]);
 });
 
 it("defers optional deployment instructions only for external alpha", async () => {
