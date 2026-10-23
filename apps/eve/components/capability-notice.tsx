@@ -38,7 +38,7 @@ export function CapabilityNotice({
         </p>
         <p className="mt-0.5 text-xs leading-5 text-kumo-subtle">{detail}</p>
       </div>
-      <Button variant="ghost" size="sm" className="shrink-0" onClick={onReview}>
+      <Button variant="ghost" size="sm" className="shrink-0 min-h-11 md:min-h-8" onClick={onReview}>
         Review setup
       </Button>
     </div>
