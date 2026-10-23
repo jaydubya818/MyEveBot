@@ -30,6 +30,7 @@ export const externalAlphaPaidPaths: readonly PaidPath[] = Object.freeze([
   { id: "orgo-hosted-model", files: ["agent/lib/orgo.ts"], disposition: "DENIED", note: "Hosted computer inference, including VM acquisition and Gateway fallback, denied before computer/provider contact." },
   { id: "context-compaction", files: ["agent/hooks/task-ledger.ts"], disposition: "DENIED", note: "Automatic and manual framework compaction are auxiliary model calls; hook rejects before inference, and manual ingress is denied." },
   { id: "semantic-memory-provider", files: ["agent/lib/memory-store.ts"], disposition: "DENIED", note: "Remote semantic Memory may incur inference or embeddings; provider API is denied and release Memory surfaces remain OFF." },
+  { id: "relay-mcp-memory", files: ["lib/relay/mcp-memory.ts"], disposition: "DENIED", note: "Dormant authored Relay memory operation; unregistered capabilities, no Agent/tool/route exposure. Both alpha installation names deny before credential resolution or SDK transport." },
   { id: "qualification-model", files: ["lib/qualification/client.ts"], disposition: "DENIED", note: "Permit-gated qualification model hook." },
   { id: "retained-summary", files: ["agent/lib/retained-work-summary.ts"], disposition: "NOT_PAID", note: "Deterministic canonical-evidence text, zero tokens, no provider." },
   { id: "cloud-conversation-model", files: ["lib/engineering/cloud-conversation-model.ts"], disposition: "NOT_PAID", note: "Deterministic cloud qualification model (paidModelOperations: 0); type-only gateway import." },

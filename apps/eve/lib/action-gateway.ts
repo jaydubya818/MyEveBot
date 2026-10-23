@@ -82,6 +82,19 @@ export async function consumeProviderAuthority(context:AuthorizedAction|undefine
   await takeAuthority(providerHandles,context,parameters,capabilityId);
 }
 
+/** One bounded MCP exchange needs metadata requests before its exact tool call.
+ * Consume the provider handle once; retain only its existing read-only durable
+ * revalidation, bound to the same parameters, target and authority expiry. */
+export async function consumeRelayMemoryAuthority(context:AuthorizedAction,parameters:Record<string,unknown>) {
+  if(!["relay.memory.read","relay.memory.write"].includes(context.capabilityId))throw new ActionBlocked("denied",context.idempotencyKey);
+  const record=await takeAuthority(providerHandles,context,parameters,context.capabilityId);
+  return async () => {
+    if(context.signal?.aborted || Date.now()>=context.expiresAt)throw new ActionBlocked("denied",context.idempotencyKey);
+    await record.revalidate();
+    if(context.signal?.aborted || Date.now()>=context.expiresAt)throw new ActionBlocked("denied",context.idempotencyKey);
+  };
+}
+
 /** The canonical provisioning grant keeps a read-only revalidator through durable binding insertion. */
 export async function consumeComputerProvisionAuthority(context: AuthorizedAction, parameters: Record<string, unknown>) {
   const record=await takeAuthority(providerHandles,context,parameters,"computer.session.create");

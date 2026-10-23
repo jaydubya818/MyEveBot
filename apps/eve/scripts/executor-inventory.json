@@ -1907,8 +1907,8 @@
     },
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
-      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "e03fdfbc63cb627ea6d1914aa0ad756fedabc95d61d061efb002575b815bc8e2"
+      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Reviewed dormant Relay memory boundary: consume existing private provider handle once for exact relay.memory.read/write; retain only its bound read-only durable Run/Action/Agent/capability/approval revalidator and expiry/signal checks for metadata and tool calls. No grant, retry, ledger or routine activation added. Evidence: canonical resolver/selected Relay TLS/SQL 24 checks and independent review.",
+      "sha256": "1525319ff20e1084fd34067a422dbd6aea42f38bac25b8d60e72bafc4bd89d0c"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2247,8 +2247,8 @@
     },
     "lib/external-alpha/paid-paths.ts": {
       "classification": "INTERNAL",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone.",
-      "sha256": "9cc4d669507080bcf92c14b05806eeb151d62d6676432e0ff9534aef9241fcc3"
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture.",
+      "sha256": "35895337606c76bd6e75ace89407e6a4c665ab9587aab3cc1d24a5241f01548e"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
@@ -4574,6 +4574,12 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Thin authenticated fetch wrapper for DELETE /api/threads/:id. Swallows network errors and returns false to the caller; no direct execution authority. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
       "sha256": "9522cffa05970f4690af2ed264d4526eaeb8b91ee30a06662cf51bf4d438f5f0"
+    },
+    "lib/relay/mcp-memory.ts": {
+      "classification": "ENFORCED",
+      "disposition": "gateway",
+      "reason": "Dormant authored add/get/list operation, not registered or exposed. Canonical signed web owner/Agent -> existing ActionGateway and FederationStore; unregistered separate memory capabilities default DENY. Private one-use Action/provider handles and fresh durable/connection checks precede every real POST. HTTPS exact origin /mcp, bearer only/no owner cookie, per-Action SDK client, 3s request and 10s MCP exchange bounds, 256KiB JSON responses, exact response IDs, zero automatic method resend, error/uncertain result -> existing UNKNOWN. Both alpha installations denied before resolution/network. Independently reviewed with actual selected Relay TLS/disposable SQL and synthetic test-only authority; no production grant.",
+      "sha256": "73960f318acc28b6abee3bad68c06a5c443b38751390cacc2368c237eb5653b1"
     }
   }
 }
