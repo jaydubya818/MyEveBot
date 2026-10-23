@@ -4098,6 +4098,26 @@
       "classification": "INTERNAL",
       "reason": " Sequential enforcement review: isolated canonical preference locks and real Work admission share one pinned PostgreSQL transaction; unsafe or missing bindings deny admission. Existing backend authority and UNKNOWN accounting are retained. Disposable qualification covers routed admission, legacy bypass, isolation, expiry rollback and concurrent disable. Cross-database Relay/Convex integration and independent review remain unqualified.",
       "sha256": "c274e4da4d241e7d0f2b5a58547fbc74003d7950f332e29e121216de208b011d"
+    },
+    "lib/chat-stop.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility: error-surfacing helper for cancel turns. No network calls, no DB, no external effects. Wraps caller-supplied cancel function to catch and forward errors.",
+      "sha256": "f80e72b5c3d368ddd64408d5261803314cec2b14420127549fce36850aed735f"
+    },
+    "lib/thread-delete.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Thin authenticated fetch wrapper for DELETE /api/threads/:id. Swallows network errors and returns false to the caller; no direct execution authority.",
+      "sha256": "dd964cbed33dba5e22426d3971f9c3c45e8b355367a05c67ecbbc1b8e5368bd8"
+    },
+    "lib/chat-reattach-notice.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "React hook (useReattachNotice) for a dismissible UI notice flag. No network calls, no DB, no external effects. Pure client-side state.",
+      "sha256": "a1eadf060c775cd9edda22f5e837437aae26a01e9f1f131ca87200c9613be6ee"
+    },
+    "lib/candidate-decision-fetch.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Fetch helpers for the owner-decision beta endpoint. Checks ok before json. No direct execution authority; sends the caller-supplied payload to an existing authenticated route.",
+      "sha256": "972a6d813a85c79b19be76ff075b43260a9aad6ec7dfe0446914c727178d4ec4"
     }
   }
 }
