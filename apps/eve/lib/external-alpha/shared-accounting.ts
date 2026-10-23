@@ -1,4 +1,4 @@
-import { createRequire } from "node:module";
+import pg from "pg";
 import { randomUUID } from "node:crypto";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { digest } from "../engineering/contract.ts";
@@ -33,7 +33,6 @@ export function sharedAlphaAccounting(
   if (!url || !credential || !/^[a-f0-9]{64}$/.test(credential) || typeof window !== "undefined")
     throw Error("EXTERNAL_ALPHA_SHARED_CONFIGURATION_REQUIRED");
   if (!configured || configured.url !== url) {
-    const pg = createRequire(import.meta.url)("pg");
     const pool = new pg.Pool({ connectionString: url, max: 4, connectionTimeoutMillis: 5000, query_timeout: 10000 });
     pool.on("error", () => {});
     configured = { url, database: { query: async (q, p) => (await pool.query(q, p)).rows } };
