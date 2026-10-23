@@ -1,5 +1,5 @@
 import {productionCloudEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
-import {createRequire} from 'node:module';
+import pg from 'pg';
 import {cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import {consumeFactoryCommands} from './factory-commands.ts';
 import {executeFactoryCommand} from './factory-api.ts';
@@ -16,7 +16,7 @@ export async function runCloudController(message:ControllerMessage){
  const url=new URL(process.env.DATABASE_URL_UNPOOLED??'invalid:');
  if(!owner||!['postgres:','postgresql:'].includes(url.protocol)||!url.hostname.endsWith('.neon.tech')||url.hostname.includes('-pooler.'))throw Error('CLOUD_CONTROLLER_DATABASE');
  for(const key of ['sslmode','channel_binding','sslcert','sslkey','sslrootcert','uselibpqcompat'])url.searchParams.delete(key);
- const {Client}=createRequire(import.meta.url)('pg');
+ const {Client}=pg; // static import keeps pg in the traced bundle
  const client=new Client({connectionString:url.href,ssl:{rejectUnauthorized:true},connectionTimeoutMillis:10000,query_timeout:15000});
  client.on('error',()=>{}); // errors are surfaced by awaited operations without credential-bearing driver logs
  try{
