@@ -1,4 +1,4 @@
-import { createRequire } from "node:module";
+import pg from "pg";
 import { randomUUID } from "node:crypto";
 import { db } from "../../agent/lib/receipts-db.ts";
 import {
@@ -30,7 +30,6 @@ export class FederationStore {
    * This performs no schema change and does not grant Relay capabilities. */
   async withOwnerConnectLock<T>(run:()=>Promise<T>):Promise<T> {
     if(!process.env.DATABASE_URL)throw Error("Relay linking storage is unavailable.");
-    const pg=createRequire(import.meta.url)("pg");
     const client=new pg.Client({connectionString:process.env.DATABASE_URL,connectionTimeoutMillis:5000});
     let locked=false;
     try {

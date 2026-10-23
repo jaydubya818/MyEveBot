@@ -14,7 +14,7 @@ import {
 import { factoryConfig } from "../engineering/factory-routing.ts";
 import { betaConfiguration } from "./configuration.ts";
 import { CanonicalBetaWork } from "./canonical-work.ts";
-import { createRequire } from "node:module";
+import pg from "pg";
 import { z } from "zod";
 import { authenticateWebPrincipal, requireSameOrigin } from "../web-auth.ts";
 import { boundedJson } from "../relay/client.ts";
@@ -421,7 +421,8 @@ let instance: BetaIntegration | undefined;
 export function betaIntegration() {
   const settings=betaConfiguration();
   if(!instance) {
-    const {Pool}=createRequire(import.meta.url)("pg") as {Pool:new(config:object)=>GoalPool};
+    // Keep the driver visible to Eve's production dependency tracer.
+    const {Pool}=pg as unknown as {Pool:new(config:object)=>GoalPool};
     instance=new BetaIntegration(new Pool({connectionString:settings.url,max:12}),settings.policy);
   }
   return instance;
