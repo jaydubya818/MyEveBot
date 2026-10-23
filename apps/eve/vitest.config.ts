@@ -9,6 +9,10 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
   },
   test: {
+    environmentMatchGlobs: [
+      ["**/*.dom.test.ts", "happy-dom"],
+      ["**/*.dom.test.tsx", "happy-dom"],
+    ],
     exclude: [
       "**/node_modules/**",
       "**/dist/**",

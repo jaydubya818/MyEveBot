@@ -3069,8 +3069,8 @@ function ChatMessage({
                 size="xs"
                 shape="square"
                 icon={ArrowClockwiseIcon}
-                aria-label="Regenerate reply"
-                title="Regenerate (re-asks with the currently selected model)"
+                aria-label="Send again"
+                title="Send again — re-asks the last message as a new turn with the currently selected model"
                 className="text-kumo-subtle"
                 onClick={onRegenerate}
               />
