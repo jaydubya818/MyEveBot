@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {randomUUID} from 'node:crypto';
+import {cleanupAccountingUpgrade} from './accounting-upgrade-cleanup.ts';
 
 // This validates an upgrade in a new disposable database only. It neither
 // connects to an installed accounting database nor grants execution authority.
@@ -12,11 +13,11 @@ test('QE accounting upgrade preserves legacy exposure and cannot reopen UNKNOWN 
  const url=new URL(connection!);expect(['localhost','127.0.0.1']).toContain(url.hostname);
  const pg=createRequire(import.meta.url)('pg');
  const admin=new pg.Pool({connectionString:connection});
- const name='myapps_accounting_upgrade_'+randomUUID().replaceAll('-','');let pool:any;
+ const name='myapps_accounting_upgrade_'+randomUUID().replaceAll('-','');let pool:any,created=false,primaryFailure:{error:unknown}|undefined;
  const pins=JSON.parse(readFileSync('docs/myapps/phase3/sources.json','utf8'));
  const sqlPath='apps/eve/lib/external-alpha/';
  try{
-  await admin.query('CREATE DATABASE '+name);url.pathname='/'+name;
+  await admin.query('CREATE DATABASE '+name);created=true;url.pathname='/'+name;
   pool=new pg.Pool({connectionString:url.href});
   for(const file of ['shared-accounting.sql','shared-accounting-recovery.sql'])
    await pool.query(execFileSync('git',['show',`${pins.myeve.ux}:${sqlPath+file}`],{encoding:'utf8'}));
@@ -44,5 +45,6 @@ test('QE accounting upgrade preserves legacy exposure and cannot reopen UNKNOWN 
   await expect(move(admissions[0],'RUNNING')).rejects.toThrow('immutable');
   expect((await pool.query('SELECT sum(ceiling_microusd)::text AS exposure FROM external_alpha_cohort_admission')).rows[0].exposure).toBe('3900000');
   expect((await pool.query('SELECT activated_at FROM external_alpha_cohort')).rows[0].activated_at).toBeNull();
- }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+ }catch(error){primaryFailure={error};}
+ finally{await cleanupAccountingUpgrade({pool,admin,name,created,primaryFailure});}
 });
