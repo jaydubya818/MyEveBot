@@ -27,7 +27,15 @@ assert.equal(createHash('sha256').update(readFileSync(spec.tls.certificatePath))
 for (const key of Object.keys(process.env)) assert.ok(['PATH', 'HOME', 'USER', 'TMPDIR', 'NODE_ENV', 'NODE_EXTRA_CA_CERTS', 'MYEVE_RELAY_ORDINARY_SPEC'].includes(key));
 const origin = `https://127.0.0.1:${spec.tls.port}`;
 let deniedTransport = 0;
-const deny = () => { deniedTransport++; throw Error('ORDINARY_CHILD_FOREIGN_TRANSPORT'); };
+let unexpectedFailure = '';
+const pendingVerdicts = new Map();
+function stopUnexpected(reason) {
+  unexpectedFailure ||= reason;
+  for (const pending of pendingVerdicts.values()) { clearTimeout(pending.timer); pending.reject(Error(unexpectedFailure)); }
+  pendingVerdicts.clear();
+}
+function assertNoUnexpectedFailure() { assert.equal(unexpectedFailure, '', 'Ordinary fixture stopped after unexpected infrastructure/transport failure'); }
+const deny = () => { deniedTransport++; stopUnexpected('ORDINARY_CHILD_FOREIGN_TRANSPORT'); throw Error(unexpectedFailure); };
 const connect = net.Socket.prototype.connect;
 net.Socket.prototype.connect = function (...args) {
   const first = Array.isArray(args[0]) ? args[0][0] : args[0];
@@ -59,6 +67,28 @@ process.send({ type: 'ready' });
 const [fixture] = await once(process, 'message');
 assert.equal(fixture.type, 'fixture'); assert.equal(fixture.origin, origin); assert.equal(fixture.agents.length, 2);
 assert.notEqual(fixture.agents[0].accountId, fixture.agents[1].accountId); assert.notEqual(fixture.agents[0].credential, fixture.agents[1].credential);
+process.on('message', message => {
+  if (message?.type === 'parent-unexpected-failure') {
+    stopUnexpected('ORDINARY_PARENT_UNEXPECTED_FAILURE');
+  }
+  if (message?.type === 'private-denial-verdict') {
+    const pending = pendingVerdicts.get(message.requestId);
+    if (!pending || message.verified !== true) { stopUnexpected('ORDINARY_INVALID_PRIVATE_DENIAL_VERDICT'); return; }
+    clearTimeout(pending.timer); pendingVerdicts.delete(message.requestId); pending.resolve();
+  }
+});
+async function verifyActualPrivateDenial(owner, memoryId) {
+  assertNoUnexpectedFailure();
+  await new Promise((resolve, reject) => {
+    const requestId = randomUUID();
+    const timer = setTimeout(() => stopUnexpected('ORDINARY_PRIVATE_DENIAL_VERDICT_DEADLINE'), 5000);
+    pendingVerdicts.set(requestId, { resolve, reject, timer });
+    process.send({ type: 'verify-private-denial', requestId, owner, memoryId }, error => {
+      if (error) stopUnexpected('ORDINARY_PRIVATE_DENIAL_IPC_FAILED');
+    });
+  });
+  assertNoUnexpectedFailure();
+}
 const native = new Client({ connectionString: adminUrl.href, connectionTimeoutMillis: 5000, query_timeout: 5000 });
 const databaseName = 'myeve_mcp_ordinary_' + randomUUID().replaceAll('-', '');
 const nativeApp = new URL(adminUrl); nativeApp.pathname = '/' + databaseName;
@@ -128,14 +158,23 @@ try {
       target.provider === 'relay-mcp' && target.account === JSON.stringify([remote.accountId, remote.agentId]) && target.environment === 'HTTPS';
     return { decision: allow ? 'ALLOW' : 'DENY', source: 'isolated-ordinary-test-only', reason: 'Synthetic exact owner/Agent/target authority; production registration remains default DENY' };
   } };
-  async function execute(index, input) {
+  async function execute(index, input, expectedPrivateDenial = false) {
+    assertNoUnexpectedFailure();
     assert.ok(keys.length < 8);
     const id = 'ordinary_' + randomUUID(), owner = owners[index]; keys.push(`tool:${id}`);
     const principal = { authenticator: 'myeve-web-session', issuer: 'myeve', principalId: owner, principalType: 'user', subject: owner, attributes: { owner: 'true', myeveAgentId: agents[index] } };
     const context = { callId: id, session: { id: 'ordinary_session_' + randomUUID(), auth: { current: principal, initiator: principal } } };
     const action = await relayMemoryRequest(context, input), adapter = relayMemoryAdapter(action);
     let value;
-    const outcome = await new ActionGateway(database, authority).execute(action, { ...adapter, execute: async (parameters, handle) => { value = await adapter.execute(parameters, handle); return value; } });
+    let outcome;
+    try {
+      outcome = await new ActionGateway(database, authority).execute(action, { ...adapter, execute: async (parameters, handle) => { value = await adapter.execute(parameters, handle); return value; } });
+    } catch (error) {
+      assertNoUnexpectedFailure();
+      if (expectedPrivateDenial && error.status === 'result_unknown') await verifyActualPrivateDenial(index, input.id);
+      throw error;
+    }
+    assertNoUnexpectedFailure();
     assert.equal(outcome.receipt.status, 'completed'); assert.equal(outcome.receipt.operation, input.operation);
     for (const content of contents) assert.equal(JSON.stringify(outcome).includes(content), false);
     assert.equal(value.isError === true, false);
@@ -161,7 +200,8 @@ try {
   for (let index = 0; index < 2; index++) {
     // Actual ordinary private-read denial, not injected failure or UNKNOWN repair.
     // The current generic adapter conserves the remote RPC error as uncertainty.
-    await assert.rejects(execute(index, { operation: 'get', id: memoryIds[1 - index] }), error => error.status === 'result_unknown');
+    await assert.rejects(execute(index, { operation: 'get', id: memoryIds[1 - index] }, true), error => error.status === 'result_unknown');
+    assertNoUnexpectedFailure();
   }
   assert.equal(keys.length, 8); assert.equal(new Set(keys).size, 8);
   phase = 'durable-action-and-effect-readback';

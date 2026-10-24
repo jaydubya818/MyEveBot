@@ -161,6 +161,14 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
   let child: ChildProcess | undefined, server: Server | undefined, closePeer: (() => Promise<void>) | undefined;
   let passed = false, peerClosed = false, childClosed = false, failure = 'ORDINARY_FIRST_FAILURE';
   let childResult: any, callbackFailure = false, resultCount = 0;
+  let rejectChildWait: ((error: Error) => void) | undefined;
+  const completedPrivateDenials = new Set<string>();
+  function stopUnexpectedChild() {
+    callbackFailure = true; failure = 'ORDINARY_RELAY_HANDLER_FAILED';
+    rejectChildWait?.(Error(failure));
+    try { if (child?.connected) child.send({ type: 'parent-unexpected-failure' }, () => {}); } catch {}
+    child?.kill('SIGTERM');
+  }
   const stats = [0, 1].map(() => ({ add: 0, get: 0, list: 0, privateDenials: 0, rpcRequests: 0 }));
   const memories = new Map<string, { owner: number; content: string }>();
   const secrets = new Set([admin.href, admin.password, 'SYNTHETIC_OWNER_COOKIE_MUST_NEVER_LEAVE']);
@@ -205,6 +213,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
           assert.ok(++(stats[owner] as any)[operation] <= (operation === 'get' ? 2 : 1));
           if (operation === 'add') { assert.equal(rpc.params.arguments.scope, 'AGENT_PRIVATE'); assert.equal(rpc.params.arguments.type, 'FACT'); }
         }
+        let privateDenialKey: string | undefined;
         const actual = await POST(new Request(origin + '/mcp', { method: 'POST', headers: request.headers as HeadersInit, body: payload }));
         const text = await actual.text(); assert.ok(Buffer.byteLength(text) <= 262144);
         if (rpc.method === 'tools/call') {
@@ -216,6 +225,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
             assert.equal(parsed.error?.message, 'Memory not found.'); assert.equal(parsed.result, undefined);
             for (const memory of memories.values()) assert.equal(text.includes(memory.content), false);
             stats[owner].privateDenials++;
+            privateDenialKey = JSON.stringify([owner, rpc.params.arguments.id]);
           } else {
             assert.equal(parsed.error, undefined);
             const value = JSON.parse(parsed.result.content[0].text);
@@ -225,10 +235,14 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
           }
         }
         response.writeHead(actual.status, Object.fromEntries(actual.headers)); response.end(text);
+        if (privateDenialKey) completedPrivateDenials.add(privateDenialKey);
       } catch (error) {
-        if (!callbackFailure) writeFileSync(join(spec.privateDirectory, 'relay-first-failure.redacted.txt'),
+        const firstFailure = !callbackFailure;
+        stopUnexpectedChild();
+        if (firstFailure) writeFileSync(join(spec.privateDirectory, 'relay-first-failure.redacted.txt'),
           redact(error instanceof Error ? error.stack ?? error.message : 'ORDINARY_RELAY_HANDLER_FAILED').slice(-131072), { mode: 0o600, flag: 'wx' });
-        callbackFailure = true; response.writeHead(500); response.end('ORDINARY_RELAY_HANDLER_FAILED');
+        if (!response.headersSent) response.writeHead(500);
+        response.end('ORDINARY_RELAY_HANDLER_FAILED');
       }
     });
     server.listen(spec.tls.port, '127.0.0.1'); await once(server, 'listening');
@@ -242,18 +256,28 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
     const collect = (chunk: Buffer) => { childLog = Buffer.concat([childLog, chunk]).subarray(-4 * 1024 * 1024); };
     child.stdout?.on('data', collect); child.stderr?.on('data', collect);
     await new Promise<void>((done, reject) => {
+      rejectChildWait = reject;
       const timer = setTimeout(() => { child?.kill('SIGTERM'); reject(Error('ORDINARY_CHILD_DEADLINE')); }, 120000);
       child!.on('message', (message: any) => {
         if (message?.type === 'ready') child!.send({ type: 'fixture', origin, agents: agents.map((agent, index) => ({ ...agent, accountId: accounts[index] })) });
+        if (message?.type === 'verify-private-denial') {
+          const verified = !callbackFailure && deniedTransport === 0 && [0, 1].includes(message.owner) &&
+            typeof message.requestId === 'string' && /^[a-f0-9-]{36}$/.test(message.requestId) &&
+            completedPrivateDenials.delete(JSON.stringify([message.owner, message.memoryId]));
+          if (!verified) { stopUnexpectedChild(); return; }
+          child!.send({ type: 'private-denial-verdict', requestId: message.requestId, verified: true }, error => { if (error) stopUnexpectedChild(); });
+        }
         if (message?.type === 'result') { childResult = message; resultCount++; }
       });
       child!.once('error', () => { clearTimeout(timer); reject(Error('ORDINARY_CHILD_START_FAILED')); });
-      child!.once('exit', code => { clearTimeout(timer); childClosed = true; code === 0 ? done() : reject(Error('ORDINARY_CHILD_FAILED')); });
+      child!.once('exit', code => { clearTimeout(timer); rejectChildWait = undefined; childClosed = true; code === 0 ? done() : reject(Error('ORDINARY_CHILD_FAILED')); });
+      if (callbackFailure) stopUnexpectedChild();
     });
     assert.equal(resultCount, 1); assert.equal(childResult?.status, 'PASS_ORDINARY_REMOTE_BOUNDARY_LOCAL_UNCERTAINTY_PRESERVED');
     expect(childResult).toMatchObject({ uniqueActions: 8, completedOwnCalls: 6, remotePrivateGetDenials: 2,
       localResultUnknownRowsPreserved: 2, attemptCountEach: 1, privateReceiptContentAbsent: true, productionRegistrationChanged: false });
     assert.equal(callbackFailure, false); assert.equal(deniedTransport, 0); assert.equal(childResult.deniedTransport, 0);
+    assert.equal(completedPrivateDenials.size, 0, 'Each expected privacy denial requires one consumed actual-handler verdict');
     for (const row of stats) expect({ add: row.add, get: row.get, list: row.list, privateDenials: row.privateDenials }).toEqual({ add: 1, get: 2, list: 1, privateDenials: 1 });
     for (let index = 0; index < 2; index++) {
       const activity = (await listActivity(accounts[index], { agentId: agents[index].agentId })).filter(row => row.action.startsWith('memory.'));
