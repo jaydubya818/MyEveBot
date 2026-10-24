@@ -233,7 +233,7 @@ try {
       oracle: `http://127.0.0.1:${state.ports.model}`, password: state.password, marker: state.marker })) }), { mode: 0o600 });
   await writeFile(join(output, "source-seams.json"), JSON.stringify({ source: spec.sourceSha, tree: git("rev-parse", "HEAD^{tree}"),
     status: "NOT_A_PRODUCTION_OR_PRODUCTIVE_QUALIFICATION", scope: "ordinary synthetic chat only", sourceFiles, seams,
-    browser: { committedCopy: true, files: browserSource.files },
+    browser: { committedCopy: true, files: browserSource.files, automaticFailureArtifacts: "PRIVATE_OWNED_SCRATCH_ONLY" },
     accountingSql: Object.fromEntries(await Promise.all(accountingFiles.map(async file => [file, sha(await readFile(join(root, "apps/eve/lib/external-alpha", file)))]))) }, null, 2) + "\n");
   for (const state of states) {
     const eveEnv = { ...state.env, NITRO_PRESET: "node-server" }; delete eveEnv.VERCEL;
@@ -277,9 +277,13 @@ try {
     ]);
     try {
       for (const state of states) { await ready(`http://127.0.0.1:${state.ports.eve}/eve/v1/health`); await ready(`http://localhost:${state.ports.web}/api/auth/status`); }
+      // Playwright error-context snapshots can include a filled password even
+      // with traces/screenshots off. Keep all automatic artifacts private.
+      const browserArtifacts = join(scratch, `private-browser-artifacts-${stage}`);
+      await mkdir(browserArtifacts, { mode: 0o700 });
       const env = { PATH: process.env.PATH, HOME: process.env.HOME, USER: process.env.USER, TMPDIR: scratch,
         MYEVE_CHAT_ONLY_BROWSER_CONFIG: privateBrowser, MYEVE_CHAT_ONLY_STAGE: stage,
-        MYEVE_CHAT_ONLY_EVIDENCE: output, MYEVE_CHAT_ONLY_BROWSER_OUTPUT: join(output, stage) };
+        MYEVE_CHAT_ONLY_EVIDENCE: output, MYEVE_CHAT_ONLY_BROWSER_OUTPUT: browserArtifacts };
       await verifyBrowserSource();
       await command([join(root, "node_modules/@playwright/test/cli.js"), "test", "-c", "test/owner-chat-only/playwright.config.cjs"], states[0].app, env, join(scratch, `browser-${stage}.log`)).ended;
       record({ event: "browser-stage-passed", stage });

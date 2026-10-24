@@ -82,7 +82,11 @@ the runner never scans or drops an unowned database to repair that failure.
   asset fails closed; no network fallback or dependency patch is allowed.
 - Preload this fixture's committed `transport.cjs` with a private exact-topology
   descriptor. Its app Neon HTTP adapter accepts only the exact app connection
-  and SDK endpoint. Central accounting and BetaIntegration use their actual
+  and literal SDK-derived endpoint, checking these before ordinary URL parsing.
+  The SDK's normal Neon host rewrite need not form a valid URL for numeric
+  loopback hosts; the exact bound adapter request goes only to native owned pg,
+  never HTTP. Every other fetch retains URL/method/route restrictions.
+  Central accounting and BetaIntegration use their actual
   native pg pools, with the exact owned central/app URLs supplied to the child.
 - The transport checks owned socket ports and private IPC paths and wraps
   Node HTTP, fetch and Undici destinations/methods/routes. It is an application
@@ -100,9 +104,13 @@ the runner never scans or drops an unowned database to repair that failure.
 Actual source/seam hashes, topology and SQL hashes are written to
 `source-seams.json`. Passwords, keys, tokens and URLs remain in private temporary
 configuration and are deleted at cleanup. Diagnostic child output is bounded and
-redacted. Browser tracing/automatic screenshots are disabled to avoid publishing
-cookies and login bodies; only deliberate post-login screenshots have source-bound
-chat-only provenance. A source review is not an executed pass result.
+redacted. Browser tracing/automatic screenshots are disabled. Playwright still
+writes automatic error-context snapshots that can contain a filled password;
+all automatic artifacts therefore stay in private owned scratch directories.
+Never promote raw failure contexts to shareable evidence. Only bounded redacted
+child diagnostics and deliberate post-login screenshots go to the evidence
+directory, with source-bound chat-only provenance for those screenshots.
+A source review is not an executed pass result.
 
 ## Assertions and honest scope
 

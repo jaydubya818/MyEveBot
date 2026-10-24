@@ -70,10 +70,13 @@ const pool = new Pool({ connectionString: app.href, max: 8, connectionTimeoutMil
 const fetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
-  const url = new URL(typeof input === 'string' ? input : input.url ?? input);
+  const target = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
   const connection = headers.get('Neon-Connection-String');
   if (connection) {
-    if (new URL(connection).href !== app.href || url.href !== endpoint || String(init?.method || 'GET').toUpperCase() !== 'POST')
+    // The SDK's exact derived endpoint is opaque fixture input: its normal Neon
+    // hostname rewrite can be an invalid URL for a numeric loopback host. Check
+    // it before URL parsing; this branch never sends HTTP and uses only owned pg.
+    if (new URL(connection).href !== app.href || target !== endpoint || String(init?.method || 'GET').toUpperCase() !== 'POST')
       throw Error('CHAT_FIXTURE_FOREIGN_NEON_DENIED');
     const body = JSON.parse(init.body), client = await pool.connect();
     try {
@@ -90,6 +93,7 @@ globalThis.fetch = async (input, init) => {
       return Response.json({ message: 'Owned fixture query failed', code: error.code }, { status: 400 });
     } finally { client.release(); }
   }
+  const url = new URL(target);
   if (!allowedHttp(url, String(init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase()))
     throw Error('CHAT_FIXTURE_FOREIGN_FETCH_DENIED');
   return fetch(input, init);
