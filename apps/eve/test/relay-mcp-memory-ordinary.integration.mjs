@@ -12,6 +12,19 @@ import { Client, Pool } from 'pg';
 import { neonConfig } from '@neondatabase/serverless';
 import { Agent, Dispatcher, setGlobalDispatcher } from 'undici';
 
+function assertOrdinaryChildEnvironment(environment, platform, uid) {
+  const allowed = new Set(['PATH', 'HOME', 'USER', 'TMPDIR', 'NODE_ENV', 'NODE_EXTRA_CA_CERTS', 'MYEVE_RELAY_ORDINARY_SPEC']);
+  const unexpected = Object.keys(environment).filter(key => {
+    if (allowed.has(key)) return false;
+    if (key !== '__CF_USER_TEXT_ENCODING' || platform !== 'darwin') return true;
+    const value = environment[key];
+    if (typeof value !== 'string' || value.length > 128) return true;
+    const fields = /^0x([0-9a-f]+):0x([0-9a-f]+):0x([0-9a-f]+)$/i.exec(value);
+    return !fields || Number.parseInt(fields[1], 16) !== uid;
+  }).sort();
+  if (unexpected.length) throw Error('ORDINARY_CHILD_UNEXPECTED_ENV_KEYS:' + JSON.stringify(unexpected));
+}
+
 assert.ok(process.send, 'Private parent IPC required');
 const specPath = process.env.MYEVE_RELAY_ORDINARY_SPEC;
 const file = lstatSync(specPath); assert.equal(file.uid, process.getuid()); assert.equal(file.mode & 0o777, 0o600); assert.equal(file.isSymbolicLink(), false);
@@ -24,7 +37,7 @@ assert.equal(adminUrl.username, 'mcp_fixture'); assert.equal(adminUrl.pathname, 
 assert.ok(Number.isInteger(pgPort) && pgPort > 1024 && pgPort < 65536);
 assert.equal(process.env.NODE_EXTRA_CA_CERTS, spec.tls.certificatePath);
 assert.equal(createHash('sha256').update(readFileSync(spec.tls.certificatePath)).digest('hex'), spec.tls.certificateSha256);
-for (const key of Object.keys(process.env)) assert.ok(['PATH', 'HOME', 'USER', 'TMPDIR', 'NODE_ENV', 'NODE_EXTRA_CA_CERTS', 'MYEVE_RELAY_ORDINARY_SPEC'].includes(key));
+assertOrdinaryChildEnvironment(process.env, process.platform, process.getuid());
 const origin = `https://127.0.0.1:${spec.tls.port}`;
 let deniedTransport = 0;
 let unexpectedFailure = '';
