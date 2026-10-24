@@ -71,6 +71,15 @@ the runner never scans or drops an unowned database to repair that failure.
 - Replace copied `next.config.ts` with an explicit rewrite to that installation's
   owned Eve service. Build Eve and Next separately in production mode. No
   `withEve` deployment, prewarm or production project operation is requested.
+- In the copied layout only, replace the Google font import/declarations with
+  public `next/font/local` calls. Reuse the exact installed Next16.4.3 bundled
+  `Geist-Regular.ttf`, SHA256
+  `bde046ddd9f20be35b0bd56cc79eb752b967fb6661a3fe76cb067bb09f871d76`,
+  for all three existing CSS variables. Record the layout before/after and asset
+  hashes. The committed production layout/fonts and external transport denial
+  stay unchanged. This qualifies functional fixture behavior only, not production
+  Google font loading, original font metrics or visual equivalence. A different
+  asset fails closed; no network fallback or dependency patch is allowed.
 - Preload this fixture's committed `transport.cjs` with a private exact-topology
   descriptor. Its app Neon HTTP adapter accepts only the exact app connection
   and SDK endpoint. Central accounting and BetaIntegration use their actual

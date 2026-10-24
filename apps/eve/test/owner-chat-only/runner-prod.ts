@@ -194,8 +194,31 @@ try {
     const require = createRequire(join(app, "package.json"));
     const nextPackage = require.resolve("next/package.json");
     const next = join(dirname(nextPackage), require("next/package.json").bin.next);
+    // Public next/font/local keeps this offline fixture inside the existing
+    // transport boundary. Production layout and Google font bytes are untouched.
+    const fontSource = "dist/compiled/@vercel/og/Geist-Regular.ttf";
+    assert.equal(require("next/package.json").version, "16.4.3", "CHAT_FIXTURE_NEXT_FONT_PACKAGE_IDENTITY");
+    const font = await readFile(join(dirname(nextPackage), fontSource));
+    const fontSha256 = "bde046ddd9f20be35b0bd56cc79eb752b967fb6661a3fe76cb067bb09f871d76";
+    assert.equal(sha(font), fontSha256, "CHAT_FIXTURE_LOCAL_FONT_IDENTITY");
+    const fontPath = "test/owner-chat-only/fixture-geist-regular.ttf";
+    await writeFile(join(app, fontPath), font);
+    const layoutPath = join(app, "app/layout.tsx"), beforeLayout = await readFile(layoutPath, "utf8");
+    assert.equal(sha(beforeLayout), sourceFiles["apps/eve/app/layout.tsx"], "CHAT_FIXTURE_LAYOUT_SOURCE_DRIFT");
+    const fontImport = 'import { Geist, Geist_Mono, Inter } from "next/font/google";';
+    assert.equal(beforeLayout.split(fontImport).length, 2);
+    const fontDeclarations = beforeLayout.slice(beforeLayout.indexOf("const inter = Inter("), beforeLayout.indexOf("export const metadata:"));
+    assert.ok(fontDeclarations.startsWith("const inter = Inter(") && fontDeclarations.includes("const geistMono = Geist_Mono("));
+    const afterLayout = beforeLayout.replace(fontImport, 'import localFont from "next/font/local";').replace(fontDeclarations,
+      ['const inter = localFont({ src: "../' + fontPath + '", variable: "--font-sans" });',
+       'const geist = localFont({ src: "../' + fontPath + '", variable: "--font-geist" });',
+       'const geistMono = localFont({ src: "../' + fontPath + '", variable: "--font-geist-mono" });', "", ""].join("\n"));
+    await writeFile(layoutPath, afterLayout);
     seams.push({ slot: item.slot, model: { path: "apps/eve/lib/external-alpha/model.ts", before: sha(beforeModel), after: sha(afterModel), substitution: "gateway generation and pricing catalog use local fixture module" },
       next: { path: "apps/eve/next.config.ts", before: sha(beforeConfig), after: sha(afterConfig), substitution: "withEve build/router replaced by owned local Eve rewrite" },
+      fonts: { path: "apps/eve/app/layout.tsx", before: sha(beforeLayout), after: sha(afterLayout),
+        source: "next@16.4.3/" + fontSource, asset: "apps/eve/" + fontPath, assetSha256: fontSha256,
+        substitution: "copied layout only uses public next/font/local and one exact bundled local font for all three variables; no production font or visual equivalence claim" },
       transport: { path: "apps/eve/test/owner-chat-only/transport.cjs", sha256: sourceFiles["apps/eve/test/owner-chat-only/transport.cjs"],
         substitution: "preload exact app Neon-to-pg adapter, native central pg unchanged; owned socket/HTTP tripwires; private owned IPC" },
       topology: { applicationDatabase: item.app.name, accountingDatabase: selected.central.name, pgPort: Number(adminUrl.port), ...ports },
