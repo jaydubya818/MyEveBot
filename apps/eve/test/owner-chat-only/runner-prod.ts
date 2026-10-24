@@ -146,7 +146,9 @@ try {
   process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE = adminUrl.href;
   fixture = await prepareChatOnlyFixture();
   const selected = fixture;
-  const states = [];
+  const states: { index: number; app: string; env: NodeJS.ProcessEnv; next: string;
+    ports: { web: number; eve: number; model: number }; password: string; marker: string;
+    calls: number; observedRequests: object[] }[] = [];
   const seams = [];
   const sourceFiles = await copyCommit(join(scratch, "source-1"));
   await copyCommit(join(scratch, "source-2"));
@@ -221,6 +223,8 @@ try {
         substitution: "copied layout only uses public next/font/local and one exact bundled local font for all three variables; no production font or visual equivalence claim" },
       transport: { path: "apps/eve/test/owner-chat-only/transport.cjs", sha256: sourceFiles["apps/eve/test/owner-chat-only/transport.cjs"],
         substitution: "preload exact app Neon-to-pg adapter, native central pg unchanged; owned socket/HTTP tripwires; private owned IPC" },
+      workflow: { baseUrl: `http://127.0.0.1:${ports.eve}`, callback: "/.well-known/workflow/v1/flow", method: "POST",
+        substitution: "public WORKFLOW_LOCAL_BASE_URL pins the self-hosted queue to its own Eve service; exact callback only, no query or fragment" },
       topology: { applicationDatabase: item.app.name, accountingDatabase: selected.central.name, pgPort: Number(adminUrl.port), ...ports },
       dependencyReuse: "node_modules symlinks from the operator checkout; reviewed source lock bound; no install or graph qualification performed by this runner" });
     states.push({ index, app, env, next, ports, password, marker, calls: 0, observedRequests: [] as object[] });
@@ -236,7 +240,7 @@ try {
     browser: { committedCopy: true, files: browserSource.files, automaticFailureArtifacts: "PRIVATE_OWNED_SCRATCH_ONLY" },
     accountingSql: Object.fromEntries(await Promise.all(accountingFiles.map(async file => [file, sha(await readFile(join(root, "apps/eve/lib/external-alpha", file)))]))) }, null, 2) + "\n");
   for (const state of states) {
-    const eveEnv = { ...state.env, NITRO_PRESET: "node-server" }; delete eveEnv.VERCEL;
+    const eveEnv: NodeJS.ProcessEnv = { ...state.env, NITRO_PRESET: "node-server", WORKFLOW_LOCAL_BASE_URL: `http://127.0.0.1:${state.ports.eve}` }; delete eveEnv.VERCEL;
     await command([join(root, "node_modules/eve/bin/eve.js"), "build"], state.app, eveEnv, join(scratch, `build-eve-${state.index}.log`)).ended;
     await command([state.next, "build", "--webpack"], state.app, state.env, join(scratch, `build-next-${state.index}.log`)).ended;
   }
@@ -272,7 +276,8 @@ try {
   for (const stage of ["chat", "restart-readback"]) {
     control.signal.throwIfAborted();
     const apps = states.flatMap(state => [
-      command([join(root, "node_modules/eve/bin/eve.js"), "start", "--host", "127.0.0.1", "--port", String(state.ports.eve)], state.app, state.env, join(scratch, `eve-${state.index}.log`), true),
+      command([join(root, "node_modules/eve/bin/eve.js"), "start", "--host", "127.0.0.1", "--port", String(state.ports.eve)], state.app,
+        { ...state.env, WORKFLOW_LOCAL_BASE_URL: `http://127.0.0.1:${state.ports.eve}` }, join(scratch, `eve-${state.index}.log`), true),
       command([state.next, "start", "--hostname", "127.0.0.1", "--port", String(state.ports.web)], state.app, state.env, join(scratch, `next-${state.index}.log`), true),
     ]);
     try {

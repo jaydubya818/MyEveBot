@@ -36,7 +36,8 @@ const model = `http://127.0.0.1:${binding.modelPort}`;
 const reads = new Set(['/login','/today','/chat','/work/new','/api/auth/status','/api/chat-usage','/api/threads','/api/agents','/api/relay','/api/work-inbox','/api/readiness','/api/files']);
 function allowedHttp(url, method) {
   if (url.origin === model) return url.pathname === '/model' && !url.search && method === 'POST';
-  if (url.origin === eve) return /^\/eve\/v1\/(health|info|session(?:\/[^/]+)?(?:\/stream)?)$/.test(url.pathname) && ['GET','HEAD','POST'].includes(method);
+  if (url.origin === eve) return (url.pathname === '/.well-known/workflow/v1/flow' && !url.search && !url.hash && method === 'POST') ||
+    (/^\/eve\/v1\/(health|info|session(?:\/[^/]+)?(?:\/stream)?)$/.test(url.pathname) && ['GET','HEAD','POST'].includes(method));
   if (!web.has(url.origin)) return false;
   if (['GET','HEAD'].includes(method)) return reads.has(url.pathname) ||
     /^\/(?:_next\/static\/|api\/threads\/[^/]+$|api\/agents\/[^/]+(?:\/home)?$)/.test(url.pathname);

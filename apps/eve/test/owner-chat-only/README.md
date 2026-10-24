@@ -71,6 +71,12 @@ the runner never scans or drops an unowned database to repair that failure.
 - Replace copied `next.config.ts` with an explicit rewrite to that installation's
   owned Eve service. Build Eve and Next separately in production mode. No
   `withEve` deployment, prewarm or production project operation is requested.
+- Pin the public `WORKFLOW_LOCAL_BASE_URL` to that installation's exact owned
+  Eve `http://127.0.0.1:EVE_PORT` origin for both build and runtime. Self-hosted
+  Eve requires workflow callbacks as well as `/eve/` routes. The transport admits
+  only `POST /.well-known/workflow/v1/flow` on that origin, without a query or
+  fragment. Other origins, ports, callback paths and methods stay denied; no
+  external queue, fake run binding or ownership-guard bypass is used.
 - In the copied layout only, replace the Google font import/declarations with
   public `next/font/local` calls. Reuse the exact installed Next16.4.3 bundled
   `Geist-Regular.ttf`, SHA256
