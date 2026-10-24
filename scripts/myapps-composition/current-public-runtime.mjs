@@ -61,34 +61,27 @@ export function validatePublicHealthPair(direct,proxy){
  return {status:'DIRECT_AND_PROXY_SELECTED_HEALTH_MATCH'};
 }
 
-/** Actual public Client probe, to run ONLY inside a separately reviewed owned
- * producer with authenticated inputs/output/process and synthetic local model/PG.
- * No retries of accepted writes, no Work/private API/provider call. This helper
- * alone cannot award packaging or runtime qualification: the caller must bind
- * its HTTP observations to the exact owned process and authoritative DB rows.
- */
-export async function observePublicRuntime(config){
- assert.deepEqual(Object.keys(config).sort(),['webOrigin','eveOrigin','clientWorkspace','ownerId','password','marker'].sort(),'PUBLIC_CONFIG_FIELDS');
- for(const value of [config.webOrigin,config.eveOrigin]){
-  const origin=new URL(value);
-  assert(origin.protocol==='http:'&&origin.hostname==='127.0.0.1'&&origin.port
-   &&origin.pathname==='/'&&!origin.search&&!origin.hash&&!origin.username&&!origin.password,
-   'PUBLIC_OWNED_LOOPBACK_ORIGIN_REQUIRED');
- }
+function publicWebBinding(config){
+ const origin=new URL(config.webOrigin);
+ assert(origin.protocol==='http:'&&origin.hostname==='localhost'&&origin.port
+  &&origin.pathname==='/'&&!origin.search&&!origin.hash&&!origin.username&&!origin.password,
+  'PUBLIC_CANONICAL_WEB_ORIGIN_REQUIRED');
  assert.match(config.ownerId,/^[a-f0-9-]{36}$/);
- assert.match(config.marker,/^CURRENT_RUNTIME_[a-f0-9]{32}$/);
  assert(typeof config.password==='string'&&config.password.length>=24&&config.password.length<=128,'PUBLIC_SYNTHETIC_PASSWORD_REQUIRED');
- const base=new URL(config.webOrigin).origin,eve=new URL(config.eveOrigin).origin,threadId=randomUUID();
- const workspace=realpathSync(config.clientWorkspace);
- assert.equal(workspace,config.clientWorkspace,'PUBLIC_CLIENT_INPUT_ROOT_ALIAS');
- const appRequire=createRequire(join(workspace,'apps/eve/package.json'));
- const clientEntry=realpathSync(appRequire.resolve('eve/client'));
- const clientKey=relative(workspace,clientEntry);
- assert(clientKey&&!clientKey.startsWith('..'+sep)&&clientKey!=='..','PUBLIC_CLIENT_INPUT_ESCAPE');
+ return origin.origin;
+}
+
+/** Synthetic public-client login phase using the same canonical browser origin
+ * as R9. Injected send is for fake HTTP tests only; the owned probe uses fetch.
+ * Preserve production CSRF and owner checks; never retry an accepted login.
+ */
+export async function authenticatePublicOwner(config,send=fetch){
+ assert.deepEqual(Object.keys(config).sort(),['webOrigin','ownerId','password'].sort(),'PUBLIC_AUTH_CONFIG_FIELDS');
+ const base=publicWebBinding(config);
  let cookie='';
  async function request(path,{method='GET',body,headers={}}={}){
   assert(path.startsWith('/')&&!path.startsWith('//'),'PUBLIC_RELATIVE_PATH_REQUIRED');
-  const response=await fetch(base+path,{method,redirect:'error',signal:timeout(),headers:{
+  const response=await send(base+path,{method,redirect:'error',signal:timeout(),headers:{
    origin:base,...(cookie?{cookie,'x-myeve-browser-owner':config.ownerId}:{}),
    ...(body?{'content-type':'application/json'}:{}),...headers},
    ...(body?{body:JSON.stringify(body)}:{})});
@@ -100,9 +93,38 @@ export async function observePublicRuntime(config){
  const cookies=login.headers.getSetCookie().filter(value=>value.startsWith('myeve_session='));
  assert.equal(cookies.length,1,'PUBLIC_SIGNED_SESSION_COOKIE_REQUIRED');
  cookie=cookies[0].split(';')[0];
- const status=await (await request('/api/auth/status')).json();
- assert.equal(status.authenticated,true);assert.equal(status.ownerId,config.ownerId);
+ const statusResponse=await request('/api/auth/status');
+ assert.equal(statusResponse.status,200,'PUBLIC_AUTH_STATUS_FAILED');
+ const status=await statusResponse.json();
+ assert.equal(status.authenticated,true,'PUBLIC_AUTHENTICATED_STATUS_REQUIRED');
+ assert.equal(status.ownerId,config.ownerId,'PUBLIC_AUTHENTICATED_OWNER_REQUIRED');
  assert.equal(status.mode,'owner-session','PUBLIC_OWNER_SESSION_MODE_REQUIRED');
+ return {request,cookie};
+}
+
+/** Actual public Client probe, to run ONLY inside a separately reviewed owned
+ * producer with authenticated inputs/output/process and synthetic local model/PG.
+ * No retries of accepted writes, no Work/private API/provider call. This helper
+ * alone cannot award packaging or runtime qualification: the caller must bind
+ * its HTTP observations to the exact owned process and authoritative DB rows.
+ */
+export async function observePublicRuntime(config){
+ assert.deepEqual(Object.keys(config).sort(),['webOrigin','eveOrigin','clientWorkspace','ownerId','password','marker'].sort(),'PUBLIC_CONFIG_FIELDS');
+ for(const value of [config.eveOrigin]){
+  const origin=new URL(value);
+  assert(origin.protocol==='http:'&&origin.hostname==='127.0.0.1'&&origin.port
+   &&origin.pathname==='/'&&!origin.search&&!origin.hash&&!origin.username&&!origin.password,
+   'PUBLIC_OWNED_LOOPBACK_ORIGIN_REQUIRED');
+ }
+ assert.match(config.marker,/^CURRENT_RUNTIME_[a-f0-9]{32}$/);
+ const base=publicWebBinding(config),eve=new URL(config.eveOrigin).origin,threadId=randomUUID();
+ const workspace=realpathSync(config.clientWorkspace);
+ assert.equal(workspace,config.clientWorkspace,'PUBLIC_CLIENT_INPUT_ROOT_ALIAS');
+ const appRequire=createRequire(join(workspace,'apps/eve/package.json'));
+ const clientEntry=realpathSync(appRequire.resolve('eve/client'));
+ const clientKey=relative(workspace,clientEntry);
+ assert(clientKey&&!clientKey.startsWith('..'+sep)&&clientKey!=='..','PUBLIC_CLIENT_INPUT_ESCAPE');
+ const {request,cookie}=await authenticatePublicOwner({webOrigin:base,ownerId:config.ownerId,password:config.password});
  const healthResponse=await fetch(eve+'/eve/v1/health',{redirect:'error',signal:timeout(),headers:{'x-myeve-runtime-probe':config.marker+'-direct'}});assert.equal(healthResponse.status,200);
  const health=await healthResponse.json();
 

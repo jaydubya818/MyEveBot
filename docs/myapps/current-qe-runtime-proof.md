@@ -408,3 +408,43 @@ The historical tokenizer guard and positive Work holds remain unchanged. Public
 surfaces are [Nitro trace options](https://nitro.build/config#traceopts) and
 [nf3 hooks](https://github.com/unjs/nf3#hooks); installed pinned source/types define
 the actual compatibility boundary and merge semantics.
+
+
+## Synthetic public-client production origin contract
+
+The fifth isolated run passed both public builds, full output/package guards and
+owned Eve/Next/client launch, then failed `PUBLIC_LOGIN_FAILED` with HTTP403
+before a model request. Its login response body was not retained; do not claim a
+captured response error code. Native cleanup succeeded, while the controller's
+separate runtime-close AggregateError remains recorded. The run stays FAIL.
+
+The pinned Next16.4.3 `NextURL` normalizes numeric/IPv6 loopback names to
+`localhost`, and `NextRequest.url` exposes that normalized URL. The unchanged
+application guard deliberately compares exact production scheme, host and port.
+The previous test client used a numeric wire URL and Origin, which mismatched
+the routed localhost URL. A synthetic request running the unchanged pure guard
+reproduces the same403 assertion; it does not repeat an actual login or import
+Next, Eve, a retained artifact, or a database module. R9's successful browser
+fixture already uses localhost on the web side.
+
+The qualification client now uses actual `http://localhost:3188` wire URLs and
+matching Origin for all web and public-client calls. The direct Eve address and
+both actual listener bindings remain127.0.0.1. Existing transport rules already
+allow both web aliases; no destination allowance is expanded. Full PID/birth,
+listener, port, nonce, seal and database observations remain mandatory: localhost
+alone does not establish ownership. No missing-Origin workaround, forged remote
+host, environment normalization bypass, or application authentication/CSRF,
+password, owner, accounting or policy change is introduced. The normal app Nitro
+configuration and emitted graph guards from8b270a2a remain byte-identical.
+
+The auth phase verifies unauthenticated denial, one successful login, exactly one
+session cookie, and an HTTP200 authenticated owner-session status before using
+the public Client. Owner headers are sent only after the cookie is acquired;
+the public observation excludes cookie/password values. Failure does not retry
+login or continue to model/session operations.
+Fake HTTP tests cover canonical URL/Origin coherence, status failures, cookie and
+owner/mode mismatches, early-stop phases and foreign/cross-site denial. These are
+source/synthetic observations only. A new source-bound plan and fresh root-owned
+full build/runtime attempt are required; none of the five old attempts is reused
+or retrospectively qualified. The three unchanged turn/replay/health validators and
+all earlier unrelated suites retain their prior evidence.

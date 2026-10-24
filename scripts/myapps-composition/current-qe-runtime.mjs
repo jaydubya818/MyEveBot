@@ -133,7 +133,7 @@ export async function runCurrentQEProof(spec){
   listenersBefore.push(observeOwnedListener(nextProcess,spec.ports.web,spec.toolchain));
   verifyBuildInputs(copy,build.inputs);verifyRuntimeOutput(build.output.root.path,build.output);verifyRuntimeOutput(build.nextOutput.root.path,build.nextOutput);
   const result=join(privateRoot,'public-observation.json');
-  const client=launch('client',join(scriptRoot,'current-public-runtime.mjs'),[],{result,config:{webOrigin:'http://127.0.0.1:'+spec.ports.web,
+  const client=launch('client',join(scriptRoot,'current-public-runtime.mjs'),[],{result,config:{webOrigin:'http://localhost:'+spec.ports.web,
    eveOrigin:'http://127.0.0.1:'+spec.ports.eve,clientWorkspace:copy,ownerId:fixture.app.owner,password:fixture.app.password,marker}});
   await processOwner.guard(processOwner.completed(client),90000);
   if(modelFailure)throw modelFailure;
