@@ -62,7 +62,7 @@ async function saved(context, slot, turns) {
 async function checkReadback(page, slot, before) {
   await page.goto(slot.base + '/chat?thread=' + encodeURIComponent(before.threads[0].id));
   for (const text of reply(slot)) await expect(page.getByText(text, { exact: true })).toBeVisible();
-  await expect(page.locator('[data-thread-id]')).toHaveAttribute('data-thread-id', before.threads[0].id);
+  await expect(page.getByRole('textbox', { name: 'Message Sofie', exact: true })).toHaveAttribute('data-thread-composer', before.threads[0].id);
   const after = await oracle(page.context(), slot); assertAccounting(after, 3);
   for (const key of ['allowances','operations','admissions','dispatches','threads','runs','password','local']) expect(after[key]).toEqual(before[key]);
   return after;
