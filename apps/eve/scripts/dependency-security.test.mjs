@@ -3,6 +3,7 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import net from 'node:net';
 const require = createRequire(import.meta.url);
 
 test('IPv4-mapped proxy trust cannot make an arbitrary client trusted', () => {
@@ -12,15 +13,35 @@ test('IPv4-mapped proxy trust cannot make an arbitrary client trusted', () => {
   assert.equal(proxyaddr.compile('10.0.0.0/8')('198.51.100.1'), false);
 });
 
-test('LangChain telemetry retains its LangSmith imports without a provider operation', async () => {
-  const tree = await import('langsmith/run_trees');
-  const singleton = await import('langsmith/singletons/traceable');
-  const tracing = await import('@langchain/core/tracers/tracer_langchain');
-  assert.equal(typeof tree.RunTree, 'function');
-  assert.equal(typeof singleton.getCurrentRunTree, 'function');
-  assert.equal(typeof tracing.LangChainTracer, 'function');
-  const run = new tree.RunTree({ name: 'offline-compatibility', run_type: 'chain', inputs: {} });
-  assert.equal(run.name, 'offline-compatibility');
+test('public telemetry imports retain local redaction and stay network-off in test mode', async t => {
+  let connections = 0;
+  t.mock.method(net.Socket.prototype, 'connect', () => {
+    connections += 1;
+    throw new Error('Telemetry contract must not open a network connection');
+  });
+  const values = { NODE_ENV: 'test', RAINDROP_WRITE_KEY: 'synthetic-unused-key',
+    RAINDROP_WORKSHOP: '1', RAINDROP_LOCAL_DEBUGGER: 'http://127.0.0.1:5899' };
+  const previous = Object.fromEntries(Object.keys(values).map(key => [key, process.env[key]]));
+  try {
+    Object.assign(process.env, values);
+    const client = await import('../agent/lib/raindrop-client.ts');
+    const spans = await import('../agent/lib/raindrop-span-exporter.ts');
+    const telemetry = await import('../agent/instrumentation/telemetry.ts');
+    assert.equal(typeof client.RaindropTurnClient, 'function');
+    assert.equal(typeof spans.RaindropSpanExporter, 'function');
+    assert.equal(client.redactRaindropText('Contact fixture@example.invalid'), 'Contact <REDACTED EMAIL>');
+    assert.equal(telemetry.raindrop, null);
+    assert.equal(telemetry.raindropTraceExporter, null);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(connections, 0);
+    const lock = JSON.parse(await readFile(new URL('../../../package-lock.json', import.meta.url), 'utf8'));
+    for (const name of ['raindrop-ai', 'langsmith', '@langchain/core'])
+      assert.equal(Object.keys(lock.packages).some(path => path.endsWith('node_modules/' + name)), false);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+  }
 });
 
 test('removing the generator preserves the exact licensed stylesheet', async () => {

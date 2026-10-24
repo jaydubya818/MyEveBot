@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { createServer } from "node:http";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
 import { createRequire } from "node:module";
 import { chromium } from "playwright";
 import { createAlphaTasksApi } from "../../../apps/eve/lib/myapps/alpha-tasks-api.ts";
@@ -45,6 +45,11 @@ export async function qualifyAlphaTasksBrowser({ apps, human, pkg, output }) {
     outdir: "out",
     format: "iife",
     jsx: "automatic",
+    // Match the app renderer when a hoisted Next Link imports React.
+    alias: {
+      react: dirname(require.resolve("react/package.json")),
+      "react-dom": dirname(require.resolve("react-dom/package.json")),
+    },
     define: { "process.env.NODE_ENV": '"production"', "process.env": "{}" },
     logLevel: "silent",
   });

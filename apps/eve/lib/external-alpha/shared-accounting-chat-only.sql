@@ -15,6 +15,32 @@ BEGIN
   AND policy_sha256=p->>'policySha256'
   AND credential_sha256=encode(sha256(convert_to(p->>'credential','UTF8')),'hex');
  IF NOT FOUND THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_SHARED_DENIED'; END IF;
+ -- Observational only: no row locks, writes, reconciliation, or authority.
+ -- One statement snapshot includes central-only reservations after a lost
+ -- local acknowledgment. Never expose the other tester's totals or identity.
+ IF p->>'mode'='status' THEN
+  RETURN (WITH timing AS (SELECT statement_timestamp() AS now), totals AS (
+   SELECT count(*) FILTER(WHERE a.owner_id=m.owner_id AND a.day_index=floor(extract(epoch FROM t.now)/86400) AND a.kind='CHAT') AS turns,
+    COALESCE(sum(a.ceiling_microusd) FILTER(WHERE a.owner_id=m.owner_id AND a.day_index=floor(extract(epoch FROM t.now)/86400)),0) AS owner_day,
+    COALESCE(sum(a.ceiling_microusd) FILTER(WHERE a.owner_id=m.owner_id),0) AS owner_total,
+    COALESCE(sum(a.ceiling_microusd) FILTER(WHERE a.day_index=floor(extract(epoch FROM t.now)/86400)),0) AS cohort_day,
+    COALESCE(sum(a.ceiling_microusd),0) AS cohort_total
+   FROM external_alpha_cohort_admission a CROSS JOIN timing t WHERE a.cohort_id=m.cohort_id
+  ) SELECT jsonb_build_object(
+   'version',1,'checkedAt',t.now,'dayIndex',floor(extract(epoch FROM t.now)/86400),
+   'resetsAt',to_timestamp((floor(extract(epoch FROM t.now)/86400)+1)*86400),
+   'activatedAt',co.activated_at,'expiresAt',co.activated_at+interval '120 hours',
+   'state',CASE WHEN co.revoked_at IS NOT NULL THEN 'revoked' WHEN co.activated_at IS NULL OR t.now<co.activated_at THEN 'inactive'
+    WHEN t.now>=co.activated_at+interval '120 hours' THEN 'expired'
+    WHEN EXISTS(SELECT 1 FROM external_alpha_cohort_admission a WHERE a.cohort_id=co.id AND a.state='UNKNOWN')
+     OR EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d JOIN external_alpha_cohort_admission a ON a.id=d.admission_id WHERE a.cohort_id=co.id AND d.state IN('UNKNOWN','DISPATCHED','RUNNING','FENCED'))
+     OR EXISTS(SELECT 1 FROM external_alpha_cohort_admission a WHERE a.cohort_id=co.id AND a.kind='WORK' AND a.state IN('RESERVED','BOUND') AND a.deadline>t.now AND NOT EXISTS(SELECT 1 FROM external_alpha_cohort_dispatch d WHERE d.admission_id=a.id)) THEN 'paused'
+    ELSE 'active' END,
+   'dailyTurnsUsed',x.turns,'dailyReservedMicrousd',x.owner_day,'trialReservedMicrousd',x.owner_total,
+   'quotaRemaining',greatest(0,least(10-x.turns,(1000000-x.owner_day)/100000,(5000000-x.owner_total)/100000,(2000000-x.cohort_day)/100000,(10000000-x.cohort_total)/100000)),
+   'limits',jsonb_build_object('dailyTurns',10,'perTurnMicrousd',100000,'dailyMicrousd',1000000,'trialMicrousd',5000000,'sharedDailyMicrousd',2000000,'sharedTrialMicrousd',10000000)
+  ) FROM external_alpha_cohort co CROSS JOIN timing t CROSS JOIN totals x WHERE co.id=m.cohort_id);
+ END IF;
  SELECT * INTO STRICT c FROM external_alpha_cohort WHERE id=m.cohort_id FOR UPDATE;
  mode=p->>'mode'; n=clock_timestamp();
  -- New Work observations cannot keep execution alive in this release.

@@ -8,5 +8,17 @@
   "myappsFiles": ["runtime.ts", "hosting.ts"],
   "authorityFiles": ["work-authority.ts"],
   "migration": "0105_myapps_execution_admission.sql",
-  "scope": "Explicit reviewed-source comparisons; historical pins and accounting SQL remain unchanged. Source identity does not grant deployment or execution authority."
+  "scope": "Explicit reviewed-source comparisons; historical pins and accounting SQL remain unchanged. Source identity does not grant deployment or execution authority.",
+  "reviewedExternalAlphaSuccessors": {
+    "apps/eve/lib/external-alpha/shared-accounting.ts": {
+      "source": "931487c4db417321c7382285096fd27eaf378558",
+      "sha256": "730dd19b733ba4f46a97d3b616530281fd18ad4e4c9ceee2b44e72cb06cd992a",
+      "review": "docs/verification/2026-10-23-beta-feedback-review.md"
+    },
+    "apps/eve/lib/external-alpha/tool-authority.ts": {
+      "source": "65ef3063c88d47956f7b419b4bb3733a79a99f6a",
+      "sha256": "c3502cfef60044fcad91bd2daa11d31aedba4aa705323a5466b8e402d4d2acd4",
+      "review": "docs/verification/2026-10-23-chat-only-security-review.md"
+    }
+  }
 }

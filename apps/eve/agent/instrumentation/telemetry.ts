@@ -1,7 +1,8 @@
 import { trace } from "@opentelemetry/api";
 import { defineInstrumentation } from "eve/instrumentation";
 import { createHash } from "node:crypto";
-import { Raindrop } from "raindrop-ai";
+import { RaindropTurnClient } from "../lib/raindrop-client";
+import { RaindropSpanExporter } from "../lib/raindrop-span-exporter";
 
 import { shouldRecordTelemetryIo } from "../lib/telemetry-privacy";
 
@@ -11,17 +12,13 @@ export const RECORD_IO = shouldRecordTelemetryIo();
 const RAINDROP_NAMESPACE = Buffer.from("6ba7b8119dad11d180b400c04fd430c8", "hex");
 const raindropWriteKey = process.env.RAINDROP_WRITE_KEY?.trim() ?? "";
 
-// Eve owns the OpenTelemetry provider. Raindrop contributes a processor to
-// that provider, while the turn hook owns canonical begin/finish events.
+const raindropEnabled = raindropWriteKey !== "" && process.env.NODE_ENV !== "test";
+// No SDK, automatic AI events, Workshop probe or second provider. The durable
+// hook owns manual events; the standard exporter only contributes a sink.
 export const raindrop =
-  raindropWriteKey === ""
-    ? null
-    : new Raindrop({
-        writeKey: raindropWriteKey,
-        useExternalOtel: true,
-        redactPii: true,
-        disabled: process.env.NODE_ENV === "test",
-      });
+  raindropEnabled ? new RaindropTurnClient(raindropWriteKey) : null;
+export const raindropTraceExporter =
+  raindropEnabled ? new RaindropSpanExporter(raindropWriteKey) : null;
 
 /** Stable UUIDv5 so hooks can resume the same event across durable invocations. */
 export function raindropEventId(sessionId: string, turnId: string): string {

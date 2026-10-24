@@ -179,6 +179,7 @@ describe.skipIf(!connection)('published 0099 lineage recovery',()=>{
   it('upgrades the original published prefix without rewriting history, Work, writer or UNKNOWN accounting',async()=>{
     const all=await loadMigrations(),prefix=all.filter(m=>m.name<'0100'),pool=await database(),db=driver(pool);
     expect(all.find(m=>m.name===correction0102Name)?.checksum).toBe('e71395195756a1667e248760816d4f6fa8f414bdedd3051298e2e15ec3f3f1e6');
+    expect(all.find(m=>m.name===migrationName)?.checksum).toBe('0915d5b8325218910e1edef47b09847b1a9a5c894a3448330d3644fb2a1db336');
     expect(prefix.at(-1)?.name).toBe('0099_missioncontrol_owner_factory.sql');expect(prefix.at(-1)?.checksum).toBe(original0099);
     await runMigrations(db,prefix,()=>{});
     const owner=randomUUID(),work=randomUUID(),run=randomUUID(),allowance=randomUUID(),authority=randomUUID();
@@ -198,7 +199,9 @@ describe.skipIf(!connection)('published 0099 lineage recovery',()=>{
     await runMigrations(db,all,()=>{});await runMigrations(db,all,()=>{});
     expect(await snapshot()).toEqual(before);
     const after=(await pool.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
-    expect(after.slice(0,ledger.length)).toEqual(ledger);expect(after.at(-1)?.name).toBe(migrationName);
+    expect(after.slice(0,ledger.length)).toEqual(ledger);expect(after.at(-1)?.name).toBe(all.at(-1)?.name);
+    expect(after.slice(ledger.length).map(({name,checksum}:any)=>({name,checksum})))
+      .toEqual(all.slice(prefix.length).map(({name,checksum})=>({name,checksum})));
     expect(after.find((x:any)=>x.name.startsWith('0099')).checksum).toBe(original0099);
   },30000);
   it('rejects the published in-place changed 0099 ledger without checksum rewrite or partial upgrade',async()=>{

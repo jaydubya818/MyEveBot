@@ -35,7 +35,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: 39b686660571bf8f93b46756378126fafb7c4d7c
           fetch-depth: 0
           path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
@@ -279,7 +279,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: 39b686660571bf8f93b46756378126fafb7c4d7c
           fetch-depth: 0
           path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source
@@ -346,7 +346,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+          ref: 39b686660571bf8f93b46756378126fafb7c4d7c
           fetch-depth: 0
           path: myfactory
       - name: Fetch exact independently reviewed capability compatibility source

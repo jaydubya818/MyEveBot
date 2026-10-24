@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@mission-control/capability-control": "*",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "pg": "8.20.0"
   },
   "scripts": {

@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const telemetry = vi.hoisted(() => ({
   begin: vi.fn(),
   finish: vi.fn(async (_snapshot: unknown) => undefined),
-  forceFlush: vi.fn(async () => undefined),
   state: {} as Record<string, unknown>,
 }));
 
@@ -25,10 +24,8 @@ vi.mock("../instrumentation/telemetry", () => ({
   RAINDROP_EVENT_NAME: "sofie_agent_turn",
   RECORD_IO: true,
   raindrop: {
-    asCurrent: <T>(run: () => T) => run(),
-    begin: telemetry.begin,
-    forceFlush: telemetry.forceFlush,
-    resumeInteraction: vi.fn(() => ({ finish: telemetry.finish })),
+    publish: (snapshot: { properties: { status: string } }, _deadline?: number) =>
+      snapshot.properties.status === "running" ? telemetry.begin(snapshot) : telemetry.finish(snapshot),
   },
   raindropEventId: (sessionId: string, turnId: string) => `${sessionId}:${turnId}`,
   raindropUserId: (sessionId: string) => `user:${sessionId}`,
@@ -55,7 +52,6 @@ describe("Raindrop durable turn hook", () => {
     telemetry.begin.mockClear();
     telemetry.finish.mockReset();
     telemetry.finish.mockResolvedValue(undefined);
-    telemetry.forceFlush.mockClear();
     telemetry.state = {};
   });
 
@@ -144,13 +140,11 @@ describe("Raindrop durable turn hook", () => {
     );
 
     expect(telemetry.begin).toHaveBeenCalledTimes(1);
-    expect(telemetry.forceFlush).toHaveBeenCalledTimes(1);
     expect(telemetry.begin).toHaveBeenCalledWith({
       convoId: "session-1",
       event: "sofie_agent_turn",
       eventId: "session-1:turn_0",
       input: "Keep this input",
-      isPending: false,
       properties: {
         agent_name: "eve-agent",
         channel: "http",
@@ -168,6 +162,7 @@ describe("Raindrop durable turn hook", () => {
     expect(telemetry.finish).toHaveBeenCalledWith({
       convoId: "session-1",
       event: "sofie_agent_turn",
+      eventId: "session-1:turn_0",
       input: "Keep this input",
       output: "Keep this output",
       properties: {

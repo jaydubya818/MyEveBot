@@ -24,7 +24,7 @@ export default defineConfig({
   outputDir: path.join(output, "artifacts"),
   use: {
     baseURL: "http://127.0.0.1:3091",
-    channel: "chrome",
+    channel: process.env.MYEVE_OWNER_BROWSER_CHANNEL ?? "chrome",
     headless: true,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",

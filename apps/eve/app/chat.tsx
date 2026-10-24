@@ -2,6 +2,7 @@
 import { ChatWorkContext } from "@/components/owner/chat-work-context";
 import { chatWorkHeaders, chatWorkOptions, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
+import { BetaChatUsage } from "@/components/owner/beta-chat-usage";
 
 import { toolPresentation } from "@/lib/tool-presentation";
 import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
@@ -50,6 +51,9 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { performCancelTurn } from "@/lib/chat-stop";
+import { deleteThreadOnServer } from "@/lib/thread-delete";
+import { useReattachNotice } from "@/lib/chat-reattach-notice";
 import { persistChatUpload, inspectChatUploads } from "@/lib/chat-file-client";
 import type { ChatFileView } from "@/lib/files-api";
 
@@ -207,6 +211,11 @@ interface SavedChat {
    * client context on the fork's first send so the agent knows the history.
    */
   forkContext?: string;
+  /**
+   * Set when a mid-turn reload reattach could not reach the session stream.
+   * The last saved reply may be incomplete; cleared on next user send.
+   */
+  reattachIncomplete?: boolean;
 }
 
 interface ThreadMeta {
@@ -333,11 +342,7 @@ function putThreadMetaToServer(meta: ThreadMeta): void {
   void saveThreadForCurrentOwner(meta.id, threadMetaBody(meta));
 }
 
-function deleteThreadOnServer(id: string): void {
-  const url = threadApiPath(id);
-  if (!url) return;
-  void fetch(url, { method: "DELETE" }).catch(() => undefined);
-}
+// deleteThreadOnServer is imported from @/lib/thread-delete
 
 async function fetchServerThreads(): Promise<ThreadMeta[] | null> {
   try {
@@ -672,13 +677,15 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (!sidebarOpen || window.matchMedia("(min-width: 768px)").matches) return;
+    const overlay = window.matchMedia("(max-width: 767px), (max-height: 499px)").matches;
+    if (!sidebarOpen || !overlay) return;
     const previous = document.activeElement as HTMLElement | null;
     const drawer = sidebarRef.current;
     const controls = () => Array.from(drawer?.querySelectorAll<HTMLElement>(
       'button:not(:disabled), input:not(:disabled), a[href], summary, [tabindex="0"]',
-    ) ?? []).filter((element) => element.getClientRects().length > 0);
-    controls()[0]?.focus();
+    ) ?? []).filter((element) => element.getClientRects().length > 0 && window.getComputedStyle(element).visibility === "visible");
+    // Wait for the drawer's visibility styles before moving focus into it.
+    const focusFrame = window.requestAnimationFrame(() => controls()[0]?.focus());
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -686,7 +693,9 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
       } else if (event.key === "Tab") {
         const items = controls();
         const first = items[0], last = items.at(-1);
-        if (event.shiftKey && document.activeElement === first) {
+        if (!drawer?.contains(document.activeElement)) {
+          event.preventDefault(); first?.focus();
+        } else if (event.shiftKey && document.activeElement === first) {
           event.preventDefault(); last?.focus();
         } else if (!event.shiftKey && document.activeElement === last) {
           event.preventDefault(); first?.focus();
@@ -695,6 +704,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     }
     document.addEventListener("keydown", onKeyDown);
     return () => {
+      window.cancelAnimationFrame(focusFrame);
       document.removeEventListener("keydown", onKeyDown);
       if (previous?.isConnected) previous.focus();
     };
@@ -703,6 +713,9 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   // text doesn't blank out during its closing animation.
   const [threadToDelete, setThreadToDelete] = useState<ThreadMeta | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const chatMountedRef = useRef(false);
+  useEffect(() => { chatMountedRef.current = true; return () => { chatMountedRef.current = false; }; }, []);
   // The active thread's chat payload; null while it loads from the server.
   // revision bumps when a fresher server copy replaces the mounted one, so
   // ChatThread (keyed on it) remounts with the new events.
@@ -1241,24 +1254,27 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   }
 
   function deleteThread(id: string) {
-    try {
-      ownerLocalStorage.removeItem(chatKey(id));
-      ownerLocalStorage.removeItem(`eve-web-draft:${id}`);
-    } catch {
-      // Ignore storage failures.
-    }
-    deleteThreadOnServer(id);
-    setIndex((prev) => {
-      const remaining = prev.threads.filter((thread) => thread.id !== id);
-      if (remaining.length === 0) {
-        const meta = newThreadMeta();
-        return { activeId: meta.id, threads: [meta] };
+    setDeleteError(null);
+    // Retain unsynced chat and drafts until the signed server confirms deletion.
+    // A late response after an owner-boundary unmount cannot touch new storage.
+    void deleteThreadOnServer(id).then((ok) => {
+      if (!chatMountedRef.current) return;
+      if (!ok) {
+        setDeleteError("Conversation could not be deleted. Your messages and draft are still here.");
+        return;
       }
-      const activeId =
-        prev.activeId === id
-          ? [...remaining].sort((a, b) => b.updatedAt - a.updatedAt)[0].id
-          : prev.activeId;
-      return { activeId, threads: remaining };
+      try {
+        ownerLocalStorage.removeItem(chatKey(id));
+        ownerLocalStorage.removeItem(`eve-web-draft:${id}`);
+      } catch { /* Server confirmation is authoritative; stale cache can be reconciled. */ }
+      setIndex((prev) => {
+        const remaining = prev.threads.filter((thread) => thread.id !== id);
+        if (remaining.length === 0) {
+          const meta = newThreadMeta();
+          return { activeId: meta.id, threads: [meta] };
+        }
+        return { activeId: prev.activeId === id ? [...remaining].sort((a, b) => b.updatedAt - a.updatedAt)[0].id : prev.activeId, threads: remaining };
+      });
     });
   }
 
@@ -1330,6 +1346,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
       <AlphaQualificationNotice />
       {sidebarOpen && (
         <div
+          data-sidebar-backdrop
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
           aria-hidden
           onClick={() => setSidebarOpen(false)}
@@ -1339,6 +1356,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
       <aside
         ref={sidebarRef}
         aria-label="Conversations"
+        data-chat-sidebar
+        data-open={sidebarOpen ? "true" : undefined}
         className={cn(
           "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
           sidebarOpen && "visible translate-x-0",
@@ -1354,7 +1373,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           >
             {AGENT_NAME}
           </button>
-          <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
+          <Button data-sidebar-close variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
           {destinationAllowed("/manage") && <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
@@ -1546,7 +1565,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
       {view === "channels" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full px-4 py-6 sm:px-6 lg:px-8"><ChannelsWorkspace pushStatus={push.status} onTogglePush={push.toggle} /></div>
         </main>
       ) : view === "email" ? (
@@ -1559,22 +1578,22 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         />
       ) : view === "results" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>
         </main>
       ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerWorkspace /></div>
         </main>
       ) : view === "knowledge" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
         </main>
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" data-sidebar-toggle onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
@@ -1586,6 +1605,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1601,6 +1621,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1616,6 +1637,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
             icon={SidebarSimpleIcon}
             className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={() => setSidebarOpen(true)}
           />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -1693,6 +1715,17 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         onTogglePush={push.toggle}
       />
 
+      {deleteError && (
+        <div role="alert" className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm rounded-xl border border-kumo-danger/30 bg-kumo-elevated p-3 text-sm shadow-lg">
+          {deleteError}
+          <button
+            className="ms-2 underline"
+            onClick={() => setDeleteError(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <Dialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <Dialog size="base" className="p-6">
           <Dialog.Title>Delete thread?</Dialog.Title>
@@ -1922,6 +1955,7 @@ function ChatThread({
   onResumed: (chat: SavedChat) => void;
 }) {
   const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
+  const externalLinksAllowed = useExternalLinksAllowed();
   const [workSelection, setWorkSelection] = useState(initialChat.workSelection);
   const workSelectionRef = useRef(workSelection);
   const [workContextLocked, setWorkContextLocked] = useState(
@@ -1984,6 +2018,9 @@ function ChatThread({
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [stopError, setStopError] = useState<string | null>(null);
+  // Shown once after a mid-turn reload where the stream was unreachable.
+  const { show: reattachNote, clear: clearReattachNote } = useReattachNotice(initialChat.reattachIncomplete);
   const uploadInProgress = useRef(false);
   const preparingSend = useRef(false);
   const [savingConversation, setSavingConversation] = useState(false);
@@ -2121,6 +2158,7 @@ function ChatThread({
     (async () => {
       const client = new Client({ host: window.location.origin, headers: conversationHeaders });
       const session = client.sessions.attach(initialChat.session!.sessionId, { streamIndex: initialChat.session!.streamIndex });
+      let streamUnavailable = false;
       try {
         const collect = (event: HandleMessageStreamEvent) => {
           collected.push(event);
@@ -2145,12 +2183,19 @@ function ChatThread({
       } catch {
         // Stream unavailable (network, pruned session): settle with what we
         // have; the attempt guard keeps this from looping.
+        streamUnavailable = true;
       }
       if (controller.signal.aborted) return;
       clearTimeout(persistTimer);
       onBusyChange(false);
       onActivity();
-      onResumed({ events: [...base, ...collected], session: session.state, ...workContext() });
+      onResumed({
+        events: [...base, ...collected],
+        session: session.state,
+        ...workContext(),
+        // Flag incomplete reattach so the UI can warn the user.
+        reattachIncomplete: streamUnavailable,
+      });
     })();
     return () => {
       controller.abort();
@@ -2339,6 +2384,7 @@ function ChatThread({
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
+    clearReattachNote();
     recognitionRef.current?.stop();
     if (staged.length > 0) {
       uploadInProgress.current = true;
@@ -2387,13 +2433,17 @@ function ChatThread({
   }
 
   async function stopTurn() {
+    setStopError(null);
     // During a reattached turn the agent store is idle; the session id from
     // the saved cursor targets the running turn instead.
     const sessionId = agent.session?.sessionId ?? initialChat.session?.sessionId;
     if (!resuming) {
-      await agent.cancel().catch(() => undefined);
+      await performCancelTurn(() => agent.cancel(), setStopError);
     } else if (sessionId) {
-      await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() }).catch(() => undefined);
+      await performCancelTurn(async () => {
+        const response = await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() });
+        if (!response.ok) throw new Error("Cancel request returned an error.");
+      }, setStopError);
     }
   }
 
@@ -2527,7 +2577,7 @@ function ChatThread({
         </div>
       )}
       <div className="mx-auto flex size-full max-w-3xl min-h-0 flex-col px-4">
-        <div className="flex shrink-0 py-2 md:hidden">
+        <div data-sidebar-toggle className="flex shrink-0 py-2 md:hidden">
           <Button
             variant="ghost"
             size="sm"
@@ -2535,11 +2585,13 @@ function ChatThread({
             icon={SidebarSimpleIcon}
             className="min-h-11 min-w-11"
             aria-label="Open threads"
+            data-sidebar-toggle
             onClick={onOpenSidebar}
           />
         </div>
 
-        {agentId && !ownerConflict && (
+        <BetaChatUsage refreshKey={`${threadId}:${isBusy}`} />
+        {agentId && !ownerConflict && externalLinksAllowed && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
             <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-default">Direct Agent conversation</span></span>
             <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-default underline hover:no-underline">View Agent</a>
@@ -2671,8 +2723,20 @@ function ChatThread({
           </MessageScroller>
         </MessageScrollerProvider>
 
+        {!ownerConflict && reattachNote && (
+          <div role="status" className="mx-4 mb-2 rounded-lg border border-kumo-warning/30 bg-kumo-warning/5 px-3 py-2 text-sm text-kumo-warning">
+            Reconnect was incomplete — this reply may be partial. Send a new message to continue.
+            <button className="ms-2 text-xs underline" onClick={clearReattachNote}>Dismiss</button>
+          </div>
+        )}
         {!ownerConflict && (
           <footer className="relative pb-4 pt-2">
+          {stopError && (
+            <p role="alert" className="mb-2 rounded-lg bg-kumo-danger/10 px-3 py-2 text-sm text-kumo-danger">
+              {stopError}
+              <button className="ms-2 text-xs underline" onClick={() => setStopError(null)}>Dismiss</button>
+            </p>
+          )}
           {paletteOpen && (
             <div
               role="listbox"
@@ -3227,8 +3291,8 @@ function ChatMessage({
                 size="xs"
                 shape="square"
                 icon={ArrowClockwiseIcon}
-                aria-label="Regenerate reply"
-                title="Regenerate (re-asks with the currently selected model)"
+                aria-label="Send again"
+                title="Send again — re-asks the last message as a new turn with the currently selected model"
                 className="text-kumo-subtle"
                 onClick={onRegenerate}
               />

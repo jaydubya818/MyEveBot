@@ -87,8 +87,8 @@
     },
     "agent/hooks/raindrop.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "45061ce938301b30054837eb6af8be0a653a452fa1935fdd1501999859b31045"
+      "reason": "Retains canonical durable turn identity, authenticated owner/conversation, original timestamp and usage-by-step deduplication. Manual full-snapshot terminal publication has one shared 5-second deadline across transport queue, abort and hook retries; safe best-effort cleanup cannot fail a user turn. Actual loopback HTTP failure/restart and privacy regressions independently reviewed. No tool, grant, execution or accounting authority added.",
+      "sha256": "86fb952b4c0efab8a99dd46e0fd946eaa1cc78d47ccbf5670aa9371ee5d822e9"
     },
     "agent/hooks/skill-telemetry.ts": {
       "classification": "INTERNAL",
@@ -317,8 +317,8 @@
     },
     "agent/lib/effect/tool-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3dc371314ab898aaf173f3a7bfac64ff6507795a57b8d28f700b0fe69abdde93"
+      "reason": "Plain-object Standard Schema adapter preserves Effect validator and JSON projection metadata/closures unchanged. Fixes Eve public tool serialization rejecting Effect callable schema objects; ai.asSchema consumer regression and real local Eve startup qualify bridge. No tool executors, input constraints, authorization or denied capabilities changed.",
+      "sha256": "7abd095c7623a3b69c0c518871f745a9b20afd08bee4b3e7466767d772b37cb8"
     },
     "agent/lib/effect/voice.ts": {
       "classification": "INTERNAL",
@@ -1907,8 +1907,8 @@
     },
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
-      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "e03fdfbc63cb627ea6d1914aa0ad756fedabc95d61d061efb002575b815bc8e2"
+      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Reviewed dormant Relay memory boundary: consume existing private provider handle once for exact relay.memory.read/write; retain only its bound read-only durable Run/Action/Agent/capability/approval revalidator and expiry/signal checks for metadata and tool calls. No grant, retry, ledger or routine activation added. Evidence: canonical resolver/selected Relay TLS/SQL 24 checks and independent review.",
+      "sha256": "1525319ff20e1084fd34067a422dbd6aea42f38bac25b8d60e72bafc4bd89d0c"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2007,8 +2007,8 @@
     },
     "lib/capability-notice.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "9dd2a3d7eb1f5d9d914014414126c6f41285f43a4836b6f2d2b262463e215f59"
     },
     "lib/capability-registry.ts": {
       "classification": "ENFORCED",
@@ -2247,8 +2247,8 @@
     },
     "lib/external-alpha/paid-paths.ts": {
       "classification": "INTERNAL",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone.",
-      "sha256": "9cc4d669507080bcf92c14b05806eeb151d62d6676432e0ff9534aef9241fcc3"
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture.",
+      "sha256": "35895337606c76bd6e75ace89407e6a4c665ab9587aab3cc1d24a5241f01548e"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
@@ -2687,8 +2687,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Signed owner/installation verification plus database credential-version and durable revocation checks; storage failures deny access. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
-      "sha256": "8e77ed0a02a41e6e082edc103e2aa9c6351fdc01c4378b32f04fa96796e5c569"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Signed owner/installation verification plus database credential-version and durable revocation checks; storage failures deny access. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "216311cfe5e4c801d2f0e2b0ccc150dfadf2c4a4df33c39b0582fc38f7d70680"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -2861,8 +2861,8 @@
     },
     "agent/instrumentation/telemetry.ts": {
       "classification": "INTERNAL",
-      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
-      "sha256": "2218f372e69946547ae511c9469a3031aca691d3e0ad81f97f6e9d0a0a3a502b"
+      "reason": "Eve remains the sole tracing provider; canonical event IDs and authenticated attribution unchanged. Test/no-key modes construct no telemetry clients/exporters and cannot probe Workshop. Existing I/O ceiling unchanged. Manual events and same-destination OTLP are separate; startup and privacy tests cover declarations.",
+      "sha256": "a15eaec4da76bea283941fa110125ed365ddd44c6ea0314df8e4b7df3e4d55fa"
     },
     "agent/tools/ask_question.ts": {
       "classification": "INTERNAL",
@@ -2972,8 +2972,8 @@
     },
     "agent/instrumentation/raindrop.ts": {
       "classification": "INTERNAL",
-      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
-      "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
+      "reason": "Declares one same-destination public OTLP exporter in Eve-owned tracing, with explicit server-controlled key/endpoint and existing content ceiling. No automatic AI events, Workshop, new destination or second provider. Public wire-byte, callback failure and deadline tests cover export.",
+      "sha256": "5d59ec9680b7bfd5ba7bdd637658ee9b7f226946524fa076ce6f8d862fab9a26"
     },
     "agent/tools/create_factory_work_order.ts": {
       "classification": "ENFORCED",
@@ -4126,8 +4126,8 @@
     },
     "lib/external-alpha/features.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed chat-only feature narrowing: owner CLOUD Work creation and engineering Work/Factory capabilities are denied for external-alpha, while existing authenticated chat and password routes remain. Default-deny traversal/method/capability coverage retained; no env flag can widen this release.",
-      "sha256": "37843498ce58cc1aab1190e26071c0d69f07b4ff414f35bbb890bf906753bd22"
+      "reason": "Reviewed chat-only feature narrowing: owner CLOUD Work creation and engineering Work/Factory capabilities are denied for external-alpha, while existing authenticated chat and password routes remain. Default-deny traversal/method/capability coverage retained; no env flag can widen this release. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
+      "sha256": "9746f05ad90886627d9f9e30d12800062792a72a50a94acf1e3985b0e9c224f8"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4156,8 +4156,8 @@
     },
     "lib/external-alpha/shared-accounting.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Reviewed 2026-10-22: replace untraced runtime pg load with static import after the actual Workflow flow bundle retained createRequire(pg) without a packaged driver. Import-only packaging correction; database queries, transactions, owner checks, shared spending admission and Relay authority are unchanged. Qualified by scripts/check-eve-pg-bundle.mjs against the fresh hosted artifact.",
-      "sha256": "74c934112e9083a2713d79d5034b7ce67f59fc6f42192e509f98c442498a6a86"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Reviewed 2026-10-22: replace untraced runtime pg load with static import after the actual Workflow flow bundle retained createRequire(pg) without a packaged driver. Import-only packaging correction; database queries, transactions, owner checks, shared spending admission and Relay authority are unchanged. Qualified by scripts/check-eve-pg-bundle.mjs against the fresh hosted artifact. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
+      "sha256": "730dd19b733ba4f46a97d3b616530281fd18ad4e4c9ceee2b44e72cb06cd992a"
     },
     "lib/external-alpha/productive-sandbox-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4206,8 +4206,8 @@
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",
-      "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate.",
-      "sha256": "f2e116e302b057d6b701adc68d8aa1c7bd9da67579ce5f7ce31c877d3e4d6e0b"
+      "reason": "Reviewed chat-only provider context: explicitly denies paid Work/Factory and unavailable tools; preserves authenticated owner/agent bindings, untrusted-data boundary, bounded context and no automatic retry. Qualified by context, model and tool-authority regressions; operator activation is separate. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites. Reviewed selective existing PR100 copy reconciliation: names Deep Agent unavailable only in existing locked chat-only instructions; keeps exact turn/spend/disabled-Work/capability honesty and context bounds. No provider or authority grant added; source instruction/feature/navigation regressions.",
+      "sha256": "5d96a998c9501560c8b482a170ef67cbfce6c54f15f960dd038a5e3970d67121"
     },
     "lib/external-alpha/conversation-readback.ts": {
       "classification": "READ_ONLY",
@@ -4534,6 +4534,67 @@
       "classification": "INTERNAL",
       "reason": "Same-origin recovery requires an installation-scoped, expiring, single-use bearer token; replay, collisions and excess attempts denied. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
       "sha256": "e01472fbe118162e024eb66c502cfe16b90aaaf31990291005848bf005c7ef96"
+    },
+    "lib/external-alpha/usage.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read-only beta accounting projection; no paid dispatch, mutation, credential export or reconciliation. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
+      "sha256": "dab3f2244686ed5c4989d0aaf5d25ba5b414ea3ee0411f0ac0d7a82aa2bd8e6b"
+    },
+    "lib/external-alpha/usage-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-authenticated read-only beta accounting projection; no paid dispatch, mutation, credential export or reconciliation. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
+      "sha256": "3bf30610e8b3f5275337d980f379cad9b4b6babada7c40ca20465c4028bc9a5b"
+    },
+    "app/api/chat-usage/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read-only beta accounting projection; no paid dispatch, mutation, credential export or reconciliation. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
+      "sha256": "5fedc463f25782aff83282211b9df858315c5fc7aa335061cadc0d20634be8aa"
+    },
+    "lib/candidate-decision-fetch.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Fetch helpers for the owner-decision beta endpoint. Checks ok before json. No direct execution authority; sends the caller-supplied payload to an existing authenticated route. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "972a6d813a85c79b19be76ff075b43260a9aad6ec7dfe0446914c727178d4ec4"
+    },
+    "lib/chat-reattach-notice.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "React hook (useReattachNotice) for a dismissible UI notice flag. No network calls, no DB, no external effects. Pure client-side state. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "a1eadf060c775cd9edda22f5e837437aae26a01e9f1f131ca87200c9613be6ee"
+    },
+    "lib/chat-stop.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility: error-surfacing helper for cancel turns. No network calls, no DB, no external effects. Wraps caller-supplied cancel function to catch and forward errors. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "f80e72b5c3d368ddd64408d5261803314cec2b14420127549fce36850aed735f"
+    },
+    "lib/error-dedup.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure utility function with no network calls, no database access, no external effects. Deduplicates UI error message strings. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "7a4cb56dcbad4b9b7b5c65da81e79798a5a83ff01c3d90b3a27706b77bb83a97"
+    },
+    "lib/thread-delete.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Thin authenticated fetch wrapper for DELETE /api/threads/:id. Swallows network errors and returns false to the caller; no direct execution authority. QA95 adoption review on #99 lineage: preserve canonical authenticated cancellation/deletion, safe thread path encoding, production exact origins, owner namespace, application passwords and disabled paid paths. Corrective DOM/browser/auth/accounting regressions qualify the merged behavior.",
+      "sha256": "9522cffa05970f4690af2ed264d4526eaeb8b91ee30a06662cf51bf4d438f5f0"
+    },
+    "lib/relay/mcp-memory.ts": {
+      "classification": "ENFORCED",
+      "disposition": "gateway",
+      "reason": "Dormant authored add/get/list operation, not registered or exposed. Canonical signed web owner/Agent -> existing ActionGateway and FederationStore; unregistered separate memory capabilities default DENY. Private one-use Action/provider handles and fresh durable/connection checks precede every real POST. HTTPS exact origin /mcp, bearer only/no owner cookie, per-Action SDK client, 3s request and 10s MCP exchange bounds, 256KiB JSON responses, exact response IDs, zero automatic method resend, error/uncertain result -> existing UNKNOWN. Both alpha installations denied before resolution/network. Independently reviewed with actual selected Relay TLS/disposable SQL and synthetic test-only authority; no production grant.",
+      "sha256": "73960f318acc28b6abee3bad68c06a5c443b38751390cacc2368c237eb5653b1"
+    },
+    "lib/deep-agent-availability.ts": {
+      "classification": "INTERNAL",
+      "reason": "Single informational label for locked beta UI/instructions; not a qualification predicate, provider binding or execution grant. UI renders only under existing server-derived external-alpha DestinationGate; outside beta availability is not inferred. Covered by gated navigation and chat-only instruction tests.",
+      "sha256": "ccbf20f18afc31f1de142e34bb89f92ec001570913a710694b5cb32bd6da561e"
+    },
+    "agent/lib/raindrop-client.ts": {
+      "classification": "INTERNAL",
+      "reason": "Observability-only public HTTP adapter to existing fixed production Raindrop destination; fixture endpoints are internal constructor inputs only. Retains local redaction categories/labels/order, trusted active trace join, canonical full snapshots and per-event ordering. Fail-closed redaction and shared 5-second publication budget with abort/no late retry covered by public-SDK synthetic wire and native loopback tests. Validated Vercel/explicit server provenance only; no Git subprocess, Workshop, provider registration or authority grant.",
+      "sha256": "cc4b1c5841880853ac9e7b966e85a0258c751f67c8af8cf6c46f7ee17df7f5ca"
+    },
+    "agent/lib/raindrop-span-exporter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Observability-only public standard OTLP exporter to existing Raindrop destination with server-held key and 10-second timeout. Retains prior scope admission/AI mappings and complete public span structure without mutation; validated Vercel/explicit provenance with explicit span identity precedence. Synthetic legacy onEnd wire-byte parity, excluded scope, real HTTP failure/deadline and provenance regressions independently reviewed. No private imports/provider registration/authority grant.",
+      "sha256": "7052bfe246c0054ef6456eb04e454c14f970481fd9b855dd7b78ba20c328bfe8"
     }
   }
 }

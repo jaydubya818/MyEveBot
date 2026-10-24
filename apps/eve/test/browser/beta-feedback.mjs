@@ -10,6 +10,8 @@ import { chromium } from 'playwright';
 const app=resolve(dirname(fileURLToPath(import.meta.url)),'../..'),require=createRequire(import.meta.url);
 const output=resolve(process.argv[2]??'output/playwright/beta-feedback');await mkdir(output,{recursive:true});
 const bundle=await build({stdin:{contents:"import React from 'react';import {createRoot} from 'react-dom/client';import {BetaFeedbackPanel} from './components/owner/beta-feedback';createRoot(document.getElementById('root')).render(<BetaFeedbackPanel/>);",resolveDir:app,loader:'tsx'},
+  // Next is hoisted, so its Link import must share the app renderer's React.
+  alias:{react:dirname(require.resolve('react/package.json')),'react-dom':dirname(require.resolve('react-dom/package.json'))},
   bundle:true,write:false,outdir:'out',format:'iife',jsx:'automatic',define:{'process.env.NODE_ENV':'"production"','process.env':'{}'},logLevel:'silent'});
 const js=bundle.outputFiles.find(file=>file.path.endsWith('.js')).text,css=bundle.outputFiles.find(file=>file.path.endsWith('.css')).text;
 const server=createServer((request,response)=>{

@@ -1,9 +1,15 @@
 /** Disposable service fixture only. No production bindings or external execution. */
 import { createServer } from 'node:http';
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
 const root = process.env.COMPOSED_RELAY_ROOT!;
-const load = (file: string) => import(pathToFileURL(root + '/' + file).href);
+if (!root) throw Error('Exact selected Relay source root required');
+// Relay's own canonical composed harness uses this public CommonJS bridge.
+// Its .ts package has no type:module; ESM namespace destructuring is not its
+// named-export contract. Keep the selected source's tsx/tsconfig and dependencies.
+const requireRelay = createRequire(resolve(root, 'package.json'));
+const load = (file: string) => requireRelay(resolve(root, file));
 const { freshDatabase, cleanupDatabase } = await load('tests/helpers.ts');
 const { createLocalEd25519Signer } = await load('lib/v2/evidence/index.ts');
 const { registerRuntimeClient } = await load('lib/v2/runtime-clients.ts');
@@ -17,6 +23,11 @@ const { db, withTransaction } = await load('lib/db.ts');
 const { capabilityLeases } = await load('lib/db/schema.ts');
 const { POST } = await load('app/api/v2/runtime/capability-leases/route.ts');
 const { POST: PREPARE } = await load('app/api/v2/runtime/capability-leases/prepare/route.ts');
+for (const fn of [freshDatabase, cleanupDatabase, createLocalEd25519Signer,
+    configureV2PlatformBindings, advanceRelayPolicyFence, flushRelayPolicyFences,
+    forwardOwnerPolicyFence, POST, PREPARE]) {
+    if (typeof fn !== 'function') throw Error('Selected Relay public fixture export contract unavailable');
+}
 process.on('SIGTERM', async () => { await cleanupDatabase(); process.exit(0); });
 try {
     const f = await freshDatabase(), signer = createLocalEd25519Signer('composed-lease');

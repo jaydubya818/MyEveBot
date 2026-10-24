@@ -18,10 +18,13 @@ import type { ProofOfWork } from "@/lib/digital-worker/contracts";
 import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
+import { ActivityCard, type ActivityChange } from "./activity-card";
+import { deduplicateApiErrors } from "@/lib/error-dedup";
 import { Responsibilities } from "./responsibilities";
 import { useDestinationAllowed } from "./destination-gate";
 import { WorkInbox } from "./work-inbox";
 import { WorkSummary } from "./work-summary";
+import { ACTIVITY_PAGE_DESCRIPTION } from "./destinations";
 import { ProductShell } from "./product-shell";
 
 type CanonicalWork = Awaited<
@@ -89,15 +92,7 @@ export function IntegratedExperience({
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
   const [canonical, setCanonical] = useState<CanonicalWork | null>(null);
-  const [activity, setActivity] = useState<
-    Array<{
-      id: string;
-      kind: string;
-      summary: string;
-      at: string;
-      work_id: string | null;
-    }>
-  >([]);
+  const [activity, setActivity] = useState<ActivityChange[] | null>(null);
   const [feedbackScope, setFeedbackScope] = useState<"WORK" | "REPOSITORY">(
     "WORK",
   );
@@ -126,6 +121,7 @@ export function IntegratedExperience({
     let authenticationLost = false;
     setLoading(true);
     setErrors([]);
+    if (["brief", "activity"].includes(view)) setActivity(null);
     const read = async <T,>(
       path: string,
       label: string,
@@ -148,7 +144,7 @@ export function IntegratedExperience({
             setFacts([]);
             setFamilies([]);
             setBrief(null);
-            setActivity([]);
+            setActivity(null);
           }
           setErrors((old) => [
             ...old,
@@ -175,14 +171,16 @@ export function IntegratedExperience({
               }),
           )
         : read<Today>("/api/beta/goals?limit=20", "Goals", setToday),
-      read<{ works: Work[]; canonical?: CanonicalWork }>(
+      // Today's WorkInbox owns its bounded, canonical Work read, just as /work
+      // does. An unused legacy list must not report a second connection failure.
+      ...(view === "today" ? [] : [read<{ works: Work[]; canonical?: CanonicalWork }>(
         `/api/beta/work${view === "work" && selectedKind === "work" && selectedId ? `?workId=${encodeURIComponent(selectedId)}` : ""}`,
         "Work",
         (d) => {
           setWorks(d.works);
           setCanonical(d.canonical ?? null);
         },
-      ),
+      )]),
       read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
         setResults(d.results),
       ),
@@ -491,15 +489,21 @@ export function IntegratedExperience({
     );
   }
   return (
-    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : "Your work, in context."}>
+    <ProductShell title={titles[view]} description={view === "today" ? "A little clarity for your day." : view === "work" ? "What Sofie is doing, and what happened." : view === "needs-you" ? "Decisions that need your judgment." : view === "activity" ? ACTIVITY_PAGE_DESCRIPTION : "Your work, in context."}>
         {loading && <p role="status">Checking your current state…</p>}
         {!!errors.length && (
           <div className="owner-notice" role="alert">
             <h2>Some information is unavailable</h2>
-            {errors.map((e) => (
-              <p key={e}>{e}</p>
+            {/* Deduplicate by the message suffix to avoid showing the same
+                API error repeated for every concurrently-failing endpoint. */}
+            {deduplicateApiErrors(errors).map((msg) => (
+              <p key={msg}>{msg}</p>
             ))}
-            <button onClick={refresh}>Try again</button>
+            <div className="owner-actions">
+              <button onClick={refresh} disabled={loading}>
+                {loading ? "Checking…" : "Try again"}
+              </button>
+            </div>
           </div>
         )}
         {notice && (
@@ -732,30 +736,7 @@ export function IntegratedExperience({
             {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["brief", "activity"].includes(view) && (
-              <Card title="Memory and learning changes">
-                {activity.length ? (
-                  <ul className="owner-list">
-                    {activity.map((change) => (
-                      <li key={change.id}>
-                        <strong>{change.kind}</strong>
-                        <p>{change.summary}</p>
-                        <p className="owner-muted">{date(change.at)}</p>
-                        <Link
-                          href={
-                            change.work_id
-                              ? `/memory?workId=${change.work_id}`
-                              : "/memory"
-                          }
-                        >
-                          Review memory and learning
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No memory or learning changes recorded.</p>
-                )}
-              </Card>
+              <ActivityCard changes={activity} />
             )}
             {(view === "brief" || view === "activity") && brief && (
               <>

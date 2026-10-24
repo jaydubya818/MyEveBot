@@ -1,7 +1,7 @@
 name: Owner UX
 on:
   push:
-    branches: [main, codex/unified-beta-myeve-20261011, codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010, claude/external-alpha-zero-gap-qe014-qe017-20261010]
+    branches: [main, codex/unified-beta-myeve-20261011, codex/myeve-owner-experience, codex/external-alpha-qe-remediation-20261009, codex/external-alpha-allowance-reconciliation-20261010, codex/external-alpha-release-blockers-20261010, codex/external-alpha-final-qe-20261010, claude/external-alpha-zero-gap-qe014-qe017-20261010, codex/beta-qa-adoption-20261023]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay
-          ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+          ref: f05a5639e2f95994778753e6021603ca5a1777fb
           path: .qualification/relay
       - name: Keep pinned fixture source outside the qualified application checkout
         run: mv .qualification/relay "$RUNNER_TEMP/external-alpha-canonical-relay"
@@ -48,7 +48,7 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
           MYRELAY_SOURCE_ROOT: ${{ runner.temp }}/external-alpha-canonical-relay
-          MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+          MYRELAY_SOURCE_SHA: f05a5639e2f95994778753e6021603ca5a1777fb
           MYEVE_OWNER_CHANNEL_TESTS: '1'
           MYEVE_OWNER_TEST_PORT: '55491'
           USER: ux_fixture

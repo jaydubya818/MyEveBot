@@ -105,9 +105,14 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
     hostInstallation: { projectId: "prj_fixtureVerifier" }, verifierProfile: { id: "alpha-tasks-node-json-v1", kind: "PRODUCT", tree }, verification: { deps: { ...(kind === "NO_CUSTODY" ? { loadHidden: async () => { throw Error("VERIFIER_CUSTODY_UNAVAILABLE"); } } : {}), sandboxApi: docker, providerOptions: async () => ({ projectId: "prj_fixtureVerifier" }) } } };
   const makeRuntime = () => m.runtime.externalAlphaRuntimeComponents(deps);
   let runtime = makeRuntime();
-  const factoryEnv = { FACTORY_EXTERNAL_ALPHA_INSTALLATION: JSON.stringify([installationConfig]), FACTORY_EXTERNAL_ALPHA_INSTALLATION_SHA256: digest([installation.sha256]), VERCEL_DEPLOYMENT_ID: "dpl_fixture" };
-  let httpReads = 0, httpPosts = 0; const faults = { tamperResult: false };
-  const fetcher: typeof fetch = async (url, init) => { if (init?.method === "GET") httpReads++; else httpPosts++; const response = await m.control.handleExternalAlpha(new Request(String(url), init), factoryEnv, { withRuntime: async (_e: any, _i: any, action: any) => action(runtime), verifyToken: async (presented: string) => { if (presented !== oidc) throw Error("FIXTURE_OIDC"); return { payload: claims }; } }); if (faults.tamperResult && String(url).endsWith("/result")) { const payload = await response.json(); if (payload.result) payload.result.signature = "A".repeat(86); return Response.json(payload, { status: response.status }); } return response; };
+  // The HTTP gate and the injected runtime must name the same real fixture
+  // installation and restricted role. Keep the actual configuration loader.
+  const capabilityBindings = [{ clientId: installation.application.clientId, ...capability.bindings[installation.application.clientId] }];
+  const capabilityRuntimeRole: string = await runtime.store.transaction(async (client: any) => (await client.query("SELECT current_user AS role")).rows[0].role);
+  const factoryEnv: Record<string, string> = { FACTORY_EXTERNAL_ALPHA_INSTALLATION: JSON.stringify([installationConfig]), FACTORY_EXTERNAL_ALPHA_INSTALLATION_SHA256: digest([installation.sha256]), VERCEL_DEPLOYMENT_ID: "dpl_fixture",
+    FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS: JSON.stringify(capabilityBindings), FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS_SHA256: digest(capabilityBindings), FACTORY_EXTERNAL_ALPHA_CAPABILITY_RUNTIME_ROLE: capabilityRuntimeRole };
+  let httpReads = 0, httpPosts = 0; const httpStatuses: number[] = []; const faults = { tamperResult: false };
+  const fetcher: typeof fetch = async (url, init) => { if (init?.method === "GET") httpReads++; else httpPosts++; const response = await m.control.handleExternalAlpha(new Request(String(url), init), factoryEnv, { withRuntime: async (_e: any, _i: any, action: any) => action(runtime), verifyToken: async (presented: string) => { if (presented !== oidc) throw Error("FIXTURE_OIDC"); return { payload: claims }; } }); httpStatuses.push(response.status); if (faults.tamperResult && String(url).endsWith("/result")) { const payload = await response.json(); if (payload.result) payload.result.signature = "A".repeat(86); return Response.json(payload, { status: response.status }); } return response; };
   const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({type:"pkcs8",format:"pem"}) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner, EVE_PROJECT_NAME: "myeve-alpha-tester-1", MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(a.policy), MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(a.policy, config) } as NodeJS.ProcessEnv;
   const client = new HttpExternalAlphaFactoryClient(config, { projectId: a.policy.projectId }, { fetcher, token: () => token, oidc: async () => oidc, env }), controller = () => new ExternalAlphaWorkController(a.svc, client, config, receiptKeys(config));
   const actions = { database: a.db, factory: client, signer: a.signer, env }, canonical = canonicalAlphaTasksWork(a.policy.repository, a.owner);
@@ -119,10 +124,38 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
   const start = () => externalAlphaFactoryAction(a.store, work.id, input, { sessionId: "fixture-owner-session", callId: randomUUID() }, actions);
   const deliver = (payload = queued.find(q => q.topic === m.delivery.externalAlphaWorkTopic)?.payload) => m.delivery.consumeExternalAlphaDelivery(factoryEnv, payload, { topicName: m.delivery.externalAlphaWorkTopic, region: "iad1", messageId: "fixture-message-1" }, false, { withRuntime: async (_e: any, _i: any, action: any) => action(runtime) });
-  return { a, central, factoryDb: { pool: factoryPool }, m, transport, config, work, paused, input, actions, client, controller, start, deliver, queued, faults, corruptSource: () => { corruptSource = true; }, restart: () => { runtime = makeRuntime(); }, runtime: () => runtime, reads: () => httpReads, posts: () => httpPosts };
+  return { a, central, factoryDb: { pool: factoryPool }, m, transport, config, factoryEnv, work, paused, input, actions, client, controller, start, deliver, queued, faults, corruptSource: () => { corruptSource = true; }, restart: () => { runtime = makeRuntime(); }, runtime: () => runtime, reads: () => httpReads, posts: () => httpPosts, statuses: () => [...httpStatuses] };
 }
 
 describe.skipIf(!enabled)("actual canonical Sofie/Factory productive journey (offline transport qualification)", () => {
+  it.each(["missing", "foreign-owner"])("%s handler capability binding denies before Factory authority or execution", async mismatch => {
+    const f = await fixture();
+    if (mismatch === "missing") {
+      delete f.factoryEnv.FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS;
+      delete f.factoryEnv.FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS_SHA256;
+    } else {
+      const bindings = JSON.parse(f.factoryEnv.FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS);
+      bindings[0].ownerId = "foreign-owner";
+      f.factoryEnv.FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS = JSON.stringify(bindings);
+      f.factoryEnv.FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS_SHA256 = digest(bindings);
+    }
+    await expect(f.start()).rejects.toThrow("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
+    expect(f.statuses()).toEqual([503]);
+    expect(f.posts()).toBe(1); expect(f.reads()).toBe(0);
+    expect((await f.a.svc.forWork(f.work.id))?.state).toBe("UNKNOWN");
+    // A revocable configuration refusal is not permanent nonadmission proof.
+    // Keep both the permanent charge and unresolved exposure; do not settle it.
+    expect((await f.a.pool.query("SELECT state, ceiling_microusd FROM external_alpha_allowance")).rows)
+      .toEqual([{ state: "UNKNOWN", ceiling_microusd: "1300000" }]);
+    expect((await f.central.pool.query("SELECT state, ceiling_microusd FROM external_alpha_cohort_admission")).rows)
+      .toEqual([{ state: "UNKNOWN", ceiling_microusd: "1300000" }]);
+    expect((await f.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows)
+      .toEqual([{ state: "UNKNOWN" }]);
+    expect(await f.a.count("external_alpha_work_terminal_settlement")).toBe(0);
+    expect((await f.factoryDb.pool.query("SELECT count(*) AS n FROM factory.intake_receipts")).rows[0].n).toBe("0");
+    expect((await f.factoryDb.pool.query("SELECT count(*) AS n FROM factory.external_alpha_work_authority")).rows[0].n).toBe("0");
+    expect(f.queued).toHaveLength(0); expect(f.transport.allocations).toBe(0); expect(f.transport.modelCalls).toBe(0);
+  }, 60000);
   it.skipIf(!privateCustodyAvailable).each(["PASS", "FAIL"] as const)("real queue/custody/protected independent %s Result survives duplicate, reconnect and restart", async verdict => {
     const f = await fixture(verdict); await Promise.all(Array.from({ length: 5 }, () => f.start()));
     expect(f.posts()).toBe(1); expect(f.queued.filter(q => q.topic === f.m.delivery.externalAlphaWorkTopic)).toHaveLength(1);
