@@ -563,3 +563,91 @@ runtime. A fresh root-owned reviewed commit/plan/preflight/separate one-attempt
 clearance, actual R8 and owned cleanup remain required; all Linux/private/paid/
 Work/production holds remain. Canonical policy and all package/graph guards,
 normal Nitro configuration and the qualified public Neon fixture stay unchanged.
+
+
+## Retained R8 stream failure and bounded diagnostic successor
+
+R8 (source `8a795c8f`, fresh UUID `8f32fe6fd3984754b5abf3f34f7860d8`)
+passed authentication, agents, initial usage HTTP 200 with zero counters, thread
+PUT and public Client import/session creation, in exact public-driver order. The
+first `response.result()` failed with ClientError; the Eve console retained a
+TypeError / `fetch failed` in route authorization. No underlying cause or known
+connection/transport-denial code is established by that retained console.
+The explicit local workflow queue already uses POST to the exact owned
+`/.well-known/workflow/v1/flow`, which is already permitted. Adding another route
+or changing an SDK is not justified by this evidence.
+
+The finalized model observation is one HTTP request / one probe, no failed or
+unexpected requests and no active handler. That is not a completed reply, replay,
+second turn or final accounting pass. R8 remains FAIL. Its root receipt is
+`c73d457f9d7757a58630dafa2672ce9a6bea04f1d5c126163c8fab2fdf16b997`.
+
+The successor adds qualification-only failure observation around the already
+projected fetch adapter. It awaits the underlying fetch so asynchronous failures
+can be recorded before rethrowing the *same* error. Diagnostics are capped at
+32 records, four noncyclic causes and 16,384 UTF-16 code units of message input per cause. They emit
+only fixed error classes/known code properties, message hashes, known owned
+origin labels and route shapes (session IDs removed), booleans for query/fragment
+presence and a fixed method. Unknown owned paths are hashed. URLs, credentials,
+headers, bodies, arbitrary error messages/codes and session IDs are never logged.
+Diagnostic failure cannot replace the original error. The HTTP allowlist, Neon
+connection/endpoint/method checks and ordinary responses remain unchanged.
+These diagnostics do not resolve the unidentified stream failure or award a pass.
+
+R8 also retained controller EPERM from `process.kill(-ownedPid, 0)` during an
+unguarded cleanup polling predicate. Its registry truthfully has nine OPEN and
+six CLOSED records. The native outer owner independently reconciled the remaining
+three groups as quiescent, stopped the owned PostgreSQL cluster, and root verified
+all recorded groups absent, four ports clear and the source checkout clean.
+Native cleanup has no errors; this does not erase the separate controller EPERM.
+No historical CLOSED record or failure is rewritten.
+
+The cleanup correction handles each liveness/signal failure per exact
+spawn-returned child, preserves the original failure as UNKNOWN and continues
+bounded cleanup of the other owned children. An unknown child receives no further
+signals, no CLOSED record and no quiescence assertion. Every child's pipes are
+destroyed and handle unreferenced in finally. EPERM is never treated as proof of
+absence; there is no process-identity relaxation, foreign-group signal, `ps`
+fallback or new authority. The original primary runtime failure stays first.
+
+Thirty new pure synthetic cases passed on the author's first run. They evaluate
+only authored diagnostic/projection and manager functions against fake fetch,
+process groups, clocks, pipes and in-memory registry/files. They create no native
+child, real signal, SQL request, server or network request and import no app, SDK,
+controller or built artifact. Previous suites are reused without rerunning.
+The same-allowlist assertion compares exact function text to the protected parent
+preimage; it does not rerun historical transport cases. No actual runtime or
+accounting pass is inferred. Existing independent finite review and exact source
+binding are required before a root-owned fresh preflight and separate one-attempt
+clearance. All eight failed roots, logs and consumed clearances remain preserved.
+Production, real-provider, paid/private financial, managed-Vercel, Linux and
+Work/Factory holds remain unchanged; neither active tester is modified.
+
+
+### V17R2 repository-shaped pure-test correction
+
+External finite review found V17-01 (P2): V17R1's new test unconditionally
+read a packet-only `BASELINE_QE_SEAMS.mjs`. The flat review copy contained that
+non-Git baseline, so its passing 30 cases did not prove the repository wildcard
+command could select and run the test. V17/R1 packets and both original 30-case
+results remain preserved as limited snapshot evidence, not publication proof.
+
+The correction adds the exact immutable parent seam as a tracked test fixture:
+`scripts/myapps-composition/fixtures/current-qe-seams-parent-8a795c8f.mjs`.
+The test now reads that path and asserts its SHA-256 before extracting the pure
+parent projection for the unchanged same-allowlist comparison. This adds no
+application, transport, SDK, dependency, authority or network-policy behavior.
+The candidate diagnostic and cleanup implementation bytes and all 30 assertions
+remain unchanged. The normal repository wildcard and existing transport checks
+remain unchanged.
+
+The selected 30-case qualification runs from a fresh repository-shaped copy
+containing only these five future-tracked paths: the new test, current seam,
+process manager, tracked parent fixture, and the canonical
+`apps/eve/test/owner-chat-only/transport.cjs`. There is no flat `BASELINE_*` file;
+the existing canonical transport fallback must resolve as in a normal checkout.
+Only extracted authored functions and fake APIs execute; no app/SDK/controller
+import, adapter installation, actual child/signal/fetch/SQL/server/PG/network or
+build occurs. Existing R1 results are not reclassified. Stream cause remains
+UNKNOWN; this is still a diagnostic successor, not a completed chat or accounting
+qualification. All eight actual failures and production holds remain unchanged.

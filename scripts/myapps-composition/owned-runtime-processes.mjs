@@ -69,15 +69,24 @@ export function createOwnedRuntimeProcesses(registry){
    assert(!live(item.child),'RUNTIME_CLIENT_DESCENDANTS_UNKNOWN');
   },
   close(){return closePromise??=(async()=>{
-   closing=true;const errors=[];
-   for(const item of children)try{if(live(item.child))signal(item.child,'SIGTERM');}catch(error){errors.push(error);}
-   for(let attempt=0;attempt<50&&children.some(item=>live(item.child));attempt++)await wait(100);
-   for(const item of children)try{if(live(item.child))signal(item.child,'SIGKILL');}catch(error){errors.push(error);}
-   for(let attempt=0;attempt<30&&children.some(item=>live(item.child)||!item.closed);attempt++)await wait(100);
+   closing=true;const errors=[],unknown=new Set();
+   // A permission/observation failure is UNKNOWN, never proof of absence.
+   // Keep its original error and continue cleaning the other owned children.
+   const uncertain=(item,error)=>{unknown.add(item);errors.push(error);};
+   const cleanupLive=item=>{
+    if(unknown.has(item))return false;
+    try{return live(item.child);}catch(error){uncertain(item,error);return false;}
+   };
+   for(const item of children)try{if(cleanupLive(item))signal(item.child,'SIGTERM');}catch(error){uncertain(item,error);}
+   for(let attempt=0;attempt<50&&children.some(item=>cleanupLive(item));attempt++)await wait(100);
+   for(const item of children)try{if(cleanupLive(item))signal(item.child,'SIGKILL');}catch(error){uncertain(item,error);}
+   for(let attempt=0;attempt<30&&children.some(item=>cleanupLive(item)||!item.closed);attempt++)await wait(100);
    const observations=[];
    for(const item of children){
     try{
-     assert(item.exited&&item.closed&&!live(item.child),'RUNTIME_PROCESS_CLEANUP_UNKNOWN:'+item.kind);
+     const groupLive=cleanupLive(item);
+     if(unknown.has(item))continue; // no CLOSED or quiescence claim for this group
+     assert(item.exited&&item.closed&&!groupLive,'RUNTIME_PROCESS_CLEANUP_UNKNOWN:'+item.kind);
      if(item.registration)closeOwnedProcess(registry,item.registration);
      observations.push({kind:item.kind,pid:item.pid,processGroupId:item.processGroupId,node:item.node,args:item.args,cwd:item.cwd,
       environmentSha256:item.envSha256,exitCode:item.exitCode,signal:item.signal,groupQuiescent:true,logSha256:hash(readFileSync(item.log))});

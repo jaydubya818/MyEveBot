@@ -86,6 +86,62 @@ export function projectCurrentQETransport(source){
  const webGuard='  if (!web.has(url.origin)) return false;';assert.equal(source.split(webGuard).length,2,'QE_PROXY_TRANSPORT_SEAM_CHANGED');
  const endpoint="const endpoint = typeof neonConfig.fetchEndpoint === 'function' ? neonConfig.fetchEndpoint(app.hostname, app.port) : neonConfig.fetchEndpoint;";
  assert.equal(source.split(endpoint).length,2,'QE_NEON_TRANSPORT_SEAM_CHANGED');
+ const fetchStart='const fetch = globalThis.fetch;\nglobalThis.fetch = async (input, init) => {';
+ const fetchEnd='  return fetch(input, init);\n};';
+ assert.equal(source.split(fetchStart).length,2,'QE_FETCH_DIAGNOSTIC_START_CHANGED');
+ assert.equal(source.split(fetchEnd).length,2,'QE_FETCH_DIAGNOSTIC_END_CHANGED');
  return source.replace(webGuard,webGuard+"\n  if (/^\\/eve\\/v1\\/(health|info|session(?:\\/[^/]+)?(?:\\/stream)?)$/.test(url.pathname)) return ['GET','HEAD','POST'].includes(method);")
-  .replace(endpoint,currentQENeonConfiguration()+'\n'+endpoint);
+  .replace(endpoint,currentQENeonConfiguration()+'\n'+endpoint)
+  .replace(fetchStart,currentQEFailureDiagnostics()+'\n'+fetchStart+'\n try {')
+  .replace(fetchEnd,'  return await fetch(input, init);\n } catch (error) {\n  recordCurrentQEFetchFailure(input,init,error);\n  throw error;\n }\n};');
+}
+
+/** Qualification-only observation. Never logs a URL, header, body, arbitrary
+ * message/code or session ID, and never replaces the original fetch error. */
+export function currentQEFailureDiagnostics(){
+ return String.raw`const currentQEDiagnosticHash=value=>require('node:crypto').createHash('sha256').update(value).digest('hex');
+let currentQEDiagnosticCount=0;
+function recordCurrentQEFetchFailure(input,init,error){
+ try {
+  if(currentQEDiagnosticCount++>=32)return;
+  const codes=new Set(['ECONNREFUSED','ECONNRESET','ENOTFOUND','ETIMEDOUT','EACCES','EPERM','ERR_INVALID_URL',
+   'UND_ERR_SOCKET','UND_ERR_CONNECT_TIMEOUT','UND_ERR_HEADERS_TIMEOUT','UND_ERR_BODY_TIMEOUT',
+   'CHAT_FIXTURE_FOREIGN_IPC_DENIED','CHAT_FIXTURE_FOREIGN_SOCKET_DENIED','CHAT_FIXTURE_FOREIGN_NODE_HTTP_DENIED',
+   'CHAT_FIXTURE_FOREIGN_HTTP_DENIED','CHAT_FIXTURE_FOREIGN_FETCH_DENIED','CHAT_FIXTURE_FOREIGN_NEON_DENIED']);
+  const classes=new Set(['Error','TypeError','RangeError','SyntaxError','AbortError','AggregateError']);
+  const own=(value,key)=>value&&typeof value==='object'?Object.getOwnPropertyDescriptor(value,key)?.value:undefined;
+  const chain=[],seen=new Set();let value=error;
+  while(value&&typeof value==='object'&&!seen.has(value)&&chain.length<4){
+   seen.add(value);
+   const name=own(value,'name')??own(Object.getPrototypeOf(value),'name'),code=own(value,'code'),message=own(value,'message');
+   chain.push({class:classes.has(name)?name:'OtherError',code:codes.has(code)?code:null,
+    messageSha256:typeof message==='string'?currentQEDiagnosticHash(message.slice(0,16384)):null,
+    messageTruncated:typeof message==='string'&&message.length>16384});
+   value=own(value,'cause');
+  }
+  const target=typeof input==='string'?input:input instanceof URL?input.href:input?.url;
+  let origin='unrecognized',route='unrecognized',pathSha256=null,hasQuery=false,hasFragment=false;
+  try {
+   const url=new URL(target);hasQuery=Boolean(url.search);hasFragment=Boolean(url.hash);
+   if(!url.username&&!url.password){
+    if(url.origin===model)origin='owned-model';else if(url.origin===eve)origin='owned-eve';
+    else if(web.has(url.origin))origin='owned-web';
+    else if(url.origin==='http://127.0.0.1:'+app.port)origin='owned-pg-endpoint';
+   }
+   if(origin!=='unrecognized'){
+    const known=new Set(['/model','/__current_qe_neon','/.well-known/workflow/v1/flow','/eve/v1/health','/eve/v1/info','/eve/v1/session']);
+    if(known.has(url.pathname))route=url.pathname;
+    else if(/^\/eve\/v1\/session\/[^/]+\/stream$/.test(url.pathname))route='/eve/v1/session/:id/stream';
+    else if(/^\/eve\/v1\/session\/[^/]+$/.test(url.pathname))route='/eve/v1/session/:id';
+    else pathSha256=currentQEDiagnosticHash(url.pathname);
+   }
+  } catch {}
+  const rawMethod=init?.method??(input instanceof Request?input.method:'GET');
+  const method=typeof rawMethod==='string'&&['GET','HEAD','POST','PUT'].includes(rawMethod.toUpperCase())?rawMethod.toUpperCase():'OTHER';
+  console.error('CURRENT_QE_FETCH_FAILURE',JSON.stringify({origin,route,pathSha256,hasQuery,hasFragment,method,chain}));
+ } catch {
+  // Diagnostics must never hide or substitute the original failure.
+  try {console.error('CURRENT_QE_FETCH_DIAGNOSTIC_UNAVAILABLE');} catch {}
+ }
+}`;
 }
