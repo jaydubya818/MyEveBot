@@ -64,7 +64,7 @@ it does not make an untrusted producer trustworthy.
    dangling/cyclic/escaping aliases and nonregular objects. The three observed
    Nitro estraverse aliases are valid only under those general checks. No fixed
    extension filter or exclusions for nondeterministic generated schedules.
-6. Bind every emitted external package to its exact installed locked source.
+6. Bind every emitted external package body to its exact installed locked source.
    Package metadata alone is insufficient. Compare every emitted regular file
    byte-for-byte with authenticated installed input, with package.json handled as
    JSON-identical serialization only. Resolve dependency aliases from the actual
@@ -77,6 +77,22 @@ it does not make an untrusted producer trustworthy.
    are insufficient. The component's declared dependency lookup does not prove
    dynamic imports or exports/main conditions: those need the actual registered
    public-runtime load witness. Never select the first metadata/version match.
+   Named metadata below a package without an intervening `node_modules` boundary
+   remains a body member of that locked container. Derive its candidate origins
+   only from the verified physical emitted container and exact canonical installed
+   member paths. Keep its own dependency/optional/peer importing context and
+   propagate containment with actual importing-parent origins. Record container
+   integrity and member provenance separately; the member has no invented child
+   lock entry or integrity. Ambiguous member origins require complete locked
+   container and member body/context equivalence, unless actual verified parent
+   resolution selects an origin. Orphan metadata, unlocked nested `node_modules`,
+   changed/native/executable/relocated files and context mismatches still fail.
+   The outer package's full emitted file comparison and all-file coverage remain
+   in force; nested metadata is not a directory exclusion or closure shortcut.
+   During complete intrinsic-body comparison, inspect type and reject aliases
+   before treating an actual canonical `node_modules` directory as a separate
+   package boundary. A regular file with that name stays in the full body;
+   a symlink or nonregular object cannot be hidden by the reserved spelling.
    Record declared dependencies omitted by the trusted tracer
    honestly; do not claim full-distribution equality or infer unobserved semantic
    reachability. Require the reviewed external bootstrap/package roots and their

@@ -28,10 +28,13 @@ function completePackageBody(root){
  const result=[];
  function walk(directory){
   for(const name of readdirSync(directory).sort()){
-   if(name==='node_modules')continue; // Separate package boundary, resolved below.
    const path=join(directory,name),stat=lstatSync(path),key=portable(relative(root,path));
    assert(!stat.isSymbolicLink(),'TRACE_EQUIVALENCE_BODY_ALIAS_UNREVIEWED');
    if(stat.isDirectory()){
+    if(name==='node_modules'){
+     assert.equal(realpathSync(path),path,'TRACE_EQUIVALENCE_BODY_ALIAS_UNREVIEWED');
+     continue; // Only an actual canonical directory is a separate package boundary.
+    }
     result.push({path:key,type:'directory',mode:stat.mode&0o7777});walk(path);
    }else{
     assert(stat.isFile(),'TRACE_EQUIVALENCE_NONREGULAR_FILE');
@@ -53,6 +56,9 @@ function assertSourceContextEquivalent(sourceRoot,lock,a,b,visited=new Set()){
  const aa=lock.packages[portable(relative(sourceRoot,a))],bb=lock.packages[portable(relative(sourceRoot,b))];
  assert(aa&&bb&&!aa.link&&!bb.link,'TRACE_EQUIVALENCE_LOCKED_ORIGINS_REQUIRED');
  assert.equal(aa.integrity,bb.integrity,'TRACE_EQUIVALENCE_INTEGRITY');
+ assertBodyAndContextEquivalent(sourceRoot,lock,a,b,visited);
+}
+function assertBodyAndContextEquivalent(sourceRoot,lock,a,b,visited){
  const before=metadata(a),after=metadata(b);
  assert.deepEqual(before,after,'TRACE_EQUIVALENCE_EFFECTIVE_PARENT_METADATA');
  assert.deepEqual(completePackageBody(a),completePackageBody(b),'TRACE_EQUIVALENCE_COMPLETE_SOURCE_BODY');
@@ -61,6 +67,15 @@ function assertSourceContextEquivalent(sourceRoot,lock,a,b,visited=new Set()){
   assert.equal(left===null,right===null,'TRACE_EQUIVALENCE_EFFECTIVE_PARENT_ABSENCE');
   if(left)assertSourceContextEquivalent(sourceRoot,lock,left,right,visited);
  }
+}
+function assertVendorContextEquivalent(sourceRoot,lock,a,b){
+ // These are members of authenticated locked containers, never invented child
+ // lock entries. Ambiguity must preserve both the entire container and the
+ // member's own effective importing context (including optional/peer names).
+ assert.equal(a.memberPath,b.memberPath,'TRACE_EQUIVALENCE_VENDOR_MEMBER_PATH');
+ const visited=new Set();
+ assertSourceContextEquivalent(sourceRoot,lock,a.lockedRoot,b.lockedRoot,visited);
+ assertBodyAndContextEquivalent(sourceRoot,lock,a.root,b.root,visited);
 }
 
 /** Resolve a package directory from its actual importing parent, without loading code.
@@ -110,7 +125,16 @@ export function verifyEmittedPackages(sourceDirectory,serverDirectory){
   roots.push({root,key:portable(relative(serverRoot,root)),metadata:value});
  }
  assert(roots.length>0,'TRACE_NO_EMITTED_PACKAGES');
- roots.sort((a,b)=>a.key.localeCompare(b.key));
+ roots.sort((a,b)=>a.key.split('/').length-b.key.split('/').length||a.key.localeCompare(b.key));
+ for(const item of roots){
+  // A named metadata file below an existing package, with no node_modules
+  // boundary, is already part of that package body. Keep its own importer
+  // context, but derive its origin only through this physical containment.
+  item.container=roots.filter(parent=>inside(parent.root,item.root)
+   &&!portable(relative(parent.root,item.root)).split('/').includes('node_modules'))
+   .sort((a,b)=>b.key.length-a.key.length)[0];
+  if(item.container)item.member=portable(relative(item.container.root,item.root));
+ }
  const outputByRoot=new Map(roots.map(item=>[item.root,item]));
  const installed=[];
  for(const [key,locked] of Object.entries(lock.packages)){
@@ -126,7 +150,13 @@ export function verifyEmittedPackages(sourceDirectory,serverDirectory){
   const files=seal.entries.filter(entry=>entry.type==='file'&&entry.path.startsWith(item.key+'/')
    &&!entry.path.slice(item.key.length+1).split('/').includes('node_modules'));
   assert(files.some(entry=>entry.path===item.key+'/package.json'),'TRACE_METADATA_REQUIRED');
-  const candidates=installed.filter(source=>{
+  const candidates=item.container?item.container.matches.map(container=>{
+   const key=container.key+'/'+item.member,root=sourcePath(sourceRoot,key);
+   const lockedRoot=container.lockedRoot??container.root,lockedKey=container.lockedKey??container.key;
+   assert.deepEqual(metadata(root),item.metadata,'TRACE_VENDORED_MEMBER_METADATA_MISMATCH');
+   return {key,root,metadata:item.metadata,locked:container.locked,lockedRoot,lockedKey,
+    memberPath:portable(relative(lockedRoot,root)),containerKey:container.key};
+  }):installed.filter(source=>{
    try{assert.deepEqual(source.metadata,item.metadata);return true;}catch{return false;}
   });
   assert(candidates.length>0,`TRACE_NO_LOCKED_METADATA_MATCH:${item.key}`);
@@ -146,7 +176,7 @@ export function verifyEmittedPackages(sourceDirectory,serverDirectory){
   for(const file of files)comparedFiles.add(file.path);
   records.push({path:item.key,name:item.metadata.name,version:item.metadata.version,
    installedEquivalenceClass:matching.map(source=>source.key).sort(),
-   integrity:matching[0].locked.integrity,files:files.map(file=>({
+   integrity:item.container?null:matching[0].locked.integrity,files:files.map(file=>({
     path:file.path.slice(item.key.length+1),sha256:file.sha256,bytes:file.bytes,mode:file.mode})),
    packageMetadataComparison:'JSON_IDENTICAL',edges:[]});
  }
@@ -158,6 +188,14 @@ export function verifyEmittedPackages(sourceDirectory,serverDirectory){
  while(changed){
   changed=false;
   for(const item of roots){
+   if(item.container)for(const origin of origins.get(item.container.root)){
+    const member=item.matches.find(source=>source.containerKey===origin);
+    assert(member,'TRACE_VENDORED_CONTAINER_ORIGIN_MISMATCH');
+    const selected=origins.get(item.root),evidence={traceContainer:item.container.key,sourceContainer:origin,
+     memberPath:item.member,sourceMember:member.key,observation:'EXACT_NON_NODE_MODULES_VENDORED_INPUT_MEMBER'};
+    incomingEdges.get(item.root).set(JSON.stringify(evidence),evidence);
+    if(!selected.has(member.key)){selected.add(member.key);changed=true;}
+   }
    for(const name of dependencyNames(item.metadata)){
     const traced=resolvePackageDirectory(serverRoot,item.root,name);if(!traced)continue;
     const dependency=outputByRoot.get(traced);assert(dependency,'TRACE_RESOLVED_UNREGISTERED_PACKAGE');
@@ -179,12 +217,21 @@ export function verifyEmittedPackages(sourceDirectory,serverDirectory){
  for(let index=0;index<roots.length;index++){
   const item=roots[index],selected=origins.get(item.root);
   const matches=selected.size?item.matches.filter(value=>selected.has(value.key)):item.matches;
-  for(const candidate of matches.slice(1))assertSourceContextEquivalent(sourceRoot,lock,matches[0].root,candidate.root);
+  for(const candidate of matches.slice(1)){
+   if(item.container)assertVendorContextEquivalent(sourceRoot,lock,matches[0],candidate);
+   else assertSourceContextEquivalent(sourceRoot,lock,matches[0].root,candidate.root);
+  }
   item.matches=matches;
   records[index].installedEquivalenceClass=matches.map(value=>value.key).sort();
   const evidence=[...incomingEdges.get(item.root).values()].sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  records[index].originBinding=evidence.length?'ACTUAL_PARENT_SELECTED_LOCKED_ORIGINS':
-   matches.length===1?'UNIQUE_LOCKED_BODY_MATCH':'COMPLETE_SOURCE_BODY_AND_EFFECTIVE_DECLARED_CONTEXT_EQUIVALENCE';
+  records[index].originBinding=item.container?(evidence.length?'LOCKED_CONTAINER_SELECTED_VENDORED_INPUT_MEMBER':
+   matches.length===1?'UNIQUE_LOCKED_CONTAINER_MEMBER_BODY_MATCH':'COMPLETE_LOCKED_CONTAINER_BODY_AND_VENDORED_CONTEXT_EQUIVALENCE'):
+   evidence.length?'ACTUAL_PARENT_SELECTED_LOCKED_ORIGINS':
+    matches.length===1?'UNIQUE_LOCKED_BODY_MATCH':'COMPLETE_SOURCE_BODY_AND_EFFECTIVE_DECLARED_CONTEXT_EQUIVALENCE';
+  if(item.container)records[index].sourceProvenance={kind:'VENDORED_METADATA_MEMBER_OF_LOCKED_PACKAGE',
+   emittedContainer:item.container.key,memberPath:item.member,installedAuthorities:matches.map(source=>({
+    member:source.key,lockedPackage:source.lockedKey,memberPath:source.memberPath,
+    integrity:source.locked.integrity,integrityScope:'LOCKED_CONTAINER_PACKAGE_NOT_SEPARATE_MEMBER'}))};
   records[index].incomingParentEvidence=evidence;
   if(matches.length>1){
    records[index].completeSourceBodySha256=digest(JSON.stringify(completePackageBody(matches[0].root)));
