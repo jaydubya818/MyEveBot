@@ -147,17 +147,6 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
   for (const key of Object.keys(process.env))
     assert.ok(!/^(?:AI_GATEWAY_|OPENAI_|ANTHROPIC_|VERCEL_|FQ_|MYEVE_QUALIFICATION_|RELAY_QUALIFICATION_|NODE_TLS_REJECT_UNAUTHORIZED)/.test(key), 'Ambient production/provider configuration forbidden');
   const origin = `https://127.0.0.1:${spec.tls.port}`;
-  let deniedTransport = 0;
-  const deny = () => { deniedTransport++; throw Error('ORDINARY_PARENT_FOREIGN_TRANSPORT'); };
-  const originalConnect = net.Socket.prototype.connect, originalFetch = globalThis.fetch;
-  const originals = [http.request, http.get, https.request, https.get];
-  net.Socket.prototype.connect = function (this: net.Socket, ...args: any[]) {
-    const first = Array.isArray(args[0]) ? args[0][0] : args[0];
-    const options = typeof first === 'object' ? first : { port: first, host: args[1] };
-    if (options.path ? !inside(join(spec.privateDirectory, 'tmp'), options.path) : options.host !== '127.0.0.1' || Number(options.port) !== pgPort) return deny();
-    return Reflect.apply(originalConnect, this, args as any);
-  } as any;
-  globalThis.fetch = deny; http.request = deny as any; http.get = deny as any; https.request = deny as any; https.get = deny as any;
   let child: ChildProcess | undefined, server: Server | undefined, closePeer: (() => Promise<void>) | undefined;
   let passed = false, peerClosed = false, childClosed = false, failure = 'ORDINARY_FIRST_FAILURE';
   let childResult: any, callbackFailure = false, resultCount = 0;
@@ -169,6 +158,18 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
     try { if (child?.connected) child.send({ type: 'parent-unexpected-failure' }, () => {}); } catch {}
     child?.kill('SIGTERM');
   }
+  let deniedTransport = 0;
+  const deny = () => { deniedTransport++; stopUnexpectedChild(); throw Error('ORDINARY_PARENT_FOREIGN_TRANSPORT'); };
+  const originalConnect = net.Socket.prototype.connect, originalFetch = globalThis.fetch;
+  const originals = [http.request, http.get, https.request, https.get];
+  net.Socket.prototype.connect = function (this: net.Socket, ...args: any[]) {
+    if (callbackFailure) return deny();
+    const first = Array.isArray(args[0]) ? args[0][0] : args[0];
+    const options = typeof first === 'object' ? first : { port: first, host: args[1] };
+    if (options.path ? !inside(join(spec.privateDirectory, 'tmp'), options.path) : options.host !== '127.0.0.1' || Number(options.port) !== pgPort) return deny();
+    return Reflect.apply(originalConnect, this, args as any);
+  } as any;
+  globalThis.fetch = deny; http.request = deny as any; http.get = deny as any; https.request = deny as any; https.get = deny as any;
   const stats = [0, 1].map(() => ({ add: 0, get: 0, list: 0, privateDenials: 0, rpcRequests: 0 }));
   const memories = new Map<string, { owner: number; content: string }>();
   const secrets = new Set([admin.href, admin.password, 'SYNTHETIC_OWNER_COOKIE_MUST_NEVER_LEAVE']);
@@ -183,6 +184,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
       import('@/app/mcp/route'), import('@/lib/agents'), import('@/lib/activity'), import('./tests/helpers'), import('@/lib/db'), import('pg'),
     ]);
     closePeer = peerDb.closeDatabasesForTests;
+    assert.equal(callbackFailure, false);
     const native = new pg.Client({ connectionString: admin.href, connectionTimeoutMillis: 5000, query_timeout: 5000 });
     await native.connect();
     try {
@@ -190,13 +192,18 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
       expect(row).toEqual({ role: 'mcp_fixture', database: 'mcp_ordinary', system_identifier: spec.postgres.systemIdentifier, address: '127.0.0.1', port: pgPort, encoding: 'UTF8' });
     } finally { await native.end(); }
     assert.equal(process.env.RELAY_TEST_DATABASE_URL, admin.href);
-    const first = await helpers.freshDatabase(), second = await helpers.secondAccount();
+    assert.equal(callbackFailure, false);
+    const first = await helpers.freshDatabase();
+    assert.equal(callbackFailure, false);
+    const second = await helpers.secondAccount();
+    assert.equal(callbackFailure, false);
     writeFileSync(join(spec.privateDirectory, 'peer-database-binding.json'), JSON.stringify({
       database: new URL(process.env.RELAY_DATABASE_URL!).pathname.slice(1), role: 'mcp_fixture', systemIdentifier: spec.postgres.systemIdentifier,
       disposition: 'RETAINED_IN_OWNED_CLUSTER_FOR_FORENSICS',
     }, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
     const accounts = [first.accountId, second];
     const agents = await Promise.all(accounts.map(accountId => createAgent(accountId, { name: 'Ordinary synthetic memory fixture', capabilities: ['memory.read', 'memory.write'] })));
+    assert.equal(callbackFailure, false);
     for (const agent of agents) secrets.add(agent.credential);
     server = createServer({ key: readFileSync(spec.tls.keyPath), cert: readFileSync(spec.tls.certificatePath) }, async (request, response) => {
       try {
@@ -246,6 +253,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
       }
     });
     server.listen(spec.tls.port, '127.0.0.1'); await once(server, 'listening');
+    assert.equal(callbackFailure, false);
     const childEnv = { PATH: process.env.PATH, HOME: process.env.HOME, USER: process.env.USER, TMPDIR: join(spec.privateDirectory, 'tmp'),
       NODE_ENV: 'test', NODE_EXTRA_CA_CERTS: spec.tls.certificatePath, MYEVE_RELAY_ORDINARY_SPEC: specPath };
     child = fork(join(spec.myEve.copy, childPath), { cwd: spec.myEve.copy, execArgv: ['--import', 'tsx'], env: childEnv, silent: true });
@@ -294,6 +302,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
       final: { myEve: finalSources.myEve.ownedCacheArtifacts, relay: finalSources.relay.ownedCacheArtifacts },
       scope: 'Declared owned scratch artifacts, excluded from committed source/dependency package binding',
     }, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
+    assert.equal(callbackFailure, false); assert.equal(deniedTransport, 0);
     passed = true; failure = '';
   } finally {
     if (child && !childClosed) {
