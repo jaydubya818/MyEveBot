@@ -152,14 +152,15 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
   let childResult: any, callbackFailure = false, resultCount = 0;
   let rejectChildWait: ((error: Error) => void) | undefined;
   const completedPrivateDenials = new Set<string>();
-  function stopUnexpectedChild() {
-    callbackFailure = true; failure = 'ORDINARY_RELAY_HANDLER_FAILED';
+  function stopUnexpectedChild(reason = 'ORDINARY_RELAY_HANDLER_FAILED') {
+    callbackFailure = true;
+    if (!failure || failure === 'ORDINARY_FIRST_FAILURE') failure = reason;
     rejectChildWait?.(Error(failure));
     try { if (child?.connected) child.send({ type: 'parent-unexpected-failure' }, () => {}); } catch {}
     child?.kill('SIGTERM');
   }
   let deniedTransport = 0;
-  const deny = () => { deniedTransport++; stopUnexpectedChild(); throw Error('ORDINARY_PARENT_FOREIGN_TRANSPORT'); };
+  const deny = () => { deniedTransport++; stopUnexpectedChild('ORDINARY_PARENT_FOREIGN_TRANSPORT'); throw Error('ORDINARY_PARENT_FOREIGN_TRANSPORT'); };
   const originalConnect = net.Socket.prototype.connect, originalFetch = globalThis.fetch;
   const originals = [http.request, http.get, https.request, https.get];
   net.Socket.prototype.connect = function (this: net.Socket, ...args: any[]) {
@@ -179,6 +180,7 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
   };
   const logPath = join(spec.privateDirectory, 'child-diagnostics.log');
   let childLog = Buffer.alloc(0);
+  const finalStagePassed = () => passed && peerClosed && childClosed && !callbackFailure && deniedTransport === 0 && failure === '';
   try {
     const [{ POST }, { createAgent }, { listActivity }, helpers, peerDb, pg] = await Promise.all([
       import('@/app/mcp/route'), import('@/lib/agents'), import('@/lib/activity'), import('./tests/helpers'), import('@/lib/db'), import('pg'),
@@ -310,12 +312,14 @@ test('ordinary MyEve resolver and SDK reach selected Relay with private-memory b
       await new Promise<void>(done => { if (child!.exitCode !== null || child!.signalCode !== null) done(); else child!.once('exit', () => done()); }); clearTimeout(timer);
     }
     if (server) { server.closeAllConnections(); await new Promise<void>(done => server!.close(() => done())); }
-    try { await closePeer?.(); peerClosed = Boolean(closePeer); } finally {
+    try { await closePeer?.(); peerClosed = Boolean(closePeer); }
+    catch (error) { stopUnexpectedChild('ORDINARY_PEER_CONNECTION_CLOSE_FAILED'); throw error; }
+    finally {
       net.Socket.prototype.connect = originalConnect; globalThis.fetch = originalFetch;
       [http.request, http.get, https.request, https.get] = originals;
       writeFileSync(logPath, redact(childLog.toString()), { mode: 0o600, flag: 'wx' });
       writeFileSync(join(spec.outputDirectory, 'ordinary-pair-receipt.json'), JSON.stringify({
-        status: passed && peerClosed && childClosed ? 'PASS_ORDINARY_REMOTE_BOUNDARY_LOCAL_UNCERTAINTY_PRESERVED' : 'FAIL_FIRST_ATTEMPT',
+        status: finalStagePassed() ? 'PASS_ORDINARY_REMOTE_BOUNDARY_LOCAL_UNCERTAINTY_PRESERVED' : 'FAIL_FIRST_ATTEMPT',
         source: spec.myEve.sha, sourceTree: spec.myEve.tree, relaySource: spec.relay.sha, sources: initialSources, failure: failure || null,
         stats, child: childResult ?? null, parentDeniedTransport: deniedTransport,
         resources: { childClosed, peerConnectionsClosed: peerClosed, databases: 'RETAINED_IN_PRIVATE_OWNED_CLUSTER_FOR_OPERATOR_STOP_AND_FORENSICS' },
