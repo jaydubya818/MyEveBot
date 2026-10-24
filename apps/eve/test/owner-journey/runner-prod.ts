@@ -4,9 +4,10 @@
 import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {runOwnedBrowserFixture} from '../../../../scripts/myapps-composition/owned-browser-fixture.mjs';
+import {materializeFixtureDependencies} from '../../../../scripts/myapps-composition/fixture-dependencies.mjs';
 import {existsSync} from 'node:fs';
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdtemp,readFile,writeFile,mkdir,copyFile,symlink} from 'node:fs/promises';
+import {mkdtemp,readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
 import {join,dirname,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {generateKeyPairSync,randomUUID} from 'node:crypto';
@@ -25,10 +26,6 @@ import {externalAlphaWorkEnabled} from '../../lib/external-alpha/work-config.ts'
 import {runExternalAlphaReconciliation} from '../../lib/external-alpha/reconciliation.ts';
 
 const root=resolve('../..');
-// Resolve the workspace's locked Next CLI, whether npm hoists it or nests it.
-const appRequire=createRequire(join(root,'apps/eve/package.json'));
-const nextPackagePath=appRequire.resolve('next/package.json');
-const nextCli=join(dirname(nextPackagePath),appRequire('next/package.json').bin.next);
 if(!/^postgresql:\/\/ux_fixture:local-only@localhost:(55491|55591)\/blocker_fixes$/.test(process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE??''))throw Error('Dedicated local fixture database required');
 const e=await Env.create();
 await runOwnedBrowserFixture(()=>e.close(),async owned=>{
@@ -45,9 +42,13 @@ for(const file of tracked){
  await mkdir(dirname(join(isolated,file)),{recursive:true});await copyFile(join(root,file),join(isolated,file));
 }
 for(const file of ['gateway.ts']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
-await symlink(join(root,'node_modules'),join(isolated,'node_modules'),'dir');
+materializeFixtureDependencies(root,isolated);
 const app=join(isolated,'apps/eve');
-await symlink(join(root,'apps/eve/node_modules'),join(app,'node_modules'),'dir');
+// Execute the same installed bytes from this fixture's physical dependency copy.
+const appRequire=createRequire(join(app,'package.json'));
+const nextPackagePath=appRequire.resolve('next/package.json');
+const nextCli=join(dirname(nextPackagePath),appRequire('next/package.json').bin.next);
+const eveCli=join(isolated,'node_modules/eve/bin/eve.js');
 const modelPath=join(app,'lib/external-alpha/model.ts');
 const model=await readFile(modelPath,'utf8');
 if(!model.includes('import { gateway } from "ai";'))throw Error('Provider seam changed; inspect before running');
@@ -148,12 +149,12 @@ await new Promise<void>((r,reject)=>{fixture.once('error',reject);fixture.listen
 const buildEnv={...env,HTTPS_PROXY:process.env.HTTPS_PROXY,HTTP_PROXY:process.env.HTTP_PROXY,NO_PROXY:'127.0.0.1,localhost',NODE_OPTIONS:'--max-old-space-size=5120 '+env.NODE_OPTIONS,NEXT_TELEMETRY_DISABLED:'1'};
 console.log('QE build eve start',new Date().toISOString());
 const eveBuildEnv={...buildEnv,NITRO_PRESET:'node-server'};delete eveBuildEnv.VERCEL;
-execFileSync(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'build'],{cwd:app,env:eveBuildEnv,stdio:'inherit'});
+execFileSync(process.execPath,[eveCli,'build'],{cwd:app,env:eveBuildEnv,stdio:'inherit'});
 if(!existsSync(join(app,'.output/server/index.mjs')))throw Error('QE: eve node-server build output missing');
 console.log('QE build next start',new Date().toISOString());
 execFileSync(process.execPath,[nextCli,'build','--webpack'],{cwd:app,env:buildEnv,stdio:'inherit'});
 console.log('QE builds done',new Date().toISOString());
-owned.child(spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'}));
+owned.child(spawn(process.execPath,[eveCli,'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'}));
 owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'}));
 console.log('Offline owner journey fixture started. Source copy:',isolated);
 });

@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-const source=readFileSync(new URL('./current-runtime-fixture.ts',import.meta.url),'utf8');
+const source=readFileSync(new URL('../../apps/eve/test/owner-journey/current-runtime-fixture.ts',import.meta.url),'utf8');
 const start=source.indexOf('export function validateCurrentModelEnvelope('),end=source.indexOf('\n}\n',start)+2;
 assert(start>=0&&end>start);
 const body=source.slice(start,end).replace('export function','function').replaceAll(':any','');

@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-const source=readFileSync(new URL('./current-runtime-fixture.ts',import.meta.url),'utf8');
+const source=readFileSync(new URL('../../apps/eve/test/owner-journey/current-runtime-fixture.ts',import.meta.url),'utf8');
 const start=source.indexOf(' async function close(){'),end=source.indexOf('\n try{\n  const cluster=',start);
 assert(start>0&&end>start);
 const body=source.slice(start,end).replaceAll(':unknown[]','').replaceAll(':any[]','');

@@ -7,6 +7,13 @@ import {pathToFileURL} from 'node:url';
 
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const timeout=()=>AbortSignal.timeout(30_000);
+// The create acknowledgement can precede the server's owner/session binding.
+// Retry only the initial read-only stream opening, never the message POST.
+const initialStreamReconnectPolicy=Object.freeze({
+ retryableErrorStatuses:Object.freeze([500]),
+ streamOpenReconnectPolicy:Object.freeze({baseDelayMs:250,maxAttempts:8,maxDelayMs:1000}),
+ streamIdleReconnectPolicy:Object.freeze({maxAttempts:0}),
+});
 
 /** Validate one actual benign turn; never treat partial text as completion. */
 export function validatePublicTurn(events,expected){
@@ -147,7 +154,7 @@ export async function observePublicRuntime(config){
  const options={host:base,redirect:'error',headers:{cookie,origin:base,'x-myeve-runtime-probe':config.marker+'-chat','x-myeve-browser-owner':config.ownerId,'x-myeve-thread-id':threadId}};
  const firstText=`Remember this runtime packaging marker: ${config.marker}. Reply in one sentence.`;
  const firstReply=`Runtime packaging marker ${config.marker}.`;
- const first=await new Client(options).sessions.create({message:firstText,signal:timeout(),streamReconnectPolicy:{reconnect:false}});
+ const first=await new Client(options).sessions.create({message:firstText,signal:timeout(),streamReconnectPolicy:initialStreamReconnectPolicy});
  const firstResult=await first.response.result();
  assert.equal(firstResult.status,'waiting','PUBLIC_FIRST_TURN_NOT_COMPLETE');
  const firstState={...first.session.state};

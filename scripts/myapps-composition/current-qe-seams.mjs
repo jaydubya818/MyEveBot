@@ -7,7 +7,7 @@ const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
  * local transport and an explicitly pinned local font to avoid a build fetch.
  * The positive Work runner, grants, profiles and assertions remain unchanged. */
 export function currentQESeams(sourceRoot,font){
- assert.equal(hash(readFileSync(join(sourceRoot,'apps/eve/test/owner-journey/runner-prod.ts'))),'bec2aca119165484fab742e1537b436a2f702dcecb820c44142c03983d18e6e4','QE_RUNNER_PROFILE_CHANGED');
+ assert.equal(hash(readFileSync(join(sourceRoot,'apps/eve/test/owner-journey/runner-prod.ts'))),'5339e0115ee7d280ba11be8be350a95de91d425a3abaa1e6115e4405cc8c4b45','QE_RUNNER_PROFILE_CHANGED');
  assert.equal(hash(readFileSync(join(sourceRoot,'apps/eve/test/owner-journey/gateway.ts'))),'cee51d550aa8b8830351dea38e13270d29150532cbfba0877f63e8bc0a8317fd','QE_GATEWAY_PROFILE_CHANGED');
  assert.equal(hash(font),'bde046ddd9f20be35b0bd56cc79eb752b967fb6661a3fe76cb067bb09f871d76','QE_FONT_BODY');
  const app='apps/eve/',modelPath=app+'lib/external-alpha/model.ts',layoutPath=app+'app/layout.tsx';

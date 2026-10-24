@@ -651,3 +651,113 @@ import, adapter installation, actual child/signal/fetch/SQL/server/PG/network or
 build occurs. Existing R1 results are not reclassified. Stream cause remains
 UNKNOWN; this is still a diagnostic successor, not a completed chat or accounting
 qualification. All eight actual failures and production holds remain unchanged.
+
+
+## Grounded R9 pending-binding correction and ordinary CI fixture recovery
+
+R9 remains FAIL, with root receipt
+`ba1b24ab99a8f140a0294cc743f7fab2c5f859028554f53f487ca5db4302d12a`.
+Its finalized model observation is one request / one probe, no failed or active
+handler; there is no completed reply/replay/second-turn/final-accounting pass.
+The controller retained EPERM and nine OPEN / eight CLOSED records; the native
+outer owner independently reconciled the remaining group, stopped PostgreSQL,
+and root verified four ports and all recorded groups absent. This does not
+rewrite a CLOSED record or erase the controller failure. All nine failed roots,
+logs and consumed clearances remain preserved.
+
+The primary error is now grounded without exposing a response body or identifier.
+The retained client HTTP500 body's `error` field hashes to the original ClientError
+message `303f27336b30bbed54e8f4a96666f95d57a551876b242984b1716c1fc35a10b3`.
+Its opaque `errorId` equals the server log's errorId on the exact canonical
+`Error: Session ownership binding is not available yet.` message (hash
+`96ad8c5107862b5d6d599d4d3698762821cfd3e790612343b4eb3fada984f34c`).
+Only equality booleans and message hashes were emitted. The pinned public
+ClientError constructor deliberately uses response JSON `error` as its message,
+explaining why directly hashing the pending literal did not match the generic
+client message. R8 contains the same canonical pending error. This new
+correlation grounds the pending owner/session-binding branch; previous records
+and their earlier uncertainty remain retained.
+
+The pending error and routeAuth frame precede both owned workflow callback
+ECONNREFUSED diagnostics in the retained R9 console order. There are no timestamps,
+so primary-versus-shutdown causality of those callback refusals remains unproven.
+No route, network policy, SQL endpoint or SDK implementation is changed on that
+hypothesis.
+
+The canonical owner guard intentionally rejects a stream whose create
+acknowledgement precedes its server-written owner/session binding. It expects
+bounded SDK stream transport retries, while the qualification driver had disabled
+reconnect and therefore allowed only one initial opening. The correction supplies
+only the initial sessions.create response stream with the public SDK's finite
+opening policy: eligible HTTP status500, eight opening attempts, 250ms initial
+backoff capped at1000ms, idle reconnect zero, and the existing30second signal.
+The pinned SDK also retries recognized stream-opening disconnects within that
+same finite read-only GET budget. It does not resubmit a create/message/resume,
+refresh an auth nonce, or dispatch a model/paid operation. The other three
+followup/replay no-reconnect policies remain exact. Canonical pending, owner and
+thread authorization checks remain unchanged;401/403 and the other excluded
+HTTP statuses are not made retry-eligible. A positive result still requires both
+complete messages, fixed session/cursors/replays, exactly two model/accounting
+operations, and zero Work/effects. Unknown failures cannot become a partial pass.
+
+Ordinary hosted CI at782 has separate retained outcomes: the tooling step ran
+475 tests with473 passing and two module-loading ENOENT failures, so it did not
+execute the twelve cases in those failed modules. Both tests incorrectly read
+an adjacent current-runtime-fixture.ts that is absent in Git. Their bootstrap
+reads now use the existing canonical tracked
+apps/eve/test/owner-journey/current-runtime-fixture.ts. Those five model-envelope
+and seven cleanup case bodies and fixture guards remain exact. The later missing
+Playwright executable followed a skipped installation step and is not a browser
+behavior result. The private step24 metadata FAIL remains unread; no original
+private campaign is retried or reclassified.
+
+Three ordinary golden fixtures and the ordinary MissionControl consumer build
+failed before their journeys at the same strict dependency alias guard. The exact
+42-byte public expression `AssertionError: REMOTION_TRACE_INPUT_ALIAS` hashes to
+`924d9cae2fa259c8946a4fb11b913b51d9a85044ae347762ab2fa830bc9b1451`;
+the bracketed58-byte form hashes to
+`b18065d4d72ff46cc34ffab36e7a69969423b0b5eadbc3de8808c37c8aa63b34`.
+Earlier prose/hash-prefix mistakes remain retained and corrected. Both ordinary
+fixture producers copied source but symlinked root and app dependencies back to
+the host checkout, contradicting the new strict physical ownership guard.
+
+The two producers now share a dependency materializer: it checks copied package
+and lock bytes, physically copies the identical installed dependency files into
+the owned fixture, uses filesystem copy-on-write where supported, and preserves
+only relative internal workspace/bin links. It rejects escaping/absolute/dangling
+links, redirected target parents, existing targets and overlapping roots. It
+verifies the copied roots and final link targets inside the fixture. It performs
+no install, SDK import, package rewrite, hardlink, executable launch or mutation
+of source dependencies. The golden runner selects the same Eve and Next CLI bytes
+from the materialized copy. The enterprise consumer producer uses the same helper;
+no broader MissionControl behavior is changed. The public QE seam's exact runner
+fingerprint is refreshed for this reviewed producer change; its preimage guard is
+retained. Canonical Nitro config/test and every graph/alias check remain unchanged.
+
+The author's first selected repository-shaped run passed45 cases:33 new cases
+(19 initial-open/unchanged owner-guard cases and14 tiny-filesystem materialization
+cases) plus the12 existing case bodies with corrected bootstraps. It copied only
+13 future-tracked inputs into repository layout, with no flat baseline files.
+It executes authored options/guard snippets, fake Client/query APIs and tiny owned
+filesystem packages. It extracts the unchanged Nitro guard function, reproduces
+the old alias rejection and passes that same guard on the physical copy; synthetic
+package bodies are resolved but never loaded. No actual app, SDK, configuration
+module, controller or built artifact is evaluated; no child/signal/PG/network/build
+runs. This is selected source/synthetic evidence, not actual SDK retry, build,
+browser, full wildcard, runtime or accounting qualification. Counts overlap prior
+selected cases and are not additive.
+
+The static whole-wildcard inventory distinguishes prerequisites rather than
+calling the complete ordinary tooling command dependency-free: it imports the
+existing pinned yaml parser, reads historical Git objects and pinned Factory
+sources, can add Git objects via merge-tree in an owned fixture checkout, and
+materialize.test creates an owned temporary Git repository and invokes the
+pure authored composition CLI there. Other filesystem mutations are synthetic
+temporary fixtures and transport/process tests use fake APIs. Root alone may run
+the complete unchanged wildcard once after exact source closure with those
+ordinary tooling prerequisites; the author has not run it. No cases or wildcard
+selection are skipped, no dependency is added, and no app/SDK/PG/provider runtime
+is thereby authorized. A fresh exact review/commit/plan/preflight and separate
+one-attempt clearance are still required for actual current-SDK qualification.
+All production, tester, private/paid, real-provider, managed-Vercel, Linux and
+Work/Factory holds remain until their own required proof is complete.
