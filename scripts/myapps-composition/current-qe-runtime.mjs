@@ -9,6 +9,7 @@ import {dirname,join,relative,sep} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {prepareCurrentBuild,buildPreparedCurrent} from './current-build-producer.mjs';
 import {verifyBuildInputs} from './build-input-inventory.mjs';
+import {observeFailureModelCounts} from './current-runtime-failure.mjs';
 import {verifyRuntimeOutput} from './runtime-output-seal.mjs';
 import {createBenignModelProbe} from './benign-model-probe.mjs';
 import {createOwnedRuntimeProcesses} from './owned-runtime-processes.mjs';
@@ -29,7 +30,7 @@ function approvedFiles(build){
   }
  return [...files.values()].sort((a,b)=>a.path.localeCompare(b.path));
 }
-function moduleObservations(path,approved){
+function moduleObservations(path,approved,build){
  const bytes=readFileSync(path);assert(bytes.length>0&&bytes.length<=16*1024**2,'RUNTIME_MODULE_WITNESS_REQUIRED');
  const rows=bytes.toString().trimEnd().split('\n').map(line=>JSON.parse(line));
  const map=new Map(approved.map(row=>[row.path,row]));
@@ -39,7 +40,14 @@ function moduleObservations(path,approved){
   assert.equal(row.sha256,selected.sha256);assert.equal(row.mode,selected.mode);
   assert(['RETURNED_SOURCE_BYTES_VERIFIED','FILE_AND_RESOLUTION_ONLY'].includes(row.observation));
  }
- return {sha256:hash(bytes),loads,httpRequests:rows.filter(row=>row.kind==='http-request'),listeners:rows.filter(row=>row.kind==='listener'),resolutions:rows.filter(row=>row.kind==='resolution')};
+ const derived=new Map(build.derivedInputs.entries.filter(row=>row.type==='file').map(row=>[join(build.copiedRoot,row.path),row]));
+ const buildDerivedInputLoads=loads.filter(row=>derived.has(fileURLToPath(row.url))).map(row=>{
+  const absolute=fileURLToPath(row.url),entry=derived.get(absolute);
+  assert.equal(row.sha256,entry.sha256,'RUNTIME_DERIVED_INPUT_CHANGED');assert.equal(row.mode,entry.mode,'RUNTIME_DERIVED_INPUT_MODE_CHANGED');
+  return {path:relative(build.copiedRoot,absolute),sha256:row.sha256,mode:row.mode,observation:row.observation,
+   provenance:'OWNED_BUILD_DERIVED_NOT_AUTHENTICATED_PUBLISHED_PACKAGE',transitionSha256:build.derivedInputs.sha256};
+ });
+ return {sha256:hash(bytes),loads,buildDerivedInputLoads,httpRequests:rows.filter(row=>row.kind==='http-request'),listeners:rows.filter(row=>row.kind==='listener'),resolutions:rows.filter(row=>row.kind==='resolution')};
 }
 
 export async function runCurrentQEProof(spec){
@@ -68,7 +76,7 @@ export async function runCurrentQEProof(spec){
  verifyBuildInputs(copy,prepared.inputs);
  let fixture,modelServer,build,processOwner,firstFailure,proof,processes,cleanup,modelFailure;
  const marker='CURRENT_RUNTIME_'+randomBytes(16).toString('hex'),model=createBenignModelProbe(marker);
- let httpRequests=0,failedRequests=0,unexpectedPaths=0,modelActive=0;
+ let httpRequests=0,failedRequests=0,unexpectedPaths=0,modelActive=0,modelServerClosed=false;
  try{
   const {operatorPreflightSha256,...native}=spec.native;fixture=await fixtureModule.createCurrentRuntimeFixture(native);
   await fixture.assertOnlyOwnedDatabases();
@@ -139,7 +147,7 @@ export async function runCurrentQEProof(spec){
   try{processes=await processOwner.close();}finally{processOwner=undefined;}
   const witnesses=specs.map(item=>{
    assert.equal(hash(readFileSync(item.file)),item.sha256,'RUNTIME_LAUNCH_SPEC_CHANGED');
-   return {kind:item.kind,launchSpecSha256:item.sha256,...moduleObservations(item.moduleLog,approved)};
+   return {kind:item.kind,launchSpecSha256:item.sha256,...moduleObservations(item.moduleLog,approved,build)};
   });
   const required={eve:[eveEntry,join(app,'.output/server/_libs/eve.mjs')],next:[next],client:[realpathSync(require.resolve('eve/client'))]};
   for(const [kind,paths] of Object.entries(required))for(const path of paths)
@@ -155,7 +163,7 @@ export async function runCurrentQEProof(spec){
  }catch(error){firstFailure=error;}
  const failures=[];
  if(processOwner)try{processes=await processOwner.close();}catch(error){failures.push(error);}
- if(modelServer)try{await new Promise((resolve,reject)=>{modelServer.close(error=>error?reject(error):resolve());modelServer.closeAllConnections();});}catch(error){failures.push(error);}
+ if(modelServer)try{await new Promise((resolve,reject)=>{modelServer.close(error=>error?reject(error):resolve());modelServer.closeAllConnections();});modelServerClosed=true;}catch(error){failures.push(error);}
  // Close and await all model handlers BEFORE taking final counters/SQL evidence.
  // A late request/error during process shutdown must invalidate the earlier join.
  if(modelServer)try{
@@ -175,9 +183,18 @@ export async function runCurrentQEProof(spec){
  if(proof&&!firstFailure)try{assertFinalModelObservation(proof.modelProof,{...model.snapshot(),httpRequests,failedRequests,unexpectedPaths},modelFailure);}catch(error){failures.push(error);}
  if(firstFailure||failures.length){
   // Private first error retained. Public result exposes no database credential.
-  json(join(privateRoot,'failure.json'),{status:'FAIL_FIRST_ATTEMPT_PRESERVED',firstFailure:firstFailure?{name:firstFailure.name,message:firstFailure.message,stack:firstFailure.stack}:null,
-   cleanupFailures:failures.map(error=>({name:error.name,message:error.message,stack:error.stack}))});
-  throw new AggregateError([...(firstFailure?[firstFailure]:[]),...failures],'Current QE proof failed; inspect private first failure; do not retry');
+  let modelObservation;
+  try{modelObservation=observeFailureModelCounts({created:!!modelServer,closed:modelServerClosed,active:modelActive,httpRequests,failedRequests,unexpectedPaths,probe:model.snapshot(),failure:modelFailure});}
+  catch(error){failures.push(error);modelObservation={status:'FAILURE_MODEL_COUNTS_UNAVAILABLE_CAPTURE_FAILED',finalized:false};}
+  const attemptErrors=[...(firstFailure?[firstFailure]:[]),...failures];
+  try{
+   json(join(privateRoot,'failure.json'),{status:'FAIL_FIRST_ATTEMPT_PRESERVED',firstFailure:firstFailure?{name:firstFailure.name,message:firstFailure.message,stack:firstFailure.stack}:null,
+    modelObservation,
+    cleanupFailures:failures.map(error=>({name:error.name,message:error.message,stack:error.stack}))});
+  }catch(error){
+   throw new AggregateError([...attemptErrors,error],'Current QE proof failed and private failure evidence could not be written; do not retry');
+  }
+  throw new AggregateError(attemptErrors,'Current QE proof failed; inspect private first failure; do not retry');
  }
  assert(proof&&cleanup,'CURRENT_PROOF_OR_CLEANUP_MISSING');
  proof.databaseCleanup=cleanup;json(join(spec.workRoot,'evidence/current-qe-functional-proof.json'),proof);

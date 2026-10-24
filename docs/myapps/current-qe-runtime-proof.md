@@ -207,7 +207,55 @@ checks do not establish runtime success. Exact complete source/operator review,
 commit binding, fresh root clearance, ordinary execution and hosted qualification
 are still required before final current packaging acceptance.
 
-## V5 full-review corrections — working successor, no execution
+## First isolated attempt and bounded generated-input correction
+
+The first independently cleared Darwin attempt at4983615f failed after the public
+Eve build, before Next, at `INPUT_TREE_CHANGED`. It remains a failure, with root
+confirming owned PostgreSQL stopped, five groups closed, four ports clear and
+source unchanged. The retained assertion showed236 added SDK-generated cache and
+metadata entries (232 files, four directories,198854419 bytes). Complete before
+vectors were not separately retained, so a truncated diff does not independently
+prove every original input unchanged. The model server existed before the build,
+but its failed-attempt counters were NOT_RETAINED; do not infer zero calls.
+
+The successor keeps `build-input-inventory.mjs` and its default full strict
+verifier byte-identical. A separate current-profile transition validator requires
+fresh absent Eve/Nitro derived namespaces, then compares EVERY original entry
+unchanged after the owned public Eve build. Only exact private directory
+scaffolding, forty-hex-named `.mjs` files under
+`apps/eve/node_modules/.cache/eve/authored-modules`, and the single Nitro
+`last-build.json` are admitted as additions. Reject native files, aliases,
+undeclared siblings, altered original bytes/modes, deletions and preseeded
+namespaces. Metadata must have only a bounded `outputDir` resolving to a
+canonical fresh in-app `.eve/builds/<generation>/output` directory. Bound the
+transition to the successful owned node/Eve command and its log digest.
+
+All generated JavaScript/data bytes, modes and paths stay in the FULL updated
+input inventory and the derivation record. Subsequent Next/runtime/closure checks
+require that whole inventory unchanged. Default strict verification never gains
+a cache exclusion. Observed generated module loads carry a separate build-derived
+label and transition hash; neither published-package origin nor returned-source
+verification is invented. Eve source fallback remains denied.
+
+Persist complete private initial/post-Eve/post-Next records (128MiB maximum,
+mode0600, exclusive creation), plus bounded structured difference samples. A
+failed build may obtain a read-only diagnostic snapshot; strict capture failure
+is explicit unavailability. Diagnostic failures preserve the first command error.
+Failed-attempt model counters come from live observed variables after close and
+handler drain. Uncreated servers report unavailable counters; incomplete cleanup
+reports a nonfinal snapshot. Counter-recording failure cannot replace the first
+attempt error. Terminal private-failure serialization or write errors are appended
+after the captured attempt/cleanup errors in the thrown AggregateError; neither
+an existing evidence path nor an I/O failure may replace the original failure.
+Error digests contain no raw model text or environment values.
+
+This is source/synthetic correction only. Preserve all r1 evidence and exclusive
+roots. No r1 install, artifact/helper qualification, build or PG retry is allowed;
+any r2 requires exact successor review/commit, a new UUID, fresh plan/preflight
+and separate root clearance. All previous financial/private/Work/tester/installed
+and production holds remain unchanged.
+
+## V5 full-review corrections — historical source preparation
 
 Both complete V5 reviews remain REQUEST_CHANGES. External review identified seven
 P2s; the independent own review corroborated late PG errors, late model state and

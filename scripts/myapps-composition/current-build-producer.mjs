@@ -8,6 +8,7 @@ import {captureBuildInputs,verifyBuildInputs} from './build-input-inventory.mjs'
 import {sealRuntimeOutput} from './runtime-output-seal.mjs';
 import {verifyEmittedPackages} from './verify-emitted-packages.mjs';
 import {registerOwnedProcess,closeOwnedProcess} from './owned-process-registry.mjs';
+import {assertEveDerivedInputsAbsent,retainFailedBuildInputSnapshot,summarizeInputDifference,validateEveDerivedInputTransition,writePrivateInputInventory} from './eve-derived-inputs.mjs';
 
 const LOCK='debed795a8e948e1829e15097e32b90c73f779747d11d986159eb6879a9ca892';
 const AGENT='ad1d1ca8159bff6b0815ba3495b63a960250e27a727652f24914f9b22f4a1bd5';
@@ -264,10 +265,11 @@ export async function prepareCurrentBuild(spec){
   .map(key=>key.split('node_modules')[0]+'node_modules'))].filter(path=>existsSync(join(copy,path))).sort();
  const roots=rawRoots.filter(path=>!rawRoots.some(parent=>parent!==path&&path.startsWith(parent+'/')));
  const inputs=captureBuildInputs(copy,authored,roots);
+ const initialInputRecord=writePrivateInputInventory(join(evidence,'initial-inputs-private.json'),inputs);
  for(const path of ['.output','.eve','.next','.nitro'])assert(!existsSync(join(app,path)),'BUILD_STALE_OUTPUT_REJECTED');
  const prepared={status:'FRESH_INPUTS_PREPARED_NOT_BUILT',copiedRoot:copy,sourceCommit:spec.sourceCommit,sourceTree,
   workRoot,toolchain:spec.toolchain,inputs,sdkArchiveSha256};
- preparedBuilds.set(prepared,{spec,sourceTree,copy,app,evidence,commands,installEnv,inputs,seams,sdkArchiveSha256,registry});
+ preparedBuilds.set(prepared,{spec,sourceTree,copy,app,evidence,commands,installEnv,inputs,seams,sdkArchiveSha256,registry,initialInputRecord});
  return Object.freeze(prepared);
 }
 
@@ -276,8 +278,10 @@ export async function prepareCurrentBuild(spec){
 export async function buildPreparedCurrent(prepared,buildEnvironment){
  const state=preparedBuilds.get(prepared);assert(state,'BUILD_UNKNOWN_PREPARED_INPUT');
  preparedBuilds.delete(prepared); // One build attempt, never reuse a failed output.
- const {spec,sourceTree,copy,app,evidence,commands,installEnv,inputs,seams,sdkArchiveSha256,registry}=state;
+ const {spec,sourceTree,copy,app,evidence,commands,installEnv,seams,sdkArchiveSha256,registry,initialInputRecord}=state;
+ let inputs=state.inputs;
  verifyBuildInputs(copy,inputs);
+ assertEveDerivedInputsAbsent(inputs);
  const environmentPolicy=validateBuildEnvironment(buildEnvironment,app);
  for(const path of ['.output','.eve','.next','.nitro'])assert(!existsSync(join(app,path)),'BUILD_STALE_OUTPUT_REJECTED');
  const buildEnv={...buildEnvironment,PATH:installEnv.PATH,HOME:installEnv.HOME,TMPDIR:installEnv.TMPDIR,NITRO_PRESET:'node-server'};
@@ -285,15 +289,33 @@ export async function buildPreparedCurrent(prepared,buildEnvironment){
  // Exact build environment/key/value policy and transport confinement MUST be
  // supplied by the independently reviewed concrete operator, never inherited.
  const eve=join(copy,'node_modules/eve/bin/eve.js');
- commands.push(await observedCommand(spec.toolchain.node.path,[eve,'build'],
-  {cwd:app,env:buildEnv,registry,log:join(evidence,'eve-build-private.log'),timeoutMs:10*60_000}));
- verifyBuildInputs(copy,inputs);
+ async function ownedBuild(binary,args,name,env){
+  try{return await observedCommand(binary,args,{cwd:app,env,registry,log:join(evidence,name+'-build-private.log'),timeoutMs:10*60_000});}
+  catch(first){
+   try{retainFailedBuildInputSnapshot(copy,inputs,join(evidence,'failed-'+name));}
+   catch(diagnostic){throw new AggregateError([first,diagnostic],'Build failed and input diagnostics could not be retained');}
+   throw first;
+  }
+ }
+ const eveCommand=await ownedBuild(spec.toolchain.node.path,[eve,'build'],'eve',buildEnv);
+ commands.push(eveCommand);
+ // Capture ALL installed/authored/native bytes again. Admit only the exact
+ // fresh SDK-derived additions; every original entry remains unchanged.
+ const afterEve=captureBuildInputs(copy,inputs.authoredFiles,inputs.installRoots);
+ const afterEveInputRecord=writePrivateInputInventory(join(evidence,'post-eve-inputs-private.json'),afterEve);
+ const inputDifference=summarizeInputDifference(inputs,afterEve);
+ writeFileSync(join(evidence,'eve-input-difference-private.json'),JSON.stringify(inputDifference)+'\n',{flag:'wx',mode:0o600});
+ const derivedInputs=validateEveDerivedInputTransition(copy,inputs,afterEve,eveCommand,spec.toolchain.node.path);
+ writeFileSync(join(evidence,'eve-derived-inputs-private.json'),JSON.stringify(derivedInputs)+'\n',{flag:'wx',mode:0o600});
+ inputs=afterEve;verifyBuildInputs(copy,inputs);
  const appRequire=createRequire(join(app,'package.json')),nextPackage=appRequire.resolve('next/package.json');
  const next=JSON.parse(bytes(nextPackage));assert.equal(next.version,'16.4.3','BUILD_UNKNOWN_NEXT_PROFILE');
  const nextCli=join(dirname(nextPackage),next.bin.next);
  assert(realpathSync(nextCli).startsWith(copy+sep),'BUILD_NEXT_CLI_ESCAPE');
- commands.push(await observedCommand(spec.toolchain.node.path,[nextCli,'build','--webpack'],
-  {cwd:app,env:{...buildEnv,NEXT_TELEMETRY_DISABLED:'1'},registry,log:join(evidence,'next-build-private.log'),timeoutMs:10*60_000}));
+ commands.push(await ownedBuild(spec.toolchain.node.path,[nextCli,'build','--webpack'],'next',{...buildEnv,NEXT_TELEMETRY_DISABLED:'1'}));
+ const afterNext=captureBuildInputs(copy,inputs.authoredFiles,inputs.installRoots);
+ const afterNextInputRecord=writePrivateInputInventory(join(evidence,'post-next-inputs-private.json'),afterNext);
+ writeFileSync(join(evidence,'next-input-difference-private.json'),JSON.stringify(summarizeInputDifference(inputs,afterNext))+'\n',{flag:'wx',mode:0o600});
  verifyBuildInputs(copy,inputs);
  const output=sealRuntimeOutput(join(app,'.output/server'));
  const nextOutput=sealRuntimeOutput(join(app,'.next'));
@@ -302,7 +324,8 @@ export async function buildPreparedCurrent(prepared,buildEnvironment){
  const external=verifyEmittedPackages(copy,join(app,'.output/server'));
  return {status:'CURRENT_BUILD_OBSERVED_NOT_RUNTIME_QUALIFIED',sourceCommit:spec.sourceCommit,sourceTree,
   copiedRoot:copy,sourceLockSha256:LOCK,authoredAgentSha256:AGENT,sdk:SDK,sdkArchiveSha256,
-  toolchain:spec.toolchain,seams,commands,environmentPolicy,inputs,output,nextOutput,external,
+  toolchain:spec.toolchain,seams,commands,environmentPolicy,inputs,derivedInputs,
+  inputRecords:{initial:initialInputRecord,afterEve:afterEveInputRecord,afterNext:afterNextInputRecord},output,nextOutput,external,
   limitations:['Source-only draft requires complete exact operator/source review before invocation',
    'Concrete environment/native/network/resource ownership policy required',
    'Required external/bundled closure and exact launched public functional/database/accounting witnesses still required']};
