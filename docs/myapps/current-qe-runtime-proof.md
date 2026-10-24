@@ -372,3 +372,39 @@ x64 concrete plan and at-run qualification remain separate required work; source
 portability and Darwin evidence cannot substitute for that result. Exact corrected
 source/operator review, commit binding and fresh root one-attempt clearance remain
 required before execution.
+
+
+## Preserve Remotion's declared context with public build configuration
+
+The pinned Eve 0.66.3 build loads the ordinary app-root `nitro.config.mjs`.
+Nitro's pinned c12/defu merge preserves public `traceOpts.hooks` alongside Eve's
+`traceOpts.nft.paths`. Nitro forwards the hooks to nf3 0.3.24. The canonical app
+configuration adds one absolute entry through public `traceStart`: semver resolved
+from Studio's installed package context. NFT itself follows that entry's real
+transitive imports, including lru-cache and yallist. No SDK patch, private builder
+call, manual package transplantation, or finished-artifact repair occurs.
+
+The fourth fresh proof attempt found Studio 4.0.499 declaring semver 7.5.3 but
+resolving emitted root semver 7.8.5. An absolute entry alone has no Studio parent.
+The public `tracedFiles` hook therefore adds one explicitly declared Studio
+package-metadata relationship in nf3's processed packaging graph before output.
+This is not an observed import; original NFT reasons remain untouched. Under the
+pinned multi-version writer's ordering, the single added Studio parent preserves
+existing root semver 7.8.5 and gives Studio its own 7.5.3 alias. The real tracer
+retains the semver 7.5.3 → lru-cache 6.0.0 → yallist 4.0.0 chain normally.
+
+The narrow correction checks exact pinned metadata, canonical installed paths,
+entry resolution, expected processed contexts, and hook order. Unexpected versions,
+new transitive declarations, aliases, missing chain results or other new parents
+fail closed and require another review. No SDK routing, plugins, environment,
+credentials, policy, accounting or existing trace options are replaced. This
+explicit compatibility boundary must be revisited with dependency updates.
+
+Synthetic tests establish hook behavior and the pinned writer's ordering inputs;
+they do not execute Nitro/nf3 or qualify an artifact. A fresh public build must
+independently pass the unchanged full emitted-file/parent-context verifier,
+complete seals and public functional proof. All four prior attempts stay FAIL.
+The historical tokenizer guard and positive Work holds remain unchanged. Public
+surfaces are [Nitro trace options](https://nitro.build/config#traceopts) and
+[nf3 hooks](https://github.com/unjs/nf3#hooks); installed pinned source/types define
+the actual compatibility boundary and merge semantics.
