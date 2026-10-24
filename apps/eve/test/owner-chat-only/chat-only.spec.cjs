@@ -26,7 +26,9 @@ async function login(page, slot) {
 }
 async function usage(context, slot) {
   const response = await context.request.get(slot.base + '/api/chat-usage'); expect(response.status()).toBe(200);
-  expect(response.headers()['cache-control']).toBe('private, no-store'); expect(response.headers().vary).toBe('Cookie');
+  expect(response.headers()['cache-control']).toBe('private, no-store');
+  const vary = (response.headers().vary ?? '').split(',').map(value => value.trim().toLowerCase());
+  expect(vary).toContain('cookie');
   const value = await response.json();
   expect(value.limits).toEqual({ dailyTurns: 10, perTurnMicrousd: 100000, dailyMicrousd: 1000000,
     trialMicrousd: 5000000, sharedDailyMicrousd: 2000000, sharedTrialMicrousd: 10000000 });
