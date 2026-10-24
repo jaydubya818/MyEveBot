@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {hashOrderedTranscript} from './transcript-value-hash.mjs';
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const limits={dailyTurns:10,perTurnMicrousd:100000,dailyMicrousd:1000000,trialMicrousd:5000000,sharedDailyMicrousd:2000000,sharedTrialMicrousd:10000000};
 const count=(rows,n,name)=>{assert(Array.isArray(rows),name+'_ROWS_REQUIRED');assert.equal(rows.length,n,name+'_COUNT');};
@@ -26,7 +27,7 @@ export function validateCurrentRuntimeAccounting(publicProof,db,model){
  count(db.threads,1,'THREAD');const thread=db.threads[0];
  assert.equal(thread.id,publicProof.threadId);assert.equal(thread.owner_id,publicProof.ownerId);assert.equal(thread.agent_id,publicProof.agentId);
  assert.deepEqual(thread.chat.session,publicProof.finalState,'DURABLE_SESSION_STATE');
- assert.equal(digest(thread.chat.events),publicProof.finalReplay.orderedTranscriptSha256,'DURABLE_REPLAY_BODY');
+ assert.equal(hashOrderedTranscript(thread.chat.events),publicProof.finalReplay.orderedTranscriptSha256,'DURABLE_REPLAY_BODY');
  count(db.credentials,1,'CREDENTIAL');assert.deepEqual(db.credentials[0],{ownerId:publicProof.ownerId,version:0,hashed:true});
  for(const usage of [publicProof.usage,db.usage]){
   assert.equal(usage.version,1);assert.equal(usage.state,'active');assert.equal(usage.localPaused,false);

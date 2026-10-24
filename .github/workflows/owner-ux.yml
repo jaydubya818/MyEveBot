@@ -134,6 +134,7 @@ jobs:
         working-directory: apps/eve
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+          MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS: ${{ (matrix.journey == 'golden' || matrix.journey == 'e3') && '1' || '' }}
         run: |
           node --import tsx test/owner-journey/runner-prod.ts > /tmp/owner-journey-server.log 2>&1 &
           for attempt in $(seq 1 600); do grep -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log && break; sleep 2; done

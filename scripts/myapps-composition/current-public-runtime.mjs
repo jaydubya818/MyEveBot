@@ -4,6 +4,7 @@ import {realpathSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {join,relative,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {hashOrderedTranscript} from './transcript-value-hash.mjs';
 
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const timeout=()=>AbortSignal.timeout(30_000);
@@ -57,7 +58,7 @@ export function validatePublicReplay(actual,expected,cursor){
   ids.add(event.meta.id);
  }
  assert.deepEqual(actual,expected,'PUBLIC_REPLAY_TRANSCRIPT_CHANGED');
- return {cursor,events:actual.length,orderedTranscriptSha256:hash(actual)};
+ return {cursor,events:actual.length,orderedTranscriptSha256:hashOrderedTranscript(actual)};
 }
 
 /** SDK 0.66.3's selected public agent workflow identity, bound to the

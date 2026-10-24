@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {validateCurrentRuntimeAccounting} from './current-runtime-accounting.mjs';
+import {hashOrderedTranscript} from './transcript-value-hash.mjs';
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 function fixture(){
  const usage={version:1,state:'active',dayIndex:0,localPaused:false,dailyTurnsUsed:2,quotaRemaining:8,dailyReservedMicrousd:200000,trialReservedMicrousd:200000,
@@ -11,7 +12,7 @@ function fixture(){
  const events=[{meta:{id:'event1'},type:'message.completed',data:{message:'first'}},{meta:{id:'event2'},type:'message.completed',data:{message:'second'}}];
  const publicProof={status:'PUBLIC_BEHAVIOR_OBSERVED_BINDING_REQUIRED',ownerId:'owner-a',agentId:'agent-a',threadId:'thread-a',sessionId:'session-a',
   authoredMessages:2,authoredClientInvocations:2,first:{turnId:'turn-a',replySha256:digest('first')},second:{turnId:'turn-b',replySha256:digest('second')},
-  finalState:{sessionId:'session-a',streamIndex:2},finalReplay:{orderedTranscriptSha256:digest(events)},usage:structuredClone(usage)};
+  finalState:{sessionId:'session-a',streamIndex:2},finalReplay:{orderedTranscriptSha256:hashOrderedTranscript(events)},usage:structuredClone(usage)};
  const db={ownerId:'owner-a',projectId:'prj_synthetic',asynchronousErrors:0,usage,
   agents:[{id:'agent-a',owner_id:'owner-a',is_primary:true}],
   runs:['a','b'].map(x=>({id:'agent_run_session-a_turn-'+x,owner_id:'owner-a',agent_id:'agent-a',thread_id:'thread-a',session_id:'session-a',status:'completed',model_steps:1})),
@@ -30,6 +31,12 @@ function fixture(){
 test('contemporaneous public/model/DB identities and exact nonrefundable accounting join',()=>{
  const {publicProof,db,model}=fixture();const value=validateCurrentRuntimeAccounting(publicProof,db,model);
  assert.equal(value.actualModelDispatches,2);assert.equal(value.usage.quotaRemaining,8);assert.equal(value.status,'PUBLIC_PROCESS_DATABASE_MODEL_ACCOUNTING_JOIN_OBSERVED');
+});
+test('JSONB object-key ordering preserves the complete durable accounting join',()=>{
+ const value=fixture();
+ value.db.threads[0].chat.events=value.db.threads[0].chat.events.map(event=>({
+  data:{...event.data},type:event.type,meta:{...event.meta}}));
+ assert.equal(validateCurrentRuntimeAccounting(value.publicProof,value.db,value.model).actualModelDispatches,2);
 });
 for(const [name,mutate] of [
  ['same-session different turn',({db})=>db.runs[0].id='agent_run_session-a_foreign-turn'],

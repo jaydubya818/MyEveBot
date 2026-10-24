@@ -41,7 +41,7 @@ for(const file of tracked){
  if(file.split('/').some(part=>part.startsWith('.env'))||file.startsWith('output/')||!existsSync(join(root,file)))continue;
  await mkdir(dirname(join(isolated,file)),{recursive:true});await copyFile(join(root,file),join(isolated,file));
 }
-for(const file of ['gateway.ts']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
+for(const file of ['gateway.ts','fixture-error-diagnostics.cjs']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
 materializeFixtureDependencies(root,isolated);
 const app=join(isolated,'apps/eve');
 // Execute the same installed bytes from this fixture's physical dependency copy.
@@ -61,6 +61,7 @@ let transport=await readFile(join(root,'apps/eve/test/owner-ux/local-transport.c
 transport=transport.replace("configured.pathname !== '/blocker_fixes'","!/^\\/ea_work_[a-f0-9]{32}$/.test(configured.pathname)");
 transport=transport.replace("const u=new URL(typeof input==='string'?input:input.url??input);",`const u=new URL(typeof input==='string'?input:input.url??input);
   if(u.origin==='https://fixture-alpha-factory.vercel.app')return originalFetch('http://127.0.0.1:3184'+u.pathname+u.search,init);`);
+transport+=`\nconst fixtureErrorRuntime=process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS;\nif(fixtureErrorRuntime==='eve'||fixtureErrorRuntime==='next'){try{require('./fixture-error-diagnostics.cjs').installFixtureErrorDiagnostics(console,fixtureErrorRuntime);}catch{}}\n`;
 await writeFile(join(app,'test/owner-journey/transport.cjs'),transport);
 const claims={project_id:e.policy.projectId,owner_id:config.factory.trustedTeamId,environment:'production',exp:Math.floor(Date.now()/1000)+86400};
 const env:NodeJS.ProcessEnv={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,
@@ -154,7 +155,8 @@ if(!existsSync(join(app,'.output/server/index.mjs')))throw Error('QE: eve node-s
 console.log('QE build next start',new Date().toISOString());
 execFileSync(process.execPath,[nextCli,'build','--webpack'],{cwd:app,env:buildEnv,stdio:'inherit'});
 console.log('QE builds done',new Date().toISOString());
-owned.child(spawn(process.execPath,[eveCli,'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'}));
-owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'}));
+const diagnosticEnabled=process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS==='1';
+owned.child(spawn(process.execPath,[eveCli,'start','--host','127.0.0.1','--port','3185'],{cwd:app,env:diagnosticEnabled?{...env,MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS:'eve'}:env,stdio:'inherit'}));
+owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env:diagnosticEnabled?{...env,MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS:'next'}:env,stdio:'inherit'}));
 console.log('Offline owner journey fixture started. Source copy:',isolated);
 });
