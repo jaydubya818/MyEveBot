@@ -82,7 +82,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(terminal.historicalMigration).toBe(unified.migration);expect(terminal.previousTerminalMigration).toBe('0107_factory_preparation_generation_guard.sql');expect(terminal.currentMigration).toBe('0109_external_alpha_chat_only.sql');expect(migrations.at(-1)?.name).toBe(terminal.currentMigration);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(terminal.historicalMigration).toBe(unified.migration);expect(terminal.previousTerminalMigration).toBe('0109_external_alpha_chat_only.sql');expect(terminal.currentMigration).toBe('0109_external_alpha_chat_only.sql');expect(migrations.at(-1)?.name).toBe(terminal.currentMigration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');
@@ -101,10 +101,18 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
 });
 
 test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
- expect(terminalPointer).toEqual({schema:'myapps-terminal-source-pointer/v1',record:'docs/myapps/terminal-source-qualification-20261023.json',historicalRecord:'docs/myapps/terminal-source-qualification-20261012.json',authority:'ISOLATED_SOURCE_QUALIFICATION_ONLY'});
- expect(terminal.previousQualificationRecord).toBe(terminalPointer.historicalRecord);
- expect(terminal.previousQualificationSha256).toBe('d1ce504eaad779ad7df41ecb5a20aff76542498db308bd4818f9550c369ea023');
- expect(createHash('sha256').update(readFileSync(terminalPointer.historicalRecord)).digest('hex')).toBe(terminal.previousQualificationSha256);
+ expect(terminalPointer).toEqual({schema:'myapps-terminal-source-pointer/v1',record:'docs/myapps/terminal-source-qualification-20261023-factory-39b68666.json',previousRecord:'docs/myapps/terminal-source-qualification-20261023.json',historicalRecord:'docs/myapps/terminal-source-qualification-20261012.json',authority:'ISOLATED_SOURCE_QUALIFICATION_ONLY'});
+ expect(terminal.previousQualificationRecord).toBe(terminalPointer.previousRecord);
+ expect(terminal.previousQualificationSha256).toBe('157a63ba940d85db8d385a1b136e3617ba7bfdcddc6a2a049b3c1390148e145e');
+ const previousBytes=readFileSync(terminalPointer.previousRecord),previous=JSON.parse(previousBytes.toString());
+ expect(createHash('sha256').update(previousBytes).digest('hex')).toBe(terminal.previousQualificationSha256);
+ expect(terminal.factorySourcePredecessor).toBe(previous.factorySource);
+ expect(previous.factorySource).toBe('c5416e65f786f8f9abf14692a984b5a176271b67');
+ expect(previous.previousTerminalMigration).toBe('0107_factory_preparation_generation_guard.sql');
+ expect(previous.currentMigration).toBe(terminal.previousTerminalMigration);
+ expect(previous.previousQualificationRecord).toBe(terminalPointer.historicalRecord);
+ expect(previous.previousQualificationSha256).toBe('d1ce504eaad779ad7df41ecb5a20aff76542498db308bd4818f9550c369ea023');
+ expect(createHash('sha256').update(readFileSync(terminalPointer.historicalRecord)).digest('hex')).toBe(previous.previousQualificationSha256);
  expect(terminal.installedAuthority).toBe('NONE');expect(terminal.productionIntegration).toBe('NOT_RUN');
  const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
  const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
@@ -114,7 +122,7 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  expect(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()).toBe(selectedFactory);
  expect(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim()).toBe('');
  const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${terminal.factoryRecord}`],{cwd:root,encoding:'utf8'});
- expect(terminal.factoryRecord).toBe('docs/capability-control/source-identity-20261023/qa-remediation-installation-mismatch-successor.json');
+ expect(terminal.factoryRecord).toBe('docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json');
  expect(createHash('sha256').update(selectedRecord).digest('hex')).toBe(terminal.factoryRecordSha256);
  expect(readFileSync(resolve(root!,terminal.factoryRecord),'utf8')).toBe(selectedRecord);
  const successor=JSON.parse(selectedRecord);

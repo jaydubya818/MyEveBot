@@ -121,7 +121,7 @@ jobs:
         with:
           persist-credentials: false
           repository: jaydubya818/MyFactory
-          ref: c5416e65f786f8f9abf14692a984b5a176271b67
+          ref: 39b686660571bf8f93b46756378126fafb7c4d7c
           path: .qualification/myfactory
       - uses: actions/checkout@v4
         with:
