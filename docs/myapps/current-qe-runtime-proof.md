@@ -226,9 +226,16 @@ scaffolding, forty-hex-named `.mjs` files under
 `apps/eve/node_modules/.cache/eve/authored-modules`, and the single Nitro
 `last-build.json` are admitted as additions. Reject native files, aliases,
 undeclared siblings, altered original bytes/modes, deletions and preseeded
-namespaces. Metadata must have only a bounded `outputDir` resolving to a
-canonical fresh in-app `.eve/builds/<generation>/output` directory. Bound the
-transition to the successful owned node/Eve command and its log digest.
+namespaces. Metadata must have only a bounded canonical relative `outputDir`
+spelling for in-app `.eve/builds/<generation>/output`. The pinned SDK publishes
+that staging directory and then removes the entire generation, without rewriting
+Nitro's metadata. Require that generation absent, canonical owned `.eve/builds`
+parents and a canonical `.output` directory. Label the retained metadata an
+inactive staging reference, never runtime output authority. A live or partial
+generation, aliases or missing publication fail. This directory observation does
+not prove the rename event or qualify output bytes; independent full output
+seals, actual loaded-byte witnesses and public functional/accounting proof remain
+mandatory. Bind the transition to the successful owned node/Eve command/log.
 
 All generated JavaScript/data bytes, modes and paths stay in the FULL updated
 input inventory and the derivation record. Subsequent Next/runtime/closure checks
@@ -248,6 +255,14 @@ attempt error. Terminal private-failure serialization or write errors are append
 after the captured attempt/cleanup errors in the thrown AggregateError; neither
 an existing evidence path nor an I/O failure may replace the original failure.
 Error digests contain no raw model text or environment values.
+
+The fresh r2 attempt stopped at the old metadata target-existence assertion after
+the successful Eve build, before Next or public chat. Retain its failed result
+and private roots. Full retained initial/post-Eve vectors show142581 original
+entry records unchanged and236 additions with no removals/changes; observed final
+HTTP/model counters are zero in r2. These observations do not fill r1's missing
+vectors/counters or qualify a runtime. The corrected synthetic fixture follows
+the public SDK's publish-then-remove order and reproduces the previous ENOENT.
 
 This is source/synthetic correction only. Preserve all r1 evidence and exclusive
 roots. No r1 install, artifact/helper qualification, build or PG retry is allowed;

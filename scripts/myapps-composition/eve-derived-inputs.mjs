@@ -85,9 +85,23 @@ function metadataBody(root,entry){
   const selected=relative(base,target).split('/');
   assert(selected.length===2&&/^[a-z0-9][a-z0-9-]{0,127}$/.test(selected[0])&&selected[1]==='output','DERIVED_NITRO_METADATA_TARGET');
   assert.equal(value.outputDir,relative(path,target),'DERIVED_NITRO_METADATA_CANONICAL_RELATIVE');
-  assert.equal(realpathSync(target),target,'DERIVED_NITRO_METADATA_TARGET_ALIAS');
-  assert(lstatSync(target).isDirectory(),'DERIVED_NITRO_METADATA_TARGET_DIRECTORY');
-  return {path:METADATA,sha256:entry.sha256,target:relative(root,target)};
+  // Eve publishes the staged output, then removes its whole generation. Nitro
+  // keeps the old staging path. This metadata never identifies runtime output.
+  const published=join(root,APP,'.output'),uid=lstatSync(root).uid;
+  for(const directory of [join(root,APP,'.eve'),base,published]){
+   const observed=lstatSync(directory);
+   assert(observed.isDirectory()&&!observed.isSymbolicLink()&&observed.uid===uid,'DERIVED_NITRO_CANONICAL_DIRECTORY');
+   assert.equal(realpathSync(directory),directory,'DERIVED_NITRO_DIRECTORY_ALIAS');
+  }
+  let removed=false;
+  try{lstatSync(join(base,selected[0]));}
+  catch(error){if(error.code!=='ENOENT')throw error;removed=true;}
+  assert(removed,'DERIVED_NITRO_STAGING_GENERATION_STILL_PRESENT');
+  return {path:METADATA,sha256:entry.sha256,target:relative(root,target),
+   semantics:'INACTIVE_REMOVED_STAGING_REFERENCE_NOT_RUNTIME_OUTPUT_AUTHORITY',
+   scratchGenerationState:'ABSENT_AFTER_SUCCESSFUL_OWNED_BUILD',publishedOutput:relative(root,published),
+   publishedOutputValidation:'CANONICAL_DIRECTORY_ONLY_INDEPENDENT_OUTPUT_SEAL_AND_RUNTIME_PROOF_REQUIRED',
+   publicationRenameEvent:'NOT_OBSERVED_BY_THIS_VALIDATOR'};
  }finally{closeSync(fd);}
 }
 

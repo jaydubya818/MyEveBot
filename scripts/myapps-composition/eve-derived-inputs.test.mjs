@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {chmodSync,mkdirSync,mkdtempSync,readFileSync,realpathSync,rmSync,statSync,symlinkSync,writeFileSync} from 'node:fs';
+import {chmodSync,lstatSync,mkdirSync,mkdtempSync,readFileSync,realpathSync,renameSync,rmSync,statSync,symlinkSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join,relative} from 'node:path';
 import {captureBuildInputs,verifyBuildInputs} from './build-input-inventory.mjs';
@@ -25,14 +25,20 @@ function fixture(t,{parent=false}={}){
   file(MODULE,'// synthetic derived JavaScript, never executed');
   const target=join(root,'apps/eve/.eve/builds/synthetic-generation/output');directory(relative(root,target));
   file(META,JSON.stringify({outputDir:relative(join(root,META),target)}));
+  // Public SDK order: publish by rename, then remove the entire build workspace.
+  renameSync(target,join(root,'apps/eve/.output'));rmSync(dirname(target),{recursive:true});
  }
  const validate=(after=capture(),observed=command)=>validateEveDerivedInputTransition(root,before,after,observed,node);
  return {root,before,node,command,capture,generated,validate,file,directory};
 }
 test('precise fresh SDK-derived bytes remain fully captured and sealed after transition',t=>{
  const f=fixture(t);assertEveDerivedInputsAbsent(f.before);f.generated();const after=f.capture(),record=f.validate(after);
+ assert.throws(()=>lstatSync(join(f.root,'apps/eve/.eve/builds/synthetic-generation')),/ENOENT/);
  assert.equal(record.status,'DERIVED_BUILD_BYTES_CAPTURED_NOT_QUALIFIED');assert.equal(record.entries.length,6);
  assert.equal(record.moduleCount,1);assert.equal(record.originalEntriesPreserved,f.before.entries.length);
+ assert.equal(record.metadata.semantics,'INACTIVE_REMOVED_STAGING_REFERENCE_NOT_RUNTIME_OUTPUT_AUTHORITY');
+ assert.equal(record.metadata.scratchGenerationState,'ABSENT_AFTER_SUCCESSFUL_OWNED_BUILD');
+ assert.equal(record.metadata.publishedOutput,'apps/eve/.output');assert.equal(record.metadata.publicationRenameEvent,'NOT_OBSERVED_BY_THIS_VALIDATOR');
  assert.equal(record.beforeSha256,f.before.sha256);assert.equal(record.afterSha256,after.sha256);
  assert.equal(verifyBuildInputs(f.root,after).status,'BUILD_INPUTS_UNCHANGED_NOT_QUALIFIED');
  assert(after.entries.some(entry=>entry.path===MODULE&&entry.sha256===hash('// synthetic derived JavaScript, never executed')));
@@ -71,11 +77,32 @@ for(const kind of ['extra-key','external-target','not-generation-output','invali
  if(kind==='not-generation-output')f.file(META,JSON.stringify({outputDir:'../../../.output'}));
  if(kind==='invalid-json')f.file(META,'not-json');
  if(kind==='aliased-generation'){
-  const target=join(f.root,'apps/eve/.eve/builds/synthetic-generation/output');rmSync(target,{recursive:true});
-  symlinkSync('../../../../..',target,'dir');
+  symlinkSync('../../..',join(f.root,'apps/eve/.eve/builds/synthetic-generation'),'dir');
  }
  assert.throws(f.validate);
 });
+for(const kind of ['live-generation','partial-generation','generation-file','aliased-builds-parent','aliased-eve-parent','missing-publication','publication-file','aliased-publication'])
+ test('Nitro removed staging reference rejects '+kind,t=>{
+  const f=fixture(t);f.generated();const generation='apps/eve/.eve/builds/synthetic-generation',publication='apps/eve/.output';
+  if(kind==='live-generation')f.directory(generation+'/output');
+  if(kind==='partial-generation')f.directory(generation);
+  if(kind==='generation-file')f.file(generation,'unexpected workspace file');
+  if(kind==='aliased-builds-parent'){
+   renameSync(join(f.root,'apps/eve/.eve/builds'),join(f.root,'apps/eve/.eve/other-builds'));
+   symlinkSync('other-builds',join(f.root,'apps/eve/.eve/builds'),'dir');
+  }
+  if(kind==='aliased-eve-parent'){
+   renameSync(join(f.root,'apps/eve/.eve'),join(f.root,publication+'/stashed-eve'));
+   symlinkSync('.output/stashed-eve',join(f.root,'apps/eve/.eve'),'dir');
+  }
+  if(kind==='missing-publication')rmSync(join(f.root,publication),{recursive:true});
+  if(kind==='publication-file'){rmSync(join(f.root,publication),{recursive:true});f.file(publication,'not a directory');}
+  if(kind==='aliased-publication'){
+   renameSync(join(f.root,publication),join(f.root,'apps/eve/.eve/aliased-output'));
+   symlinkSync('.eve/aliased-output',join(f.root,publication),'dir');
+  }
+  assert.throws(f.validate,/DERIVED_NITRO_|ENOENT/);
+ });
 for(const kind of ['wrong-cwd','wrong-node','wrong-command','failed-command','live-group','wrong-group','missing-log'])
  test('derived bytes require the exact owned public build observation: '+kind,t=>{
   const f=fixture(t);f.generated();const command={...f.command,args:[...f.command.args]};
