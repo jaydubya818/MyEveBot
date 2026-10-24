@@ -448,3 +448,64 @@ source/synthetic observations only. A new source-bound plan and fresh root-owned
 full build/runtime attempt are required; none of the five old attempts is reused
 or retrospectively qualified. The three unchanged turn/replay/health validators and
 all earlier unrelated suites retain their prior evidence.
+
+
+## Retained R6 agents-read failure and public Neon fixture configuration
+
+R6 ran exact `1a81150927b9eddcceba15e1df131b7ce634e8ac` under consumed
+clearance `1c0f94c3` and retained its failed private roots. Both public builds and
+package/graph guards reached the runtime stage. Signed login, cookie and exact
+owner status passed by selected source order; `/api/agents` returned503, with
+`PUBLIC_AGENTS_READ_FAILED` at probe line133 before any model request. The root
+result SHA256 is `d7a5338e288622619649f40e82488306c7a17995c55b74f6ec3abeef6ed7838f`.
+The bounded Next log has `NeonDbError`, `TypeError` and `ERR_INVALID_URL`; raw
+URLs, queries, credentials and private context remain withheld. Native cleanup
+verified9OPEN/9CLOSED, ownedPG stopped, four ports clear and clean selected source.
+The separate controller-close AggregateError remains retained; native cleanliness
+does not erase that failure or award runtime acceptance. All six attempts remain
+FAIL, with no automatic retry, real provider call or tester deployment mutation.
+
+Static selected source explains the failure. Canonical agents reads use
+`agent/lib/receipts-db.ts` and public Neon's HTTP query client. Neon's default
+numeric-loopback hostname rewrite produces an opaque invalid URL. The original
+fixture adapter can intercept that string before its own URL parse, but selected
+Next's `createDedupeFetch` constructs `Request(resource, options)` before checking
+POST and delegating to the adapter. The retained compiled frame matches this
+normalizer. There is no evidence here of production database/schema/provider
+failure. A cache/signal bypass or accepting503 would not qualify this contract.
+
+The successor uses the documented public `neonConfig.fetchEndpoint` setter to
+produce one valid opaque endpoint bound to the same owned app host and port.
+Only the two selected copied SQL entry modules receive explicit configuration:
+`agent/lib/receipts-db.ts` and `lib/threads-db.ts`. Each initializes its OWN
+imported public config immediately before its own lazy `neon` constructor, so
+Next/Eve bundled config objects and cross-route initialization order are not
+assumed to be shared with the preload. Their canonical Git files, SQL bodies,
+owner checks and database URLs stay unchanged. Unselected reminder/push stores
+receive no overlay. Exact named store preimage hashes and the existing build
+seam guard reject all other sources; the original five overlays remain declared.
+The two additional named overlays are public fixture configuration only.
+
+The projected transport uses the same endpoint statement and preserves exact
+app connection-string/POST/endpoint validation. It executes only owned fixture
+PG and returns the usual Neon-shaped JSON; it has no SQL HTTP listener. The
+ordinary HTTP/Undici/Node allowlist remains unchanged, so missing the SQL branch
+cannot send that opaque endpoint over the network. No installed SDK/Next patch,
+Request replacement, skipped public route, direct probe SQL shortcut, new service,
+owner change, guard weakening, Work grant or production recovery is involved.
+Normal Nitro configuration and historical package/graph guards stay byte-identical.
+
+The new32 pure seam tests use synthetic public-config objects, a fake pool and a
+small authored Request-before-delegation model. They reproduce the old parse
+failure before the fake adapter, exercise independent Next/Eve config contexts,
+and cover exact owned SQL routing, host/port/database/credential/path/method
+mismatches and zero outgoing HTTP. They verify canonical store tails and exact
+named overlay guards. An initial test-harness type-erasure omission retained
+13PASS/19FAIL; correcting only removal of the TypeScript non-null assertion
+produced32PASS/0FAIL. Those counts overlap and are not additive. No installed
+Neon/Next/SDK/artifact/helper was imported or evaluated; no actual SQL, server,
+network, PG, provider or runtime attempt occurred in these pure tests. Earlier
+39/30/45/68 and browser evidence are reused, not rerun or promoted to a current
+artifact acceptance. A fresh root-owned reviewed commit/plan/preflight/separate
+one-attempt clearance, actual R7 and cleanup are still required. All Linux,
+private, paid, Work and production holds remain.

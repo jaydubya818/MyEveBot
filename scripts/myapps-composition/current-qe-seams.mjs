@@ -23,12 +23,14 @@ export function currentQESeams(sourceRoot,font){
   'const geist = localFont({ src: "../test/owner-chat-only/fixture-geist-regular.ttf", variable: "--font-geist" });',
   'const geistMono = localFont({ src: "../test/owner-chat-only/fixture-geist-regular.ttf", variable: "--font-geist-mono" });','',''].join('\n');
  const transport=projectCurrentQETransport(readFileSync(join(sourceRoot,app+'test/owner-chat-only/transport.cjs'),'utf8'));
+ const neonBodies=Object.fromEntries(CURRENT_QE_NEON_STORES.map(path=>[path,Buffer.from(projectCurrentQENeonStore(readFileSync(join(sourceRoot,path),'utf8'),path))]));
  const bodies={
   [modelPath]:Buffer.from(model.replace(from,'import { gateway } from "../../test/owner-journey/gateway.ts";')),
   [app+'next.config.ts']:Buffer.from("export default {serverExternalPackages:['@remotion/bundler','@remotion/renderer','heif2jpeg'],async rewrites(){return [{source:'/eve/:path*',destination:'http://127.0.0.1:3185/eve/:path*'}]}};\n"),
   [layoutPath]:Buffer.from(layout.replace(fontImport,'import localFont from "next/font/local";').replace(fontDeclarations,localDeclarations)),
   [app+'test/owner-chat-only/fixture-geist-regular.ttf']:font,
   [app+'test/owner-journey/transport.cjs']:Buffer.from(transport),
+  ...neonBodies,
  };
  return Object.entries(bodies).map(([path,body])=>{
   let beforeSha256=null;try{beforeSha256=hash(readFileSync(join(sourceRoot,path)));}catch(error){if(error.code!=='ENOENT')throw error;}
@@ -36,7 +38,54 @@ export function currentQESeams(sourceRoot,font){
  });
 }
 
+/** Public configuration only, applied in each copied SQL store's own Neon
+ * import context. The adapter handles this exact parseable endpoint using owned
+ * pg; it is never an HTTP listener or an additional network allowance. */
+export function currentQENeonConfiguration(typeScript=false){
+ const argumentsText=typeScript?'host: string, port: number | string':'host, port';
+ return [
+  'neonConfig.fetchEndpoint = ('+argumentsText+') => {',
+  ' let database;',
+  " try { database = new URL(process.env.DATABASE_URL || ''); }",
+  " catch { throw Error('QE_OWNED_NEON_DATABASE_REQUIRED'); }",
+  " if (database.protocol !== 'postgresql:' || database.hostname !== '127.0.0.1'",
+  "  || !/^[1-9]\\d{0,4}$/.test(database.port) || Number(database.port)>65535",
+  "  || !/^\\/ea_work_[a-f0-9]{32}$/.test(database.pathname) || database.search || database.hash)",
+  "  throw Error('QE_OWNED_NEON_DATABASE_REQUIRED');",
+  " if (typeof host !== 'string' || !['string','number'].includes(typeof port)",
+  "  || host !== database.hostname || String(port) !== database.port)",
+  "  throw Error('QE_NEON_ENDPOINT_CONNECTION_MISMATCH');",
+  " return 'http://127.0.0.1:'+database.port+'/__current_qe_neon';",
+  '};',
+ ].join('\n');
+}
+
+export const CURRENT_QE_NEON_STORES=Object.freeze([
+ 'apps/eve/agent/lib/receipts-db.ts',
+ 'apps/eve/lib/threads-db.ts',
+]);
+const NEON_STORE_PREIMAGES=Object.freeze({
+ 'apps/eve/agent/lib/receipts-db.ts':'1170582127a23fd9b59ed7ce9b5878e5391f74a9cf9f20b0b72f05e6ec1c3a42',
+ 'apps/eve/lib/threads-db.ts':'dba323c10ddd2deed3dae9ebf4fcb3714e58c4318315edd4d6cece29b282047d',
+});
+
+export function projectCurrentQENeonStore(source,path){
+ assert(Object.hasOwn(NEON_STORE_PREIMAGES,path),'QE_UNREVIEWED_NEON_STORE');
+ assert.equal(hash(source),NEON_STORE_PREIMAGES[path],'QE_NEON_STORE_PREIMAGE_CHANGED');
+ const imported='import { neon, type NeonQueryFunction } from "@neondatabase/serverless";';
+ const lazy='  if (_sql === null) _sql = neon(process.env.DATABASE_URL!);';
+ assert.equal(source.split(imported).length,2,'QE_NEON_IMPORT_SEAM_CHANGED');
+ assert.equal(source.split(lazy).length,2,'QE_NEON_LAZY_SEAM_CHANGED');
+ const configured='  if (_sql === null) {\n    '+currentQENeonConfiguration(true).replaceAll('\n','\n    ')
+  +'\n    _sql = neon(process.env.DATABASE_URL!);\n  }';
+ return source.replace(imported,'import { neon, neonConfig, type NeonQueryFunction } from "@neondatabase/serverless";').replace(lazy,configured);
+}
+
 export function projectCurrentQETransport(source){
+ assert.equal(hash(source),'775ce4b368c59a0460ab67e3030b65f3c17129da65eb10326fa42c93d0d515ca','QE_PROXY_TRANSPORT_SEAM_CHANGED');
  const webGuard='  if (!web.has(url.origin)) return false;';assert.equal(source.split(webGuard).length,2,'QE_PROXY_TRANSPORT_SEAM_CHANGED');
- return source.replace(webGuard,webGuard+"\n  if (/^\\/eve\\/v1\\/(health|info|session(?:\\/[^/]+)?(?:\\/stream)?)$/.test(url.pathname)) return ['GET','HEAD','POST'].includes(method);");
+ const endpoint="const endpoint = typeof neonConfig.fetchEndpoint === 'function' ? neonConfig.fetchEndpoint(app.hostname, app.port) : neonConfig.fetchEndpoint;";
+ assert.equal(source.split(endpoint).length,2,'QE_NEON_TRANSPORT_SEAM_CHANGED');
+ return source.replace(webGuard,webGuard+"\n  if (/^\\/eve\\/v1\\/(health|info|session(?:\\/[^/]+)?(?:\\/stream)?)$/.test(url.pathname)) return ['GET','HEAD','POST'].includes(method);")
+  .replace(endpoint,currentQENeonConfiguration()+'\n'+endpoint);
 }

@@ -220,7 +220,10 @@ export async function prepareCurrentBuild(spec){
  assert.equal(offset,bodies.length,'BUILD_SOURCE_BATCH_TRAILING_BYTES');
  assert(Array.isArray(spec.overlays),'BUILD_EXPLICIT_SEAMS_REQUIRED');
  const allowed=new Set(['apps/eve/lib/external-alpha/model.ts','apps/eve/next.config.ts','apps/eve/app/layout.tsx',
-  'apps/eve/test/owner-chat-only/fixture-geist-regular.ttf','apps/eve/test/owner-journey/transport.cjs']);
+  'apps/eve/test/owner-chat-only/fixture-geist-regular.ttf','apps/eve/test/owner-journey/transport.cjs',
+  'apps/eve/agent/lib/receipts-db.ts',
+  'apps/eve/lib/threads-db.ts',
+ ]);
  const seen=new Set(),seams=[];
  for(const overlay of spec.overlays){
   assert.deepEqual(Object.keys(overlay).sort(),['path','beforeSha256','afterSha256','bodyBase64'].sort(),'BUILD_SEAM_FIELDS');
