@@ -4,6 +4,7 @@ name: Unified beta exact-source qualification
     branches:
     - main
     - codex/unified-beta-myeve-20261011
+    - codex/beta-qa-adoption-20261023
   pull_request:
     branches: [main]
   workflow_dispatch: null
