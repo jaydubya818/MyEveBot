@@ -112,7 +112,7 @@ export async function runCurrentQEProof(spec){
   const approved=approvedFiles(build),scriptRoot=join(copy,'scripts/myapps-composition');
   const node=spec.toolchain.node.path,bootstrap=join(scriptRoot,'current-runtime-bootstrap.mjs'),transport=join(app,'test/owner-journey/transport.cjs');
   const nextPackage=require.resolve('next/package.json'),nextMeta=JSON.parse(readFileSync(nextPackage)),next=join(dirname(nextPackage),nextMeta.bin.next);
-  const runtimeEnvironment={...environment,PATH:dirname(node)+':/usr/bin:/bin',HOME:join(spec.workRoot,'home'),TMPDIR:join(spec.workRoot,'tmp'),
+  const runtimeEnvironment={...environment,VERCEL:'1',PATH:dirname(node)+':/usr/bin:/bin',HOME:join(spec.workRoot,'home'),TMPDIR:join(spec.workRoot,'tmp'),
    WORKFLOW_LOCAL_DATA_DIR:join(privateRoot,'workflow'),WORKFLOW_LOCAL_BASE_URL:'http://127.0.0.1:'+spec.ports.eve,WORKFLOW_TARGET_WORLD:'local'};
   delete runtimeEnvironment.NODE_OPTIONS;mkdirSync(runtimeEnvironment.WORKFLOW_LOCAL_DATA_DIR,{mode:0o700});
   processOwner=createOwnedRuntimeProcesses({path:join(spec.workRoot,'evidence/owned-groups.ndjson'),ps:spec.toolchain.ps});

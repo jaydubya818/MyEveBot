@@ -509,3 +509,57 @@ network, PG, provider or runtime attempt occurred in these pure tests. Earlier
 artifact acceptance. A fresh root-owned reviewed commit/plan/preflight/separate
 one-attempt clearance, actual R7 and cleanup are still required. All Linux,
 private, paid, Work and production holds remain.
+
+
+## Retained R7 usage failure and build/runtime installation binding
+
+R7 ran exact `d69379a9b377d44e351f2c93cb16b9500a317ca3`, reached the public
+runtime, and retained FAIL. Signed login, exact owner, direct/proxy health and
+`/api/agents`200 with the expected active primary passed by selected source
+order. The next initial `/api/chat-usage` read returned503 before any model call.
+Root result SHA256 is `09c67a3b2f9b7ba24e8ffe80e5efede23225100e825f6432adc2216b06316692`.
+Model observation was finalized:true with0HTTP/0probe calls. The short Next log
+contains no cause; the route intentionally catches and withholds error details.
+Native cleanup verified9OPEN/9CLOSED, ownedPG stopped, four ports clear and clean
+source; the separate controller-close AggregateError remains preserved. All
+seven failed private roots/logs/consumed clearances stay retained, never reused.
+
+Static selected source identifies the installation binding before database work.
+The usage route calls canonical `externalAlphaPolicy()` before `betaIntegration`
+or any usage SQL. That guard requires `VERCEL === "1"`; the current base fixture
+and runtime omitted it, and owned spawn receives exact env without ambient
+inheritance. R9 explicitly set this flag and asserted its canonical policy before
+starting servers. The status SQL branch already exists and is installed; no
+schema, role, credential or accounting-recovery change follows from this503.
+
+The base/build environment deliberately excludes VERCEL to preserve the selected
+public node-server build. Its existing allowlist and
+`BUILD_VERCEL_HOST_PRESET_REJECTED` guard remain byte-identical. Only the owned
+runtime environment adds fixed `VERCEL:"1"` AFTER the builds. The base object,
+canonical fixture, policy, SQL, database URLs, owner bindings and installation
+limits stay unchanged. Explicit local workflow world/data directory/Eve base and
+all transport denial remain; this local production-shaped flag does not imply
+managed Vercel resources, paid authority or real installation qualification.
+The existing strict200 initial usage assertion also gains the fixed
+`PUBLIC_INITIAL_USAGE_READ_FAILED` label, without body capture or tolerated503.
+
+The new28 pure phase tests passed on their first run. They extract only authored
+base/runtime/build expressions and unchanged canonical policy/usage guards,
+using synthetic values and built-in crypto. Schema/digest algorithms reuse prior
+tests. Cases establish old config rejection before DB, runtime-only binding,
+base immutability/build rejection, no ambient inheritance, retained local target,
+owner/project/digest/slot/repository/key failures and unchanged public denial.
+The positive guard test deliberately stops at a fake DB tripwire: no fabricated
+accounting row, actual SQL, usage200, model or runtime PASS is awarded. No SDK,
+Next, app module, artifact or helper is imported/evaluated, and no server/network,
+PG, build, provider or production action is run. Earlier32/39/30/45/68 and browser
+evidence remain reused, not rerun or added to the new-case count.
+
+A bounded static check of usage/status setup, thread ownership/write, selected
+agent/receipt context, explicit v4 fixture gateway, local workflow selection and
+public two-turn/replay/persistence/accounting contracts identified no additional
+concrete connected fixture defect. This cannot substitute for the next actual
+runtime. A fresh root-owned reviewed commit/plan/preflight/separate one-attempt
+clearance, actual R8 and owned cleanup remain required; all Linux/private/paid/
+Work/production holds remain. Canonical policy and all package/graph guards,
+normal Nitro configuration and the qualified public Neon fixture stay unchanged.

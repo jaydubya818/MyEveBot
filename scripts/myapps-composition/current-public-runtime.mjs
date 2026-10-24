@@ -136,7 +136,7 @@ export async function observePublicRuntime(config){
  assert.equal(primaries.length,1,'PUBLIC_PRIMARY_AGENT_REQUIRED');
  const primary=primaries[0];assert.equal(primary.ownerId,config.ownerId);assert.equal(primary.status,'active');
  assert(typeof primary.id==='string'&&primary.id.length>0,'PUBLIC_AGENT_ID_REQUIRED');
- const initialUsageResponse=await request('/api/chat-usage');assert.equal(initialUsageResponse.status,200);
+ const initialUsageResponse=await request('/api/chat-usage');assert.equal(initialUsageResponse.status,200,'PUBLIC_INITIAL_USAGE_READ_FAILED');
  const initialUsage=await initialUsageResponse.json();
  assert.equal(initialUsage.dailyTurnsUsed,0);assert.equal(initialUsage.trialReservedMicrousd,0);
  const title='Current runtime packaging probe',updatedAt=Date.now();
