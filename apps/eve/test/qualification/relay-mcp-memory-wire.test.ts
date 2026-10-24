@@ -86,7 +86,7 @@ test('MyEve canonical resolver and bounded SDK use actual selected Relay over di
     const activity=await listActivity(accountId,{agentId:a.agentId});
     expect(activity.some(item=>item.action==='memory.add'&&item.status==='SUCCESS')).toBe(true);
     writeFileSync(process.env.MYEVE_MCP_RESULT!,JSON.stringify({status:result.status,checks:result.checks,
-      relaySource:'f7264e0a8df036c5fb505b61c55ad978f5a81f9e',sdk:'@ai-sdk/mcp@2.0.19',counts,cookieObserved,wrongPath,
+      relaySource:'f05a5639e2f95994778753e6021603ca5a1777fb',sdk:'@ai-sdk/mcp@2.0.19',counts,cookieObserved,wrongPath,
       ownerPrivateMemoryIsolation:'PASS',capability:'Synthetic test-only authority; canonical default DENY',
       productionCalls:0,testerTurns:0,paidCalls:0},null,2)+'\n');
   }finally{child.kill();server.closeAllConnections();await new Promise<void>(resolve=>server.close(()=>resolve()));}

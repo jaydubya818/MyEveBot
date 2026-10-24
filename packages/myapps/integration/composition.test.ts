@@ -101,11 +101,21 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
 });
 
 test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
- expect(terminalPointer).toEqual({schema:'myapps-terminal-source-pointer/v1',record:'docs/myapps/terminal-source-qualification-20261023-factory-39b68666.json',previousRecord:'docs/myapps/terminal-source-qualification-20261023.json',historicalRecord:'docs/myapps/terminal-source-qualification-20261012.json',authority:'ISOLATED_SOURCE_QUALIFICATION_ONLY'});
+ expect(terminalPointer).toEqual({schema:'myapps-terminal-source-pointer/v1',record:'docs/myapps/terminal-source-qualification-20261023-relay-f05a5639.json',previousRecord:'docs/myapps/terminal-source-qualification-20261023-factory-39b68666.json',historicalRecord:'docs/myapps/terminal-source-qualification-20261012.json',authority:'ISOLATED_SOURCE_QUALIFICATION_ONLY'});
  expect(terminal.previousQualificationRecord).toBe(terminalPointer.previousRecord);
- expect(terminal.previousQualificationSha256).toBe('157a63ba940d85db8d385a1b136e3617ba7bfdcddc6a2a049b3c1390148e145e');
- const previousBytes=readFileSync(terminalPointer.previousRecord),previous=JSON.parse(previousBytes.toString());
- expect(createHash('sha256').update(previousBytes).digest('hex')).toBe(terminal.previousQualificationSha256);
+ expect(terminal.previousQualificationSha256).toBe('59b7aab9379b07dbdcac20c14a8fd0a81a62d3b366792a2167e40e728b685cd6');
+ const factoryQualificationBytes=readFileSync(terminalPointer.previousRecord),factoryQualification=JSON.parse(factoryQualificationBytes.toString());
+ expect(createHash('sha256').update(factoryQualificationBytes).digest('hex')).toBe(terminal.previousQualificationSha256);
+ expect(terminal.relaySource).toBe('f05a5639e2f95994778753e6021603ca5a1777fb');
+ expect(terminal.relayTree).toBe('7ab5ce216f82a3ef6272ed349a1f1730cc3bbdb9');
+ expect(terminal.relayQualificationScope).toBe('EXACT_SOURCE_AND_OFFICIAL_CI_FOR_NONDEPLOYING_PEER_ADOPTION_ONLY');
+ expect(factoryQualification.factorySource).toBe(terminal.factorySource);
+ expect(factoryQualification.factorySourcePredecessor).toBe(terminal.factorySourcePredecessor);
+ expect(factoryQualification.currentMigration).toBe(terminal.currentMigration);
+ expect(factoryQualification.previousQualificationRecord).toBe('docs/myapps/terminal-source-qualification-20261023.json');
+ expect(factoryQualification.previousQualificationSha256).toBe('157a63ba940d85db8d385a1b136e3617ba7bfdcddc6a2a049b3c1390148e145e');
+ const previousBytes=readFileSync(factoryQualification.previousQualificationRecord),previous=JSON.parse(previousBytes.toString());
+ expect(createHash('sha256').update(previousBytes).digest('hex')).toBe(factoryQualification.previousQualificationSha256);
  expect(terminal.factorySourcePredecessor).toBe(previous.factorySource);
  expect(previous.factorySource).toBe('c5416e65f786f8f9abf14692a984b5a176271b67');
  expect(previous.previousTerminalMigration).toBe('0107_factory_preparation_generation_guard.sql');

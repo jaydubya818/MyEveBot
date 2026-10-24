@@ -126,7 +126,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/relay
-          ref: f7264e0a8df036c5fb505b61c55ad978f5a81f9e
+          ref: f05a5639e2f95994778753e6021603ca5a1777fb
           path: .qualification/relay
       - uses: actions/setup-node@v4
         with:
@@ -151,7 +151,7 @@ jobs:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
           MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
-          MYRELAY_SOURCE_SHA: f7264e0a8df036c5fb505b61c55ad978f5a81f9e
+          MYRELAY_SOURCE_SHA: f05a5639e2f95994778753e6021603ca5a1777fb
           MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: "1"
           FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
         # Separate test databases share cluster-wide roles; initialize those fixtures serially.
