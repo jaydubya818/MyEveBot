@@ -1,9 +1,10 @@
 {
   "composed": {
     "apps/eve/lib/database-schema.test.ts": {
-      "passed": 2,
+      "passed": 3,
       "skipped": [],
       "passedNames": [
+        "explicit schema rollout requires application-password schema only when explicitly enabled",
         "explicit schema rollout preserves existing personal installation requirements",
         "explicit schema rollout requires the newest reviewed schema only for the configured external alpha installation"
       ]
@@ -37,7 +38,7 @@
       ]
     },
     "apps/eve/lib/external-alpha/features.test.ts": {
-      "passed": 77,
+      "passed": 78,
       "skipped": [],
       "passedNames": [
         "EVE_ENABLED_FEATURES fails closed for installations a declared list can narrow but never widen",
@@ -67,7 +68,6 @@
         "external-alpha route allowlist (default-deny) allows /team GET",
         "external-alpha route allowlist (default-deny) allows /today GET",
         "external-alpha route allowlist (default-deny) allows /work GET",
-        "external-alpha route allowlist (default-deny) allows /work/new GET",
         "external-alpha route allowlist (default-deny) allows /workspace GET",
         "external-alpha route allowlist (default-deny) allows the allowed families with their declared methods only",
         "external-alpha route allowlist (default-deny) applies only to installations and never to other deployments",
@@ -111,6 +111,8 @@
         "tools and integrations are an explicit allowlist does not expose tool.composio",
         "tools and integrations are an explicit allowlist does not expose tool.computer",
         "tools and integrations are an explicit allowlist does not expose tool.engineering_direct",
+        "tools and integrations are an explicit allowlist does not expose tool.engineering_factory",
+        "tools and integrations are an explicit allowlist does not expose tool.engineering_work",
         "tools and integrations are an explicit allowlist does not expose tool.publish",
         "tools and integrations are an explicit allowlist does not expose tool.send_email",
         "tools and integrations are an explicit allowlist does not expose tool.slack",
