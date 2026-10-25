@@ -2,258 +2,177 @@
 
 [![CI](https://github.com/jaydubya818/MyEveBot/actions/workflows/ci.yml/badge.svg)](https://github.com/jaydubya818/MyEveBot/actions/workflows/ci.yml)
 
-MyEve is the owner-facing application for a persistent personal AI agent. Sofie is its primary assistant: conversation, persistent specialists, private context, goals, Work, decisions, Files and verifiable Results live in one product. MyEve Builder configures and deploys an isolated installation from the same application source.
+## Overview
 
-MyEve coordinates work; it does not treat a model response, a queued request or a healthy provider as proof that work succeeded. Substantial software work crosses a separate MyFactory execution boundary, and communication with other agents crosses independently authorized Relay boundaries.
+**MyEve is an autonomous, multi-agent AI software engineering platform that transforms developer intent into independently verified, deployable software.** Sofie is the primary AI engineering assistant and developer interface.
 
-## Contents
+MyEve is for software engineers, development teams, engineering leaders and organizations building software with autonomous agents. It brings requirements, engineering context, coordinated execution and evidence of results into one developer experience.
 
-- [Current status](#current-status)
-- [The three-repository system](#the-three-repository-system)
-- [Product capabilities](#product-capabilities)
-- [Proposed external-alpha exposure](#proposed-external-alpha-exposure)
-- [Builder and installation model](#builder-and-installation-model)
-- [Local development](#local-development)
-- [Migrations, checks and deployment](#migrations-checks-and-deployment)
-- [Operations and recovery](#operations-and-recovery)
-- [Repository and documentation map](#repository-and-documentation-map)
+**Status: limited beta.** Two external installations have been activated for bounded chat. Developer-agent execution and hosted Factory integration remain separately gated; full autonomous software delivery is under development.
 
-## Current status
+## Product Vision
 
-**Documentation reconciled: October 6, 2026 (Pacific).** Canonical source baseline: [`3e3d7a4`](https://github.com/jaydubya818/MyEveBot/commit/3e3d7a43179d12f7e99a16603e47d3764e65410f). This is a documentation baseline, not an assertion that every deployment runs this commit. Installation, source qualification, live qualification and owner authorization are separate facts.
+`Intent → Plan → Code → Test → Verify → Deploy → Operate → Improve`
 
-| Area | Current engineering result | Availability boundary |
+An engineer describes an outcome and its acceptance criteria. Sofie maintains the context, coordinates qualified agents and tools, and presents progress, decisions and verifiable results. The goal is software that can be reviewed, deployed and operated with confidence.
+
+MyEve's distinguishing principle is independent verification: a coding agent's answer is not proof of success. Construction, verification and permission to publish are separate responsibilities. Durable Work records connect intent to the exact candidate, test evidence and result, while explicit permissions and budgets bound execution.
+
+## Architecture
+
+The ecosystem has six components. This repository contains the MyEve application, Sofie's Eve-based runtime, Builder and shared capability packages; other components have separate implementation and release boundaries.
+
+| Component | Responsibility | Implementation and availability |
 | --- | --- | --- |
-| Owner A natural production CLOUD journey | Accepted PASS: natural Sofie interaction, real model execution, candidate custody, separate 11-check verifier, TestEvidence/DiffEvidence, durable Proof, owner readback and same-conversation recovery | One explicitly authorized bounded journey; not standing execution permission |
-| Model-free production validation | PASS for lifecycle/grant atomicity, immutable preparation, custody, evidence transport, Proof, teardown and authority cleanup | Historical deterministic evidence; paid-path evidence is separate |
-| Synthetic-owner isolation | Owner/session/data isolation qualified in bounded campaigns; B/C access to the completed Owner A artifacts denied | Does not automatically qualify new external-owner installations |
-| Relay integration | Canonical identity/Passport/peer-policy path and bounded synthetic messaging qualified | Each real owner still requires its own authentication, enrollment and grants |
-| Two real external testers | Preparation in progress; isolated resources/workspaces being prepared | **NOT_READY_TO_INVITE**; no access or invitation granted |
-| Ordinary external-alpha chat/Work policy | Inactive foundation under [draft PR #65](https://github.com/jaydubya818/MyEveBot/pull/65); scoped review and CI passed | Not in this canonical baseline; ordinary Work/Factory integration and final qualification remain incomplete |
-| Publication, generated PR/merge/deployment, automatic repair | Separate effect contracts exist in the ecosystem | Disabled for the proposed external alpha |
+| **MyEve / Sofie** | Developer intent, engineering context, agent coordination and developer experience | Conversation, persistent agent identities, Work and result surfaces are implemented. The external beta exposes a bounded chat subset. |
+| **Relay** | External development tools, agent connectivity and authorized actions | Authenticated peer discovery, scoped requests, messaging and evidence exchange are implemented. Each installation and peer needs its own configuration, grants and qualification. |
+| **Deep Agent** | Autonomous planning, implementation, testing, debugging and deployment coordination | Experimental harness and routing contracts exist. No qualified production Deep Agent provider is registered in this release. |
+| **MyFactory** | Software construction, isolated execution and independent verification | Work intake, candidate custody and verification integration exist, with retained bounded qualification evidence. General developer execution and hosted beta integration remain gated. |
+| **MissionControl** | Enterprise orchestration, governance, policies, permissions and budgets | Shared capability controls exist on `main`; additional orchestration consumers are on beta development branches. Full enterprise execution is not enabled for the chat beta. |
+| **MyApps** | Application installation, delivery, updates and rollback | Builder installs and updates MyEve. Separate MyApps runtime and delivery foundations exist on beta branches; general application delivery and rollback remain under development. |
 
-The successful CLOUD qualification establishes **zero local runtime dependencies**. Physical Mac power state was not independently observed. A successful bounded journey does not establish unrestricted Work readiness, arbitrary repository support, general availability, or permission to invite users.
+See the [integration setup](docs/setup/myeve-relay-myfactory.md), [Deep Agent boundary](docs/setup/deepagent-harness.md) and [current source/release reconciliation](docs/verification/readme-status-2026-10-25.md). These components describe the target lifecycle, not six production services automatically invoked by every chat message.
 
-The retained Result can remain **PARTIAL** even when the bounded execution journey passes: publication, external CI and owner acceptance are separate claims. Full production evidence is retained privately. This README summarizes engineering outcomes without publishing credentials, production resource identities, private paths or raw Result/Proof payloads.
+## Developer Workflows
 
-Dated qualification documents describe the scope at their checkpoint. An older `NOT_RUN` or `NOT_READY` entry must not be presented as the current aggregate status, nor should it be rewritten as a historical success.
+For example, an engineer asks Sofie:
 
-## The three-repository system
+> Build a team issue-triage application with authenticated users, searchable issues and assignment history. Propose acceptance criteria, test the critical flows, and prepare a reviewable deployment candidate.
 
-| Repository | Owns | Does not grant by itself |
-| --- | --- | --- |
-| **[MyEve](https://github.com/jaydubya818/MyEveBot)** | Owner conversation, Agents, private context, canonical Work, decisions, Current Truth and durable Proof consumption | Factory execution, another owner's data, publication |
-| **[Relay](https://github.com/jaydubya818/relay)** | Agent identity, Passports, capability grants, policies, authenticated messaging and governed integration contracts | Shared Memory, unrestricted federation, Factory Work authority |
-| **[MyFactory](https://github.com/jaydubya818/MyFactory)** | Admitted production execution, spend/writer fencing, candidate custody, independent verification and signed Result/evidence | Owner acceptance, repository publication, merges or deployment |
+The intended workflow is:
 
-```mermaid
-flowchart LR
-  Owner --> Chat[Sofie and persistent Agents]
-  Chat --> Work[Canonical owner-scoped Work]
-  Work --> Factory[MyFactory CLOUD execution]
-  Factory --> Candidate[Durable candidate custody]
-  Candidate --> Verify[Separate protected verifier]
-  Verify --> Proof[Result and durable Proof]
-  Proof --> Owner
-  Chat --> Relay[Relay: separately authorized peers]
-```
+1. **Sofie clarifies requirements and acceptance criteria.** Bounded conversation is operational today; autonomous execution does not follow automatically from a request.
+2. **Deep Agent creates and executes the implementation plan.** The dedicated autonomous harness remains under development and qualification.
+3. **Relay connects authorized development tools and compatible agents.** Scoped protocol integration exists; a tool or peer must be configured and qualified before use.
+4. **MyFactory builds, tests and independently verifies the candidate.** Construction and verification boundaries are implemented for qualified scopes. Arbitrary application builds and the external beta's hosted Factory path are still gated.
+5. **MissionControl governs execution throughout.** Permissions, policies and budgets are checked at action boundaries; the full enterprise orchestration path remains under qualification.
+6. **MyApps delivers the approved application and manages its release.** General delivery, updates and rollback are roadmap work. Production publication and deployment require separately authorized effects.
 
-The Environment selects where work runs; a HarnessProvider selects how an admitted producer operates. Neither replaces owner identity, Work authority, model accounting or independent verification. Foreman/Linear issue delegation is a retained optional legacy integration, not a second automatic production stage. DeepAgent and alternative harnesses are experiments or deferred integrations until individually qualified.
+The current chat beta can discuss this application and refine its requirements. It cannot yet deliver this entire workflow autonomously. Operating feedback and improvement complete the target lifecycle after delivery.
 
-## Product capabilities
+## Multi-Agent Collaboration
 
-### Sofie, conversations and continuity
+Sofie's intended coordination model includes internal MyEve coding agents, Codex, Claude Code, Cursor, Grok, ChatGPT Dots and other compatible external agents.
 
-- Authenticated owner chat with persisted threads and session binding, streamed responses, restored cursors and deduplicated events.
-- Same-conversation continuation after a completed assistant turn. `session.waiting: next-user-message` is the normal next-owner-turn boundary, not an execution failure.
-- Selected Work context and retained Work summaries keep explanations attached to the existing canonical Work, Result and Proof.
-- Browser reconnect must restore the same durable Current Truth; it must not create another Work, candidate or paid dispatch.
-- Model choice in ordinary owner chat is distinct from protected execution models. A bounded execution contract pins its own provider/model and fallback policy.
-- Native tools remain subject to capability, scope, approval and execution checks; describing an action does not authorize it.
-
-### Persistent Agents and Live Agent Cards
-
-Owners can create specialists with durable names, purposes and instructions, inspect their profiles, and select the relevant Agent. The primary Agent is protected. Agent creation does not confer external capabilities or inherit another Agent's credentials.
-
-Cards and home views expose persisted identity and available execution state. A card is an observation surface, not a worker lease or proof of completion. Specialist persistence and isolation have bounded qualification; every external tool or execution profile needs its own authority.
-
-### Today, Goals, Work Inbox and Needs You
-
-Goals, plans/tasks, paused Work and owner decisions feed the product's attention surfaces. Today summarizes canonical state; Work Inbox separates work and decisions requiring attention. Needs You and approvals expose explicit owner choices rather than treating silence as consent.
-
-A canonical Work has owner/repository scope, version/generation and lifecycle. Preparation, admission, dispatch, candidate verification and completion are distinct transitions. Historical failures and previous attempts remain attributable. Refresh, reconnect and repeated observation do not reset counters or create fresh authority.
-
-### Files, artifacts, Memory and Knowledge
-
-- Files/artifacts use private custody, immutable revision identities and authenticated byte readback. Public sharing, where configured, is a separate exact-version, revocable action.
-- Structured facts, preferences, observations and decisions are durable owner-scoped records. Semantic/long-term memory integrations require their own configured provider and qualification.
-- Private Memory, conversations, Inbox, Files, Knowledge, preferences and connections default to private ownership.
-- Retrieval must honor the active owner and context, including when Sofie participates in more than one private or shared context.
-- A database fixture or UI persistence check does not establish that every natural-language remembering/retrieval behavior has been live-qualified.
-
-### Private and shared-business context
-
-| Internal scope | Product wording | Rule |
-| --- | --- | --- |
-| `OWNER_PRIVATE` | Private | Visible only within the owner's authorized private context |
-| `BUSINESS_SHARED` | Shared with business | Explicit, durable sharing with authorized business owners |
-| `WORK_SCOPED` | Shared for this Work | Bounded context access for one authorized Work; underlying private objects remain private |
-
-Goals, Plans, Tasks, Work, Results, Proof, business artifacts/Knowledge, Decisions, Rooms and explicitly configured specialists may be shared when the corresponding surface is qualified. Sharing a deployment is never consent to share data. Work-scoped authorization ends under the Work policy; it does not promote private data into shared business state.
-
-Connections and secrets remain owner/service-identity scoped. Sharing Work does not share credentials. Decisions can require a specific owner, either owner or both owners according to the effect policy. This is a small private/shared-business model, not generalized enterprise RBAC or SCIM.
-
-### CLOUD Work, Result and Proof
-
-The qualified bounded path is:
-
-1. Natural owner intent resolves to canonical Work and an exact scoped authority.
-2. Environment, source, HarnessProvider, FactoryVersion, model, pricing, operations, deadline and allowed effects are checked.
-3. MyFactory admits one writer and a bounded candidate attempt under durable accounting.
-4. Candidate bytes enter Factory custody; the producer is torn down/fenced before protected verification.
-5. A separate verifier produces evidence for the exact candidate.
-6. Authenticated EvidenceProvider transport delivers TestEvidence/DiffEvidence to MyEve's own durable custody.
-7. MyEve independently verifies Work/Run/candidate/FactoryVersion/digest/byte bindings before admitting canonical Proof.
-8. The originating owner reads the Result/Proof and reconnects to the same durable state.
-
-Ambiguous paid-provider outcomes become UNKNOWN, retain conservative exposure and fence further dispatch. They do not authorize retry, fallback, a second candidate or budget reuse. Cleanup-only recovery cannot become productive continuation. Production authentication and Vercel deployment trust do not substitute for Work authorization.
-
-The accepted line-ending fixture and its 11 protected checks do **not** qualify arbitrary software tasks. General external-alpha Work needs its own supported workspace/verifier policy before activation.
-
-### Relay and optional integrations
-
-Relay discovery, messaging, written responses and Knowledge exchange are separate capabilities. Messaging requires valid identities, current Passports where required, exact grants and receiving policy. Only explicitly authorized message/context bytes are shared. An acknowledgment proves delivery, not a substantive answer or completed Work.
-
-The repository also contains optional integration surfaces for connected apps, email, Telegram, Slack, iMessage, phone/voice, local Mac access, cloud computer tools, push notifications and telemetry. Presence in source or the Builder catalog does not mean configured, live-qualified or included in this alpha. See the [environment example](apps/eve/.env.example) and [combined setup guide](docs/setup/myeve-relay-myfactory.md).
-
-### Additional application and Builder catalog
-
-These features remain discoverable in source and the Builder manifest; each deployment must expose only its qualified subset.
-
-| Feature | What it provides | Important limit |
-| --- | --- | --- |
-| Search and command palette | Message-content search, navigation, new chat and management shortcuts | Results remain scoped to the authenticated owner |
-| Message actions | Copy, edit/resend, regenerate and conversation fork | A fork does not inherit Work authority; a new model operation needs current budget |
-| Goal OS | Versioned plans, milestones, task dependencies, progress, Focus and explainable next actions | A suggested next action is not execution permission |
-| Outcomes and reviews | Owner feedback, deterministic daily/weekly priorities, blockers and retained review checkpoints | Feedback and acceptance stay separate from execution status |
-| Reminders and event triggers | One-off/cron reminder contracts, webhook-triggered conversations and delivery history | External alpha keeps unqualified background execution disabled |
-| Notifications | In-app unread state and configured push/channel destinations | Destination consent and channel authority remain explicit |
-| Runtime skills | Skill creation/listing/management and installed skill catalog | Skill text cannot expand a capability or Work grant; execution snapshots pin qualified skills |
-| Artifact workspace | Versioned documents, spreadsheets, presentations, comments, revision/restore and controlled sharing | Private custody and exact-version access checks remain required |
-| Receipts | Durable spending receipt recording, querying and summaries | Receipt history is not permission to spend or proof of provider accounting completeness |
-| Payments/cards | Optional Agentcard connection, consent and bounded card workflow source | Not part of the initial external-alpha allowlist |
-| Voice/media | Optional realtime voice, phone streaming, image conversion and Remotion rendering | Provider/media execution requires separate configuration and limits |
-| Observability/evaluations | OpenTelemetry and optional Braintrust/Raindrop export; routing, memory, safety and behavior evals | Export only under a reviewed privacy policy; evaluation calls may incur cost |
-
-`/review` exposes review and outcome surfaces, `/agents` manages persistent identities, and `/manage` collects installation/settings views. Feature-manifest inclusion is not a claim that every mutation executor is enabled: unqualified operations, including some memory mutation paths, remain blocked.
-
-## Proposed external-alpha exposure
-
-All entries below are a **target allowlist**, not an invitation or activation claim.
-
-| Prepare for the initial cohort | Keep disabled or withheld |
+| Agent surface | Verified support in current source |
 | --- | --- |
-| Sofie/Chat; persistent Agents; qualified Agent Cards | Unqualified optional tools and unrestricted delegation |
-| Today, Work Inbox, Needs You | Unqualified Routines and Rooms |
-| Owner Files and qualified Memory | Inherited Files/Memory or connected credentials |
-| Bounded owner-specific CLOUD Work and Result/Proof | OWNER_COMPUTER; publication; PR creation; merge; generated deployment; automatic repair |
-| Qualified owner-facing Relay functionality | Unrestricted federation and unqualified Email/Connected Apps |
+| Internal MyEve agents | Persistent specialists, instructions, selection and scoped Work/delegation foundations. Creating an agent does not grant coding or external execution authority. |
+| Claude Code | A bounded Docker executor adapter exists in the engineering source. It requires an explicit execution contract and qualified environment; the chat beta cannot invoke it. |
+| Codex, Cursor, Grok and ChatGPT Dots | No dedicated, production-qualified connector or execution path was verified in the reviewed MyEve source. These are integration goals. |
+| Other external agents | Relay implements a compatible peer protocol. A real recipient, supported protocol, authentication and exact grants must be verified independently. |
 
-Each tester requires a unique owner identity, deployment, database, private store, session identity, Relay binding, Factory application/trust and private workspace repository. Service source repositories and other owners' repositories are outside tester scope. Existing Relay accounts must be authenticated before linking; matching an email is not proof of account ownership.
+Selecting a model is separate from connecting an external agent. A delivered message is separate from completed software work. See [peer setup and acceptance](docs/setup/agent-communication.md) for the supported protocol and its limits.
 
-The inactive policy proposal reserves full allowances instead of recycling unused or uncertain exposure:
+## Current Capabilities
 
-| Proposed bound | Ceiling |
+**Reconciled October 25, 2026 (Pacific).** Source on `main`, the serving beta release and draft engineering branches are different states.
+
+| Area | What works today / remaining boundary |
 | --- | --- |
-| One Work | 5 aggregate model operations; $1.30; 180 productive seconds |
-| Candidate / writer | 1 / 1 |
-| Per-owner daily usage | 10 chat turns at $0.10 reserved per turn, at most 2 model operations per turn; 1 Work |
-| Per-owner daily / five-day allocation | $2.30 / $11.50 |
-| Combined two-owner daily / five-day allocation | $4.60 / $23.00 |
-| Day boundary | Shared UTC midnight; 120-hour lifetime after explicit activation |
+| External beta | Two isolated installations activated for bounded Sofie chat. Read-only checks on October 25 confirmed both production aliases still resolve to the retained chat-only deployments and both health endpoints report ready. |
+| Authentication and recovery | Owner authentication, database-backed password changes and owner-assisted, single-use password recovery are implemented on the serving beta lineage. Recovery is not an automatic email service. |
+| Conversation persistence | Assistant replies and completed turns survived browser refresh in the documented two-installation qualification. This does not qualify every reconnect or recovery scenario. |
+| Accounting | Owner/cohort reservations, limits and conservative handling of uncertain outcomes are qualified within the documented chat-only scope. Developer Work and paid Factory execution remain denied for this cohort. |
+| Engineering foundation | Scoped Work, decisions, private artifacts and independently checked Result/Proof consumption exist in source, with bounded historical execution evidence. General autonomous delivery is not production-ready. |
+| Beta feedback | Six improvements are under qualification in [draft PR #101](https://github.com/jaydubya818/MyEveBot/pull/101): accurate capability limits, reliable Today state, visible turn allowance, clear budgets, concise preference-aware replies and removal of the unexplained primary-agent chip. Runtime qualification remains incomplete; these changes are not verified as serving. |
 
-These are proposed fixed partitions, not active service guarantees. Ordinary Work/Factory integration, private-source materialization, appropriate protected verification, auxiliary paid-path fencing, deployment and per-tester qualification remain release gates. A provider account's monthly budget is not a substitute for these limits.
+The beta is time- and budget-bounded, not general availability. Production availability must be checked against actual serving deployments, current authorization and expiry. Health does not establish authenticated chat success or engineering readiness. [Status evidence and release links](docs/verification/readme-status-2026-10-25.md) record the distinction.
 
-## Builder and installation model
+## Getting Started
 
-`apps/builder` uses the actual `apps/eve` source as its template. It assembles selected features and instructions, provisions the configured resources, deploys through the Vercel API, and checks readiness. Feature-manifest checks prevent unmapped tools from silently entering a template.
-
-Deployments carry template/release metadata for updates. Updating an existing managed installation must preserve its owner identity, private data, environment configuration and storage association. Provisioning a project, linking a service, activating paid authority and granting a tester access are separate steps.
-
-The initial external alpha uses isolated installations rather than shared enterprise tenancy. Runtime credentials stay server-side. Do not copy an operator's, another tester's or a synthetic qualification owner's credentials into a new installation.
-
-## Local development
-
-Requirements: Node.js 24, npm, PostgreSQL/Neon for durable state, and a private artifact store for file flows. Configure model access only when deliberately testing model-backed behavior.
+Use **Node.js 24.x** and **npm 11.16.0**, as declared in the [root manifest](package.json). Install from the repository root using the committed lockfile.
 
 ```bash
+git clone https://github.com/jaydubya818/MyEveBot.git
+cd MyEveBot
 npm ci
 cp apps/eve/.env.example apps/eve/.env.local
-# Configure your own development database and owner identity first.
+```
+
+Configure your own development resources before starting the app:
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Dedicated Neon/PostgreSQL application database. The shipped migration CLI uses Neon's serverless driver; a plain local PostgreSQL connection alone is not equivalent. |
+| `MYEVE_OWNER_ID` | Stable owner identity for this installation. |
+| `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET` | Web authentication/bootstrap settings; required when authentication is enforced. Use at least 12 characters for the password and a random signing secret of at least 32 characters. Serving beta password management has additional requirements in its release documentation. |
+| `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN` | Model transport authentication. Credential configuration does not grant paid execution authority. |
+| `BLOB_READ_WRITE_TOKEN` | Private Vercel Blob storage for Files and artifact flows. |
+| `MYEVE_RELAY_*`, `MYFACTORY_*` | Optional integration configuration; follow the component setup guides before enabling it. |
+
+The [environment example](apps/eve/.env.example) lists optional services. Model access and paid integrations require your own authorized credentials and limits. Keep `.env.local` private and use isolated development data.
+
+```bash
 npm run db:migrations:check
+# Applies migrations to the development DATABASE_URL you configured above:
 npm run db:migrate
 npm run dev --workspace=eve-agent -- --port 3001
 ```
 
-`npm ci` also runs the `postinstall` dependency patch step (`scripts/security/apply-dependency-patches.mjs`); verify it with `npm run security:patches`.
+Open [localhost:3001/chat](http://localhost:3001/chat). The Next.js application mounts the Eve service at `/eve/v1/**`; wait for that backend to start before testing chat.
 
-Open `http://localhost:3001/chat`. The root `npm run dev` starts the default app and Builder development servers. To run only the Builder, copy `apps/builder/.env.example` to `apps/builder/.env.local` and run `npm run dev --workspace=eveclaw-builder` (port 3100). Next.js mounts the Eve service under `/eve/v1/**`; wait for the Eve backend to start before testing chat.
+The root `npm run dev` starts both application and Builder development tasks. To run Builder alone, copy `apps/builder/.env.example` to `apps/builder/.env.local`, configure its separate provisioning resources, and run `npm run dev --workspace=eveclaw-builder` on port 3100.
 
-| Configuration family | Purpose |
-| --- | --- |
-| `MYEVE_OWNER_ID`, `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET` | Stable deployment owner and authenticated web access |
-| `DATABASE_URL` | Durable application state and migration ledger |
-| `BLOB_READ_WRITE_TOKEN` | Private Files/artifact custody |
-| Gateway workload identity / approved development configuration | Model transport authentication, separate from spend authority |
-| `MYEVE_RELAY_*` | Explicit Relay integration |
-| Factory installation/execution configuration | Qualified source, application, evidence and Work contracts; operator-installed |
-| Optional provider variables in `.env.example` | Only the integrations explicitly configured for that installation |
+These instructions target `main` for development. It does not contain the complete serving beta authentication/accounting lineage. Do not deploy it over existing beta installations without release reconciliation.
 
-Never commit `.env.local`, session cookies or provider credentials. Production and preview authentication must both fail closed. An example configuration is not a production execution contract.
-
-## Migrations, checks and deployment
-
-Migrations run through the explicit operator path, not automatically during every build or request. Ordered files, recorded checksums and transaction/locking rules must remain intact. The canonical baseline includes migration `0084`; rollout-specific requirements are defined by [database-schema.ts](apps/eve/lib/database-schema.ts). Draft migration `0085` belongs to the inactive external-alpha proposal and is not part of this baseline.
-
-Use the qualified operator migration procedure when the selected database transport cannot apply a multi-statement file. Preserve file bytes and atomic ledger recording; do not mark an unapplied migration complete or edit historical migration bytes.
-
-```bash
-npm test                         # Core Node/script regressions
-npm test --workspace=eve-agent    # Agent/application regressions
-npm test --workspace=eveclaw-builder                 # Builder regressions
-npm test --workspace=@mission-control/capability-control  # Capability control package
-npm run typecheck                # Types, manifests and governance
-npm run db:migrations:check       # File/order validation; no database mutation
-npm run build
-```
-
-Integration suites require explicitly configured disposable databases. Provider/live tests may create resources or spend money and are not routine documentation checks. Skipped tests are not qualification passes.
-
-Canonical `main` is the source reference. [Vercel configuration](apps/eve/vercel.json) disables automatic production deployment from `main`; an operator release is separate from a merge. Release verification must check the actual source/deployment identity, migrations, authenticated owner flow, denied foreign access, Work/evidence boundaries and cleanup. Health alone is insufficient.
-
-## Operations and recovery
-
-- Disable admission before investigating uncertain execution; retain accounting and existing evidence.
-- Revoke sessions durably and verify retained-cookie rejection. Session revocation is separate from cancelling already-admitted Work.
-- Stop/fence the exact Work and revoke its authority; verify producer/verifier teardown and no reusable grants.
-- Roll back to a previously qualified deployment while preserving owner data and migration history.
-- Keep provider credentials, private production evidence and exact runtime identifiers out of public documentation, bundles, model context and candidate artifacts.
-- Real external invitations require a completed readiness matrix, owner-specific onboarding, spending/revocation controls and explicit cohort approval.
-
-## Repository and documentation map
+## Development and Testing
 
 | Path | Contents |
 | --- | --- |
-| [`apps/eve/agent`](apps/eve/agent) | Eve channels, tools, instructions, skills and hooks |
-| [`apps/eve/app`](apps/eve/app) | Product pages and authenticated API routes |
-| [`apps/eve/lib`](apps/eve/lib) | Durable stores, identity, capabilities, Work, Relay and evidence integration |
-| [`apps/eve/migrations`](apps/eve/migrations) | Ordered application schema history |
-| [`apps/builder`](apps/builder) | Provisioning, feature assembly, deployment and updates |
-| [Agent-native experience](docs/product/agent-native-work-experience.md) | Work in chat, Agent homes, Inbox and responsibility semantics |
-| [Product guide](docs/private-alpha/PRODUCT-GUIDE.md) | Product surfaces and intended flows |
-| [Combined setup](docs/setup/myeve-relay-myfactory.md) | Cross-repository configuration and boundaries |
-| [Agent communication](docs/setup/agent-communication.md) | Peer setup and response acceptance |
-| [Private-alpha checkpoint](docs/operations/external-alpha-qualification.md) | Dated synthetic-owner evidence and operating procedures |
-| [Historical checkpoints](docs/verification/readme-historical-checkpoints.md) | Earlier results and their original limits |
-| [Canonical source policy](docs/consolidation/DEVELOPMENT-POLICY.md) | Source durability and integration discipline |
-| [Roadmap](docs/roadmap.md) | Product priorities; read with the current release gates above |
+| [`apps/eve/app`](apps/eve/app), [`apps/eve/components`](apps/eve/components) | Product UI and authenticated routes. |
+| [`apps/eve/agent`](apps/eve/agent) | Eve agent definition, instructions, tools, channels and skills. |
+| [`apps/eve/lib`](apps/eve/lib) | Identity, stores, Work, integrations and evidence handling. |
+| [`apps/eve/migrations`](apps/eve/migrations), [`apps/eve/scripts`](apps/eve/scripts) | Ordered SQL migrations and operational/qualification tooling. |
+| [`apps/builder`](apps/builder) | Installation assembly, provisioning, deployment and updates. |
+| [`packages`](packages) | Shared capability policy and enforcement. |
+| [`docs`](docs), [`.github/workflows`](.github/workflows) | Design, operations, evidence and CI. |
+
+From the repository root:
+
+```bash
+npm test
+npm test --workspace=eve-agent
+npm test --workspace=eveclaw-builder
+npm test --workspace=@mission-control/capability-control
+npm run typecheck
+npm run db:migrations:check
+npm run security:patches
+npm run build
+```
+
+`npm ci` applies reviewed dependency patches through `postinstall`. Typechecking also validates capability registration, skill routing and executor governance. Database integration tests need explicitly configured disposable databases; skipped suites are not passing qualification. Live evaluations and provider tests can incur costs.
+
+Migrations use `NNNN_description.sql`, unique ordered numbers and SHA-256 ledger checksums. Apply them explicitly with `db:migrate`; builds do not migrate databases. Add forward migrations, preserve applied bytes and keep the [schema registry](apps/eve/lib/database-schema.ts) aligned. Follow the [source and migration policy](docs/consolidation/DEVELOPMENT-POLICY.md) when working across branches or existing deployments.
+
+[Standard CI](.github/workflows/ci.yml) checks installation, dependency patches, protocol contracts, selected regressions, types/governance, migration validation and builds, with a separate PostgreSQL job. [Capability qualification](.github/workflows/capability-control.yml) and the dedicated [CLOUD](.github/workflows/cloud-qualification.yml) / [assembled CLOUD](.github/workflows/consolidation-cloud-qualification.yml) workflows have separate triggers and scope.
+
+To contribute, branch from current remote `main`, keep changes focused, add meaningful regression coverage for behavior changes and open a PR with validation and limitations. Check the existing [Vercel branch rules](apps/eve/vercel.json) before publishing a branch: `main` is deployment-disabled, but unlisted branches may trigger previews. A merge is not a production release.
+
+## Security and Governance
+
+- **Explicit authority:** tools and agents require current owner, capability and resource scope. Discovery, model output and agent creation grant no permissions.
+- **Isolation:** private conversations, memory, files and credentials remain owner-scoped. Shared Work requires explicit authorization.
+- **Bounded execution:** enforce budgets, deadlines and writer controls before effects. Unknown paid outcomes retain exposure and block automatic redispatch.
+- **Independent evidence:** candidate custody and protected verification precede canonical Result/Proof acceptance. Publication, merge and deployment are separate actions.
+- **Controlled releases:** preserve owner identity, conversations, credential/session protections and accounting history. Validate the actual serving source and migration lineage before updates or rollback; isolate preview credentials and data.
+
+The beta uses isolated installations. Enterprise-wide policy administration and orchestration remain a separate MissionControl delivery goal.
+
+## Roadmap
+
+1. Complete qualification and authorized rollout of the six beta-feedback improvements and related reliability fixes in PR #101.
+2. Qualify Deep Agent execution and hosted MyFactory construction/verification for supported developer tasks.
+3. Add and qualify external agent adapters individually, including authentication, cancellation, evidence and budget controls.
+4. Complete MissionControl enterprise orchestration and MyApps application delivery, updates and rollback.
+5. Extend verified delivery into operation, feedback and controlled improvement.
+
+These are development priorities, not availability commitments. The [historical roadmap](docs/roadmap.md) retains earlier planning context; current release gates above take precedence.
+
+## Documentation Links
+
+- [Product experience](docs/product/agent-native-work-experience.md) and [product guide](docs/private-alpha/PRODUCT-GUIDE.md).
+- [MyEve, Relay and MyFactory setup](docs/setup/myeve-relay-myfactory.md).
+- [Agent communication](docs/setup/agent-communication.md) and [Deep Agent status](docs/setup/deepagent-harness.md).
+- [Source and migration policy](docs/consolidation/DEVELOPMENT-POLICY.md).
+- [Current README evidence reconciliation](docs/verification/readme-status-2026-10-25.md), including serving beta password/recovery, accounting and rollout references.
+- [Historical qualification checkpoints](docs/verification/readme-historical-checkpoints.md), including the superseded October 6 README and its original scope limits.
