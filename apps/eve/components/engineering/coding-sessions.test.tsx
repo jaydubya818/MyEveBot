@@ -9,6 +9,12 @@ describe("saved coding session presentation",()=>{
   expect(renderToStaticMarkup(<CodingSessions/>)).toContain("unavailable");
   expect(renderToStaticMarkup(<CodingSessions view={{sessions:[],artifacts:[],capabilities:{}} as unknown as View}/>)).toContain("No Factory coding sessions");
  });
+ it('shows a cancelled checkpoint and retained accounting without claiming verification',()=>{
+  const html=renderToStaticMarkup(<CodingSessions view={{sessions:[{id:'old',state:'CANCELLED',assignedAgentId:'coder-one',repository:'fixture/project',attemptNumber:1,baseSha:'abc',independentlyVerified:false}],historicalCheckpoint:{candidate:'def'},accounting:{blocker:'Cancelled budget retained'},artifacts:[],capabilities:{resume:{supported:false,reason:'Fresh Work admission required'}}} as unknown as View}/>);
+  expect(html).toContain('Unverified historical checkpoint');expect(html).toContain('newly approved Work');
+  expect(html).toContain('Cancelled budget retained');expect(html).toContain('does not establish verified success');
+  expect(html).toContain('0 integrity-checked artifacts');
+ });
  it.each([["RUNNING_REPORTED","Coding in progress"],["INTERRUPTING","Interruption requested"],["RECONCILIATION_REQUIRED","Reconciliation required"],["COMPLETED_UNVERIFIED","verification incomplete"],["VERIFICATION_FAILED","Verification failed"],["INDEPENDENT_CHECKS_PASSED","Independent checks passed"]])("renders %s without manufacturing success",(state,label)=>{
   const html=renderToStaticMarkup(<CodingSessions view={{sessions:[{id:"run",state,repository:"fixture/disposable",assignedAgentId:"coder-one",baseSha:"abc",attemptNumber:1,independentlyVerified:state==="INDEPENDENT_CHECKS_PASSED"}],artifacts:[],capabilities:{resume:{supported:false,reason:"In-place resume unqualified"}}} as unknown as View}/>);
   expect(html).toContain(label);expect(html).toContain("coder-one");expect(html).toContain("Deferred");

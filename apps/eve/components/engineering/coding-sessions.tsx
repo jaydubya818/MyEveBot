@@ -15,6 +15,7 @@ export function CodingSessions({view}:{view?:View}) {
    <p>{s.repository} · Attempt {s.attemptNumber}</p><p>Recorded session outcome: {s.recordedStatus ?? "Unconfirmed"}</p><p>Base commit: <code>{s.baseSha}</code></p>
    <p>{s.worktree&&<>Worktree: <code>{s.worktree}</code>. </>}{s.associationLimit}</p><p>{s.independentlyVerified?"The retained candidate passed independent checks.":"Session completion does not establish verified success."}</p>
   </li>)}</ul>}
+  {view.historicalCheckpoint&&<p>Unverified historical checkpoint: <code>{view.historicalCheckpoint.candidate}</code>. Resuming requires a newly approved Work and fresh admission.</p>}
   <p>{view.progress}</p><p>{view.nextStep}</p>
   {view.accounting?.blocker&&<p role="status">Accounting: {view.accounting.blocker}</p>}
   <p>{view.artifacts.length} integrity-checked artifact{view.artifacts.length===1?"":"s"} retained. Publication requires separate authorization.</p>

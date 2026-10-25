@@ -1,3 +1,4 @@
+import {retainedFactoryCheckpoint,retainedFactoryAccounting} from "./factory-checkpoint.ts";
 import { factoryAction, factoryActionSchema } from './factory-api.ts';
 import { FactoryEvidenceStore } from './factory-evidence-store.ts';
 import type { FactoryBinding } from './factory-receipt-store.ts';
@@ -163,6 +164,10 @@ export class FactoryCodingSessionAdapter {
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
       };
     });
+    const historicalCheckpoint=await retainedFactoryCheckpoint(this.store,id);
+    const accountingHistory=(await retainedFactoryAccounting(this.store,id)).map(r=>({workGeneration:r.workGeneration,requestId:r.requestId,terminal:r.terminal,
+      ceilingMicrousd:'ceilingMicrousd' in r.spend?r.spend.ceilingMicrousd:null,settledMicrousd:'settledMicrousd' in r.spend?r.spend.settledMicrousd:null,
+      retainedMicrousd:'retainedMicrousd' in r.spend?r.spend.retainedMicrousd:null,cancelled:'cancelled' in r.spend?r.spend.cancelled:null}));
     // Async evidence/history reads must not return a result under a changed Work.
     const latest = await this.store.get(id);
     if (latest.version !== work.version || latest.generation !== work.generation)
@@ -178,6 +183,7 @@ export class FactoryCodingSessionAdapter {
       status: p.status, progress: p.activity, nextStep: p.nextStep,
       control: work.control, lifecycle: work.lifecycle,
       sessions, artifacts, events, executionHistory: history,
+      historicalCheckpoint, accountingHistory,
       routingHistory: snapshot.routing.transitions, candidateHistory: p.candidateHistory,
       result: result ? { ...result, current: proof?.current === true,
         independentlyVerified: sessions.some(session => session.independentlyVerified) } : null,

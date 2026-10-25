@@ -23,7 +23,7 @@ function fixture() {
     factoryWriter: { runId }, verification: { status: 'NOT_RUN', candidateSha: candidate, evidenceCount: 0 },
     nativeResult: null, latestResult: null, readiness: { ready: false, reasons: ['Independent checks not established'] } } };
   const queries: string[] = [];
-  const query = vi.fn(async (sql: string, _params?: unknown[]) => { queries.push(sql); return sql.includes('FROM engineering_route_runs r') ? [row] : []; });
+  const query = vi.fn(async (sql: string, _params?: unknown[]) => { queries.push(sql); return sql.includes('AS spend') ? [] : sql.includes('FROM engineering_route_runs r') ? [row] : []; });
   const store = { principal: { scopeId: work.scopeId, actorId: work.scopeId, scopeKind: 'personal' },
     get: vi.fn(async () => work), events: vi.fn(async () => []), database: { query } };
   const invoke = vi.fn().mockResolvedValue({ state: 'guarded-upstream' });

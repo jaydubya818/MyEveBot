@@ -18,6 +18,7 @@ export interface ContinuationContext {
   workVersion: number;
   workGeneration: number;
   candidate: string | null;
+  checkpoint?: {receiptId:string;manifestDigest:string;candidate:string;tree:string;base:string;attemptId:string;trust:"ADVISORY_ONLY"}|null;
   result: {id:string;workVersion:number;workGeneration:number;proofSha256:string} | null;
   artifactRefs: string[];
   disposition: "TERMINAL_FENCED";

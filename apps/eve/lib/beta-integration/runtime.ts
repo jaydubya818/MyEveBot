@@ -1,3 +1,4 @@
+import {retainedFactoryCheckpoint,assertFencedFactoryAccounting} from "../engineering/factory-checkpoint.ts";
 import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import { PrivateResultAcceptance } from "../external-alpha/private-acceptance.ts";
 import { readExternalAlphaProofEvidence } from "../external-alpha/work-readback.ts";
@@ -141,8 +142,8 @@ export class BetaIntegration {
           AND NOT EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.factory_request_id=q.id AND r.dispatch_state='TERMINAL' AND r.fenced_at IS NOT NULL)`, [owner,workId]);
         if (outstanding.length) throw new Error("Canonical execution or preparation requires reconciliation");
         const snapshot = await new EngineeringWorkerProjectionStore(store).get(workId);
-        if (snapshot.projection.factoryAccounting?.blocker || snapshot.projection.factoryReservationHistoryIncomplete || snapshot.projection.factoryReservationHolds?.length ||
-            snapshot.projection.factoryUnresolvedPreparations?.length)
+        await assertFencedFactoryAccounting(store,workId);
+        if(snapshot.projection.factoryReservationHistoryIncomplete||snapshot.projection.factoryReservationHolds?.length||snapshot.projection.factoryUnresolvedPreparations?.length)
           throw new Error("Canonical accounting requires reconciliation");
         const latest = await store.get(workId);
         if (latest.version !== work.version || latest.generation !== work.generation) throw new Error("Work changed during handoff");
@@ -151,7 +152,7 @@ export class BetaIntegration {
         if(proof&&(!retained||retained.content_hash!==proof.contentHash||retained.candidate_sha!==proof.proof.resultRevision))
           throw new Error("Retained continuation proof binding changed");
         return { workId, workVersion:work.version, workGeneration:work.generation,
-          candidate:proof?.proof.resultRevision??null,
+          candidate:proof?.proof.resultRevision??null, checkpoint:await retainedFactoryCheckpoint(store,workId),
           result:proof?{id:proof.id,workVersion:Number(retained.work_version),workGeneration:Number(retained.work_generation),proofSha256:proof.contentHash}:null,
           artifactRefs:proof?.proof.artifactRefs??[], disposition:"TERMINAL_FENCED" as const };
       },
