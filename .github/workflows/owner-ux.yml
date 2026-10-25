@@ -127,6 +127,11 @@ jobs:
         with:
           node-version: 24.18.1
           cache: npm
+      - name: Required positive Work release preflight
+        if: ${{ always() }}
+        env:
+          MYEVE_POSITIVE_WORK_JOURNEY: ${{ matrix.journey }}
+        run: node scripts/myapps-composition/check-positive-work-release.mjs --source-commit "$GITHUB_SHA" --journey "$MYEVE_POSITIVE_WORK_JOURNEY"
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run postinstall && npm run security:patches
       - run: npx playwright install --with-deps chromium

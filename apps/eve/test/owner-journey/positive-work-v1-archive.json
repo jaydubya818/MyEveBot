@@ -1,0 +1,29 @@
+{
+  "version": "POSITIVE_WORK_V1_AT_95CBD216",
+  "sourceCommit": "95cbd216d09724b1a0e346e7076c92aae99cb09b",
+  "sourceTree": "64b5acb28cb1a7d56108c1084c4fa30f8a376e2f",
+  "releaseMode": "CHAT_ONLY_V1",
+  "qualification": "BLOCKED_NOT_QUALIFIED",
+  "originalPathsRetainedUnchanged": true,
+  "files": {
+    "apps/eve/test/owner-journey/runner-prod.ts": "d67d959043a603802bc61d75949618ce8d711ad5e4c17197e8ba696e3156137c",
+    "apps/eve/test/owner-journey/runner.ts": "3ea6570e2dc3804544834d7e536b9b9de44fd96f250b3cc59c1dd2f45d2e303b",
+    "apps/eve/test/owner-journey/gateway.ts": "cee51d550aa8b8830351dea38e13270d29150532cbfba0877f63e8bc0a8317fd",
+    "apps/eve/test/owner-journey/journey.spec.cjs": "b4cfb4cae1ae2fb02e6a37a5a9d883564a04df64f024043d2df353b3849e1f84",
+    "apps/eve/test/owner-journey/e3-natural-followup.spec.cjs": "051aca289346a60196ad69be5bf1c9733f62edb25e9e077b6827be7b42a7eba1",
+    "apps/eve/test/owner-journey/independent.spec.cjs": "4fe8f6bf6abd0365864389b1a6134962e140ebc6d353c1fde4c0b6da45eb71cf",
+    "apps/eve/test/owner-journey/playwright.config.cjs": "0fe63f06d4c967bb6d57447b3e200bad5189f355571507ffb6f9dd9fa9fbff81",
+    "apps/eve/test/owner-journey/e3.config.cjs": "bccea9cbdb7fe87997890534c71f8ae544b1874e02411251fa4b0f7c4c65a48f",
+    "apps/eve/test/owner-journey/independent.config.cjs": "b07fc2d1531f6c1c592db187e1f7ada431d09086e42447e3e3153a772536f4e0",
+    "apps/eve/test/owner-journey/README.md": "ac3a15b7eeca1966b47fb0eab281d6ce112d14c64f4572ba4821a2b12e38e7db"
+  },
+  "releaseGuardFiles": {
+    "apps/eve/lib/external-alpha/model.ts": "406f45c94c3e2605ec5ace2593ac8efedfe82256f69de35695fa6f7d1331c7d1",
+    "apps/eve/lib/external-alpha/tool-authority.ts": "c3502cfef60044fcad91bd2daa11d31aedba4aa705323a5466b8e402d4d2acd4",
+    "apps/eve/lib/external-alpha/features.ts": "9746f05ad90886627d9f9e30d12800062792a72a50a94acf1e3985b0e9c224f8",
+    "apps/eve/lib/external-alpha/context.ts": "5d96a998c9501560c8b482a170ef67cbfce6c54f15f960dd038a5e3970d67121",
+    "apps/eve/lib/external-alpha/shared-accounting-chat-only.sql": "c1ee56e72f20fae8e277a2bcada1644583dd3de0e9c69114f5d2b20eaca3cb14",
+    "apps/eve/migrations/0109_external_alpha_chat_only.sql": "71a3cf4eb5b4bcb12d9eb451dd2e35810773bf6c247243c2250aec44b725ffd3"
+  },
+  "scope": "Historical positive Work assertions and source remain intact. This manifest creates no Work authority and qualifies no current Work or chat behavior."
+}
