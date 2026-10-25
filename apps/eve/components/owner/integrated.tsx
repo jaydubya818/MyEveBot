@@ -650,6 +650,7 @@ export function IntegratedExperience({
                           <h3>{t.objective}</h3>
                           <State value={t.status} />
                           <p>{t.nextAction}</p>
+                          <p>Assigned agent: {t.assignedTo ?? "Unassigned"}</p>
                           {t.currentWork && (
                             <Link href={`/work?kind=work&id=${t.currentWork}`}>
                               Open Work

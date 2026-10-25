@@ -1,3 +1,5 @@
+import {sessionCapabilityFixture} from './coding-session-capability-fixture.mjs';
+import {FactoryCodingSessionAdapter} from '../lib/engineering/coding-sessions.ts';
 import {FactoryEvidenceClient} from "../lib/engineering/factory-evidence.ts";
 import {FactoryEvidenceStore} from "../lib/engineering/factory-evidence-store.ts";
 import {qualifyAlphaConversation} from './alpha-conversation-fixture.mjs';
@@ -32,6 +34,7 @@ import {manifestForSnapshot} from '../lib/engineering/base-preflight.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {EngineeringWorkerProjectionStore} from '../lib/engineering/worker-projection.ts';
 import {currentTruthLines} from '../lib/engineering/current-truth-lines.ts';
+const multiAgent=process.env.FACTORY_MULTI_AGENT_QUALIFICATION==='1';
 const firstPass=process.env.FACTORY_FIRST_PASS==='1';
 const productiveContract=process.env.FACTORY_PRODUCTIVE_CONTRACT==='1';
 const numericRange=process.env.FACTORY_NUMERIC_RANGE==='1';
@@ -50,7 +53,8 @@ const {DEFAULT_VERIFICATION_IMAGE,verifyWorkspaceTree:producerVerifyTree,verifyC
 const dir=await mkdtemp(join(tmpdir(),'factory-connected-')),repo=join(dir,'repository'),dataDir=join(dir,'producer');await mkdir(repo);await mkdir(dataDir);
 const adminURL=process.env.FACTORY_TEST_DATABASE_URL??'postgresql://postgres@127.0.0.1:55479/postgres';if(new URL(adminURL).hostname!=='127.0.0.1'||new URL(adminURL).pathname!=='/postgres')throw Error('Disposable local database server required');const name='factory_beta_'+randomBytes(6).toString('hex');
 const admin=new Client(adminURL);await admin.connect();await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:adminURL.replace(/postgres$/,'')+name});
-const database={query:async(s,p)=>(await pool.query(s,p)).rows};
+let capabilityFixture, releaseParallel;
+let database={query:async(s,p)=>(await pool.query(s,p)).rows};
 const migrationDB={...database,transaction:async ss=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
 let supervisor,spendProvider,providerCalls=0,checks=0,composition;const spendFixture=process.env.FACTORY_SPEND_FIXTURE==='1';const installedCli=process.env.FACTORY_INSTALLED_CLI==='1';if(installedCli&&!spendFixture)throw Error('Installed CLI qualification requires loopback spend fixture');const cliProvider=controlledCliResponses({correctFirstPass:firstPass,exerciseProductiveContract:productiveContract,exerciseNumericRange:numericRange,exerciseLocalChecks:attempt4,exerciseProductiveEnd:attempt5,exerciseCheckpoint:attempt6,exerciseOutputContract:attempt7,exerciseSearch:process.env.FACTORY_ENVELOPE_DRY_RUN==='1'});const cliVersion=installedCli?execFileSync('codex',['--version'],{encoding:'utf8'}).trim():'synthetic-codex-1';const modelBoundary=process.env.FACTORY_MODEL_BOUNDARY==='1';if(modelBoundary&&!installedCli)throw Error('Model boundary requires installed CLI and loopback provider');let boundaryEnabled=false,boundaryCapture=null,boundaryError=null;const boundaryAbort=new AbortController();const envelopeDryRun=process.env.FACTORY_ENVELOPE_DRY_RUN==='1';if(envelopeDryRun&&!installedCli)throw Error('Envelope dry run requires installed CLI');const envelope=envelopeDryRun?JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-28-spend-v2-integration/price-card.json',import.meta.url),'utf8')):null;const workCeiling=attempt4?1.35:envelope?envelope.proposedWorkCeilingMicrousd/1e6:1.3;const perOperationReserve=attempt4?336864:envelope?.perOperationReserveMicrousd??(installedCli?108000:1200);const results=[],journeys=[],terminalReceipts=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
 try{
@@ -67,6 +71,7 @@ try{
  const git=(...a)=>execFileSync('git',['-C',repo,...a],{encoding:'utf8'}).trim();if(envelopeDryRun){execFileSync('git',['clone','-q',new URL('../../../docs/verification/2026-09-27-live-readiness/live-fixture.bundle',import.meta.url).pathname,repo]);git('checkout','--detach','024bab53fbde4577deab812a1e9705f8118b176f');git('remote','remove','origin');}else git('init','-q');git('config','user.name','Local Factory fixture');git('config','user.email','fixture@example.invalid');
  const files=attempt4?liveBase.files:envelopeDryRun?Object.fromEntries(await Promise.all(git('ls-tree','-r','--name-only','HEAD').split('\n').map(async path=>[path,await readFile(join(repo,path),'utf8')]))):historical.workspace[0].source_files;for(const [path,text] of Object.entries(files)){await mkdir(join(repo,path,'..'),{recursive:true});await writeFile(join(repo,path),text);}if(!envelopeDryRun){git('add','.');git('commit','-qm','Local approved fixture');}const source={sha:git('rev-parse','HEAD'),files};
  const owner='factory-beta-'+randomUUID(),agentId='agent-'+randomUUID();await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps) VALUES($1,$2,'Sofie','sofie','engineer','Local connected Factory qualification',true,'active',$3,3600,30)`,[agentId,owner,workCeiling]);
+ if(multiAgent){capabilityFixture=await sessionCapabilityFixture(pool,adminURL.replace(/postgres$/,'')+name,owner,agentId);database=capabilityFixture.database;}
  const engineering=runtimeSchema.parse({...issued,ownerId:owner,agentId,nativeQualification:undefined,profile:{...issued.profile,repository:'fixture/golden',...(attempt7?{publicOutputContract:{path:'test/output-contract.json',sha256:createHash('sha256').update(source.files['test/output-contract.json']).digest('hex')}}:{})},approvedBase:manifestForSnapshot(source)});
  if(numericRange){
   const cases=JSON.parse(await readFile(new URL('./fixtures/quantity-safe-integer-protected.json',import.meta.url),'utf8'));
@@ -74,13 +79,13 @@ try{
   engineering.criteria[0].statement='Accept decimal integer quantities from 1 through Number.MAX_SAFE_INTEGER inclusive; reject unsafe, malformed, fractional, zero and negative input. Compact JSON plus exactly one LF, exit 0, empty stderr.';
  }else if(attempt7){engineering.profile.checks.push({id:'independent-positive',program:'quantity.mjs',input:'113\n',expectedOutput:'{"quantity":113}\n',expectedExitCode:0,criterionIds:engineering.criteria.map(c=>c.id)});}
  const pair=generateKeyPairSync('ed25519'),token='a'.repeat(64),proofToken='b'.repeat(64),proofExpires=new Date(Date.now()+3600000).toISOString(),key={factoryId:'factory-beta',keyId:'local',publicKey:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
- const signing={factoryId:key.factoryId,currentKeyId:key.keyId,privateKey:pair.privateKey.export({type:'pkcs8',format:'pem'}).toString(),keys:[key]};
+ const signing={...(multiAgent?{sessionMetadata:true}:{}),factoryId:key.factoryId,currentKeyId:key.keyId,privateKey:pair.privateKey.export({type:'pkcs8',format:'pem'}).toString(),keys:[key]};
  await writeFile(join(dataDir,'connections.json'),JSON.stringify({clients:[{id:'myeve',name:'Local qualification',tokenSha256:createHash('sha256').update(token).digest('hex'),ownerScope:owner,repositoryPaths:[repo],actions:['factory.prepare','factory.dispatch','factory.observe','factory.stop']},{id:'myeve-proof',name:'Proof qualification',tokenSha256:createHash('sha256').update(proofToken).digest('hex'),ownerScope:owner,purpose:'myeve-proof',expiresAt:proofExpires,repositoryPaths:[repo],actions:['evidence.read']}]}));
- let executions=0,completionExecutions=0,failCandidate=false,failedExecution=false,heldExecution=null,unknownProvider=false;
+ let executions=0,completionExecutions=0,failCandidate=false,failedExecution=false,heldExecution=null,unknownProvider=false,parallelExecution=null;
  if(spendFixture){spendProvider=createServer((req,res)=>{providerCalls++;if(boundaryEnabled){void (async()=>{const chunks=[];for await(const chunk of req)chunks.push(chunk);const request=JSON.parse(Buffer.concat(chunks).toString());assert.equal(request.model,'openai/gpt-5.4-mini');assert.equal(req.url,'/v1/responses');assert.equal(boundaryCapture,null,'Duplicate controlled boundary request');boundaryCapture={model:request.model,path:req.url,realModelOperations:0,forwarded:false};res.writeHead(503);res.end('Controlled boundary: stop before model generation');setTimeout(()=>boundaryAbort.abort(),100);})().catch(error=>{boundaryError=error.message;res.writeHead(500);res.end('Fixture assertion failed');boundaryAbort.abort();});return;}if(unknownProvider){res.writeHead(503);res.end('synthetic response lost');return;}if(installedCli){void cliProvider.respond(req,res,providerCalls).catch(error=>{console.error('Controlled provider:',String(error));res.writeHead(500);res.end(String(error));});return;}res.writeHead(200,{'content-type':'application/json','x-request-id':'synthetic-provider-'+providerCalls});res.end(JSON.stringify({id:'fixture-response-'+providerCalls,status:'completed',usage:{input_tokens:10,output_tokens:10}}));});await new Promise(r=>spendProvider.listen(0,'127.0.0.1',r));}
  const price={revision:envelope?'openai-gpt54mini-20260928':'synthetic-v1',model:envelope?.model??'openai/gpt-5.4-mini',validUntil:new Date(Date.now()+3600000).toISOString(),contextLimitTokens:attempt4?400000:envelope?.contextLimitTokens??(installedCli?100000:1000),outputLimitTokens:attempt4?8192:envelope?.outputLimitTokens??(installedCli?4000:100),inputMicrousdPerMillion:attempt4?750000:envelope?.inputMicrousdPerMillion??1000000,outputMicrousdPerMillion:attempt4?4500000:envelope?.outputMicrousdPerMillion??2000000};
  process.env.FACTORY_CODEX_MODEL=price.model;const settledPerCall=Math.ceil(10*price.inputMicrousdPerMillion/1e6)+Math.ceil(10*price.outputMicrousdPerMillion/1e6);
- const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:cliVersion,workerProfile:'mac',error:null}),runCodex:async input=>{const completion=input.sandbox==='read-only';if(completion)completionExecutions++;else if(!input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK'))executions++;if(failedExecution)return {success:false,status:'failed',eventsPath:'fixture',usage:null};if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}if(installedCli){
+ const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:cliVersion,workerProfile:'mac',error:null}),runCodex:async input=>{const completion=input.sandbox==='read-only';if(completion)completionExecutions++;else if(!input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK'))executions++;if(parallelExecution){await parallelExecution;if(input.signal.aborted)return {success:false,status:'cancelled',eventsPath:'synthetic interruption',usage:null};}if(failedExecution)return {success:false,status:'failed',eventsPath:'fixture',usage:null};if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}if(installedCli){
  assert.equal(input.model,price.model);
  if(boundaryEnabled)return installedRunCodex({...input,timeoutMs:10000,signal:AbortSignal.any([input.signal,boundaryAbort.signal])});
  await cliProvider.begin(input,failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:numericRange?numericFixture.positiveControl:historical.workspace[0].draft_files['quantity.mjs']);
@@ -90,7 +95,7 @@ try{
  return result;
  }if(spendFixture){assert(input.gateway);const paid=await fetch(input.gateway.baseUrl+'/responses',{method:'POST',headers:{authorization:'Bearer '+input.gateway.childToken,'content-type':'application/json'},body:JSON.stringify({model:input.model,input:'synthetic bounded coding request'})});if(unknownProvider){assert.equal(paid.status,503);return {success:false,status:'failed',eventsPath:'synthetic UNKNOWN',usage:null};}assert.equal(paid.status,200);}
  if(!completion)await writeFile(join(input.workspacePath,'quantity.mjs'),failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:numericRange?numericFixture.positiveControl:historical.workspace[0].draft_files['quantity.mjs']);return {success:true,status:'completed',threadId:'local-fixture',eventsPath:'fixture',usage:null};},verifyWorkspaceTree:async input=>{if(!failCandidate)return producerVerifyTree(input);return {exportStatus:'ready',checks:input.commands.map(command=>({command,status:'passed'})),manifestPath:'synthetic-dishonest-producer-check'};},verifyCandidate:async input=>{if((envelopeDryRun||attempt4)&&!failCandidate){const result=await producerVerifyCandidate(input);if(result.checks.some(c=>c.status!=='passed')||!result.checks.length)console.error('Producer verifier diagnostic:',JSON.stringify(result),await Promise.all(result.checks.map(c=>readFile(c.logPath,'utf8'))));return result;}await mkdir(input.artifactDir,{recursive:true});const checks=[];for(const [i,command] of input.commands.entries()){const logPath=join(input.artifactDir,i+'.log');await writeFile(logPath,'Untrusted producer claims PASS; MyEve must independently verify.');const at=new Date().toISOString();checks.push({candidateCommit:input.candidateSha,candidateTree:git('rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:at,finishedAt:at,logPath,reason:null});}return {checks,reason:null};}};
- supervisor=createSupervisor({dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:!spendFixture,...(spendFixture?{localSpendFixture:{upstreamOrigin:'http://127.0.0.1:'+spendProvider.address().port,upstreamApiKey:'synthetic-provider-only',price}}:{})});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
+ supervisor=createSupervisor({...(multiAgent?{maxParallelRuns:2}:{}),dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:!spendFixture,...(spendFixture?{localSpendFixture:{upstreamOrigin:'http://127.0.0.1:'+spendProvider.address().port,upstreamApiKey:'synthetic-provider-only',price}}:{})});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
  const configuration={model:price.model,executor:'codex-cli',executorVersion:cliVersion,skillRevision:'fd8f20a879b507cf09feba08663a1edf7a949353',workerProfile:'mac',verificationImage:DEFAULT_VERIFICATION_IMAGE,nodeVersion:process.version,platform:process.platform,architecture:process.arch,commands:['node --test'],allowedPaths:engineering.profile.allowedPaths,timeoutMs:1800000};
  const sourceDigest=sourceIdentity(),configurationDigest=digest(configuration);
  const connection={evidence:{ownerScope:owner,token:proofToken,expiresAt:proofExpires},origin:'http://127.0.0.1:'+supervisor.server.address().port,token,factoryId:key.factoryId,sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:repo,keys:[key],qualification:{scopeId:owner,profileHash:digest(engineering.profile),evidenceRef:'connected local qualification',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),mode:'LOCAL_FIXTURE',spendEnforced:true}};
@@ -206,7 +211,7 @@ try{
   assert.equal((await enqueueFactoryCommand(store,work.id,action,policy)).command.id,queued.command.id);
   const engineeringFile=join(dir,'queue-engineering.json'),factoryFile=join(dir,'queue-factory.json');
   await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands,routing:config.routing}));
-  const env={...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name};
+  const env={...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:capabilityFixture?.url??adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:capabilityFixture?.url??adminURL.replace(/postgres$/,'')+name};
   const launch=()=>spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env,stdio:['ignore','pipe','pipe']});
   let worker=launch(),exit=once(worker,'exit'),output='';worker.stderr.on('data',x=>output+=x);
   try {
@@ -231,7 +236,7 @@ try{
   if(boundary==='RESPONSE_LOST'){
    const engineeringFile=join(dir,'engineering.json'),factoryFile=join(dir,'factory.json');
    await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands,routing:config.routing}));
-   const worker=spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env:{...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name},stdio:['ignore','pipe','pipe']});
+   const worker=spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env:{...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:capabilityFixture?.url??adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:capabilityFixture?.url??adminURL.replace(/postgres$/,'')+name},stdio:['ignore','pipe','pipe']});
    let output='';worker.stderr.on('data',x=>output+=x);const exited=once(worker,'exit');
    try{
     let saved=false;for(let i=0;i<200;i++){const rows=await database.query('SELECT proof FROM engineering_native_results WHERE work_id=$1',[work.id]);if(rows.length){assert.equal(rows[0].proof.outcome,'PARTIAL');saved=true;break;}if(worker.exitCode!==null)break;await new Promise(r=>setTimeout(r,100));}
@@ -333,10 +338,44 @@ try{
   const saved=await new FactoryEvidenceStore(store).readProof(firstJourney.workId,firstJourney.resultId,ref);assert(saved.bytes.length>0);
  }
  pass('MyEve evidence readback survives Factory evidence cleanup');
- const output={firstPass,productiveContract,numericRange,attempt7,attempt6,completionTransition,alphaJourney,attempt5,attempt4,additionalRealModelOperations:0,...cliProvider.stats(),modelBoundary,boundaryCapture,spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6)-alphaExecutions,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
+ let parallelJourney=null;
+ if(multiAgent){
+  if(installedCli)throw Error('Concurrent journey is synthetic-only; no provider activation');
+  failCandidate=false;failedExecution=false;unknownProvider=false;
+  let release;parallelExecution=new Promise(r=>{release=r;releaseParallel=r;});const before=executions;
+  const a=await fresh('Concurrent coding role A'),b=await fresh('Concurrent coding role B');
+  await driver().start(a.id,a.version,a.generation);
+  await driver().start(b.id,b.version,b.generation);
+  for(let i=0;i<200&&executions-before<2;i++)await new Promise(r=>setTimeout(r,10));
+  assert.equal(executions-before,2);
+  const aa=new FactoryCodingSessionAdapter(store),av=await aa.observe(a.id),bv=await aa.observe(b.id);
+  assert.equal(av.sessions[0].state,'RUNNING_REPORTED');assert.equal(bv.sessions[0].state,'RUNNING_REPORTED');
+  assert.notEqual(av.sessions[0].attemptId,bv.sessions[0].attemptId);
+  const remoteA=supervisor.storage.getRun(av.sessions[0].attemptId),remoteB=supervisor.storage.getRun(bv.sessions[0].attemptId);
+  assert.notEqual(remoteA.workspacePath,remoteB.workspacePath);
+  assert.equal(av.sessions[0].worktree,remoteA.workspacePath);assert.equal(bv.sessions[0].worktree,remoteB.workspacePath);
+  await driver().stop(a.id); // exact same canonical stop; normal adapter command requires reviewed runtime files
+
+  assert.equal((await aa.observe(a.id)).sessions[0].state,'INTERRUPTING');
+  release();parallelExecution=null;
+  for(const w of [a,b])for(let i=0;i<200;i++){
+   const state=await driver().step(w.id);if(['PARTIAL','FAILED','TERMINAL'].includes(state.state))break;
+   await new Promise(r=>setTimeout(r,25));
+  }
+  const stopped=await aa.observe(a.id),completed=await aa.observe(b.id);
+  assert.equal(stopped.sessions[0].recordedStatus,'CANCELLED');assert.equal(stopped.sessions[0].dispatchState,'TERMINAL');assert.equal(stopped.sessions[0].sessionCompleted,true);
+  // Cancellation fences execution, but a conservative accounting hold must remain visible.
+  assert(['CANCELLED','RECONCILIATION_REQUIRED'].includes(stopped.sessions[0].state));assert.equal(completed.sessions[0].independentlyVerified,true);
+  assert.equal(completed.readiness.ready,false);assert.equal(executions-before,2);
+  parallelJourney={mode:'SYNTHETIC_EXECUTOR_REAL_HTTP_POSTGRES_FACTORY_DOCKER',works:[a.id,b.id],attempts:[av.sessions[0].attemptId,bv.sessions[0].attemptId],overlapping:true,isolatedWorktrees:true,interrupted:stopped.sessions[0].state,verified:completed.sessions[0].independentlyVerified,artifacts:completed.artifacts};
+  pass('Two normally admitted Works execute concurrently in separate Factory worktrees; one interrupted, one independently verified; no duplicate dispatch');
+ }
+ const output={parallelJourney,firstPass,productiveContract,numericRange,attempt7,attempt6,completionTransition,alphaJourney,attempt5,attempt4,additionalRealModelOperations:0,...cliProvider.stats(),modelBoundary,boundaryCapture,spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6)-alphaExecutions-(multiAgent?2:0),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
 }finally{
+ releaseParallel?.();
  if(supervisor)await supervisor.close();
+ if(capabilityFixture)await capabilityFixture.close();
  if(spendProvider)await new Promise(r=>spendProvider.close(r));
  await pool.end();
  // Pool.end may resolve before PostgreSQL has observed every socket close.

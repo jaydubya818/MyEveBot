@@ -18,6 +18,7 @@ import pg from "pg";
 import { z } from "zod";
 import { authenticateWebPrincipal, requireSameOrigin } from "../web-auth.ts";
 import { boundedJson } from "../relay/client.ts";
+import { EngineeringWorkerProjectionStore } from "../engineering/worker-projection.ts";
 import { WorkStore } from "../engineering/store.ts";
 import { createWorkSchema, WorkError } from "../engineering/types.ts";
 import {
@@ -127,6 +128,33 @@ export class BetaIntegration {
   }
   gateway(): CanonicalGateway {
     return {
+      continuation: async (owner, workId) => {
+        // Do not hand off an active Work, even if its last process exited. A
+        // terminal lifecycle plus canonical fences also rejects delayed starts.
+        const store = this.store(owner), work = await store.get(workId);
+        if (work.lifecycle === "active") throw new Error("Terminate and reconcile canonical Work before handoff");
+        const outstanding = await this.query(`SELECT r.id FROM engineering_route_runs r
+          WHERE r.scope_id=$1 AND r.scope_kind='personal' AND r.work_id=$2
+          AND (r.dispatch_state IS DISTINCT FROM 'TERMINAL' OR r.fenced_at IS NULL)
+          UNION ALL SELECT q.id FROM engineering_factory_requests q
+          WHERE q.scope_id=$1 AND q.scope_kind='personal' AND q.work_id=$2
+          AND NOT EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.factory_request_id=q.id AND r.dispatch_state='TERMINAL' AND r.fenced_at IS NOT NULL)`, [owner,workId]);
+        if (outstanding.length) throw new Error("Canonical execution or preparation requires reconciliation");
+        const snapshot = await new EngineeringWorkerProjectionStore(store).get(workId);
+        if (snapshot.projection.factoryAccounting?.blocker || snapshot.projection.factoryReservationHistoryIncomplete || snapshot.projection.factoryReservationHolds?.length ||
+            snapshot.projection.factoryUnresolvedPreparations?.length)
+          throw new Error("Canonical accounting requires reconciliation");
+        const latest = await store.get(workId);
+        if (latest.version !== work.version || latest.generation !== work.generation) throw new Error("Work changed during handoff");
+        const proof = snapshot.projection.nativeResult;
+        const [retained] = proof ? await this.query("SELECT work_version,work_generation,candidate_sha,content_hash FROM engineering_native_results WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND id=$3",[owner,workId,proof.id]) : [];
+        if(proof&&(!retained||retained.content_hash!==proof.contentHash||retained.candidate_sha!==proof.proof.resultRevision))
+          throw new Error("Retained continuation proof binding changed");
+        return { workId, workVersion:work.version, workGeneration:work.generation,
+          candidate:proof?.proof.resultRevision??null,
+          result:proof?{id:proof.id,workVersion:Number(retained.work_version),workGeneration:Number(retained.work_generation),proofSha256:proof.contentHash}:null,
+          artifactRefs:proof?.proof.artifactRefs??[], disposition:"TERMINAL_FENCED" as const };
+      },
       policy: async (request) => ({
         ...this.policy,
         methods: request.criteria.map(() => "test" as const),
@@ -470,6 +498,7 @@ export async function betaRequest(
     }
     if (resource === "goals")
       return createGoalApi({
+        handoffEnabled: process.env.MYEVE_ENGINEERING_SESSIONS_QUALIFICATION === "true" && process.env.MYEVE_ENGINEERING_MODE === "dogfood" && process.env.VERCEL_ENV !== "production",
         authenticate: signedGoalAuthenticator(),
         service: (o) => beta.service(o, "owner"),
         queries: (o) => beta.queries(o),

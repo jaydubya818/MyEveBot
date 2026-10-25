@@ -1,3 +1,4 @@
+import { FactoryCodingSessionAdapter } from "../engineering/coding-sessions.ts";
 import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import { hostedFactoryQueue } from "../engineering/deployment-mode.ts";
 import { factoryAction } from "../engineering/factory-api.ts";
@@ -227,10 +228,12 @@ export class CanonicalBetaWork {
       "SELECT id FROM agents WHERE owner_id=$1 AND is_primary AND status='active' ORDER BY id LIMIT 1",
       [owner],
     );
-    const { projection } = await new EngineeringWorkerProjectionStore(
+    const observed = await new EngineeringWorkerProjectionStore(
       this.beta.store(owner),
       String(agent?.id ?? "unbound-sofie"),
     ).get(workId);
+    const { projection } = observed;
+    const codingSessions = await new FactoryCodingSessionAdapter(this.beta.store(owner)).observe(workId, observed);
     const [admission] = await this.beta.query(
       "SELECT status,reason,work_version,work_generation FROM beta_work_admission_attempts WHERE owner_id=$1 AND work_id=$2 ORDER BY updated_at DESC LIMIT 1",
       [owner, workId],
@@ -241,6 +244,7 @@ export class CanonicalBetaWork {
     );
     return {
       projection,
+      codingSessions,
       admission: admission
         ? {
             status: String(admission.status),

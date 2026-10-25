@@ -132,9 +132,16 @@ export class HttpExternalAlphaFactoryClient implements ExternalAlphaFactoryClien
       headers: { ...(await this.headers()), ...(challenge ? { "x-external-alpha-challenge": challenge } : {}) },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
-    if (allow404 && response.status === 404) return null;
     const text = await response.text();
     if (text.length > limit) throw Error("EXTERNAL_ALPHA_FACTORY_RESPONSE_BOUND");
+    // Only the Factory's exact owner-scoped absence body means "no such request for this installation". Any other 404
+    // (a platform page, a wrong deployment, a proxy) proves nothing and stays ambiguous.
+    if (allow404 && response.status === 404) {
+      let absent = false;
+      try { const parsed = JSON.parse(text); absent = parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) && Object.keys(parsed).length === 1 && parsed.error === "NOT_FOUND"; } catch { absent = false; }
+      if (absent) return null;
+      throw Error("EXTERNAL_ALPHA_FACTORY_UNAVAILABLE:404");
+    }
     if (!response.ok) {
       let code = "";
       try {
@@ -376,8 +383,17 @@ export class ExternalAlphaWorkController {
       );
     } catch (error) {
       if (error instanceof FactoryDenied && error.code !== "AUTHORITY_CONSUMED") {
-        await this.authority.finish(record.id, "CANCELLED", { reason: "FACTORY_DENIED:" + error.code });
-        throw error;
+        // A refusal is accepted as definitive only when an authenticated, owner-scoped readback also shows that the
+        // Factory holds no admission for this request (404). A readback that finds the request, or that cannot be
+        // obtained, leaves the outcome ambiguous: the Work may exist, so the authority is fenced UNKNOWN, never CANCELLED.
+        let absent = false;
+        try { absent = (await this.factory.read(record.requestId, readbackChallenge())) === null; } catch { absent = false; }
+        if (absent) {
+          await this.authority.finish(record.id, "CANCELLED", { reason: "FACTORY_DENIED:" + error.code });
+          throw error;
+        }
+        await this.authority.finish(record.id, "UNKNOWN", { reason: "FACTORY_DENIAL_UNCONFIRMED:" + error.code }).catch(() => {});
+        throw Error("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
       }
       // Ambiguous: the Factory may have consumed. Fence; never re-send.
       await this.authority.finish(record.id, "UNKNOWN", { reason: "DISPATCH_AMBIGUOUS" }).catch(() => {});

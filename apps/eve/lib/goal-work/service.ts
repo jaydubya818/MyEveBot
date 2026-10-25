@@ -15,6 +15,7 @@ import type {
 } from "./contracts.ts";
 import {
   dependency,
+  handoffInput,
   goalInput,
   resultSchema,
   signalSchema,
@@ -107,6 +108,7 @@ export class GoalWorkService {
         "GOAL_ARCHIVE",
         "TASK_CREATED",
         "TASK_CHANGED",
+        "TASK_HANDOFF",
         "TASK_PAUSE",
         "TASK_RESUME",
         "TASK_CANCEL",
@@ -345,6 +347,55 @@ export class GoalWorkService {
         ],
       );
     }
+  }
+  /** Changes planning ownership only. Existing Work, writers, budgets and
+   * governance remain authoritative. Unknown prior effects block the handoff. */
+  async handoffTask(goalId: string, taskId: string, value: unknown) {
+    this.owner();
+    const input = handoffInput.parse(value);
+    const commandKey = `goal-handoff:${input.commandId}`;
+    const commandHash = fingerprint([goalId, taskId, input]);
+    return this.locked(goalId, async (tx, g) => {
+      const [prior] = await tx.query(
+        "SELECT goal_id,goal_task_id,payload FROM eve_events WHERE owner_id=$1 AND idempotency_key=$2",
+        [this.ownerId, commandKey]);
+      if (prior) {
+        if (prior.goal_id !== goalId || prior.goal_task_id !== taskId || prior.payload.commandHash !== commandHash)
+          throw new Error("Handoff command identity conflict");
+        return prior.payload;
+      }
+      this.mutable(g);
+      const t = await this.task(tx, goalId, taskId);
+      if (g.revision !== input.expectedRevision || t.generation !== input.expectedTaskGeneration)
+        throw new Error("Stale handoff revision");
+      if (terminal.has(t.status)) throw new Error("Terminal task cannot be handed off");
+      const links = await tx.query(
+        "SELECT * FROM goal_work_links WHERE owner_id=$1 AND task_id=$2 ORDER BY created_at LIMIT 101",
+        [this.ownerId, taskId]);
+      if (links.length > 100) throw new Error("Handoff history requires review");
+      const sources = [];
+      for (const link of links) {
+        // A committed intent without a known Work cannot safely be superseded.
+        if (!link.work_id && link.state === "prepared") throw new Error("Reconcile unknown Work before handoff");
+        if (link.work_id) {
+          if (!this.work.continuation) throw new Error("Canonical continuation reader is deferred");
+          sources.push(await this.work.continuation(this.ownerId, link.work_id));
+        }
+      }
+      const context = { fromAgent: t.assigned_to, reason: input.reason, sources };
+      await tx.query(
+        "UPDATE goal_work_links SET state='superseded',reason='Owner handoff after canonical terminal fence',updated_at=now() WHERE owner_id=$1 AND task_id=$2 AND state IN ('prepared','linked')",
+        [this.ownerId, taskId]);
+      // The existing task fence also increments on an assignment change. One
+      // generation increment is sufficient even when the owner resumes a role.
+      await tx.query(
+        "UPDATE goal_tasks SET assigned_to=$3,generation=generation+1,status='todo',paused=false,blocker=NULL,updated_at=now() WHERE goal_id=$1 AND id=$2",
+        [goalId, taskId, input.assignedTo]);
+      const changed = await this.task(tx, goalId, taskId);
+      await this.event(tx, goalId, "TASK_HANDOFF", "Owner handed off task context", taskId,
+        { commandHash, context, assignedTo: input.assignedTo, taskGeneration: changed.generation }, commandKey);
+      return { commandHash, context, assignedTo: input.assignedTo };
+    });
   }
   async reviseTask(goalId: string, taskId: string, value: unknown) {
     this.owner();
@@ -608,7 +659,11 @@ export class GoalWorkService {
           ]),
         )
         .digest("hex");
+      const [handoff] = await tx.query(
+        "SELECT payload FROM eve_events WHERE owner_id=$1 AND goal_id=$2 AND goal_task_id=$3 AND type='TASK_HANDOFF' ORDER BY occurred_at DESC,id DESC LIMIT 1",
+        [this.ownerId, g.id, t.id]);
       const request: WorkRequest = {
+        ...(handoff?.payload.taskGeneration === t.generation ? { continuation: handoff.payload.context } : {}),
         ...context,
         correlationKey: key,
         objective: t.title,

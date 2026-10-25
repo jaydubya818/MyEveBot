@@ -14,9 +14,9 @@ import {
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
 import {
-  factoryAction,
   factoryActionSchema,
 } from "../../lib/engineering/factory-api.ts";
+import { FactoryCodingSessionAdapter } from "../../lib/engineering/coding-sessions.ts";
 import { factoryConfig } from "../../lib/engineering/factory-routing.ts";
 import { WorkStore } from "../../lib/engineering/store.ts";
 import { WorkError } from "../../lib/engineering/types.ts";
@@ -66,6 +66,7 @@ export default defineDynamic({
         !ENGINEERING_WORK_ID_PATTERN.test(selected)
       )
         return null;
+      const ownerId = initial.principalId;
       return defineTool({
         availableInSubagents: false,
         description: FACTORY_TOOL_DESCRIPTION,
@@ -90,7 +91,7 @@ export default defineDynamic({
               const principal = toolCtx.session.auth.current;
               if (
                 !principal ||
-                principal.principalId !== initial?.principalId ||
+                principal.principalId !== ownerId ||
                 principal.principalType !== "user" ||
                 principal.attributes.owner !== "true" ||
                 principal.attributes.role === "guest" ||
@@ -110,7 +111,7 @@ export default defineDynamic({
               );
               const hosted = hostedFactoryQueue(),
                 external = externalAlphaInstallation(),
-                config = hosted || external ? null : await factoryConfig(),
+                config = hosted || external ? null : await factoryConfig(process.env.MYEVE_FACTORY_WORK_PROFILES ? await new WorkStore({scopeKind:"personal",scopeId:principal.principalId,actorId:principal.principalId}).get(selected) : undefined),
                 agent = await resolveSessionAgent({
                   ownerId: principal.principalId,
                   sessionId: toolCtx.session.id,
@@ -180,7 +181,7 @@ export default defineDynamic({
                       sessionId: toolCtx.session.id,
                       callId: toolCtx.callId,
                     });
-                  await factoryAction(store, selected, input);
+                  await new FactoryCodingSessionAdapter(store).command(selected, input);
                   return {
                     currentTruth: currentTruthLines(
                       (

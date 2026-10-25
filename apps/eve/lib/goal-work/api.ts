@@ -2,8 +2,9 @@ import { z } from "zod";
 import { requireSameOrigin, authenticateWebPrincipal } from "../web-auth.ts";
 import type { GoalWorkService } from "./service.ts";
 import type { GoalWorkQueries } from "./projections.ts";
-import { goalInput, taskInput, text } from "./validation.ts";
+import { goalInput, taskInput, handoffInput, text } from "./validation.ts";
 const command = z.discriminatedUnion("operation", [
+  z.object({operation: z.literal("handoff"), goalId: text, taskId: text, handoff: handoffInput}).strict(),
   z.object({ operation: z.literal("create"), goal: goalInput }).strict(),
   z
     .object({
@@ -67,6 +68,8 @@ const command = z.discriminatedUnion("operation", [
     .strict(),
 ]);
 export interface GoalApiDependencies {
+  /** Explicit isolated qualification registration only; disabled by default. */
+  handoffEnabled?: boolean;
   authenticate(request: Request): Promise<{ id: string } | null>;
   service(ownerId: string): GoalWorkService;
   queries(ownerId: string): GoalWorkQueries;
@@ -160,6 +163,9 @@ export function createGoalApi(deps: GoalApiDependencies) {
       }
       const input = command.parse(JSON.parse(body));
       switch (input.operation) {
+        case "handoff":
+          if (!deps.handoffEnabled) return send({error:"handoff_deferred"},409);
+          return send({ handoff: await service.handoffTask(input.goalId, input.taskId, input.handoff) });
         case "create":
           await service.create(input.goal);
           return send({ goal: await queries.goal(input.goal.id) }, 201);

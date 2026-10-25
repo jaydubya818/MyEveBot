@@ -49,7 +49,8 @@
       "cursor/qa-mobile-forms-b54d": false,
       "cursor/qa-medium-low-b54d": false,
       "cursor/qa-deep-agent-b54d": false,
-      "cursor/qa-main-integration-6ef4": false
+      "cursor/qa-main-integration-6ef4": false,
+      "codex/sofie-multi-agent-integration-20261025": false
     }
   },
   "functions": {

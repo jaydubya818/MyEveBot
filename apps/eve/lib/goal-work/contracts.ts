@@ -13,7 +13,18 @@ export interface GoalContext {
   goalGeneration: number;
   taskGeneration: number;
 }
+export interface ContinuationContext {
+  workId: string;
+  workVersion: number;
+  workGeneration: number;
+  candidate: string | null;
+  result: {id:string;workVersion:number;workGeneration:number;proofSha256:string} | null;
+  artifactRefs: string[];
+  disposition: "TERMINAL_FENCED";
+}
 export interface WorkRequest extends GoalContext {
+  /** Retained data only. A successor still needs normal canonical admission. */
+  continuation?: { fromAgent: string | null; reason: string; sources: ContinuationContext[] };
   correlationKey: string;
   objective: string;
   goalObjective: string;
@@ -66,6 +77,9 @@ export interface WorkResult {
   satisfiedGoalCriteria?: string[];
 }
 export interface WorkPort {
+  /** Trusted canonical reader. Terminal lifecycle, fenced writers and settled
+   * accounting are all required; unknown execution must throw, never infer. */
+  continuation?(ownerId: string, workId: string): Promise<ContinuationContext>;
   /** MUST persistently deduplicate the key, reject changed payloads, and recheck
    * current canonical authority/budget. This creates intent, never an executor.
    * Must be bounded; called under the Goal lock. Unknown outcomes are reconciled

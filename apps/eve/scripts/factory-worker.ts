@@ -19,7 +19,18 @@ const {Client}=createRequire(import.meta.url)('pg');const client=new Client({con
 await client.connect();
 let stopping=false;process.on('SIGTERM',()=>{stopping=true;});process.on('SIGINT',()=>{stopping=true;});
 client.on('error',()=>{stopping=true;});
-const store=new WorkStore({scopeKind:'personal',scopeId:owner,actorId:owner},{query:async(q,p)=>(await client.query(q,p)).rows});
+const store=new WorkStore({scopeKind:'personal',scopeId:owner,actorId:owner},{
+ query:async(q,p)=>(await client.query(q,p)).rows,
+ // Admission must retain policy locks and the Work write on this same pinned
+ // connection. The worker already owns its session advisory lock here.
+ atomic:async action=>{
+  await client.query('BEGIN');
+  try{
+   const result=await action({query:async(q,p)=>(await client.query(q,p)).rows});
+   await client.query('COMMIT');return result;
+  }catch(error){await client.query('ROLLBACK');throw error;}
+ },
+});
 try {
  const [lock]=await store.database.query("SELECT pg_try_advisory_lock(hashtextextended('myeve:factory-worker:' || $1,0)) AS acquired",[owner]);
  if(!lock?.acquired)throw Error('Another Factory worker owns this scope.');
@@ -31,7 +42,7 @@ try {
    if(stopping)break;
    if(approval&&(row.work_id!==approval.workId||Number(row.version)!==approval.version||Number(row.generation)!==approval.generation))continue;
    try {
-    const driver=await factoryRuntime(store);
+    const driver=await factoryRuntime(store,undefined,row.work_id);
     const stops=alpha?await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]):[];
     if(stops.length)await driver.stop(row.work_id,stops[0].operation==='takeover'?'takeover':'cancel');else await driver.step(row.work_id);
     if(alpha)await store.database.query(`UPDATE beta_goal_work_bindings b SET binding=jsonb_set(jsonb_set(binding,'{workGeneration}',to_jsonb(w.generation)),'{state}','"ADMITTED"'::jsonb) FROM engineering_work w,engineering_routing_decisions d WHERE b.owner_id=$1 AND b.work_id=$2 AND w.scope_id=b.owner_id AND w.scope_kind='personal' AND w.id=b.work_id AND d.scope_id=w.scope_id AND d.scope_kind=w.scope_kind AND d.work_id=w.id AND d.work_version=w.version AND d.selected_route='MYFACTORY' AND d.status='ADMITTED'`,[owner,row.work_id]);

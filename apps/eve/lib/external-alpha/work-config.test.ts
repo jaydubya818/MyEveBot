@@ -23,6 +23,13 @@ describe("dedicated external-alpha Factory destination",()=>{
       await expect(client.read("fixture","a".repeat(32))).rejects.toThrow("ORIGIN_BINDING");expect(events).toEqual([]);
     }
   });
+  it("treats only the Factory's exact owner-scoped absence body as absence; any other 404 is ambiguous",async()=>{
+    const cfg=config(),claims={project_id:"prj_fixture",owner_id:"team_Fixture",environment:"production",exp:Math.floor(Date.now()/1000)+60};
+    const client=(response:()=>Response)=>new HttpExternalAlphaFactoryClient(cfg,{projectId:"prj_fixture"},{env:env(cfg),token:()=>"fixture-token",oidc:async()=>"fixture."+Buffer.from(JSON.stringify(claims)).toString("base64url")+".fixture",fetcher:async()=>response()});
+    expect(await client(()=>Response.json({error:"NOT_FOUND"},{status:404})).read("fixture","a".repeat(32))).toBeNull();
+    for(const other of [()=>new Response("The page could not be found\n\nDEPLOYMENT_NOT_FOUND",{status:404}),()=>Response.json({error:"NOT_FOUND",code:"x"},{status:404}),()=>Response.json({},{status:404}),()=>Response.json(null,{status:404}),()=>Response.json(["NOT_FOUND"],{status:404})])
+      await expect(client(other).read("fixture","a".repeat(32))).rejects.toThrow("EXTERNAL_ALPHA_FACTORY_UNAVAILABLE:404");
+  });
   it("keeps exact production application/project/team OIDC checks before sending to the dedicated destination",async()=>{
     for(const mismatch of [undefined,{project_id:"prj_other"},{owner_id:"team_Other"},{environment:"preview"}]){
       const cfg=config(),events:string[]=[],claims={project_id:"prj_fixture",owner_id:"team_Fixture",environment:"production",exp:Math.floor(Date.now()/1000)+60,...mismatch};
