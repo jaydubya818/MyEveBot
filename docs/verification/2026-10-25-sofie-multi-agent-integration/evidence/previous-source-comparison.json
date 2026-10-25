@@ -1,0 +1,17 @@
+{
+  "target": "7028439b7050b04840ae3421016f8540c1595add",
+  "worktreeHead": "a059db09a978caa9def24aa0fbae392aed96ce95",
+  "baseline": "f9b2623cde4d164386185eee16d6c06ec7554bec",
+  "cleanStart": true,
+  "codeDeltaAfterTarget": "",
+  "sourceEquality": {
+    "apps/eve/lib/decision-intelligence/jev-provider.test.ts": true,
+    "apps/eve/lib/decision-intelligence/jev-provider.ts": true,
+    "apps/eve/lib/decision-intelligence/contract.ts": true,
+    "apps/eve/package.json": true,
+    "package-lock.json": true
+  },
+  "node": "v24.18.1",
+  "archiveSha256": "7fc9d348a4ede7260020adcf1bfedd5be9dd3c962ccb28179ee8773d9990a687",
+  "baselineDirectory": "/private/tmp/sofie-final-qualification-7028439b/baseline"
+}

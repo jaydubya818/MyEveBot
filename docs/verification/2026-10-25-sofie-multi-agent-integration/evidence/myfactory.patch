@@ -1,0 +1,741 @@
+diff --git a/apps/cloud-control/src/source-identity.json b/apps/cloud-control/src/source-identity.json
+index 3a7298d..bb3a05f 100644
+--- a/apps/cloud-control/src/source-identity.json
++++ b/apps/cloud-control/src/source-identity.json
+@@ -1,4 +1,4 @@
+ {
+   "version": 1,
+-  "sourceDigest": "8b5f65861455f3290820cb111ad81e9f3729781e4ef00188521b7fe020776600"
++  "sourceDigest": "d9d79acf5bf0d3ea0e94838a44a82ea4c971b437db78c3a6a59bd5177552ba72"
+ }
+diff --git a/apps/cloud-control/test/pricing-qualification.test.mjs b/apps/cloud-control/test/pricing-qualification.test.mjs
+index 95951a7..272c971 100644
+--- a/apps/cloud-control/test/pricing-qualification.test.mjs
++++ b/apps/cloud-control/test/pricing-qualification.test.mjs
+@@ -70,14 +70,17 @@ test('an exact old approval cannot authorize the successor execution contract',
+ 
+ import impact from '../../../docs/external-alpha/pricing-backport-20261011/identity-impact.json' with {type:'json'};
+ import sourceIdentity from '../src/source-identity.json' with {type:'json'};
+-import predecessorSuccessor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-runtime-source-successor.json' with {type:'json'};
+-import currentSuccessor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json' with {type:'json'};
++import runtimeSuccessor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-runtime-source-successor.json' with {type:'json'};
++import predecessorSuccessor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json' with {type:'json'};
++import currentSuccessor from '../../../docs/capability-control/source-identity-20261025/sofie-integration-successor.json' with {type:'json'};
+ import {externalAlphaFactoryVersion,externalAlphaConfiguration,externalAlphaRuntimeComponents} from '../src/external-alpha-runtime.mjs';
+ import {loadVectors,installationOf} from './fixtures/myeve-conformance/support.mjs';
+ 
+ test('separate successor identity preserves configuration; an old installation cannot authorize it', () => {
+  assert.equal(sourceIdentity.sourceDigest,currentSuccessor.sourceDigest);
+- assert.equal(currentSuccessor.predecessorSourceDigest,'c239cad91c6811a738dcd9baac34b7e884df79ce051ab683cf6005b86a6c890c');
++ assert.equal(predecessorSuccessor.predecessorSourceDigest,'c239cad91c6811a738dcd9baac34b7e884df79ce051ab683cf6005b86a6c890c');
++ assert.equal(predecessorSuccessor.predecessorSourceDigest,runtimeSuccessor.sourceDigest);
++ assert.equal(currentSuccessor.predecessorSourceDigest,'8b5f65861455f3290820cb111ad81e9f3729781e4ef00188521b7fe020776600');
+  assert.equal(currentSuccessor.predecessorSourceDigest,predecessorSuccessor.sourceDigest);
+  assert.equal(currentSuccessor.configurationDigest,predecessorSuccessor.configurationDigest);
+  assert.notEqual(sourceIdentity.sourceDigest,currentSuccessor.predecessorSourceDigest);
+diff --git a/apps/cloud-control/test/source-identity-qualification.test.mjs b/apps/cloud-control/test/source-identity-qualification.test.mjs
+index b92017a..0a37fbf 100644
+--- a/apps/cloud-control/test/source-identity-qualification.test.mjs
++++ b/apps/cloud-control/test/source-identity-qualification.test.mjs
+@@ -33,7 +33,8 @@ import zodAdvisory from '../../../docs/capability-control/source-identity-202610
+ import installationMismatch from '../../../docs/capability-control/source-identity-20261023/qa-remediation-installation-mismatch-successor.json' with {type:'json'};
+ import mixedProducer from '../../../docs/capability-control/source-identity-20261023/qa-remediation-mixed-producer-successor.json' with {type:'json'};
+ import runtimeSource from '../../../docs/capability-control/source-identity-20261023/qa-remediation-runtime-source-successor.json' with {type:'json'};
+-import successor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json' with {type:'json'};
++import undiciSuccessor from '../../../docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json' with {type:'json'};
++import successor from '../../../docs/capability-control/source-identity-20261025/sofie-integration-successor.json' with {type:'json'};
+ 
+ test('inventoried source and configuration resolve to the exact qualified successor',()=>{
+  const root=fileURLToPath(new URL('../../../',import.meta.url));
+@@ -82,8 +83,10 @@ test('inventoried source and configuration resolve to the exact qualified succes
+  assert.equal(installationMismatch.executionContractSha256,mixedProducer.predecessorExecutionContractSha256);
+  assert.equal(mixedProducer.sourceDigest,runtimeSource.predecessorSourceDigest);
+  assert.equal(mixedProducer.executionContractSha256,runtimeSource.predecessorExecutionContractSha256);
+- assert.equal(runtimeSource.sourceDigest,successor.predecessorSourceDigest);
+- assert.equal(runtimeSource.executionContractSha256,successor.predecessorExecutionContractSha256);
++ assert.equal(runtimeSource.sourceDigest,undiciSuccessor.predecessorSourceDigest);
++ assert.equal(runtimeSource.executionContractSha256,undiciSuccessor.predecessorExecutionContractSha256);
++ assert.equal(undiciSuccessor.sourceDigest,successor.predecessorSourceDigest);
++ assert.equal(undiciSuccessor.executionContractSha256,successor.predecessorExecutionContractSha256);
+  assert.equal(receiverRecovery.executionContractSha256,unifiedCandidate.predecessorExecutionContractSha256);
+  assert.equal(pricingSuccessor.sourceDigest,unifiedCandidate.mergedPredecessorSourceDigest);
+  assert.equal(pricingSuccessor.factoryVersion,unifiedCandidate.mergedPredecessorFactoryVersion);
+@@ -103,7 +106,8 @@ test('inventoried source and configuration resolve to the exact qualified succes
+  assert.equal(zodAdvisory.factoryVersion,installationMismatch.predecessorFactoryVersion);
+  assert.equal(installationMismatch.factoryVersion,mixedProducer.predecessorFactoryVersion);
+  assert.equal(mixedProducer.factoryVersion,runtimeSource.predecessorFactoryVersion);
+- assert.equal(runtimeSource.factoryVersion,successor.predecessorFactoryVersion);
++ assert.equal(runtimeSource.factoryVersion,undiciSuccessor.predecessorFactoryVersion);
++ assert.equal(undiciSuccessor.factoryVersion,successor.predecessorFactoryVersion);
+  assert.notEqual(receiverGrant.sourceDigest,source.sourceDigest);
+  assert.notEqual(qaRemediation.sourceDigest,source.sourceDigest);
+  assert.notEqual(mergedQaHead.sourceDigest,source.sourceDigest);
+@@ -146,6 +150,7 @@ test('coherent historical source or contract grants cannot consume successor aut
+   [installationMismatch.sourceDigest,installationMismatch.executionContractSha256,false],
+   [mixedProducer.sourceDigest,mixedProducer.executionContractSha256,false],
+   [runtimeSource.sourceDigest,runtimeSource.executionContractSha256,false],
++  [undiciSuccessor.sourceDigest,undiciSuccessor.executionContractSha256,false],
+   [pricingSuccessor.sourceDigest,pricingSuccessor.executionContractSha256,false],
+   [source.sourceDigest,receiverRecovery.executionContractSha256,false],
+   [source.sourceDigest,pricingSuccessor.executionContractSha256,false],
+diff --git a/apps/supervisor/src/dispatch-control.ts b/apps/supervisor/src/dispatch-control.ts
+index ed25d32..ff48a87 100644
+--- a/apps/supervisor/src/dispatch-control.ts
++++ b/apps/supervisor/src/dispatch-control.ts
+@@ -219,7 +219,7 @@ export class FactoryDispatchControl {
+      if(!claim&&current.events.some(e=>e.type==='factory.dispatch_claimed'))return;
+      // The tombstone is durable before reporting absence. No delayed dispatch
+      // can re-enter JobManager after this event.
+-     if(!terminalRun){this.storage.saveRun({...run,state:'cancelled',finishedAt:new Date().toISOString(),failure:'Bound attempt fenced after resource reconciliation'});this.storage.saveWorkOrder({...data.order,state:'cancelled'});}
++     if(!terminalRun){this.storage.saveRun({...this.storage.getRun(run.id)!,state:'cancelled',finishedAt:new Date().toISOString(),failure:'Bound attempt fenced after resource reconciliation'});this.storage.saveWorkOrder({...data.order,state:'cancelled'});}
+      this.storage.appendEvent({workOrderId:data.order.id,runId:run.id,type:'factory.terminal',payload:{state:proposed,identity:binding,resourceProof:resources.evidence,at:new Date().toISOString()}});
+     });
+     const saved=this.record(client,requestId).events.find(e=>e.type==='factory.terminal');
+diff --git a/apps/supervisor/src/jobs.ts b/apps/supervisor/src/jobs.ts
+index 5bc1572..a07d80d 100644
+--- a/apps/supervisor/src/jobs.ts
++++ b/apps/supervisor/src/jobs.ts
+@@ -86,7 +86,9 @@ function processGroupAbsent(pid: number): boolean {
+ }
+ 
+ export class JobManager {
+-  #active: ActiveJob | null = null;
++  #active = new Map<string, ActiveJob>();
++  private readonly maxParallelRuns: number;
++  private readonly retainCheckpoints: boolean;
+   private readonly storage: FactoryStorage;
+   private readonly dataDir: string;
+   private readonly notify: (event: FactoryEvent) => void;
+@@ -101,7 +103,17 @@ export class JobManager {
+     dependencies: Partial<JobDependencies> = {},
+     producer?: ProducerResults,
+     pinnedModel?: string,
++    maxParallelRuns = 1,
++    retainCheckpoints = false,
+   ) {
++    if (!Number.isSafeInteger(maxParallelRuns) || maxParallelRuns < 1 || maxParallelRuns > 4)
++      throw new Error("Parallel Run limit must be an integer from 1 to 4");
++    if(maxParallelRuns>1&&(!dependencies.runCodex||dependencies.runCodex===runCodex||!dependencies.verifyCandidate||dependencies.verifyCandidate===verifyCandidate))
++      throw new Error("Parallel Runs require explicit synthetic worker and verifier dependencies");
++    this.maxParallelRuns = maxParallelRuns;
++    if (retainCheckpoints && (dependencies.runCodex === undefined || dependencies.runCodex === runCodex || dependencies.verifyCandidate === undefined || dependencies.verifyCandidate === verifyCandidate))
++      throw new Error("Checkpoint continuation is currently synthetic-local qualified only");
++    this.retainCheckpoints = retainCheckpoints;
+     this.storage = storage;
+     this.dataDir = dataDir;
+     this.notify = notify;
+@@ -219,7 +231,8 @@ export class JobManager {
+ 
+   private async initialize(workOrder: WorkOrder,prepareOnly:boolean): Promise<Run> {
+     assertLocalCapabilityAdmission();
+-    if (this.#active) throw new ActionError("Another run is already active", "concurrency_limit", 409);
++    this.#clearRecoveryHold(workOrder);
++    this.#assertSlot(workOrder.id);
+     if(repairLink(this.storage,workOrder.id)&&this.storage.listRuns(workOrder.id).length)
+       throw new ActionError("Repair Work has exactly one candidate attempt","repair_needs_you",409);
+     workOrder = structuredClone(workOrder);
+@@ -234,29 +247,101 @@ export class JobManager {
+       preflight: null,
+       prepareOnly,
+     };
+-    this.#active = active;
++    this.#active.set(workOrder.id, active);
+     const started = this.#initializeRun(workOrder, active);
+     active.done = started.then((run) => {
+       active.runId = run.id;
+       return prepareOnly ? undefined : this.#execute(workOrder, run, active);
+     }).catch(() => {
+       // The caller receives initialization errors through `started`.
+-    }).finally(() => {
+-      if (this.#active === active) this.#active = null;
++    }).finally(async () => {
++      if (active.runId) await this.#retainCheckpoint(active.runId);
++      if (this.#active.get(workOrder.id) === active) this.#active.delete(workOrder.id);
+     });
+     const run=await started;
+     if(prepareOnly) await active.done;
+     return run;
+   }
+ 
++  /** Synthetic-local continuation seam. Managed/paid execution must obtain a
++   * newly admitted canonical Work and approved checkpoint source instead. */
++  async resumeRun(workOrder: WorkOrder, previousRunId: string): Promise<Run> {
++    if (!this.retainCheckpoints || this.producer || this.storage.listEvents(workOrder.id).some(e=>e.type==='factory.prepare_requested'))
++      throw new ActionError('Managed checkpoint resume is deferred pending protocol qualification','resume_deferred',409);
++    const previous=this.storage.getRun(previousRunId);
++    const events=this.storage.listEvents(workOrder.id);
++    const record=events.find(e=>e.runId===previousRunId&&e.type==='run.recovery_checkpoint');
++    if(!previous||previous.workOrderId!==workOrder.id||!['interrupted','cancelled'].includes(previous.state)||!record)
++      throw new ActionError('A quiescent retained checkpoint is required','recovery_hold',409);
++    const checkpoint=String(record.payload.commit);
++    if(!/^[a-f0-9]{40}$/.test(checkpoint))throw new ActionError('Checkpoint identity missing','recovery_hold',409);
++    // Durable claim precedes ANY initialization or productive work. A crash
++    // before successor identity is retained remains UNKNOWN; never replay it.
++    const successor=this.storage.transaction(()=>{
++      const current=this.storage.listEvents(workOrder.id);
++      const resumed=current.find(e=>e.type==='run.continued_from'&&e.payload.previousRunId===previousRunId);
++      if(resumed){const saved=resumed.runId?this.storage.getRun(resumed.runId):null;
++        if(!saved)throw new ActionError('Successor requires reconciliation','resume_unknown',409);
++        return saved;}
++      if(current.some(e=>e.runId===previousRunId&&e.type==='run.continuation_claimed'))
++        throw new ActionError('Continuation outcome unknown; do not replay','resume_unknown',409);
++      // Recovery readback established absence before retaining this checkpoint.
++      // Recheck the exact host process groups before counting the old hold as
++      // available capacity. Keep this state change in the same transaction.
++      const hold=current.filter(e=>e.runId===previousRunId&&['run.recovery_hold','run.recovery_cleared'].includes(e.type)).at(-1);
++      if(hold?.type==='run.recovery_hold'){
++        const pids=hold.payload.processPids;
++        if(hold.payload.previousState!=='implementing'||!Array.isArray(pids)||!pids.length||!pids.every(pid=>typeof pid==='number'&&processGroupAbsent(pid)))
++          throw new ActionError('Previous worker may still be running','recovery_hold',409);
++        this.storage.appendEvent({workOrderId:workOrder.id,runId:previousRunId,type:'run.recovery_cleared',payload:{reason:'Retained checkpoint and absent previous process groups'}});
++      }
++      this.#assertSlot(workOrder.id);
++      if(this.activeRun(previousRunId))throw new ActionError('Previous process remains active','recovery_hold',409);
++      this.storage.appendEvent({workOrderId:workOrder.id,runId:previousRunId,type:'run.continuation_claimed',payload:{checkpoint}});
++      return null;
++    });
++    if(successor)return successor;
++    const run=await this.initialize({...workOrder,baseRef:checkpoint},false);
++    this.#event(workOrder.id,run.id,'run.continued_from',{previousRunId,checkpoint,originalInputCommit:previous.inputCommit,mode:'SYNTHETIC_LOCAL'});
++    return run;
++  }
++
++  async checkpointForRecovery(runId:string):Promise<void>{
++    if(this.activeRun(runId))throw new ActionError('Active process cannot supply a recovery checkpoint','recovery_hold',409);
++    await this.#retainCheckpoint(runId,true);
++  }
++
++  async #retainCheckpoint(runId:string,beforeTerminal=false):Promise<void>{
++    if(!this.retainCheckpoints)return;
++    const run=this.storage.getRun(runId);
++    if(!run||!['interrupted','cancelled',...(beforeTerminal?['implementing']:[])].includes(run.state)||run.candidateCommit)return;
++    const order=this.storage.getWorkOrder(run.workOrderId);
++    if(!order||this.storage.listEvents(order.id).some(e=>e.runId===runId&&['run.recovery_checkpoint','run.signed_result'].includes(e.type)))return;
++    const processes=this.storage.listEvents(order.id).filter(e=>e.runId===runId&&['agent.process_started','agent.completion_process_started'].includes(e.type));
++    if(processes.some(e=>typeof e.payload.pid!=='number'||!processGroupAbsent(e.payload.pid)))return;
++    try{
++      const candidate=await this.dependencies.commitCandidate(run.workspacePath,run.inputCommit,order.allowedPaths,join(this.dataDir,'artifacts',runId,'checkpoint'));
++      if(this.producer){
++        const diffSha256=createHash('sha256').update(await readFile(candidate.diffPath)).digest('hex');
++        this.storage.transaction(()=>{
++          this.#event(order.id,runId,'run.candidate_committed',{candidateCommit:candidate.commit,candidateTree:candidate.tree,
++            diffPath:candidate.diffPath,diffSha256,changedPaths:candidate.changedPaths,checkpointOnly:true});
++          this.storage.saveRun({...run,candidateCommit:candidate.commit});
++        });
++      }
++      this.#event(order.id,runId,'run.recovery_checkpoint',{commit:candidate.commit,tree:candidate.tree,base:run.inputCommit,
++        diffPath:candidate.diffPath,changedPaths:candidate.changedPaths,verified:false,mode:this.producer?'MANAGED_FIXTURE_CHECKPOINT':'SYNTHETIC_LOCAL'});
++    }catch(error){this.#event(order.id,runId,'run.checkpoint_unavailable',{reason:message(error)});}
++  }
++
+   /** Called only after the connection service atomically claims this exact attempt. */
+   executePrepared(workOrder:WorkOrder,run:Run,claim:()=>boolean,gateway?:ActiveJob['gateway']):boolean {
+-    if(this.#active) throw new ActionError('Another run is active','concurrency_limit',409);
++    this.#assertSlot(workOrder.id);
+     if(!this.producer?.snapshot(run)) throw new ActionError('Prepared execution snapshot missing','binding_missing',409);
+     const active:ActiveJob={workOrderId:workOrder.id,runId:run.id,controller:new AbortController(),reason:null,done:null,
+       model:this.producer.snapshot(run)!.configuration.model,preflight:null,gateway};
+     if(!claim()) return false;
+-    this.#active=active;
++    this.#active.set(workOrder.id,active);
+     const bound=this.storage.listEvents(workOrder.id).find(e=>e.type==='factory.writer_bound');
+     const remaining=Date.parse(String(bound?.payload.deadline))-Date.now();
+     const timer=setTimeout(()=>{active.reason='user_cancel';active.controller.abort();},Math.max(0,remaining));
+@@ -271,13 +356,23 @@ export class JobManager {
+           {reason:'Spend authority fence failed: '+message(error),previousState:'unknown'}); }
+         clearTimeout(timer);
+         this.#event(workOrder.id,run.id,'factory.execution_settled',{runId:run.id});
+-        if(this.#active===active)this.#active=null;
++        if(this.#active.get(workOrder.id)===active)this.#active.delete(workOrder.id);
+       }
+     });
+     return true;
+   }
+ 
+-  activeRun(runId:string):boolean {return this.#active?.runId===runId;}
++  #assertSlot(workOrderId: string): void {
++    // Reserve before the first await. Separate Works may run concurrently; one
++    // WorkOrder must never acquire two productive executors in this host.
++    const held = this.storage.listWorkOrders().filter(order=>!this.#active.has(order.id)&&
++      this.storage.listRuns(order.id).some(run=>run.state==='interrupted'&&
++        this.storage.listEvents(order.id).filter(e=>e.runId===run.id&&['run.recovery_hold','run.recovery_cleared'].includes(e.type)).at(-1)?.type==='run.recovery_hold')).length;
++    if (this.#active.has(workOrderId) || this.#active.size + held >= this.maxParallelRuns)
++      throw new ActionError("Run capacity or WorkOrder writer already held", "concurrency_limit", 409);
++  }
++
++  activeRun(runId:string):boolean {return [...this.#active.values()].some(active=>active.runId===runId);}
+ 
+   async #initializeRun(workOrder: WorkOrder, active: ActiveJob): Promise<Run> {
+     let workspacePath: string | null = null;
+@@ -673,6 +768,10 @@ export class JobManager {
+       const interrupted = signal.aborted && active.reason === "service_shutdown";
+       const runState = cancelled ? "cancelled" : interrupted ? "interrupted" : "failed";
+       const orderState = runState;
++      if(this.producer&&(cancelled||interrupted)){
++        await this.#retainCheckpoint(run.id,true);
++        run=this.storage.getRun(run.id)??run;
++      }
+       this.#transition(run, runState, orderState, `run.${runState}`, {
+         reason: message(error),
+       }, { failure: message(error) });
+@@ -686,8 +785,8 @@ export class JobManager {
+   }
+ 
+   async cancelRun(workOrder: WorkOrder): Promise<Run | null> {
+-    const active = this.#active;
+-    if (!active || active.workOrderId !== workOrder.id) {
++    const active = this.#active.get(workOrder.id);
++    if (!active) {
+       const last = this.storage.listRuns(workOrder.id).at(-1) ?? null;
+       if (last?.state === "cancelled") return last;
+       throw new ActionError("There is no active run to cancel", "not_running", 409);
+@@ -701,12 +800,13 @@ export class JobManager {
+   }
+ 
+   async close(): Promise<void> {
+-    const active = this.#active;
+-    if (!active) return;
+-    if (!active.controller.signal.aborted) {
+-      active.reason = "service_shutdown";
+-      active.controller.abort();
++    const activeJobs = [...this.#active.values()];
++    for (const active of activeJobs) {
++      if (!active.controller.signal.aborted) {
++        active.reason = "service_shutdown";
++        active.controller.abort();
++      }
+     }
+-    await active.done;
++    await Promise.all(activeJobs.map(active => active.done));
+   }
+ }
+diff --git a/apps/supervisor/src/local-execution-provider.ts b/apps/supervisor/src/local-execution-provider.ts
+index b5e3133..9d3393d 100644
+--- a/apps/supervisor/src/local-execution-provider.ts
++++ b/apps/supervisor/src/local-execution-provider.ts
+@@ -114,7 +114,11 @@ export class LocalExecutionProvider implements ExecutionProvider {
+     };
+   }
+ 
+-  async reconcile(run: Run) { return this.read(run); }
++  async reconcile(run: Run) {
++    const observation=await this.read(run);
++    if(observation.quiescent&&observation.recoveryEligible)await this.jobs.checkpointForRecovery(run.id);
++    return observation;
++  }
+ 
+   async collect(run: Run) {
+     const current = this.current(run);
+diff --git a/apps/supervisor/src/producer-results.ts b/apps/supervisor/src/producer-results.ts
+index 5551b09..1bb5831 100644
+--- a/apps/supervisor/src/producer-results.ts
++++ b/apps/supervisor/src/producer-results.ts
+@@ -34,7 +34,7 @@ export function sourceIdentity(): string {
+ const loadedSource = sourceIdentity();
+ export const SNAPSHOT_EVENT = 'run.execution_snapshot';
+ export const RESULT_EVENT = 'run.signed_result';
+-export interface ProducerOptions { factoryId: string; currentKeyId: string; privateKey: string; keys: ResultKey[] }
++export interface ProducerOptions { sessionMetadata?: boolean; factoryId: string; currentKeyId: string; privateKey: string; keys: ResultKey[] }
+ 
+ /** Opt-in only. Reuses the hosted receipt private key; never creates or rotates a key. */
+ export function producerOptions(dataDir: string): ProducerOptions | undefined {
+@@ -111,7 +111,7 @@ export class ProducerResults {
+     // Hash the admitted Work, not mutable current Factory state or a completion callback.
+     const requestDigest=digest({requestId, work});
+     const snapshot: ExecutionSnapshot = {
+-      version:1, factoryId:this.options.factoryId, factoryVersion:digest({sourceDigest:loadedSource,configurationDigest}),
++      version:this.options.sessionMetadata?3:1, ...(this.options.sessionMetadata?{workspace:{kind:'GIT_WORKTREE' as const,path:run.workspacePath,branch:null}}:{}), factoryId:this.options.factoryId, factoryVersion:digest({sourceDigest:loadedSource,configurationDigest}),
+       sourceDigest:loadedSource, configurationDigest, configuration, requestId, requestDigest,
+       workOrderId:work.id, runId:run.id, attemptNumber:run.attemptNumber, inputCommit:run.inputCommit, capturedAt:run.startedAt,
+     };
+diff --git a/apps/supervisor/src/server.ts b/apps/supervisor/src/server.ts
+index 6701ec8..4d175c0 100644
+--- a/apps/supervisor/src/server.ts
++++ b/apps/supervisor/src/server.ts
+@@ -142,6 +142,10 @@ function artifactText(dataDir: string, candidate: unknown): string | null {
+ }
+ 
+ export interface SupervisorOptions {
++  /** Bounded host concurrency; values above one are currently fixture-qualified only. */
++  maxParallelRuns?: number;
++  /** Retain scope-safe interrupted candidates; fixture qualification only. */
++  retainCheckpoints?: boolean;
+   /** Host-authenticated observer identities; never granted through HTTP. Empty by default. */
+   reviewObservers?: {reviewers:string[];verifiers:string[]};
+   /** Explicit trusted-host activation; never accepted from an HTTP request. */
+@@ -253,7 +257,12 @@ export function createSupervisor(options: SupervisorOptions = {}) {
+     if (listeners.size === 0) subscribers.delete(event.workOrderId);
+   };
+   const producer = signing ? new ProducerResults(storage, dataDir, signing) : undefined;
+-  const jobs = new JobManager(storage, dataDir, notify, options.jobDependencies, producer,realProvider?.price.model);
++  const parallel = options.maxParallelRuns ?? 1;
++  if (parallel !== 1 && (!options.localFactoryFixture && !options.localSpendFixture || realProvider))
++    throw new Error('Parallel execution is deferred until live Factory Version qualification');
++  if(options.retainCheckpoints&&(!options.localFactoryFixture&&!options.localSpendFixture||realProvider))
++    throw new Error('Checkpoint export is deferred outside explicit fixture qualification');
++  const jobs = new JobManager(storage, dataDir, notify, options.jobDependencies, producer,realProvider?.price.model,parallel,options.retainCheckpoints??false);
+   const fixtureDependencies=!!options.jobDependencies?.runCodex && !!options.jobDependencies?.verifyCandidate;
+   if(options.localFactoryFixture&&options.localSpendFixture)throw new Error('Fixture modes are mutually exclusive');
+   if(options.localSpendFixture&&!fixtureDependencies)throw new Error('Local spend fixture requires injected worker and verifier');
+diff --git a/apps/supervisor/test/concurrent-coding.test.mjs b/apps/supervisor/test/concurrent-coding.test.mjs
+new file mode 100644
+index 0000000..0aa68e1
+--- /dev/null
++++ b/apps/supervisor/test/concurrent-coding.test.mjs
+@@ -0,0 +1,79 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {execFileSync} from 'node:child_process';
++import {openStorage} from '../../../packages/storage/src/index.ts';
++import {JobManager} from '../src/jobs.ts';
++import {snapshotCandidateTree} from '../src/git.ts';
++const git=(dir,...args)=>execFileSync('git',['-C',dir,...args],{encoding:'utf8'}).trim();
++const until=async(fn)=>{const end=Date.now()+10000;while(Date.now()<end){const v=fn();if(v)return v;await new Promise(r=>setTimeout(r,5));}throw Error('Timed out');};
++// Synthetic coding agents, real repository, detached worktrees, commits and host
++// checks. This is deliberately not a paid/live provider qualification.
++test('two productive sessions overlap, isolate writes, cancel one and independently verify combined code',async t=>{
++ const dir=await mkdtemp(join(tmpdir(),'factory-concurrent-'));const repo=join(dir,'repository');await mkdir(repo);
++ git(repo,'init','-q');git(repo,'config','user.name','Qualification');git(repo,'config','user.email','fixture@invalid');
++ await writeFile(join(repo,'one.mjs'),'export const one = 0;\n');await writeFile(join(repo,'two.mjs'),'export const two = 0;\n');
++ git(repo,'add','.');git(repo,'commit','-qm','Disposable base');const base=git(repo,'rev-parse','HEAD');
++ let storage=openStorage(join(dir,'factory.sqlite'));const entered=new Map();let release;const barrier=new Promise(r=>release=r);
++ const dependencies={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic',error:null}),
++  runCodex:async input=>{const role=input.prompt.includes('role-one')?'one':'two';const resumed=entered.has(role);entered.set(role,{workspace:input.workspacePath,at:Date.now()});
++   await writeFile(join(input.workspacePath,role+'.mjs'),`export const ${role} = ${role==='one'?1:2};\n${resumed?'// Continued from retained checkpoint\n':''}`);
++   await barrier;if(input.signal.aborted)throw Error('Synthetic process interrupted');
++   return {success:true,status:'completed',threadId:'synthetic-'+role,usage:null,eventsPath:'synthetic'};},
++  verifyWorkspaceTree:async input=>{const snap=await snapshotCandidateTree(input.workspacePath,input.inputCommit??base,input.allowedPaths??['one.mjs','two.mjs'],input.artifactDir);return {exportStatus:'ready',checks:input.commands.map(command=>({command,status:'passed'})),manifestPath:'synthetic-checkpoint',...snap};},
++  verifyCandidate:async input=>{await mkdir(input.artifactDir,{recursive:true});const logPath=join(input.artifactDir,'checks.log');await writeFile(logPath,'Synthetic host checks; independent combined-tree check below');return {checks:input.commands.map(command=>({candidateCommit:input.candidateSha,candidateTree:git(repo,'rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:new Date().toISOString(),finishedAt:new Date().toISOString(),logPath,reason:null})),reason:null};}};
++ let jobs=new JobManager(storage,dir,()=>{},dependencies,undefined,undefined,2,true);
++ t.after(async()=>{release();await jobs.close();storage.close();await rm(dir,{recursive:true,force:true});});
++ const order=role=>storage.createWorkOrder({title:'role-'+role,description:'Implement role-'+role,kind:'feature',reproductionCommand:null,expectedFailureText:null,repositoryPath:repo,baseRef:base,acceptanceCriteria:['Implement isolated role'],checkCommands:['node --test'],allowedPaths:[role+'.mjs'],workerProfile:'mac'});
++ const a=order('one'),b=order('two');const [ra,rb]=await Promise.all([jobs.startRun(a),jobs.startRun(b)]);
++ await until(()=>entered.size===2);assert.notEqual(ra.workspacePath,rb.workspacePath);assert.equal(git(ra.workspacePath,'rev-parse','--git-common-dir'),git(rb.workspacePath,'rev-parse','--git-common-dir'));
++ assert.equal(git(ra.workspacePath,'rev-parse','HEAD'),base);assert.equal(git(rb.workspacePath,'rev-parse','HEAD'),base);
++ assert.equal((await readFile(join(ra.workspacePath,'two.mjs'),'utf8')).trim(),'export const two = 0;');
++ await assert.rejects(jobs.startRun(a),e=>e.code==='concurrency_limit');
++ await jobs.cancelRun(a);release();await until(()=>storage.getRun(ra.id)?.state==='cancelled');await until(()=>storage.getRun(rb.id)?.state==='ready_for_review');
++ assert.equal(storage.listRuns(a.id).length,1);assert.equal(storage.listRuns(b.id).length,1);
++ // A resumed successor is a NEW Run, never replay the cancelled identity. Its
++ // authority remains the existing local Work admission (managed Work refuses it).
++ await until(()=>storage.listEvents(a.id).some(e=>e.runId===ra.id&&e.type==="run.recovery_checkpoint"));
++ await jobs.close();storage.close();storage=openStorage(join(dir,"factory.sqlite"));
++ jobs=new JobManager(storage,dir,()=>{},dependencies,undefined,undefined,2,true);
++ const successor=await jobs.resumeRun(a,ra.id);assert.notEqual(successor.id,ra.id);await until(()=>storage.getRun(successor.id)?.state==='ready_for_review');
++ const ca=storage.getRun(successor.id).candidateCommit,cb=storage.getRun(rb.id).candidateCommit;
++ const combined=join(dir,'combined');git(repo,'worktree','add','--detach',combined,base);
++ const checkpoint=storage.listEvents(a.id).find(e=>e.runId===ra.id&&e.type==='run.recovery_checkpoint').payload.commit;
++ assert.equal(successor.inputCommit,checkpoint);
++ git(combined,'cherry-pick',checkpoint);
++ if(ca!==checkpoint)git(combined,'cherry-pick',ca);
++ git(combined,'cherry-pick',cb);
++ const independent=execFileSync(process.execPath,['--input-type=module','-e',"import {one} from './one.mjs'; import {two} from './two.mjs'; if(one!==1||two!==2||one+two!==3)process.exit(1)"],{cwd:combined});
++ assert.equal(independent.toString(),'');assert.notEqual(git(combined,'rev-parse','HEAD'),base);
++ assert.equal(git(repo,'rev-parse','HEAD'),base);assert.equal(storage.listRuns(a.id).length,2);
++ const replay=await jobs.resumeRun(a,ra.id);assert.equal(replay.id,successor.id);assert.equal(storage.listRuns(a.id).length,2);
++ await jobs.close();storage.close();storage=openStorage(join(dir,'factory.sqlite'));
++ jobs=new JobManager(storage,dir,()=>{},dependencies,undefined,undefined,2,true);
++ const afterRestart=await jobs.resumeRun(a,ra.id);assert.equal(afterRestart.id,successor.id);assert.equal(storage.listRuns(a.id).length,2);
++});
++
++test('parallel slots cannot activate the default real executor through a fixture flag',async()=>{
++ const dir=await mkdtemp(join(tmpdir(),'factory-concurrency-deny-'));const storage=openStorage(join(dir,'factory.sqlite'));
++ try{assert.throws(()=>new JobManager(storage,dir,()=>{},{},undefined,undefined,2),/synthetic/);}
++ finally{storage.close();await rm(dir,{recursive:true,force:true});}
++});
++
++test('an uncertain durable continuation claim never retries initialization or coding',async()=>{
++ const dir=await mkdtemp(join(tmpdir(),'factory-resume-unknown-'));const storage=openStorage(join(dir,'factory.sqlite'));let calls=0;
++ const deps={runCodex:async()=>{calls++;throw Error('must not execute');},verifyCandidate:async()=>{throw Error('must not verify');}};
++ const jobs=new JobManager(storage,dir,()=>{},deps,undefined,undefined,1,true);
++ try{
++  const work=storage.createWorkOrder({title:'Interrupted fixture',description:'Retain context',kind:'feature',repositoryPath:dir,baseRef:'a'.repeat(40),reproductionCommand:null,expectedFailureText:null,acceptanceCriteria:['Preserve bounded work'],checkCommands:['node --test'],allowedPaths:['one.mjs'],workerProfile:'mac'});
++  const run=storage.createRun({workOrderId:work.id,workerProfile:'mac',inputCommit:'a'.repeat(40),workspacePath:dir});
++  storage.saveRun({...run,state:'cancelled',finishedAt:new Date().toISOString()});
++  storage.appendEvent({workOrderId:work.id,runId:run.id,type:'run.recovery_checkpoint',payload:{commit:'b'.repeat(40)}});
++  await assert.rejects(jobs.resumeRun(work,run.id)); // fails source acquisition AFTER durable claim
++  await assert.rejects(jobs.resumeRun(work,run.id),e=>e.code==='resume_unknown');
++  assert.equal(storage.listRuns(work.id).length,1);assert.equal(calls,0);
++  assert.equal(storage.listEvents(work.id).filter(e=>e.type==='run.continuation_claimed').length,1);
++ }finally{await jobs.close();storage.close();await rm(dir,{recursive:true,force:true});}
++});
+diff --git a/apps/supervisor/test/producer-results.test.mjs b/apps/supervisor/test/producer-results.test.mjs
+index 2219b66..5c2765e 100644
+--- a/apps/supervisor/test/producer-results.test.mjs
++++ b/apps/supervisor/test/producer-results.test.mjs
+@@ -21,7 +21,7 @@ function signer(keyId='key-1') {
+ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+ function deferred(){let resolve; const promise=new Promise(r=>resolve=r);return {promise,resolve};}
+ async function finished(storage,id){for(let i=0;i<500;i++){const r=storage.getRun(id);if(r.finishedAt)return r;await sleep(10);}throw new Error('Attempt did not finish');}
+-async function fixture(t,{worker,verifier,notify=()=>{},signing=signer()}={}) {
++async function fixture(t,{worker,verifier,notify=()=>{},signing=signer(),retainCheckpoints=false}={}) {
+   const dir=mkdtempSync(join(tmpdir(),'q37-producer-')), repo=join(dir,'repo');mkdirSync(repo);
+   const git=(...args)=>execFileSync('git',['-C',repo,...args],{encoding:'utf8'}).trim();
+   git('init','-q');git('config','user.name','Synthetic Q37');git('config','user.email','synthetic@example.invalid');
+@@ -47,7 +47,7 @@ async function fixture(t,{worker,verifier,notify=()=>{},signing=signer()}={}) {
+       });
+       return {checks,reason:null};
+     },
+-  },producer);
++  },producer,undefined,1,retainCheckpoints);
+   const order=storage.createWorkOrder({title:'Synthetic Q37',description:'Local fixture only',kind:'feature',repositoryPath:repo,baseRef:git('rev-parse','HEAD'),acceptanceCriteria:['Inspect returned bytes'],reproductionCommand:null,expectedFailureText:null,checkCommands:['check-one','check-two'],allowedPaths:['sample.txt'],workerProfile:'mac'});
+   storage.appendEvent({workOrderId:order.id,runId:null,type:'hosted.intake_received',payload:{issueId:'11111111-1111-4111-a111-111111111111',actor:'connection:synthetic',transport:'synthetic-fixture'}});
+   t.after(async()=>{await jobs.close();storage.close();rmSync(dir,{recursive:true,force:true});});
+@@ -56,6 +56,22 @@ async function fixture(t,{worker,verifier,notify=()=>{},signing=signer()}={}) {
+ function expectation(f,s){return {keys:f.signing.keys,factoryId:s.factoryId,requestId:s.requestId,workOrderId:s.workOrderId,runId:s.runId,factoryVersion:s.factoryVersion};}
+ async function golden(t,options){const f=await fixture(t,options), run=await f.jobs.startRun(f.order);const snapshot=f.producer.snapshot(run);await finished(f.storage,run.id);await f.jobs.close();const read=f.producer.read(run);assert.ok(read.result);return {...f,run,snapshot,result:read.result,expected:expectation(f,snapshot)};}
+ 
++test('cancelled managed fixture retains a signed unverified checkpoint before terminal time',async t=>{
++ const entered=deferred();
++ const f=await fixture(t,{retainCheckpoints:true,worker:async input=>{
++  writeFileSync(join(input.workspacePath,'sample.txt'),'partial\n');entered.resolve();
++  await new Promise(resolve=>input.signal.addEventListener('abort',resolve,{once:true}));
++  throw Error('Synthetic interruption');
++ }});
++ const run=await f.jobs.startRun(f.order);await entered.promise;await f.jobs.cancelRun(f.order);await finished(f.storage,run.id);await f.jobs.close();
++ const snapshot=f.producer.snapshot(run),result=f.producer.read(run).result;
++ const {manifest}=verifyResult(result,expectation(f,snapshot));
++ assert.equal(manifest.status,'CANCELLED');assert.ok(manifest.candidate);assert.deepEqual(manifest.evidence,[]);assert.equal(manifest.artifacts.length,3);
++ assert.ok(manifest.artifacts.every(a=>Date.parse(a.createdAt)<=Date.parse(manifest.completedAt)));
++ const checkpoint=f.storage.listEvents(f.order.id).find(e=>e.type==='run.recovery_checkpoint');assert.equal(checkpoint.payload.verified,false);
++ const reopened=openStorage(join(f.dir,'factory.sqlite'));try{assert.deepEqual(new ProducerResults(reopened,f.dir,f.signing).read(run).result,result);}finally{reopened.close();}
++});
++
+ test('Gateway model identity survives signed candidate provenance without normalization',async t=>{
+   const previous=process.env.FACTORY_CODEX_MODEL;
+   process.env.FACTORY_CODEX_MODEL='openai/gpt-5.4-mini';
+@@ -299,3 +315,15 @@ const storage=openStorage(process.argv[1]);try{saveRunRecord(storage,JSON.parse(
+   assert.match(results.find(r=>r.exit===2).out,/Conflicting/);
+   assert.equal(f.storage.listEvents(f.order.id).filter(e=>e.type===SNAPSHOT_EVENT).length,1);
+ });
++
++test('versioned workspace metadata is producer-recorded and signature protected',async t=>{
++ const signing={...signer(),sessionMetadata:true};const f=await golden(t,{signing});
++ const {manifest}=verifyResult(f.result,f.expected);
++ assert.equal(manifest.execution.version,3);assert.equal(manifest.execution.workspace.path,f.run.workspacePath);
++ assert.equal(manifest.execution.workspace.branch,null);assert.equal(manifest.execution.workspace.kind,'GIT_WORKTREE');
++ const altered=structuredClone(f.result);const decoded=JSON.parse(Buffer.from(altered.encoded,'base64url').toString());
++ decoded.execution.workspace.path='/substituted-worktree';altered.encoded=Buffer.from(canonical(decoded)).toString('base64url');
++ assert.throws(()=>verifyResult(altered,f.expected));
++ const malformed=structuredClone(manifest);malformed.execution.workspace.branch='main';
++ assert.throws(()=>signResult(malformed,signing.privateKey),/workspace/);
++});
+diff --git a/apps/supervisor/test/recovery-checkpoint.test.mjs b/apps/supervisor/test/recovery-checkpoint.test.mjs
+new file mode 100644
+index 0000000..e382db9
+--- /dev/null
++++ b/apps/supervisor/test/recovery-checkpoint.test.mjs
+@@ -0,0 +1,66 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {execFileSync,spawn} from 'node:child_process';
++import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {once} from 'node:events';
++import {openStorage} from '../../../packages/storage/src/index.ts';
++import {JobManager} from '../src/jobs.ts';
++import {LocalExecutionProvider} from '../src/local-execution-provider.ts';
++
++const until=async fn=>{const deadline=Date.now()+15000;while(Date.now()<deadline){if(await fn())return;await new Promise(r=>setTimeout(r,20));}throw Error('Recovery fixture timed out');};
++const absent=pid=>{try{process.kill(-pid,0);return false;}catch(e){return e.code==='ESRCH';}};
++
++test('a killed supervisor retains partial code but cannot resume until its surviving child is absent',async t=>{
++ const dir=mkdtempSync(join(tmpdir(),'factory-crash-checkpoint-')),repo=join(dir,'repo'),statePath=join(dir,'started.json');mkdirSync(repo);
++ const git=(path,...args)=>execFileSync('git',['-C',path,...args],{encoding:'utf8'}).trim();
++ git(repo,'init','-q');git(repo,'config','user.name','Synthetic recovery');git(repo,'config','user.email','fixture@example.invalid');
++ writeFileSync(join(repo,'sample.txt'),'base\n');git(repo,'add','.');git(repo,'commit','-qm','Disposable base');
++ const hostPath=join(dir,'host.mjs');
++ // Real disposable supervisor/worker processes; deterministic coding, no model.
++ writeFileSync(hostPath,`
++ import {spawn} from 'node:child_process';
++ import {writeFileSync} from 'node:fs';
++ import {join} from 'node:path';
++ import {openStorage} from ${JSON.stringify(new URL('../../../packages/storage/src/index.ts',import.meta.url).href)};
++ import {JobManager} from ${JSON.stringify(new URL('../src/jobs.ts',import.meta.url).href)};
++ const storage=openStorage(${JSON.stringify(join(dir,'factory.sqlite'))});
++ const work=storage.createWorkOrder({title:'Crash fixture',description:'Retain partial code',kind:'feature',repositoryPath:${JSON.stringify(repo)},baseRef:${JSON.stringify(git(repo,'rev-parse','HEAD'))},acceptanceCriteria:['Resume preserved code'],reproductionCommand:null,expectedFailureText:null,checkCommands:['fixture-check'],allowedPaths:['sample.txt'],workerProfile:'mac'});
++ const jobs=new JobManager(storage,${JSON.stringify(dir)},()=>{},{
++  preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic',error:null}),
++  runCodex:async input=>{
++   writeFileSync(join(input.workspacePath,'sample.txt'),'partial before host crash\\n');
++   const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'});
++   await input.onProcessStart({pid:child.pid});
++   const run=storage.listRuns(work.id).at(-1);
++   writeFileSync(${JSON.stringify(statePath)},JSON.stringify({workId:work.id,runId:run.id,pid:child.pid}));
++   await new Promise(()=>{});
++  },verifyCandidate:async()=>{throw Error('not reached');}
++ },undefined,undefined,1,true);
++ await jobs.startRun(work);
++ `);
++ const host=spawn(process.execPath,[hostPath],{stdio:['ignore','ignore','pipe']});let stderr='';host.stderr.on('data',b=>stderr+=b);
++ let workerPid,storage,jobs;
++ t.after(async()=>{if(host.exitCode===null&&host.signalCode===null)host.kill('SIGKILL');if(workerPid&&!absent(workerPid))process.kill(-workerPid,'SIGKILL');if(jobs)await jobs.close();storage?.close();rmSync(dir,{recursive:true,force:true});});
++ await until(()=>{if(host.exitCode!==null)throw Error(stderr);return existsSync(statePath);});
++ const state=JSON.parse(readFileSync(statePath,'utf8'));workerPid=state.pid;
++ const exited=once(host,'exit');host.kill('SIGKILL');await exited;assert.equal(absent(workerPid),false);
++ storage=openStorage(join(dir,'factory.sqlite'));let calls=0;
++ const dependencies={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic',error:null}),
++  runCodex:async input=>{calls++;assert.equal(readFileSync(join(input.workspacePath,'sample.txt'),'utf8'),'partial before host crash\n');writeFileSync(join(input.workspacePath,'sample.txt'),'recovered\n');return {success:true,status:'completed',eventsPath:'synthetic'};},
++  verifyCandidate:async input=>{mkdirSync(input.artifactDir,{recursive:true});const logPath=join(input.artifactDir,'check.log');writeFileSync(logPath,'Independent synthetic check\n');return {checks:[{candidateCommit:input.candidateSha,candidateTree:git(repo,'rev-parse',input.candidateSha+'^{tree}'),command:'fixture-check',status:'passed',exitCode:0,startedAt:new Date().toISOString(),finishedAt:new Date().toISOString(),logPath,reason:null}],reason:null};}};
++ jobs=new JobManager(storage,dir,()=>{},dependencies,undefined,undefined,1,true);
++ const work=storage.getWorkOrder(state.workId),run=storage.getRun(state.runId);
++ const provider=new LocalExecutionProvider(storage,jobs,{read:()=>{throw Error('No managed result in this local fixture');}});
++ assert.equal((await provider.reconcile(run)).quiescent,false);
++ assert.equal(storage.listEvents(work.id).some(e=>e.type==='run.recovery_checkpoint'),false);
++ await assert.rejects(jobs.resumeRun(work,run.id),e=>e.code==='recovery_hold');
++ process.kill(-workerPid,'SIGTERM');await until(()=>absent(workerPid));
++ const observation=await provider.reconcile(run);assert.equal(observation.quiescent,true);assert.equal(observation.recoveryEligible,true);
++ const checkpoint=storage.listEvents(work.id).find(e=>e.type==='run.recovery_checkpoint');assert.ok(checkpoint);assert.equal(checkpoint.payload.verified,false);
++ const next=await jobs.resumeRun(work,run.id);await until(()=>storage.getRun(next.id).state==='ready_for_review');
++ assert.equal(next.inputCommit,checkpoint.payload.commit);assert.equal(calls,1);
++ assert.equal((await jobs.resumeRun(work,run.id)).id,next.id);assert.equal(calls,1);assert.equal(storage.listRuns(work.id).length,2);
++ assert.equal(readFileSync(join(storage.getRun(next.id).workspacePath,'sample.txt'),'utf8'),'recovered\n');
++});
+diff --git a/apps/supervisor/test/spend-review-regressions.test.mjs b/apps/supervisor/test/spend-review-regressions.test.mjs
+index fa73889..76d23e3 100644
+--- a/apps/supervisor/test/spend-review-regressions.test.mjs
++++ b/apps/supervisor/test/spend-review-regressions.test.mjs
+@@ -19,7 +19,7 @@ function setup(t){
+     perOperationReserveMicrousd:1200,plannedProductiveOperations:2,plannedCompletionOperations:2,
+     maxPaidOperations:4,completionReserveMicrousd:2400};
+   const client={id:'review',repositoryPaths:[dir],actions:['factory.observe']};
+-  const jobs={activeRun:()=>false},producer={snapshot:()=>({})};
++  const jobs={activeRun:()=>false,checkpointForRecovery:async()=>{}},producer={snapshot:()=>({})};
+   const control=new FactoryDispatchControl(storage,new LocalExecutionProvider(storage,jobs,producer),producer,ledger);
+   function attempt(workId,generation,requestId,{bind=true}={}){
+     const order=storage.createWorkOrder({title:'Review fixture',description:'No paid provider',kind:'feature',
+diff --git a/docs/capability-control/source-identity-20261025/sofie-integration-successor.json b/docs/capability-control/source-identity-20261025/sofie-integration-successor.json
+new file mode 100644
+index 0000000..eb51b50
+--- /dev/null
++++ b/docs/capability-control/source-identity-20261025/sofie-integration-successor.json
+@@ -0,0 +1,25 @@
++{
++  "schema": "factory-unified-beta-candidate-source-qualification/v1",
++  "authority": "ISOLATED_SOURCE_QUALIFICATION_ONLY",
++  "recordedAt": "2026-10-25",
++  "changes": "Isolated nondeploying Sofie integration: synthetic-only bounded parallel jobs, strict signed workspace metadata, durable local continuation claims, and process-absence-gated unverified managed checkpoints. Existing dispatch, spend, independent verification and production configuration remain authoritative. No installed pin, approval, enrollment or beta change.",
++  "historicalSourceDigest": "1c69113378ed82428d13a2f89452708204e171ac9cb952b0a725acff83844548",
++  "predecessorSourceDigest": "8b5f65861455f3290820cb111ad81e9f3729781e4ef00188521b7fe020776600",
++  "predecessorFactoryVersion": "8f9d932312afec5dc7a5865fbde666a64dc8a31c8243b7d3620989e7442c877f",
++  "predecessorRecord": "../source-identity-20261023/qa-remediation-undici-advisory-successor.json",
++  "sourceDigest": "d9d79acf5bf0d3ea0e94838a44a82ea4c971b437db78c3a6a59bd5177552ba72",
++  "configurationDigest": "415f52a554e8dbdcc48019609e4611f07085622abf5c91cd67b516e978a593ae",
++  "factoryVersion": "be2c5b78d6b6822a7c8d70c51a9fafe332ea18f78309b9c0e7d2e965640b8256",
++  "executionContractSha256": "e0100d72075c2c0faec51de54527b0c0d00ce036691a358b647c35e9b0c30cd6",
++  "predecessorExecutionContractSha256": "e0100d72075c2c0faec51de54527b0c0d00ce036691a358b647c35e9b0c30cd6",
++  "historicalExecutionContractSha256": "29ff7774ec7ac08a061f28fe2f81bff4a8f1124987f64a69a1b5cb8e21976b66",
++  "compatibilityBaseSourceDigest": "10a82f6797147a15068cd388d272f8790bec0a3969c52d4d7600029dbc2cf14d",
++  "pricingRecord": "../pricing-20261022/20261022-v4.json",
++  "externalAlphaFactoryVersion": "Derive per approved installation: digest({sourceDigest, configurationDigest: digest(externalAlphaConfiguration(installation))}). Never reuse this production identity or silently replace an installed pin.",
++  "qualification": "NONE INHERITED. Synthetic integration evidence must be qualified against this exact source. No live or installed Factory Version approval.",
++  "productionIntegration": "NOT_RUN",
++  "merge": "HOLD pending exact-source review and paired MyEve candidate approval",
++  "deployment": "HOLD; synthetic qualification does not authorize activation",
++  "installedAuthority": "NONE; no installed repin, capability provisioning or enrollment update",
++  "migration": "NONE to Factory schema. capability_control is provisioned separately by the custodian with prepare-external-alpha-capability.mjs."
++}
+diff --git a/docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json b/docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json
+index 7dd0645..8b8c7b2 100644
+--- a/docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json
++++ b/docs/evidence/myfactory-private-alpha-reconstruction/source-inventory.json
+@@ -2,14 +2,14 @@
+   "baseline": "8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f",
+   "sources": {
+     "apps/supervisor/src/dispatch-control.ts": {
+-      "sha256": "efa381763399b7fc35075f2e1080d3da6661f81c0ceb9e5f16ce9f32511e5cdd",
++      "sha256": "ad4a28be05a7fc9962cf09323941297e28eb41ab9508042a24cda5094979b008",
+       "classification": "COMPLETION_ADMISSION",
+-      "authorityBoundary": "The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. No model authority, retry or fallback. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Fabric boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Consolidated boundary: The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. New owner-scope metadata is append-only beside prepared Work for evidence authorization and grants no writer or model authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation."
++      "authorityBoundary": "The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. No model authority, retry or fallback. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Fabric boundary: Delegate preparation, start, cancellation and resource reconciliation to an explicitly injected local provider. Retain connection authorization, exact binding, transactional dispatch claim, spend ledger, UNKNOWN, terminal fencing and publication boundaries. Resource readback grants no authority. Consolidated boundary: The trusted exact-binding gateway owns productive shutdown; completion uses a distinct token and existing ledger admission after host checks. New owner-scope metadata is append-only beside prepared Work for evidence authorization and grants no writer or model authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Isolated Sofie managed continuation: optional synthetic-only checkpoint capture after process absence; signed CANCELLED checkpoint remains advisory. Resource reconciliation retains saved candidate, existing authority fence and V2 liabilities. Fresh successor Work requires normal admission; no in-place managed resume, paid activation or inherited qualification."
+     },
+     "apps/supervisor/src/jobs.ts": {
+-      "sha256": "0c725b40ea5e72e5960b2b98351bfca9aeda51246c41a9f2c886259282717362",
++      "sha256": "0ba1dab2d01a150ff68bb895b689d657a89fcb6e6b5d176f93a7e516402a15a6",
+       "classification": "COMPLETION_ADMISSION",
+-      "authorityBoundary": "Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Optional independent acceptance seam: host checks passing is necessary, never sufficient, for governed Work; FAIL, PARTIAL or verifier error blocks ready_for_review and is visible; no publication, merge or deployment authority. Current-main boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Exact reviewed current-main and External Alpha source union; no new execution or approval authority."
++      "authorityBoundary": "Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Optional independent acceptance seam: host checks passing is necessary, never sufficient, for governed Work; FAIL, PARTIAL or verifier error blocks ready_for_review and is visible; no publication, merge or deployment authority. Current-main boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fixed host-owned bounded productive developer protocol only after context collection and metered checkpoint binding. No repository/model text promoted to instructions. Read-only completion excluded; no tool, sandbox, quota, writer, verification or publication authority changes. Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Fabric boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. No holdout input, new attempt, budget, fallback, completion or publication authority. Consolidated boundary: Require quiescent productive process, allowed immutable source tree, isolated pinned checks, unchanged tree and exact ledger admission. Completion is read-only without tools; only host commits checked tree. Protected verification remains independent. Attempt-6 checkpoint: one response per productive process; quiescent immutable visible-test feedback can request only the remaining existing productive slot. Durable Test/Diff evidence is bound to candidate and FactoryVersion and rechecked before local review; browser profile additionally requires screenshot and journey, and a missing trusted preview fails closed. Collection grants no Proof, semantic PASS, publication, budget or authority. Capability checkpoint: deny unqualified enrolled local admission; canonical co-located revoke fences only exact-owner client resources and spend authority, preserves UNKNOWN and reports pending cleanup. Independent read-only review plus native and PostgreSQL boundary tests; no production activation. Exact reviewed current-main and External Alpha source union; no new execution or approval authority. Isolated Sofie integration: bounded parallelism requires explicit synthetic worker/verifier; default remains one. Durable predecessor claim prevents resumed duplicate effects; uncertain claims hold. Checkpoint continuation is synthetic-local only; managed/paid resume deferred. Opt-in V3 workspace metadata is strict and signed, with V1/V2 preserved. No release qualification inherited. Isolated Sofie managed continuation: optional synthetic-only checkpoint capture after process absence; signed CANCELLED checkpoint remains advisory. Resource reconciliation retains saved candidate, existing authority fence and V2 liabilities. Fresh successor Work requires normal admission; no in-place managed resume, paid activation or inherited qualification."
+     },
+     "apps/supervisor/src/spend-gateway.ts": {
+       "sha256": "9689d506fb0b48ad595d594213d4479119a3f047f0dc89c47197d167b2325f72",
+@@ -37,9 +37,9 @@
+       "authorityBoundary": "Expose read-only completion eligibility using exact current binding and settled operations. Transactional beginCompletion rechecks; no reset, no additional slots or dollars. Consolidated boundary: Retain SQLite transactions and all historical V2 semantics while using shared pure validation/accounting functions. Fabric boundary: Expose read-only completion eligibility using exact current binding and settled operations. Transactional beginCompletion rechecks; no reset, no additional slots or dollars. Consolidated boundary: Expose read-only completion eligibility using exact current binding and settled operations. Transactional beginCompletion rechecks; no reset, no additional slots or dollars. Paid-canary review: exact envelope/grant binding; stable host phase identity; UNKNOWN retains exposure and fences paid authority/custody/completion."
+     },
+     "apps/supervisor/src/server.ts": {
+-      "sha256": "e12c969c9d9cf22901b99f0fc7864012a47be9a4a96e262bb35d4da7ba84f63c",
++      "sha256": "d7af0de0f39456c39b911a198782124d7a5ae40bff106ebf897e4a4902f2ecad",
+       "classification": "HOST_ACTIVATION",
+-      "authorityBoundary": "Explicit validated provider config, no synthetic overrides; pinned configured model Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Construct the local provider around the existing JobManager and producer. No cloud default, transport widening, model call, new identity, or fallback. Fabric boundary: Construct the local provider around the existing JobManager and producer. No cloud default, transport widening, model call, new identity, or fallback. Consolidated boundary: Explicit validated provider config, no synthetic overrides; pinned configured model. Connected evidence POST is backend-authenticated, exact-reference only; Proof client Work details are owner-filtered and omit storage paths."
++      "authorityBoundary": "Explicit validated provider config, no synthetic overrides; pinned configured model Bounded review-repair: host-only exact-candidate evidence; owner-confirmed distinct repair Work, immutable provenance, aggregate allocation, one canonical V2 dispatch, full fresh verification. No model authority, automatic repair, merge, deployment or inherited publication approval. Consolidated boundary: Construct the local provider around the existing JobManager and producer. No cloud default, transport widening, model call, new identity, or fallback. Fabric boundary: Construct the local provider around the existing JobManager and producer. No cloud default, transport widening, model call, new identity, or fallback. Consolidated boundary: Explicit validated provider config, no synthetic overrides; pinned configured model. Connected evidence POST is backend-authenticated, exact-reference only; Proof client Work details are owner-filtered and omit storage paths. Isolated Sofie integration: bounded parallelism requires explicit synthetic worker/verifier; default remains one. Durable predecessor claim prevents resumed duplicate effects; uncertain claims hold. Checkpoint continuation is synthetic-local only; managed/paid resume deferred. Opt-in V3 workspace metadata is strict and signed, with V1/V2 preserved. No release qualification inherited. Isolated Sofie managed continuation: optional synthetic-only checkpoint capture after process absence; signed CANCELLED checkpoint remains advisory. Resource reconciliation retains saved candidate, existing authority fence and V2 liabilities. Fresh successor Work requires normal admission; no in-place managed resume, paid activation or inherited qualification."
+     },
+     "apps/supervisor/src/private-alpha.ts": {
+       "sha256": "446fbf9e0cf86c04055b6cf53b360755f15b2bc3ee080d074c00b1415e707eb0",
+@@ -58,8 +58,8 @@
+     },
+     "apps/supervisor/src/producer-results.ts": {
+       "classification": "SIGNED_PROVENANCE",
+-      "authorityBoundary": "Accept one provider/model identifier without rewriting the model included in immutable signed execution configuration Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory.",
+-      "sha256": "81106181a49fb6b0a873a6855d6281f42e8d1a6981db9dbf59822335bfa7223c"
++      "authorityBoundary": "Accept one provider/model identifier without rewriting the model included in immutable signed execution configuration Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Isolated Sofie integration: bounded parallelism requires explicit synthetic worker/verifier; default remains one. Durable predecessor claim prevents resumed duplicate effects; uncertain claims hold. Checkpoint continuation is synthetic-local only; managed/paid resume deferred. Opt-in V3 workspace metadata is strict and signed, with V1/V2 preserved. No release qualification inherited.",
++      "sha256": "358ec81249eca77098019ee27df80d7c0431e32d468a2234e7c19c5c10cfc163"
+     },
+     "apps/supervisor/src/oidc-preflight.ts": {
+       "classification": "PROVIDER_PREFLIGHT",
+@@ -73,8 +73,8 @@
+     },
+     "packages/hosted-routing/src/result.ts": {
+       "classification": "NOT_APPLICABLE",
+-      "authorityBoundary": "Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Strict legacy snapshot V1 unchanged. Optional cloud-only independent verification is signature-bound, exact-shaped, candidate/policy/resource/chronology checked, and grants no readiness or publication by itself. Fabric boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. QE-002 criterion-evidence review: signed optional reportSha256 is accepted only as an exact additional check field with SHA-256 validation; duplicate IDs, outcomes, isolation, candidate/policy identity and chronology checks remain intact. Legacy checks without a digest remain parse-compatible; production acceptance still requires its exact pinned successor policy. No new execution, approval or publication authority. Evidence: hosted-routing protocol and signed criterion-evidence PostgreSQL regressions.",
+-      "sha256": "9935c61e8c2684d2288ea5a483d804607e901985b71daa56612138720d32cf17"
++      "authorityBoundary": "Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Strict legacy snapshot V1 unchanged. Optional cloud-only independent verification is signature-bound, exact-shaped, candidate/policy/resource/chronology checked, and grants no readiness or publication by itself. Fabric boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. Consolidated boundary: Pure canonical model-reference validation; no execution, provider selection, spending or publication authority. Canonical model grammar shared across executor, snapshot, pricing, ledger and result validation; identifiers remain unchanged and exact policy pinning remains mandatory. QE-002 criterion-evidence review: signed optional reportSha256 is accepted only as an exact additional check field with SHA-256 validation; duplicate IDs, outcomes, isolation, candidate/policy identity and chronology checks remain intact. Legacy checks without a digest remain parse-compatible; production acceptance still requires its exact pinned successor policy. No new execution, approval or publication authority. Evidence: hosted-routing protocol and signed criterion-evidence PostgreSQL regressions. Isolated Sofie integration: bounded parallelism requires explicit synthetic worker/verifier; default remains one. Durable predecessor claim prevents resumed duplicate effects; uncertain claims hold. Checkpoint continuation is synthetic-local only; managed/paid resume deferred. Opt-in V3 workspace metadata is strict and signed, with V1/V2 preserved. No release qualification inherited.",
++      "sha256": "7af6093a59c99c8ec8a7274caca33c620bc00ebaa864c22a181a24aa1519baa1"
+     },
+     "apps/supervisor/src/git.ts": {
+       "sha256": "5969e10d9dd82a0413c56d25d4e92bb2deca2b749d1654e5d00bd04c419639d0",
+@@ -127,9 +127,9 @@
+       "authorityBoundary": "Typed migration seam only. Resource evidence cannot grant writer, model, verification or publication authority. Legacy Run and host gateway references are explicitly local migration limitations. Fabric boundary: Reuse existing lifecycle seam; canonical environment names keep local Factory separate from owner computer; no new execution authority Document the harness-neutral interface; concrete currently qualified local harness and all lifecycle behavior remain unchanged."
+     },
+     "apps/supervisor/src/local-execution-provider.ts": {
+-      "sha256": "c17cd911577d14c2d93cee57f139f3e0cf726111657260e36afc2d18341370f3",
++      "sha256": "8d0b02c49e37d5108e238c006c2bf4b9adab90c800fe53371c5e199ff8e00cf6",
+       "classification": "LOCAL_RESOURCE_RECONCILIATION",
+-      "authorityBoundary": "Scope process and verifier observations to the exact persisted attempt. Unknown resources prevent quiescence; only dispatch control decides canonical terminal state after fencing. Keep candidate workspace required by existing publication; never claim it was destroyed. Fabric boundary: Only internal environment discriminator changes to LOCAL_FACTORY; all prepare/start/cancel/custody behavior retained"
++      "authorityBoundary": "Scope process and verifier observations to the exact persisted attempt. Unknown resources prevent quiescence; only dispatch control decides canonical terminal state after fencing. Keep candidate workspace required by existing publication; never claim it was destroyed. Fabric boundary: Only internal environment discriminator changes to LOCAL_FACTORY; all prepare/start/cancel/custody behavior retained Isolated Sofie managed continuation: optional synthetic-only checkpoint capture after process absence; signed CANCELLED checkpoint remains advisory. Resource reconciliation retains saved candidate, existing authority fence and V2 liabilities. Fresh successor Work requires normal admission; no in-place managed resume, paid activation or inherited qualification."
+     },
+     "apps/cloud-control/src/dependencies.mjs": {
+       "sha256": "85e769d564f9cdcc3d9caf40a3f9fb492baf7d30ee48f577ddc83375a87568c6",
+diff --git a/packages/hosted-routing/src/result.ts b/packages/hosted-routing/src/result.ts
+index d8da46e..e0a55ea 100644
+--- a/packages/hosted-routing/src/result.ts
++++ b/packages/hosted-routing/src/result.ts
+@@ -30,7 +30,7 @@ export interface ExecutionConfiguration {
+   cloud?: CloudExecutionConfiguration;
+ }
+ export interface ExecutionSnapshot {
+-  version: 1 | 2; inputTree?: string; factoryId: string; factoryVersion: string; sourceDigest: string;
++  version: 1 | 2 | 3; inputTree?: string; workspace?: {kind:'GIT_WORKTREE';path:string;branch:null}; factoryId: string; factoryVersion: string; sourceDigest: string;
+   configurationDigest: string; configuration: ExecutionConfiguration;
+   requestId: string; requestDigest: string; workOrderId: string; runId: string;
+   attemptNumber: number; inputCommit: string; capturedAt: string;
+@@ -113,9 +113,15 @@ export function validateManifest(value: unknown): asserts value is ResultManifes
+   requireValue(Date.parse(value.completedAt) <= Date.parse(value.issuedAt), 'Completion after issuance');
+   requireValue(['COMPLETED','FAILED','CANCELLED'].includes(String(value.status)), 'Nonterminal result');
+   const e = value.execution;
+-  exact(e, ['version','factoryId','factoryVersion','sourceDigest','configurationDigest','configuration','requestId','requestDigest','workOrderId','runId','attemptNumber','inputCommit','capturedAt',...((e as Record<string,unknown>)?.version===2?['inputTree']:[])]);
+-  requireValue((e.version === 1 || e.version === 2) && e.factoryId === value.producer, 'Producer mismatch');
++  exact(e, ['version','factoryId','factoryVersion','sourceDigest','configurationDigest','configuration','requestId','requestDigest','workOrderId','runId','attemptNumber','inputCommit','capturedAt',...((e as Record<string,unknown>)?.version===2?['inputTree']:[]),...((e as Record<string,unknown>)?.version===3?['workspace']:[])]);
++  requireValue((e.version === 1 || e.version === 2 || e.version === 3) && e.factoryId === value.producer, 'Producer mismatch');
+   if(e.version===2)gitHash(e.inputTree);
++  if(e.version===3){
++    exact(e.workspace,['kind','path','branch']);
++    requireValue(e.workspace.kind==='GIT_WORKTREE'&&e.workspace.branch===null,'Unknown workspace association');
++    text(e.workspace.path);
++    requireValue((e.workspace.path as string).startsWith('/')&&!(e.workspace.path as string).includes('\0'),'Invalid workspace association');
++  }
+   for (const key of ['factoryId','requestId','workOrderId','runId']) text(e[key]);
+   for (const key of ['factoryVersion','sourceDigest','configurationDigest','requestDigest']) hash(e[key]);
+   gitHash(e.inputCommit); time(e.capturedAt);

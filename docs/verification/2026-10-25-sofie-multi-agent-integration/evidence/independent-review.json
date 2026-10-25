@@ -1,0 +1,25 @@
+{
+  "reviewer": "Independent integration_review agent",
+  "mode": "INDEPENDENT_READ_ONLY",
+  "sourcePair": {
+    "myeve": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1",
+    "myfactory": "12912314f0a9f851fd07daf8f8ece207cd82b2db"
+  },
+  "accepted": true,
+  "unresolvedP1P2": 0,
+  "independentReruns": {
+    "myeve": 57,
+    "factory": 33,
+    "newQa": 19
+  },
+  "scope": "Managed synthetic successor workflow, source integrity and authorization/accounting/process boundaries. No live-provider or installed release qualification.",
+  "releasePreflight": "Three actual CLIs correctly BLOCKED_NOT_QUALIFIED; no Work grant.",
+  "matchingFinalEvidence": {
+    "connectedChecks": 30,
+    "postgresPass": 134,
+    "qaPass": 641,
+    "fail": 0
+  },
+  "finalEvidenceConsistencyReview": "PASS; exact producer digest, branch identities, logs and dormant scope independently rechecked",
+  "conditionalEngineeringAcceptanceGatesSatisfied": true
+}
