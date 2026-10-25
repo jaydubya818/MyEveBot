@@ -5,12 +5,13 @@ import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {runOwnedBrowserFixture} from '../../../../scripts/myapps-composition/owned-browser-fixture.mjs';
 import {materializeFixtureDependencies} from '../../../../scripts/myapps-composition/fixture-dependencies.mjs';
+import {fixtureOperationOverlay,operationSourcePreimages} from '../../../../scripts/myapps-composition/fixture-operation-overlay.mjs';
 import {existsSync} from 'node:fs';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdtemp,readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
 import {join,dirname,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {generateKeyPairSync,randomUUID} from 'node:crypto';
+import {createHash,generateKeyPairSync,randomUUID} from 'node:crypto';
 import {Env,files} from '../../lib/external-alpha/work-test-fixture.ts';
 import {FakeFactory} from '../../lib/external-alpha/factory-test-fixture.ts';
 import {buildSignedResult} from '../../lib/external-alpha/result-test-fixture.ts';
@@ -44,6 +45,20 @@ for(const file of tracked){
 for(const file of ['gateway.ts','fixture-error-diagnostics.cjs']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
 materializeFixtureDependencies(root,isolated);
 const app=join(isolated,'apps/eve');
+// Diagnostic transformations affect only this ordinary fixture's derived copy.
+// Build/parent/native profiles have no runtime role, so emit nothing. Runtime
+// Eve uses the same physical companion as its preload, never a bundled copy.
+if(process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS==='1'){
+ const companion=join(app,'test/owner-journey/fixture-error-diagnostics.cjs');
+ const sources=Object.fromEntries(await Promise.all(Object.keys(operationSourcePreimages).map(async path=>[path,await readFile(join(isolated,path),'utf8')])));
+ const overlays=fixtureOperationOverlay('1',sources,companion);
+ for(const {path,body} of overlays)await writeFile(join(isolated,path),body);
+ await writeFile(join(isolated,'fixture-operation-overlay.json'),JSON.stringify({version:1,
+  scope:'ORDINARY_OWNED_FIXTURE_ONLY',runtime:'eve',
+  companion:{path:'apps/eve/test/owner-journey/fixture-error-diagnostics.cjs',sha256:createHash('sha256').update(await readFile(companion)).digest('hex')},
+  derivedInputs:overlays.map(({body,...metadata})=>metadata),
+ },null,2)+'\n',{flag:'wx',mode:0o600});
+}
 // Execute the same installed bytes from this fixture's physical dependency copy.
 const appRequire=createRequire(join(app,'package.json'));
 const nextPackagePath=appRequire.resolve('next/package.json');

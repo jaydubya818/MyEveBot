@@ -817,3 +817,63 @@ signal, retry, dependency, transport/auth/accounting change or resource allowanc
 is added. The controller can be killed before emitting metadata; a missing file
 remains UNKNOWN. This prospective diagnostic does not identify a previous OOM
 victim, qualify a runtime, or release any existing hold.
+
+### Ordinary fixture owned-operation diagnostics
+
+The approved Golden/E3 log inspection on da619b4f found only console text
+records, not the original native Error. This visibility correction is not a
+functional root-cause fix, a retrospective OOM diagnosis, or a runtime pass.
+
+When the ordinary runner's parent opt-in is exactly `1`, a pure overlay checks
+the complete SHA256 preimages of `agent/agent.ts` and
+`agent/instructions/persistent-agent.ts`, then checks every replacement occurs
+exactly once. Only the isolated fixture copy receives derived code. Tracked
+production agent, instructions, authentication and accounting bodies remain
+unchanged. All derived bodies are validated before any is returned to the
+runner. Its exclusive mode0600 `fixture-operation-overlay.json` enumerates
+original/derived hashes, fixed phase/provenance bindings and the companion hash.
+
+The derived code observes INSTRUCTIONS, MODEL_SELECTION, MODEL_GENERATE and
+MODEL_STREAM with ENTER/RETURN/THROW. Selection remains lazy inside each model
+method and is invoked once; delegation receives the original options once.
+Catches rethrow the identical original rejection after the existing delegated
+accounting reconciliation. A MODEL_STREAM RETURN means construction returned,
+not stream consumption, completion or successful authentication/accounting.
+Errors outside these owned boundaries remain UNKNOWN. No speculative lifecycle
+observer, SDK hook, SDK patch or production instrumentation is added.
+
+Derived code requires the exact physical CJS companion also loaded by the
+preload, rather than bundling a second instance or publishing a global API.
+Only the exact runtime role `eve` can use operation observations after successful
+preload installation. Builds, the parent model server, missing/unknown opt-ins,
+Next operations and the independent/composed/native profiles remain off. The
+native current-QE seam gets only its mechanically updated runner fingerprint;
+it never applies this ordinary overlay. Missing/unusable optional companions
+preserve the original callback outcome without diagnostics.
+
+Console and operation observations share one module-level budget: at most32
+attempted records, 2048UTF8 bytes per record and32768 aggregate bytes. Reinstall
+does not reset it. Failed/partial writes consume the same budget and never
+retry or replace the original console/callback outcome. Operation records use
+only fixed phase/state/provenance, sequence and the existing finite native
+Error classes/codes. Native errors/causes use own data descriptors only, with
+the existing argument/cause bounds; proxies, accessors, opaque and non-native
+throwables are not traversed or coerced. No error text or text hashes, stack,
+callsite/source-map APIs, source paths/URLs, argument/context/environment/model
+payloads or private identifiers enter the new records. The existing console
+envelope remains version1 with empty frames and no message/source hashes; all
+older captured evidence remains unchanged.
+
+Author qualification: 52 targeted pure/VM cases,43 affected fixture/environment
+cases and72 independent native transport/Neon/fetch regression cases pass,
+167 unique tests across9 files, zero failures/skips/cancellations in final
+runs. VM tests evaluate the two derived TypeScript bodies with Node24's builtin
+type stripper and authored fake APIs; they import no Eve/Next/provider SDK or
+app runtime. The enterprise manifest test uses disposable synthetic Git/data
+children only. The initial52-case run's51PASS/1FAIL is preserved: Node's
+assert.rejects inspected the adversarial proxy rejection. The test now captures
+the rejection directly before checking identity; the diagnostic never invoked
+that proxy. No actual build, database, network, browser, SDK, native profile,
+CI publication or deployment was run. SAME independent source review and
+successor-SHA qualification remain required; all prior failed attempts, frozen
+source/image recipes, mandatory holds and active tester installations persist.

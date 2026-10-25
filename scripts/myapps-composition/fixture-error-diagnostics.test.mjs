@@ -8,16 +8,13 @@ import * as util from 'node:util';
 const helperUrl=new URL('../../apps/eve/test/owner-journey/fixture-error-diagnostics.cjs',import.meta.url);
 const helperPath=helperUrl.pathname,source=readFileSync(helperUrl,'utf8');
 const PREFIX='OWNED_FIXTURE_ERROR_CALLSITE ';
-function harness({frames=[{scriptName:'/synthetic/node_modules/eve/dist/public-runtime.js',lineNumber:42,columnNumber:7}],capture,write,original}={}){
+function harness({capture,write,original,byteLength=Buffer.byteLength}={}){
  const lines=[],writes=[],calls=[],returned={original:true};
  const consoleObject={error:original??function(...args){calls.push({receiver:this,args});return returned;}};
  const module={exports:{}};
- runInNewContext(source,{module,Buffer,__filename:helperPath,Error,TypeError,RangeError,ReferenceError,SyntaxError,URIError,EvalError,AggregateError,
+ runInNewContext(source,{module,Buffer:{byteLength},__filename:helperPath,Error,TypeError,RangeError,ReferenceError,SyntaxError,URIError,EvalError,AggregateError,
   require(name){
-   if(name==='node:crypto')return {createHash};
-   if(name==='node:util')return {types:util.types,getCallSites:capture??((count,options)=>{
-    assert.equal(count,12);assert.equal(options.sourceMap,false);return frames;
-   })};
+   if(name==='node:util')return {types:util.types,getCallSites:capture??(()=>{throw Error('Callsite reads forbidden');})};
    if(name==='node:fs')return {writeSync(fd,line){writes.push({fd,line});if(write)return write(fd,line);lines.push(line);return Buffer.byteLength(line);}};
    throw Error('Unexpected diagnostic module');
   }},{filename:helperPath});
@@ -48,9 +45,10 @@ test('synchronous stderr failure never fails the original product console call',
  const h=harness({write(){throw Error('closed synthetic fd');}});h.install(h.consoleObject,'eve');
  assert.equal(h.consoleObject.error(new Error('input')),h.returned);assert.equal(h.calls.length,1);
 });
-test('callsite failure retains a bounded error projection and original outcome',()=>{
- const h=harness({capture(){throw Error('capture unavailable');}});h.install(h.consoleObject,'eve');
+test('callsite API is never called, even when it is available',()=>{
+ let reads=0;const h=harness({capture(){reads++;throw Error('capture forbidden');}});h.install(h.consoleObject,'eve');
  assert.equal(h.consoleObject.error(new Error('input')),h.returned);assert.deepEqual(h.records()[0].frames,[]);
+ assert.equal(reads,0);
 });
 test('message, stack, name, code and cause accessors never execute',()=>{
  let invoked=0;const error=new Error();
@@ -106,45 +104,20 @@ test('cause traversal and argument inspection have fixed bounds including cause 
  h.consoleObject.error(error,error,error,error,error);
  const errors=h.records()[0].errors;assert.equal(errors.length,4);assert(errors.every(value=>value.argument<4&&value.causeDepth<2));
 });
-test('primitive console messages are hashed with explicit UTF-16 truncation only',()=>{
+test('primitive console text is classified without emitting any text or content hash',()=>{
  const h=harness(),text='x'.repeat(16384)+'SYNTHETIC_SECRET_TAIL';h.install(h.consoleObject,'eve');h.consoleObject.error(text);
- const message=h.records()[0].errors[0].message;assert.equal(message.truncated,true);
- assert.equal(message.sha256,createHash('sha256').update(text.slice(0,16384)).digest('hex'));
+ assert.equal(h.records()[0].errors[0].class,'CONSOLE_TEXT');
+ assert.equal(Object.hasOwn(h.records()[0].errors[0],'message'),false);
+ assert(!h.lines[0].includes(createHash('sha256').update(text.slice(0,16384)).digest('hex')));
  assert(!h.lines[0].includes('SYNTHETIC_SECRET_TAIL'));assert.equal(h.calls[0].args[0],text);
 });
-test('source classification emits hashes and bounded positions without paths, names or URLs',()=>{
- const path='file:///synthetic/owner-session-task-secret/apps/eve/.next/server/chunk.js?token=secret';
- const h=harness({frames:[{scriptName:path,lineNumber:123,columnNumber:7,functionName:'SECRET_FUNCTION'}]});
- h.install(h.consoleObject,'next');h.consoleObject.error(new Error('input'));
- const frame=h.records()[0].frames[0];assert.equal(frame.kind,'APP_BUILD');assert.equal(frame.line,123);assert.equal(frame.column,7);
- assert.equal(frame.source.sha256,createHash('sha256').update(path).digest('hex'));
- for(const value of [path,'owner-session-task-secret','token=secret','SECRET_FUNCTION'])assert(!h.lines[0].includes(value));
-});
-test('frame proxies, accessors and invalid positions are ignored without getters or coercion',()=>{
- let invoked=0;const proxy=new Proxy({},{getOwnPropertyDescriptor(){invoked++;throw Error('proxy');}});
- const accessor={get scriptName(){invoked++;throw Error('getter');}};
- const h=harness({frames:[proxy,accessor,{scriptName:'node:synthetic',lineNumber:'12',columnNumber:Infinity}]});
- h.install(h.consoleObject,'eve');h.consoleObject.error('message');
- assert.equal(invoked,0);assert.equal(h.records()[0].frames.length,1);
- assert.equal(h.records()[0].frames[0].line,null);assert.equal(h.records()[0].frames[0].column,null);
-});
-test('source length, frame capture and emission counts remain bounded',()=>{
- const frames=Array.from({length:100},()=>({scriptName:'s'.repeat(8193),lineNumber:1,columnNumber:1}));
- const h=harness({frames});h.install(h.consoleObject,'eve');h.consoleObject.error('message');
- assert.equal(h.records()[0].frames.length,6);assert(h.records()[0].frames.every(frame=>frame.source.truncated));
-});
-test('a proxied frame array is ignored without invoking its traps',()=>{
- let invoked=0;const frames=new Proxy([],{get(){invoked++;throw Error('proxy');},getOwnPropertyDescriptor(){invoked++;throw Error('proxy');}});
- const h=harness({frames});h.install(h.consoleObject,'eve');h.consoleObject.error('message');
- assert.equal(invoked,0);assert.deepEqual(h.records()[0].frames,[]);
-});
-test('boxed message/code and position values are never coerced',()=>{
+test('boxed message/code values are never coerced or hashed',()=>{
  let invoked=0;const opaque={toString(){invoked++;throw Error('coercion');},valueOf(){invoked++;throw Error('coercion');}};
  const error=new Error();Object.defineProperty(error,'message',{value:opaque});error.code=opaque;
- const h=harness({frames:[{scriptName:'node:synthetic',lineNumber:opaque,columnNumber:opaque}]});
+ const h=harness();
  h.install(h.consoleObject,'eve');h.consoleObject.error(error);
  assert.equal(invoked,0);assert.equal(h.records()[0].errors[0].code,'UNKNOWN');
- assert.equal(Object.hasOwn(h.records()[0].errors[0],'message'),false);assert.equal(h.records()[0].frames[0].line,null);
+ assert.equal(Object.hasOwn(h.records()[0].errors[0],'message'),false);assert.deepEqual(h.records()[0].frames,[]);
 });
 test('per-process record/byte caps do not drop or retry any original console call',()=>{
  const h=harness();h.install(h.consoleObject,'eve');for(let n=0;n<100;n++)h.consoleObject.error(new Error('input'));
@@ -158,20 +131,21 @@ test('failed sinks consume the same attempt budget without repeated product erro
  assert.equal(h.writes.length,32);assert.equal(h.calls.length,100);
 });
 test('total byte budget stops emissions before record budget without changing original calls',()=>{
- const frames=Array.from({length:6},()=>({scriptName:'/synthetic/node_modules/eve/runtime.js',lineNumber:99999999,columnNumber:99999999}));
- const h=harness({frames}),error=new AggregateError([],'synthetic');error.code='EXTERNAL_ALPHA_SHARED_DENIED';error.cause=error;
+ // Deterministic accounting injection exercises the byte limit independently
+ // of today's small finite schema. No oversized private payload is required.
+ const h=harness({byteLength:()=>2048}),error=new AggregateError([],'synthetic');error.code='EXTERNAL_ALPHA_SHARED_DENIED';error.cause=error;
  h.install(h.consoleObject,'eve');for(let n=0;n<100;n++)h.consoleObject.error(error);
- assert(h.lines.length>0&&h.lines.length<32);assert.equal(h.calls.length,100);
+ assert.equal(h.lines.length,16);assert.equal(h.calls.length,100);
  assert(h.lines.reduce((sum,line)=>sum+Buffer.byteLength(line),0)<=32768);
  assert(h.lines.every(line=>Buffer.byteLength(line)<=2048));
 });
-test('Node24 public callsites bypass Error.prepareStackTrace without reading error.stack',()=>{
+test('no stack, source-map or callsite API is used to project an error',()=>{
  const previous=Object.getOwnPropertyDescriptor(Error,'prepareStackTrace');let invoked=0;
  const error=new Error('input'),h=harness({capture:util.getCallSites});
  try{
   Object.defineProperty(Error,'prepareStackTrace',{configurable:true,get(){invoked++;throw Error('hook');}});
   h.install(h.consoleObject,'eve');assert.equal(h.consoleObject.error(error),h.returned);
-  assert.equal(invoked,0);assert(h.records()[0].frames.length>0);
+  assert.equal(invoked,0);assert.deepEqual(h.records()[0].frames,[]);
  }finally{if(previous)Object.defineProperty(Error,'prepareStackTrace',previous);else delete Error.prepareStackTrace;}
 });
 
