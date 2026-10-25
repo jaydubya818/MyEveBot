@@ -7,8 +7,9 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {EventEmitter} from 'node:events';
 import {readFileSync} from 'node:fs';
-import {isAbsolute,join} from 'node:path';
+import {dirname,isAbsolute,join} from 'node:path';
 import {runInNewContext} from 'node:vm';
+import {encodeBuildFailureMetadata} from './build-failure-metadata.mjs';
 const producer=readFileSync(new URL('./current-build-producer.mjs',import.meta.url),'utf8');
 const profile=readFileSync(new URL('./run-packaging-profile.mjs',import.meta.url),'utf8');
 const native=readFileSync(new URL('./current-native-operator.py',import.meta.url));
@@ -50,7 +51,8 @@ function fixture({hang=false,earlyLoss=false}={}){
  files.set('/pinned/python',Buffer.from('synthetic-python'));files.set('/source/scripts/myapps-composition/current-native-operator.py',native);
  const spec={profile:plan.profile,plan:'/control/plan',planSha256:hash(files.get('/control/plan')),
   clearance:'/control/clearance',clearanceSha256:hash(files.get('/control/clearance')),log:'/private-log'};
- const context={assert,isAbsolute,join,Buffer,createHash,process,AggregateError,specJson:JSON.stringify(spec),performance:{now:()=>now},
+ const context={assert,isAbsolute,dirname,join,encodeBuildFailureMetadata,Buffer,createHash,process,AggregateError,
+  specJson:JSON.stringify(spec),performance:{now:()=>now},
   setTimeout:schedule,clearTimeout:id=>timers.delete(id),realpathSync:path=>path,hash,
   readFileSync:path=>{assert(files.has(path),'Only synthetic mapped files may be read: '+path);return files.get(path);},
   writeFileSync:(path,body,options)=>{assert.equal(options.flag,'wx');assert.equal(options.mode,0o600);assert(!files.has(path));files.set(path,body);},

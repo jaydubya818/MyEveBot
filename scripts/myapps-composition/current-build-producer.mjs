@@ -8,6 +8,7 @@ import {captureBuildInputs,verifyBuildInputs} from './build-input-inventory.mjs'
 import {sealRuntimeOutput} from './runtime-output-seal.mjs';
 import {verifyEmittedPackages} from './verify-emitted-packages.mjs';
 import {registerOwnedProcess,closeOwnedProcess} from './owned-process-registry.mjs';
+import {encodeBuildFailureMetadata} from './build-failure-metadata.mjs';
 import {assertEveDerivedInputsAbsent,retainFailedBuildInputSnapshot,summarizeInputDifference,validateEveDerivedInputTransition,writePrivateInputInventory} from './eve-derived-inputs.mjs';
 
 const LOCK='debed795a8e948e1829e15097e32b90c73f779747d11d986159eb6879a9ca892';
@@ -73,7 +74,7 @@ export function validateBuildEnvironment(value,app){
  * This is not a process sandbox. The separately reviewed operator must constrain
  * transport/native/network resources and independently own any fixture database.
  */
-export function observedCommand(binary,args,{cwd,env,log,timeoutMs,registry,cleanupGraceMs=3000}){
+export function observedCommand(binary,args,{cwd,env,log,timeoutMs,registry,cleanupGraceMs=3000,phase='UNKNOWN'}){
  assert(isAbsolute(binary)&&Array.isArray(args)&&args.every(arg=>typeof arg==='string'),'BUILD_COMMAND_ARRAY_REQUIRED');
  assert(Number.isInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=15*60_000,'BUILD_COMMAND_DEADLINE');
  assert(Number.isInteger(cleanupGraceMs)&&cleanupGraceMs>=3000&&cleanupGraceMs<=420000,'BUILD_COMMAND_CLEANUP_BUDGET');
@@ -83,10 +84,11 @@ export function observedCommand(binary,args,{cwd,env,log,timeoutMs,registry,clea
   let registration,registrationFailure;
   if(registry)try{registration=registerOwnedProcess(registry,{pid:child.pid,binary,args,cwd});}catch(error){registrationFailure=error;}
   const chunks=[];let count=0,firstError,timer,killTimer,settleTimer,code,exitSignal,closed=false,exited=false,settling=false;
-  const errors=[];let cleanupDeadline;
+  const errors=[];let cleanupDeadline,quiescent=false,registrationClosed=false;
   function live(){
+   quiescent=false;
    if(!child.pid)return false;
-   try{process.kill(-child.pid,0);return true;}catch(error){if(error.code==='ESRCH')return false;throw error;}
+   try{process.kill(-child.pid,0);return true;}catch(error){if(error.code==='ESRCH'){quiescent=true;return false;}throw error;}
   }
   function kill(signal){
    if(!child.pid)return;
@@ -139,15 +141,23 @@ export function observedCommand(binary,args,{cwd,env,log,timeoutMs,registry,clea
     // Destroy only our pipe handles. An unobserved/escaped process is explicitly
     // NOT declared stopped; the concrete operator must retain and resolve HOLD.
     child.stdout.destroy();child.stderr.destroy();child.unref();
-    if(registration&&!live())closeOwnedProcess(registry,registration);
+    if(registration&&!live()){closeOwnedProcess(registry,registration);registrationClosed=true;}
     writeFileSync(log,Buffer.concat(chunks),{flag:'wx',mode:0o600});
     if(errors.length)throw new AggregateError([...(firstError?[firstError]:[]),...errors],'Build child or cleanup failed');
     if(firstError)throw firstError;
     assert.equal(code,0,`BUILD_COMMAND_FAILED:${code??exitSignal}`);
     done({pid:child.pid,processGroupId:child.pid,exitCode:code,groupQuiescent:true,cleanupScope:'OWN_PROCESS_GROUP_ONLY',
      binary,args,cwd,logSha256:hash(bytes(log))});
-   }catch(error){reject(firstError&&error!==firstError&&!(error instanceof AggregateError&&error.errors.includes(firstError))
-    ?new AggregateError([firstError,error],'Build failed with cleanup/evidence failure'):error);
+   }catch(error){
+    // Best-effort, first-write-only metadata; never replace the original failure.
+    // A killed controller may emit nothing: absence remains UNKNOWN.
+    try{
+     const metadata=encodeBuildFailureMetadata(phase,child.pid,code,exitSignal,
+      exited&&closed&&quiescent&&errors.length===0&&(!registry||registrationClosed)?'QUIESCENT':'UNKNOWN');
+     if(metadata!==null)writeFileSync(join(dirname(log),'build-command-failure.json'),metadata,{flag:'wx',mode:0o600});
+    }catch{}
+    reject(firstError&&error!==firstError&&!(error instanceof AggregateError&&error.errors.includes(firstError))
+     ?new AggregateError([firstError,error],'Build failed with cleanup/evidence failure'):error);
    }finally{
     child.stdout.destroy();child.stderr.destroy();child.unref();
     clearTimeout(killTimer);clearTimeout(settleTimer);process.removeListener('SIGTERM',interrupted);process.removeListener('SIGINT',interrupted);
@@ -256,14 +266,15 @@ export async function prepareCurrentBuild(spec){
  const registry={path:join(evidence,'owned-groups.ndjson'),ps:spec.toolchain.ps};writeFileSync(registry.path,'',{flag:'wx',mode:0o600});
  const commands=[];
  commands.push(await observedCommand(spec.toolchain.node.path,[spec.toolchain.npm.path,'ci','--ignore-scripts','--no-audit','--no-fund'],
-  {cwd:copy,env:installEnv,registry,log:join(evidence,'install-private.log'),timeoutMs:10*60_000}));
+  {cwd:copy,env:installEnv,registry,log:join(evidence,'install-private.log'),timeoutMs:10*60_000,phase:'INSTALL'}));
  for(const args of [['scripts/security/apply-dependency-patches.mjs'],['scripts/security/apply-dependency-patches.mjs','--check']])
   commands.push(await observedCommand(spec.toolchain.node.path,args,{cwd:copy,env:installEnv,registry,
-   log:join(evidence,args.length===1?'patch-private.log':'patch-check-private.log'),timeoutMs:60_000}));
+   log:join(evidence,args.length===1?'patch-private.log':'patch-check-private.log'),timeoutMs:60_000,
+   phase:args.length===1?'PATCH':'PATCH_CHECK'}));
  const sdkCheck=join(copy,'scripts/myapps-composition/verify-published-package.py');
  const pythonCode='import importlib.util,json,sys; s=importlib.util.spec_from_file_location("verified_input",sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(json.dumps(m.authenticate_package(sys.argv[2],sys.argv[3],name="eve",version="0.66.3",integrity=sys.argv[4])))';
  commands.push(await observedCommand(spec.toolchain.python.path,['-I','-B','-c',pythonCode,sdkCheck,spec.sdkArchive,join(copy,'node_modules/eve'),SDK.integrity],
-  {cwd:copy,env:installEnv,registry,log:join(evidence,'sdk-published-input-private.json'),timeoutMs:60_000}));
+  {cwd:copy,env:installEnv,registry,log:join(evidence,'sdk-published-input-private.json'),timeoutMs:60_000,phase:'SDK_AUTHENTICATE'}));
  const rawRoots=[...new Set(Object.keys(lock.packages).filter(key=>key.split('/').includes('node_modules'))
   .map(key=>key.split('node_modules')[0]+'node_modules'))].filter(path=>existsSync(join(copy,path))).sort();
  const roots=rawRoots.filter(path=>!rawRoots.some(parent=>parent!==path&&path.startsWith(parent+'/')));
@@ -293,7 +304,8 @@ export async function buildPreparedCurrent(prepared,buildEnvironment){
  // supplied by the independently reviewed concrete operator, never inherited.
  const eve=join(copy,'node_modules/eve/bin/eve.js');
  async function ownedBuild(binary,args,name,env){
-  try{return await observedCommand(binary,args,{cwd:app,env,registry,log:join(evidence,name+'-build-private.log'),timeoutMs:10*60_000});}
+  try{return await observedCommand(binary,args,{cwd:app,env,registry,log:join(evidence,name+'-build-private.log'),timeoutMs:10*60_000,
+   phase:name==='eve'?'EVE_BUILD':name==='next'?'NEXT_BUILD':'UNKNOWN'});}
   catch(first){
    try{retainFailedBuildInputSnapshot(copy,inputs,join(evidence,'failed-'+name));}
    catch(diagnostic){throw new AggregateError([first,diagnostic],'Build failed and input diagnostics could not be retained');}

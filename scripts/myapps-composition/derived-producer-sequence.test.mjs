@@ -23,9 +23,10 @@ function fixture(options={}){
    if(options.drift&&captures===2)throw Error('INPUT_TREE_CHANGED');
   },assertEveDerivedInputsAbsent:input=>{assert.equal(input,before);events.push('absence');if(options.preseed)throw Error('PRESEEDED');},
   validateBuildEnvironment:()=>({}),existsSync:()=>false,
-  observedCommand:async(binary,args)=>{
+  observedCommand:async(binary,args,commandOptions)=>{
    commands++;const kind=args[0].includes('/eve/')?'eve':'next';events.push('command:'+kind);
    assert.equal(binary,'/synthetic/node');
+   assert.equal(commandOptions.phase,kind==='eve'?'EVE_BUILD':'NEXT_BUILD');
    if(options.fail===kind)throw first;
    return {kind,pid:123,exitCode:0,groupQuiescent:true};
   },captureBuildInputs:()=>{captures++;events.push('capture:'+captures);return captures===1?afterEve:afterNext;},

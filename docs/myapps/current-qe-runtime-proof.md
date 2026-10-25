@@ -794,3 +794,26 @@ Author ONLY new/affected diagnostic29 PASS, zero failures/skips, once in ten-fil
 
 
 The exact reviewed workflow exception is `.github/workflows/owner-ux.yml`, adding only MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS to the existing startup step with `(matrix.journey == 'golden' || matrix.journey == 'e3') && '1' || ''`. Removing that one setting restores parent eb79db0f workflow SHA256 d7a6536c990129c7947aa44040e60e34b9b3433fe8b78b950551d018f9f0c768 exactly; candidate SHA256 is 1f6b53de61aee2cb43c3593855c4898ca4bed706162ccfdcf401a1c4984a23a9. Matrix, jobs, permissions, refs, timeouts, services, private acceptance step, artifact paths, providers and every other environment value are unchanged. Historical inventories remain intact; no claim that every historical protected blob is unchanged is made. This explicit fixture-only workflow exception must be included in the release coordinator's historical/source join. The profile unit checks evaluate the fixed current lower-case matrix cases and a future-profile/empty case with fake data, not the hosted GitHub engine or arbitrary string-case semantics. No author workflow dispatch or actual diagnostic/runtime capture has occurred.
+
+
+## Bounded build-command failure metadata
+
+`observedCommand` makes a best-effort, first-write-only
+`evidence/build-command-failure.json` beside the producer's existing private logs
+when a command fails. Its UTF-8 contents are limited to 2 KiB and a fixed schema:
+failure-only status, finite phase identifier, observed owned child PID, nullable
+exit code/signal, and `QUIESCENT` or `UNKNOWN` cleanup state. No arguments,
+environment, cwd, URLs, owner IDs, logs, error codes/messages/stacks, model or
+database payloads enter this projection. Invalid or missing scalar observations
+become allowlisted `UNKNOWN`/null values without coercing arbitrary objects.
+
+The file uses exclusive creation and mode0600. Success emits no failure record.
+Encoding/write failure cannot replace the existing thrown error or alter cleanup
+ordering. A zero exit during an earlier timeout/output failure remains failure.
+`QUIESCENT` requires observed exit/close, an existing ESRCH group observation,
+no cleanup errors and successful registry closure when a registry was supplied;
+permission/identity/stdio uncertainty remains `UNKNOWN`. No new process probe,
+signal, retry, dependency, transport/auth/accounting change or resource allowance
+is added. The controller can be killed before emitting metadata; a missing file
+remains UNKNOWN. This prospective diagnostic does not identify a previous OOM
+victim, qualify a runtime, or release any existing hold.
