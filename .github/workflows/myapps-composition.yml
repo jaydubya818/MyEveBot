@@ -211,6 +211,12 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55591/blocker_fixes
         run: node --import tsx --test scripts/myapps-composition/browser-cleanup.postgres.mjs
+      - name: Required composed positive Work release preflight
+        if: always()
+        working-directory: ${{ github.workspace }}/myeve
+        env:
+          MYEVE_POSITIVE_WORK_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/myapps-composition/check-positive-work-release.mjs --source-commit "$MYEVE_POSITIVE_WORK_SOURCE" --journey "composed"
       - name: Composed composer refresh and unchanged E2 browser journey
         working-directory: ${{ github.workspace }}/myeve/apps/eve
         env:

@@ -16,7 +16,7 @@ function facts(){return {declaredSource:declared,checkoutSource:declared,checkou
  sourceClean:true,profile:'golden',releaseMode:'CHAT_ONLY_V1',observedArchiveSha256:archiveSha256,
  workFileHashes:{...archivedWorkFiles},guardFileHashes:{...releaseGuardFiles}};}
 function denied(value,code){assert.equal(value.status,'BLOCKED_NOT_QUALIFIED');assert.equal(value.positiveWorkQualified,false);if(code)assert.equal(value.code,code);}
-for(const profile of ['golden','e3','independent'])test(profile+' remains a failed positive Work obligation even with all source facts matched',()=>{
+for(const profile of ['golden','e3','independent','composed'])test(profile+' remains a failed positive Work obligation even with all source facts matched',()=>{
  const value=evaluatePositiveWorkPrecondition({...facts(),profile});
  denied(value,'POSITIVE_WORK_CHAT_ONLY_RELEASE');assert.equal(value.sourceBinding,'MATCHED_CHECKOUT');assert(Object.isFrozen(value));
 });
@@ -55,6 +55,12 @@ test('CLI argument shape is exact and unknown config/profile/source flags do not
  for(const args of [[],['--source-commit',declared,'--journey','future'],['--source-commit','secret','--journey','golden'],
   ['--source-commit',declared,'--journey','golden','--allow-work'],['--release','WORK','--journey','golden']])assert.equal(parsePreconditionArguments(args),null);
 });
+test('composed profile uses a separately declared source; a different event SHA or configuration cannot self-authorize',()=>{
+ assert.deepEqual(parsePreconditionArguments(['--source-commit',declared,'--journey','composed']),{declaredSource:declared,profile:'composed'});
+ denied(evaluatePositiveWorkPrecondition({...facts(),profile:'composed'}),'POSITIVE_WORK_CHAT_ONLY_RELEASE');
+ denied(evaluatePositiveWorkPrecondition({...facts(),profile:'composed',declaredSource:'c'.repeat(40)}),'POSITIVE_WORK_SOURCE_BINDING_MISMATCH');
+ denied(evaluatePositiveWorkPrecondition({...facts(),profile:'composed',releaseMode:'WORK_ENABLED'}),'POSITIVE_WORK_RELEASE_REQUALIFICATION_REQUIRED');
+});
 
 const pure=readFileSync(new URL('./positive-work-release-precondition.mjs',import.meta.url),'utf8');
 const cli=readFileSync(new URL('./check-positive-work-release.mjs',import.meta.url),'utf8');
@@ -82,6 +88,7 @@ test('thin CLI is always nonzero, observes only fixed owned files/Git metadata a
  assert(h.commands.every(value=>value.options.timeout===10000&&value.options.env.GIT_OPTIONAL_LOCKS==='0'));
  assert(h.reads.every(path=>path.startsWith('/synthetic/repo/')));
  assert(!cli.includes('process.env.MYEVE_ALLOW_WORK'));
+ for(const profile of ['e3','independent','composed'])denied(cliHarness({argv:['--source-commit',declared,'--journey',profile]}).value,'POSITIVE_WORK_CHAT_ONLY_RELEASE');
 });
 test('CLI invalid args or unavailable/dirty/drifted observations remain nonzero without leaking errors',()=>{
  const invalid=cliHarness({argv:['--allow-work']});assert.equal(invalid.commands.length,0);
@@ -100,4 +107,20 @@ test('required job names/matrix and old steps persist, with one always-run nonze
  assert(job.includes('journey: [golden, e3, independent]'));assert(job.includes('Private acceptance, completion, and same-conversation readback'));
  assert(job.includes('golden) npx playwright test'));assert(job.includes('e3) npx playwright test'));assert(job.includes('independent) npx playwright test'));
  const before=workflow.replace(block,'');assert.equal(hash(before),'1f6b53de61aee2cb43c3593855c4898ca4bed706162ccfdcf401a1c4984a23a9');
+});
+test('composed preflight preserves every parent workflow byte outside one required block at the browser boundary',()=>{
+ const workflow=readFileSync(new URL('../../.github/workflows/myapps-composition.yml',import.meta.url),'utf8');
+ const block='      - name: Required composed positive Work release preflight\n'
+  +'        if: always()\n'
+  +'        working-directory: ${{ github.workspace }}/myeve\n'
+  +'        env:\n'
+  +'          MYEVE_POSITIVE_WORK_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}\n'
+  +'        run: node scripts/myapps-composition/check-positive-work-release.mjs --source-commit "$MYEVE_POSITIVE_WORK_SOURCE" --journey "composed"\n';
+ assert.equal(workflow.split(block).length,2);
+ assert.equal(hash(workflow.replace(block,'')),'64aee0789e417d156a21f3dee89cbcd84fd7ebe6a56cff2183fcf8b30fa69ca3');
+ assert(workflow.includes(block+'      - name: Composed composer refresh and unchanged E2 browser journey\n'));
+ assert(workflow.indexOf('Browser fixture startup failure and owned cleanup regressions')<workflow.indexOf(block));
+ assert(workflow.includes('ref: ${{ github.event.pull_request.head.sha || github.sha }}'));
+ assert(!block.includes('continue-on-error'));assert(!block.includes('$GITHUB_SHA'));assert(!block.includes('git rev-parse'));
+ assert(!block.includes('|| true'));assert(!block.includes('exit 0'));
 });

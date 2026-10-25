@@ -1,6 +1,6 @@
 import {types} from 'node:util';
 
-const profiles=new Set(['golden','e3','independent']);
+const profiles=new Set(['golden','e3','independent','composed']);
 const sourcePattern=/^[a-f0-9]{40}$/;
 function ownData(value,keys){
  if(!value||typeof value!=='object'||types.isProxy(value))return null;
