@@ -189,7 +189,7 @@ export function exampleSnapshot(): PreviewSnapshot {
         id: "preview-result",
         goalId: completed.id,
         goalTaskId: null,
-        runId: null,
+        runId: "preview-task",
         status: "successful",
         ownerFeedback: "unknown",
         summary:

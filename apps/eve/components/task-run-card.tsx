@@ -13,14 +13,19 @@ function statusVariant(status: TaskRunView["status"]): "secondary" | "destructiv
 export function TaskRunCard({ threadId }: { threadId: string }) {
   const [task, setTask] = useState<TaskRunView | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/task-runs?threadId=${encodeURIComponent(threadId)}`, {
-      cache: "no-store",
-    });
-    if (!response.ok) return;
-    const body = (await response.json()) as { tasks?: TaskRunView[] };
-    setTask(body.tasks?.[0] ?? null);
+    try {
+      const response = await fetch(`/api/task-runs?threadId=${encodeURIComponent(threadId)}`, {
+        cache: "no-store",
+      });
+      if (!response.ok) return;
+      const body = (await response.json()) as { tasks?: TaskRunView[] };
+      setTask(body.tasks?.[0] ?? null);
+    } catch {
+      // Network offline or server unreachable — keep the stale card visible.
+    }
   }, [threadId]);
 
   useEffect(() => {
@@ -38,6 +43,7 @@ export function TaskRunCard({ threadId }: { threadId: string }) {
     const taskId = task?.id;
     if (taskId === undefined) return;
     setUpdating(true);
+    setActionError(null);
     try {
       const response = await fetch(`/api/task-runs/${taskId}`, {
         method: "PATCH",
@@ -47,7 +53,12 @@ export function TaskRunCard({ threadId }: { threadId: string }) {
       if (response.ok) {
         const body = (await response.json()) as { task: TaskRunView };
         setTask(body.task);
+      } else {
+        const body = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
+        setActionError(body?.error?.message ?? "Stop could not be confirmed. The turn may still be running.");
       }
+    } catch {
+      setActionError("Stop request failed. Check your connection and try again.");
     } finally {
       setUpdating(false);
     }
@@ -111,6 +122,9 @@ export function TaskRunCard({ threadId }: { threadId: string }) {
           </a>
         </div>
       </div>
+      {actionError && (
+        <p role="alert" className="mt-2 text-xs text-kumo-danger">{actionError}</p>
+      )}
     </MessageTaskShell>
   );
 }
