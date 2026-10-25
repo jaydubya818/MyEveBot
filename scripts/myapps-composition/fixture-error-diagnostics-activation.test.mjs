@@ -43,9 +43,11 @@ test('default-off runner still has its exact complete source fingerprint asserte
 
 const workflow=readFileSync(new URL('../../.github/workflows/owner-ux.yml',import.meta.url),'utf8');
 const setting="          MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS: ${{ (matrix.journey == 'golden' || matrix.journey == 'e3') && '1' || '' }}\n";
-test('workflow changes exactly one startup setting and preserves the complete parent workflow',()=>{
+const workPreflight='      - name: Required positive Work release preflight\n        if: ${{ always() }}\n        env:\n          MYEVE_POSITIVE_WORK_JOURNEY: ${{ matrix.journey }}\n        run: node scripts/myapps-composition/check-positive-work-release.mjs --source-commit "$GITHUB_SHA" --journey "$MYEVE_POSITIVE_WORK_JOURNEY"\n';
+test('workflow preserves the parent plus only the reviewed diagnostic setting and failing Work preflight',()=>{
  assert.equal(workflow.split(setting).length,2);
- assert.equal(createHash('sha256').update(workflow.replace(setting,'')).digest('hex'),'d7a6536c990129c7947aa44040e60e34b9b3433fe8b78b950551d018f9f0c768');
+ assert.equal(workflow.split(workPreflight).length,2);
+ assert.equal(createHash('sha256').update(workflow.replace(setting,'').replace(workPreflight,'')).digest('hex'),'d7a6536c990129c7947aa44040e60e34b9b3433fe8b78b950551d018f9f0c768');
  const start=workflow.indexOf('      - name: Start isolated unpaid journey fixture\n');
  const end=workflow.indexOf('      - name:',start+1);
  assert(start>=0&&end>start);assert(workflow.slice(start,end).includes(setting));
