@@ -12,7 +12,7 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "cron-parser": "^5.10.2",
-    "frosted-ui": "^0.0.1-canary.153",
+    "frosted-ui": "^0.0.1-canary.161",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
     "react": "^19.3.1",
