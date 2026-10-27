@@ -334,7 +334,12 @@ describe.skipIf(!connection)('PostgreSQL MissionControl admission bindings', () 
     expect(result.acceptance).toBeNull();expect(await env.count('external_alpha_work_authority')).toBe(0);
     await env.pool.query("UPDATE engineering_routing_decisions SET factory_observation=jsonb_set(factory_observation,'{backendObservedAt}',to_jsonb((clock_timestamp()-interval '1 hour')::text)) WHERE id=$1",[x.decisionId]);
     expect(await read()).toEqual(result); // Immutable terminal custody can back retained app use without a fresh execution lease.
-    await expect(retainedOwnerTasksOrigin(database,'foreign-owner',retained.receiptId,{kind:'OWNER_FACTORY',readConfig:async()=>x.config})).rejects.toThrow('APP_OWNER_MISMATCH');
+    const foreignReadConfig=vi.fn(async()=>{throw Error('FOREIGN_OWNER_CONFIG_MUST_NOT_RESOLVE');});
+    for(const receiptId of [retained.receiptId,randomUUID()]) {
+      await expect(retainedOwnerTasksOrigin(database,'foreign-owner',receiptId,{kind:'OWNER_FACTORY',readConfig:foreignReadConfig}))
+        .rejects.toMatchObject({code:'APP_EVIDENCE_PENDING',message:'APP_EVIDENCE_PENDING'});
+    }
+    expect(foreignReadConfig).not.toHaveBeenCalled();
     const control=fixture.signControl();await store.fence(fixture.document.permitId,control,controlDigest(control.document));
     await expect(read()).rejects.toThrow('APP_MISSION_BINDING');
   });
