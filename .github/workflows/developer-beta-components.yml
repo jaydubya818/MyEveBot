@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MyFactory
-          ref: 0bab8f9dea41d1d81724670c30746726c1139c2a
+          ref: 17cbfa7c573270087d7da2b920e72f1e72b3c1b0
           path: .qualification/factory
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -61,3 +61,8 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm run typecheck:producer
+      - name: Legacy Result freeze and retained replay regressions
+        working-directory: .qualification/factory
+        run: >-
+          node --test --test-name-pattern='^Legacy direct producer:'
+          apps/supervisor/qualification/local-v4-producer.test.mjs
