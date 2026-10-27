@@ -3379,8 +3379,8 @@
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure signed manifest validation accepts optional per-check reportSha256 only when well-formed; exact fields, chronology, outcomes, isolation, hashes and signatures preserved. Evidence: QE-002 mixed per-criterion signed Result ingestion/tamper regressions; MyFactory successor remains separately pinned. Reviewed isolated Sofie integration: current owner/capability/MissionControl/ActionGateway gates retained; fixed fixture profiles only, fresh authority rereads, terminal-fenced planning handoff and exact retained Result references. No production activation, paid grant or publication authority.",
-      "sha256": "37c284cc7d3a4ac972e32b658362559d057a4707a25c16dd28ffa363b1fa7c4b"
+      "reason": "Internal pure signed-manifest codec. Additive explicit local V4 validation/sign/verify APIs bind the exact admitted input commit/tree, request and configuration; legacy V1/V2/V3 validators and signature/artifact/evidence guards stay unchanged and reject V4. V4 rejects cloud/independent-verification fields and creates no service or executor authority. Independent source acceptance and paired Node/Vitest protocol regressions cover this codec only; no installed FactoryVersion, pricing, financial, private-custody, delivery or activation qualification.",
+      "sha256": "fab2f2f338e5cd6461545e083eb8598f5547eb08bf0f03228fc1743548205833"
     },
     "lib/engineering/factory-producer-signature.ts": {
       "classification": "INTERNAL",
@@ -4452,8 +4452,8 @@
     },
     "lib/myapps/owner-tasks-result.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only canonical owner custody under enrollment and Work locks. Verifies original Gate C signature, exact immutable MissionControl permit and admission receipt, writer/request/Factory identity, protected evidence and original native Proof, current enrollment/configuration, known exact-attempt spend, complete canonical accounting and quiescence. Rejects revoked, foreign, missing, UNKNOWN and unverified custody; emits explicit owner provenance, never an Alpha authority. No new execution or accounting mutation.",
-      "sha256": "ef5bccd627b3911bed645eea48fa3c379c2a21cc5fa9909625075d98c10fe277"
+      "reason": "Read-only canonical owner custody: resolve the owner-scoped receipt and lock its exact Work before trusted per-Work configuration; revalidate the Work digest after asynchronous configuration. Existing enrollment, immutable MissionControl permit/admission receipt, V2-only signed Result, native Proof, protected evidence, known exact-attempt spend, complete accounting and quiescence checks remain. Reject foreign, stale, revoked, missing and UNKNOWN custody; no dispatch, accounting mutation, V4 delivery adoption or activation authority. Independent source acceptance and 28 ordering/refusal regressions cover this correction; positive private custody remains separately unqualified.",
+      "sha256": "1375abebd043ef37abb583077e9782afe78416d7aec3b46750f377ef45738bf2"
     },
     "lib/myapps/local-configuration.ts": {
       "classification": "ENFORCED",
