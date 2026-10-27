@@ -6,7 +6,13 @@ import type {LocalResultManifestV4,ResultManifest} from './factory-producer-prot
 
 // Vitest collection stays native to the app. Node 24 can also run this pure
 // boundary suite without installing the app or importing its runtime/SDK.
-const {test}=process.env.VITEST ? await import('vitest') : await import('node:test');
+type BoundaryTest = {
+ (name: string, run: () => void | Promise<void>): unknown;
+ (name: string, options: {skip: boolean}, run: () => void | Promise<void>): unknown;
+};
+const test: BoundaryTest = process.env.VITEST
+ ? (await import('vitest')).test
+ : (await import('node:test')).test;
 const LEGACY_MODEL_REFERENCE_IS_STRICT=false;
 const now=Date.parse('2026-10-26T12:00:00Z');
 const objectId=(kind:string,bytes:Buffer)=>createHash('sha1').update(`${kind} ${bytes.length}\0`).update(bytes).digest('hex');
