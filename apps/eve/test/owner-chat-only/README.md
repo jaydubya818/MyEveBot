@@ -151,3 +151,64 @@ Deterministic text does not qualify live-model judgment, billing, truthfulness o
 preference-following. This fixture clears no positive Work, Relay composition,
 producer/Proof/private custody, installed OIDC, three-user, paid execution or
 production activation gate. Existing CI workflow/matrix/gates are unchanged.
+
+## Pure metadata contract stage
+
+`ci-entry.mts` is a stateless supplied-record validator. Its name does not make
+it an entry point: it has no CLI branch, observer, operator-spec writer, runner,
+filesystem/environment access, subprocess, network, SQL, browser or app/SDK I/O.
+It imports only pure Node utilities and hashing. Matching records return
+`MATCHED_SUPPLIED_METADATA` with `executionAuthorized:false`,
+`runtimeQualified:false` and `artifactPublicationAuthorized:false`.
+Caller-created JSON, matching self-observed HEAD, local URLs and environment
+flags do not establish provenance or authorize anything. Missing/unmatched
+facts remain fixed `UNKNOWN_HOLD` classifications; missing counters are not zero.
+
+The four validators compare separately supplied event/checkout/run/service,
+image/mapping/tool/cluster metadata; physical file identity before/after;
+bounded finalization timestamps/counters; and the exact three proposed public
+metadata records. They never observe those facts themselves. Fake clocks and
+operations in the unit tests demonstrate rules only, not CI ownership or cleanup.
+Source matching requires `checkoutClean:true` in the same fresh observation;
+missing, dirty, unknown or nonboolean cleanliness cannot match commit/tree/lock
+metadata alone.
+
+Finalization requires admission stopped and setup settled with no late
+registration; app/browser writers and model handlers settled; immutable final
+database/Work/accounting snapshots captured **before** pools close and databases
+drop; cluster/session checks and bounded nonforce cleanup; then a join with
+post-cleanup source observations. A late setup, nonsettled operation, missing
+registry after spawn, unknown identity or original failure remains HOLD. Proven
+no-spawn is distinct from a missing ownership record. A race or CI service
+teardown is not application cleanup. The existing runner/setup are unchanged
+and do not yet implement this proposed order or ownership protocol.
+Supplied database evidence must contain the exact unique returned, registered
+and dropped name sets (at most three names), zero unclaimed partial creates and
+unknown resources, and explicit `NONFORCE` cleanup. Missing evidence, substituted
+or unregistered cleanup targets and `FORCE`/`UNKNOWN` cleanup remain HOLD.
+Process-group peaks must agree with each other and the total spawned count:
+zero spawn requires zero activity; positive spawn requires activity and cannot
+also claim proven no-spawn. The three-per-slot and five-total caps still apply.
+
+Public candidates are limited to `chat-only-v1-result.json`,
+`source-identity.json` and `assertion-results.json`: at most65,536UTF8 bytes per
+file and131,072 total, exact regular owned no-link identity, readonly mode,
+stable inode/time/bytes and fixed canonical schemas. All writers must have
+settled before finalization. Unknown fields, error text, contexts, credentials,
+URLs/runtime identifiers, raw logs/trace/screenshots/HTML, prompt/environment
+hashes and runtime-dependent code hashes are excluded. An approved deterministic
+code preimage/review must be supplied separately; a key named code hash is not
+provenance. These checks grant no upload authority, even for matching candidates.
+Existing screenshot/provenance/raw-observation files stay private and are not
+covered by this proposed allowlist. Optional diagnostics remain **OFF**.
+
+Before any observation, the coordinator must review a separate exact observer
+source and finite plan with pinned tools/argv, trusted source and one declared
+CI-owned service selector, selected fields/read-only metadata queries, private
+evidence paths, time/byte limits and failure obligations. Actual service
+ID/image/DNAT/systemID, copied executable/browser selection, loader behavior,
+descendant closure and nonforce cleanup are unobserved. No local auto-clearance,
+service discovery, privilege/configuration repair or new service is permitted.
+Observation authority, implementation authority and runtime qualification are
+separate later gates. The original Work obligations stay failed/held; this stage
+creates no workflow, chat PASS, productive grant or production/tester change.
