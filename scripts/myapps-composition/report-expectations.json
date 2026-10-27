@@ -587,7 +587,7 @@
       ]
     },
     "apps/eve/lib/external-alpha/work-controller-postgres.test.ts": {
-      "passed": 76,
+      "passed": 79,
       "skipped": [],
       "passedNames": [
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) CAP-1: an undispatched Work reservation holds the single slot and fences new chat admission until its deadline",
@@ -618,6 +618,9 @@
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-7: stale or replayed running_work evidence cannot reopen admission or capacity",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-8: no fault, delayed central write: no admission inside the local-UNKNOWN window",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) UF-9: an allowance admitted before the Work cannot dispatch a paid call while the Work is RUNNING or UNKNOWN",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial confirmed by an authenticated readback 404 cancels; the allowance stays charged",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial for a request the Factory already holds fences UNKNOWN instead of CANCELLED",
+        "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a Factory denial whose readback cannot be obtained fences UNKNOWN instead of CANCELLED",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a definitive Factory denial cancels the authority without fencing, and the allowance is still charged",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge",
         "external alpha Work controller, Factory consumption and shared accounting (real PostgreSQL) a lost post-commit reconciliation acknowledgement restarts from the immutable terminal fact without another dispatch",
