@@ -3374,8 +3374,8 @@
     },
     "lib/engineering/factory-authenticated-result.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN. Current eligibility additionally requires verified bytes and the same canonical admission manifest; equivalent-delivery aliases remain supported. No authority or release-readiness expansion.",
-      "sha256": "d13d32d34eca76d4a59fa55eb6837f8fd8cce87b514bcf2205ee1ea5efd33d76"
+      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN. Current eligibility additionally requires verified bytes and the same canonical admission manifest; equivalent-delivery aliases remain supported. No authority or release-readiness expansion. Explicit inactive V4 trusted binding/authentication/attestation APIs require independently retained inputTree/configuration; reciprocal strict mode guards precede writes/keys and never select a verifier from returned bytes.",
+      "sha256": "a10a4b98f2aae9e2d164e3415686194d7b614769e5e76c6b7f62d43f27a55f6d"
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
@@ -3389,8 +3389,8 @@
     },
     "lib/engineering/factory-receipt-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 Work-scoped receipt custody through the additive engineering_factory_receipt SQL boundary. Immutable request/envelope identities and serialized staged admission; no protected writer, budget, approval, publication or verification mutation.",
-      "sha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1"
+      "reason": "Q37 Work-scoped receipt custody through the additive engineering_factory_receipt SQL boundary. Immutable request/envelope identities and serialized staged admission; no protected writer, budget, approval, publication or verification mutation. Type-only legacy-default manifest/binding parameters support explicit local V4 immutable correlation; SQL and scoped mutations remain byte-unchanged.",
+      "sha256": "c76a3b905c92ca5f6412082723f6caf8373b8c468a8e134f5ad8bb0c5aa99de9"
     },
     "lib/engineering/factory-result-channel.ts": {
       "classification": "READ_ONLY",
@@ -3399,8 +3399,8 @@
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition. Recovery now denies changed retained receipt identity/envelope digest or provenance before admission; corrupt custody remains untouched and current-key/Work checks remain required.",
-      "sha256": "7e79c29f60256b6a8c5089018a04dd9bc5688408579f616b37cbbf756ec5b8b9"
+      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition. Recovery now denies changed retained receipt identity/envelope digest or provenance before admission; corrupt custody remains untouched and current-key/Work checks remain required. Private shared recovery engine statically selects built-in legacy or explicit local V4 verification; both API modes refuse wrong retained request modes before receive/stage/provenance/key access. No service/default/owner-reader activation.",
+      "sha256": "0ae6bda7f2649a24a63a8a31f86ef290a1afa4ac9a41bd41b5416f48e4c66a82"
     },
     "lib/engineering/github-app.ts": {
       "classification": "ENFORCED",

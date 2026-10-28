@@ -50,6 +50,16 @@ function fixture() {
 }
 
 describe('retained Factory Result recovery integrity', () => {
+  it('refuses a retained explicit future mode before loading trust or changing a receipt', async () => {
+    const f = fixture();
+    Object.assign(f.data.request.binding, { localSnapshotVersion: 4 });
+    const before = structuredClone(f.data);
+    await expect(f.resume()).rejects.toThrow();
+    expect(f.data).toEqual(before);
+    expect(f.options.keys).not.toHaveBeenCalled();
+    expect(f.store.get).not.toHaveBeenCalled();
+    expect(f.store.transition).not.toHaveBeenCalled();
+  });
   it('revalidates an intact saved result and returns its canonical admission', async () => {
     const f = fixture();
     expect(await f.resume()).toMatchObject({ status: 'ADMITTED', receiptId: f.data.receipt.id,

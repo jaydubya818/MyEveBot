@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import type {WorkPrincipal} from './types.ts';
 import type {WorkDatabase} from './store.ts';
-import {canonical,sha256, type ResultManifest, type ResultKey} from './factory-producer-protocol.ts';
+import {canonical,sha256, type ResultManifest, type ResultKey, type LocalResultManifestV4, type LocalExecutionConfigurationV4} from './factory-producer-protocol.ts';
 
 export interface FactoryBinding {
  workId: string; workVersion: number; workGeneration: number; criteriaVersion: number; agentId: string;
@@ -9,16 +9,21 @@ export interface FactoryBinding {
  sourceDigest: string; configurationDigest: string; workOrderId: string; runId: string;
  attemptNumber: number; inputCommit: string; operationId: string;
 }
+/** Trusted immutable request correlation, never derived from a returned Result. */
+export interface LocalFactoryBindingV4 extends FactoryBinding {
+ localSnapshotVersion: 4; inputTree: string; configuration: LocalExecutionConfigurationV4;
+}
+export type FactoryManifest = ResultManifest | LocalResultManifestV4;
 export type ReceiptState = 'RECEIVED'|'AUTHENTICATED'|'ATTESTED'|'INTEGRITY_VERIFIED'|'ADMITTED'|'REJECTED'|'STALE'|'CONFLICT';
-export interface FactoryReceipt {
+export interface FactoryReceipt<M extends FactoryManifest = ResultManifest> {
  id: string; request_id: string; envelope: string; envelope_digest: string; received_at: string;
  state: ReceiptState; reason: string|null; history: {state: ReceiptState; at?: string}[];
- provenance: {manifest: ResultManifest; manifestDigest: string; keyFingerprint: string; keyId: string; protocol: string; key: ResultKey}|null;
+ provenance: {manifest: M; manifestDigest: string; keyFingerprint: string; keyId: string; protocol: string; key: ResultKey}|null;
 }
-export interface FactoryRequest { id: string; binding: FactoryBinding; current: boolean; cancelled: boolean; eligible: boolean }
+export interface FactoryRequest<B extends FactoryBinding = FactoryBinding> { id: string; binding: B; current: boolean; cancelled: boolean; eligible: boolean }
 /** Only a server-authenticated principal and trusted backend DB enter this store.
  * All mutations use one Work-row-serialized SQL statement; no writer store calls. */
-export class FactoryReceiptStore {
+export class FactoryReceiptStore<M extends FactoryManifest = ResultManifest, B extends FactoryBinding = FactoryBinding> {
  constructor(readonly principal: WorkPrincipal, readonly database: WorkDatabase) {}
  private async call<T>(value: Record<string,unknown>): Promise<T> {
   const [row]=await this.database.query('SELECT engineering_factory_receipt($1::jsonb) value',
@@ -26,10 +31,10 @@ export class FactoryReceiptStore {
   if (!row?.value) throw new Error('Factory receipt persistence failed');
   return row.value as T;
  }
- async register(binding: FactoryBinding) {
-  return this.call<FactoryRequest>({action:'register',id:randomUUID(),binding});
+ async register(binding: B) {
+  return this.call<FactoryRequest<B>>({action:'register',id:randomUUID(),binding});
  }
- async request(id: string): Promise<FactoryRequest> {
+ async request(id: string): Promise<FactoryRequest<B>> {
   const [row]=await this.database.query(`SELECT q.id,q.binding,q.current,q.cancelled,
    (q.current AND NOT q.cancelled AND w.lifecycle='active' AND w.control='agent'
     AND w.version=(q.binding->>'workVersion')::integer AND w.generation=(q.binding->>'workGeneration')::integer
@@ -38,22 +43,22 @@ export class FactoryReceiptStore {
    FROM engineering_factory_requests q JOIN engineering_work w ON w.scope_id=q.scope_id AND w.scope_kind=q.scope_kind AND w.id=q.work_id
    WHERE q.id=$1 AND q.scope_id=$2 AND q.scope_kind=$3 AND q.actor_id=$4`,[id,this.principal.scopeId,this.principal.scopeKind,this.principal.actorId]);
   if(!row) throw new Error('Factory request not found in this scope');
-  return row as FactoryRequest;
+  return row as FactoryRequest<B>;
  }
- async cancel(requestId: string) { return this.call<FactoryRequest>({action:'cancel',requestId}); }
+ async cancel(requestId: string) { return this.call<FactoryRequest<B>>({action:'cancel',requestId}); }
  async receive(requestId: string, value: unknown) {
   const envelope=canonical(value);
   if(Buffer.byteLength(envelope)>12*1024*1024) throw new Error('Result size limit');
-  return this.call<FactoryReceipt>({action:'receive',requestId,id:randomUUID(),envelope,envelopeDigest:sha256(envelope)});
+  return this.call<FactoryReceipt<M>>({action:'receive',requestId,id:randomUUID(),envelope,envelopeDigest:sha256(envelope)});
  }
- async get(requestId: string, receiptId: string): Promise<FactoryReceipt> {
+ async get(requestId: string, receiptId: string): Promise<FactoryReceipt<M>> {
   await this.request(requestId);
   const [row]=await this.database.query('SELECT * FROM engineering_factory_receipts WHERE request_id=$1 AND id=$2',[requestId,receiptId]);
   if(!row) throw new Error('Factory receipt not found in this request');
-  return row as FactoryReceipt;
+  return row as FactoryReceipt<M>;
  }
- async transition(receipt: FactoryReceipt, state: ReceiptState, extra: {provenance?: FactoryReceipt['provenance'];reason?: string;keyCurrent?: boolean;key?: ResultKey}={}) {
-  return this.call<FactoryReceipt>({action:'transition',requestId:receipt.request_id,receiptId:receipt.id,state,...extra});
+ async transition(receipt: FactoryReceipt<M>, state: ReceiptState, extra: {provenance?: FactoryReceipt<M>['provenance'];reason?: string;keyCurrent?: boolean;key?: ResultKey}={}) {
+  return this.call<FactoryReceipt<M>>({action:'transition',requestId:receipt.request_id,receiptId:receipt.id,state,...extra});
  }
  async admission(requestId: string) {
   await this.request(requestId);
