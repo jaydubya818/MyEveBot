@@ -7,6 +7,7 @@ import {resolve} from 'node:path';
 import {loadMigrations,runMigrations} from '../../../apps/eve/scripts/migration-runner.ts';
 import {requiredDatabaseMigration} from '../../../apps/eve/lib/database-schema.ts';
 import {localAppsAllowed} from '../../../apps/eve/lib/myapps/hosting.ts';
+import {dropIdleCompositionDatabase} from './composition-database-cleanup.ts';
 const composed=process.env.MYAPPS_COMPOSITION_REHEARSAL==='1';
 const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'utf8'));
 const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
@@ -97,7 +98,10 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   for(const table of ['myapps_installations','myapps_admissions','myapps_candidates','external_alpha_policy','external_alpha_allowance','external_alpha_operation','external_alpha_work_authority','engineering_factory_requests','engineering_candidate_publications'])
    expect((await pool.query('SELECT count(*) n FROM '+table)).rows[0].n).toBe('0');
   expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(terminal.currentMigration);
- }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+ }finally{
+  try{if(pool)await pool.end();await dropIdleCompositionDatabase(admin,name);}
+  finally{await admin.end();}
+ }
 });
 
 test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
