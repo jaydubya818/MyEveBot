@@ -4610,6 +4610,11 @@
       "classification": "READ_ONLY",
       "reason": "Unregistered server read-handler composition with trusted authentication/current owner/session/installation/account/Agent/connection policy ports. Rechecks exact context before/after every fixed read and before response; immutable repository/ref/SHA and bounded/latest-attempt/deployment normalization, opaque denial and cancellation. No direct credential access, mutation, Work, grant, protected verification, paid execution or production/route registration. Absent canonical host composition returns unavailable.",
       "sha256": "ba5dc90d35b4c62fe0e394651afa7cf1e2aafd6fcbb61d07db496aa098692b6e"
+    },
+    "lib/dashboard/web-auth.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Unregistered dashboard authentication port reuses signed web-owner cookie verification, configured credential-version/durable revocation and partner private-route restrictions; derives only a nonsecret session revision. No development owner fallback, route/grant/policy/credential/installation write, provider or paid Work effect.",
+      "sha256": "e6cc454eb8619de18f2e7a6c7f40644b1b159021542b431921cb70e85d835fa2"
     }
   }
 }

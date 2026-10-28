@@ -75,3 +75,25 @@ custodian-approved criteria and protected verification, signed Result/Proof,
 isolated MyApps delivery and exact installation/served artifact/rollback identity
 remain required before beta readiness. No production or tester configuration is
 changed by this source unit.
+
+## Signed web-session authentication port
+
+`lib/dashboard/web-auth.ts` supplies the existing handler's authentication port
+through `authenticateWebPrincipal`. It requires a real signed preferred or
+legacy cookie even in development, checks configured credential versions and
+durable session revocation on every call, and preserves partner private-route
+refusal. Signed-cookie validity is checked again after the asynchronous stores
+return. Only the two dashboard GET paths and matching origins are accepted.
+The returned session revision is a domain-separated hash of the authenticated
+owner and exact cookie; the cookie and signing material are never returned.
+Session replacement, credential changes or configured logout revoke retained
+context at the read handler's existing repeated authentication gates.
+
+This function registers no route and creates no session, credential, policy,
+installation, retention lease or Relay grant. Current authentication storage
+failures retain the existing fail-closed null result. Cancellation discards a
+late authentication result; it does not claim to cancel the underlying storage
+operation. Tests use real synthetic signed cookies and mocked existing stores;
+actual installed login, policy, read-grant and productive Work qualification
+remain separate requirements. A signed owner session alone grants no dashboard
+repository access, and legacy Agent MCP tests do not qualify Work-scoped v2 MCP.
