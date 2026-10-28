@@ -58,13 +58,18 @@ export class IsolatedExecutionError extends Error {
 }
 /** Local Docker qualification adapter. No fallback to host execution or remote image pulls. */
 export class LocalAlphaTasksIsolation {
+  #profile: RuntimeProfile;
+  get profile(): RuntimeProfile {
+    return this.#profile;
+  }
   constructor(
-    readonly profile: RuntimeProfile,
+    profile: RuntimeProfile,
     readonly docker = "docker",
   ) {
-    this.profile = validateRuntime(profile);
+    this.#profile = Object.freeze(validateRuntime(profile));
+    Object.freeze(this.#profile.secrets);
     requireValue(
-      profile.dataContract === DATA_CONTRACT,
+      this.#profile.dataContract === DATA_CONTRACT,
       "APP_DATA_UNQUALIFIED",
     );
   }
@@ -132,13 +137,13 @@ export class LocalAlphaTasksIsolation {
       request = validateOperation(operation, input),
       before = validateTaskData(data);
     requireValue(
-      closure.files.some((f) => f.path === this.profile.tasksModule) &&
-        closure.files.some((f) => f.path === this.profile.renderModule),
+      closure.files.some((f) => f.path === this.#profile.tasksModule) &&
+        closure.files.some((f) => f.path === this.#profile.renderModule),
       "APP_RUNTIME_UNQUALIFIED",
     );
     const runner = await readFile(new URL("./runner.mjs", import.meta.url));
     requireValue(
-      (await localAlphaTasksAdapterDigest()) === this.profile.adapterDigest,
+      (await localAlphaTasksAdapterDigest()) === this.#profile.adapterDigest,
       "APP_RUNTIME_UNQUALIFIED",
     );
     const name = "myapps-alpha-" + operationId,
@@ -190,7 +195,7 @@ export class LocalAlphaTasksIsolation {
         `type=bind,source=${join(folder, "harness")},target=/harness,readonly`,
         "--entrypoint",
         "/usr/bin/timeout",
-        this.profile.image,
+        this.#profile.image,
         "--signal=KILL",
         "5",
         "node",
@@ -226,7 +231,7 @@ export class LocalAlphaTasksIsolation {
         sourceClosureDigest: sourceClosureDigest(closure),
         runtimeDigest: ("sha256:" +
           createHash("sha256")
-            .update(canonical(this.profile))
+            .update(canonical(this.#profile))
             .digest("hex")) as Hash,
       };
     } catch {
