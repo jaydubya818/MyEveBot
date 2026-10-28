@@ -3374,8 +3374,8 @@
     },
     "lib/engineering/factory-authenticated-result.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN.",
-      "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf"
+      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN. Current eligibility additionally requires verified bytes and the same canonical admission manifest; equivalent-delivery aliases remain supported. No authority or release-readiness expansion.",
+      "sha256": "d13d32d34eca76d4a59fa55eb6837f8fd8cce87b514bcf2205ee1ea5efd33d76"
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
@@ -3399,8 +3399,8 @@
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition.",
-      "sha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3"
+      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition. Recovery now denies changed retained receipt identity/envelope digest or provenance before admission; corrupt custody remains untouched and current-key/Work checks remain required.",
+      "sha256": "7e79c29f60256b6a8c5089018a04dd9bc5688408579f616b37cbbf756ec5b8b9"
     },
     "lib/engineering/github-app.ts": {
       "classification": "ENFORCED",

@@ -47,8 +47,13 @@ export function attestFactoryManifest(m: ResultManifest,b: FactoryBinding) {
 }
 /** Q37-owned Current Truth seam; it never updates protected owner projections. */
 export function projectFactoryReceipt(row: FactoryReceipt,admission: Record<string,unknown>|null,keyCurrent: boolean,verified: boolean) {
- return {receiptId:row.state==='ADMITTED' && typeof admission?.receipt_id==='string'?admission.receipt_id:row.id,deliveryId:row.id,admissionReceiptId:admission?.receipt_id??null,status:row.state,reason:row.reason,
-  factoryProvenance:verified?'VERIFIED':'UNVERIFIED',eligibleForCurrentAdmission:keyCurrent && row.state==='ADMITTED',
+ // Alternate deliveries may share one canonical admission, but only for the
+ // same verified manifest. A saved ADMITTED label alone is not current custody.
+ const canonicalReceiptId=admission && verified && typeof admission.receipt_id==='string' && admission.receipt_id.length>0 &&
+  typeof row.provenance?.manifestDigest==='string' && admission.manifest_digest===row.provenance.manifestDigest
+  ? admission.receipt_id : null;
+ return {receiptId:row.state==='ADMITTED' && canonicalReceiptId!==null?canonicalReceiptId:row.id,deliveryId:row.id,admissionReceiptId:admission?.receipt_id??null,status:row.state,reason:row.reason,
+  factoryProvenance:verified?'VERIFIED':'UNVERIFIED',eligibleForCurrentAdmission:verified && keyCurrent && row.state==='ADMITTED' && canonicalReceiptId!==null,
   candidate:verified?row.provenance?.manifest.candidate??null:null,
   manifestDigest:verified?row.provenance?.manifestDigest??null:null,receivedAt:row.received_at,
   factoryGrantedAuthority:0,independentVerification:'NOT_RUN',readiness:'NOT_READY'} as const;

@@ -1,4 +1,4 @@
-import {verifyResult,RESULT_PROTOCOL,type ResultKey} from './factory-producer-protocol.ts';
+import {verifyResult,RESULT_PROTOCOL,sha256,digest,type ResultKey} from './factory-producer-protocol.ts';
 import {authenticateFactoryResult,attestFactoryManifest,projectFactoryReceipt} from './factory-authenticated-result.ts';
 import {FactoryReceiptStore,type ReceiptState} from './factory-receipt-store.ts';
 
@@ -13,6 +13,11 @@ export interface ConsumerOptions {
 export async function resumeFactoryResult(store: FactoryReceiptStore, requestId: string, receiptId: string, options: ConsumerOptions) {
  const request=await store.request(requestId), b=request.binding;
  let row=await store.get(requestId,receiptId);
+ // A recovery read must retain the original delivery identity and exact bytes.
+ // Corrupt custody is preserved for diagnosis, never rewritten as a rejection.
+ if(request.id!==requestId || row.id!==receiptId || row.request_id!==requestId ||
+  typeof row.envelope!=='string' || sha256(row.envelope)!==row.envelope_digest)
+  throw new Error('Factory receipt integrity mismatch');
  const advance=async(state: ReceiptState,extra: Parameters<FactoryReceiptStore['transition']>[2]={})=>{
   if(!stages.includes(row.state)) return;
   if(stages.indexOf(row.state)>=stages.indexOf(state) && stages.includes(state)) return;
@@ -27,6 +32,18 @@ export async function resumeFactoryResult(store: FactoryReceiptStore, requestId:
  try { authenticated=authenticateFactoryResult(JSON.parse(row.envelope),b,authenticationKeys); }
  catch(error) { row=await store.transition(row,'REJECTED',{reason:String(error)}); return projectFactoryReceipt(row,null,false,false); }
  const {manifest,result,key,fingerprint}=authenticated;
+ // Reauthentication cannot silently replace provenance saved by an earlier
+ // stage. Key retirement metadata may change; the signed key identity may not.
+ const retained=row.provenance;
+ let provenanceMatches=retained===null && ['RECEIVED','REJECTED'].includes(row.state);
+ if(retained) {
+  try {
+   provenanceMatches=retained.manifestDigest===result.manifestDigest &&
+    digest(retained.manifest)===result.manifestDigest && retained.keyFingerprint===fingerprint &&
+    retained.keyId===key.keyId && retained.protocol===RESULT_PROTOCOL;
+  } catch { provenanceMatches=false; }
+ }
+ if(!provenanceMatches) throw new Error('Factory receipt provenance mismatch');
  await advance('AUTHENTICATED',{provenance:{manifest,manifestDigest:result.manifestDigest,keyFingerprint:fingerprint,keyId:key.keyId,protocol:RESULT_PROTOCOL,key}});
  try { attestFactoryManifest(manifest,b); }
  catch(error) { row=await store.transition(row,'REJECTED',{reason:String(error)}); return projectFactoryReceipt(row,null,false,false); }
