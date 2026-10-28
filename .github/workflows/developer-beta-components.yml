@@ -62,6 +62,7 @@ jobs:
           lib/engineering/factory-result-consumer-v4.test.ts
           lib/engineering/factory-writer-v4.test.ts
           lib/engineering/factory-authenticated-result.test.ts
+          lib/engineering/factory-preparation-terminal.test.ts
           lib/dashboard/web-auth.test.ts
           lib/computer-sandbox-spawn.test.ts
           lib/goal-work/canonical-adapter.test.ts
