@@ -5,7 +5,7 @@ import {parse} from 'yaml';
 // the separately qualified Builder lock bytes rather than repinning metadata.
 
 export const factory = '39b686660571bf8f93b46756378126fafb7c4d7c';
-export const componentFactory = '3d75893a95544841bb9a27135a06bdb478d72a4f';
+export const componentFactory = 'f6934e1a692f2cfaed49f806a6c28191cc36dbfd';
 export const missioncontrol = 'f9bcd0df4bb970a36a43599b00d724b07f300ad0';
 const reports = {'composed-tests.json': 'composed', 'qe-tests.json': 'qe', 'baseline-allowance-tests.json': 'baseline-allowance'};
 const words = line => (line.match(/"[^"]*"|'[^']*'|[^\s]+/g) ?? []).map(word => word.replace(/^(["'])(.*)\1$/, '$2'));
