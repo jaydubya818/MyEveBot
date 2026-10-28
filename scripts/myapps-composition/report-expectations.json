@@ -393,6 +393,15 @@
         "canonical remote admission custody (ordinary-role PostgreSQL) rejects stale custody or policy: UPDATE myapps_installations SET state=jsonb_set(state,'{revision}',to_jsonb((state->>'revision')::int+1))"
       ]
     },
+    "packages/myapps/integration/composition-cleanup.test.ts": {
+      "passed": 3,
+      "skipped": [],
+      "passedNames": [
+        "composition cleanup fails without dropping a database whose session stays open",
+        "composition cleanup refuses non-fixture database names before querying",
+        "composition cleanup waits for a closing owned backend without terminating it"
+      ]
+    },
     "packages/myapps/integration/composition.test.ts": {
       "passed": 3,
       "skipped": [],
