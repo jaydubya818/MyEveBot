@@ -19,22 +19,28 @@ export function verifySourceClosure(
   expectedTree: string,
 ): SourceClosure {
   keys(value, ["format", "tree", "files"]);
+  const format = value.format, declaredTree = value.tree, suppliedFiles = value.files;
+  const count = Array.isArray(suppliedFiles) ? suppliedFiles.length : 0;
   requireValue(
-    value.format === "myapps.source-closure.v1" &&
-      value.tree === expectedTree &&
+    format === "myapps.source-closure.v1" &&
+      declaredTree === expectedTree &&
       /^[a-f0-9]{40}$/.test(expectedTree) &&
-      Array.isArray(value.files) &&
-      value.files.length > 0 &&
-      value.files.length <= 128,
+      Array.isArray(suppliedFiles) &&
+      Number.isSafeInteger(count) && count > 0 && count <= 128,
     "APP_SOURCE_UNAVAILABLE",
   );
   type Tree = {
     children: Map<string, Tree | { file: SourceFile; bytes: Buffer }>;
   };
   const root: Tree = { children: new Map() };
+  const files: SourceFile[] = [];
   let total = 0;
-  for (const file of value.files) {
-    keys(file, ["path", "mode", "base64"]);
+  for (let index = 0; index < count; index++) {
+    const supplied = suppliedFiles[index];
+    keys(supplied, ["path", "mode", "base64"]);
+    // Capture primitive values once. The checked path/mode/bytes must be the
+    // exact values hashed and returned; do not clone caller objects afterward.
+    const file = { path: supplied.path, mode: supplied.mode, base64: supplied.base64 };
     requireValue(
       typeof file.path === "string" &&
         file.path.length <= 240 &&
@@ -57,6 +63,7 @@ export function verifySourceClosure(
         total <= 4194304,
       "APP_SOURCE_BOUND",
     );
+    files.push(file as SourceFile);
     const parts = file.path.split("/");
     let tree = root;
     for (const part of parts.slice(0, -1)) {
@@ -97,7 +104,7 @@ export function verifySourceClosure(
   return {
     format: "myapps.source-closure.v1",
     tree: expectedTree,
-    files: structuredClone(value.files as SourceFile[]).sort((a, b) =>
+    files: files.sort((a, b) =>
       Buffer.compare(Buffer.from(a.path), Buffer.from(b.path)),
     ),
   };
