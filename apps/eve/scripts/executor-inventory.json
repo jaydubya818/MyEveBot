@@ -4605,6 +4605,11 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped retained cancelled checkpoint and all-generation accounting readers. Revalidate exact signature, artifact bytes, complete immutable Factory binding, envelope/provenance digest and V2 spend binding. Historical data grants no custody, writer, budget or verified success. Unknown or nonfenced liabilities block continuation. Regression and managed PostgreSQL journey evidence.",
       "sha256": "e87679be353497006a3e14e0236e963fbc8aae15934cde1b50f37a95e6ef426f"
+    },
+    "lib/dashboard/read-adapter.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Unregistered server read-handler composition with trusted authentication/current owner/session/installation/account/Agent/connection policy ports. Rechecks exact context before/after every fixed read and before response; immutable repository/ref/SHA and bounded/latest-attempt/deployment normalization, opaque denial and cancellation. No direct credential access, mutation, Work, grant, protected verification, paid execution or production/route registration. Absent canonical host composition returns unavailable.",
+      "sha256": "ba5dc90d35b4c62fe0e394651afa7cf1e2aafd6fcbb61d07db496aa098692b6e"
     }
   }
 }
