@@ -6,16 +6,20 @@ import {prepareAuthenticatedLocalFactoryInputV4} from './factory-authenticated-r
 import {FactoryWriterStore,type FactoryWriter} from './factory-writer.ts';
 import {WorkStore,type WorkDatabase} from './store.ts';
 import type {RepositoryProfile} from './contract.ts';
+import {execFileSync} from 'node:child_process';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 const now=Date.now();
 const objectId=(kind:string,bytes:Buffer)=>createHash('sha1').update(`${kind} ${bytes.length}\0`).update(bytes).digest('hex');
-function protocolFixture(){
+function protocolFixture(gitData?:{base:Buffer;inputTree:Buffer;commit:Buffer;candidateTree:Buffer;patch:Buffer}){
  const pair=generateKeyPairSync('ed25519');
  const tree=(body:string)=>Buffer.concat([Buffer.from('100644 input.txt\0'),Buffer.from(objectId('blob',Buffer.from(body)),'hex')]);
- const inputTree=tree('before\n'),inputTreeId=objectId('tree',inputTree);
- const base=Buffer.from(`tree ${inputTreeId}\nauthor Synthetic <codec@example.invalid> 1793016000 +0000\ncommitter Synthetic <codec@example.invalid> 1793016000 +0000\n\nSynthetic admitted input\n`);
- const inputCommit=objectId('commit',base),candidateTree=tree('after\n'),candidateTreeId=objectId('tree',candidateTree);
- const commit=Buffer.from(`tree ${candidateTreeId}\nparent ${inputCommit}\nauthor Synthetic <codec@example.invalid> 1793016001 +0000\ncommitter Synthetic <codec@example.invalid> 1793016001 +0000\n\nSynthetic candidate\n`);
- const candidate=objectId('commit',commit),patch=Buffer.from('diff --git a/input.txt b/input.txt\n--- a/input.txt\n+++ b/input.txt\n@@ -1 +1 @@\n-before\n+after\n'),log=Buffer.from('Synthetic producer check; not independent verification\n');
+ const inputTree=gitData?.inputTree??tree('before\n'),inputTreeId=objectId('tree',inputTree);
+ const base=gitData?.base??Buffer.from(`tree ${inputTreeId}\nauthor Synthetic <codec@example.invalid> 1793016000 +0000\ncommitter Synthetic <codec@example.invalid> 1793016000 +0000\n\nSynthetic admitted input\n`);
+ const inputCommit=objectId('commit',base),candidateTree=gitData?.candidateTree??tree('after\n'),candidateTreeId=objectId('tree',candidateTree);
+ const commit=gitData?.commit??Buffer.from(`tree ${candidateTreeId}\nparent ${inputCommit}\nauthor Synthetic <codec@example.invalid> 1793016001 +0000\ncommitter Synthetic <codec@example.invalid> 1793016001 +0000\n\nSynthetic candidate\n`);
+ const candidate=objectId('commit',commit),patch=gitData?.patch??Buffer.from('diff --git a/input.txt b/input.txt\n--- a/input.txt\n+++ b/input.txt\n@@ -1 +1 @@\n-before\n+after\n'),log=Buffer.from('Synthetic producer check; not independent verification\n');
  const configuration={model:'openai/gpt-5.4-mini',executor:'codex-cli' as const,executorVersion:'synthetic-codec-only',skillRevision:'synthetic-skill',workerProfile:'mac' as const,verificationImage:'synthetic-verifier',nodeVersion:'v24.18.1',platform:'darwin',architecture:'arm64',commands:['node --test synthetic.test.mjs'],allowedPaths:['input.txt'],timeoutMs:1000};
  const sourceDigest='1'.repeat(64),configurationDigest=codec.digest(configuration),factoryId='synthetic-v4-factory';
  const request={ownerId:'synthetic-owner',workId:'33333333-3333-4333-8333-333333333333',workVersion:1,criteriaVersion:1,profile:{id:'synthetic-local-profile',version:1,configuration}};
@@ -30,13 +34,13 @@ function protocolFixture(){
  return {manifest,artifacts,expected,privateKey:pair.privateKey,options:{expected,keys:[key],now},request};
 }
 
-function fixture(kind:'legacy'|'v4'='v4') {
- const v=protocolFixture(),e=v.expected;
+function fixture(kind:'legacy'|'v4'='v4',gitData?:Parameters<typeof protocolFixture>[0],sourceFiles?:Record<string,string>) {
+ const v=protocolFixture(gitData),e=v.expected;
  const binding=prepareAuthenticatedLocalFactoryInputV4({...e,localSnapshotVersion:4,workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent'});
  const request={id:randomUUID(),binding,current:true,cancelled:false,eligible:true};
  const run:FactoryWriter={id:randomUUID(),work_id:binding.workId,work_version:1,work_generation:1,writer_generation:1,
   factory_request_id:request.id,dispatch_identity:randomUUID(),dispatch_state:'TERMINAL',status:'COMPLETED',stop_reason:null,fenced_at:new Date().toISOString(),factory_candidate:null};
- const source={sha:binding.inputCommit,files:{'input.txt':'before\n'}};
+ const source={sha:binding.inputCommit,files:sourceFiles??{'input.txt':'before\n'}};
  const profile:RepositoryProfile={id:'public-synthetic',version:1,repository:'fixture/repository',privateQualification:true,baseBranch:'main',allowedPaths:['input.txt'],
   checks:[{id:'synthetic-never-executed',program:'input.txt',input:'',expectedOutput:'',expectedExitCode:0,criterionIds:[randomUUID()]}],requiredCI:['public'],reviewerLogins:['synthetic-reviewer'],
   policyVersion:1,executor:'claude-code',image:'synthetic@sha256:'+'a'.repeat(64),maxRuns:1,maxModelRequests:1,maxOutputTokens:256};
@@ -78,6 +82,23 @@ function fixture(kind:'legacy'|'v4'='v4') {
 }
 
 describe('inactive explicit V4 candidate custody',()=>{
+ it.each(['legacy','v4'] as const)('retains genuinely tracked ignored and empty source files during %s data custody',async kind=>{
+  const dir=mkdtempSync(join(tmpdir(),'factory-tracked-ignore-'));
+  const git=(...args:string[])=>execFileSync('git',['-c','core.hooksPath=/dev/null','-C',dir,...args],{env:{...process.env,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'},timeout:10000,maxBuffer:2*1024*1024});
+  try{
+   git('init','--quiet','--template=','--object-format=sha1');git('config','user.name','Public data custody fixture');git('config','user.email','fixture@example.invalid');
+   const files={'.gitignore':'input.txt\n','empty.txt':'','input.txt':'before\n'};
+   for(const [path,text] of Object.entries(files))writeFileSync(join(dir,path),text);
+   git('add','--force','--all');git('commit','--quiet','-m','Tracked ignored ordinary input');
+   const base=git('cat-file','commit','HEAD'),inputTree=git('cat-file','tree','HEAD^{tree}');
+   expect(git('ls-files','--stage').toString()).toContain('input.txt');expect(readFileSync(join(dir,'empty.txt')).length).toBe(0);
+   writeFileSync(join(dir,'input.txt'),'after\n');git('add','--force','input.txt');git('commit','--quiet','-m','Ordinary text candidate');
+   const commit=git('cat-file','commit','HEAD'),candidateTree=git('cat-file','tree','HEAD^{tree}'),patch=git('show','--format=','--binary','--no-ext-diff','--no-textconv','HEAD');
+   const f=fixture(kind,{base,inputTree,commit,candidateTree,patch},files),saved=await f.take(),candidate=saved.factory_candidate.candidates[0];
+   expect(candidate.files).toEqual({...files,'input.txt':'after\n'});expect(candidate.changedPaths).toEqual(['input.txt']);
+   expect(candidate.rawCommit).toBe(commit.toString('utf8'));expect(candidate.sha).toBe(objectId('commit',commit));expect(candidate.tree).toBe(objectId('tree',candidateTree));expect(f.state.handoffs).toHaveLength(1);
+  }finally{rmSync(dir,{recursive:true,force:true})}
+ });
  it('preserves valid legacy regular-text handoff through the shared preflight',async()=>{
   const f=fixture('legacy'),saved=await f.take();expect(saved.factory_candidate.files).toEqual({'input.txt':'after\n'});
   expect(saved.factory_candidate.candidates[0].sha).toBe(f.v.manifest.candidate!.commit);expect(f.options.keys).toHaveBeenCalledTimes(3);

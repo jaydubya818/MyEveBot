@@ -211,7 +211,7 @@ async function applyFactoryPatch(source:Record<string,string>,patch:Buffer):Prom
    if(!/^[\w./-]+$/.test(path) || path.startsWith('/') || path.split('/').some(p=>!p||p==='.'||p==='..'||p==='.git'))throw new Error('Unsafe Factory base path');
    await mkdir(dirname(join(dir,path)),{recursive:true});await writeFile(join(dir,path),content);
   }
-  await git(['add','--all']);
+  await git(['add','--force','--all']);
   const patchPath=join(dir,'.git','factory.patch');await writeFile(patchPath,patch);
   // Inspect only text-patch metadata before any candidate files are written.
   // The text byte bound prevents compressed expansion; this bounds path count.
