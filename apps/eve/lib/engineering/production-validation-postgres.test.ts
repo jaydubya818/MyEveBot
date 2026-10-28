@@ -108,13 +108,24 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
  const terminalBindingFor=(f:Awaited<ReturnType<typeof fixture>>)=>({ownerId:f.store.principal.scopeId,organizationId:'fixture-org',installationId:'fixture-install',agentId:'fixture-agent',clientId:'fixture-client',backendId:'fixture-backend',incarnation:'fixture-incarnation',enrollmentVersion:1,requestId:f.preparation.request.requestId,workId:f.work.id,generation:f.work.generation,missionId:'fixture-mission',factoryId:'fixture-factory',factoryVersion:f.preparation.environment.binding.factoryVersion,sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),nativeRequestDigest:digest(f.preparation.request)});
  const verificationFor=(f:Awaited<ReturnType<typeof fixture>>)=>({key:terminalKey,expected:terminalBindingFor(f),originalRequest:f.preparation.request,nativeRequest:f.preparation.request});
  const terminalFor=async(f:Awaited<ReturnType<typeof fixture>>,outcome='ADMISSION_UNCERTAIN')=>{
+  const issuedAt=Date.now();
   const receipt={schema:'factory-capability-preparation-terminal/v1',ownerId:f.store.principal.scopeId,organizationId:'fixture-org',installationId:'fixture-install',agentId:'fixture-agent',clientId:'fixture-client',backendId:'fixture-backend',incarnation:'fixture-incarnation',enrollmentVersion:1,
    requestId:f.preparation.request.requestId,workId:f.work.id,generation:f.work.generation,missionId:'fixture-mission',factoryId:'fixture-factory',factoryVersion:f.preparation.environment.binding.factoryVersion,
    sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),nativeRequestDigest:digest(f.preparation.request),planId:'plan',planDigest:'d'.repeat(64),receiverSequence:3,receiverHeadDigest:'e'.repeat(64),outcome,
-   reasonCode:outcome==='ADMISSION_UNCERTAIN'?'RESTORE_OR_COMMIT_AMBIGUITY':'NATIVE_REVALIDATION_FAILED',nativeOutcomeDigest:'f'.repeat(64),issuedAt:Date.now(),expiresAt:Date.now()+30000};
+   reasonCode:outcome==='ADMISSION_UNCERTAIN'?'RESTORE_OR_COMMIT_AMBIGUITY':'NATIVE_REVALIDATION_FAILED',nativeOutcomeDigest:'f'.repeat(64),issuedAt,expiresAt:issuedAt+30000};
   return new FactoryPreparationTerminalReceived(receipt as never,await signFactoryPreparationTerminal(receipt as never,terminalKey));
  };
  const decisionFor=(f:Awaited<ReturnType<typeof fixture>>)=>({id:f.decisionId,work_id:f.work.id,factory_preparation:f.preparation});
+ it('terminal fixture uses one clock reading for the exact maximum receipt lifetime',async()=>{
+  const f=await fixture(),issuedAt=Date.now();let reads=0;
+  const clock=vi.spyOn(Date,'now').mockImplementation(()=>issuedAt+reads++);
+  try{
+   const terminal=await terminalFor(f);
+   expect(terminal.receipt.issuedAt).toBe(issuedAt);
+   expect(terminal.receipt.expiresAt).toBe(issuedAt+30000);
+   expect(reads).toBe(1);
+  }finally{clock.mockRestore();}
+ });
  it('immutable terminal seals preserve preparation and HOLD; concurrent exact delivery is idempotent',async()=>{
   const f=await fixture(),terminal=await terminalFor(f),decision=decisionFor(f);
   const results=await Promise.all([sealFactoryPreparationTerminal(f.store,decision,terminal,verificationFor(f)),sealFactoryPreparationTerminal(f.store,decision,terminal,verificationFor(f))]);
