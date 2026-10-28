@@ -2077,8 +2077,8 @@
     },
     "lib/computer-sandbox-backend.ts": {
       "classification": "ENFORCED",
-      "reason": "Exclusive SDK creation requires consumed Computer Gateway authority, durable immutable ownership recorded first, and authority revalidation immediately before/after create. No adoption or retagging. Reconnect is non-resuming exact owned lookup; cached I/O rejects terminated resources. Build prewarm creates nothing.",
-      "sha256": "1fc2a4f8d82149c35f46a2fb94ecf126623371ca3f9018a2b4d0b54f3fdfebc1"
+      "reason": "Exclusive SDK creation requires consumed Computer Gateway authority, durable immutable ownership recorded first, and authority revalidation immediately before/after create. No adoption or retagging. Reconnect is non-resuming exact owned lookup; cached I/O rejects terminated resources. Build prewarm creates nothing. Writable stdin rejects before resource lookup or command launch; output-only streams, wait/kill and lifecycle fencing are preserved.",
+      "sha256": "b1e2ff41c8ec72a47da5ed209cb658e823ded90a32a322ec5ec5b6d1dc2a8508"
     },
     "lib/computer-selection.ts": {
       "classification": "INTERNAL",
