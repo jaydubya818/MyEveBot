@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { verifySourceClosure } from '../src/alpha-tasks/source.ts';
 
 // Git itself independently calculates the inert fixture's blob and tree IDs.
 // No hooks, repository writes, candidate execution or network are involved.
 function fixture() {
   const bytes = Buffer.from('export const value = "safe";\n');
-  const hash = (kind, content) => execFileSync('/usr/bin/git', ['hash-object', '--stdin', '-t', kind], { input: content, encoding: 'utf8', cwd: '/private/tmp', env: { PATH: '/usr/bin:/bin' } }).trim();
+  const hash = (kind, content) => execFileSync('/usr/bin/git', ['hash-object', '--stdin', '-t', kind], { input: content, encoding: 'utf8', cwd: tmpdir(), env: { PATH: '/usr/bin:/bin' } }).trim();
   const blob = hash('blob', bytes);
   const tree = hash('tree', Buffer.concat([Buffer.from('100644 safe.js\0'), Buffer.from(blob, 'hex')]));
   const file = { path: 'safe.js', mode: '100644', base64: bytes.toString('base64') };
