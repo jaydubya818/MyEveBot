@@ -1,11 +1,13 @@
 import { createHash, generateKeyPairSync, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { describe, it, expect, vi } from 'vitest';
 import * as codec from './factory-producer-protocol.ts';
 import type { LocalResultManifestV4, ResultManifest, SignedResult } from './factory-producer-protocol.ts';
 import { prepareAuthenticatedFactoryInput, prepareAuthenticatedLocalFactoryInputV4 } from './factory-authenticated-result.ts';
 import type { FactoryBinding, LocalFactoryBindingV4, FactoryReceipt, FactoryRequest, FactoryReceiptStore, FactoryManifest, ReceiptState } from './factory-receipt-store.ts';
-import { admitFactoryResult, resumeFactoryResult, admitLocalFactoryResultV4, resumeLocalFactoryResultV4 } from './factory-result-consumer.ts';
+import { admitFactoryResult, resumeFactoryResult, admitLocalFactoryResultV4, resumeLocalFactoryResultV4, reconcileLocalFactoryAttemptV4 } from './factory-result-consumer.ts';
 
 // Public synthetic Git objects and ephemeral signing keys. No filesystem or
 // execution is inferred from a returned workspace association. Fixture shape is
@@ -171,5 +173,103 @@ describe('inactive explicit local V4 receipt consumer',()=>{
  it('losing current Work eligibility cannot authorize retained verified bytes',async()=>{
   const f=consumerFixture();await f.admit();f.data.request.eligible=false;
   expect(await f.resume()).toMatchObject({factoryProvenance:'VERIFIED',eligibleForCurrentAdmission:false});
+ });
+});
+
+async function withReadback(body: unknown, run: (config: {origin:string;token:string}, requests: {method:string;url:string;authorization:string|undefined}[])=>Promise<void>, status=200, headers: Record<string,string>={}) {
+ const requests: {method:string;url:string;authorization:string|undefined}[]=[];
+ const server=createServer((req,res)=>{
+  requests.push({method:req.method!,url:req.url!,authorization:req.headers.authorization});
+  res.writeHead(status,{'content-type':'application/json',...headers});res.end(JSON.stringify(body));
+ });
+ await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
+ const address=server.address() as AddressInfo;
+ try { await run({origin:`http://127.0.0.1:${address.port}`,token:'synthetic-local-read-token'},requests); }
+ finally {server.closeAllConnections();await new Promise<void>(resolve=>server.close(()=>resolve()));}
+}
+
+describe('explicit inactive local V4 attempt reconciliation',()=>{
+ it('uses one actual authenticated GET for the retained attempt and admits signed terminal bytes',async()=>{
+  const f=consumerFixture();
+  await withReadback({state:'COMPLETED',result:f.result},async(config,requests)=>{
+   expect(await reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options)).toMatchObject({status:'ADMITTED',receiptId:f.receiptId,eligibleForCurrentAdmission:true,factoryGrantedAuthority:0,independentVerification:'NOT_RUN',readiness:'NOT_READY'});
+   expect(requests).toEqual([{method:'GET',url:`/api/connect/v1/work-orders/${f.manifest.execution.workOrderId}/runs/${f.manifest.execution.runId}/result`,authorization:'Bearer '+config.token}]);
+   expect(f.methods.receive).toHaveBeenCalledTimes(1);
+  });
+ });
+ it.each(['RUNNING','STOPPING','UNKNOWN'])('actual %s readback appends no custody or keys access',async state=>{
+  const f=consumerFixture(),before=structuredClone(f.data);
+  await withReadback({state,result:null},async(config,requests)=>{
+   expect(await reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options)).toMatchObject({status:state,requestId:f.requestId,readiness:'NOT_READY'});
+   expect(requests).toHaveLength(1);expect(f.data).toEqual(before);expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+  });
+ });
+ it.each(['legacy-mode','request-id','invalid-binding'])('refuses %s before inspecting credentials or fetching',async mode=>{
+  const f=consumerFixture(mode==='legacy-mode'?'legacy':'v4');
+  if(mode==='request-id')f.data.request.id=randomUUID();
+  if(mode==='invalid-binding')Object.assign(f.data.request.binding,{inputTree:null});
+  let credentialsRead=0;
+  const config={get origin(){credentialsRead++;return 'http://127.0.0.1:1';},get token(){credentialsRead++;return 'synthetic';}};
+  const fetcher=vi.fn<typeof fetch>();const before=structuredClone(f.data);
+  await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options,fetcher)).rejects.toThrow();
+  expect(credentialsRead).toBe(0);expect(fetcher).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();expect(f.methods.receive).not.toHaveBeenCalled();expect(f.data).toEqual(before);
+ });
+ it.each(['transport','protocol','projectId','releaseValidation','productionCanary','extra','symbol','nonenumerable'])('refuses extra %s configuration without network or custody',async field=>{
+  const f=consumerFixture(),config:Record<PropertyKey,unknown>={origin:'http://127.0.0.1:1',token:'synthetic'},fetcher=vi.fn<typeof fetch>();
+  if(field==='symbol')config[Symbol('extra')]=true;else if(field==='nonenumerable')Object.defineProperty(config,'transport',{value:'CLOUD'});else config[field]=field==='transport'?'CLOUD':true;
+  await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config as {origin:string;token:string},f.options,fetcher)).rejects.toThrow(/Exact local/);
+  expect(fetcher).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();expect(f.methods.receive).not.toHaveBeenCalled();
+ });
+ it.each(['https://127.0.0.1:1','http://localhost:1','http://127.0.0.2:1','http://user:pass@127.0.0.1:1','http://127.0.0.1:1/path','http://127.0.0.1:1/?other=1','http://127.0.0.1:1/#other'])('refuses unqualified destination %s before fetch',async origin=>{
+  const f=consumerFixture(),fetcher=vi.fn<typeof fetch>();
+  await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,{origin,token:'synthetic'},f.options,fetcher)).rejects.toThrow();
+  expect(fetcher).not.toHaveBeenCalled();expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+ });
+ it('captures each credential primitive once before asynchronous channel work',async()=>{
+  const f=consumerFixture();let originReads=0,tokenReads=0;
+  const config={get origin(){originReads++;return originReads===1?'http://127.0.0.1:43210':'https://unqualified.invalid';},get token(){tokenReads++;return tokenReads===1?'synthetic-first-token':'synthetic-replaced-token';}};
+  const fetcher=vi.fn<typeof fetch>(async(url,init)=>{
+   expect(String(url)).toBe(`http://127.0.0.1:43210/api/connect/v1/work-orders/${f.manifest.execution.workOrderId}/runs/${f.manifest.execution.runId}/result`);
+   expect(init?.headers).toEqual({authorization:'Bearer synthetic-first-token'});expect(init?.redirect).toBe('error');
+   return Response.json({state:'UNKNOWN',result:null});
+  });
+  await reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options,fetcher);
+  expect(originReads).toBe(1);expect(tokenReads).toBe(1);expect(fetcher).toHaveBeenCalledTimes(1);expect(f.options.keys).not.toHaveBeenCalled();
+ });
+ it('uses the detached parsed request binding for its exact read path',async()=>{
+  const f=consumerFixture();let reads=0;
+  Object.defineProperty(f.data.request.binding,'workOrderId',{enumerable:true,get(){return ++reads===1?f.manifest.execution.workOrderId:randomUUID();}});
+  f.methods.request.mockImplementation(async()=>f.data.request);
+  const fetcher=vi.fn<typeof fetch>(async url=>{
+   expect(String(url)).toContain(`/work-orders/${f.manifest.execution.workOrderId}/`);
+   return Response.json({state:'RUNNING',result:null});
+  });
+  await reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,{origin:'http://127.0.0.1:43210',token:'synthetic'},f.options,fetcher);
+  expect(reads).toBe(1);expect(f.methods.receive).not.toHaveBeenCalled();
+ });
+ it('does not follow an actual redirect or append a receipt',async()=>{
+  const f=consumerFixture();await withReadback(null,async(config,requests)=>{
+   await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options)).rejects.toThrow();expect(requests).toHaveLength(1);expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+  },302,{location:'/must-not-follow'});
+ });
+ it('keeps an actual failed HTTP read pending without custody mutation',async()=>{
+  const f=consumerFixture(),before=structuredClone(f.data);await withReadback({error:'synthetic'},async(config,requests)=>{
+   await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,config,f.options)).rejects.toThrow(/unavailable/);expect(requests).toHaveLength(1);expect(f.data).toEqual(before);expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+  },503);
+ });
+ it('an aborted read makes one attempt and preserves custody for later reconciliation',async()=>{
+  const f=consumerFixture(),before=structuredClone(f.data),fetcher=vi.fn<typeof fetch>(async()=>{throw new DOMException('Synthetic timeout','AbortError');});
+  await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,{origin:'http://127.0.0.1:43210',token:'synthetic'},f.options,fetcher)).rejects.toThrow('Synthetic timeout');
+  expect(fetcher).toHaveBeenCalledTimes(1);expect(f.data).toEqual(before);expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+ });
+ it('preserves the existing response-size bound before any custody write',async()=>{
+  const f=consumerFixture(),fetcher=vi.fn<typeof fetch>(async()=>new Response('x'.repeat(codec.MAX_RESULT_BYTES+1025)));
+  await expect(reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,{origin:'http://127.0.0.1:43210',token:'synthetic'},f.options,fetcher)).rejects.toThrow(/size limit/);
+  expect(fetcher).toHaveBeenCalledTimes(1);expect(f.methods.receive).not.toHaveBeenCalled();expect(f.options.keys).not.toHaveBeenCalled();
+ });
+ it.each(['retired-key','ineligible-work'])('terminal readback retains the %s fence',async mode=>{
+  const f=consumerFixture();if(mode==='retired-key')f.options.keys.mockResolvedValue([{...f.key,retiredAt:'2026-10-27T00:00:00Z'}]);else f.data.request.eligible=false;
+  const fetcher=vi.fn<typeof fetch>(async()=>Response.json({state:'COMPLETED',result:f.result}));
+  expect(await reconcileLocalFactoryAttemptV4(f.v4Store,f.requestId,{origin:'http://127.0.0.1:43210',token:'synthetic'},f.options,fetcher)).toMatchObject({factoryProvenance:'VERIFIED',eligibleForCurrentAdmission:false,readiness:'NOT_READY'});
  });
 });

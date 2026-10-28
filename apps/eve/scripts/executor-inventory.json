@@ -3399,8 +3399,8 @@
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition. Recovery now denies changed retained receipt identity/envelope digest or provenance before admission; corrupt custody remains untouched and current-key/Work checks remain required. Private shared recovery engine statically selects built-in legacy or explicit local V4 verification; both API modes refuse wrong retained request modes before receive/stage/provenance/key access. No service/default/owner-reader activation.",
-      "sha256": "0ae6bda7f2649a24a63a8a31f86ef290a1afa4ac9a41bd41b5416f48e4c66a82"
+      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition. Recovery now denies changed retained receipt identity/envelope digest or provenance before admission; corrupt custody remains untouched and current-key/Work checks remain required. Private shared recovery engine statically selects built-in legacy or explicit local V4 verification; both API modes refuse wrong retained request modes before receive/stage/provenance/key access. No service/default/owner-reader activation. Explicit inactive local V4 reconciliation captures strict retained binding and own loopback origin/token primitives before the existing bounded GET channel; no cloud fallback, submission, retry, default activation or authority widening.",
+      "sha256": "8b4d0f1d1b06a2bf26de78f05d2b48bfa0a85ec19d74ab1c3c5197685b209ee0"
     },
     "lib/engineering/github-app.ts": {
       "classification": "ENFORCED",

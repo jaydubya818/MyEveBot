@@ -2,6 +2,7 @@ import {verifyResult,verifyLocalResultV4,RESULT_PROTOCOL,sha256,digest,type Resu
 import {authenticateFactoryResult,attestFactoryManifest,projectFactoryReceipt,requireFactoryBinding,
  authenticateLocalFactoryResultV4,attestLocalFactoryManifestV4,requireLocalFactoryBindingV4} from './factory-authenticated-result.ts';
 import {FactoryReceiptStore,type ReceiptState,type FactoryBinding,type LocalFactoryBindingV4,type FactoryManifest} from './factory-receipt-store.ts';
+import {factoryTransport} from './factory-transport.ts';
 
 const stages: ReceiptState[]=['RECEIVED','AUTHENTICATED','ATTESTED','INTEGRITY_VERIFIED'];
 export interface ConsumerOptions {
@@ -119,4 +120,27 @@ export async function reconcileFactoryAttempt(store: FactoryReceiptStore,request
  if(observed.result===null) return {status:observed.state,requestId,factoryGrantedAuthority:0,
   independentVerification:'NOT_RUN',readiness:'NOT_READY'} as const;
  return admitFactoryResult(store,requestId,observed.result,options);
+}
+
+/** Explicit inactive local V4 readback. Credentials and the exact existing
+ * attempt come from trusted configuration/custody; no submission or retry. */
+export async function reconcileLocalFactoryAttemptV4(store: FactoryReceiptStore<LocalResultManifestV4,LocalFactoryBindingV4>,requestId: string,
+ config: {origin: string;token: string},options: ConsumerOptions,fetcher: typeof fetch=fetch) {
+ const request=await store.request(requestId);
+ if(request.id!==requestId) throw new Error('Factory receipt integrity mismatch');
+ const binding=requireLocalFactoryBindingV4(request.binding);
+ // Inspect only the two own configured fields, then detach their primitive
+ // values before any asynchronous channel/header work can observe mutation.
+ if(!config || typeof config!=='object' || Array.isArray(config)) throw new Error('Exact local Factory read configuration required');
+ const fields=Reflect.ownKeys(config);
+ if(fields.length!==2 || !fields.includes('origin') || !fields.includes('token')) throw new Error('Exact local Factory read configuration required');
+ const origin=config.origin,token=config.token;
+ if(typeof origin!=='string' || typeof token!=='string') throw new Error('Exact local Factory read configuration required');
+ const local=Object.freeze({origin,token});
+ factoryTransport(local);
+ const {readFactoryAttempt}=await import('./factory-result-channel.ts');
+ const observed=await readFactoryAttempt(local,binding,fetcher);
+ if(observed.result===null) return {status:observed.state,requestId,factoryGrantedAuthority:0,
+  independentVerification:'NOT_RUN',readiness:'NOT_READY'} as const;
+ return admitLocalFactoryResultV4(store,requestId,observed.result,options);
 }

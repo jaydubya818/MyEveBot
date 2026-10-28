@@ -32,3 +32,17 @@ only signed provenance; the consumer never reads it or executes its contents.
 Actual service adoption, protected acceptance/custody, financial admission,
 independent verification, generic MyApps delivery and installed qualification
 remain separate requirements. Paid execution and tester activation remain off.
+
+`reconcileLocalFactoryAttemptV4` reads only the existing retained attempt through
+the existing bounded result channel. It validates the strict V4 request before
+inspecting credentials, captures its parsed binding and the two own origin/token
+primitives, and accepts only the existing exact loopback transport. Cloud or extra
+configuration fields are refused. Nonterminal and failed reads append no receipt;
+timeouts never resubmit Work. Terminal signed bytes enter the explicit V4 custody
+API and retain its current-key/Work guards. Default legacy reconciliation remains
+unchanged. The existing disposable PostgreSQL fixture also exercises the six V4
+custody/replay/refusal assertions so ordinary CI repeats them with the prior 47
+checks. The supplemental component workflow explicitly selects consumer/auth,
+dashboard-session and Computer-spawn mocked regressions and runs the strict
+53-case receipt fixture against its owned loopback PostgreSQL service. Prior
+workflow test arguments, required checks and all Work/private gates remain.
