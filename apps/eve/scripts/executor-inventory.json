@@ -3645,8 +3645,8 @@
     },
     "lib/engineering/factory-writer.ts": {
       "classification": "ENFORCED",
-      "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "99ee0f29497ac6ac51efbed866046bb669a1c90a75fea7841ecdd314ed0f5ee1"
+      "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant. Explicit inactive local V4 data-only custody rechecks canonical receipt/current keys, detached full source tree and raw commit, then uses unchanged full-current SQL/MC fences; no producer check execution or verifier activation. Shared text-only patch preflight bounds bytes and paths before candidate writes; legacy caller/body/SQL unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "00f93458a8095b4f8d26c31535b0ff2a7a45606b89935150589e546b58f9a840"
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",

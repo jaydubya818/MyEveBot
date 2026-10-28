@@ -60,6 +60,7 @@ jobs:
           lib/engineering/factory-producer-protocol-v4.test.ts
           lib/engineering/factory-result-consumer.test.ts
           lib/engineering/factory-result-consumer-v4.test.ts
+          lib/engineering/factory-writer-v4.test.ts
           lib/engineering/factory-authenticated-result.test.ts
           lib/dashboard/web-auth.test.ts
           lib/computer-sandbox-spawn.test.ts
@@ -73,6 +74,11 @@ jobs:
           MYEVE_FACTORY_RECEIPT_TEST_PORT: '55479'
           PGPASSWORD: synthetic-q37-ci-only
         run: node --import tsx apps/eve/test/factory-receipt.integration.mjs
+      - name: Public current-owner V4 candidate custody
+        env:
+          MYEVE_FACTORY_RECEIPT_TEST_PORT: '55479'
+          PGPASSWORD: synthetic-q37-ci-only
+        run: node --import tsx apps/eve/test/factory-writer-v4.integration.mjs
       - name: Factory codec verifies the same MyEve signed vectors
         env:
           V4_CODEC_PEER_MODULE: ${{ github.workspace }}/apps/eve/lib/engineering/factory-producer-protocol.ts
