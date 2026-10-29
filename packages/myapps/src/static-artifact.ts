@@ -14,6 +14,7 @@ interface BuildInventory extends StaticSourcePins {
   releaseQualified: false;
 }
 const unavailable = () => new AppError("APP_ARTIFACT_UNAVAILABLE");
+const retainedConstruction = Symbol("retained-static-artifact");
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 const hash = (value: unknown, length: number) => typeof value === "string" && new RegExp(`^[a-f0-9]{${length}}$`).test(value);
 
@@ -72,7 +73,9 @@ export class StaticArtifactCandidate {
   readonly installed = false;
   #bytes: Map<string, Uint8Array>;
 
-  private constructor(manifest: BuildInventory, bytes: Map<string, Uint8Array>) {
+  private constructor(manifest: BuildInventory, bytes: Map<string, Uint8Array>, token: typeof retainedConstruction) {
+    // TypeScript's private modifier does not restrict JavaScript callers.
+    requireValue(token === retainedConstruction, "APP_ARTIFACT_UNAVAILABLE");
     this.source = Object.freeze(sourcePins({ sourceCommit: manifest.sourceCommit, sourceTree: manifest.sourceTree, lockSha256: manifest.lockSha256 }));
     this.inventoryDigest = digest(manifest);
     this.files = Object.freeze(manifest.files.map(file => Object.freeze({ ...file })).sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
@@ -95,7 +98,7 @@ export class StaticArtifactCandidate {
       requireValue(sha256(bytes) === file.sha256, "APP_ARTIFACT_BYTES_MISMATCH");
       retained.set(file.path, bytes);
     }
-    return new StaticArtifactCandidate(manifest, retained);
+    return new StaticArtifactCandidate(manifest, retained, retainedConstruction);
   }
 
   /** Defensive copy for a later separately authorized host. No network or filesystem access. */

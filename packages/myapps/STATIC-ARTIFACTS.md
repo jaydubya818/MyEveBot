@@ -11,6 +11,8 @@ one detached snapshot of the entire inventory, source pins, entry point, unique 
 bounds. Each returned byte array must match the declared length and SHA-256.
 Only after every file matches does retention return a candidate. The candidate
 owns defensive byte copies and immutable metadata; reads also return copies.
+An unexported construction token also enforces this boundary for JavaScript
+callers, which are not restricted by TypeScript's private constructor modifier.
 Accessor-backed caller objects cannot change a path between validation and loading
 or change the trusted expected source pins between validation and comparison.
 An unreadable expected-source snapshot returns a fixed opaque error before any

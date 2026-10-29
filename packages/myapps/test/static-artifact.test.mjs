@@ -28,6 +28,14 @@ test('retained metadata and bytes cannot be changed through caller-owned referen
   assert.throws(() => { candidate.files[0].sha256 = 'd'.repeat(64); });
 });
 
+test('runtime callers cannot construct an artifact without validated byte retention', () => {
+  const f = fixture();
+  const unvalidated = new Map([['dist/index.html', Buffer.from('unverified replacement bytes')]]);
+  for (const token of [undefined, Symbol('retained-static-artifact')]) {
+    assert.throws(() => Reflect.construct(StaticArtifactCandidate, [f.manifest, unvalidated, token]), { code: 'APP_ARTIFACT_UNAVAILABLE' });
+  }
+});
+
 test('snapshots accessor-backed inventory before validating any paths or loading bytes', async () => {
   const f = fixture(); let reads = 0; const requested = [];
   Object.defineProperty(f.manifest.files[1], 'path', { enumerable: true, get: () => ++reads <= 2 ? 'dist/assets/app.js' : '../outside.js' });
