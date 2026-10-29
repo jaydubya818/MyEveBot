@@ -39,3 +39,7 @@ not extend that protocol or silently turn a build inventory into a signed
 artifact-delivery claim. Executing generated browser code also requires an
 explicit isolation and authorized data-access design before host integration.
 The existing CRM and Alpha Tasks runtime/production guards remain unchanged.
+
+The separate [build-claim contract proposal](STATIC-BUILD-CLAIMS.md) verifies a
+configured signature against a genuine retained candidate. It remains an
+unapproved internal proposal with no runtime consumer or acceptance authority.

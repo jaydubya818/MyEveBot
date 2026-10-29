@@ -15,6 +15,12 @@ interface BuildInventory extends StaticSourcePins {
 }
 const unavailable = () => new AppError("APP_ARTIFACT_UNAVAILABLE");
 const retainedConstruction = Symbol("retained-static-artifact");
+const retainedCandidates = new WeakSet<object>();
+
+/** Runtime retention brand, without granting owner or installation authority. */
+export function isRetainedStaticArtifact(value: unknown): value is StaticArtifactCandidate {
+  return typeof value === "object" && value !== null && retainedCandidates.has(value);
+}
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 const hash = (value: unknown, length: number) => typeof value === "string" && new RegExp(`^[a-f0-9]{${length}}$`).test(value);
 
@@ -82,6 +88,7 @@ export class StaticArtifactCandidate {
     this.artifactDigest = digest({ source: this.source, files: this.files });
     this.#bytes = bytes;
     Object.freeze(this);
+    retainedCandidates.add(this);
   }
 
   /** Caller supplies trusted expected source pins and a bounded retained-object reader.

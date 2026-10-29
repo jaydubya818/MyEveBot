@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { StaticArtifactCandidate, STATIC_ARTIFACT_LIMITS } from '../src/static-artifact.ts';
+import { StaticArtifactCandidate, STATIC_ARTIFACT_LIMITS, isRetainedStaticArtifact } from '../src/static-artifact.ts';
 
 const sha = value => createHash('sha256').update(value).digest('hex');
 const pins = { sourceCommit: 'a'.repeat(40), sourceTree: 'b'.repeat(40), lockSha256: 'c'.repeat(64) };
@@ -33,6 +33,14 @@ test('runtime callers cannot construct an artifact without validated byte retent
   const unvalidated = new Map([['dist/index.html', Buffer.from('unverified replacement bytes')]]);
   for (const token of [undefined, Symbol('retained-static-artifact')]) {
     assert.throws(() => Reflect.construct(StaticArtifactCandidate, [f.manifest, unvalidated, token]), { code: 'APP_ARTIFACT_UNAVAILABLE' });
+  }
+});
+
+test('only actually retained candidates have the runtime retention brand', async () => {
+  const f = fixture(), candidate = await StaticArtifactCandidate.retain(f.manifest, pins, f.load);
+  assert.equal(isRetainedStaticArtifact(candidate), true);
+  for (const value of [null, undefined, {}, Object.create(StaticArtifactCandidate.prototype), new Proxy(candidate, {})]) {
+    assert.equal(isRetainedStaticArtifact(value), false);
   }
 });
 
