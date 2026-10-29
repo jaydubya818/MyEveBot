@@ -15,7 +15,8 @@ BEGIN
    WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema'
    AND c.relkind IN ('r','p','f','m')
    AND NOT(n.nspname='public' AND c.relname=ANY(ARRAY['external_alpha_cohort',
-     'external_alpha_cohort_member','external_alpha_cohort_admission','external_alpha_cohort_dispatch'])))
+     'external_alpha_cohort_member','external_alpha_cohort_admission','external_alpha_cohort_dispatch',
+     'qdev_charter','qdev_member','qdev_project','qdev_work','qdev_dispatch'])))
  THEN RAISE EXCEPTION 'QDEV_STANDALONE_ACCOUNTING_DATABASE_REQUIRED'; END IF;
  IF EXISTS (SELECT 1 FROM pg_database d,
    LATERAL aclexplode(COALESCE(d.datacl,acldefault('d',d.datdba))) a
@@ -45,9 +46,35 @@ BEGIN
    LATERAL aclexplode(COALESCE(p.proacl,acldefault('f',p.proowner))) a
    WHERE p.oid=function_id AND a.grantee=0 AND a.privilege_type='EXECUTE')
  THEN RAISE EXCEPTION 'QDEV_PUBLIC_FUNCTION_EXECUTE_FORBIDDEN'; END IF;
+ -- Optional qualification-accounting contract: all or nothing, empty, never PUBLIC.
+ IF (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+     WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(ARRAY['qdev_charter','qdev_member','qdev_project','qdev_work','qdev_dispatch']))
+    NOT IN (0,5) OR (to_regprocedure('public.qdev_cohort_call(jsonb)') IS NULL)
+    <> ((SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+     WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(ARRAY['qdev_charter','qdev_member','qdev_project','qdev_work','qdev_dispatch']))=0)
+ THEN RAISE EXCEPTION 'QDEV_QUALIFICATION_SCHEMA_INCOMPLETE'; END IF;
+ IF to_regprocedure('public.qdev_cohort_call(jsonb)') IS NOT NULL THEN
+  FOREACH relation_name IN ARRAY ARRAY['qdev_charter','qdev_member','qdev_project','qdev_work','qdev_dispatch'] LOOP
+   IF EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace,
+     LATERAL aclexplode(COALESCE(c.relacl,acldefault('r',c.relowner))) a
+     WHERE n.nspname='public' AND c.relname=relation_name AND a.grantee=0)
+   THEN RAISE EXCEPTION 'QDEV_PUBLIC_TABLE_ACCESS_FORBIDDEN'; END IF;
+   EXECUTE format('SELECT EXISTS(SELECT 1 FROM public.%I)',relation_name) INTO STRICT has_rows;
+   IF has_rows THEN RAISE EXCEPTION 'QDEV_PRE_ENROLLMENT_DATABASE_NOT_EMPTY'; END IF;
+  END LOOP;
+  function_id:=to_regprocedure('public.qdev_cohort_call(jsonb)');
+  IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=function_id AND prosecdef
+    AND 'search_path=pg_catalog, public, pg_temp'=ANY(proconfig))
+  THEN RAISE EXCEPTION 'QDEV_ACCOUNTING_FUNCTION_REQUIRED'; END IF;
+  IF EXISTS (SELECT 1 FROM pg_proc p,
+    LATERAL aclexplode(COALESCE(p.proacl,acldefault('f',p.proowner))) a
+    WHERE p.oid=function_id AND a.grantee=0 AND a.privilege_type='EXECUTE')
+  THEN RAISE EXCEPTION 'QDEV_PUBLIC_FUNCTION_EXECUTE_FORBIDDEN'; END IF;
+ END IF;
 END $$;
 SELECT 'PREPARATION_OBSERVATION_ONLY_EXECUTION_NOT_AUTHORIZED' AS status,
  current_database() AS database_name,
- encode(sha256(convert_to(p.prosrc,'UTF8')),'hex') AS accounting_function_body_sha256
+ encode(sha256(convert_to(p.prosrc,'UTF8')),'hex') AS accounting_function_body_sha256,
+ (SELECT encode(sha256(convert_to(q.prosrc,'UTF8')),'hex') FROM pg_proc q WHERE q.oid=to_regprocedure('public.qdev_cohort_call(jsonb)')) AS qualification_function_body_sha256
  FROM pg_proc p WHERE p.oid='public.external_alpha_cohort_call(jsonb)'::regprocedure;
 COMMIT;

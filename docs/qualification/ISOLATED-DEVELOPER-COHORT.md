@@ -154,3 +154,39 @@ references are a blocker, not permission to create placeholder evidence.
 Success here would mean **READY FOR ISOLATED DEVELOPER QUALIFICATION** only after
 the new environment, source, authority and custody gates actually pass. It would
 not activate or qualify the two original testers.
+
+## Engineering: admission and project-parent binding (unadopted source)
+
+Design baseline `qdev-20261029-01` is approved for engineering and local
+qualification only. No funding, infrastructure, price, custody or execution
+authority exists, and none is created by the source below.
+
+- `apps/eve/lib/external-alpha/qualification-accounting.sql` is a standalone
+  `qdev_*` ledger for the new accounting database. It never reads or writes the
+  `external_alpha_*` tester ledgers, and installing it creates no charter,
+  member, project or activation. The operator issues those rows after the
+  owners approve an immutable charter.
+- The database enforces, not the caller: Q1 alone may hold paid Works and Q2 has
+  zero; at most four Works, strictly sequential (concurrency one); each Work
+  charges its full ceiling at reservation, never refunded; the aggregate is at
+  most USD 5.20 (5,200,000 microUSD) and USD 1.30 per Work, as hard table
+  constraints no charter can exceed; operations inside a Work are sequential and
+  bounded by the Work ceiling.
+- Every effect presents the exact project-parent digest (repository, input
+  commit/tree, output branch, operating profile, protected specification) and
+  source digest (MyEve/Factory/Relay/MissionControl commits and FactoryVersion).
+  A mismatch is refused before any charge or dispatch.
+- A lost acknowledgment, an unbound or unaccounted predecessor, or UNKNOWN
+  exposure fences the cohort. There is no retry, replacement Work, top-up or
+  refund. Revocation and expiry deny new effects but still permit proven
+  settlement and fencing.
+- `qualification-accounting.ts` is the client. It refuses placeholder
+  identities and any repository, commit, tree or branch other than the approved
+  baseline before reaching the database. It is not wired to any runtime caller.
+- `scripts/unified-beta/check-isolated-accounting.sql` now also verifies the
+  `qdev_*` schema is all-or-nothing, empty before enrollment and never PUBLIC.
+- Regression: `node --import tsx --test apps/eve/test/qualification-accounting.integration.mjs`
+  (disposable PostgreSQL, synthetic identities). Still required before
+  execution: independent source acceptance, the approved qualification price
+  card and model route, and runtime wiring of every Sofie, coding, Factory and
+  verifier child through `dispatch`.

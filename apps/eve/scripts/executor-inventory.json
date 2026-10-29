@@ -4615,6 +4615,11 @@
       "classification": "READ_ONLY",
       "reason": "Unregistered dashboard authentication port reuses signed web-owner cookie verification, configured credential-version/durable revocation and partner private-route restrictions; derives only a nonsecret session revision. No development owner fallback, route/grant/policy/credential/installation write, provider or paid Work effect.",
       "sha256": "e6cc454eb8619de18f2e7a6c7f40644b1b159021542b431921cb70e85d835fa2"
+    },
+    "lib/external-alpha/qualification-accounting.ts": {
+      "classification": "INTERNAL",
+      "reason": "Engineering-authored qualification accounting client for qdev-20261029-01. Performs no provider call, model dispatch or external effect; only calls the dedicated qdev_cohort_call database function. Not wired to any runtime caller. Independent source review PENDING; fingerprint pins the exact bytes and must be re-reviewed on any change.",
+      "sha256": "ca40df664ee1f887ecc8976442847587af419b8155ff411d8bd307a9b8e614fb"
     }
   }
 }

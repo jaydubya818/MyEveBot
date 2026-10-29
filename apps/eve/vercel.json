@@ -50,7 +50,8 @@
       "cursor/qa-medium-low-b54d": false,
       "cursor/qa-deep-agent-b54d": false,
       "cursor/qa-main-integration-6ef4": false,
-      "codex/sofie-multi-agent-integration-20261025": false
+      "codex/sofie-multi-agent-integration-20261025": false,
+      "codex/qdev-20261029-admission": false
     }
   },
   "functions": {
