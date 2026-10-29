@@ -47,6 +47,21 @@ for (const key of Object.keys(pins)) test(`rejects a different trusted ${key} be
   assert.equal(reads, 0);
 });
 
+for (const key of Object.keys(pins)) test(`compares the first snapshot of trusted ${key} before reading bytes`, async () => {
+  const f = fixture(); let pinReads = 0; let byteReads = 0;
+  const expected = { ...pins };
+  Object.defineProperty(expected, key, { enumerable: true, get: () => ++pinReads === 1 ? 'd'.repeat(pins[key].length) : pins[key] });
+  await assert.rejects(StaticArtifactCandidate.retain(f.manifest, expected, async path => { byteReads++; return f.bytes.get(path); }), { code: 'APP_ARTIFACT_SOURCE_MISMATCH' });
+  assert.equal(pinReads, 1); assert.equal(byteReads, 0);
+});
+
+test('a failing trusted-source snapshot returns an opaque error without loading bytes', async () => {
+  const f = fixture(); let reads = 0; const expected = { ...pins };
+  Object.defineProperty(expected, 'sourceCommit', { enumerable: true, get: () => { throw new Error('private expected-source detail'); } });
+  await assert.rejects(StaticArtifactCandidate.retain(f.manifest, expected, async () => { reads++; return new Uint8Array(); }), { code: 'APP_ARTIFACT_SOURCE_INVALID', message: 'APP_ARTIFACT_SOURCE_INVALID' });
+  assert.equal(reads, 0);
+});
+
 for (const path of ['../index.html', 'dist/../secret', 'dist//app.js', 'dist/.env', 'dist/a/../../secret', 'dist/%2e%2e/secret', 'dist/a\\secret', 'dist/asset.js?token=x', '/dist/index.html', 'dist/asset.']) test(`rejects unsafe path ${path} before reading bytes`, async () => {
   const f = fixture(); f.manifest.files[1].path = path; let reads = 0;
   await assert.rejects(StaticArtifactCandidate.retain(f.manifest, pins, async () => { reads++; return new Uint8Array(); })); assert.equal(reads, 0);

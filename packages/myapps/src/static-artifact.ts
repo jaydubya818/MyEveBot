@@ -18,6 +18,8 @@ const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest(
 const hash = (value: unknown, length: number) => typeof value === "string" && new RegExp(`^[a-f0-9]{${length}}$`).test(value);
 
 function sourcePins(value: unknown): StaticSourcePins {
+  // Validate and compare the same detached values, including caller-backed getters.
+  try { value = structuredClone(value); } catch { throw new AppError("APP_ARTIFACT_SOURCE_INVALID"); }
   keys(value, ["sourceCommit", "sourceTree", "lockSha256"]);
   requireValue(hash(value.sourceCommit, 40) && hash(value.sourceTree, 40) && hash(value.lockSha256, 64), "APP_ARTIFACT_SOURCE_INVALID");
   return { sourceCommit: value.sourceCommit, sourceTree: value.sourceTree, lockSha256: value.lockSha256 };

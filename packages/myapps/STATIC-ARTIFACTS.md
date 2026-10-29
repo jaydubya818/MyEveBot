@@ -11,7 +11,10 @@ one detached snapshot of the entire inventory, source pins, entry point, unique 
 bounds. Each returned byte array must match the declared length and SHA-256.
 Only after every file matches does retention return a candidate. The candidate
 owns defensive byte copies and immutable metadata; reads also return copies.
-Accessor-backed caller objects cannot change a path between validation and loading.
+Accessor-backed caller objects cannot change a path between validation and loading
+or change the trusted expected source pins between validation and comparison.
+An unreadable expected-source snapshot returns a fixed opaque error before any
+artifact bytes are loaded.
 The inventory digest binds the exact inventory order and producer metadata.
 The artifact digest binds source pins and the file inventory sorted by path.
 Neither digest establishes owner authorization or independent verification.
