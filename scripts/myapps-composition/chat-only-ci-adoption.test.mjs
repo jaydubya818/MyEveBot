@@ -284,7 +284,7 @@ const protectedSourceHashes={
   "apps/eve/test/owner-chat-only/provenance.cjs": "974ef9c9cd232c3e474e11c7b5941320b31e38a64f3a7abe0e0291f98dc6305c",
   "apps/eve/lib/external-alpha/work-test-fixture.ts": "90f08f2f8097a3706b9204437c18fd5ed5ed939e42e58c7485300a989890f961",
   ".github/workflows/owner-ux.yml": "a32fc21f3c5350b9262d0b0e2ec08245203d326aeb4b51ea4690d09c7bc90d1d",
-  ".github/workflows/myapps-composition.yml": "45b6675c568819defcf3b826f832dc6886f6a0c79e63d7acb5a3b9bf02ff5834",
+  ".github/workflows/myapps-composition.yml": "5c84813c1b2a878b86921a4ebb0336bf2ca7b0cca107872ff2e4069233dbc937",
   "apps/eve/test/owner-chat-only/transport.cjs": "775ce4b368c59a0460ab67e3030b65f3c17129da65eb10326fa42c93d0d515ca",
   "apps/eve/test/owner-chat-only/gateway.ts": "f83d059cb527b34b7adfe1e10f394844f0eb4a5fc3936f4591e5372f08b943d6",
   "apps/eve/test/browser/mobile-conversation-layout.mjs": "b6395800153053674056c7e8f611b64f8a36e524b08be6f719db1a63d6978e4c",
@@ -300,7 +300,7 @@ const protectedSourceHashes={
   "apps/eve/test/owner-journey/positive-work-v1-archive.json": "de2275aaf38dc39645772c11d6068f72fc10a822e5f67272a10f275d0f84b86a",
   "apps/eve/test/owner-journey/POSITIVE_WORK_QUALIFICATION.md": "c5739e7711a2bb859c2d1643964d1153c651c8c1b6fc822582778ff64ef7777b"
 };
-test('both required workflows, runtime/registry/listener/materializer, source and package inputs stay at the exact a561 base',()=>{
+test('required workflows and source/package inputs stay frozen after documented ordinary peer-pin reconciliation',()=>{
  for(const [path,expected] of Object.entries(protectedSourceHashes))assert.equal(hash(readFileSync(new URL('../../'+path,import.meta.url))),expected,path);
  const archive=JSON.parse(readFileSync(new URL('../../apps/eve/test/owner-journey/positive-work-v1-archive.json',import.meta.url)));
  assert.equal(Object.keys(archive.files).length,10);

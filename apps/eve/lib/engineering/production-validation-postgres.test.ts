@@ -358,7 +358,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   for(const revoked of [false,true]){
    const f=await fixture({repository:grant.source.repository,factoryVersion}),r=f.preparation.request;
    // Canonical reviewed production plan; deterministic transport makes no provider call.
-   const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:productionSpendPlan,verificationPolicy:{policy,policySha256}});
+   const control=new CloudWorkControl({store:factory,spend,grant:{...grant,ownerScope:installation.ownerScope},configuration,sourceDigest,signing:{factoryId:'myfactory-cloud-production'},executionSpendPlan:syntheticAdmissionSpendPlan(r.deadline),verificationPolicy:{policy,policySha256}});
    const request={protocol:'MYFACTORY_EXECUTION_V2',...r,source:grant.source,maxSpendUsd:1,input:{title:'Disposable lifecycle',description:'Actual production authority, no providers',kind:'feature',acceptanceCriteria:['Bounded'],allowedPaths:grant.allowedPaths,checkCommands:grant.commands}};
    const manifest={version:1,clientId:grant.clientId,ownerScope:installation.ownerScope,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.validationContractSha256,candidateSha256:plan.validationCandidateSha256,environment:'CLOUD_PRODUCTION',publication:false,request};
    await query("INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state) VALUES($1,$2,$3,$4,$5,'AUTHORIZED')",[r.requestId,r.workId,grant.clientId,manifest,digest(manifest)]);

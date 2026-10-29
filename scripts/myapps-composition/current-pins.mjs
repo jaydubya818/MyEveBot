@@ -4,7 +4,7 @@ import {parse} from 'yaml';
 // closure. CI must install that closure before running this tooling; preserve
 // the separately qualified Builder lock bytes rather than repinning metadata.
 
-export const factory = '39b686660571bf8f93b46756378126fafb7c4d7c';
+export const factory = '6eb1ae16c1c25800f1c822f7ebcf65b8d47ff833';
 export const componentFactory = '254e6e7513486a82337e59e89eebf8b8f9bb5644';
 export const missioncontrol = 'f9bcd0df4bb970a36a43599b00d724b07f300ad0';
 const reports = {'composed-tests.json': 'composed', 'qe-tests.json': 'qe', 'baseline-allowance-tests.json': 'baseline-allowance'};

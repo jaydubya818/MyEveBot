@@ -18,6 +18,7 @@ import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
 import { publicKeyId } from "./work-authority.ts";
 import { readExternalAlphaProofEvidence } from "./work-readback.ts";
 import { ProductiveSandboxFixture } from "./productive-sandbox-test-fixture.ts";
+import { productivePricingFixture, bindProductivePricingFixture } from "../../test/fixtures/productive-pricing.ts";
 
 // Explicitly opt-in offline qualification: three real disposable PostgreSQL
 // databases, generic source, deterministic producer/model transport, and actual
@@ -46,7 +47,7 @@ const journeyDiagnostic = (row: any, transport: ProductiveSandboxFixture, out?: 
   });
 };
 async function modules() {
-  const paths = { runtime: "external-alpha-runtime", control: "external-alpha-control", delivery: "external-alpha-delivery", authority: "external-alpha-authority", readback: "external-alpha-readback", provider: "cloud-work-provider", source: "private-source", custody: "candidate-custody", verifier: "external-alpha-verifier", install: "cloud-harness-install", plan: "cloud-harness-plan", checkpoint: "cloud-harness-checkpoint", workPlan: "cloud-work-plan", price: "production-model-provider" };
+  const paths = { runtime: "external-alpha-runtime", control: "external-alpha-control", delivery: "external-alpha-delivery", authority: "external-alpha-authority", readback: "external-alpha-readback", provider: "cloud-work-provider", source: "private-source", custody: "candidate-custody", verifier: "external-alpha-verifier", install: "cloud-harness-install", plan: "cloud-harness-plan", checkpoint: "cloud-harness-checkpoint", workPlan: "cloud-work-plan", price: "production-model-provider", spendPlan: "production-execution-plan" };
   return Object.fromEntries(await Promise.all([...Object.entries(paths).map(async ([key, path]) => [key, await imported("apps/cloud-control/src/" + path + ".mjs")]),
     imported("apps/cloud-control/test/fixtures/protected-docker-sandbox.mjs").then(value => ["docker", value]), imported("apps/supervisor/test/fixtures/alpha-tasks/index.mjs").then(value => ["generic", value])]));
 }
@@ -93,7 +94,9 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const config = externalAlphaWorkConfigSchema.parse({ allowedFiles: allowed, checkCommands: initial.checkCommands, factory: { origin: "https://fixture-alpha-factory.vercel.app", trustedTeamId: claims.owner_id,
     receiptKeys: [{ keyId: publicKeyId(receipt.publicKey), publicKey: receipt.publicKey.export({ type: "spki", format: "pem" }) }], resultVerification: { factoryId: signing.factoryId, sourceDigest, configurationDigest: digest(m.runtime.externalAlphaConfiguration(installation)), verifierPolicySha256: m.verifier.alphaTasksVerificationPolicySha256, resultKeys: [signing.key] } } });
   const entry = { slot: "slot-1", owner: "fixture-org", repo: "myeve-alpha-workspace-01", commit, tree }, snapshot = m.source.buildSnapshot(entry, { files: sourceFiles, commitBytes });
-  const transport = new ProductiveSandboxFixture(m, candidate, kind === "UNKNOWN", sourceFiles); transports.push(transport);
+  const pricingNow = Date.now();
+  const pricing = productivePricingFixture(m.price.productionModelPrice, m.spendPlan.productionSpendPlan, new Date(pricingNow + 300000).toISOString(), pricingNow);
+  const transport = new ProductiveSandboxFixture(m, candidate, kind === "UNKNOWN", sourceFiles, pricing.price); transports.push(transport);
   const docker = m.docker.protectedDockerSandboxApi(); dockerApis.push(docker);
   const queued: any[] = [], queue = { send: async (topic: string, payload: any) => { queued.push({ topic, payload }); if (kind === "QUEUE_UNKNOWN" && topic === m.delivery.externalAlphaWorkTopic) throw Error("ACK_LOST"); return { messageId: "fixture-message-" + queued.length }; } };
   let corruptSource = false;
@@ -103,7 +106,9 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const deps = { pool: capability.pool, capabilityBindings: capability.bindings, installation, queue, signing, sourceDigest, deploymentId: "dpl_fixture", registry: { "slot-1": entry }, snapshots: { "slot-1": { repository: initial.source.repository, commit, tree, path: `factory/private-source/slot-1/${snapshot.sha256}.json`, bytes: snapshot.bytes.length, sha256: snapshot.sha256 } }, sourceCustody: { read: async () => ({ bytes: corruptSource ? Buffer.from(snapshot.bytes.toString().replace("Alpha Tasks", "Other Tasks")) : Buffer.from(snapshot.bytes), sha256: snapshot.sha256 }) }, signReceipt: m.authority.receiptSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })), signReadback: m.readback.readbackSigner(receipt.privateKey.export({ type: "pkcs8", format: "pem" })),
     providerFactory: ({ spend, plan, privateSource }: any) => m.provider.cloudWorkProvider({ ledger: spend, plan, privateSource, custodyPrefix: "factory/production", sandboxApi: transport.api, blobPut: transport.blobPut, blobGet: transport.blobGet, modelProviderForRow: transport.modelProvider }),
     hostInstallation: { projectId: "prj_fixtureVerifier" }, verifierProfile: { id: "alpha-tasks-node-json-v1", kind: "PRODUCT", tree }, verification: { deps: { ...(kind === "NO_CUSTODY" ? { loadHidden: async () => { throw Error("VERIFIER_CUSTODY_UNAVAILABLE"); } } : {}), sandboxApi: docker, providerOptions: async () => ({ projectId: "prj_fixtureVerifier" }) } } };
-  const makeRuntime = () => m.runtime.externalAlphaRuntimeComponents(deps);
+  // The same bounded, explicitly synthetic plan reaches both the admission
+  // closure and control. Canonical production pricing remains unchanged.
+  const makeRuntime = () => bindProductivePricingFixture(m.runtime.externalAlphaRuntimeComponents({ ...deps, spendPlan: pricing.spendPlan }), m.spendPlan.productionSpendPlan, pricing);
   let runtime = makeRuntime();
   // The HTTP gate and the injected runtime must name the same real fixture
   // installation and restricted role. Keep the actual configuration loader.
@@ -112,7 +117,7 @@ async function fixture(kind: "PASS" | "FAIL" | "UNKNOWN" | "QUEUE_UNKNOWN" | "NO
   const factoryEnv: Record<string, string> = { FACTORY_EXTERNAL_ALPHA_INSTALLATION: JSON.stringify([installationConfig]), FACTORY_EXTERNAL_ALPHA_INSTALLATION_SHA256: digest([installation.sha256]), VERCEL_DEPLOYMENT_ID: "dpl_fixture",
     FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS: JSON.stringify(capabilityBindings), FACTORY_EXTERNAL_ALPHA_CAPABILITY_BINDINGS_SHA256: digest(capabilityBindings), FACTORY_EXTERNAL_ALPHA_CAPABILITY_RUNTIME_ROLE: capabilityRuntimeRole };
   let httpReads = 0, httpPosts = 0; const httpStatuses: number[] = []; const faults = { tamperResult: false };
-  const fetcher: typeof fetch = async (url, init) => { if (init?.method === "GET") httpReads++; else httpPosts++; const response = await m.control.handleExternalAlpha(new Request(String(url), init), factoryEnv, { withRuntime: async (_e: any, _i: any, action: any) => action(runtime), verifyToken: async (presented: string) => { if (presented !== oidc) throw Error("FIXTURE_OIDC"); return { payload: claims }; } }); httpStatuses.push(response.status); if (faults.tamperResult && String(url).endsWith("/result")) { const payload = await response.json(); if (payload.result) payload.result.signature = "A".repeat(86); return Response.json(payload, { status: response.status }); } return response; };
+  const fetcher: typeof fetch = async (url, init) => { if (init?.method === "GET") httpReads++; else httpPosts++; const response = await m.control.handleExternalAlpha(new Request(String(url), init), factoryEnv, { spendPlan: pricing.spendPlan, withRuntime: async (_e: any, _i: any, action: any) => action(runtime), verifyToken: async (presented: string) => { if (presented !== oidc) throw Error("FIXTURE_OIDC"); return { payload: claims }; } }); httpStatuses.push(response.status); if (faults.tamperResult && String(url).endsWith("/result")) { const payload = await response.json(); if (payload.result) payload.result.signature = "A".repeat(86); return Response.json(payload, { status: response.status }); } return response; };
   const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({type:"pkcs8",format:"pem"}) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner, EVE_PROJECT_NAME: "myeve-alpha-tester-1", MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(a.policy), MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(a.policy, config) } as NodeJS.ProcessEnv;
   const client = new HttpExternalAlphaFactoryClient(config, { projectId: a.policy.projectId }, { fetcher, token: () => token, oidc: async () => oidc, env }), controller = () => new ExternalAlphaWorkController(a.svc, client, config, receiptKeys(config));
   const actions = { database: a.db, factory: client, signer: a.signer, env }, canonical = canonicalAlphaTasksWork(a.policy.repository, a.owner);

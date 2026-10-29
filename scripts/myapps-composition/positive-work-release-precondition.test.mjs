@@ -117,7 +117,7 @@ test('composed preflight preserves every parent workflow byte outside one requir
   +'          MYEVE_POSITIVE_WORK_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}\n'
   +'        run: node scripts/myapps-composition/check-positive-work-release.mjs --source-commit "$MYEVE_POSITIVE_WORK_SOURCE" --journey "composed"\n';
  assert.equal(workflow.split(block).length,2);
- assert.equal(hash(workflow.replace(block,'')),'64aee0789e417d156a21f3dee89cbcd84fd7ebe6a56cff2183fcf8b30fa69ca3');
+ assert.equal(hash(workflow.replace(block,'')),'8e855e514bb88b0be0f3eedad24c6cacb03050ba6806cbbcb2b4a98c375b40a4');
  assert(workflow.includes(block+'      - name: Composed composer refresh and unchanged E2 browser journey\n'));
  assert(workflow.indexOf('Browser fixture startup failure and owned cleanup regressions')<workflow.indexOf(block));
  assert(workflow.includes('ref: ${{ github.event.pull_request.head.sha || github.sha }}'));
