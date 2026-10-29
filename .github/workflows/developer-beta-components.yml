@@ -5,6 +5,7 @@ on:
     branches:
       - codex/sofie-multi-agent-integration-20261025
       - codex/beta-qa-adoption-20261023
+      - codex/qdev-20261029-admission
 
 permissions:
   contents: read
