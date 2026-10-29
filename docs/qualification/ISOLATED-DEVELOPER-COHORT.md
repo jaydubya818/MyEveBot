@@ -82,6 +82,10 @@ hosting, tools, tax or other charges.
 The independent reviewer access restriction remains in force. This runbook does
 not authorize another agent to retry the stopped review or historical experiment.
 Use only a supported process explicitly authorized by the responsible owner.
+Action2 may create empty resources first. Schema installation and the preparation
+audit require Action4's exact-source acceptance before operator use. The original
+four tester Work gates stay unchanged; a new cohort needs a separately approved,
+scope-bound qualification runner and actual evidence.
 
 ## Executable preparation and engineering handoff
 
@@ -91,11 +95,15 @@ dispatch OFF. Do not omit the current chat-only narrowing merely to make Work
 possible. A new productive cohort contract requires separate review and explicit
 adoption; the old broad schema is not a new paid grant.
 
-Use an operator-supplied auditor URL in secret storage, never a URL copied from
-an existing tester. This script performs only a read-only transaction:
+Configure a new operator-owned `qdev_accounting_auditor` libpq service with the
+exact target host/database/auditor role. Keep its service file and password file
+outside coding-agent access; the Unix password file must have mode0600. Use
+`PGSERVICEFILE`/`PGPASSFILE` to select those private files if necessary. Do not
+copy tester credentials or put a password-bearing URL in command arguments.
+This script performs only a read-only transaction:
 
 ```sh
-psql -X --set=ON_ERROR_STOP=1 --dbname="$QDEV_ACCOUNTING_AUDITOR_DATABASE_URL" \
+PGSERVICE=qdev_accounting_auditor psql -X --set=ON_ERROR_STOP=1 \
   --file=scripts/unified-beta/check-isolated-accounting.sql
 ```
 
