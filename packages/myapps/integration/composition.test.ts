@@ -13,6 +13,7 @@ const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'u
 const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
 const terminalPointer=JSON.parse(readFileSync(resolve('docs/myapps/terminal-source-qualification-current.json'),'utf8'));
 const terminal=JSON.parse(readFileSync(resolve(terminalPointer.record),'utf8'));
+const candidate=JSON.parse(readFileSync(resolve('docs/myapps/developer-beta-source-candidate-20261029.json'),'utf8'));
 import {factory as selectedFactory} from '../../../scripts/myapps-composition/current-pins.mjs';
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
@@ -128,24 +129,38 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  expect(previous.previousQualificationSha256).toBe('d1ce504eaad779ad7df41ecb5a20aff76542498db308bd4818f9550c369ea023');
  expect(createHash('sha256').update(readFileSync(terminalPointer.historicalRecord)).digest('hex')).toBe(previous.previousQualificationSha256);
  expect(terminal.installedAuthority).toBe('NONE');expect(terminal.productionIntegration).toBe('NOT_RUN');
+ // Historical qualifications remain byte-bound above. This candidate is an
+ // ordinary identity join and cannot inherit their independent or installed authority.
+ expect(candidate.previousQualifiedRecord).toBe(terminalPointer.record);
+ expect(candidate.previousQualifiedRecordSha256).toBe(createHash('sha256').update(readFileSync(terminalPointer.record)).digest('hex'));
+ expect(candidate.previousQualifiedFactorySource).toBe(terminal.factorySource);
+ expect(candidate.sourceDigest).not.toBe(terminal.sourceDigest);
+ expect(candidate.factoryVersion).not.toBe(terminal.factoryVersion);
+ expect(candidate.configurationDigest).toBe(terminal.configurationDigest);
+ expect(candidate.executionContractSha256).toBe(terminal.executionContractSha256);
+ expect(candidate.independentSourceQualification).toBe('PENDING');
+ expect(candidate.releaseQualified).toBe(false);expect(candidate.historicalQualificationSuperseded).toBe(false);
+ expect(candidate.installedAuthority).toBe('NONE');expect(candidate.productionIntegration).toBe('NOT_RUN');
+ expect(candidate.paidExecution).toBe('NOT_AUTHORIZED');expect(candidate.deployment).toBe('NOT_AUTHORIZED');expect(candidate.migration).toBe('NOT_AUTHORIZED');
  const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
  const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
  expect(check.status,check.stderr).toBe(0);
- expect(terminal.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
- expect(terminal.factorySource).toBe(selectedFactory);
+ expect(candidate.authority).toBe('ISOLATED_SOURCE_CANDIDATE_ONLY');
+ expect(candidate.factorySource).toBe(selectedFactory);
  expect(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()).toBe(selectedFactory);
  expect(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim()).toBe('');
- const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${terminal.factoryRecord}`],{cwd:root,encoding:'utf8'});
- expect(terminal.factoryRecord).toBe('docs/capability-control/source-identity-20261023/qa-remediation-undici-advisory-successor.json');
- expect(createHash('sha256').update(selectedRecord).digest('hex')).toBe(terminal.factoryRecordSha256);
- expect(readFileSync(resolve(root!,terminal.factoryRecord),'utf8')).toBe(selectedRecord);
+ const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${candidate.factoryRecord}`],{cwd:root,encoding:'utf8'});
+ expect(candidate.factoryRecord).toBe('docs/capability-control/source-identity-20261029/developer-beta-candidate.json');
+ expect(createHash('sha256').update(selectedRecord).digest('hex')).toBe(candidate.factoryRecordSha256);
+ expect(readFileSync(resolve(root!,candidate.factoryRecord),'utf8')).toBe(selectedRecord);
  const successor=JSON.parse(selectedRecord);
- expect(successor.sourceDigest).toBe(terminal.sourceDigest);expect(successor.factoryVersion).toBe(terminal.factoryVersion);
- expect(successor.configurationDigest).toBe(terminal.configurationDigest);
- expect(successor.executionContractSha256).toBe(terminal.executionContractSha256);
- expect(terminal.externalAlphaFactoryVersion).toBe(successor.externalAlphaFactoryVersion);
- expect(terminal.factoryVersionScope).toBe('SOURCE_RECORD_ONLY; no installed identity or execution authority is inherited');
+ expect(successor.sourceDigest).toBe(candidate.sourceDigest);expect(successor.factoryVersion).toBe(candidate.factoryVersion);
+ expect(successor.configurationDigest).toBe(candidate.configurationDigest);
+ expect(successor.executionContractSha256).toBe(candidate.executionContractSha256);
+ expect(candidate.externalAlphaFactoryVersion).toBe(successor.externalAlphaFactoryVersion);
+ expect(candidate.factoryVersionScope).toBe('SOURCE_RECORD_ONLY; no installed identity or execution authority is inherited');
  expect(successor.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
+ expect(successor.independentSourceQualification).toBe('PENDING');expect(successor.releaseQualified).toBe(false);expect(successor.installedAuthority).toBe('NONE');
  expect(JSON.parse(check.stdout).sourceDigest).toBe(successor.sourceDigest);
  expect(successor.sourceDigest).not.toBe(successor.predecessorSourceDigest);
  // A self-consistent identity is not a grant. Run the canonical exact-current
@@ -157,8 +172,8 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  expect(createHash('sha256').update(execFileSync('git',['show',`${factoryAdapter.source}:${identityPath}`],{cwd:root})).digest('hex')).toBe(factoryAdapter.files[identityPath].sourceSha256);
  const currentIdentity=execFileSync('git',['show',`${selectedFactory}:${identityPath}`],{cwd:root});
  expect(readFileSync(resolve(root!,identityPath))).toEqual(currentIdentity);
- expect(createHash('sha256').update(currentIdentity).digest('hex')).toBe(terminal.factoryIdentityTestSha256);
- expect(terminal.factoryIdentityTestCount).toBe(3);
+ expect(createHash('sha256').update(currentIdentity).digest('hex')).toBe(candidate.factoryIdentityTestSha256);
+ expect(candidate.factoryIdentityTestCount).toBe(3);
  const grants=spawnSync(process.execPath,['--test','--test-reporter=tap','apps/cloud-control/test/source-identity-qualification.test.mjs'],{cwd:root,encoding:'utf8'});
  expect(grants.status,grants.stderr+grants.stdout).toBe(0);
  expect(grants.stdout).toContain('coherent historical source or contract grants cannot consume successor authority');
