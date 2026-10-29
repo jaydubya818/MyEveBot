@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MyFactory
-          ref: a8e330c75d2dd603cbd0ca5b2c20bdbff61484ff
+          ref: 254e6e7513486a82337e59e89eebf8b8f9bb5644
           path: .qualification/factory
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
