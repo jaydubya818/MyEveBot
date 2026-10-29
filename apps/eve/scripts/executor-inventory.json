@@ -3479,8 +3479,8 @@
     },
     "lib/engineering/relay-collaboration.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure Work-bound Relay disclosure and reply validation. No provider calls, memory enumeration or durable writes; trusted caller must supply current exact Work/grant/transport identity and atomically persist advisory receipts through existing authority guards.",
-      "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb"
+      "reason": "Pure Work-bound Relay disclosure and reply validation. No provider calls, memory enumeration or durable writes; trusted caller must supply current exact Work/grant/transport identity and atomically persist advisory receipts through existing authority guards. Snapshot review: outgoing selected text is read once for bounds/hash/payload; outer request identity and advisory projection use one detached response. Getter substitution and opaque snapshot-failure regressions preserve owner/grant/deadline/current-Work checks. No dispatch, durable store or production authorization added.",
+      "sha256": "b1ae7141ac08530cd58233fc1c6f73b9d78bbc5c3276707ec0adc154337a3046"
     },
     "lib/engineering/route-admission.ts": {
       "classification": "ENFORCED",

@@ -55,6 +55,7 @@ jobs:
         run: >-
           ../../node_modules/.bin/vitest run --maxWorkers=2
           lib/engineering/coding-sessions.test.ts
+          lib/engineering/relay-collaboration.test.ts
           lib/engineering/factory-checkpoint.test.ts
           lib/engineering/project-factory-profiles.test.ts
           lib/engineering/factory-producer-protocol-v4.test.ts
