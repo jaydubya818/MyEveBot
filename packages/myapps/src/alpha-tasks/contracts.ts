@@ -172,23 +172,35 @@ export function validateRuntime(value: unknown): RuntimeProfile {
     "network",
     "secrets",
   ]);
+  // Validate and return the same captured primitives. A later clone could read
+  // caller accessors again and retain a different image or adapter fingerprint.
+  const runtime = {
+    profile: value.profile,
+    adapterDigest: value.adapterDigest,
+    image: value.image,
+    dataContract: value.dataContract,
+    tasksModule: value.tasksModule,
+    renderModule: value.renderModule,
+    network: value.network,
+    secrets: value.secrets,
+  };
   requireValue(
-    value.profile === PROFILE &&
-      value.tasksModule === "src/tasks.js" &&
-      value.renderModule === "src/render.js" &&
-      value.network === "deny" &&
-      Array.isArray(value.secrets) &&
-      value.secrets.length === 0,
+    runtime.profile === PROFILE &&
+      runtime.tasksModule === "src/tasks.js" &&
+      runtime.renderModule === "src/render.js" &&
+      runtime.network === "deny" &&
+      Array.isArray(runtime.secrets) &&
+      runtime.secrets.length === 0,
     "APP_RUNTIME_UNQUALIFIED",
   );
   requireValue(
-    isDigest(value.adapterDigest) &&
-      isDigest(value.dataContract) &&
-      typeof value.image === "string" &&
-      /^sha256:[a-f0-9]{64}$/.test(value.image),
+    isDigest(runtime.adapterDigest) &&
+      isDigest(runtime.dataContract) &&
+      typeof runtime.image === "string" &&
+      /^sha256:[a-f0-9]{64}$/.test(runtime.image),
     "APP_RUNTIME_UNQUALIFIED",
   );
-  return structuredClone(value) as RuntimeProfile;
+  return { ...runtime, secrets: [] } as RuntimeProfile;
 }
 export function alphaTasksAppId(
   ownerId: string,

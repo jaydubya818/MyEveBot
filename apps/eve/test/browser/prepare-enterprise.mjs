@@ -1,7 +1,8 @@
 import {execFileSync} from 'node:child_process';
-import {copyFile,mkdir,symlink,writeFile,readFile} from 'node:fs/promises';
+import {copyFile,mkdir,writeFile,readFile} from 'node:fs/promises';
 import {resolve,join,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
+import {materializeFixtureDependencies} from '../../../../scripts/myapps-composition/fixture-dependencies.mjs';
 import {instrumentEnterpriseRuntimeConfig} from './enterprise-runtime-config-overlay.mjs';
 import {disableFixtureDevIndicator} from './enterprise-visual-overlay.mjs';
 import {instrumentEnterpriseConsumer,instrumentEnterpriseResponseFailure,instrumentEnterpriseAdapter,instrumentActionGateway} from './enterprise-diagnostics-overlay.mjs';
@@ -18,7 +19,7 @@ async function retainManifest() {
 }
 await retainManifest();
 try {
-await symlink(join(source,'node_modules'),join(target,'node_modules'));await symlink(join(source,'apps/eve/node_modules'),join(target,'apps/eve/node_modules'));
+materializeFixtureDependencies(source,target);
 await copyFile(join(source,'apps/eve/test/browser/enterprise-model.fixture.ts'),join(target,'apps/eve/agent/agent.ts'));
 const config=join(target,'apps/eve/next.config.ts');await writeFile(config,disableFixtureDevIndicator(await readFile(config,'utf8')));
 const transport=join(target,'apps/eve/test/browser/local-transport.cjs');await writeFile(transport,(await readFile(transport,'utf8')).replace("configured.pathname !== '/blocker_fixes'","configured.pathname !== '/postgres'"));

@@ -1,0 +1,130 @@
+{
+  "rows": [
+    {
+      "branch": "beta/unified-candidate-20261022",
+      "sha": "72354e7da21614613eb5e46a001ac24ef475db5e",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required. Two separately reviewed refusal/readback safety corrections ported from this lineage."
+    },
+    {
+      "branch": "codex/beta-feedback-20261023",
+      "sha": "931487c4db417321c7382285096fd27eaf378558",
+      "ancestorOfSelected": true,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required."
+    },
+    {
+      "branch": "codex/beta-qa-adoption-20261023",
+      "sha": "de7f229d752a2d7ef07e172bf0c4c54b156b3b95",
+      "ancestorOfSelected": true,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "reconciledCommit": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1",
+      "disposition": "Original95cbd runtime retained; exact seven-file de7f QA-only preflight delta reconciled atf2fbfb96. Required negative Work gate preserved."
+    },
+    {
+      "branch": "codex/unified-beta-myeve-20261011",
+      "sha": "38def71091eb07003f620fe23730d26a9ca05af1",
+      "ancestorOfSelected": true,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required."
+    },
+    {
+      "branch": "cursor/qa-beta-port-b54d",
+      "sha": "2ccf0c7df095daccc160dc27ca7af69f4c892a9a",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required."
+    },
+    {
+      "branch": "reconcile/myeve-89-unified-beta-on-main",
+      "sha": "ff2ac89ee298966fc101000ce08c6a49b9eb2809",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required."
+    },
+    {
+      "branch": "release/myeve-beta-review-15m",
+      "sha": "c9da866b6fc8f040eab755e7d5ee9a257ebd2f0e",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/agent/tools/engineering_work.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/scripts/factory-worker.ts": "IDENTICAL_TO_SELECTED",
+        "apps/eve/test/factory-live.integration.mjs": "IDENTICAL_TO_SELECTED"
+      },
+      "disposition": "Retain selected qualified runtime and guards; branch preserved. No runtime port required."
+    },
+    {
+      "branch": "codex/beta-product-experience",
+      "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "ABSENT",
+        "apps/eve/agent/tools/engineering_work.ts": "ABSENT",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "ABSENT",
+        "apps/eve/scripts/factory-worker.ts": "ABSENT",
+        "apps/eve/test/factory-live.integration.mjs": "ABSENT"
+      },
+      "disposition": "Older divergent lineage lacks the five implementation files; preserve branch, no replacement of selected auth/accounting/governance."
+    },
+    {
+      "branch": "codex/managed-eve-beta",
+      "sha": "0d7b1cdf6b7e6eaac438df349672a28c66e1ff3a",
+      "ancestorOfSelected": false,
+      "runtimeFiles": {
+        "apps/eve/agent/tools/engineering_factory.ts": "ABSENT",
+        "apps/eve/agent/tools/engineering_work.ts": "ABSENT",
+        "apps/eve/lib/engineering/factory-proposal-contract.ts": "ABSENT",
+        "apps/eve/scripts/factory-worker.ts": "ABSENT",
+        "apps/eve/test/factory-live.integration.mjs": "ABSENT"
+      },
+      "disposition": "Older divergent lineage lacks the five implementation files; preserve branch, no replacement of selected auth/accounting/governance."
+    }
+  ],
+  "safetyPorts": [
+    "5989f9084f0fc1fdaaa4ab3409bfd456e327fd72",
+    "cce8e0175d3e4986938478424e614b320c34ac97"
+  ],
+  "note": "Relevant runtime conflicts dispositioned; no nine-way merge or blanket inventory union.",
+  "selectedOriginalBase": "95cbd216d09724b1a0e346e7076c92aae99cb09b",
+  "currentUnifiedBetaQa": "de7f229d752a2d7ef07e172bf0c4c54b156b3b95",
+  "integrationCandidate": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1"
+}

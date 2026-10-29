@@ -16,7 +16,7 @@ export function TeamHub() {
   const source = useProductResource<{ agents: AgentView[] }>("/api/agents");
   return (
     <ProductShell
-      title="Agents"
+      title="Team"
       description="Your persisted specialists, their roles, and the capabilities available to them."
     >
       <div className="owner-actions">
@@ -188,6 +188,7 @@ export function InboxHub() {
 export function WeeklyHub() {
   const source = useProductResource<{ review: WeeklyReviewView }>(
     "/api/reviews?kind=weekly",
+    0, true, // Display-only history, never an approval or Work-control source.
   );
   const review = source.data?.review;
   return (
@@ -203,6 +204,7 @@ export function WeeklyHub() {
       <ResourceState {...source} />
       {review && (
         <>
+          {source.stale && <p role="status">Previously loaded review; current information could not be confirmed.</p>}
           <p className="owner-muted">
             {date(review.periodStart)} – {date(review.periodEnd)} · Generated{" "}
             {date(review.generatedAt)}

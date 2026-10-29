@@ -1,0 +1,15 @@
+# Exact selected Relay MCP compatibility
+
+Result: **PASS for the existing dormant operation's scoped actual-handler fixture. No installed or production activation is qualified.**
+
+The MyEve runtime is frozen `81bc45bcb181bc4bd6be487f831f0a6f51b63003`; `lib/relay/mcp-memory.ts` remains byte-identical with SHA256 `73960f318acc28b6abee3bad68c06a5c443b38751390cacc2368c237eb5653b1`. The only test change updates the existing receipt's Relay provenance literal from historical `43298bd3` to selected `ccd32878759bd03a8d6775141769498487496958`. No new harness or runtime/private framework patch was introduced.
+
+Selected Relay tree: `18541de305e84a017bd036330bd02498af03721f`, exported by exact `git archive` into `/tmp/myeve-relay-finalpair-20261023/source`. Its own pnpm9 lock was installed frozen with lifecycle scripts disabled, without reusing the historical dependency graph. Its lock remains byte-identical to the selected commit (SHA256 `ae2f8bc4da1288ff2712f7ba34ad7fd306680aa7dfabaa4bbb06e5d149aec5b1`). Relay runs Zod4.6.7; MyEve retains Zod4.6.6 and public MCP SDK2.0.19.
+
+The actual selected Relay POST handler and capability/memory/auth/database libraries execute over ephemeral loopback TLS and random disposable localhost PostgreSQL databases. The MyEve child uses its real canonical resolver, existing durable ActionGateway and bounded public SDK operation. Positive cases explicitly inject a **synthetic child-only AuthorityProvider**. They do not demonstrate a runtime grant, registered memory capability, remote provider access, paid permission or tester activation.
+
+The existing fixture passes **24 checks inside one Vitest test**, covering canonical identity, separate owner credentials/private memory, bounded add/get/list, current owner/Agent bindings, default registry denial, both beta installations denying before resolver/network, fresh rotation/revocation/cancellation/policy revalidation, bounded failure handling, no redirect/retry after uncertain transmission, response bounds and cancellation. Owner cookies never leave, and only `/mcp` is used. The parent run took7.77s. This is not24 distinct Vitest cases, and prior36-unit/24-wire evidence overlaps this rerun rather than adding unique coverage.
+
+Evidence: `/Users/jaywest/Myeve/output/beta-relay-finalpair-20261023/` contains the actual handler log/receipt, exact source/dependency provenance, independent review and independent rerun receipts. Historical43298 evidence and earlier failure logs remain unchanged. No source-equality claim is made for that historical Relay pin.
+
+No real provider/model/tester request, production credential, production SQL, grant, connection, Agent enrollment, deployment, financial demonstration, private verifier or private custody operation was used. Existing active tester state remains untouched. Canonical installed Relay connections/grants remain unverified; authenticated status confirms only each original tester owner identity. All dependency, hosted-build, financial/private custody, installation and paid-execution holds remain. The ordinary source CI pins do not authorize activation.

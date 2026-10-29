@@ -6,10 +6,15 @@ import {prepareAuthenticatedFactoryInput} from '../lib/engineering/factory-authe
 import {signResult} from '../lib/engineering/factory-producer-protocol.ts';
 export const golden=JSON.parse(readFileSync(new URL('../../../docs/verification/2026-09-27-q37-integration/myfactory/gate-c/durable/producer-golden.json',import.meta.url)));
 export const manifest=JSON.parse(Buffer.from(golden.result.encoded,'base64url').toString());
-export const adminURL='postgresql://q37_admin@127.0.0.1:55479/postgres';
+// Parallel qualification may own a separate local cluster. Only its port is
+// configurable; host, fixture role and disposable database names stay fixed.
+const testPort=process.env.MYEVE_FACTORY_RECEIPT_TEST_PORT??'55479';
+if(!/^[1-9][0-9]{4}$/.test(testPort)||Number(testPort)<49152||Number(testPort)>65535)
+ throw Error('Disposable Q37 loopback port required');
+export const adminURL=`postgresql://q37_admin@127.0.0.1:${testPort}/postgres`;
 export function poolFor(url) {
  const u=new URL(url);
- if(u.hostname!=='127.0.0.1'||u.port!=='55479'||!/^\/q37_gatec_[a-f0-9]+$/.test(u.pathname))throw Error('Disposable Q37 database only');
+ if(u.hostname!=='127.0.0.1'||u.port!==testPort||!/^\/q37_gatec_[a-f0-9]+$/.test(u.pathname))throw Error('Disposable Q37 database only');
  return new Pool({connectionString:url});
 }
 export function storeFor(pool,principal) {return new FactoryReceiptStore(principal,{query:async(s,p)=>(await pool.query(s,p)).rows});}

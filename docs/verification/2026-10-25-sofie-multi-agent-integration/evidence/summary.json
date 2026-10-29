@@ -1,0 +1,54 @@
+{
+  "sourcePair": {
+    "myeve": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1",
+    "myfactory": "12912314f0a9f851fd07daf8f8ece207cd82b2db"
+  },
+  "date": "2026-10-25",
+  "engineeringVerdict": "CONDITIONAL_PASS",
+  "releaseAndLiveActivation": "HOLD",
+  "eveUnits": {
+    "pass": 2977,
+    "fail": 0,
+    "assertionStatuses": {
+      "passed": 2977,
+      "skipped": 474,
+      "pending": 19
+    }
+  },
+  "factoryFullSuite": {
+    "tests": 943,
+    "pass": 849,
+    "fail": 0,
+    "skipped": 94,
+    "cancelled": 0
+  },
+  "node": {
+    "pass": 359,
+    "fail": 0,
+    "skip": 3
+  },
+  "postgres": {
+    "ownerAdmissionAccountingRefusalPass": 79,
+    "validationLifecyclePass": 55,
+    "totalPass": 134,
+    "fail": 0
+  },
+  "qaLineage": {
+    "pass": 641,
+    "fail": 0
+  },
+  "connected": {
+    "checks": 30,
+    "mode": "SYNTHETIC_CODING_REAL_MANAGED_PATH",
+    "codingCalls": 4,
+    "liveProviderCalls": 0,
+    "duplicateConsequentialEffects": 0,
+    "independentVerification": "PASS"
+  },
+  "myeveTypes": "PASS",
+  "factoryTypes": "PASS",
+  "producerTypes": "PASS",
+  "myeveGovernanceSources": 909,
+  "factoryGovernanceSources": 151,
+  "migrations": 105
+}

@@ -1,0 +1,101 @@
+name: Developer beta component source contracts
+
+on:
+  push:
+    branches:
+      - codex/sofie-multi-agent-integration-20261025
+      - codex/beta-qa-adoption-20261023
+
+permissions:
+  contents: read
+
+# Supplemental source checks; the required product and release journeys stay separate.
+jobs:
+  paired-components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      receipt-postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: q37_admin
+          POSTGRES_PASSWORD: synthetic-q37-ci-only
+          POSTGRES_DB: postgres
+        ports: ['127.0.0.1:55479:5432']
+        options: >-
+          --health-cmd "pg_isready -U q37_admin -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      TURBO_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: jaydubya818/MyFactory
+          ref: 254e6e7513486a82337e59e89eebf8b8f9bb5644
+          path: .qualification/factory
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.18.1
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Apply and verify the reviewed dependency patch
+        run: npm run postinstall && npm run security:patches
+      - name: Repository types and executor governance
+        run: npm run typecheck
+      - name: Current component behavior and paired codec contracts
+        working-directory: apps/eve
+        env:
+          V4_CODEC_PEER_MODULE: ${{ github.workspace }}/.qualification/factory/packages/hosted-routing/src/result.ts
+        run: >-
+          ../../node_modules/.bin/vitest run --maxWorkers=2
+          lib/engineering/coding-sessions.test.ts
+          lib/engineering/relay-collaboration.test.ts
+          lib/engineering/factory-checkpoint.test.ts
+          lib/engineering/project-factory-profiles.test.ts
+          lib/engineering/factory-producer-protocol-v4.test.ts
+          lib/engineering/factory-result-consumer.test.ts
+          lib/engineering/factory-result-consumer-v4.test.ts
+          lib/engineering/factory-writer-v4.test.ts
+          lib/engineering/factory-authenticated-result.test.ts
+          lib/engineering/factory-preparation-terminal.test.ts
+          lib/dashboard/web-auth.test.ts
+          lib/computer-sandbox-spawn.test.ts
+          lib/goal-work/canonical-adapter.test.ts
+          lib/external-alpha/work-config.test.ts
+          lib/myapps/owner-tasks-work-config.test.ts
+          components/engineering/coding-sessions.test.tsx
+          agent/tools/engineering_work.test.ts
+      - name: Public durable receipt recovery and V4 correlation
+        env:
+          MYEVE_FACTORY_RECEIPT_TEST_PORT: '55479'
+          PGPASSWORD: synthetic-q37-ci-only
+        run: node --import tsx apps/eve/test/factory-receipt.integration.mjs
+      - name: Public current-owner V4 candidate custody
+        env:
+          MYEVE_FACTORY_RECEIPT_TEST_PORT: '55479'
+          PGPASSWORD: synthetic-q37-ci-only
+        run: node --import tsx apps/eve/test/factory-writer-v4.integration.mjs
+      - name: Isolated cohort preparation and historical UNKNOWN preservation
+        env:
+          MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
+        run: node --test apps/eve/test/isolated-cohort.integration.mjs
+      - name: Factory codec verifies the same MyEve signed vectors
+        env:
+          V4_CODEC_PEER_MODULE: ${{ github.workspace }}/apps/eve/lib/engineering/factory-producer-protocol.ts
+        run: node --test .qualification/factory/packages/hosted-routing/test/result-v4.test.mjs
+      - name: Factory producer types
+        working-directory: .qualification/factory
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run typecheck:producer
+      - name: Legacy Result freeze and retained replay regressions
+        working-directory: .qualification/factory
+        run: >-
+          node --test --test-name-pattern='^Legacy direct producer:'
+          apps/supervisor/qualification/local-v4-producer.test.mjs

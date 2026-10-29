@@ -80,6 +80,7 @@ export const CORE_PRUNABLE_FILES = [
   // Claimed for source completeness; isExcluded still removes tests from deployments.
   "agent/tools/engineering_direct.test.ts",
   "agent/tools/engineering_factory.test.ts",
+  "agent/tools/engineering_work.test.ts",
   "agent/tools/beta-tool-activation.test.ts",
   "agent/tools/bash.ts",
   "agent/tools/ask_question.ts",

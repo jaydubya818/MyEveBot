@@ -2,7 +2,17 @@ import { it, expect } from "vitest";
 import { mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { publishFixtureMailboxRequest } from "./productive-sandbox-test-fixture.ts";
+import { ProductiveSandboxFixture, publishFixtureMailboxRequest } from "./productive-sandbox-test-fixture.ts";
+
+it("the deterministic provider uses its explicit fixture price without changing canonical module pricing or calling a provider", () => {
+  const canonical = Object.freeze({ revision: "expired-canonical", validUntil: "2026-10-09T00:00:00Z" });
+  const price = Object.freeze({ ...canonical, revision: "fixture-offline-productive-v1", validUntil: "2030-01-01T00:05:00Z" });
+  const modules = { price: { productionModelPrice: canonical } };
+  const transport = new ProductiveSandboxFixture(modules, {}, false, {}, price);
+  expect(transport.modelProvider().price).toBe(price);
+  expect(modules.price.productionModelPrice).toBe(canonical);
+  expect(transport.modelCalls).toBe(0); expect(transport.allocations).toBe(0);
+});
 
 it("a direct partial mailbox publication is rejected, while atomic fixture publication exposes only the complete packet", async () => {
   const root = await mkdtemp(join(tmpdir(), "ea-mailbox-publication-"));

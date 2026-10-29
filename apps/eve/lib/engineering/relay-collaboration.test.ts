@@ -36,6 +36,36 @@ describe("Work-bound Relay collaboration (synthetic, no transport or grants quer
     expect(JSON.stringify(value.payload)).not.toContain(work.workId);
   });
 
+  it("uses one captured body for the byte bound, approved hash and outgoing payload", () => {
+    let reads = 0;
+    const input = { work, grant, requestId: "synthetic-request",
+      get body() { return ++reads <= 2 ? body : "Text that was never approved for disclosure."; },
+      approvedDisclosureHash: relayDisclosureHash(body), deadline: iso(50_000) };
+    const value = prepareRelayCollaboration(input, now);
+    expect(value.payload.body).toBe(body);
+    expect(relayDisclosureHash(value.payload.body)).toBe(value.binding.disclosureHash);
+    expect(reads).toBe(1);
+  });
+
+  it("uses the same response snapshot for outer correlation and reply projection", () => {
+    let reads = 0;
+    const input = { ...observation(), get response() {
+      if (++reads === 1) return response();
+      const { requestId, ...uncorrelated } = response("Uncorrelated replacement answer.");
+      return uncorrelated;
+    } };
+    const value = observeRelayCollaboration(input, now);
+    expect(value.status).toBe("ATTACH");
+    if (value.status !== "ATTACH") throw new Error("Expected fixture receipt");
+    expect(value.receipt.body).toBe("Retry the same request ID.");
+    expect(reads).toBe(1);
+  });
+
+  it("does not expose an unreadable response's caller-owned error detail", () => {
+    const input = { ...observation(), get response() { throw new Error("private response detail"); } };
+    expect(() => observeRelayCollaboration(input, now)).toThrow("Relay response cannot be snapshotted.");
+  });
+
   it("requires the approved text hash and a byte bound", () => {
     for (const bad of ["changed", "", "a".repeat(4001), "🙂".repeat(1001), "hello\0world"]) {
       expect(() => prepareRelayCollaboration({ work, grant, requestId: "r", body: bad,

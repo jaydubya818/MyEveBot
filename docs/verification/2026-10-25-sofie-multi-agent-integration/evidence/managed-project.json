@@ -1,0 +1,763 @@
+{
+  "managedProject": {
+    "mode": "SYNTHETIC_CODING_REAL_MANAGED_PATH",
+    "goalId": "d253835e-5659-4353-8e81-6515cb288b66",
+    "workIds": [
+      "213725a2-bd31-4d29-8641-38f517087d12",
+      "270a53d4-3635-43f2-9b67-55f320ed01a5",
+      "fdc809da-300c-4d83-95e7-8b5e73c20b01",
+      "35393078-2f5b-4220-bdbe-9732aec63542"
+    ],
+    "checkpoint": {
+      "workId": "213725a2-bd31-4d29-8641-38f517087d12",
+      "workVersion": 2,
+      "workGeneration": 2,
+      "requestId": "80b260e9-8085-458d-bbfc-a006449fd694",
+      "attemptId": "6f16ba38-8dcf-42f8-a60f-5e8c62b83c75",
+      "receiptId": "75d08888-72c7-4f78-af88-466943001bf2",
+      "manifestDigest": "05ca7f5f2adab03ff907f8b8547b03124d949a064816508707fb9a24617a6409",
+      "factoryVersion": "4ae9d2c7ea8917c08a470d79d84524f4ad95ad40192810383c531ffee83e3307",
+      "candidate": "78216273fc4a4abf7589b12454dd5c3fe96e29c4",
+      "tree": "9ca116e5ee89046f073c03b180aa02b5e82745ed",
+      "base": "deafa8150ee8d8c73d24a63db61693345759c9ac",
+      "independentlyVerified": false,
+      "authorityGranted": false,
+      "trust": "ADVISORY_ONLY"
+    },
+    "twoInitialSessionsOverlap": true,
+    "separateWorktrees": true,
+    "reconstructedCoordinator": true,
+    "checkpointBasePreserved": true,
+    "duplicateConsequentialEffects": 0,
+    "fixedEnvelopeMicrousd": 5200000,
+    "allocations": [
+      {
+        "workId": "213725a2-bd31-4d29-8641-38f517087d12",
+        "ceilingMicrousd": 1300000
+      },
+      {
+        "workId": "270a53d4-3635-43f2-9b67-55f320ed01a5",
+        "ceilingMicrousd": 1300000
+      },
+      {
+        "workId": "fdc809da-300c-4d83-95e7-8b5e73c20b01",
+        "ceilingMicrousd": 1300000
+      },
+      {
+        "workId": "35393078-2f5b-4220-bdbe-9732aec63542",
+        "ceilingMicrousd": 1300000
+      }
+    ],
+    "originalLedgerRetained": true,
+    "consolidated": {
+      "resultId": "cfb38de9-08c0-4dc5-947b-88e127f4d2d1",
+      "candidate": "767dbf4b84edd1b0a2728a2a10a45a587d703c9d",
+      "independentVerification": "PASS",
+      "artifacts": [
+        {
+          "reference": "factory-evidence:sha256:7789a24be1421be48b6768dd28287e2e2d6e7e053abdd148cebf25cd9ace9985",
+          "kind": "DiffEvidence",
+          "candidate": "767dbf4b84edd1b0a2728a2a10a45a587d703c9d",
+          "sha256": "daed794f0edba516eeceecbd0796238fe6a7e634fcb03310cf9ccc918c158368",
+          "size": 147,
+          "integrity": "VERIFIED_BYTES"
+        },
+        {
+          "reference": "factory-evidence:sha256:98de4fa357fe15d9c28b0e5e4dce36be63b970e5edff664ac18e31dfd0dc0577",
+          "kind": "TestEvidence",
+          "candidate": "767dbf4b84edd1b0a2728a2a10a45a587d703c9d",
+          "sha256": "64cff67a2e529e0f61f4921877b028beb8e345ce351ee1ba71584207d9740b4a",
+          "size": 152,
+          "integrity": "VERIFIED_BYTES"
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "reasons": [
+          "Factory candidate / MyEve protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified."
+        ]
+      }
+    },
+    "codingCalls": 4,
+    "liveProviderCalls": 0
+  },
+  "parallelJourney": {
+    "mode": "SYNTHETIC_EXECUTOR_REAL_HTTP_POSTGRES_FACTORY_DOCKER",
+    "works": [
+      "be69402e-8b01-4af9-9e80-6516ea38be6b",
+      "0a60cbba-b31c-4751-9611-98833d4a3c81"
+    ],
+    "attempts": [
+      "7125adb3-0b87-4b42-94cd-dabda5f18e8f",
+      "de1b064a-9bac-47c4-ab61-d2665a573cc4"
+    ],
+    "overlapping": true,
+    "isolatedWorktrees": true,
+    "interrupted": "RECONCILIATION_REQUIRED",
+    "verified": true,
+    "artifacts": [
+      {
+        "reference": "factory-evidence:sha256:5ae59f23d9d9ed62d49dd2aaecf9065d0755a259a5015db18082a4b56fe217ae",
+        "kind": "DiffEvidence",
+        "candidate": "ad065797d809cd1aa4316ca108cb41ed675ecf00",
+        "sha256": "e0d4f8059d977146e5fbc89ec381cf78c815cf670aa1eb275b750c0da77b93a1",
+        "size": 956,
+        "integrity": "VERIFIED_BYTES"
+      },
+      {
+        "reference": "factory-evidence:sha256:dce40bffee5fc1409d09c47595a4c0de68737f78ba17262acf0071891314286e",
+        "kind": "TestEvidence",
+        "candidate": "ad065797d809cd1aa4316ca108cb41ed675ecf00",
+        "sha256": "1add8889ae340176d12bcebb58dbe20e1b3e9c33a0d1f435256576f761af62a4",
+        "size": 119,
+        "integrity": "VERIFIED_BYTES"
+      }
+    ]
+  },
+  "firstPass": false,
+  "productiveContract": false,
+  "numericRange": false,
+  "attempt7": false,
+  "attempt6": false,
+  "completionTransition": null,
+  "alphaJourney": {
+    "journeyAccounting": {
+      "currency": "USD",
+      "unit": "microUSD",
+      "observedAt": "2026-10-25T18:54:29.136Z",
+      "sofieMicrousd": 2000,
+      "factoryMicrousd": 60,
+      "nativeMicrousd": 0,
+      "settledMicrousd": 2060,
+      "reservedMicrousd": 0,
+      "unknownExposureMicrousd": 0,
+      "coverage": "COMPLETE",
+      "externalCharges": "NOT_REPRESENTED"
+    },
+    "operationClasses": [
+      "sofie",
+      "productive",
+      "completion",
+      "sofie-explanation"
+    ],
+    "workId": "7443b85a-8e54-4fe2-8373-47c0fd2ffda2",
+    "model": "openai/gpt-5.4-mini",
+    "modelOperations": 4,
+    "sofieOperations": 2,
+    "factoryOperations": 2,
+    "candidate": "b5c6c9ce1cf290303db677797789994978923d69",
+    "candidateCustody": "PASS",
+    "protectedVerification": "PASS",
+    "resultId": "b82a55ac-cacc-45b5-adb6-b914477e6869",
+    "proof": {
+      "contractVersion": 2,
+      "workId": "7443b85a-8e54-4fe2-8373-47c0fd2ffda2",
+      "workVersion": 2,
+      "criteriaVersion": 1,
+      "outcome": "PARTIAL",
+      "resultRevision": "b5c6c9ce1cf290303db677797789994978923d69",
+      "createdAt": "2026-10-25T18:54:29.065Z",
+      "evidence": [
+        {
+          "criterionId": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+          "resultRevision": "b5c6c9ce1cf290303db677797789994978923d69",
+          "state": "PASS",
+          "producer": "trusted-verifier",
+          "sourceRef": "native-verification:7443b85a-8e54-4fe2-8373-47c0fd2ffda2:b5c6c9ce1cf290303db677797789994978923d69:adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+          "contentHash": "sha256:abb6bf2827f4748869d969009f8a43fa1dc36240d0c91d4356189b17d1515384",
+          "observedAt": "2026-10-25T18:54:29.065Z"
+        }
+      ],
+      "modelAccounting": {
+        "currency": "USD",
+        "unit": "microUSD",
+        "observedAt": "2026-10-25T18:54:29.073Z",
+        "sofieMicrousd": 1000,
+        "factoryMicrousd": 60,
+        "nativeMicrousd": 0,
+        "settledMicrousd": 1060,
+        "reservedMicrousd": 0,
+        "unknownExposureMicrousd": 0,
+        "coverage": "COMPLETE",
+        "externalCharges": "NOT_REPRESENTED"
+      },
+      "artifactRefs": [
+        "factory-candidate:0a598ea6-f09f-47f5-b831-8a5f6884ccea:sha256:5302b79f61e892a2a2a9a1b4a1c2cef19d63ef64e72ff421ffcb68a98cf1087c",
+        "factory-receipt:0a598ea6-f09f-47f5-b831-8a5f6884ccea",
+        "factory-version:bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+        "factory-evidence:sha256:9e5b5159db220f5e2a163776d819a5ad172ac356df3e9948e23ccf4f81088000",
+        "factory-evidence:sha256:daef864c149376008a87bc4348c1b77f572d0f104eee85de027de3e1a8f13221",
+        "protected-evidence:sha256:e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+        "protected-evidence:sha256:eb663b97add1b0ab52abbd04f94d6bcfcb58fdba1eeb61a6f8a94891fe0ac139",
+        "protected-evidence:sha256:f7c2885875a503a296a49b671ccf9e47922969a941acecc7b4191df3ae109104",
+        "protected-evidence:sha256:206891bdfb5cdbad0f936b0c705fbb785c04e7e026ad89a9cfdd4b0eb7b79bfd",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "changed-source:quantity.mjs"
+      ],
+      "limitations": [
+        "Factory-produced candidate in MyEve custody and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.",
+        "Accounting snapshot at 2026-10-25T18:54:29.073Z; later explanation calls are shown in current journey accounting. Journey model spend: $0.001060 settled (Sofie $0.001000, Factory $0.000060, native executor $0.000000). Reserved/exposed $0.000000, including UNKNOWN $0.000000. Coverage: COMPLETE. Provider charges outside the model ledger and infrastructure are not represented."
+      ]
+    },
+    "finalExplanation": "PASS_SYNTHETIC",
+    "publicationEffects": 0,
+    "additionalRealModelOperations": 0
+  },
+  "attempt5": false,
+  "attempt4": false,
+  "additionalRealModelOperations": 0,
+  "clientSearchOutputs": 0,
+  "modelBoundary": false,
+  "boundaryCapture": null,
+  "spendFixture": true,
+  "installedCli": false,
+  "envelopeDryRun": false,
+  "price": {
+    "revision": "synthetic-v1",
+    "model": "openai/gpt-5.4-mini",
+    "validUntil": "2026-10-25T19:53:47.257Z",
+    "contextLimitTokens": 1000,
+    "outputLimitTokens": 100,
+    "inputMicrousdPerMillion": 1000000,
+    "outputMicrousdPerMillion": 2000000
+  },
+  "workCeiling": 1.3,
+  "fixtureBase": "252d93e0a422da6ddf9d54bc043e04fea867c337",
+  "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+  "sourceDigest": "2aa6784337e2cf3008a06812677c53dae6dc39202459eebcf00e162b4e21f3ba",
+  "configurationDigest": "f253b4b95b9873686148c61c757098ae33d27ac48e27f80f04bd59934a73d5cf",
+  "configuration": {
+    "model": "openai/gpt-5.4-mini",
+    "executor": "codex-cli",
+    "executorVersion": "synthetic-codex-1",
+    "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+    "workerProfile": "mac",
+    "verificationImage": "node:22-bookworm",
+    "nodeVersion": "v24.18.1",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "commands": [
+      "node --test"
+    ],
+    "allowedPaths": [
+      "quantity.mjs"
+    ],
+    "timeoutMs": 1800000
+  },
+  "cliVersion": "synthetic-codex-1",
+  "completionExecutions": 6,
+  "providerCalls": 20,
+  "checks": 30,
+  "results": [
+    "0057 complete failure rollback",
+    "0056→0057 and idempotent rerun",
+    "LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation",
+    "Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer",
+    "Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available",
+    "Transient evidence failure → credential renewal → same retained candidate/receipt → Proof without redispatch",
+    "TestEvidence/DiffEvidence → MyEve durable bytes → canonical Proof; cross-owner and cross-Work denied; immutable candidate",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification PASS; restarted driver replay cannot dispatch twice",
+    "Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract",
+    "TestEvidence/DiffEvidence → MyEve durable bytes → canonical Proof; cross-owner and cross-Work denied; immutable candidate",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification FAIL; restarted driver replay cannot dispatch twice",
+    "Connected Factory failure → normal new native Run → failed repair stays FAILED → bounded repair PASS; immutable Factory history survives",
+    "Private-alpha queue: duplicate intent deduplicates; exclusive worker; canonical dispatch/custody/protected verification; restart never redispatches",
+    "Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL",
+    "RESPONSE_LOST: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "BEFORE_HTTP: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START",
+    "Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority",
+    "Unavailable preparation retains request and grants no writer",
+    "Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation",
+    "Alpha UNKNOWN retains common-ledger exposure and prevents another Sofie call or Factory start",
+    "Cancelled Work, unavailable budget and unsupported repository are denied by trusted backend before preparation/writer",
+    "Model proposal/claims grant zero route authority, writer, dispatch or budget expansion; queued request waits for trusted consumer",
+    "Captured live JSON-text proposal reaches canonical queue/admission exactly once; duplicate and stale proposals do not redispatch",
+    "Attempt 2 UNROUTED guidance → SDK proposal → canonical queue → nonproductive PREPARE → Gate B admission → one writer/START; exact readback confirmed",
+    "Proof snapshot includes Factory and Sofie; current journey accounting also includes final explanation without mutating immutable Proof",
+    "Selected-Work Sofie common ledger → canonical Factory → signed custody → Docker verifier → bounded Sofie explanation; combined ceiling and original deadline preserved",
+    "MyEve evidence readback survives Factory evidence cleanup",
+    "Two normally admitted Works execute concurrently in separate Factory worktrees; one interrupted, one independently verified; no duplicate dispatch",
+    "Engineer → Sofie session facade → two managed coding roles → isolated worktrees → interrupted signed checkpoint → reconstructed Goal handoff → fresh admitted successor → exact patch integration → independent combined-tree Result"
+  ],
+  "journeys": [
+    {
+      "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+      "outcome": "PARTIAL",
+      "writer": {
+        "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+        "dispatchIdentity": "042d185f-97bd-41d3-b817-7152ef335187",
+        "remoteRunId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+        "runId": "d7b0211b-80ed-4dca-b4ec-1e3779bc1666",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+        "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+        "attempt": 1,
+        "receiptId": "fe166c01-0bc3-4676-86be-681088aeb190",
+        "observation": {
+          "runId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+          "spend": {
+            "unit": "microUSD",
+            "phase": "completion",
+            "reason": "Loopback synthetic provider only; live paid execution disabled",
+            "status": "KNOWN",
+            "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+            "currency": "USD",
+            "deadline": "2026-10-25T19:03:47.784Z",
+            "cancelled": false,
+            "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+            "operations": [
+              {
+                "model": "openai/gpt-5.4-mini",
+                "phase": "productive",
+                "runId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+                "state": "settled",
+                "usage": {
+                  "input_tokens": 10,
+                  "output_tokens": 10
+                },
+                "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+                "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+                "operationId": "fd65ad13-b6a8-42c9-bc12-721be9c57bb7",
+                "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+                "actualMicrousd": 30,
+                "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+                "workGeneration": 2,
+                "pricingRevision": "synthetic-v1",
+                "dispatchIdentity": "042d185f-97bd-41d3-b817-7152ef335187",
+                "reservedMicrousd": 1200,
+                "providerRequestId": "synthetic-provider-1"
+              },
+              {
+                "model": "openai/gpt-5.4-mini",
+                "phase": "completion",
+                "runId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+                "state": "settled",
+                "usage": {
+                  "input_tokens": 10,
+                  "output_tokens": 10
+                },
+                "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+                "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+                "operationId": "24b08cbc-8ad8-4375-a84d-c43eeb6959c5",
+                "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+                "actualMicrousd": 30,
+                "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+                "workGeneration": 2,
+                "pricingRevision": "synthetic-v1",
+                "dispatchIdentity": "042d185f-97bd-41d3-b817-7152ef335187",
+                "reservedMicrousd": 1200,
+                "providerRequestId": "synthetic-provider-2"
+              }
+            ],
+            "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+            "authorityState": "fenced",
+            "workGeneration": 2,
+            "ceilingMicrousd": 1300000,
+            "contractVersion": "WORK_LEDGER_V2",
+            "pricingRevision": "synthetic-v1",
+            "settledMicrousd": 60,
+            "pricingQualified": true,
+            "retainedMicrousd": 0,
+            "availableMicrousd": 1299940,
+            "maxPaidOperations": 3,
+            "accountingComplete": true,
+            "paidOperationsUsed": 2,
+            "unknownExposureMicrousd": 0,
+            "completionOperationsUsed": 1,
+            "completionReserveMicrousd": 1200,
+            "perOperationReserveMicrousd": 1200,
+            "plannedCompletionOperations": 1,
+            "plannedProductiveOperations": 2,
+            "completionOperationSlotsRemaining": 0,
+            "completionReserveRemainingMicrousd": 1170,
+            "productiveAllowanceRemainingMicrousd": 1298770
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "d7b0211b-80ed-4dca-b4ec-1e3779bc1666",
+            "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+            "baseSha": "252d93e0a422da6ddf9d54bc043e04fea867c337",
+            "deadline": "2026-10-25T19:03:47.784Z",
+            "factoryId": "factory-beta",
+            "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+            "repository": "fixture/golden",
+            "remoteRunId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+            "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+            "workGeneration": 2,
+            "dispatchIdentity": "042d185f-97bd-41d3-b817-7152ef335187",
+            "writerGeneration": 1
+          },
+          "resultId": "256ea48e-867b-4ef5-a75d-b03dacc0698d",
+          "snapshot": {
+            "runId": "264604ae-ddd3-4e86-ba2e-aace1c937773",
+            "version": 3,
+            "factoryId": "factory-beta",
+            "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+            "workspace": {
+              "kind": "GIT_WORKTREE",
+              "path": "/var/folders/1h/qb01w7v52bb72nzk2dh3szbc0000gn/T/factory-connected-E0n4sI/producer/workspaces/14041cfd-6e6f-4cec-a317-9a81b5c4c0e0",
+              "branch": null
+            },
+            "capturedAt": "2026-10-25T18:53:47.840Z",
+            "inputCommit": "252d93e0a422da6ddf9d54bc043e04fea867c337",
+            "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+            "sourceDigest": "2aa6784337e2cf3008a06812677c53dae6dc39202459eebcf00e162b4e21f3ba",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "openai/gpt-5.4-mini",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "7e3ff126547af5f035d0469adba15b405d2eab55cd7e840797db61f3ee7b81c2",
+            "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+            "configurationDigest": "f253b4b95b9873686148c61c757098ae33d27ac48e27f80f04bd59934a73d5cf"
+          },
+          "quiescent": true,
+          "requestId": "b652f697-8c0d-4694-b86f-0b7a69fe6390",
+          "accounting": {
+            "blocker": null,
+            "activeMicrousd": 0,
+            "ceilingMicrousd": 1300000,
+            "settledMicrousd": 60,
+            "unknownMicrousd": 0,
+            "reservedMicrousd": 0,
+            "availableMicrousd": 1299940,
+            "maxPaidOperations": 3,
+            "paidOperationsUsed": 2,
+            "pricingQualification": "QUALIFIED",
+            "safeAllowanceMicrousd": 0,
+            "accountingCompleteness": "VALIDATED_READBACK",
+            "completionQualification": "QUALIFIED",
+            "completionReserveMicrousd": 1200,
+            "spendEnforcementQualified": true,
+            "completionOperationSlotsRemaining": 0,
+            "completionReserveRemainingMicrousd": 1170,
+            "productiveAllowanceRemainingMicrousd": 1298770
+          },
+          "evidenceRef": "factory-event:61240715-214c-4c12-8730-1131a197215a:terminal",
+          "workOrderId": "61240715-214c-4c12-8730-1131a197215a",
+          "verification": "PARTIAL",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"e263fff4-d8d4-494a-be4f-1337aa40ae57\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: d7b0211b-80ed-4dca-b4ec-1e3779bc1666; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-10-25T19:03:47.784Z.",
+        "Run history: d7b0211b-80ed-4dca-b4ec-1e3779bc1666 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-10-25T18:53:47.868Z).",
+        "Journey model spend: $0.000060 settled (Sofie $0.000000, Factory $0.000060, native executor $0.000000). Reserved/exposed $0.000000, including UNKNOWN $0.000000. Coverage: COMPLETE. Provider charges outside the model ledger and infrastructure are not represented.",
+        "Factory Work budget: approved ceiling $1.300000; settled $0.000060; reserved $0.000000 (uncertain $0.000000); remaining safe allowance $0.000000. Productive allowance $1.298770; protected completion $0.001170 remaining of $0.001200; paid operations 2/3; protected completion slots 0. Accounting VALIDATED_READBACK; pricing QUALIFIED; completion qualification QUALIFIED. No accounting blocker observed. This is not payment or execution authority.",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: b652f697-8c0d-4694-b86f-0b7a69fe6390; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: d7b0211b-80ed-4dca-b4ec-1e3779bc1666; request b652f697-8c0d-4694-b86f-0b7a69fe6390; dispatch 042d185f-97bd-41d3-b817-7152ef335187; execution 264604ae-ddd3-4e86-ba2e-aace1c937773; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9; WorkOrder 61240715-214c-4c12-8730-1131a197215a; attempt 1; receipt fe166c01-0bc3-4676-86be-681088aeb190. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Loopback synthetic provider only; live paid execution disabled.",
+        "Candidate: acd8468b52e8cb0969e1d64148ab69127e74fcde.",
+        "Draft: revision 2; hash 3169cdce57ea420d4c6e13d710d97272e7d117d8eb847d41a213e40f8693e96f; matches retained candidate.",
+        "Candidate history: acd8468b52e8cb0969e1d64148ab69127e74fcde: PASS, 10 evidence records.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: PASS; candidate acd8468b52e8cb0969e1d64148ab69127e74fcde; job COMPLETED; 10 bound evidence records.",
+        "Result: 256ea48e-867b-4ef5-a75d-b03dacc0698d; candidate acd8468b52e8cb0969e1d64148ab69127e74fcde; Factory candidate: PARTIAL. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Review the PARTIAL local result. Publication and acceptance remain unqualified."
+      ],
+      "candidate": "acd8468b52e8cb0969e1d64148ab69127e74fcde",
+      "evidenceCount": 10,
+      "resultId": "256ea48e-867b-4ef5-a75d-b03dacc0698d"
+    },
+    {
+      "workId": "96ba1747-e321-427d-b073-8b7533e02764",
+      "outcome": "FAILED",
+      "writer": {
+        "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+        "dispatchIdentity": "c0a1eb07-bff9-419d-838c-46abea2d42e7",
+        "remoteRunId": "c280983d-c396-4a22-83fa-ec179a169098",
+        "runId": "3352a17a-9334-431b-8254-acf03e0903e6",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+        "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+        "attempt": 1,
+        "receiptId": "4cd4ed5f-571a-4b10-bed4-712f0d23ba6f",
+        "observation": {
+          "runId": "c280983d-c396-4a22-83fa-ec179a169098",
+          "spend": {
+            "unit": "microUSD",
+            "phase": "completion",
+            "reason": "Loopback synthetic provider only; live paid execution disabled",
+            "status": "KNOWN",
+            "workId": "96ba1747-e321-427d-b073-8b7533e02764",
+            "currency": "USD",
+            "deadline": "2026-10-25T19:03:56.568Z",
+            "cancelled": false,
+            "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+            "operations": [
+              {
+                "model": "openai/gpt-5.4-mini",
+                "phase": "productive",
+                "runId": "c280983d-c396-4a22-83fa-ec179a169098",
+                "state": "settled",
+                "usage": {
+                  "input_tokens": 10,
+                  "output_tokens": 10
+                },
+                "workId": "96ba1747-e321-427d-b073-8b7533e02764",
+                "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+                "operationId": "7db0d284-b26a-4e66-a2a7-f7a51384944c",
+                "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+                "actualMicrousd": 30,
+                "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+                "workGeneration": 2,
+                "pricingRevision": "synthetic-v1",
+                "dispatchIdentity": "c0a1eb07-bff9-419d-838c-46abea2d42e7",
+                "reservedMicrousd": 1200,
+                "providerRequestId": "synthetic-provider-3"
+              },
+              {
+                "model": "openai/gpt-5.4-mini",
+                "phase": "completion",
+                "runId": "c280983d-c396-4a22-83fa-ec179a169098",
+                "state": "settled",
+                "usage": {
+                  "input_tokens": 10,
+                  "output_tokens": 10
+                },
+                "workId": "96ba1747-e321-427d-b073-8b7533e02764",
+                "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+                "operationId": "6f012edb-0680-4249-8b6c-f33216510ec4",
+                "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+                "actualMicrousd": 30,
+                "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+                "workGeneration": 2,
+                "pricingRevision": "synthetic-v1",
+                "dispatchIdentity": "c0a1eb07-bff9-419d-838c-46abea2d42e7",
+                "reservedMicrousd": 1200,
+                "providerRequestId": "synthetic-provider-4"
+              }
+            ],
+            "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+            "authorityState": "fenced",
+            "workGeneration": 2,
+            "ceilingMicrousd": 1300000,
+            "contractVersion": "WORK_LEDGER_V2",
+            "pricingRevision": "synthetic-v1",
+            "settledMicrousd": 60,
+            "pricingQualified": true,
+            "retainedMicrousd": 0,
+            "availableMicrousd": 1299940,
+            "maxPaidOperations": 3,
+            "accountingComplete": true,
+            "paidOperationsUsed": 2,
+            "unknownExposureMicrousd": 0,
+            "completionOperationsUsed": 1,
+            "completionReserveMicrousd": 1200,
+            "perOperationReserveMicrousd": 1200,
+            "plannedCompletionOperations": 1,
+            "plannedProductiveOperations": 2,
+            "completionOperationSlotsRemaining": 0,
+            "completionReserveRemainingMicrousd": 1170,
+            "productiveAllowanceRemainingMicrousd": 1298770
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "3352a17a-9334-431b-8254-acf03e0903e6",
+            "workId": "96ba1747-e321-427d-b073-8b7533e02764",
+            "baseSha": "252d93e0a422da6ddf9d54bc043e04fea867c337",
+            "deadline": "2026-10-25T19:03:56.568Z",
+            "factoryId": "factory-beta",
+            "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+            "repository": "fixture/golden",
+            "remoteRunId": "c280983d-c396-4a22-83fa-ec179a169098",
+            "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+            "workGeneration": 2,
+            "dispatchIdentity": "c0a1eb07-bff9-419d-838c-46abea2d42e7",
+            "writerGeneration": 1
+          },
+          "resultId": "64e60023-2097-4b41-afee-068435cf98e8",
+          "snapshot": {
+            "runId": "c280983d-c396-4a22-83fa-ec179a169098",
+            "version": 3,
+            "factoryId": "factory-beta",
+            "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+            "workspace": {
+              "kind": "GIT_WORKTREE",
+              "path": "/var/folders/1h/qb01w7v52bb72nzk2dh3szbc0000gn/T/factory-connected-E0n4sI/producer/workspaces/e5983b8b-6dc4-49ae-a8c7-9ffe84277cbd",
+              "branch": null
+            },
+            "capturedAt": "2026-10-25T18:53:56.608Z",
+            "inputCommit": "252d93e0a422da6ddf9d54bc043e04fea867c337",
+            "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+            "sourceDigest": "2aa6784337e2cf3008a06812677c53dae6dc39202459eebcf00e162b4e21f3ba",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "openai/gpt-5.4-mini",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "cb96cc4bb369b3c2705d2a0e0d4324ca519f611f3ebf2e9ac8d8a8803ec6073f",
+            "factoryVersion": "bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9",
+            "configurationDigest": "f253b4b95b9873686148c61c757098ae33d27ac48e27f80f04bd59934a73d5cf"
+          },
+          "quiescent": true,
+          "requestId": "eb871dcc-a753-4fda-9d69-69a45adb4b80",
+          "accounting": {
+            "blocker": null,
+            "activeMicrousd": 0,
+            "ceilingMicrousd": 1300000,
+            "settledMicrousd": 60,
+            "unknownMicrousd": 0,
+            "reservedMicrousd": 0,
+            "availableMicrousd": 1299940,
+            "maxPaidOperations": 3,
+            "paidOperationsUsed": 2,
+            "pricingQualification": "QUALIFIED",
+            "safeAllowanceMicrousd": 0,
+            "accountingCompleteness": "VALIDATED_READBACK",
+            "completionQualification": "QUALIFIED",
+            "completionReserveMicrousd": 1200,
+            "spendEnforcementQualified": true,
+            "completionOperationSlotsRemaining": 0,
+            "completionReserveRemainingMicrousd": 1170,
+            "productiveAllowanceRemainingMicrousd": 1298770
+          },
+          "evidenceRef": "factory-event:55222a3d-987c-4bea-bb57-1d7db604458b:terminal",
+          "workOrderId": "55222a3d-987c-4bea-bb57-1d7db604458b",
+          "verification": "FAILED",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"96ba1747-e321-427d-b073-8b7533e02764\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: 3352a17a-9334-431b-8254-acf03e0903e6; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-10-25T19:03:56.568Z.",
+        "Run history: 3352a17a-9334-431b-8254-acf03e0903e6 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-10-25T18:53:56.631Z).",
+        "Journey model spend: $0.000060 settled (Sofie $0.000000, Factory $0.000060, native executor $0.000000). Reserved/exposed $0.000000, including UNKNOWN $0.000000. Coverage: COMPLETE. Provider charges outside the model ledger and infrastructure are not represented.",
+        "Factory Work budget: approved ceiling $1.300000; settled $0.000060; reserved $0.000000 (uncertain $0.000000); remaining safe allowance $0.000000. Productive allowance $1.298770; protected completion $0.001170 remaining of $0.001200; paid operations 2/3; protected completion slots 0. Accounting VALIDATED_READBACK; pricing QUALIFIED; completion qualification QUALIFIED. No accounting blocker observed. This is not payment or execution authority.",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: eb871dcc-a753-4fda-9d69-69a45adb4b80; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: 3352a17a-9334-431b-8254-acf03e0903e6; request eb871dcc-a753-4fda-9d69-69a45adb4b80; dispatch c0a1eb07-bff9-419d-838c-46abea2d42e7; execution c280983d-c396-4a22-83fa-ec179a169098; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version bcdf253d4fdea4f359588ece95abf200c6524c6a484762309b07602000144bd9; WorkOrder 55222a3d-987c-4bea-bb57-1d7db604458b; attempt 1; receipt 4cd4ed5f-571a-4b10-bed4-712f0d23ba6f. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Loopback synthetic provider only; live paid execution disabled.",
+        "Candidate: bd0920fe4c24612d1b6ff984342a82ee64a9670c.",
+        "Draft: revision 2; hash c4e0088783868ed63705562f0020dcda05c41715de8a01438e4a580b982dae0b; matches retained candidate.",
+        "Candidate history: bd0920fe4c24612d1b6ff984342a82ee64a9670c: FAIL, 10 evidence records, failed checks quantity-7,quantity-9.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: FAIL; candidate bd0920fe4c24612d1b6ff984342a82ee64a9670c; job COMPLETED; 10 bound evidence records.",
+        "Result: 64e60023-2097-4b41-afee-068435cf98e8; candidate bd0920fe4c24612d1b6ff984342a82ee64a9670c; Factory candidate: FAILED. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Factory is off. Review protected failure and request a new normal native admission for repair."
+      ],
+      "candidate": "bd0920fe4c24612d1b6ff984342a82ee64a9670c",
+      "evidenceCount": 10,
+      "resultId": "64e60023-2097-4b41-afee-068435cf98e8"
+    }
+  ],
+  "terminalReceipts": [
+    {
+      "workId": "a94638e6-1a00-4ca6-8bca-420f7980c437",
+      "receiptId": "bab2257e-0c6b-4445-8e39-dad26aa885b6",
+      "state": "STALE",
+      "producerStatus": "CANCELLED",
+      "envelopeSha256": "d7d4278e24b0a265146e9e73229a2db32e7b0abff7571fbcfffc5dc9318f6ad1",
+      "replayBytesChanged": 0,
+      "candidateWorkspaces": 0,
+      "verificationJobs": 0,
+      "writerState": "TERMINAL"
+    },
+    {
+      "workId": "0388d245-a62e-4705-8503-a5829f05224f",
+      "receiptId": "31c80f61-e13f-4c75-a4a7-3341ae38fdce",
+      "state": "STALE",
+      "producerStatus": "FAILED",
+      "envelopeSha256": "df524f6b3d23385a9cd3904f580e288643a639dc4628547b20367d1135c4e985",
+      "replayBytesChanged": 0,
+      "candidateWorkspaces": 0,
+      "verificationJobs": 0,
+      "writerState": "TERMINAL"
+    }
+  ],
+  "composition": {
+    "status": "PASS_LOCAL_CONTRACT",
+    "workId": "e263fff4-d8d4-494a-be4f-1337aa40ae57",
+    "candidate": "acd8468b52e8cb0969e1d64148ab69127e74fcde",
+    "ciCandidate": "85b5b7ce373c555194ad63261899b14350c886f4",
+    "reviewCandidate": "a523906be3e1fee222cc93408f8286c44bcdd885",
+    "continuationTransitions": [
+      "ci_continuation",
+      "review_continuation"
+    ],
+    "staleEvidenceInvalidated": true,
+    "freshProtectedChecks": true,
+    "durableLearningDraft": "PASS",
+    "laterComparableWork": "acc67ef2-4006-461d-84fa-c8778774ddc7",
+    "relayTrust": "ADVISORY_ONLY",
+    "publisherIdentity": "SYNTHETIC",
+    "rawCommitPreserved": true,
+    "publicationMutations": 37,
+    "ciFailureBlocks": true,
+    "reviewFeedbackBlocks": true,
+    "learningTrust": "ADVISORY_ONLY",
+    "livePublication": "NOT_RUN",
+    "durableLearningPromotion": "NOT_IMPLEMENTED"
+  },
+  "executions": 10,
+  "counters": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "liveMyFactory": "NOT_RUN",
+  "qualification": "Local real transport, synthetic executor, real independent Docker verifier"
+}

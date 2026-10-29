@@ -5,7 +5,7 @@ import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-gua
 import {factorySpendAdmission} from './factory-spend.ts';
 import {readFile} from 'node:fs/promises';
 import {z} from 'zod';
-import {engineeringConfig} from './runtime.ts';
+import {engineeringConfig,runtimeSchema} from './runtime.ts';
 import {NativeRouteAuthority} from './native-routing.ts';
 import {digest} from './contract.ts';
 import {factoryConnectionSchema,LiveFactoryAdapter,type FactoryPrepareRequest} from './factory-live-adapter.ts';
@@ -15,7 +15,14 @@ import {WorkError,type Work} from './types.ts';
 export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
 const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualified:z.boolean().default(false)}).strict();
 export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
-export async function factoryConfig(){
+export async function factoryConfig(work?:Work){
+ const catalogFile=process.env.MYEVE_FACTORY_WORK_PROFILES;
+ if(catalogFile&&work){
+  if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production"||cloudRuntimeEnabled()||productionCloudEnabled()||!catalogFile.startsWith('/'))
+   throw new WorkError('factory_project_disabled','Project profiles are deferred outside isolated dogfood qualification.',403);
+  const catalog=projectFactoryProfilesSchema.parse(JSON.parse(await readFile(catalogFile,'utf8')));
+  return selectProjectFactoryProfile(catalog,work);
+ }
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
  if(productionCloudEnabled()){
   const production=productionCloudConfiguration(),raw=production.factory,installed=productionInstallation(),validation=production.mode==='OPERATOR_DETERMINISTIC_VALIDATION';
@@ -88,4 +95,29 @@ export function betaRoute(intent:'INVESTIGATE'|'PLAN'|'BOUNDED_OPERATION'|'PRODU
  return facts.factoryQualified&&facts.factoryAvailable&&facts.writerFree&&facts.budgetAvailable?
   {route:'MYFACTORY',reason:'Qualified bounded software production uses MyFactory'} as const:
   {route:'HUMAN',reason:'Factory qualification, availability, writer or budget is blocked; no automatic native fallback'} as const;
+}
+
+/** Reviewed server allocation over canonical Works, never an execution ledger.
+ * No model/API field selects a profile or increases the fixed project envelope. */
+export const projectFactoryProfilesSchema=z.object({
+ ownerId:z.string().min(1),projectId:z.string().min(1),ceilingMicrousd:z.number().int().positive().max(100_000_000),
+ profiles:z.array(z.object({workId:z.string().uuid(),allocationMicrousd:z.number().int().positive(),engineering:runtimeSchema,factory:factoryRuntimeSchema}).strict()).min(1).max(20),
+}).strict().superRefine((c,ctx)=>{
+ if(new Set(c.profiles.map(p=>p.workId)).size!==c.profiles.length||c.profiles.reduce((n,p)=>n+p.allocationMicrousd,0)>c.ceilingMicrousd)
+  ctx.addIssue({code:'custom',message:'Distinct Work allocations must fit the fixed project envelope'});
+ for(const p of c.profiles)if(p.engineering.ownerId!==c.ownerId||p.engineering.mode!=='isolated-dogfood'||!['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE'].includes(p.factory.connection.qualification.mode))
+  ctx.addIssue({code:'custom',message:'Only owner-bound isolated fixture profiles are qualified'});
+});
+export function selectProjectFactoryProfile(catalog:z.infer<typeof projectFactoryProfilesSchema>,work:Work){
+ const p=catalog.profiles.find(p=>p.workId===work.id);
+ if(!p||work.scopeId!==catalog.ownerId||work.maxCostUsd*1_000_000>p.allocationMicrousd||
+   p.engineering.profile.repository!==work.repository||p.engineering.objective!==work.objective||digest(p.engineering.criteria)!==digest(work.criteria))
+  throw new WorkError('factory_project_binding','Canonical Work differs from its fixed reviewed project allocation.',403);
+ return {engineering:p.engineering,...p.factory};
+}
+
+/** Re-read owner, Work revision and reviewed configuration at every authority
+ * check. A prepared source snapshot must never freeze revocation policy. */
+export async function factoryConfigForWork(store:Pick<WorkStore,'get'>,workId?:string,read:typeof factoryConfig=factoryConfig){
+ return read(workId?await store.get(workId):undefined);
 }

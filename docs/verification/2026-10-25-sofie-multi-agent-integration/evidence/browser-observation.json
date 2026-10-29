@@ -1,0 +1,19 @@
+{
+  "source": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1",
+  "mode": "SYNTHETIC_EXACT_COMPONENT_BROWSER_FIXTURE",
+  "tool": "Codex in-app browser via cua_repl",
+  "url": "http://127.0.0.1:55495",
+  "statesPassed": [
+    "RUNNING_REPORTED",
+    "INTERRUPTING",
+    "RECONCILIATION_REQUIRED",
+    "CANCELLED",
+    "COMPLETED_UNVERIFIED",
+    "VERIFICATION_FAILED",
+    "INDEPENDENT_CHECKS_PASSED"
+  ],
+  "checkpointAndRetainedAccountingVisible": true,
+  "integrityCheckedArtifactCountVisible": true,
+  "ownerSessionConversation": "NOT_RUN",
+  "fullManagedPath": "Separately qualified by managed-project.json, not by this browser fixture"
+}

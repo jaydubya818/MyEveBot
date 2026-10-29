@@ -4,12 +4,40 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {fork} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
+import {createHash,generateKeyPairSync} from 'node:crypto';
+import * as codec from '../lib/engineering/factory-producer-protocol.ts';
+import {admitLocalFactoryResultV4,resumeLocalFactoryResultV4} from '../lib/engineering/factory-result-consumer.ts';
+import {prepareAuthenticatedLocalFactoryInputV4} from '../lib/engineering/factory-authenticated-result.ts';
 import {Client} from 'pg';
 import {loadMigrations,runMigrations} from '../scripts/migration-runner.ts';
 import {admitFactoryResult,resumeFactoryResult} from '../lib/engineering/factory-result-consumer.ts';
 import {digest,sha256,signResult} from '../lib/engineering/factory-producer-protocol.ts';
 import {prepareAuthenticatedFactoryInput} from '../lib/engineering/factory-authenticated-result.ts';
 import {golden,manifest,adminURL,poolFor,storeFor,fixture,resign} from './factory-receipt-fixture.mjs';
+// Independent public synthetic vector; generated keys never leave this fixture.
+const v4ObjectId = (kind, bytes) => createHash('sha1').update(`${kind} ${bytes.length}\0`).update(bytes).digest('hex');
+function publicReceiptV4Vector(work) {
+    const pair = generateKeyPairSync('ed25519');
+    const tree = (body) => Buffer.concat([Buffer.from('100644 input.txt\0'), Buffer.from(v4ObjectId('blob', Buffer.from(body)), 'hex')]);
+    const inputTree = tree('before\n'), inputTreeId = v4ObjectId('tree', inputTree);
+    const base = Buffer.from(`tree ${inputTreeId}\nauthor Synthetic <codec@example.invalid> 1793016000 +0000\ncommitter Synthetic <codec@example.invalid> 1793016000 +0000\n\nSynthetic admitted input\n`);
+    const inputCommit = v4ObjectId('commit', base), candidateTree = tree('after\n'), candidateTreeId = v4ObjectId('tree', candidateTree);
+    const commit = Buffer.from(`tree ${candidateTreeId}\nparent ${inputCommit}\nauthor Synthetic <codec@example.invalid> 1793016001 +0000\ncommitter Synthetic <codec@example.invalid> 1793016001 +0000\n\nSynthetic candidate\n`);
+    const candidate = v4ObjectId('commit', commit), patch = Buffer.from('Synthetic inert patch\n'), log = Buffer.from('Synthetic producer check; not independent verification\n');
+    const configuration = { model: 'openai/gpt-5.4-mini', executor: 'codex-cli', executorVersion: 'synthetic-codec-only', skillRevision: 'synthetic-skill', workerProfile: 'mac', verificationImage: 'synthetic-verifier', nodeVersion: 'v24.18.1', platform: 'darwin', architecture: 'arm64', commands: ['node --test synthetic.test.mjs'], allowedPaths: ['input.txt'], timeoutMs: 1000 };
+    const sourceDigest = '1'.repeat(64), configurationDigest = codec.digest(configuration), factoryId = 'synthetic-v4-factory';
+    const request = { ownerId: work.principal.scopeId, workId: work.binding.workId, workVersion: work.binding.workVersion, criteriaVersion: work.binding.criteriaVersion, profile: { id: 'synthetic-local-profile', version: 1, configuration } };
+    const execution = { version: 4, factoryId, factoryVersion: codec.digest({ sourceDigest, configurationDigest }), sourceDigest, configurationDigest, configuration, requestId: 'synthetic-v4-request', requestDigest: codec.digest(request), workOrderId: '11111111-1111-4111-8111-111111111111', runId: '22222222-2222-4222-8222-222222222222', attemptNumber: 1, inputCommit, inputTree: inputTreeId, workspace: { kind: 'GIT_WORKTREE', path: '/synthetic/owned-worktrees/attempt-one', branch: null }, capturedAt: '2026-10-26T10:00:00.000Z' };
+    const metadata = [['commit', 'git-commit', commit], ['tree', 'git-tree', candidateTree], ['patch', 'patch', patch], ['check', 'check-log', log]];
+    const artifacts = metadata.map(([id, , bytes]) => ({ id, base64: bytes.toString('base64') }));
+    const artifactMetadata = metadata.map(([id, kind, bytes]) => ({ id, kind, producer: factoryId, runId: execution.runId, candidateCommit: candidate, sha256: codec.sha256(bytes), size: bytes.length, createdAt: '2026-10-26T10:00:00.200Z' }));
+    const evidence = [{ id: 'synthetic-check', producer: factoryId, runId: execution.runId, candidateCommit: candidate, command: configuration.commands[0], status: 'passed', exitCode: 0, startedAt: '2026-10-26T10:00:00.100Z', finishedAt: '2026-10-26T10:00:00.200Z', logArtifactId: 'check' }];
+    const manifest = { protocol: codec.RESULT_PROTOCOL, keyId: 'synthetic-key', producer: factoryId, operationId: codec.digest([codec.RESULT_PROTOCOL, factoryId, execution.requestId, execution.workOrderId, execution.runId]), execution, status: 'COMPLETED', candidate: { commit: candidate, tree: candidateTreeId, base: inputCommit, patchDigest: codec.sha256(patch), commitArtifactId: 'commit', treeArtifactId: 'tree', patchArtifactId: 'patch' }, evidence, artifacts: artifactMetadata, evidenceDigest: codec.digest(evidence), artifactDigest: codec.digest(artifactMetadata), completedAt: '2026-10-26T10:00:00.300Z', issuedAt: '2026-10-26T10:00:00.400Z' };
+    const { version, workspace, capturedAt, ...expected } = structuredClone(execution);
+    const key = { factoryId, keyId: manifest.keyId, publicKey: pair.publicKey.export({ type: 'spki', format: 'pem' }).toString(), activeFrom: '2020-01-01T00:00:00Z', notAfter: '2099-01-01T00:00:00Z' };
+    return { manifest, artifacts, expected, privateKey: pair.privateKey, options: { expected, keys: [key], now: Date.now() }, request };
+}
+
 const admin=new Client({connectionString:adminURL});await admin.connect();
 const name='q37_gatec_'+randomBytes(8).toString('hex'),url=adminURL.replace('/postgres','/'+name);
 await admin.query('CREATE DATABASE '+name);
@@ -199,6 +227,40 @@ try {
    pass('restricted '+kind+' role; no direct receipt/writer mutation');
   } finally {await client.query('RESET ROLE');await client.query('DROP OWNED BY '+role);await client.query('DROP ROLE '+role);client.release();}
  }
+ // Public ephemeral V4 custody: same immutable SQL boundary, no producer or writer execution.
+ const v4=await fixture(pool),vector=publicReceiptV4Vector(v4),ve=vector.manifest.execution;
+ const {operationId:v4OldOperation,...v4Original}=v4.binding;
+ const v4Binding=prepareAuthenticatedLocalFactoryInputV4({...v4Original,
+  factoryId:ve.factoryId,factoryVersion:ve.factoryVersion,sourceDigest:ve.sourceDigest,
+  configurationDigest:ve.configurationDigest,configuration:ve.configuration,requestId:ve.requestId,
+  requestDigest:ve.requestDigest,workOrderId:ve.workOrderId,runId:ve.runId,attemptNumber:ve.attemptNumber,
+  inputCommit:ve.inputCommit,inputTree:ve.inputTree,localSnapshotVersion:4});
+ const v4Request=await v4.store.register(v4Binding);
+ assert.deepEqual((await v4.store.request(v4Request.id)).binding,v4Binding);
+ pass('actual SQL retains exact independently constructed V4 request expectations');
+ const v4Result=codec.signLocalResultV4(vector.manifest,vector.artifacts,vector.privateKey);
+ const v4Receipt=await v4.store.receive(v4Request.id,v4Result),v4Before=await v4.store.get(v4Request.id,v4Receipt.id);
+ let v4KeyReads=0;const v4Options={keys:async()=>{v4KeyReads++;return vector.options.keys;}};
+ await assert.rejects(admitFactoryResult(v4.store,v4Request.id,v4Result,v4Options));
+ await assert.rejects(resumeFactoryResult(v4.store,v4Request.id,v4Receipt.id,v4Options));
+ assert.equal(v4KeyReads,0);assert.deepEqual(await v4.store.get(v4Request.id,v4Receipt.id),v4Before);
+ assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_receipts WHERE request_id=$1',[v4Request.id])).rows[0].n,1);
+ pass('wrong legacy wrappers leave actual V4 custody/history unchanged before keys');
+ const v4Admitted=await resumeLocalFactoryResultV4(v4.store,v4Request.id,v4Receipt.id,v4Options);
+ assert.equal(v4Admitted.status,'ADMITTED');assert.equal(v4Admitted.eligibleForCurrentAdmission,true);
+ assert.equal(v4Admitted.factoryGrantedAuthority,0);assert.equal(v4Admitted.independentVerification,'NOT_RUN');assert.equal(v4Admitted.readiness,'NOT_READY');
+ pass('correct V4 wrapper recovers original actual SQL receipt with no Ready or Proof');
+ for(let i=0;i<2;i++)assert.equal((await admitLocalFactoryResultV4(v4.store,v4Request.id,v4Result,v4Options)).receiptId,v4Receipt.id);
+ assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_admissions WHERE request_id=$1',[v4Request.id])).rows[0].n,1);
+ pass('exact V4 replay retains one canonical admission without Work resubmission');
+ await assert.rejects(v4.store.register({...v4Binding,inputTree:'2'.repeat(40)}),/binding conflict/);
+ assert.deepEqual((await v4.store.request(v4Request.id)).binding,v4Binding);
+ pass('same operation cannot replace V4 trusted inputTree in immutable SQL correlation');
+ await v4.store.cancel(v4Request.id);
+ assert.equal((await resumeLocalFactoryResultV4(v4.store,v4Request.id,v4Receipt.id,v4Options)).eligibleForCurrentAdmission,false);
+ pass('cancelled actual request fences current V4 eligibility while retaining provenance');
+
+
  for(const table of ['engineering_execution','engineering_native_runtime','engineering_route_runs','engineering_work_model_calls'])
   assert.equal((await pool.query('SELECT count(*)::int n FROM '+table)).rows[0].n,0);
  pass('zero writer/budget/route side effects; zero false Ready');

@@ -32,7 +32,7 @@ export async function executeFactoryCommand(store:WorkStore,id:string,value:unkn
  const input=factoryActionSchema.parse(value),work=await store.get(id);
  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)throw new WorkError('factory_work_changed','Reload the current Work before acting.');
  if(input.operation==='start')await assertBusinessEffect(store,id,{operation:"execute_factory"});
- const driver=await factoryRuntime(store);
+ const driver=await factoryRuntime(store,undefined,id);
  if(input.operation==='start')return driver.start(id,work.version,work.generation);
  if(input.operation==='reconcile')return driver.step(id);
  return driver.stop(id,input.operation==='takeover'?'takeover':'cancel');
@@ -41,7 +41,7 @@ export async function handleFactoryRequest(request:Request,id:string){
  const headers={'cache-control':'no-store'};
  try{
   z.string().uuid().parse(id);const store=new WorkStore(await engineeringPrincipal(request));
-  if(request.method==='GET'){await store.get(id);return Response.json({decision:await (await factoryRuntime(store)).decision(id)},{headers});}
+  if(request.method==='GET'){await store.get(id);return Response.json({decision:await (await factoryRuntime(store,undefined,id)).decision(id)},{headers});}
   const result=await factoryAction(store,id,await boundedJson(new Response(request.body),2000));return Response.json({result},{headers});
  }catch(error){
   if(error instanceof WorkError)return Response.json({error:error.message,code:error.code},{status:error.status,headers});

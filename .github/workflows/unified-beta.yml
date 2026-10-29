@@ -4,6 +4,7 @@ name: Unified beta exact-source qualification
     branches:
     - main
     - codex/unified-beta-myeve-20261011
+    - codex/beta-qa-adoption-20261023
   pull_request:
     branches: [main]
   workflow_dispatch: null
@@ -190,7 +191,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/relay
-        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+        ref: f05a5639e2f95994778753e6021603ca5a1777fb
         path: relay
         persist-credentials: false
     - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -315,12 +316,12 @@ jobs:
       with:
         persist-credentials: false
         repository: jaydubya818/MyFactory
-        ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+        ref: 87a9a8471848d7c51ea334ae95077bfa4460d45f
         path: .qualification/myfactory
     - uses: actions/checkout@v4
       with:
         repository: jaydubya818/relay
-        ref: 4167fb9169be2e246f3986b60e3e913df6b60776
+        ref: f05a5639e2f95994778753e6021603ca5a1777fb
         path: .qualification/relay
         persist-credentials: false
     - name: Retain the historical installed Relay comparison object
@@ -349,7 +350,7 @@ jobs:
         MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
         MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
         MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
-        MYRELAY_SOURCE_SHA: 4167fb9169be2e246f3986b60e3e913df6b60776
+        MYRELAY_SOURCE_SHA: f05a5639e2f95994778753e6021603ca5a1777fb
         MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: '1'
         FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
       run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/engineering/production-validation-postgres.test.ts
@@ -553,7 +554,7 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: jaydubya818/MyFactory
-        ref: a29f6926dad7bf8b4f72ef82b9392639e4cc057e
+        ref: 87a9a8471848d7c51ea334ae95077bfa4460d45f
         persist-credentials: false
         fetch-depth: 0
         path: myfactory

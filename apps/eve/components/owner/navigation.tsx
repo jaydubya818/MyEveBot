@@ -3,7 +3,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useId, useRef } from "react";
 import { CommandPalette } from "@/components/command-palette";
-import { useDestinationAllowed, useVisibleDestinations,useBetaFeedbackEnabled } from "./destination-gate";
+import { useDestinationAllowed, useVisibleDestinations,useBetaFeedbackEnabled, useExternalLinksAllowed } from "./destination-gate";
+import { DEEP_AGENT_UNAVAILABLE_LABEL } from "@/lib/deep-agent-availability";
 
 const primary = ["/today", "/chat", "/work", "/needs-you", "/workspace"];
 export function OwnerNavigation() {
@@ -15,6 +16,7 @@ export function OwnerNavigation() {
   const allowed = useDestinationAllowed();
   const destinations = useVisibleDestinations();
   const feedbackEnabled=useBetaFeedbackEnabled();
+  const externalAlpha = !useExternalLinksAllowed();
   const conversation = pathname === "/chat" || pathname === "/sofie";
   useEffect(() => { setMenuOpen(false); setOpen(false); }, [pathname]);
   useEffect(() => {
@@ -37,8 +39,12 @@ export function OwnerNavigation() {
       <button className="owner-search" onClick={() => conversation ? window.dispatchEvent(new Event("myeve:commands")) : setOpen(true)} aria-label="Search and commands (Command K)">Search <kbd>⌘K</kbd></button>
       <div className="owner-account">
         {feedbackEnabled&&allowed('/feedback')&&<Link href="/feedback" aria-current={selected('/feedback')?'page':undefined}>Beta feedback</Link>}
+        {allowed("/results") && <Link href="/results" aria-current={selected("/results") ? "page" : undefined}>Results</Link>}
+        {allowed("/memory") && <Link href="/memory" aria-current={selected("/memory") ? "page" : undefined}>Memory</Link>}
+        {allowed("/activity") && <Link href="/activity" aria-current={selected("/activity") ? "page" : undefined}>Activity</Link>}
         {allowed("/settings") && <Link href="/settings" aria-current={selected("/settings") ? "page" : undefined}>Settings</Link>}
         {allowed("/privacy") && <Link href="/privacy" aria-current={selected("/privacy") ? "page" : undefined}>Privacy & boundaries</Link>}
+        {externalAlpha && <p className="owner-muted" data-testid="deep-agent-unavailable">{DEEP_AGENT_UNAVAILABLE_LABEL}</p>}
       </div>
     </nav>
     {!conversation && <CommandPalette open={open} onClose={() => setOpen(false)} threads={[]}

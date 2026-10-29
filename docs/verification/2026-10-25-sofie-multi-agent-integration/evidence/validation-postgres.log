@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /Users/jaywest/.codex/worktrees/humanlayer-sofie-evaluation/Myeve/apps/eve
+
+
+ Test Files  1 passed (1)
+      Tests  55 passed (55)
+   Start at  11:57:53
+   Duration  12.34s (transform 635ms, setup 0ms, import 547ms, tests 11.68s, environment 0ms)
+

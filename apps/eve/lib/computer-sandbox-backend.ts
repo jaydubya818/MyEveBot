@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { Readable } from "node:stream";
 import { Sandbox } from "@vercel/sandbox";
 import { defineSandboxProvider, type SandboxProviderHandle } from "eve/sandbox/provider";
-import type { SandboxSession, SandboxNetworkPolicy } from "eve/sandbox";
+import type { SandboxSession, SandboxNetworkPolicy, SandboxSpawnOptions, SandboxProcess } from "eve/sandbox";
 import { consumeComputerProvisionAuthority, type AuthorizedAction } from "./action-gateway.ts";
 import type { Preparation } from "./computer-template-lifecycle.ts";
 import { computerProviderCredentials } from "./computer-template-vercel.ts";
@@ -38,6 +38,24 @@ function sessionHandle(sandbox: Sandbox, row: ComputerResource): ComputerSandbox
     const store = new ComputerResourceStore();
     if (!await store.executable(row)) throw new Error("Computer resource is no longer executable.");
   }
+  // This provider has no writable stdin transport. Model the unsupported overload
+  // as rejection, never fabricate a stream or start a command before rejecting.
+  function spawn(options: SandboxSpawnOptions & { stdin: true }): Promise<never>;
+  function spawn(options: SandboxSpawnOptions): Promise<SandboxProcess>;
+  async function spawn(options: SandboxSpawnOptions): Promise<SandboxProcess> {
+    if ("stdin" in options && options.stdin === true) throw new Error("Computer sandbox does not support writable stdin.");
+    await active();
+    const command = await sandbox.runCommand({ cmd: "bash", args: ["-lc",options.command], cwd: options.workingDirectory ?? "/workspace",
+      detached: true, env: options.env, signal: options.abortSignal });
+    const encoder = new TextEncoder();
+    let out!: ReadableStreamDefaultController<Uint8Array>, err!: ReadableStreamDefaultController<Uint8Array>;
+    const stdout = new ReadableStream<Uint8Array>({ start(controller) { out=controller; } });
+    const stderr = new ReadableStream<Uint8Array>({ start(controller) { err=controller; } });
+    const logs = (async () => { try { for await (const chunk of command.logs()) (chunk.stream === "stdout" ? out : err).enqueue(encoder.encode(chunk.data)); out.close(); err.close(); }
+      catch (error) { out.error(error); err.error(error); throw error; } })();
+    void logs.catch(() => {});
+    return { stdout, stderr, async wait() { const result=await command.wait(); await logs; return {exitCode:result.exitCode}; }, async kill() { await command.kill(); } };
+  }
   const session: ComputerSandboxSession = {
     id: row.resource_name, resolvePath,
     async run(options) {
@@ -45,19 +63,7 @@ function sessionHandle(sandbox: Sandbox, row: ComputerResource): ComputerSandbox
       const [stdout,stderr,result] = await Promise.all([bytes(process.stdout),bytes(process.stderr),process.wait()]);
       return { stdout: new TextDecoder().decode(stdout), stderr: new TextDecoder().decode(stderr), exitCode: result.exitCode };
     },
-    async spawn(options) {
-      await active();
-      const command = await sandbox.runCommand({ cmd: "bash", args: ["-lc",options.command], cwd: options.workingDirectory ?? "/workspace",
-        detached: true, env: options.env, signal: options.abortSignal });
-      const encoder = new TextEncoder();
-      let out!: ReadableStreamDefaultController<Uint8Array>, err!: ReadableStreamDefaultController<Uint8Array>;
-      const stdout = new ReadableStream<Uint8Array>({ start(controller) { out=controller; } });
-      const stderr = new ReadableStream<Uint8Array>({ start(controller) { err=controller; } });
-      const logs = (async () => { try { for await (const chunk of command.logs()) (chunk.stream === "stdout" ? out : err).enqueue(encoder.encode(chunk.data)); out.close(); err.close(); }
-        catch (error) { out.error(error); err.error(error); throw error; } })();
-      void logs.catch(() => {});
-      return { stdout, stderr, async wait() { const result=await command.wait(); await logs; return {exitCode:result.exitCode}; }, async kill() { await command.kill(); } };
-    },
+    spawn,
     async readFile(options) {
       await active(); const stream = await sandbox.readFile({path:resolvePath(options.path)});
       return stream ? Readable.toWeb(stream as Readable) as ReadableStream<Uint8Array> : null;

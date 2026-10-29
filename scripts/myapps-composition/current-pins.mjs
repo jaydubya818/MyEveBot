@@ -4,13 +4,14 @@ import {parse} from 'yaml';
 // closure. CI must install that closure before running this tooling; preserve
 // the separately qualified Builder lock bytes rather than repinning metadata.
 
-export const factory = 'a29f6926dad7bf8b4f72ef82b9392639e4cc057e';
+export const factory = '87a9a8471848d7c51ea334ae95077bfa4460d45f';
+export const componentFactory = '254e6e7513486a82337e59e89eebf8b8f9bb5644';
 export const missioncontrol = 'f9bcd0df4bb970a36a43599b00d724b07f300ad0';
 const reports = {'composed-tests.json': 'composed', 'qe-tests.json': 'qe', 'baseline-allowance-tests.json': 'baseline-allowance'};
 const words = line => (line.match(/"[^"]*"|'[^']*'|[^\s]+/g) ?? []).map(word => word.replace(/^(["'])(.*)\1$/, '$2'));
 
 export function assertCurrentPins(workflows, envelope) {
-  let factoryCheckouts = 0, missioncontrolCheckouts = 0, historicalFactory = 0, historicalMissioncontrol = 0, emitters = 0, assertions = 0;
+  let factoryCheckouts = 0, componentFactoryCheckouts = 0, missioncontrolCheckouts = 0, historicalFactory = 0, historicalMissioncontrol = 0, emitters = 0, assertions = 0;
   for (const [name, text] of Object.entries(workflows)) {
     const workflow = parse(text);
     const checkEnvironment = env => {
@@ -33,6 +34,14 @@ export function assertCurrentPins(workflows, envelope) {
               assert.equal(repository, 'jaydubya818/missioncontrol');
               assert.equal(pin, 'af521c92c05a1c79d1aff11510efea8dcf23e350'); historicalMissioncontrol++;
               assert.match(text, /Historical checkpoint-H comparison only; not the unified-beta MissionControl candidate/);
+            } else if (name === 'developer-beta-components.yml' && jobName === 'paired-components' && step.with.path === '.qualification/factory') {
+              // This separately pinned source check grants no release-peer qualification.
+              assert.equal(repository, 'jaydubya818/myfactory');
+              assert.equal(pin, componentFactory);
+              assert.deepEqual(workflow.permissions, {contents:'read'});
+              assert.equal(job.permissions, undefined);
+              assert.equal(step.with['persist-credentials'], false);
+              componentFactoryCheckouts++;
             } else {
               assert.equal(pin, repository.endsWith('/myfactory') ? factory : missioncontrol, name);
               if (repository.endsWith('/myfactory')) factoryCheckouts++; else missioncontrolCheckouts++;
@@ -63,6 +72,7 @@ export function assertCurrentPins(workflows, envelope) {
     }
   }
   assert.equal(factoryCheckouts, 7); assert.equal(missioncontrolCheckouts, 3);
+  assert.equal(componentFactoryCheckouts, 1);
   assert.equal(historicalFactory, 1); assert.equal(historicalMissioncontrol, 1);
   assert.equal(emitters, 5); assert.equal(assertions, emitters);
   assert.ok(envelope.includes("snapshot,'" + factory + "'"));

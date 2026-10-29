@@ -1,0 +1,24 @@
+{
+  "source": "f2fbfb96fef25ee1877b0d4c60f75e6ff37c1ed1",
+  "expectedRefusal": true,
+  "profiles": [
+    {
+      "profile": "golden",
+      "exitCode": 1,
+      "stdout": "{\"version\":1,\"obligation\":\"POSITIVE_WORK_V1\",\"status\":\"BLOCKED_NOT_QUALIFIED\",\"code\":\"POSITIVE_WORK_CHAT_ONLY_RELEASE\",\"profile\":\"golden\",\"sourceBinding\":\"MATCHED_CHECKOUT\",\"positiveWorkQualified\":false}",
+      "stderr": ""
+    },
+    {
+      "profile": "e3",
+      "exitCode": 1,
+      "stdout": "{\"version\":1,\"obligation\":\"POSITIVE_WORK_V1\",\"status\":\"BLOCKED_NOT_QUALIFIED\",\"code\":\"POSITIVE_WORK_CHAT_ONLY_RELEASE\",\"profile\":\"e3\",\"sourceBinding\":\"MATCHED_CHECKOUT\",\"positiveWorkQualified\":false}",
+      "stderr": ""
+    },
+    {
+      "profile": "independent",
+      "exitCode": 1,
+      "stdout": "{\"version\":1,\"obligation\":\"POSITIVE_WORK_V1\",\"status\":\"BLOCKED_NOT_QUALIFIED\",\"code\":\"POSITIVE_WORK_CHAT_ONLY_RELEASE\",\"profile\":\"independent\",\"sourceBinding\":\"MATCHED_CHECKOUT\",\"positiveWorkQualified\":false}",
+      "stderr": ""
+    }
+  ]
+}

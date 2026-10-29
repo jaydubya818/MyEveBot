@@ -33,7 +33,24 @@
       "codex/external-alpha-final-qe-20261010": false,
       "claude/external-alpha-zero-gap-qe014-qe017-20261010": false,
       "codex/unified-beta-myeve-20261011": false,
-      "codex/chat-only-activation-20261023": false
+      "codex/chat-only-activation-20261023": false,
+      "codex/beta-feedback-20261023": false,
+      "codex/beta-qa-adoption-20261023": false,
+      "codex/beta-qa-packaging-20261023": false,
+      "codex/productive-http-fixture-20261023": false,
+      "codex/productive-pair-contract-20261023": false,
+      "codex/relay-mcp-framework-20261023": false,
+      "codex/relay-mcp-operation-20261023": false,
+      "codex/beta-dependency-20261023": false,
+      "codex/beta-qa100-reconcile-20261023": false,
+      "codex/beta-effect-successor-20261023": false,
+      "codex/beta-telemetry-public-20261023": false,
+      "cursor/qa-silent-failures-b54d": false,
+      "cursor/qa-mobile-forms-b54d": false,
+      "cursor/qa-medium-low-b54d": false,
+      "cursor/qa-deep-agent-b54d": false,
+      "cursor/qa-main-integration-6ef4": false,
+      "codex/sofie-multi-agent-integration-20261025": false
     }
   },
   "functions": {

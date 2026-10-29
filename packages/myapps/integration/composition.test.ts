@@ -7,10 +7,13 @@ import {resolve} from 'node:path';
 import {loadMigrations,runMigrations} from '../../../apps/eve/scripts/migration-runner.ts';
 import {requiredDatabaseMigration} from '../../../apps/eve/lib/database-schema.ts';
 import {localAppsAllowed} from '../../../apps/eve/lib/myapps/hosting.ts';
+import {dropIdleCompositionDatabase} from './composition-database-cleanup.ts';
 const composed=process.env.MYAPPS_COMPOSITION_REHEARSAL==='1';
 const pins=JSON.parse(readFileSync(resolve('docs/myapps/phase3/sources.json'),'utf8'));
 const unified=JSON.parse(readFileSync(resolve('docs/myapps/unified-source-successors.json'),'utf8'));
-const terminal=JSON.parse(readFileSync(resolve('docs/myapps/terminal-source-qualification-20261012.json'),'utf8'));
+const terminalPointer=JSON.parse(readFileSync(resolve('docs/myapps/terminal-source-qualification-current.json'),'utf8'));
+const terminal=JSON.parse(readFileSync(resolve(terminalPointer.record),'utf8'));
+const candidate=JSON.parse(readFileSync(resolve('docs/myapps/developer-beta-source-candidate-20261029.json'),'utf8'));
 import {factory as selectedFactory} from '../../../scripts/myapps-composition/current-pins.mjs';
 const source=(sha:string,path:string)=>execFileSync('git',['show',`${sha}:${path}`],{encoding:'utf8'});
 test.skipIf(!composed)('composition preserves historical bytes except explicitly pinned unified successors',async()=>{
@@ -20,15 +23,22 @@ test.skipIf(!composed)('composition preserves historical bytes except explicitly
  expect(unified.myappsFiles).toEqual(['runtime.ts','hosting.ts']);
  expect(unified.authorityFiles).toEqual(['work-authority.ts']);
  expect(unified.signedPatchScope).toBe('3bec42136d5050ba639ea399e7d304d234265575');
+ expect(unified.reviewedExternalAlphaSuccessors).toEqual({
+  'apps/eve/lib/external-alpha/shared-accounting.ts':{source:'931487c4db417321c7382285096fd27eaf378558',sha256:'730dd19b733ba4f46a97d3b616530281fd18ad4e4c9ceee2b44e72cb06cd992a',review:'docs/verification/2026-10-23-beta-feedback-review.md'},
+  'apps/eve/lib/external-alpha/tool-authority.ts':{source:'65ef3063c88d47956f7b419b4bb3733a79a99f6a',sha256:'c3502cfef60044fcad91bd2daa11d31aedba4aa705323a5466b8e402d4d2acd4',review:'docs/verification/2026-10-23-chat-only-security-review.md'},
+ });
  for(const path of ['runtime.ts','api.ts','workflow.ts','hosting.ts']){
   const name='apps/eve/lib/myapps/'+path;
   expect(readFileSync(name,'utf8')).toBe(source(unified.myappsFiles.includes(path)?unified.myapps:pins.myeve.phase2,name));
  }
  for(const path of ['allowance-postgres.test.ts','policy.ts','allowance.ts','shared-accounting.ts','shared-accounting.sql','shared-accounting-recovery.sql','private-acceptance.ts','result-ingestion.ts','tool-authority.ts']){
   const name='apps/eve/lib/external-alpha/'+path;
-  // The independently reviewed parser successor rejects quoted headers and
-  // gitlinks. All other original authority and accounting bytes stay pinned.
-  expect(readFileSync(name,'utf8')).toBe(source(path==='result-ingestion.ts'?unified.signedPatchScope:pins.myeve.integration,name));
+  // Only exact immutable reviewed successors replace historical bytes. This
+  // retains stronger chat-only denials and the qualified read-only usage path.
+  const successor=unified.reviewedExternalAlphaSuccessors[name];
+  const actual=readFileSync(name,'utf8');
+  expect(actual).toBe(source(successor?.source??(path==='result-ingestion.ts'?unified.signedPatchScope:pins.myeve.integration),name));
+  if(successor)expect(createHash('sha256').update(actual).digest('hex')).toBe(successor.sha256);
  }
  // The explicit successor changes pre-dispatch refusal handling and adds the
  // central zero-gap upgrade. Compare both against canonical bytes, not the
@@ -74,7 +84,7 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   const db={query:async(s:string,p?:any[])=>(await pool.query(s,p)).rows,transaction:async(statements:any[])=>{
    const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }};
-  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(terminal.historicalMigration).toBe(unified.migration);expect(terminal.currentMigration).toBe('0107_factory_preparation_generation_guard.sql');expect(migrations.at(-1)?.name).toBe(terminal.currentMigration);
+  const migrations=await loadMigrations();expect(unified.migration).toBe('0105_myapps_execution_admission.sql');expect(terminal.historicalMigration).toBe(unified.migration);expect(terminal.previousTerminalMigration).toBe('0109_external_alpha_chat_only.sql');expect(terminal.currentMigration).toBe('0109_external_alpha_chat_only.sql');expect(migrations.at(-1)?.name).toBe(terminal.currentMigration);
   expect(new Set(migrations.map(m=>m.name.slice(0,4))).size).toBe(migrations.length);
   await runMigrations(db as any,migrations.slice(0,-1),()=>{});
   const {WorkStore}=await import('../../../apps/eve/lib/engineering/store.ts');
@@ -89,22 +99,68 @@ test.skipIf(!composed)('real PostgreSQL upgrades canonical UX schema without act
   for(const table of ['myapps_installations','myapps_admissions','myapps_candidates','external_alpha_policy','external_alpha_allowance','external_alpha_operation','external_alpha_work_authority','engineering_factory_requests','engineering_candidate_publications'])
    expect((await pool.query('SELECT count(*) n FROM '+table)).rows[0].n).toBe('0');
   expect((await pool.query("SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1")).rows[0].name).toBe(terminal.currentMigration);
- }finally{if(pool)await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+ }finally{
+  try{if(pool)await pool.end();await dropIdleCompositionDatabase(admin,name);}
+  finally{await admin.end();}
+ }
 });
 
 test.skipIf(!composed)('combined Factory source cannot inherit the installed production source identity',()=>{
+ expect(terminalPointer).toEqual({schema:'myapps-terminal-source-pointer/v1',record:'docs/myapps/terminal-source-qualification-20261023-relay-f05a5639.json',previousRecord:'docs/myapps/terminal-source-qualification-20261023-factory-39b68666.json',historicalRecord:'docs/myapps/terminal-source-qualification-20261012.json',authority:'ISOLATED_SOURCE_QUALIFICATION_ONLY'});
+ expect(terminal.previousQualificationRecord).toBe(terminalPointer.previousRecord);
+ expect(terminal.previousQualificationSha256).toBe('59b7aab9379b07dbdcac20c14a8fd0a81a62d3b366792a2167e40e728b685cd6');
+ const factoryQualificationBytes=readFileSync(terminalPointer.previousRecord),factoryQualification=JSON.parse(factoryQualificationBytes.toString());
+ expect(createHash('sha256').update(factoryQualificationBytes).digest('hex')).toBe(terminal.previousQualificationSha256);
+ expect(terminal.relaySource).toBe('f05a5639e2f95994778753e6021603ca5a1777fb');
+ expect(terminal.relayTree).toBe('7ab5ce216f82a3ef6272ed349a1f1730cc3bbdb9');
+ expect(terminal.relayQualificationScope).toBe('EXACT_SOURCE_AND_OFFICIAL_CI_FOR_NONDEPLOYING_PEER_ADOPTION_ONLY');
+ expect(factoryQualification.factorySource).toBe(terminal.factorySource);
+ expect(factoryQualification.factorySourcePredecessor).toBe(terminal.factorySourcePredecessor);
+ expect(factoryQualification.currentMigration).toBe(terminal.currentMigration);
+ expect(factoryQualification.previousQualificationRecord).toBe('docs/myapps/terminal-source-qualification-20261023.json');
+ expect(factoryQualification.previousQualificationSha256).toBe('157a63ba940d85db8d385a1b136e3617ba7bfdcddc6a2a049b3c1390148e145e');
+ const previousBytes=readFileSync(factoryQualification.previousQualificationRecord),previous=JSON.parse(previousBytes.toString());
+ expect(createHash('sha256').update(previousBytes).digest('hex')).toBe(factoryQualification.previousQualificationSha256);
+ expect(terminal.factorySourcePredecessor).toBe(previous.factorySource);
+ expect(previous.factorySource).toBe('c5416e65f786f8f9abf14692a984b5a176271b67');
+ expect(previous.previousTerminalMigration).toBe('0107_factory_preparation_generation_guard.sql');
+ expect(previous.currentMigration).toBe(terminal.previousTerminalMigration);
+ expect(previous.previousQualificationRecord).toBe(terminalPointer.historicalRecord);
+ expect(previous.previousQualificationSha256).toBe('d1ce504eaad779ad7df41ecb5a20aff76542498db308bd4818f9550c369ea023');
+ expect(createHash('sha256').update(readFileSync(terminalPointer.historicalRecord)).digest('hex')).toBe(previous.previousQualificationSha256);
+ expect(terminal.installedAuthority).toBe('NONE');expect(terminal.productionIntegration).toBe('NOT_RUN');
+ // Historical qualifications remain byte-bound above. This candidate is an
+ // ordinary identity join and cannot inherit their independent or installed authority.
+ expect(candidate.previousQualifiedRecord).toBe(terminalPointer.record);
+ expect(candidate.previousQualifiedRecordSha256).toBe(createHash('sha256').update(readFileSync(terminalPointer.record)).digest('hex'));
+ expect(candidate.previousQualifiedFactorySource).toBe(terminal.factorySource);
+ expect(candidate.sourceDigest).not.toBe(terminal.sourceDigest);
+ expect(candidate.factoryVersion).not.toBe(terminal.factoryVersion);
+ expect(candidate.configurationDigest).toBe(terminal.configurationDigest);
+ expect(candidate.executionContractSha256).toBe(terminal.executionContractSha256);
+ expect(candidate.independentSourceQualification).toBe('PENDING');
+ expect(candidate.releaseQualified).toBe(false);expect(candidate.historicalQualificationSuperseded).toBe(false);
+ expect(candidate.installedAuthority).toBe('NONE');expect(candidate.productionIntegration).toBe('NOT_RUN');
+ expect(candidate.paidExecution).toBe('NOT_AUTHORIZED');expect(candidate.deployment).toBe('NOT_AUTHORIZED');expect(candidate.migration).toBe('NOT_AUTHORIZED');
  const root=process.env.MYFACTORY_SOURCE_ROOT;expect(root).toBeTruthy();
  const check=spawnSync(process.execPath,['apps/cloud-control/scripts/cloud-source-identity.mjs'],{cwd:root,encoding:'utf8'});
  expect(check.status,check.stderr).toBe(0);
- expect(terminal.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
- expect(terminal.factorySource).toBe(selectedFactory);
+ expect(candidate.authority).toBe('ISOLATED_SOURCE_CANDIDATE_ONLY');
+ expect(candidate.factorySource).toBe(selectedFactory);
  expect(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()).toBe(selectedFactory);
  expect(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim()).toBe('');
- const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${terminal.factoryRecord}`],{cwd:root,encoding:'utf8'});
- expect(readFileSync(resolve(root!,terminal.factoryRecord),'utf8')).toBe(selectedRecord);
+ const selectedRecord=execFileSync('git',['show',`${selectedFactory}:${candidate.factoryRecord}`],{cwd:root,encoding:'utf8'});
+ expect(candidate.factoryRecord).toBe('docs/capability-control/source-identity-20261029/developer-beta-candidate.json');
+ expect(createHash('sha256').update(selectedRecord).digest('hex')).toBe(candidate.factoryRecordSha256);
+ expect(readFileSync(resolve(root!,candidate.factoryRecord),'utf8')).toBe(selectedRecord);
  const successor=JSON.parse(selectedRecord);
- expect(successor.sourceDigest).toBe(terminal.sourceDigest);expect(successor.factoryVersion).toBe(terminal.factoryVersion);
+ expect(successor.sourceDigest).toBe(candidate.sourceDigest);expect(successor.factoryVersion).toBe(candidate.factoryVersion);
+ expect(successor.configurationDigest).toBe(candidate.configurationDigest);
+ expect(successor.executionContractSha256).toBe(candidate.executionContractSha256);
+ expect(candidate.externalAlphaFactoryVersion).toBe(successor.externalAlphaFactoryVersion);
+ expect(candidate.factoryVersionScope).toBe('SOURCE_RECORD_ONLY; no installed identity or execution authority is inherited');
  expect(successor.authority).toBe('ISOLATED_SOURCE_QUALIFICATION_ONLY');
+ expect(successor.independentSourceQualification).toBe('PENDING');expect(successor.releaseQualified).toBe(false);expect(successor.installedAuthority).toBe('NONE');
  expect(JSON.parse(check.stdout).sourceDigest).toBe(successor.sourceDigest);
  expect(successor.sourceDigest).not.toBe(successor.predecessorSourceDigest);
  // A self-consistent identity is not a grant. Run the canonical exact-current
@@ -116,8 +172,8 @@ test.skipIf(!composed)('combined Factory source cannot inherit the installed pro
  expect(createHash('sha256').update(execFileSync('git',['show',`${factoryAdapter.source}:${identityPath}`],{cwd:root})).digest('hex')).toBe(factoryAdapter.files[identityPath].sourceSha256);
  const currentIdentity=execFileSync('git',['show',`${selectedFactory}:${identityPath}`],{cwd:root});
  expect(readFileSync(resolve(root!,identityPath))).toEqual(currentIdentity);
- expect(createHash('sha256').update(currentIdentity).digest('hex')).toBe(terminal.factoryIdentityTestSha256);
- expect(terminal.factoryIdentityTestCount).toBe(3);
+ expect(createHash('sha256').update(currentIdentity).digest('hex')).toBe(candidate.factoryIdentityTestSha256);
+ expect(candidate.factoryIdentityTestCount).toBe(3);
  const grants=spawnSync(process.execPath,['--test','--test-reporter=tap','apps/cloud-control/test/source-identity-qualification.test.mjs'],{cwd:root,encoding:'utf8'});
  expect(grants.status,grants.stderr+grants.stdout).toBe(0);
  expect(grants.stdout).toContain('coherent historical source or contract grants cannot consume successor authority');

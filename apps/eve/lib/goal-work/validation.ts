@@ -101,3 +101,11 @@ export const signalSchema = z
     option: text.optional(),
   })
   .strict();
+
+export const handoffInput = z.object({
+  commandId: z.string().uuid(),
+  expectedRevision: z.number().int().positive(),
+  expectedTaskGeneration: z.number().int().positive(),
+  assignedTo: text.max(255),
+  reason: text,
+}).strict();

@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {treeObjects} from './github.ts';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {factoryConfig,FactoryRouteAuthority} from './factory-routing.ts';
+import {factoryConfigForWork,FactoryRouteAuthority} from './factory-routing.ts';
 import {FactoryWorkDriver} from './factory-work-driver.ts';
 import {DirectDevelopmentStore} from './direct-development.ts';
 import {DockerProtectedVerifier} from './docker-executor.ts';
@@ -15,8 +15,9 @@ import {LiveFactoryAdapter} from './factory-live-adapter.ts';
 import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 const exec=promisify(execFile);
 /** Only reviewed exact Git objects; no ambient credentials or mutable checkout. */
-export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabilityClient){
- const config=await factoryConfig(),c=config.engineering;
+export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabilityClient,workId?:string){
+ const readCurrent=()=>factoryConfigForWork(store,workId);
+ const config=await readCurrent(),c=config.engineering;
  const requireOrderedAdmission=await hasMissionControlEnrollment(store.database,store.principal.scopeId);
  if(capability&&(capability.config.binding.ownerId!==store.principal.scopeId||capability.config.binding.agentId!==c.agentId))throw Error('FACTORY_CAPABILITY_CONFIGURATION');
  const adapterFor=(connection:typeof config.connection)=>new LiveFactoryAdapter(connection,fetch,capability,{requireOrderedAdmission});
@@ -28,7 +29,7 @@ export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabili
   // FactoryWorkDriver consumes the separately signed protected cloud evidence.
   // This sentinel makes any accidental local-verifier route fail closed.
   const verifier={verify:async()=>{throw Error('LOCAL_VERIFIER_FORBIDDEN_IN_CLOUD');}};
-  return new FactoryWorkDriver(store,new FactoryRouteAuthority(store),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,async()=>structuredClone(snapshot),adapterFor);
+  return new FactoryWorkDriver(store,new FactoryRouteAuthority(store,readCurrent),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,async()=>structuredClone(snapshot),adapterFor);
  }
  const repositoryPath=config.connection.repositoryPath;
  const source=async()=>{
@@ -39,5 +40,5 @@ export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabili
   }
   const snapshot={sha:c.approvedBase.sha,files};preflightApprovedBase(c.profile,c.approvedBase,snapshot,1);return snapshot;
  };
- return new FactoryWorkDriver(store,new FactoryRouteAuthority(store),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),new DockerProtectedVerifier(),source,adapterFor);
+ return new FactoryWorkDriver(store,new FactoryRouteAuthority(store,readCurrent),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),new DockerProtectedVerifier(),source,adapterFor);
 }

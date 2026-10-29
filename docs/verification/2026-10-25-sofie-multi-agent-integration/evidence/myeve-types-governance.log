@@ -1,0 +1,43 @@
+
+> eveclaw@0.0.0 typecheck
+> turbo run typecheck --filter='!@mission-control/capability-control' && tsc --project packages/capability-control/tsconfig.json
+
+• turbo 2.10.5
+
+   • Packages in scope: @myeve/capability-enforcement, @myeve/myapps-reference, eve-agent, eveclaw-builder
+   • Running typecheck in 4 packages
+   • Remote caching disabled, using shared worktree cache
+
+eveclaw-builder:typecheck: cache bypass, force executing 619047cac5a389f2
+@myeve/myapps-reference:typecheck: cache bypass, force executing 50d73d59cf02bef1
+@myeve/capability-enforcement:typecheck: cache bypass, force executing b8fe1dd903bb5815
+eve-agent:typecheck: cache bypass, force executing 0c87778ed9f072f3
+@myeve/capability-enforcement:typecheck: 
+@myeve/capability-enforcement:typecheck: > @myeve/capability-enforcement@0.1.0 typecheck
+@myeve/capability-enforcement:typecheck: > tsc --noEmit --strict --target es2022 --module nodenext --allowImportingTsExtensions --skipLibCheck --types node src/decisions.ts src/ordering-source.ts src/ordering-transport.ts src/lifecycle-wire.ts src/lifecycle-source.ts src/lifecycle-transport.ts src/recovery-witness.ts
+@myeve/capability-enforcement:typecheck: 
+@myeve/myapps-reference:typecheck: 
+@myeve/myapps-reference:typecheck: > @myeve/myapps-reference@0.1.0 typecheck
+@myeve/myapps-reference:typecheck: > tsc --noEmit --project tsconfig.json
+@myeve/myapps-reference:typecheck: 
+eve-agent:typecheck: 
+eve-agent:typecheck: > eve-agent@0.0.0 typecheck
+eve-agent:typecheck: > tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts
+eve-agent:typecheck: 
+eveclaw-builder:typecheck: 
+eveclaw-builder:typecheck: > eveclaw-builder@0.0.0 typecheck
+eveclaw-builder:typecheck: > tsc && tsx scripts/check-manifest.ts
+eveclaw-builder:typecheck: 
+eveclaw-builder:typecheck: manifest ok: 167 prunable files, all claimed; template release 265
+eve-agent:typecheck: capability registry ok: 157 definitions, 130 authored tools
+eve-agent:typecheck: 
+eve-agent:typecheck: > eve-agent@0.0.0 skills:validate
+eve-agent:typecheck: > node scripts/check-imported-skill-routing.mjs
+eve-agent:typecheck: 
+eve-agent:typecheck: Imported routing: 93 checks, 50/57 rank one (87.7%).
+eve-agent:typecheck: executor governance ok: 909 classified sources; UNKNOWN=0; Routine activation remains disabled
+
+ Tasks:    4 successful, 4 total
+Cached:    0 cached, 4 total
+  Time:    7.514s 
+

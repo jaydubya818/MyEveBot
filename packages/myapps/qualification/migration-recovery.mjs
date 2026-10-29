@@ -44,15 +44,16 @@ for (const entry of historical.files) {
 assert.equal(result.historical.length, 103);
 const migrations = await loadMigrations(pathToFileURL(join(eve, 'apps/eve/migrations/')));
 // The historical catalog remains byte-for-byte frozen. This separately reviewed
-// supplement qualifies only the fourteen new additive unified-beta migrations.
+// supplement qualifies fourteen additive unified-beta migrations plus the
+// already-shipped application-password and chat-only beta migrations.
 const supplementBytes=readFileSync(new URL('./unified-migration-supplement.json',import.meta.url));
 const supplement=JSON.parse(supplementBytes);
 assert.equal(supplement.schema,'unified-beta-migration-supplement/v1');
-assert.equal(supplement.files.length,14);
+assert.equal(supplement.files.length,16);
 assert.deepEqual(migrations.slice(89).map(({name,checksum})=>({name,sha256:checksum})),supplement.files);
 result.supplementSha256=sha(supplementBytes);
-assert.equal(migrations.length, 103, 'Review any new application migration explicitly');
-assert.equal(migrations.at(-1).name, '0107_factory_preparation_generation_guard.sql');
+assert.equal(migrations.length, 105, 'Review any new application migration explicitly');
+assert.equal(migrations.at(-1).name, '0109_external_alpha_chat_only.sql');
 assert.equal(new Set(migrations.map(m => m.name.slice(0, 4))).size, migrations.length);
 const expected = migrations.map(({ name, checksum }) => ({ name, checksum }));
 assert.throws(() => planMigrations(migrations, [expected[1]]), /Noncontiguous/);

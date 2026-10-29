@@ -4,12 +4,14 @@
 import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {runOwnedBrowserFixture} from '../../../../scripts/myapps-composition/owned-browser-fixture.mjs';
+import {materializeFixtureDependencies} from '../../../../scripts/myapps-composition/fixture-dependencies.mjs';
+import {fixtureOperationOverlay,operationSourcePreimages} from '../../../../scripts/myapps-composition/fixture-operation-overlay.mjs';
 import {existsSync} from 'node:fs';
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdtemp,readFile,writeFile,mkdir,copyFile,symlink} from 'node:fs/promises';
+import {mkdtemp,readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
 import {join,dirname,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {generateKeyPairSync,randomUUID} from 'node:crypto';
+import {createHash,generateKeyPairSync,randomUUID} from 'node:crypto';
 import {Env,files} from '../../lib/external-alpha/work-test-fixture.ts';
 import {FakeFactory} from '../../lib/external-alpha/factory-test-fixture.ts';
 import {buildSignedResult} from '../../lib/external-alpha/result-test-fixture.ts';
@@ -25,10 +27,6 @@ import {externalAlphaWorkEnabled} from '../../lib/external-alpha/work-config.ts'
 import {runExternalAlphaReconciliation} from '../../lib/external-alpha/reconciliation.ts';
 
 const root=resolve('../..');
-// Resolve the workspace's locked Next CLI, whether npm hoists it or nests it.
-const appRequire=createRequire(join(root,'apps/eve/package.json'));
-const nextPackagePath=appRequire.resolve('next/package.json');
-const nextCli=join(dirname(nextPackagePath),appRequire('next/package.json').bin.next);
 if(!/^postgresql:\/\/ux_fixture:local-only@localhost:(55491|55591)\/blocker_fixes$/.test(process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE??''))throw Error('Dedicated local fixture database required');
 const e=await Env.create();
 await runOwnedBrowserFixture(()=>e.close(),async owned=>{
@@ -44,10 +42,28 @@ for(const file of tracked){
  if(file.split('/').some(part=>part.startsWith('.env'))||file.startsWith('output/')||!existsSync(join(root,file)))continue;
  await mkdir(dirname(join(isolated,file)),{recursive:true});await copyFile(join(root,file),join(isolated,file));
 }
-for(const file of ['gateway.ts']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
-await symlink(join(root,'node_modules'),join(isolated,'node_modules'),'dir');
+for(const file of ['gateway.ts','fixture-error-diagnostics.cjs']){await mkdir(join(isolated,'apps/eve/test/owner-journey'),{recursive:true});await copyFile(join(root,'apps/eve/test/owner-journey',file),join(isolated,'apps/eve/test/owner-journey',file));}
+materializeFixtureDependencies(root,isolated);
 const app=join(isolated,'apps/eve');
-await symlink(join(root,'apps/eve/node_modules'),join(app,'node_modules'),'dir');
+// Diagnostic transformations affect only this ordinary fixture's derived copy.
+// Build/parent/native profiles have no runtime role, so emit nothing. Runtime
+// Eve uses the same physical companion as its preload, never a bundled copy.
+if(process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS==='1'){
+ const companion=join(app,'test/owner-journey/fixture-error-diagnostics.cjs');
+ const sources=Object.fromEntries(await Promise.all(Object.keys(operationSourcePreimages).map(async path=>[path,await readFile(join(isolated,path),'utf8')])));
+ const overlays=fixtureOperationOverlay('1',sources,companion);
+ for(const {path,body} of overlays)await writeFile(join(isolated,path),body);
+ await writeFile(join(isolated,'fixture-operation-overlay.json'),JSON.stringify({version:1,
+  scope:'ORDINARY_OWNED_FIXTURE_ONLY',runtime:'eve',
+  companion:{path:'apps/eve/test/owner-journey/fixture-error-diagnostics.cjs',sha256:createHash('sha256').update(await readFile(companion)).digest('hex')},
+  derivedInputs:overlays.map(({body,...metadata})=>metadata),
+ },null,2)+'\n',{flag:'wx',mode:0o600});
+}
+// Execute the same installed bytes from this fixture's physical dependency copy.
+const appRequire=createRequire(join(app,'package.json'));
+const nextPackagePath=appRequire.resolve('next/package.json');
+const nextCli=join(dirname(nextPackagePath),appRequire('next/package.json').bin.next);
+const eveCli=join(isolated,'node_modules/eve/bin/eve.js');
 const modelPath=join(app,'lib/external-alpha/model.ts');
 const model=await readFile(modelPath,'utf8');
 if(!model.includes('import { gateway } from "ai";'))throw Error('Provider seam changed; inspect before running');
@@ -60,6 +76,7 @@ let transport=await readFile(join(root,'apps/eve/test/owner-ux/local-transport.c
 transport=transport.replace("configured.pathname !== '/blocker_fixes'","!/^\\/ea_work_[a-f0-9]{32}$/.test(configured.pathname)");
 transport=transport.replace("const u=new URL(typeof input==='string'?input:input.url??input);",`const u=new URL(typeof input==='string'?input:input.url??input);
   if(u.origin==='https://fixture-alpha-factory.vercel.app')return originalFetch('http://127.0.0.1:3184'+u.pathname+u.search,init);`);
+transport+=`\nconst fixtureErrorRuntime=process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS;\nif(fixtureErrorRuntime==='eve'||fixtureErrorRuntime==='next'){try{require('./fixture-error-diagnostics.cjs').installFixtureErrorDiagnostics(console,fixtureErrorRuntime);}catch{}}\n`;
 await writeFile(join(app,'test/owner-journey/transport.cjs'),transport);
 const claims={project_id:e.policy.projectId,owner_id:config.factory.trustedTeamId,environment:'production',exp:Math.floor(Date.now()/1000)+86400};
 const env:NodeJS.ProcessEnv={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,
@@ -148,12 +165,13 @@ await new Promise<void>((r,reject)=>{fixture.once('error',reject);fixture.listen
 const buildEnv={...env,HTTPS_PROXY:process.env.HTTPS_PROXY,HTTP_PROXY:process.env.HTTP_PROXY,NO_PROXY:'127.0.0.1,localhost',NODE_OPTIONS:'--max-old-space-size=5120 '+env.NODE_OPTIONS,NEXT_TELEMETRY_DISABLED:'1'};
 console.log('QE build eve start',new Date().toISOString());
 const eveBuildEnv={...buildEnv,NITRO_PRESET:'node-server'};delete eveBuildEnv.VERCEL;
-execFileSync(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'build'],{cwd:app,env:eveBuildEnv,stdio:'inherit'});
+execFileSync(process.execPath,[eveCli,'build'],{cwd:app,env:eveBuildEnv,stdio:'inherit'});
 if(!existsSync(join(app,'.output/server/index.mjs')))throw Error('QE: eve node-server build output missing');
 console.log('QE build next start',new Date().toISOString());
 execFileSync(process.execPath,[nextCli,'build','--webpack'],{cwd:app,env:buildEnv,stdio:'inherit'});
 console.log('QE builds done',new Date().toISOString());
-owned.child(spawn(process.execPath,[join(root,'node_modules/eve/bin/eve.js'),'start','--host','127.0.0.1','--port','3185'],{cwd:app,env,stdio:'inherit'}));
-owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env,stdio:'inherit'}));
+const diagnosticEnabled=process.env.MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS==='1';
+owned.child(spawn(process.execPath,[eveCli,'start','--host','127.0.0.1','--port','3185'],{cwd:app,env:diagnosticEnabled?{...env,MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS:'eve'}:env,stdio:'inherit'}));
+owned.child(spawn(process.execPath,[nextCli,'start','--hostname','127.0.0.1','--port','3183'],{cwd:app,env:diagnosticEnabled?{...env,MYEVE_OWNED_FIXTURE_ERROR_DIAGNOSTICS:'next'}:env,stdio:'inherit'}));
 console.log('Offline owner journey fixture started. Source copy:',isolated);
 });

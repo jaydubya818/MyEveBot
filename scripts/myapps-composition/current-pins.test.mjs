@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, readdirSync} from 'node:fs';
-import {assertCurrentPins, factory} from './current-pins.mjs';
+import {assertCurrentPins, factory, componentFactory} from './current-pins.mjs';
 import {parse} from 'yaml';
 
 const root = new URL('../../.github/workflows/', import.meta.url);
@@ -38,4 +38,25 @@ test('rehearsal installs the frozen YAML dependency before qualification tooling
   const install = steps.findIndex(step => step.run === 'npm ci --ignore-scripts --no-audit --no-fund' && step['working-directory'] === '${{ github.workspace }}/myeve');
   const tooling = steps.findIndex(step => step.run?.includes('node --test scripts/myapps-composition/*.test.mjs'));
   assert.ok(install >= 0 && tooling > install, 'Tooling cannot run before its frozen dependencies are installed');
+});
+test('component source peer cannot replace a release peer or escape its exact read-only checkout', () => {
+  assert.notEqual(componentFactory, factory);
+  const source = workflows['developer-beta-components.yml'];
+  for (const mutate of [
+    text => text.replace(componentFactory, factory),
+    text => text.replace('paired-components:', 'other-job:'),
+    text => text.replace('path: .qualification/factory', 'path: .qualification/other'),
+    text => text.replace('contents: read', 'contents: write'),
+    text => text.replace('paired-components:', 'paired-components:\n    permissions:\n      contents: write'),
+    text => text.replace('paired-components:', 'paired-components:\n    permissions: write-all'),
+    text => text.replaceAll('persist-credentials: false', 'persist-credentials: true'),
+    text => text.replace('repository: jaydubya818/MyFactory', 'repository: jaydubya818/MissionControl'),
+  ]) {
+    const changed = mutate(source);
+    assert.notEqual(changed, source);
+    assert.throws(() => assertCurrentPins({...workflows, 'developer-beta-components.yml':changed}, envelope));
+  }
+  assert.throws(() => assertCurrentPins({...workflows,
+    'unified-beta.yml':workflows['unified-beta.yml'].replace('ref: '+factory, 'ref: '+componentFactory)}, envelope));
+  assert.throws(() => assertCurrentPins({...workflows, 'unreviewed-components.yml':source}, envelope));
 });

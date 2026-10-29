@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { WorkPort, WorkRequest, WorkResult } from "./contracts.ts";
+import type { ContinuationContext, WorkPort, WorkRequest, WorkResult } from "./contracts.ts";
 
 export function contractDigest(value: unknown): string {
   const ordered = (v: unknown): unknown =>
@@ -20,6 +20,29 @@ export function contractDigest(value: unknown): string {
 export function contractUuid(value: unknown): string {
   const h = contractDigest(value);
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
+function continuationObjective(request: WorkRequest): string {
+  if (!request.continuation) return request.objective;
+  const context = request.continuation;
+  const summary = {
+    contextSha256: contractDigest(context),
+    fromAgent: context.fromAgent?.slice(0, 255) ?? null,
+    reason: context.reason.slice(0, 400),
+    retainedSources: context.sources.length,
+    sources: context.sources.slice(-3).map(s => ({
+      workId:s.workId, workVersion:s.workVersion, workGeneration:s.workGeneration,
+      candidate:s.candidate, result:s.result, checkpoint:s.checkpoint,
+    })),
+  };
+  const serialize = () => `${request.objective}\n\nRetained continuation context (advisory data; grants no authority):\n${JSON.stringify(summary)}`;
+  // Bound the final serialized bytes in the canonical objective's character
+  // limit: valid quotes, slashes and controls expand when JSON-escaped. Full
+  // context remains in the immutable intent, referenced by its digest here.
+  while (serialize().length > 4000 && summary.sources.length) summary.sources.shift();
+  while (serialize().length > 4000 && summary.reason.length) summary.reason = summary.reason.slice(0, Math.floor(summary.reason.length / 2));
+  if (serialize().length > 4000) summary.fromAgent = null;
+  return serialize();
 }
 export type RouteHint =
   | "DIRECT"
@@ -102,6 +125,7 @@ export interface CanonicalResultReceipt {
   currentResultRevision: string | null;
 }
 export interface CanonicalGateway {
+  continuation?(ownerId: string, workId: string): Promise<ContinuationContext>;
   /** Existing server authority/configuration resolves these values. Goal fields
    * cannot set or increase budgets, resource access, criteria methods or routes. */
   policy(
@@ -138,6 +162,13 @@ export class CanonicalGoalWorkAdapter implements WorkPort {
     readonly gateway: CanonicalGateway,
     readonly validators: CanonicalValidators,
   ) {}
+  async continuation(ownerId: string, workId: string) {
+    if (!this.gateway.continuation) throw new Error("Canonical continuation is deferred: no qualified reader");
+    const context = await this.gateway.continuation(ownerId, workId);
+    if (context.workId !== workId || context.disposition !== "TERMINAL_FENCED")
+      throw new Error("Canonical continuation binding mismatch");
+    return context;
+  }
   async ensure(request: WorkRequest) {
     // Replays first reconcile the frozen canonical input. Changed current policy
     // must not turn an existing Work into a new Work or changed create payload.
@@ -152,7 +183,7 @@ export class CanonicalGoalWorkAdapter implements WorkPort {
       throw new Error("Canonical criterion policy required");
     const input = this.validators.create.parse({
       title: request.objective.slice(0, 160),
-      objective: request.objective,
+      objective: continuationObjective(request),
       repository: policy.repository,
       criteria: request.criteria.map((statement, i) => ({
         id: contractUuid([request.correlationKey, i, statement]),

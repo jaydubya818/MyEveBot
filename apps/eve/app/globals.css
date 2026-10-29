@@ -48,3 +48,51 @@
     z-index: 50;
   }
 }
+
+/* QA-22: Prevent iOS Safari auto-zoom on input focus. iOS Safari zooms when
+   font-size < 16px on any focusable form element. Apply only on touch devices
+   to avoid changing the desktop composer size. */
+@media (hover: none) and (pointer: coarse) {
+  textarea,
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input:not([type]) {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* QA-12: Phone landscape — sidebar stays in overlay mode even when the
+   viewport is wide enough to trigger md:static. At heights below 500px
+   (landscape phone) the persistent sidebar column collapses the chat area to
+   nothing. Force it back to the fixed/overlay pattern used at narrow widths. */
+@media screen and (max-height: 499px) {
+  [data-chat-sidebar] {
+    position: fixed !important;
+    inset-block-start: 0;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    visibility: hidden !important;
+    transform: translateX(-100%) !important;
+    /* Visibility must change immediately so opening can move keyboard focus. */
+    transition: transform 0.2s;
+  }
+  [data-chat-sidebar][data-open="true"] {
+    visibility: visible !important;
+    transform: translateX(0) !important;
+  }
+  /* Show the sidebar-open button in landscape — at md breakpoints it is
+     hidden (md:hidden) but when the sidebar is forced overlay it is needed. */
+  [data-sidebar-toggle] {
+    display: inline-flex !important;
+  }
+  [data-sidebar-backdrop] {
+    display: block !important;
+  }
+  [data-sidebar-close] {
+    display: inline-flex !important;
+  }
+}

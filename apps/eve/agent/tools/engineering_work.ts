@@ -7,6 +7,7 @@ import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 import { WorkStore } from "../../lib/engineering/store.ts";
+import { FactoryCodingSessionAdapter } from "../../lib/engineering/coding-sessions.ts";
 import { ExecutionStore } from "../../lib/engineering/execution-store.ts";
 import { EngineeringWorkerProjectionStore } from "../../lib/engineering/worker-projection.ts";
 import {
@@ -33,6 +34,7 @@ export default defineDynamic({
         caller.attributes.myeveRoleId
       )
         return null;
+      const ownerId = caller.principalId;
       return defineTool({
         availableInSubagents: false,
         description:
@@ -42,6 +44,7 @@ export default defineDynamic({
             operation: z.enum([
               "list",
               "get",
+              "sessions",
               "create",
               "revise",
               "pause",
@@ -65,7 +68,7 @@ export default defineDynamic({
                     !value.workId &&
                     !value.criteria &&
                     value.expectedVersion === undefined
-                  : value.operation === "get"
+                  : ["get", "sessions"].includes(value.operation)
                     ? !!value.workId &&
                       !value.create &&
                       !value.criteria &&
@@ -99,7 +102,7 @@ export default defineDynamic({
                   !externalAlphaWorkEnabled()) ||
                 !engineeringWorkEnabled() ||
                 !current ||
-                current.principalId !== caller.principalId ||
+                current.principalId !== ownerId ||
                 current.principalType !== "user" ||
                 current.attributes.owner !== "true" ||
                 current.attributes.role === "guest" ||
@@ -123,12 +126,15 @@ export default defineDynamic({
                   })),
                 };
               }
-              if (input.operation === "get") {
+              if (input.operation === "get" || input.operation === "sessions") {
                 const snapshot = await projections.get(input.workId!);
+                const codingSessions = await new FactoryCodingSessionAdapter(store).observe(input.workId!, snapshot);
+                if (input.operation === "sessions") return codingSessions;
                 const { work, execution: state } = snapshot;
                 const executions = new ExecutionStore(store);
                 return {
                   work,
+                  codingSessions,
                   manifest: snapshot.manifest,
                   projection: snapshot.projection,
                   results: state?.results ?? [],

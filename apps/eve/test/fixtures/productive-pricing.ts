@@ -11,7 +11,7 @@ type Plan = {
   plannedCompletionOperations: number; maxPaidOperations: number; completionReserveMicrousd: number;
 };
 
-/** Unadopted test-only proposal. It never represents a current provider tariff.
+/** Test-only offline pricing. It never represents a current provider tariff.
  * Retains the real harness model literal because the unmodified worker pins it.
  * Distinct fixture revision and digest prevent reuse as production evidence.
  */

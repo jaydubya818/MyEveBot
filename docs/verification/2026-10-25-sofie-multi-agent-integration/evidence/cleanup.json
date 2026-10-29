@@ -1,0 +1,13 @@
+{
+  "ownedBrowserFixturePidsStopped": [
+    50007,
+    80133
+  ],
+  "ownedPostgresContainerRemoved": "sofie-integration-pg-20261025",
+  "existingBetaInstallationsChanged": false,
+  "productionCredentialsChanged": false,
+  "gitBranchesDeleted": 0,
+  "managedWorktreesRemoved": 0,
+  "isolatedFactoryClonePreserved": true,
+  "mergePushDeployPerformed": false
+}

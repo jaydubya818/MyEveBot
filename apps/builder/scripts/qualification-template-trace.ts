@@ -9,6 +9,7 @@ import { assembleDeployment, templateRoot } from "../lib/assemble";
 import { TEMPLATE_SOURCE_MANIFEST } from "../lib/template-source";
 import { STANDALONE_SOURCE_INPUTS } from "../lib/shared-myapps";
 import { FEATURE_IDS } from "../lib/config";
+import qualifiedMetadata from "../lib/template-dependency-metadata.json";
 
 const root = await templateRoot(), repository = path.resolve(root, "../..");
 const tripwire = path.join(root, "lib/synthetic-private-custody.json");
@@ -45,16 +46,42 @@ try {
   assert.notEqual(denied.status, 0, "An unrelated generated file must fail the mandatory build gate");
   assert.match(denied.stderr, /exact template inventory only/);
 } finally { await writeFile(tracePath, originalTrace); await rm(unexpectedGenerated); }
-const metadataPath = path.join(root, "node_modules/next/package.json");
-const metadataBytes = await readFile(metadataPath);
+// Hoisted Next versions can produce no template-local dependency metadata.
+// In that case, exercise the conditional policy with an explicitly synthetic
+// trace containing one existing exact public pin. Require verifier acceptance
+// before tampering; never skip the body-hash gate or add an allowlist entry.
+const verificationPath = path.join(repository, "apps/builder/.next/template-trace-verification.json");
+const normalMetadata = JSON.parse(await readFile(verificationPath, "utf8")).dependencyMetadata;
 try {
-  const tampered = JSON.parse(metadataBytes.toString());
-  tampered.syntheticPrivateField = "SYNTHETIC_METADATA_TRIPWIRE";
-  await writeFile(metadataPath, JSON.stringify(tampered));
-  const denied = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
-  assert.notEqual(denied.status, 0, "Same-name/version dependency metadata with altered body must fail");
-  assert.match(denied.stderr, /Dependency metadata changed/);
-} finally { await writeFile(metadataPath, metadataBytes); }
+  let selectedMetadata = Object.keys(normalMetadata).sort()[0];
+  if (!selectedMetadata) {
+    selectedMetadata = Object.keys(qualifiedMetadata.files).sort()[0];
+    assert.ok(selectedMetadata, "A qualified public metadata fixture is required");
+    const trace = JSON.parse(originalTrace.toString());
+    trace.files.push(path.relative(path.dirname(tracePath), path.join(repository, selectedMetadata)));
+    await writeFile(tracePath, JSON.stringify(trace));
+    const accepted = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+    assert.equal(accepted.status, 0, "Synthetic exact metadata must first pass the unchanged verifier: " + accepted.stderr);
+  }
+  const verifiedMetadata = JSON.parse(await readFile(verificationPath, "utf8")).dependencyMetadata;
+  assert.ok(Object.keys(verifiedMetadata).length > 0, "A verified traced metadata body is required for tamper qualification");
+  assert.ok(Object.hasOwn(qualifiedMetadata.files, selectedMetadata), "Tamper target must have an exact qualified metadata pin");
+  const qualified = qualifiedMetadata.files[selectedMetadata as keyof typeof qualifiedMetadata.files];
+  assert.deepEqual(verifiedMetadata[selectedMetadata], { package: qualified.package, version: qualified.version, integrity: qualified.integrity, sha256: qualified.sha256 });
+  const metadataPath = path.join(repository, selectedMetadata);
+  const metadataBytes = await readFile(metadataPath);
+  try {
+    const tampered = JSON.parse(metadataBytes.toString());
+    tampered.syntheticPrivateField = "SYNTHETIC_METADATA_TRIPWIRE";
+    await writeFile(metadataPath, JSON.stringify(tampered));
+    const denied = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+    assert.notEqual(denied.status, 0, "Same-name/version dependency metadata with altered body must fail");
+    assert.match(denied.stderr, /Dependency metadata changed/);
+  } finally { await writeFile(metadataPath, metadataBytes); }
+} finally { await writeFile(tracePath, originalTrace); }
+const metadataRestored = spawnSync(process.execPath, ["--import", "tsx", "apps/builder/scripts/verify-template-trace.ts"], { cwd: repository, encoding: "utf8" });
+assert.equal(metadataRestored.status, 0, "Restore the original dependency trace after metadata qualification: " + metadataRestored.stderr);
+assert.deepEqual(JSON.parse(await readFile(verificationPath, "utf8")).dependencyMetadata, normalMetadata);
 // Exercise Next's two generated package-context files even in a standalone
 // Builder build, where the neighboring Eve build has not created them yet.
 for (const relative of [".next/package.json", ".next/build/package.json"]) {

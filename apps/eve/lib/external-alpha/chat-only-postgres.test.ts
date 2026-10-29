@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { digest } from "../engineering/contract.ts";
 import { ExternalAlphaAllowance } from "./allowance.ts";
 import { SharedAlphaAccounting } from "./shared-accounting.ts";
+import { readAlphaChatUsage } from "./usage.ts";
 import { connection, Env } from "./work-test-fixture.ts";
 
 describe.skipIf(!connection)("chat-only authorization across isolated PostgreSQL databases", () => {
@@ -42,6 +43,77 @@ describe.skipIf(!connection)("chat-only authorization across isolated PostgreSQL
     const row={id:randomUUID(),owner:e.owner,sha:digest(e.policy),kind:"CHAT",day:Math.floor(Date.now()/86400000),amount:100000,ops:2,...over};
     return client.query("INSERT INTO external_alpha_allowance(id,owner_id,policy_sha256,kind,binding_id,request_sha256,day_index,ceiling_microusd,max_operations,deadline) VALUES($1::uuid,$2,$3,$4,$1::text,$3,$5,$6,$7,clock_timestamp()+interval '120 seconds')",[row.id,row.owner,row.sha,row.kind,row.day,row.amount,row.ops]);
   }
+  it("reads exact owner quota in a read-only transaction, including central-only reservations, without exposing the other tester", async () => {
+    const {central,a,b,chat,raw,call} = await make();
+    await call(raw(a)); // Lost local acknowledgment: no app allowance exists.
+    for(let i=0;i<7;i++) await chat(b);
+    const before = (await central.pool.query("SELECT row_to_json(a) AS row FROM external_alpha_cohort_admission a ORDER BY id")).rows;
+    const c = await central.pool.connect();
+    try {
+      await c.query("BEGIN READ ONLY");
+      const status = await call(raw(a,{mode:"status"}),c);
+      expect(status).toMatchObject({version:1,state:"active",dailyTurnsUsed:1,dailyReservedMicrousd:100000,trialReservedMicrousd:100000,quotaRemaining:9});
+      expect(Object.keys(status).sort()).toEqual(["version","checkedAt","dayIndex","resetsAt","activatedAt","expiresAt","state","dailyTurnsUsed","dailyReservedMicrousd","trialReservedMicrousd","quotaRemaining","limits"].sort());
+      expect(JSON.stringify(status)).not.toContain(b.owner);
+      expect(status).not.toHaveProperty("cohortDayReservedMicrousd");
+      await c.query("COMMIT");
+    } finally { await c.query("ROLLBACK"); c.release(); }
+    expect((await central.pool.query("SELECT row_to_json(a) AS row FROM external_alpha_cohort_admission a ORDER BY id")).rows).toEqual(before);
+    expect(await a.count("external_alpha_allowance")).toBe(0);
+    expect(await central.count("external_alpha_cohort_dispatch")).toBe(0);
+    const usage = await readAlphaChatUsage(a.db,a.policy);
+    expect(usage).toMatchObject({dailyTurnsUsed:1,quotaRemaining:9,measured:{dailyMicrousd:0,trialMicrousd:0,unsettledOperations:0}});
+  });
+  it("keeps quota charges distinct from multiple settled model operations and preserves UTC/trial history", async () => {
+    const {central,a,chat,budget} = await make();
+    const allowance = await chat(a);
+    for (const [step,cost] of [["first:0",5000],["second:0",7000]] as const) {
+      const op = await budget(a).reserve({allowanceId:allowance.id,stepKey:step,requestSha256:digest(step),microusd:10000});
+      await budget(a).claimDispatch(op); await budget(a).settle(op,cost,{known:true});
+    }
+    expect(await readAlphaChatUsage(a.db,a.policy)).toMatchObject({dailyTurnsUsed:1,dailyReservedMicrousd:100000,quotaRemaining:9,measured:{dailyMicrousd:12000,trialMicrousd:12000}});
+    await fixtureChange(central,"UPDATE external_alpha_cohort_admission SET day_index=day_index-1");
+    await fixtureChange(a,"UPDATE external_alpha_allowance SET day_index=day_index-1");
+    expect(await readAlphaChatUsage(a.db,a.policy)).toMatchObject({dailyTurnsUsed:0,dailyReservedMicrousd:0,trialReservedMicrousd:100000,quotaRemaining:10,measured:{dailyMicrousd:0,trialMicrousd:12000}});
+  });
+  it("reports pending/UNKNOWN exposure and inactive, revoked, expired state without mutating quota", async () => {
+    const {central,a,b,chat,budget} = await make(false);
+    expect((await readAlphaChatUsage(a.db,a.policy)).state).toBe("inactive");
+    await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp()");
+    const allowance = await chat(a);
+    const op = await budget(a).reserve({allowanceId:allowance.id,stepKey:"pending:0",requestSha256:digest("pending"),microusd:10000});
+    await budget(a).claimDispatch(op);
+    expect(await readAlphaChatUsage(a.db,a.policy)).toMatchObject({state:"paused",dailyTurnsUsed:1,quotaRemaining:9,measured:{dailyMicrousd:0,unsettledOperations:1}});
+    await budget(a).unknown(op);
+    expect(await readAlphaChatUsage(a.db,a.policy)).toMatchObject({state:"paused",localPaused:true,quotaRemaining:9});
+    expect((await readAlphaChatUsage(b.db,b.policy)).state).toBe("paused");
+    await fixtureChange(central,"UPDATE external_alpha_cohort SET activated_at=clock_timestamp()-interval '121 hours'");
+    expect((await readAlphaChatUsage(a.db,a.policy)).state).toBe("expired");
+    await central.pool.query("UPDATE external_alpha_cohort SET revoked_at=clock_timestamp()");
+    expect((await readAlphaChatUsage(a.db,a.policy)).state).toBe("revoked");
+    expect(await central.count("external_alpha_cohort_admission")).toBe(1);
+  });
+  it("requires exact credentials and local owner/policy narrowing for usage reads", async () => {
+    const {a,raw,call} = await make();
+    for (const over of [{ownerId:randomUUID()},{slot:"2"},{credential:"wrong"},{policySha256:"f".repeat(64)}])
+      await expect(call(raw(a,{mode:"status",...over}))).rejects.toThrow("SHARED_DENIED");
+    await expect(readAlphaChatUsage(a.db,{...a.policy,ownerId:randomUUID()})).rejects.toThrow("BINDING_REQUIRED");
+    expect(await a.count("external_alpha_allowance")).toBe(0);
+  });
+  it("projects the effective local trial state and earlier expiry rather than cohort eligibility alone", async () => {
+    const {central,a} = await make();
+    await fixtureChange(a,"UPDATE external_alpha_policy SET created_at=clock_timestamp()-interval '122 hours',activated_at=clock_timestamp()-interval '1 hour'");
+    const [local] = (await a.pool.query("SELECT activated_at+interval '120 hours' AS expiry FROM external_alpha_policy")).rows;
+    expect((await readAlphaChatUsage(a.db,a.policy)).expiresAt).toBe(local.expiry.toISOString());
+    await fixtureChange(a,"UPDATE external_alpha_policy SET activated_at=clock_timestamp()-interval '121 hours'");
+    expect((await readAlphaChatUsage(a.db,a.policy)).state).toBe("expired");
+    await fixtureChange(a,"UPDATE external_alpha_policy SET activated_at=NULL");
+    expect(await readAlphaChatUsage(a.db,a.policy)).toMatchObject({state:"inactive",activatedAt:null,expiresAt:null});
+    await a.pool.query("UPDATE external_alpha_policy SET revoked_at=clock_timestamp()");
+    expect((await readAlphaChatUsage(a.db,a.policy)).state).toBe("revoked");
+    expect((await central.pool.query("SELECT revoked_at FROM external_alpha_cohort")).rows[0].revoked_at).toBeNull();
+    expect(await central.count("external_alpha_cohort_admission")).toBe(0);
+  });
   it("stays inactive until operator activation, then admits both exact owners and no Work",async()=>{
     const {central,a,b,chat,budget}=await make(false);
     await expect(chat(a)).rejects.toThrow("SHARED_FENCED");

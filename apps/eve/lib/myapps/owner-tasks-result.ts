@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {WorkStore,type WorkDatabase} from '../engineering/store.ts';
+import type {Work} from '../engineering/types.ts';
 import {digest} from '../engineering/contract.ts';
 import {factoryConfig,type FactoryRuntime} from '../engineering/factory-routing.ts';
 import {observeAuthenticatedFactoryResult} from '../engineering/factory-authenticated-result.ts';
@@ -15,24 +16,37 @@ import {validateOrigin,type OwnerFactoryOrigin} from '../../../../packages/myapp
 export interface OwnerFactoryTasksCustody {
   kind:'OWNER_FACTORY';
   /** Trusted operator configuration, never a package or request-body field. */
-  readConfig?:()=>Promise<FactoryRuntime>;
+  readConfig?:(work:Work)=>Promise<FactoryRuntime>;
 }
 
 /** Read-only canonical owner custody. No External Alpha policy, authority or third tester slot. */
 export async function retainedOwnerTasksOrigin(database:WorkDatabase,ownerId:string,resultId:string,custody:OwnerFactoryTasksCustody) {
   requireValue(database.atomic&&custody.kind==='OWNER_FACTORY','APP_RESULT_UNAVAILABLE');
-  const config=await (custody.readConfig??factoryConfig)();
-  requireValue(config.engineering.ownerId===ownerId,'APP_OWNER_MISMATCH');
   return database.atomic!(async db=>{
     await db.query("SELECT set_config('myeve.missioncontrol_owner',$1,true)",[ownerId]);
-    const [enrolled]=await db.query('SELECT missioncontrol_enrollment_document($1) AS document',[ownerId]);
-    const enrollment=ownerEnrollmentSchema.parse(enrolled?.document);
-    requireValue(enrollment.ownerId===ownerId&&enrollment.ownerFactoryAdapter,'APP_MISSION_BINDING');
     const [lookup]=await db.query(`SELECT q.work_id FROM engineering_factory_receipts f
       JOIN engineering_factory_requests q ON q.id=f.request_id
       WHERE f.id=$2 AND q.scope_id=$1 AND q.scope_kind='personal'`,[ownerId,resultId]);
     requireValue(lookup,'APP_EVIDENCE_PENDING');
-    await db.query("SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR SHARE",[ownerId,lookup.work_id]);
+    const workId=lookup.work_id;
+    const [locked]=await db.query("SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR SHARE",[ownerId,workId]);
+    requireValue(locked?.id===workId,'APP_EVIDENCE_PENDING');
+    const store=new WorkStore({scopeId:ownerId,scopeKind:'personal',actorId:ownerId},db);
+    const work=structuredClone(await store.get(workId));
+    requireValue(work.id===workId,'APP_RESULT_BINDING');
+    requireValue(work.scopeId===ownerId,'APP_OWNER_MISMATCH');
+    const selectedWorkDigest=digest(work),resolverWork=structuredClone(work);
+    for(const criterion of resolverWork.criteria)Object.freeze(criterion);
+    Object.freeze(resolverWork.criteria);Object.freeze(resolverWork);
+    // Ownership fails before configuration. The pinned transaction holds this
+    // Work lock across trusted local I/O; it does not atomically revoke config.
+    const config=await (custody.readConfig??factoryConfig)(resolverWork);
+    const current=await store.get(workId);
+    requireValue(current.id===workId&&current.scopeId===ownerId&&digest(current)===selectedWorkDigest,'APP_WORK_STALE');
+    requireValue(config.engineering.ownerId===ownerId,'APP_OWNER_MISMATCH');
+    const [enrolled]=await db.query('SELECT missioncontrol_enrollment_document($1) AS document',[ownerId]);
+    const enrollment=ownerEnrollmentSchema.parse(enrolled?.document);
+    requireValue(enrollment.ownerId===ownerId&&enrollment.ownerFactoryAdapter,'APP_MISSION_BINDING');
     const rows=await db.query(`SELECT n.id AS native_result_id,n.proof,n.content_hash,n.candidate_sha,
       r.id AS route_run_id,r.decision_id,r.writer_generation,r.dispatch_identity,r.missioncontrol_binding,
       r.work_id,r.work_version,r.work_generation,r.dispatch_state,r.quiescence,r.fenced_at,r.factory_candidate,
@@ -52,6 +66,7 @@ export async function retainedOwnerTasksOrigin(database:WorkDatabase,ownerId:str
       WHERE f.id=$2 AND r.scope_id=$1 AND r.scope_kind='personal'`,[ownerId,resultId]);
     requireValue(rows.length===1,'APP_EVIDENCE_PENDING');
     const row=rows[0],binding=row.missioncontrol_binding,q=row.factory_binding;
+    requireValue(row.work_id===work.id,'APP_RESULT_BINDING');
     requireValue(binding?.schema==='mc-owner-factory-admission/v1'&&row.receipt_state==='ADMITTED'
       &&row.dispatch_state==='TERMINAL'&&row.quiescence&&row.fenced_at
       &&row.quiescence.state==='COMPLETED'&&row.quiescence.quiescent===true
@@ -62,7 +77,6 @@ export async function retainedOwnerTasksOrigin(database:WorkDatabase,ownerId:str
       &&binding.routeRunId===row.route_run_id&&binding.routeDecisionId===row.decision_id
       &&binding.writerGeneration===Number(row.writer_generation)&&binding.dispatchIdentity===row.dispatch_identity,
       'APP_RESULT_BINDING');
-    const store=new WorkStore({scopeId:ownerId,scopeKind:'personal',actorId:ownerId},db),work=await store.get(row.work_id);
     requireValue((work.lifecycle==='active'&&work.control==='agent'&&work.version===row.work_version&&work.generation===row.work_generation)
       ||work.lifecycle==='accepted','APP_WORK_STALE');
     assertOwnerFactoryConfiguration(work,enrollment,config);

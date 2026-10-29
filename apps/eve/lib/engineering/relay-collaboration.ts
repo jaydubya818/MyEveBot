@@ -76,8 +76,9 @@ export function prepareRelayCollaboration(input: {
   requestId: string; body: string; approvedDisclosureHash: string; deadline: string;
 }, now = Date.now()) {
   const work = workSchema.parse(input.work), grant = grantSchema.parse(input.grant);
-  boundedBody(input.body);
-  const disclosureHash = relayDisclosureHash(input.body);
+  const body = input.body;
+  boundedBody(body);
+  const disclosureHash = relayDisclosureHash(body);
   if (hash.parse(input.approvedDisclosureHash) !== disclosureHash)
     throw new Error("Relay disclosure differs from the exact approved text.");
   const binding = bindingSchema.parse({
@@ -88,7 +89,7 @@ export function prepareRelayCollaboration(input: {
     createdAt: new Date(now).toISOString(), deadline: input.deadline,
   });
   assertCurrent(binding, work, grant, now);
-  return { binding, payload: { body: input.body } };
+  return { binding, payload: { body } };
 }
 
 export type RelayCollaborationObservation =
@@ -109,11 +110,16 @@ export function observeRelayCollaboration(input: {
   assertCurrent(binding, workSchema.parse(input.work), grantSchema.parse(input.grant), now);
   if (peer.parse(input.authenticatedPeer) !== binding.peer)
     throw new Error("Relay response came from a different peer.");
+  // Correlation and projection must inspect one detached response, including
+  // nested caller-backed accessors, before attaching any advisory content.
+  let response: unknown;
+  try { response = structuredClone(input.response); }
+  catch { throw new Error("Relay response cannot be snapshotted."); }
   // The legacy projector accepts an absent outer ID. Work attachment requires it.
-  const outer = z.object({ requestId: reference }).passthrough().safeParse(input.response);
+  const outer = z.object({ requestId: reference }).passthrough().safeParse(response);
   if (!outer.success || outer.data.requestId !== binding.requestId)
     throw new Error("Relay response lacks the exact request identity.");
-  const result = projectPeerMessageResult(input.response, binding.requestId, binding.peer);
+  const result = projectPeerMessageResult(response, binding.requestId, binding.peer);
   let previous: RelayCollaborationReceipt | undefined;
   if (input.previous) {
     previous = receiptSchema.parse(input.previous);

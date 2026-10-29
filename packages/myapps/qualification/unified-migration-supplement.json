@@ -57,6 +57,14 @@
     {
       "name": "0107_factory_preparation_generation_guard.sql",
       "sha256": "0915d5b8325218910e1edef47b09847b1a9a5c894a3448330d3644fb2a1db336"
+    },
+    {
+      "name": "0108_application_passwords.sql",
+      "sha256": "aacf286ffea0844414225b2db77515b79ad6b64d7429957e89d3dd5e5256fec4"
+    },
+    {
+      "name": "0109_external_alpha_chat_only.sql",
+      "sha256": "71a3cf4eb5b4bcb12d9eb451dd2e35810773bf6c247243c2250aec44b725ffd3"
     }
   ]
 }

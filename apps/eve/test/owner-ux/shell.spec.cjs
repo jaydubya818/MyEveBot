@@ -33,7 +33,8 @@ for(const width of [1440,1024,768,390]) {
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);
    const nav=page.getByRole('navigation',{name:'Primary',exact:true});
    if(width<=900)await page.getByRole('button',{name:'Menu',exact:true}).click();
-   await expect(nav.getByRole('link')).toHaveText(['Today','Sofie','Work','Needs You','Files','Settings','Privacy & boundaries']);
+   await expect(nav.getByRole('link')).toHaveText(['Today','Sofie','Work','Needs You','Files','Results','Activity','Settings','Privacy & boundaries']);
+   expect(await nav.getByRole('link').evaluateAll(links=>links.map(link=>link.getAttribute('href')))).toEqual(['/today','/chat','/work','/needs-you','/workspace','/results','/activity','/settings','/privacy']);
    if(width<=900)await page.getByRole('button',{name:'Menu',exact:true}).click();
    await expect(page.getByText(/production CLOUD canary|Ship MyEve V1|Control: agent|Private-alpha availability/)).toHaveCount(0);
    await page.addScriptTag({content:axe});

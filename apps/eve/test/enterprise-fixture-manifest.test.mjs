@@ -12,6 +12,11 @@ test('fixture source and transformed hashes survive successful and failed instru
   try {
     await mkdir(source);
     const files={
+      '.gitignore':'node_modules/\n',
+      'package.json':JSON.stringify({name:'manifest-synthetic',version:'0.0.0',private:true}),
+      'package-lock.json':JSON.stringify({name:'manifest-synthetic',version:'0.0.0',lockfileVersion:3,requires:true,
+        packages:{'':{name:'manifest-synthetic',version:'0.0.0'}}}),
+      'apps/eve/test/owner-journey/fixture-error-diagnostics.cjs':await readFile(new URL('./owner-journey/fixture-error-diagnostics.cjs',import.meta.url),'utf8'),
       'apps/eve/next.config.ts':'const nextConfig: NextConfig = {}; export default nextConfig;',
       'apps/eve/test/browser/enterprise-model.fixture.ts':'export const model="fixture";',
       'apps/eve/agent/agent.ts':'export const model="original";',
@@ -24,6 +29,10 @@ test('fixture source and transformed hashes survive successful and failed instru
     execFileSync('git',['init','-q'],{cwd:source});execFileSync('git',['add','.'],{cwd:source});
     execFileSync('git',['-c','user.name=Fixture Test','-c','user.email=fixture@example.invalid','-c','commit.gpgsign=false','commit','-qm','Disposable manifest test'],{cwd:source});
     const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();
+    // Owned data exercises physical dependency copying; no package code/install.
+    const dependencyData='Inert manifest dependency-copy fixture\n';
+    await mkdir(join(source,'node_modules'));
+    await writeFile(join(source,'node_modules/fixture-dependency-data.txt'),dependencyData);
     const companion=join(source,'.qualification/companion');await mkdir(companion,{recursive:true});
     execFileSync('git',['init','-q'],{cwd:companion});await writeFile(join(companion,'README.md'),'Untracked CI companion');
     for(const failed of [false,true]) {
@@ -36,6 +45,9 @@ test('fixture source and transformed hashes survive successful and failed instru
       const manifest=JSON.parse(bytes);assert.equal(manifest.sha,sha);assert.equal(manifest.instrumentation,failed?'FAILED':'PASS');
       assert.equal(manifest.sourceDirty,failed);
       assert.equal(Object.keys(manifest.hashes).some(path=>path.startsWith('.qualification/')),false);
+      assert.equal(Object.keys(manifest.hashes).some(path=>path.startsWith('node_modules/')),false);
+      assert.equal(await readFile(join(target,'node_modules/fixture-dependency-data.txt'),'utf8'),dependencyData);
+      assert.equal(await readFile(join(source,'node_modules/fixture-dependency-data.txt'),'utf8'),dependencyData);
       for(const [path,original] of Object.entries(files))assert.equal(manifest.hashes[path],createHash('sha256').update(original).digest('hex'));
       for(const [path,digest] of Object.entries(manifest.transformedHashes))assert.equal(digest,createHash('sha256').update(await readFile(join(target,path))).digest('hex'));
       assert.notEqual(manifest.transformedHashes['apps/eve/lib/missioncontrol/consumer.ts'],manifest.hashes['apps/eve/lib/missioncontrol/consumer.ts']);

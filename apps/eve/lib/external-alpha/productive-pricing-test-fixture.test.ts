@@ -7,7 +7,7 @@ const plan = Object.freeze({ version: "WORK_LEDGER_V2", pricingRevision: price.r
 afterEach(() => vi.unstubAllEnvs());
 const fixture = () => { vi.stubEnv("NODE_ENV", "test"); vi.stubEnv("MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE", "1"); return productivePricingFixture(price, plan, deadline, now); };
 
-describe("unadopted offline productive pricing proposal", () => {
+describe("offline productive pricing fixture", () => {
   it("preserves all historical numerical bounds and original objects under a distinct fixture identity", () => {
     const before = JSON.stringify({ price, plan }), out = fixture();
     expect(JSON.stringify({ price, plan })).toBe(before);

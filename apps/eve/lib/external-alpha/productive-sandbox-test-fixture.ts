@@ -22,7 +22,7 @@ export class ProductiveSandboxFixture {
   allocations = 0;
   deleted = 0;
   modelCalls = 0;
-  constructor(readonly modules: any, readonly candidate: Record<string, string>, readonly unknown = false, readonly sourceFiles: Record<string, string> = {}) {}
+  constructor(readonly modules: any, readonly candidate: Record<string, string>, readonly unknown = false, readonly sourceFiles: Record<string, string> = {}, readonly price = modules.price.productionModelPrice) {}
   readonly api = {
     create: async (options: any) => {
       this.allocations++;
@@ -92,7 +92,7 @@ export class ProductiveSandboxFixture {
   };
   readonly blobPut = async (path: string, bytes: Buffer, options: any) => { if (options.access !== "private" || options.allowOverwrite !== false || this.blobs.has(path)) throw Error("FIXTURE_CUSTODY_SCOPE"); this.blobs.set(path, Buffer.from(bytes)); };
   readonly blobGet = async (path: string) => { const bytes = this.blobs.get(path); return bytes ? { statusCode: 200, blob: { size: bytes.length }, stream: Readable.from([Buffer.from(bytes)]) } : { statusCode: 404 }; };
-  modelProvider = () => ({ price: this.modules.price.productionModelPrice, upstreamOrigin: "https://deterministic.factory.invalid", upstreamApiKey: "deterministic-fixture-only", upstreamFetch: async (url: string, init: any) => {
+  modelProvider = () => ({ price: this.price, upstreamOrigin: "https://deterministic.factory.invalid", upstreamApiKey: "deterministic-fixture-only", upstreamFetch: async (url: string, init: any) => {
     if (String(url) !== "https://deterministic.factory.invalid/v1/responses" || init.method !== "POST") throw Error("FIXTURE_MODEL_ROUTE");
     this.modelCalls++; if (this.unknown) throw Error("DETERMINISTIC_UNKNOWN_TRANSPORT");
     const body = JSON.parse(init.body); if (body.model !== this.modules.plan.cloudHarnessIdentity.model) throw Error("FIXTURE_MODEL_PIN");

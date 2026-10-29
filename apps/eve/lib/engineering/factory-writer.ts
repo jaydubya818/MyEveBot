@@ -8,12 +8,13 @@ import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
 import {WorkStore} from './store.ts';
 import {WorkError} from './types.ts';
-import {FactoryReceiptStore} from './factory-receipt-store.ts';
-import {resumeFactoryResult,type ConsumerOptions} from './factory-result-consumer.ts';
-import {assertFactoryCandidateIdentity,type RepositorySnapshot} from './github.ts';
-import {digest,type RepositoryProfile} from './contract.ts';
+import {FactoryReceiptStore,type LocalFactoryBindingV4} from './factory-receipt-store.ts';
+import {resumeFactoryResult,resumeLocalFactoryResultV4,type ConsumerOptions} from './factory-result-consumer.ts';
+import {requireLocalFactoryBindingV4} from './factory-authenticated-result.ts';
+import {assertFactoryCandidateIdentity,treeObjects,type RepositorySnapshot} from './github.ts';
+import {digest,profileSchema,type RepositoryProfile} from './contract.ts';
 import type {Candidate} from './execution.ts';
-import type {SignedResult} from './factory-producer-protocol.ts';
+import type {SignedResult,LocalResultManifestV4} from './factory-producer-protocol.ts';
 
 export interface FactoryWriter {
  id:string;work_id:string;work_version:number;work_generation:number;writer_generation:number;
@@ -114,12 +115,92 @@ export class FactoryWriterStore {
   assertFactoryCandidateIdentity({workId:run.work_id,repository:profile.repository,baseSha:source.sha,profile},source,candidate);
   return this.call(run,'custody',{custody:{receiptId,candidates:[candidate],sourceFiles:source.files,files,baseSha:source.sha,profileHash:digest(profile),repository:profile.repository}});
  }
+
+ /** Explicit inactive V4 handoff. This only retains candidate data; the SQL
+  * boundary still owns current writer/Work/MC fencing and requests verification.
+  * No candidate code, returned workspace path or producer check is executed. */
+ async takeLocalCustodyV4(run:FactoryWriter,receiptId:string,sourceValue:RepositorySnapshot,profileValue:RepositoryProfile,options:ConsumerOptions) {
+  // Trusted inputs must not change while receipt/Git work yields.
+  const supplied=structuredClone(run),source=localSourceSnapshot(sourceValue),profile=profileSchema.parse(profileValue);
+  const current=await this.inspect(supplied.work_id,supplied.id);
+  const fields=['id','work_id','work_version','work_generation','writer_generation','factory_request_id','dispatch_identity'] as const;
+  if(fields.some(key=>current[key]!==supplied[key]) || current.status!=='COMPLETED' ||
+   current.dispatch_state!=='TERMINAL' || !current.fenced_at || current.stop_reason)
+   throw new WorkError('factory_writer_fenced','Exact completed current Factory writer required.');
+  const receipts=new FactoryReceiptStore<LocalResultManifestV4,LocalFactoryBindingV4>(this.work.principal,this.work.database);
+  const request=await receipts.request(current.factory_request_id);
+  const binding=requireLocalFactoryBindingV4(request.binding);
+  if(request.id!==current.factory_request_id || binding.workId!==current.work_id ||
+   binding.workVersion!==current.work_version || binding.workGeneration!==current.work_generation ||
+   source.sha!==binding.inputCommit || treeObjects(source.files).sha!==binding.inputTree)
+   throw new WorkError('factory_candidate_scope','Exact admitted V4 input commit and full source tree required.');
+  const identity=await this.identity(current);
+  if(identity.repository!==profile.repository || identity.baseSha!==source.sha ||
+   JSON.stringify([...identity.allowedPaths].sort())!==JSON.stringify([...profile.allowedPaths].sort()) ||
+   JSON.stringify([...binding.configuration.allowedPaths].sort())!==JSON.stringify([...profile.allowedPaths].sort()))
+   throw new WorkError('factory_candidate_scope','Candidate scope differs from admitted Factory authority.');
+  const admitted=await resumeLocalFactoryResultV4(receipts,request.id,receiptId,options);
+  // Delivery aliases are deliberately refused. Only the independently verified
+  // actual canonical envelope may be named by immutable writer custody.
+  if(admitted.status!=='ADMITTED' || !admitted.eligibleForCurrentAdmission ||
+   admitted.receiptId!==receiptId || admitted.admissionReceiptId!==receiptId)
+   throw new WorkError('factory_receipt_historical','Current canonical V4 admission required.');
+  const receipt=await receipts.get(request.id,receiptId),manifest=receipt.provenance!.manifest,c=manifest.candidate;
+  if(!c)throw new WorkError('factory_candidate_scope','Completed candidate required.');
+  const envelope=JSON.parse(receipt.envelope) as SignedResult;
+  const artifact=(id:string)=>{const value=envelope.artifacts.find(a=>a.id===id);if(!value)throw new Error('Missing authenticated artifact');return Buffer.from(value.base64,'base64');};
+  const files=await applyFactoryPatch(source.files,artifact(c.patchArtifactId));
+  const changedPaths=[...new Set([...Object.keys(source.files),...Object.keys(files)])].filter(p=>source.files[p]!==files[p]).sort();
+  const patch=JSON.stringify(changedPaths.map(path=>({path,before:source.files[path]??null,after:files[path]??null})));
+  const candidate:Candidate={id:receiptId,workId:current.work_id,runId:current.id,attemptId:binding.runId,repository:profile.repository,
+   baseSha:source.sha,parentSha:source.sha,sha:c.commit,tree:c.tree,files,changedPaths,patch,artifactHash:digest({files,patch}),createdAt:manifest.completedAt,
+   commit:{message:'Factory raw commit retained verbatim',name:'MyFactory',email:'provenance@invalid',date:manifest.completedAt},
+   rawCommit:artifact(c.commitArtifactId).toString('utf8'),producer:'MYFACTORY',
+   factoryProvenance:{receiptId,requestId:binding.requestId,factoryId:binding.factoryId,factoryVersion:binding.factoryVersion,
+    workOrderId:binding.workOrderId,remoteRunId:binding.runId,attemptNumber:binding.attemptNumber,writerGeneration:current.writer_generation}};
+  assertFactoryCandidateIdentity({workId:current.work_id,repository:profile.repository,baseSha:source.sha,profile},source,candidate);
+  // Materialization can outlive a key or Work revision. Reauthenticate the same
+  // canonical bytes with current trust immediately before the serialized handoff.
+  const final=await resumeLocalFactoryResultV4(receipts,request.id,receiptId,options);
+  if(!final.eligibleForCurrentAdmission || final.receiptId!==receiptId || final.admissionReceiptId!==receiptId ||
+   final.manifestDigest!==admitted.manifestDigest)
+   throw new WorkError('factory_receipt_historical','V4 admission changed before candidate custody.');
+  return this.call(current,'custody',{custody:{receiptId,candidates:[candidate],sourceFiles:source.files,files,
+   baseSha:source.sha,profileHash:digest(profile),repository:profile.repository}});
+ }
+}
+
+/** The existing candidate pipeline uses SHA1 regular UTF-8 Git files only. */
+function localSourceSnapshot(value:RepositorySnapshot):RepositorySnapshot {
+ const source=structuredClone(value);
+ if(!/^[a-f0-9]{40}$/.test(source.sha) || !source.files || typeof source.files!=='object' || Array.isArray(source.files) ||
+  Object.keys(source.files).length>200 || Buffer.byteLength(JSON.stringify(source.files))>500000)
+  throw new WorkError('factory_candidate_scope','Bounded SHA1 source snapshot required.');
+ for(const [path,text] of Object.entries(source.files)) {
+  if(!/^[\w./-]+$/.test(path) || path.startsWith('/') || path.split('/').some(p=>!p||p==='.'||p==='..'||p==='.git') ||
+   typeof text!=='string' || Buffer.byteLength(text)>100000 || text.includes('\0') || Buffer.from(text).toString('utf8')!==text)
+   throw new WorkError('factory_candidate_scope','Regular bounded UTF-8 source files required.');
+ }
+ return source;
 }
 
 const exec=promisify(execFile);
 /** Applies data only, in a fresh isolated repository; never executes candidate
  * code or hooks. Rejects symlinks, binary/non-UTF8 files and unbounded trees. */
 async function applyFactoryPatch(source:Record<string,string>,patch:Buffer):Promise<Record<string,string>> {
+ if(patch.length>2*1024*1024)throw new Error('Regular bounded text patch required');
+ const text=patch.toString('utf8');
+ if(!Buffer.from(text).equals(patch) || text.includes('\0') ||
+  /^GIT binary patch\r?$/m.test(text) || /^Binary files .+ differ\r?$/m.test(text) ||
+  /^(?:copy (?:from|to) |rename (?:from|to) |(?:old|new) mode |(?:new|deleted) file mode (?!100644\r?$))/m.test(text))
+  throw new Error('Regular bounded text patch required');
+ const declared:string[]=[];
+ for(const match of text.matchAll(/^diff --git a\/([\w./-]+) b\/([\w./-]+)\r?$/gm)) {
+  if(declared.length===200)throw new Error('Factory patch path bound');
+  if(match[1]!==match[2])throw new Error('Regular bounded text patch required');
+  declared.push(match[1]);
+ }
+ if(!declared.length)throw new Error('Regular bounded text patch required');
  const dir=await mkdtemp(join(tmpdir(),'myeve-factory-custody-'));
  const env={...process.env,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'};
  const git=(args:string[])=>exec('git',['-c','core.hooksPath=/dev/null',...args],{cwd:dir,env,maxBuffer:2*1024*1024,timeout:10000});
@@ -130,8 +211,19 @@ async function applyFactoryPatch(source:Record<string,string>,patch:Buffer):Prom
    if(!/^[\w./-]+$/.test(path) || path.startsWith('/') || path.split('/').some(p=>!p||p==='.'||p==='..'||p==='.git'))throw new Error('Unsafe Factory base path');
    await mkdir(dirname(join(dir,path)),{recursive:true});await writeFile(join(dir,path),content);
   }
-  await git(['add','--all']);
+  await git(['add','--force','--all']);
   const patchPath=join(dir,'.git','factory.patch');await writeFile(patchPath,patch);
+  // Inspect only text-patch metadata before any candidate files are written.
+  // The text byte bound prevents compressed expansion; this bounds path count.
+  const stats=await git(['apply','--numstat','-z',patchPath]);
+  const paths=stats.stdout.split('\0').filter(Boolean);
+  if(!paths.length || paths.length>200 || paths.some(entry=>{
+   const match=/^\d+\t\d+\t([\w./-]+)$/.exec(entry),path=match?.[1];
+   return !path || path.startsWith('/') || path.split('/').some(p=>!p||p==='.'||p==='..'||p==='.git');
+  }))throw new Error('Factory patch path bound');
+  const observed=paths.map(entry=>entry.split('\t')[2]).sort();
+  if(new Set(declared).size!==declared.length || JSON.stringify(declared.sort())!==JSON.stringify(observed))
+   throw new Error('Factory patch path bound');
   await git(['apply','--index','--whitespace=nowarn',patchPath]);
   const {stdout}=await git(['ls-files','--stage','-z']);const files:Record<string,string>={};
   for(const entry of stdout.split('\0').filter(Boolean)) {
