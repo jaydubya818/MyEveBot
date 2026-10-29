@@ -1,0 +1,94 @@
+{
+  "schema": "myeve.isolated-cohort-proposal/v1",
+  "proposalId": "qdev-20261029-01",
+  "status": "PROPOSED_NOT_AUTHORITY",
+  "environment": "qualification",
+  "originalTesterMutation": false,
+  "historicalRemediationIsSeparate": true,
+  "mayEvadeSponsorOrProviderAccountHold": false,
+  "financialProposal": {
+    "currency": "USD",
+    "unit": "microUSD",
+    "journeyCeiling": 5200000,
+    "maximumWorks": 4,
+    "perWorkCeiling": 1300000,
+    "concurrency": 1,
+    "allSofieNativeFactoryVerifierModelExposureIncluded": true,
+    "secondOwnerPaidWorks": 0,
+    "automaticRetry": false,
+    "topUp": false,
+    "extension": false,
+    "fundingReference": null,
+    "accountWideHoldDisposition": null,
+    "validUntil": null,
+    "infrastructureCeiling": null,
+    "approvedQualificationPriceRevision": null
+  },
+  "ownerLabels": ["qdev-20261029-q1", "qdev-20261029-q2"],
+  "authenticatedOwnerIds": null,
+  "requestedResources": {
+    "host": "myeve-qdev-20261029",
+    "databases": [
+      "myeve_qdev_20261029_app",
+      "myeve_qdev_20261029_factory",
+      "myeve_qdev_20261029_relay",
+      "myeve_qdev_20261029_missioncontrol",
+      "myeve_qdev_20261029_accounting",
+      "myeve_qdev_20261029_witness"
+    ],
+    "runtimeArtifactStore": "myeve-qdev-20261029-artifacts",
+    "separateVerifierAccountAndStore": "myeve-qdev-20261029-verifier",
+    "actualResourceIds": null,
+    "actualPrincipalIds": null,
+    "state": "NOT_CREATED"
+  },
+  "dashboard": {
+    "repository": "jaydubya818/myeve-beta-dashboard",
+    "inputCommit": "d1619cc870ad63e4442e078e73dad377dfb3ccf6",
+    "inputTree": "396f4b7240ef2aaccc79e73f1d2757f9d322f69f",
+    "proposedOutputBranch": "codex/qdev-20261029-journey",
+    "publicCriteriaCommit": "2fb0dba40295b7915756efc7e625753730f8221b",
+    "publicCriteriaSha256": "b315b6b6c0c8e6f7903d39026395afc7b59816247df0f6f1838d8ed82deb4348",
+    "protectedSpecificationIdentity": null
+  },
+  "proposedSequence": [
+    {"stage": 1, "purpose": "Sofie intent, planning and first coding-agent Work", "source": "EXACT_APPROVED_DASHBOARD_INPUT"},
+    {"stage": 2, "purpose": "Second coding-agent Work and reviewed source reconciliation", "source": "AUTHENTICATED_PRECEDING_CANDIDATE"},
+    {"stage": 3, "purpose": "Factory build and ordinary tests", "source": "AUTHENTICATED_RECONCILED_CANDIDATE"},
+    {"stage": 4, "purpose": "Independent verification in protected custody", "source": "EXACT_RETAINED_SOURCE_AND_BUILD_ARTIFACTS"}
+  ],
+  "admissionRequirements": [
+    "Current authenticated owner, Agent, installed capability and controller incarnation on every effect",
+    "Approved immutable project parent before any charged child operation using existing canonical ledgers",
+    "Exact Work, version, generation, ordinal, source, price, FactoryVersion and profile bindings",
+    "Atomic aggregate cap and concurrency admission; unknown or partial binding retains full exposure and fences further dispatch",
+    "No chat-only bypass, reused historical grant, new scope reset or competing balance ledger"
+  ],
+  "approvedReleaseTuple": null,
+  "rollback": {
+    "assessmentCodeReferencesOnly": {
+      "myeve": "db9ceaff0cb70177783ba7b462c77b9aee9e39d8",
+      "factory": "87a9a8471848d7c51ea334ae95077bfa4460d45f",
+      "relay": "e5166e07c6eea366cee92e0511800bdbff620d5a",
+      "missioncontrolIntegration": "f9bcd0df4bb970a36a43599b00d724b07f300ad0"
+    },
+    "preRunDatabaseSnapshotIds": null,
+    "artifactStoreVersionIds": null,
+    "myAppsPriorRevisionOrAuthenticatedAbsence": null,
+    "restoreCompatibilityAccepted": false,
+    "refundUnknownExposure": false,
+    "deleteHistoricalEvidence": false
+  },
+  "approvals": {
+    "cohortAndFundingCharter": null,
+    "sourceAndAdmissionContract": null,
+    "qualifiedNonproductionOperatingProfile": null,
+    "independentVerifierAndProtectedSpecification": null,
+    "boundedRealJourney": null
+  },
+  "createsGrant": false,
+  "authorizesPaidExecution": false,
+  "authorizesProductionCredential": false,
+  "authorizesProductionDeployment": false,
+  "authorizesTesterActivation": false
+}
