@@ -62,7 +62,8 @@
       "codex/qdev-20261030-root-auth": false,
       "codex/qdev-20261030-peer-corrections": false,
       "codex/qdev-20261030-ops-safety": false,
-      "codex/qdev-20261030-native-budget-binding": false
+      "codex/qdev-20261030-native-budget-binding": false,
+      "codex/qdev-20261030-sofie-deadline": false
     }
   },
   "functions": {

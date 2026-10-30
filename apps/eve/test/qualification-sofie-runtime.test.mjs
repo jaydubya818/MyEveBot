@@ -191,3 +191,32 @@ test('the AI SDK adapter: one provider request per step, ceiling sent to the pro
   const rt3=runtime(aiSdkMeteredModel(failing)),r3=await rt3.start(task());
   assert.equal(attempts,1);assert.deepEqual(await rt3.finished(r3.handle),{usageFinal:false});
 });
+
+// Independent failure-injection regressions: a whole-conversation deadline can expire while Relay is pending.
+{
+const tool={name:'relay_github_repo_get',kind:'read'};
+const output=(calls=[])=>({messages:[],toolCalls:calls,usage:{inputTokens:1,outputTokens:1}});
+const task=relay=>({stage:1,key:'synthetic-deadline',purpose:'SOFIE',ownerId:'review-owner',slot:'Q1',projectSha256:'a'.repeat(64),sourceSha256:'b'.repeat(64),reserveMicrousd:650000,relay});
+test('a deadline during a Relay call cannot start another model step with an already-aborted signal',async()=>{
+ let calls=0,secondSignal;
+ const model={async step(input){calls++;if(calls===1)return output([{id:'c1',tool,args:{}}]);secondSignal=input.signal.aborted;return output();},toolResult:()=>({role:'tool',content:[]})};
+ const rt=new SofiePlanningRuntime({model,price:{inputMicrousdPerMillionTokens:3000000,outputMicrousdPerMillionTokens:15000000},request:'Plan dashboard',system:'Sofie',deadlineMs:5,quiescenceGraceMs:50});
+ const {handle}=await rt.start(task({discover:async()=>[tool],execute:async()=>{await new Promise(r=>setTimeout(r,30));return {ok:true};}}));
+ console.log(JSON.stringify({calls,secondSignalAlreadyAborted:secondSignal,summary:rt.summary(handle)}));
+ assert.equal(calls,1,'the conversation hard deadline must be checked before a new model request');
+ assert.deepEqual(await rt.finished(handle),{usageFinal:false});
+});
+test('a deadline that expires during Relay cannot lose the grace timer for an unsettled subsequent model call',async()=>{
+ let calls=0,release,outer;
+ const blocked=new Promise(r=>release=r);
+ const model={async step(){calls++;return calls===1?output([{id:'c1',tool,args:{}}]):blocked;},toolResult:()=>({role:'tool',content:[]})};
+ const rt=new SofiePlanningRuntime({model,price:{inputMicrousdPerMillionTokens:3000000,outputMicrousdPerMillionTokens:15000000},request:'Plan dashboard',system:'Sofie',deadlineMs:5,quiescenceGraceMs:10});
+ const pending=rt.start(task({discover:async()=>[tool],execute:async()=>{await new Promise(r=>setTimeout(r,30));return {ok:true};}}));
+ try{
+  const result=await Promise.race([pending.then(()=> 'finished',()=> 'rejected'),new Promise(r=>outer=setTimeout(()=>r('still-pending'),100))]);
+  console.log(JSON.stringify({calls,result,deadlineMs:5,graceMs:10}));
+  assert.notEqual(result,'still-pending','a missed abort event must not leave the charged operation waiting forever');
+ }finally{clearTimeout(outer);release(output());await pending.catch(()=>{});}
+});
+
+}
