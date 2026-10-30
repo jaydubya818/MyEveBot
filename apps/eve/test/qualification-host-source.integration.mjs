@@ -127,6 +127,15 @@ try{
   assert.equal(await none.material(w.policy.Q1.ownerId),null);          // complete bundle but no protected ports: stays disabled
   assert.equal(await count(w,'qdev_work'),0);assert.equal(await count(w,'qdev_dispatch'),0);
  });
+ await test('loader: a pinned custody module and an assembly profile are mutually exclusive; a profile with an unknown key is refused',async()=>{
+  const w=await world('l0');
+  const asm={slot:'Q1'};
+  for(const [label,mutate] of [['both',b=>{b.custody={module:'/x.mjs',sha256:'a'.repeat(64)};b.assembly=asm}],['unknown key',b=>{b.assembly={...asm,apiKey:'sk-live'}}],['incomplete profile',b=>{b.assembly=asm}]]){
+   const r=await runtime(w,{mutate});
+   assert.equal(await r.source.material(w.policy.Q1.ownerId),null,label);
+  }
+ });
+
  await test('loader: foreign owner, mismatched policy owner, expired bundle and tampered bundle are refused',async()=>{
   const w=await world('l2');
   const ok=await runtime(w);assert.ok(await ok.source.material(w.policy.Q1.ownerId));

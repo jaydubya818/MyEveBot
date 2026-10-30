@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { QualificationAccounting, qualificationBinding, qualificationPolicySchema, qualificationProjectInputSchema } from "../external-alpha/qualification-accounting.ts";
 import { qualificationConversation } from "./conversation-model.ts";
+import { assemblyProfileSchema, qdevJourneyId } from "./custody-profile.ts";
 import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
 import { RelayMcpTransport } from "./relay-mcp-transport.ts";
@@ -43,7 +44,9 @@ export const hostBundleSchema = z.object({
   conversation: z.object({ approvedRequest: z.string().trim().min(1).max(4000), deliveryUrl: z.string().url().optional() }).strict(),
   /** The one operator-installed custody module (absolute path + SHA-256 of its bytes) that supplies the protected ports. Absent keeps the ports disabled. */
   custody: z.object({ module: z.string().min(2).max(1024), sha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict().optional(),
-}).strict();
+  /** Non-secret assembly profile (ids, pins, env-var NAMES) the production launcher turns into the protected ports. Mutually exclusive with `custody`. */
+  assembly: assemblyProfileSchema.optional(),
+}).strict().refine(bundle => !(bundle.custody && bundle.assembly), { message: "custody module and assembly profile are mutually exclusive" });
 export type QdevHostBundle = z.infer<typeof hostBundleSchema>;
 
 export type RuntimePorts = Omit<WiringConfig, "project" | "relay" | "journal">;
@@ -98,7 +101,7 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
     const binding = qualificationBinding(bundle.project);
     const accounting = new QualificationAccounting(guarded(deps.database(accountingUrl)), accountingCredential, bundle.policy, binding);
-    const journal = new PostgresJournal(guarded(deps.database(journalUrl)), sha(JSON.stringify([bundle.ownerId, binding.projectSha256, binding.sourceSha256])));
+    const journal = new PostgresJournal(guarded(deps.database(journalUrl)), qdevJourneyId(bundle.ownerId, bundle.project));
     const transport = new RelayMcpTransport({ enabled: true, origin: bundle.relay.origin, tools: relayToolMap(), fetcher: deps.fetcher,
       credential: async () => { const current = env[bundle.credentials.relay]; if (!live() || !current) throw Error("QDEV_RELAY_CREDENTIAL"); return current; } });
     const relay = new RelayDeveloperTools(bundle.relay.grant, transport);

@@ -4729,7 +4729,7 @@
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
       "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed.",
-      "sha256": "eebdb4464037672a30b840c6b0356db626b254db50582a8dec58c437aef58c00"
+      "sha256": "9beb0766a2ba736374f9557525500bdb4a85e6f3f137b16719d9f8f5601ea187"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
@@ -4799,7 +4799,7 @@
     "lib/qualification/custody-loader.ts": {
       "classification": "ENFORCED",
       "reason": "Production startup binding for the protected-custody ports. The host bundle may pin one operator-installed custody module by absolute normalized path and SHA-256; the loader reads it, requires the bytes to match the pin, imports exactly those verified bytes, and composes the runtime ports from the custody it returns. Any absence, mismatch, throw or refusal returns null so the installation stays disabled. It reads no credential value, opens no transport, reserves and dispatches nothing, and grants no authority; composeRuntimePorts keeps every adapter's own refusals.",
-      "sha256": "85115d4d857e6824326e75cd704bea7f87fb3289a69a6b694e5915cb6853d82d"
+      "sha256": "3f96d7681487d7eaa6bb7c45689e53aefe543811aac222d6780de4c362bfac3d"
     },
     "lib/qualification/factory-coding-runtime.ts": {
       "classification": "ENFORCED",
@@ -4850,6 +4850,26 @@
       "classification": "ENFORCED",
       "reason": "Non-secret composition of the QDEV custody ports from existing qualified bodies. Stage chain: StoreBackedStageSources over FactoryStageAdmitter and DurableStageAdmitter, where the stage 2/3 start is read at call time from the durable journal's own STAGE_ACCEPTED candidate for the predecessor (conflicting or malformed acceptances refuse) and the frozen Result expectation is derived from the retained, re-validated LocalFactoryBindingV4 (never from a returned Result); a read-only warm restores expectations after restart without claiming or preparing. Ordered Factory capability configuration from canonical authorities only: the MissionControl owner enrollment, the installed capability destination row, issueFactorySourcePermit for the actual local V4 request and the existing FactoryRelayLeaseClient (no operator-written signing callback). Static build source: archives the accepted candidate commit from the Factory repository with a bounded git/tar capture into a private directory that is removed afterwards, requires the commit's tree to equal the accepted pin, then delegates to exportStaticBuild and staticBuildSourceFor with an injected Ed25519 issuer signer. Sofie planning runtime over the injected language model and price. Local V4 only. Reads no secret value, opens no transport, reserves nothing, dispatches nothing and holds no credential, deployment or enrollment authority. Evidence: qualification-custody-assembly.integration.mjs.",
       "sha256": "014a383313b243057a31658cce5e7fb3c98f08dba7055c4f8a19cb0feee9bb2f"
+    },
+    "lib/qualification/custody-profile.ts": {
+      "classification": "ENFORCED",
+      "reason": "Strict, non-secret assembly profile schema carried in the qdev host bundle (ids, public keys, pins and the NAMES of environment variables only; unknown keys such as a literal credential, private key or activation permit are refused) and the single durable journey-id formula shared by the journal and the retained stage admissions. Pure schema and hashing: no I/O, no credential, transport, reservation or dispatch. Evidence: qualification-custody-launcher.integration.mjs.",
+      "sha256": "1e038a6dc4b1116fdafbb69d4f8a6d7b1a68d0cdfa4e8fecd6c826b29e8ede6d"
+    },
+    "lib/qualification/custody-launcher.ts": {
+      "classification": "ENFORCED",
+      "reason": "Production launcher that turns the bundle assembly profile plus protected values read by NAME into QdevCustody from existing qualified bodies (custody-assembly, StoreBackedStageSources chain, canonical MissionControl enrollment and capability destination, issueFactorySourcePermit, FactoryRelayLeaseClient, candidateStaticBuildSource, SofiePlanningRuntime, existing verifier and static release ports). Used only by productionRuntimePorts when a bundle carries an assembly (mutually exclusive with a pinned custody module). Hands each protected value only to the adapter that needs it, never logs or returns one, requires the operator-applied journal and retention tables (no DDL at startup), wires publishing authorization ONLY from the profile's owner-approver public keys and approvals directory through the single-use signed-approval permit (the approver key must be independent of the verifier, build-issuer and Factory producer keys; with no profile entry or no valid approval publishing stays refused) and returns null (installation disabled) on any missing, malformed, foreign or refused input. Reserves, dispatches and deploys nothing. Evidence: qualification-custody-launcher.integration.mjs.",
+      "sha256": "0fe010895990469d2eb446559456cbb0f29e797b06f36fa07bbbb907d47885e9"
+    },
+    "lib/qualification/static-activation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Ordinary activation-permit body for the QDEV static release controller's host-injected `activation.permit` seam. Verifies owner-signed Ed25519 approval FILES (only the owner's PUBLIC approver keys are pinned in the profile; the private key and the signing helper stay with the owner) from a private approvals directory: canonical bytes, key window and revocation, a 24h maximum validity window, a nonce, and an exact match of operation, app, owner, project, release digest and rollback version to the request. Approval files must be regular, single-link, not group/world-writable, bounded and non-symlink. Consumption is single use by exclusive creation of a marker in a private consumed directory, serialized in process, so two callers cannot both use one approval and a crash fails closed. No approval, any mismatch or any unsafe input returns false. It deploys, exposes, publishes and activates nothing by itself and holds no credential. Evidence: qualification-static-activation.test.mjs.",
+      "sha256": "4367ad763d4aab9133c25a1bebe5810d27eb22d40659d2dad83cfc1883014eda"
+    },
+    "lib/qualification/static-serving.ts": {
+      "classification": "ENFORCED",
+      "reason": "Serving-only launch for the installed static release: a StaticReleaseController without any activation permit (it can never publish or roll back) over the profile's private release root and the same owner/project/app scope, bound to its verifying handler on exact IPv4 loopback through the existing listenLoopback. Starts nothing without an assembly profile or after bundle expiry, refuses non-loopback hosts, and exposes nothing publicly: TLS, domain, ingress and tester access remain separate protected owner actions that map a public origin to this loopback origin. Evidence: qualification-static-activation.test.mjs.",
+      "sha256": "82a9bd1bfa2d6eb25c05a8b740891a9557c55db7d76d0ec663b911f41568817e"
     }
   }
 }

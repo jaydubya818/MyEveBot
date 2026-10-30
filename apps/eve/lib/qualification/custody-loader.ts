@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises";
 import { isAbsolute, normalize } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { RuntimeHostDeps } from "./host-source.ts";
+import { assembleFromProfile, type LauncherDeps } from "./custody-launcher.ts";
+import { pgExecutionDatabase } from "./host-source.ts";
 import { composeRuntimePorts, type QdevCustody } from "./runtime-ports.ts";
 
 /**
@@ -19,10 +21,14 @@ export type CustodyModule = { custody(context: Parameters<NonNullable<RuntimeHos
 export type CustodyLoaderDeps = {
   read?(path: string): Promise<Uint8Array>;
   load?(path: string, bytes: Uint8Array): Promise<unknown>;
+  /** Launcher collaborators for a bundle `assembly` profile. Production defaults apply when absent. */
+  launcher?: LauncherDeps;
 };
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 export async function loadCustody(context: Parameters<NonNullable<RuntimeHostDeps["ports"]>>[0], deps: CustodyLoaderDeps = {}): Promise<QdevCustody | null> {
+  // A non-secret assembly profile is launched from the existing qualified bodies; it is mutually exclusive with a pinned custody module (schema-enforced).
+  if (context.bundle.assembly) return assembleFromProfile(context, deps.launcher ?? { database: pgExecutionDatabase });
   const pin = (context.bundle as { custody?: { module: string; sha256: string } }).custody;
   if (!pin || !/^[a-f0-9]{64}$/.test(pin.sha256)) return null;
   if (!isAbsolute(pin.module) || normalize(pin.module) !== pin.module || !/\.m?js$/.test(pin.module) || /[\0?#]/.test(pin.module)) return null;
