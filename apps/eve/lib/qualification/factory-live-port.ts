@@ -45,7 +45,7 @@ export class FactoryLivePortRefused extends Error {
 const refuse = (code: string): never => { throw new FactoryLivePortRefused(code); };
 
 const TERMINAL = new Set(["COMPLETED", "FAILED", "CANCELLED", "NOT_DISPATCHED"]);
-type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentity };
+type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentity; admitted: unknown };
 
 export class LiveFactoryPort implements FactoryPort {
   private readonly ready_ = new Map<1 | 2 | 3, Ready>();
@@ -66,7 +66,7 @@ export class LiveFactoryPort implements FactoryPort {
     for (const f of ["factoryId", "factoryVersion", "sourceDigest", "configurationDigest", "requestId", "workOrderId", "runId", "attemptNumber", "inputCommit", "inputTree"] as const)
       if (snap[f] !== (binding as unknown as Record<string, unknown>)[f]) refuse("QDEV_FACTORY_PREPARED_MISMATCH");
     if (canonical(snap.configuration) !== canonical(binding.configuration)) refuse("QDEV_FACTORY_PREPARED_MISMATCH");
-    this.ready_.set(stage, { binding, identity: retained.identity });
+    this.ready_.set(stage, { binding, identity: retained.identity, admitted: structuredClone(retained.binding) });
   }
 
   /**
@@ -78,6 +78,13 @@ export class LiveFactoryPort implements FactoryPort {
     await this.ready(stage);
     const r = this.ready_.get(stage)!;
     if (r.binding.inputCommit !== start.commit || r.binding.inputTree !== start.tree) refuse("QDEV_FACTORY_START_MISMATCH");
+  }
+
+  private async retainedForResult(stage: 1 | 2 | 3): Promise<Ready> {
+    const retained = await this.c.retained(stage);
+    const binding = prepareAuthenticatedLocalFactoryInputV4(retained.binding);
+    this.checkIdentity(binding, retained.identity, retained.request);
+    return { binding, identity: retained.identity, admitted: structuredClone(retained.binding) };
   }
 
   private checkIdentity(b: LocalFactoryBindingV4, i: FactoryExecutionIdentity, r: FactoryPrepareRequest) {
@@ -92,7 +99,10 @@ export class LiveFactoryPort implements FactoryPort {
     const r = this.ready_.get(stage);
     if (!r) return refuse("QDEV_FACTORY_NOT_READY");
     if (r.binding.inputCommit !== start.commit || r.binding.inputTree !== start.tree) refuse("QDEV_FACTORY_START_MISMATCH");
-    return structuredClone(r.binding);
+    // The trusted ADMISSION (as retained by the Work store), not the validator's output: the wiring re-validates it with
+    // bindFactoryDispatch (prepareAuthenticatedLocalFactoryInputV4 is not idempotent over its own output) and dispatch compares
+    // that result with the prepared binding.
+    return structuredClone(r.admitted);
   }
 
   /**
@@ -137,8 +147,10 @@ export class LiveFactoryPort implements FactoryPort {
    */
   async fetchResult(stage: 1 | 2 | 3): Promise<unknown> {
     if (this.c.enabled !== true) refuse("QDEV_FACTORY_DISABLED");
-    const r = this.ready_.get(stage);
-    if (!r) return refuse("QDEV_FACTORY_NOT_READY");
+    // Stages 1-2 are executed by the host-owned agent executor and carry no FACTORY operation, so the journey never prepares them here;
+    // a resumed run may also skip preflight for an already-settled FACTORY operation. The Result read then rests on the retained
+    // admission alone (same binding/identity/request consistency proof as `ready`), and never enables `admit` or `dispatch`.
+    const r = this.ready_.get(stage) ?? await this.retainedForResult(stage);
     const envelope = await this.c.live.result(r.binding) as { state?: unknown; result?: unknown } | null;
     if (!envelope || typeof envelope !== "object" || Object.keys(envelope).sort().join(",") !== "result,state" || typeof envelope.state !== "string")
       return refuse("QDEV_FACTORY_RESULT_ENVELOPE");

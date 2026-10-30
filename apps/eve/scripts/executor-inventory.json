@@ -4704,7 +4704,7 @@
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
       "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "cf311f01eccba3e6c43842d8878a82fa579566741195d5f4bb61708d44667c2f"
+      "sha256": "11b65ab1fca9dd066eea939ceb557e58574ec62a569cc948d10d974c0e0277ec"
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
