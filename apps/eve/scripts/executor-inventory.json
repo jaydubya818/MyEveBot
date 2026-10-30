@@ -2247,8 +2247,8 @@
     },
     "lib/external-alpha/paid-paths.ts": {
       "classification": "ENFORCED",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture. QDEV auxiliary-provider isolation correction: the QDEV installation switch alone denies the existing unintegrated paid dispatch sites before provider contact, retaining the existing shared error contract and external-alpha behavior. QDEV uses only the separately governed journey gate. Actual Jev provider and compaction regressions fail before the correction and pass after it; no paid provider used.",
-      "sha256": "c80912a85bdc4d18d2bd18ed81c82ba7b162719b24a802b7d5b181de7eaadb6c"
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture. QDEV auxiliary-provider isolation correction: the QDEV installation switch alone denies the existing unintegrated paid dispatch sites before provider contact, retaining the existing shared error contract and external-alpha behavior. QDEV uses only the separately governed journey gate. Actual Jev provider and compaction regressions fail before the correction and pass after it; no paid provider used. Lists the new deterministic outer QDEV conversation explicitly as NOT_PAID; it imports no runtime provider and grants no effect authority.",
+      "sha256": "d18b0613b11bdb88d81cfe559d31c961f9fb8b87eb93b0480463adbe63b48f0c"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
@@ -4755,6 +4755,11 @@
       "classification": "ENFORCED",
       "reason": "Strict tool-specific translation for Relay's frozen /mcp tools: caller input is a strict schema without provider selectors; owner/repo are constructed from the authorized grant repository; only supported bounded metadata, branch, Actions and deployment reads exist. No credential, I/O or authority.",
       "sha256": "6d6baf4dd6f347a80c1e3e16fb7dbb9025dc2bde0a3068e0d393bb5786408942"
+    },
+    "lib/qualification/conversation-model.ts": {
+      "classification": "INTERNAL",
+      "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests.",
+      "sha256": "374f220ad6c5aa23a4908d894cbcca6ef3cd273477b1846c3075ba3d0ec4b697"
     }
   }
 }
