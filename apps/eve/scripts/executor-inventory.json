@@ -4728,8 +4728,8 @@
     },
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
-      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed. Wires the read-only journal view and an owner-scoped, lazily opened Work store for inert improvement proposals into the conversation; it never builds a Work database connection at startup.",
-      "sha256": "ca0d626bdc710634a4192b59788352bba6301088b42d8342b89950db7804bfff"
+      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed. Wires the read-only journal view and an owner-scoped, lazily opened improvement storage frontdoor for inert proposals into the conversation; it never builds a Work database connection at startup.",
+      "sha256": "a807b748a216529a1a62a02cd1d22943f0924e9de57ff92501762c8479ebab6d"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
@@ -4883,8 +4883,13 @@
     },
     "lib/qualification/improvement.ts": {
       "classification": "INTERNAL",
-      "reason": "Post-delivery improvement proposal over the existing owner Work frontdoor (WorkStore.create/list/change only). It records an inert PAUSED Work at the schema-minimum placeholder cost, bound to the exact accepted delivered candidate, with an explicit not-started/unfunded objective; it makes no ledger grant, reservation, provider, Relay, Factory, verifier, MyApps or deployment call, never resets or reuses the spent charter, is idempotent per owner/candidate/request, is capped per candidate and re-pauses a Work found running (refusing if it cannot be confirmed paused). Running an improvement requires a separately approved funded scope. Evidence: post-delivery.test.ts and post-delivery.integration.test.ts over the real Work tables.",
-      "sha256": "db9ce5fbd655a72baaa0162ab9ae7c441334fe301697368aafa4b4eb390898d7"
+      "reason": "Post-delivery improvement proposal policy over an injected owner Work storage frontdoor. It records an inert PAUSED Work at the schema-minimum placeholder cost, bound to the exact accepted delivered candidate, with an explicit not-started/unfunded objective; it makes no ledger grant, reservation, provider, Relay, Factory, verifier, MyApps or deployment call, never resets or reuses the spent charter, is idempotent per owner/candidate/request, and re-pauses a Work found running (refusing if it cannot be confirmed paused). The per-candidate cap is checked inside the frontdoor's serialized section (existence, exact count, insert). Running an improvement requires a separately approved funded scope. Evidence: post-delivery.test.ts and post-delivery.integration.test.ts.",
+      "sha256": "0666af557b049938c67b6afef7c7a69ea90b5aa976e61a807dc512ce51700843"
+    },
+    "lib/qualification/improvement-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Production storage frontdoor for improvement proposals over the existing owner Work tables. Each proposal runs in one pinned transaction after a transaction-scoped advisory lock on (owner, delivered candidate), so the existence check, the exact owner/full-delivery count (no history window) and the insert cannot interleave across requests or processes; it refuses when the Work database cannot provide a pinned transaction. It touches only the owner's personal-scope engineering_work rows through WorkStore, makes no ledger, provider, Relay, Factory, verifier or MyApps call and creates only paused placeholder Work. Evidence: post-delivery.integration.test.ts over real PostgreSQL, including concurrent-distinct, older-than-100-history, idempotency and non-atomic-database controls; removing the lock fails the concurrency control.",
+      "sha256": "295069e8cac82cb298a530eb60781be6e261a7c8a0e004bcb1dd9d0620c9c156"
     }
   }
 }

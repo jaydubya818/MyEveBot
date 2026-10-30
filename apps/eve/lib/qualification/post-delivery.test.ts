@@ -117,9 +117,17 @@ function memoryStore() {
     async change(id: string, value: any) { const w = rows.get(id); w.control = "paused"; w.version++; return w; } };
 }
 const baseline = projectProgress(delivered).baseline!;
+/** Storage-frontdoor stand-in: runs the action serialized (like the advisory-locked transaction) over a store with exact counts. */
+function frontdoor(store: any) {
+  let tail: Promise<unknown> = Promise.resolve();
+  return { exclusive: <T>(_key: string, action: (s: any) => Promise<T>) => { const run = tail.then(() => action({
+    has: async (key: string) => [...(store.rows?.values() ?? [])].some((w: any) => w.key === key),
+    count: async (marker: string) => [...(store.rows?.values() ?? [])].filter((w: any) => w.objective.includes(marker)).length,
+    create: (v: unknown) => store.create(v), change: (id: string, v: unknown) => store.change(id, v) })); tail = run.catch(() => undefined); return run; } };
+}
 
 it("the recorder creates a paused, minimum-cost Work whose objective binds the exact candidate and states nothing started", async () => {
-  const store = memoryStore(), recorder = createImprovementRecorder({ ownerId: "owner:Q1", store: store as any });
+  const store = memoryStore(), recorder = createImprovementRecorder({ ownerId: "owner:Q1", frontdoor: frontdoor(store) });
   const first = await recorder.propose({ baseline, request: "  Add   dark mode\n toggle " }), again = await recorder.propose({ baseline, request: "Add dark mode toggle" });
   expect(first.created).toBe(true); expect(again).toEqual({ workId: first.workId, created: false }); expect(store.rows.size).toBe(1);
   const created = store.creates[0];
@@ -131,16 +139,16 @@ it("the recorder creates a paused, minimum-cost Work whose objective binds the e
 });
 
 it("the recorder caps proposals per delivered candidate, rejects empty and oversized requests, and re-pauses a running Work", async () => {
-  const store = memoryStore(), recorder = createImprovementRecorder({ ownerId: "owner:Q1", store: store as any });
+  const store = memoryStore(), recorder = createImprovementRecorder({ ownerId: "owner:Q1", frontdoor: frontdoor(store) });
   for (let i = 0; i < MAX_IMPROVEMENTS_PER_BASELINE; i++) await recorder.propose({ baseline, request: `Improvement number ${i}` });
   await expect(recorder.propose({ baseline, request: "One more different improvement" })).rejects.toMatchObject({ code: "QDEV_IMPROVEMENT_LIMIT" });
   await expect(recorder.propose({ baseline, request: "Improvement number 0" })).resolves.toMatchObject({ created: false });
   for (const bad of ["   ", "x".repeat(2001)]) await expect(recorder.propose({ baseline, request: bad })).rejects.toMatchObject({ code: "QDEV_IMPROVEMENT_REQUEST" });
   const running = { ...memoryStore(), async create(value: any) { return { work: { id: "w", title: value.title, lifecycle: "active", control: "agent", version: 3 }, created: true }; },
     changed: [] as unknown[], async change(id: string, value: any) { this.changed.push(value); return { id, lifecycle: "active", control: "paused", version: 4 }; } };
-  await createImprovementRecorder({ ownerId: "owner:Q1", store: running as any }).propose({ baseline, request: "Another" });
+  await createImprovementRecorder({ ownerId: "owner:Q1", frontdoor: frontdoor(running) }).propose({ baseline, request: "Another" });
   expect(running.changed).toEqual([{ operation: "pause", expectedVersion: 3 }]);
   const stuck = { ...memoryStore(), async create() { return { work: { id: "w", title: "t", lifecycle: "active", control: "agent", version: 1 }, created: true }; },
     async change(id: string) { return { id, lifecycle: "active", control: "agent", version: 2 }; } };
-  await expect(createImprovementRecorder({ ownerId: "owner:Q1", store: stuck as any }).propose({ baseline, request: "Another" })).rejects.toBeInstanceOf(ImprovementRefused);
+  await expect(createImprovementRecorder({ ownerId: "owner:Q1", frontdoor: frontdoor(stuck) }).propose({ baseline, request: "Another" })).rejects.toBeInstanceOf(ImprovementRefused);
 });
