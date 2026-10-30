@@ -6,6 +6,7 @@ import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import type { FactoryPort } from "./wiring.ts";
 import type { StageStart } from "./factory-dispatch.ts";
+import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 
 /**
  * Adapter from the qdev journey's FactoryPort to the EXISTING LiveFactoryAdapter
@@ -45,7 +46,7 @@ export class FactoryLivePortRefused extends Error {
 const refuse = (code: string): never => { throw new FactoryLivePortRefused(code); };
 
 const TERMINAL = new Set(["COMPLETED", "FAILED", "CANCELLED", "NOT_DISPATCHED"]);
-type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentity; admitted: unknown };
+type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentity; admitted: unknown; ceilingMicrousd: number };
 
 export class LiveFactoryPort implements FactoryPort {
   private readonly ready_ = new Map<1 | 2 | 3, Ready>();
@@ -57,6 +58,7 @@ export class LiveFactoryPort implements FactoryPort {
     const retained = await this.c.retained(stage);
     const binding = prepareAuthenticatedLocalFactoryInputV4(retained.binding);
     this.checkIdentity(binding, retained.identity, retained.request);
+    const ceilingMicrousd = this.nativeCeiling(retained.request);
     const readback = await this.c.live.prepared(retained.request);
     const s = readback.snapshot as Record<string, unknown> | null;
     if (readback.state !== "PREPARED" || !s) refuse("QDEV_FACTORY_NOT_PREPARED");
@@ -66,7 +68,7 @@ export class LiveFactoryPort implements FactoryPort {
     for (const f of ["factoryId", "factoryVersion", "sourceDigest", "configurationDigest", "requestId", "workOrderId", "runId", "attemptNumber", "inputCommit", "inputTree"] as const)
       if (snap[f] !== (binding as unknown as Record<string, unknown>)[f]) refuse("QDEV_FACTORY_PREPARED_MISMATCH");
     if (canonical(snap.configuration) !== canonical(binding.configuration)) refuse("QDEV_FACTORY_PREPARED_MISMATCH");
-    this.ready_.set(stage, { binding, identity: retained.identity, admitted: structuredClone(retained.binding) });
+    this.ready_.set(stage, { binding, identity: structuredClone(retained.identity), admitted: structuredClone(retained.binding), ceilingMicrousd });
   }
 
   /**
@@ -84,7 +86,16 @@ export class LiveFactoryPort implements FactoryPort {
     const retained = await this.c.retained(stage);
     const binding = prepareAuthenticatedLocalFactoryInputV4(retained.binding);
     this.checkIdentity(binding, retained.identity, retained.request);
-    return { binding, identity: retained.identity, admitted: structuredClone(retained.binding) };
+    return { binding, identity: structuredClone(retained.identity), admitted: structuredClone(retained.binding), ceilingMicrousd: this.nativeCeiling(retained.request) };
+  }
+
+  private nativeCeiling(request: FactoryPrepareRequest): number {
+    // Same micro-dollar quantization as FactoryDispatchControl. The native ledger must never authorize more than this charter.
+    if (typeof request.maxSpendUsd !== "number" || !Number.isFinite(request.maxSpendUsd)) return refuse("QDEV_FACTORY_NATIVE_CEILING");
+    const ceiling = Math.floor(request.maxSpendUsd * 1_000_000);
+    if (!Number.isSafeInteger(ceiling) || ceiling < 1 || ceiling > QDEV_LIMITS.perWorkMicrousd)
+      return refuse("QDEV_FACTORY_NATIVE_CEILING");
+    return ceiling;
   }
 
   private checkIdentity(b: LocalFactoryBindingV4, i: FactoryExecutionIdentity, r: FactoryPrepareRequest) {
@@ -111,10 +122,12 @@ export class LiveFactoryPort implements FactoryPort {
    * resource quiescence, evidence and zero active/unknown spend. UNKNOWN, timeout or any read failure
    * leaves the operation unsettled so the gate fences; nothing is ever resent.
    */
-  async dispatch(binding: LocalFactoryBindingV4): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
+  async dispatch(binding: LocalFactoryBindingV4, reserveMicrousd: number): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
     if (this.c.enabled !== true) throw new ProviderNotSent("factory disabled");
     const ready = [...this.ready_.values()].find(r => r.binding.operationId === binding.operationId);
     if (!ready || canonical(ready.binding) !== canonical(binding)) throw new ProviderNotSent("binding not prepared");
+    if (!Number.isSafeInteger(reserveMicrousd) || reserveMicrousd < 1 || reserveMicrousd > QDEV_LIMITS.perWorkMicrousd || ready.ceilingMicrousd > reserveMicrousd)
+      throw new ProviderNotSent("native Factory ceiling exceeds the reserved parent operation");
     // Any failure from here on is ambiguous exposure: the gate fences, it never resends. A ProviderNotSent
     // thrown by a nested layer (client, readback) must not tombstone an operation whose dispatch has begun.
     try { return await this.sendAndSettle(ready); }
@@ -133,6 +146,7 @@ export class LiveFactoryPort implements FactoryPort {
       if (rb.quiescent === true && TERMINAL.has(rb.state) && rb.evidenceRef) {
         const a = rb.accounting;
         if (typeof a?.activeMicrousd !== "number" || typeof a?.unknownMicrousd !== "number" || a.activeMicrousd !== 0 || a.unknownMicrousd !== 0) return { known: false };
+        if (typeof a.settledMicrousd !== "number" || !Number.isSafeInteger(a.settledMicrousd) || a.settledMicrousd < 0 || a.settledMicrousd > ready.ceilingMicrousd) return { known: false };
         return { known: true, value: { state: rb.state, evidenceRef: rb.evidenceRef, settledMicrousd: a.settledMicrousd } };
       }
       if (now() >= deadline) return { known: false };

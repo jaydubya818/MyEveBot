@@ -53,7 +53,7 @@ try {
   const raw={workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,
    requestId:e.requestId,requestDigest:e.requestDigest,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,workOrderId:e.workOrderId,runId:e.runId,attemptNumber:1,
    inputCommit:e.inputCommit,inputTree:e.inputTree,localSnapshotVersion:4,configuration:fx.configuration};
-  const request={requestId:e.requestId,workId:raw.workId,workGeneration:1,repository:'synthetic/repo',deadline:'2099-01-01T00:00:00.000Z',maxSpendUsd:1,input:{baseRef:e.inputCommit,allowedPaths:fx.configuration.allowedPaths}};
+  const request={requestId:e.requestId,workId:raw.workId,workGeneration:1,repository:'synthetic/repo',deadline:'2099-01-01T00:00:00.000Z',maxSpendUsd:1.3,input:{baseRef:e.inputCommit,allowedPaths:fx.configuration.allowedPaths}};
   const identity={workId:raw.workId,workGeneration:1,factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,requestId:e.requestId,workOrderId:e.workOrderId,remoteRunId:e.runId,repository:request.repository,baseSha:e.inputCommit,allowedPaths:request.input.allowedPaths,deadline:request.deadline};
   let remoteActive=0,terminalNow=false;
   const rb=over=>({requestId:e.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'RUNNING',quiescent:false,evidenceRef:null,accounting:{activeMicrousd:1300000,unknownMicrousd:0,settledMicrousd:0},...over});
@@ -63,7 +63,7 @@ try {
     result:async()=>({state:'RUNNING',result:null})}});
   await port.ready(1);
   const gate=new QualificationGate(x.accounting);
-  const first=gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-ack',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))});
+  const first=gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-ack',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)), 1_300_000)});
   await sleep(300);
   const stateWhileRunning=(await x.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state;
   let successor;
@@ -80,7 +80,7 @@ try {
   const raw={workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,
    requestId:e.requestId,requestDigest:e.requestDigest,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,workOrderId:e.workOrderId,runId:e.runId,attemptNumber:1,
    inputCommit:e.inputCommit,inputTree:e.inputTree,localSnapshotVersion:4,configuration:fx.configuration};
-  const request={requestId:e.requestId,workId:raw.workId,workGeneration:1,repository:'synthetic/repo',deadline:'2099-01-01T00:00:00.000Z',maxSpendUsd:1,input:{baseRef:e.inputCommit,allowedPaths:fx.configuration.allowedPaths}};
+  const request={requestId:e.requestId,workId:raw.workId,workGeneration:1,repository:'synthetic/repo',deadline:'2099-01-01T00:00:00.000Z',maxSpendUsd:1.3,input:{baseRef:e.inputCommit,allowedPaths:fx.configuration.allowedPaths}};
   const identity={workId:raw.workId,workGeneration:1,factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,requestId:e.requestId,workOrderId:e.workOrderId,remoteRunId:e.runId,repository:request.repository,baseSha:e.inputCommit,allowedPaths:request.input.allowedPaths,deadline:request.deadline};
   let dispatches=0,t=0;
   const port=new LiveFactoryPort({enabled:true,retained:()=>({binding:raw,request,identity}),pollMs:10,settleTimeoutMs:50,now:()=>t,sleep:async ms=>{t+=ms;},
@@ -88,9 +88,9 @@ try {
     read:async()=>({requestId:e.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'RUNNING',quiescent:false,evidenceRef:null,accounting:{activeMicrousd:1,unknownMicrousd:0,settledMicrousd:0}}),result:async()=>({state:'RUNNING',result:null})}});
   await port.ready(1);
   const gate=new QualificationGate(x.accounting);
-  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))}),e2=>/QDEV_EXPOSURE_UNKNOWN/.test(e2.message));
+  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)), 1_300_000)}),e2=>/QDEV_EXPOSURE_UNKNOWN/.test(e2.message));
   assert.equal(dispatches,1);
-  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))}));
+  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)), 1_300_000)}));
   assert.equal(dispatches,1,'a second claim never reaches the Factory');
  });
 } finally {

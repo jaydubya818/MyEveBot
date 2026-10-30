@@ -78,13 +78,13 @@ async function harness(w,{verdictMode='valid'}={}){
   const e=results[n].manifest.execution,workId=randomUUID(),start=starts[n];
   const raw={workId,workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,requestId:e.requestId,requestDigest:e.requestDigest,
    sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,workOrderId:e.workOrderId,runId:e.runId,attemptNumber:1,inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,configuration:fx.configuration};
-  const request={requestId:e.requestId,workId,workGeneration:1,repository:QDEV_BASELINE.repository,deadline:DEADLINE,maxSpendUsd:1,
+  const request={requestId:e.requestId,workId,workGeneration:1,repository:QDEV_BASELINE.repository,deadline:DEADLINE,maxSpendUsd:n===1?0.325:0.65,
    input:{title:'Dashboard',description:'Synthetic dashboard',kind:'feature',acceptanceCriteria:['Tests pass'],checkCommands:fx.configuration.commands,allowedPaths:fx.configuration.allowedPaths,
     baseRef:start.commit,repositoryPath:'/synthetic',workerProfile:'mac'}};
   const identity={runId:randomUUID(),writerGeneration:1,dispatchIdentity:'d'+n,workId,workGeneration:1,factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,requestId:e.requestId,
    workOrderId:e.workOrderId,remoteRunId:e.runId,repository:request.repository,baseSha:start.commit,allowedPaths:request.input.allowedPaths,deadline:DEADLINE};
-  const spend={status:'KNOWN',currency:'USD',unit:'microUSD',workId,workGeneration:1,requestId:e.requestId,workOrderId:e.workOrderId,deadline:DEADLINE,ceilingMicrousd:1000000,
-   settledMicrousd:0,retainedMicrousd:0,availableMicrousd:1000000,cancelled:false,operations:[]};
+  const spend={status:'KNOWN',currency:'USD',unit:'microUSD',workId,workGeneration:1,requestId:e.requestId,workOrderId:e.workOrderId,deadline:DEADLINE,ceilingMicrousd:Math.floor(request.maxSpendUsd*1_000_000),
+   settledMicrousd:0,retainedMicrousd:0,availableMicrousd:Math.floor(request.maxSpendUsd*1_000_000),cancelled:false,operations:[]};
   adm[n]={n,e,raw,request,identity,spend,signed:results[n].signed};byRequest.set(e.requestId,adm[n]);byWorkOrder.set(e.workOrderId,adm[n]);
  }
  const readback=(a,over={})=>({requestId:a.e.requestId,workOrderId:a.e.workOrderId,runId:a.e.runId,snapshot:null,identity:a.identity,state:'RUNNING',quiescent:false,evidenceRef:null,spend:a.spend,blocker:null,...over});

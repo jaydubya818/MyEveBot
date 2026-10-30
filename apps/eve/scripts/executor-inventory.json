@@ -4652,9 +4652,9 @@
       "sha256": "089d1604ccbe711b2a174ada98bc29fabf4c22f237a1d7de910d37fe907daf20"
     },
     "lib/qualification/journey.ts": {
-      "classification": "INTERNAL",
-      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook.",
-      "sha256": "7e6c32e69a38171a15bf1395cefe07b8ac2e252e8de59d95365abb5e63de3fb1"
+      "classification": "ENFORCED",
+      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration.",
+      "sha256": "8d23f96c450c9775ca93cc8f9ebba44624842beae32962d014756c9ec9b04e54"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
@@ -4688,8 +4688,8 @@
     },
     "lib/qualification/wiring.ts": {
       "classification": "ENFORCED",
-      "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
-      "sha256": "3f9c879fe187fbfdd7485dfd3ed87ccf95a22c7156f83895f33f005cdae38cc3"
+      "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority. Passes the actual journey reservation into native dispatch while retaining original source/start/Result checks. Agent tasks carry the same reservation; their concrete backend is separately required.",
+      "sha256": "99f01cd8c8832276850b93389cd584c0ec52df6d038ae44f08a6edf1b0675e32"
     },
     "lib/qualification/relay-mcp-transport.ts": {
       "classification": "ENFORCED",
@@ -4703,8 +4703,8 @@
     },
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
-      "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "11b65ab1fca9dd066eea939ceb557e58574ec62a569cc948d10d974c0e0277ec"
+      "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority. Captures the exact retained native ceiling and writer identity before send. Rejects native ceilings above the charter or charged parent reservation before dispatch; incomplete, invalid or over-ceiling terminal spend stays UNKNOWN.",
+      "sha256": "5aeff90ef5702ef7288b9f4412f1e130e239c4ecf7f35a9bd5f6ec7c34ba6e02"
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
@@ -4743,8 +4743,8 @@
     },
     "lib/qualification/agent-port.ts": {
       "classification": "ENFORCED",
-      "reason": "Disabled-by-default Sofie/Deep Agent adapter and guarded entrypoint for the qdev journey over an injected execution port. Requires explicit host enablement, the qualified owner/project binding and real-provider availability; refusals before start are proven no-sends; after start any failure, missing final-usage proof or non-executor record is unknown exposure (fenced, never resent). The coding execution tuple comes only from the host-owned executor record. No enrollment, transport, credential, payment or authority.",
-      "sha256": "840468a8a2fe97838b43af8110083fd39de913995c6c2a5d97d72003f34f263c"
+      "reason": "Disabled-by-default Sofie/Deep Agent adapter and guarded entrypoint for the qdev journey over an injected execution port. Requires explicit host enablement, the qualified owner/project binding and real-provider availability; refusals before start are proven no-sends; after start any failure, missing final-usage proof or non-executor record is unknown exposure (fenced, never resent). The coding execution tuple comes only from the host-owned executor record. No enrollment, transport, credential, payment or authority. Rejects missing, malformed or over-charter parent reservation before start and passes the charged ceiling to the execution backend. The concrete backend must enforce that ceiling; this adapter alone does not prove its behavior.",
+      "sha256": "15aae6ecf1705bbe30b6e9066f8a8998c44cc4aae3f42818633115760f36a35e"
     },
     "lib/qualification/myapps-revisions.ts": {
       "classification": "READ_ONLY",
@@ -4790,6 +4790,11 @@
       "classification": "ENFORCED",
       "reason": "Durable, append-only retention of the per-stage Factory admission in the qdev journal database. A claim row is inserted before preparation so only one process ever prepares a stage; the stored admission is re-validated with the authenticated binding parser on every read; a claim without an admission (crash or failed preparation) is PENDING and never re-prepared. Adds no transport, credential, spend or enrollment authority.",
       "sha256": "14d9f18704defa1d3b1d686ad8d2c3d19609ebb688f9b6da69c3ae89344e3445"
+    },
+    "lib/qualification/static-build-export.ts": {
+      "classification": "ENFORCED",
+      "reason": "Host-side producer half of static build retention. Recomputes the git tree id of a read-only candidate directory and requires it to equal the accepted candidate tree, requires the dependency lock and package manifest to equal the frozen build profile, runs the build only in a host-pinned immutable local image with no network, read-only root and source, unprivileged user and fixed CPU/memory/process bounds, reads the built dist back only as a strictly parsed ustar stream, and signs the provenance claim with an injected issuer signer. A claim is provenance only and never replaces the independent verdict. Holds no key, credential, network, deployment or enrollment authority.",
+      "sha256": "7866d4c417bb76c7a4a179bfbeb846660ebd54a7d4d28153341a5527ba3461e9"
     }
   }
 }

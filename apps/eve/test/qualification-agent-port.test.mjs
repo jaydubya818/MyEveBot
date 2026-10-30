@@ -15,7 +15,7 @@ function build(over={},port={}){
   return {a,calls};
 }
 const relay={};
-const coding={stage:1,key:'s1-1',purpose:'CODING'};
+const coding={stage:1,key:'s1-1',purpose:'CODING',reserveMicrousd:1_300_000};
 
 test('disabled by default: nothing is started and the refusal is a proven no-send',async()=>{
   const {a,calls}=build({enabled:undefined});
@@ -38,6 +38,7 @@ test('coding reports the executor-record execution and only that; the task carri
   const {a,calls}=build();
   const out=await a.run(coding,relay);
   assert.deepEqual(out,{known:true,value:{execution:exec}});assert.equal(calls.task.relay,relay);assert.equal(calls.task.slot,'Q1');
+  assert.equal(calls.task.reserveMicrousd,coding.reserveMicrousd);
 });
 test('untrusted, foreign, non-final or incomplete records are unknown exposure, never a bound execution',async()=>{
   const base=(task)=>({source:'EXECUTOR_RECORD',taskKey:task.key,ownerId:OWNER,projectSha256:H,usageFinal:true,execution:exec});
@@ -53,7 +54,12 @@ test('untrusted, foreign, non-final or incomplete records are unknown exposure, 
   const none=build({},{record:async()=>null});assert.deepEqual(await none.a.run(coding,relay),{known:false});
 });
 test('Sofie planning needs a trusted final record but reports no execution binding',async()=>{
-  const {a}=build();assert.deepEqual(await a.run({stage:1,key:'s1-0',purpose:'SOFIE'},relay),{known:true,value:{sofie:'completed'}});
+  const {a}=build();assert.deepEqual(await a.run({stage:1,key:'s1-0',purpose:'SOFIE',reserveMicrousd:100_000},relay),{known:true,value:{sofie:'completed'}});
+});
+test('a missing, malformed or over-charter charged budget refuses the agent before start',async()=>{
+  for(const reserveMicrousd of [undefined,0,NaN,-1,1_300_001]){
+    const {a,calls}=build();await assert.rejects(a.run({...coding,reserveMicrousd},relay),ProviderNotSent);assert.equal(calls.start,0);
+  }
 });
 
 test('F5: ProviderNotSent from a nested layer once start began (start or record) is ambiguous, not a tombstone; AgentNotStarted stays a no-send',async()=>{

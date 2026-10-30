@@ -14,7 +14,7 @@ export type StageExpected = Omit<LocalResultV4Expected, "inputCommit" | "inputTr
  * Tests inject synthetic implementations; the real qualification injects approved ones. */
 export interface JourneyEnvironment {
   /** One charged provider call. Must throw ProviderNotSent only with proof nothing was sent. */
-  runOperation(op: { stage: number; key: string; purpose: QualificationPurpose }): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>>;
+  runOperation(op: { stage: number; key: string; purpose: QualificationPurpose; reserveMicrousd: number }): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>>;
   /** Fetches the signed Factory Result for stage 1-3 (an uncharged read). */
   collectResult(stage: 1 | 2 | 3): Promise<unknown>;
   expectedFor(stage: 1 | 2 | 3): StageExpected;
@@ -129,7 +129,7 @@ export class QualificationJourney {
               send: async () => {
                 // A journal failure happens before any send, so it is a proven no-send.
                 try { await this.journal.append({ kind: "OP_CLAIMED", stage: stage.stage, key: op.key }); } catch { throw new ProviderNotSent(); }
-                return this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose });
+                return this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd });
               } });
             await this.journal.append({ kind: "OP_SETTLED", stage: stage.stage, key: op.key });
           }

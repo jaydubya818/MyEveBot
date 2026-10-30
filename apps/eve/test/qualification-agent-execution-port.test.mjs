@@ -19,7 +19,7 @@ function build({runtime={},retained}={}){
   const adapter=new DeepAgentAdapter({enabled:true,ownerId:OWNER,slot:'Q1',projectSha256:H,sourceSha256:S,port});
   return {port,adapter,calls};
 }
-const coding={stage:1,key:'s1-1',purpose:'CODING'},sofie={stage:1,key:'s1-0',purpose:'SOFIE'};
+const coding={stage:1,key:'s1-1',purpose:'CODING',reserveMicrousd:1_300_000},sofie={stage:1,key:'s1-0',purpose:'SOFIE',reserveMicrousd:100_000};
 
 test('CODING reports the tuple of the RETAINED admission, never anything the runtime or model says',async()=>{
   const {adapter,calls}=build();
@@ -45,7 +45,7 @@ test('pre-start refusals are proven no-sends: unavailable runtime, stage outside
   const un=build({runtime:{available:()=>false}});
   await assert.rejects(un.adapter.run(coding,relay),ProviderNotSent);assert.equal(un.calls.start.length,0);
   const four=build();
-  await assert.rejects(four.adapter.run({stage:4,key:'s4-0',purpose:'CODING'},relay),ProviderNotSent);assert.equal(four.calls.start.length,0);
+  await assert.rejects(four.adapter.run({stage:4,key:'s4-0',purpose:'CODING',reserveMicrousd:1_300_000},relay),ProviderNotSent);assert.equal(four.calls.start.length,0);
   await assert.rejects(build({runtime:{start:async()=>{throw new AgentNotStarted('no');}}}).adapter.run(coding,relay),ProviderNotSent);
 });
 
@@ -53,8 +53,8 @@ test('post-start failures are ambiguous (not ProviderNotSent) and a bad or dupli
   await assert.rejects(build({runtime:{start:async()=>{throw new Error('socket reset after write');}}}).adapter.run(coding,relay),e2=>!(e2 instanceof ProviderNotSent));
   const dup=build({runtime:{start:async()=>({handle:'same'})}});
   await dup.adapter.run(sofie,relay);
-  await assert.rejects(dup.adapter.run({stage:2,key:'s2-0',purpose:'CODING'},relay),e2=>!(e2 instanceof ProviderNotSent));
-  await assert.rejects(build({runtime:{start:async()=>({handle:''})}}).port.start({stage:1,key:'k',purpose:'SOFIE',ownerId:OWNER,slot:'Q1',projectSha256:H,sourceSha256:S,relay}),e2=>e2 instanceof AgentExecutionPortRefused);
+  await assert.rejects(dup.adapter.run({stage:2,key:'s2-0',purpose:'CODING',reserveMicrousd:1_300_000},relay),e2=>!(e2 instanceof ProviderNotSent));
+  await assert.rejects(build({runtime:{start:async()=>({handle:''})}}).port.start({stage:1,key:'k',purpose:'SOFIE',ownerId:OWNER,slot:'Q1',projectSha256:H,sourceSha256:S,relay,reserveMicrousd:100_000}),e2=>e2 instanceof AgentExecutionPortRefused);
 });
 
 test('a missing, unauthenticated or foreign retained admission is never turned into an execution; unknown handles have no record',async()=>{

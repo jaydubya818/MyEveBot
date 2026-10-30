@@ -11,7 +11,7 @@ import type { SignedVerdict, VerifierKey } from "./verdict.ts";
 import { digest } from "../engineering/contract.ts";
 
 type Outcome = KnownOutcome<unknown> | UnknownOutcome<unknown>;
-type Op = { stage: number; key: string; purpose: QualificationPurpose };
+type Op = { stage: number; key: string; purpose: QualificationPurpose; reserveMicrousd: number };
 /** Sofie planning and Deep Agent execution. The agent only reaches Relay through the discovered, grant-checked tools. */
 export interface AgentPort { run(op: Op, relay: RelayDeveloperTools): Promise<Outcome>; }
 /**
@@ -26,7 +26,7 @@ export interface FactoryPort {
   admit(stage: 1 | 2 | 3, start: StageStart): unknown;
   /** Async per-stage preparation proof against the accepted start, called by the journey before the stage reserves anything. */
   preflight?(stage: 1 | 2 | 3, start: StageStart): Promise<void>;
-  dispatch(binding: LocalFactoryBindingV4): Promise<Outcome>;
+  dispatch(binding: LocalFactoryBindingV4, reserveMicrousd: number): Promise<Outcome>;
   fetchResult(stage: 1 | 2 | 3): Promise<unknown>;
 }
 export interface VerifierPort { submit(handoff: VerifierHandoff): Promise<Outcome>; fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>; }
@@ -106,7 +106,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
             || digest(bound.configuration) !== digest(expected.configuration))
             throw new Error("QDEV_DISPATCH_RESULT_BINDING");
         } catch { throw new ProviderNotSent("pre-send validation"); }
-        return c.factory.dispatch(bound);
+        return c.factory.dispatch(bound, op.reserveMicrousd);
       }
       let handoff: VerifierHandoff;
       try {

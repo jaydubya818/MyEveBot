@@ -40,7 +40,7 @@ const refused=(p,code)=>assert.rejects(p,e=>e instanceof FactoryLivePortRefused&
 test('disabled by default: no preparation, dispatch or result I/O',async()=>{
   const f=fixture(),{port:p,calls}=port(f,{enabled:false});
   await refused(p.ready(1),'QDEV_FACTORY_DISABLED');
-  await assert.rejects(p.dispatch(f.b),e=>e instanceof ProviderNotSent);
+  await assert.rejects(p.dispatch(f.b, 1_300_000),e=>e instanceof ProviderNotSent);
   await refused(p.fetchResult(1),'QDEV_FACTORY_DISABLED');
   assert.deepEqual(calls,[]);
 });
@@ -50,7 +50,7 @@ test('admit is refused until the exact prepared execution is proved, then dispat
   await p.ready(1);
   assert.deepEqual(p.admit(1,start),f.raw);
   assert.throws(()=>p.admit(1,{commit:'3'.repeat(40),tree:start.tree}),e=>e.code==='QDEV_FACTORY_START_MISMATCH');
-  assert.deepEqual(await p.dispatch(prepareAuthenticatedLocalFactoryInputV4(p.admit(1,start))),{known:true,value:{state:'COMPLETED',evidenceRef:'evidence-1',settledMicrousd:1000}});
+  assert.deepEqual(await p.dispatch(prepareAuthenticatedLocalFactoryInputV4(p.admit(1,start)), 1_300_000),{known:true,value:{state:'COMPLETED',evidenceRef:'evidence-1',settledMicrousd:1000}});
   assert.deepEqual(await p.fetchResult(1),{signed:true});
   assert.deepEqual(calls.map(c=>c[0]),['prepared','dispatch','read','result']);
 });
@@ -72,8 +72,8 @@ test('dispatch refuses a binding that was not the prepared one, before the clien
   const f=fixture(),{port:p,calls}=port(f);
   await p.ready(1);
   const other=fixture();
-  await assert.rejects(p.dispatch(other.b),e=>e instanceof ProviderNotSent);
-  await assert.rejects(p.dispatch({...f.b,configurationDigest:h('6')}),e=>e instanceof ProviderNotSent);
+  await assert.rejects(p.dispatch(other.b, 1_300_000),e=>e instanceof ProviderNotSent);
+  await assert.rejects(p.dispatch({...f.b,configurationDigest:h('6')}, 1_300_000),e=>e instanceof ProviderNotSent);
   assert.deepEqual(calls.map(c=>c[0]),['prepared']);
 });
 
@@ -81,7 +81,7 @@ test('F2: a dispatch acknowledgment is not final usage; known:true only after te
   const f=fixture();
   const running=terminal(f,{state:'RUNNING',quiescent:false,evidenceRef:null,accounting:{activeMicrousd:1000,unknownMicrousd:0,settledMicrousd:0}});
   const a=port(f,{reads:[running,running,running,terminal(f)]});await a.port.ready(1);
-  assert.equal((await a.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(a.port.admit(1,start)))).known,true);
+  assert.equal((await a.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(a.port.admit(1,start)), 1_300_000)).known,true);
   assert.equal(a.calls.filter(c=>c[0]==='read').length,4,'kept polling through nonterminal readbacks');
   for(const [name,reads] of Object.entries({
     stillRunningUntilTimeout:[running],
@@ -93,12 +93,12 @@ test('F2: a dispatch acknowledgment is not final usage; known:true only after te
     foreignRun:[terminal(f,{runId:randomUUID()})],
   })){
     const x=port(f,{reads});await x.port.ready(1);
-    assert.deepEqual(await x.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(x.port.admit(1,start))),{known:false},name);
+    assert.deepEqual(await x.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(x.port.admit(1,start)), 1_300_000),{known:false},name);
     assert.equal(x.calls.filter(c=>c[0]==='dispatch').length,1,name+': never resent');
   }
   const failing=port(f);await failing.port.ready(1);
   failing.port.c.live.read=async()=>{throw new Error('unavailable');};
-  await assert.rejects(failing.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(failing.port.admit(1,start))),e=>!(e instanceof ProviderNotSent));
+  await assert.rejects(failing.port.dispatch(prepareAuthenticatedLocalFactoryInputV4(failing.port.admit(1,start)), 1_300_000),e=>!(e instanceof ProviderNotSent));
 });
 test('F1: fetchResult unwraps the existing result-channel envelope; pending/unknown states are preserved without redispatch',async()=>{
   const f=fixture();
@@ -125,11 +125,11 @@ test('F4: preflight proves the prepared execution against the exact accepted sta
 test('F5: a ProviderNotSent from a nested layer after dispatch began is ambiguous exposure, never a tombstone',async()=>{
   for(const [name,opts] of [['read',{readError:new ProviderNotSent('read preflight refusal')}],['dispatch',{dispatchError:new ProviderNotSent('client says not sent')}]]){
     const f=fixture(),{port:p}=port(f,opts);await p.ready(1);
-    await assert.rejects(p.dispatch(prepareAuthenticatedLocalFactoryInputV4(p.admit(1,start))),e=>!(e instanceof ProviderNotSent)&&e.message==='QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS'&&e.cause instanceof ProviderNotSent,name);
+    await assert.rejects(p.dispatch(prepareAuthenticatedLocalFactoryInputV4(p.admit(1,start)), 1_300_000),e=>!(e instanceof ProviderNotSent)&&e.message==='QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS'&&e.cause instanceof ProviderNotSent,name);
   }
   // the genuine pre-dispatch refusals stay proven no-sends
   const f=fixture(),{port:p}=port(f);
-  await assert.rejects(p.dispatch({...p.admit.call({ready_:new Map([[1,{binding:f.b}]])},1,start)}),ProviderNotSent);
+  await assert.rejects(p.dispatch({...p.admit.call({ready_:new Map([[1,{binding:f.b}]])},1,start)}, 1_300_000),ProviderNotSent);
 });
 
 test('composition: admit returns the retained admission, so the wiring bindFactoryDispatch re-validation reproduces the exact prepared binding that dispatch compares',async()=>{
@@ -137,7 +137,7 @@ test('composition: admit returns the retained admission, so the wiring bindFacto
   await p.ready(1);
   const bound=bindFactoryDispatch({admitted:p.admit(1,start),project:{factoryVersionSha256:f.b.factoryVersion},stage:1,start,baseline:start});
   assert.deepEqual(bound,f.b);
-  assert.equal((await p.dispatch(bound)).known,true);
+  assert.equal((await p.dispatch(bound, 1_300_000)).known,true);
   assert.throws(()=>prepareAuthenticatedLocalFactoryInputV4(f.b),'the validator is not idempotent over its own output, which is why admit must not return it');
 });
 test('Result read for an agent-executed stage rests on the retained admission only: identity is still proven, and admit/dispatch stay refused until prepared',async()=>{
@@ -145,9 +145,33 @@ test('Result read for an agent-executed stage rests on the retained admission on
   assert.deepEqual(await p.fetchResult(1),{signed:true});                          // never prepared: no `prepared` readback, no dispatch
   assert.deepEqual(calls.map(c=>c[0]),['result']);
   assert.throws(()=>p.admit(1,start),e=>e.code==='QDEV_FACTORY_NOT_READY');
-  await assert.rejects(p.dispatch(f.b),e=>e instanceof ProviderNotSent);
+  await assert.rejects(p.dispatch(f.b, 1_300_000),e=>e instanceof ProviderNotSent);
   const foreign=fixture(),{port:q}=port(f,{retained:{binding:f.raw,identity:foreign.identity,request:f.request}});
   await refused(q.fetchResult(1),'QDEV_FACTORY_IDENTITY_MISMATCH');
   const {port:off}=port(f,{enabled:false});
   await refused(off.fetchResult(1),'QDEV_FACTORY_DISABLED');
+});
+
+test('native budget: missing or insufficient parent reservation never reaches dispatch',async()=>{
+  for(const budget of [undefined,0,NaN,999_999,1_300_001]){
+    const f=fixture(),{port:p,calls}=port(f);await p.ready(1);
+    await assert.rejects(p.dispatch(f.b,budget),ProviderNotSent);
+    assert.equal(calls.filter(c=>c[0]==='dispatch').length,0);
+  }
+});
+test('native budget: malformed or over-charter native ceilings refuse preparation and result recovery',async()=>{
+  for(const maxSpendUsd of [undefined,"1",true,0,-1,NaN,Infinity,1.35]){
+    const f=fixture();f.request.maxSpendUsd=maxSpendUsd;
+    const {port:p,calls}=port(f);
+    await refused(p.ready(1),'QDEV_FACTORY_NATIVE_CEILING');
+    await refused(p.fetchResult(1),'QDEV_FACTORY_NATIVE_CEILING');
+    assert.equal(calls.length,0);
+  }
+});
+test('native budget: nonfinite, negative or excessive settled spend remains UNKNOWN after one send',async()=>{
+  for(const settledMicrousd of [null,NaN,-1,1_000_001]){
+    const f=fixture(),{port:p,calls}=port(f,{reads:[terminal(f,{accounting:{activeMicrousd:0,unknownMicrousd:0,settledMicrousd}})]});await p.ready(1);
+    assert.deepEqual(await p.dispatch(f.b,1_300_000),{known:false});
+    assert.equal(calls.filter(c=>c[0]==='dispatch').length,1);
+  }
 });
