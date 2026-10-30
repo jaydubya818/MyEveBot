@@ -66,9 +66,9 @@
       "disposition": "blocked"
     },
     "agent/hooks/agent-runs.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "fbbab99fcf75ce1b4ddcfaaa64097146956798ceed00f326caa0695cb53c64c7"
+      "classification": "ENFORCED",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. QDEV hook-isolation correction: the QDEV switch alone returns before any original agent-run query, cost/step/terminal-state mutation, session-agent lookup or owner-chat recovery. The isolated journey retains its separate accounting and lifecycle. Actual-hook red/green tests cover all five agent-run events and owner message handling; ordinary-installation accounting and recovery remain unchanged. This guard creates no execution or spending authority.",
+      "sha256": "c9cbbce09b5773a46688162dda53fbacb39f3a11e87ea7dd92eaa8131e40318b"
     },
     "agent/hooks/computer-runtime.ts": {
       "classification": "INTERNAL",
@@ -2702,9 +2702,9 @@
       "sha256": "7da5819a678d3e2bb4859b38815707daebce933e789e47ed12ddacf779b1ac71"
     },
     "agent/hooks/owner-chat-run.ts": {
-      "classification": "INTERNAL",
-      "reason": "Owner-chat execution-context recovery only; canonical SQL initializer preserves historical Run authority and creates no Action or provider effect. Confirmation, routine and delegated contexts cannot renew authority. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "d501e302dcdbd495654d9b2882c7ef07dd05cddfe21cf41677dee65ed3c4c28f"
+      "classification": "ENFORCED",
+      "reason": "Owner-chat execution-context recovery only; canonical SQL initializer preserves historical Run authority and creates no Action or provider effect. Confirmation, routine and delegated contexts cannot renew authority. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. QDEV hook-isolation correction: the QDEV switch alone returns before any original agent-run query, cost/step/terminal-state mutation, session-agent lookup or owner-chat recovery. The isolated journey retains its separate accounting and lifecycle. Actual-hook red/green tests cover all five agent-run events and owner message handling; ordinary-installation accounting and recovery remain unchanged. This guard creates no execution or spending authority.",
+      "sha256": "a100321a82ee9874934bc6b8270b638d876850bdc379dc63b7040022cd41838c"
     },
     "lib/relay/peer-permissions.ts": {
       "classification": "ENFORCED",

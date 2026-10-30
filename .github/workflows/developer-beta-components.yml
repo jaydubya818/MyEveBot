@@ -11,6 +11,7 @@ on:
       - codex/qdev-20261030-adapters
       - codex/qdev-20261030-paid-path-isolation
       - codex/qdev-20261030-conversation-bridge
+      - codex/qdev-20261030-hook-isolation
 
 permissions:
   contents: read

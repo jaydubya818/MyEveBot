@@ -5,6 +5,8 @@ import { resolveSessionAgent } from "../lib/session-settings.ts";
 
 export default defineHook({events:{
   async "message.received"(event,ctx) {
+    // An isolated QDEV request must not recover or bind a legacy owner-chat run.
+    if(process.env.MYEVE_QDEV_ENABLED === "true")return;
     const caller=ctx.session.auth.current;
     if(caller?.attributes.myeveRetainedSummary!==undefined)return; // Observation must not renew an expired execution run or budget.
     if(!caller || caller.principalType!=="user" || caller.attributes.owner!=="true"
