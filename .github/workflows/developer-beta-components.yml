@@ -131,6 +131,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-factory-ordered.test.mjs
       - name: Qualification Deep Agent adapter and guarded Sofie entrypoint (disabled port)
         run: node --import tsx --test apps/eve/test/qualification-agent-port.test.mjs
+      - name: Qualification concrete RuntimePorts composition and verifier transport (disposable loopback endpoint)
+        run: node --import tsx --test apps/eve/test/qualification-runtime-ports.test.mjs
       - name: Qualification MyApps prior-revision and restore-point readers
         run: node --import tsx --test apps/eve/test/qualification-myapps-revisions.test.mjs
       - name: Qualification delivery identity composition (build claim, verdict, served files)

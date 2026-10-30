@@ -4765,6 +4765,16 @@
       "classification": "INTERNAL",
       "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests.",
       "sha256": "374f220ad6c5aa23a4908d894cbcca6ef3cd273477b1846c3075ba3d0ec4b697"
+    },
+    "lib/qualification/verifier-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "Disabled-by-default transport to the independently administered verifier: carries the digest-only handoff out and a schema-valid signed verdict envelope back. Origin is https or exact loopback only, redirects refused, credential supplied by the runtime accessor and checked pre-send; every refusal before the request is a proven no-send, any failure after it is ambiguous (fenced, never resent). Holds no specification or verifier key and cannot mint a verdict: the journey verifies the signature against the disjoint verifier key set. No enrollment, payment, spend or deployment authority.",
+      "sha256": "c86d1e41248369428024d2b2a7d33f26282859a3e56345a0b642317d8479a9c1"
+    },
+    "lib/qualification/runtime-ports.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused.",
+      "sha256": "f5d77b98b1b67bd3f451fa062a8cc5c48989ded90596ef185483d162f2708563"
     }
   }
 }
