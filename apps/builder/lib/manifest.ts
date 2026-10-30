@@ -74,6 +74,7 @@ export const CORE_PRUNABLE_FILES = [
   // Dormant qdev journey entrypoint: discoverable only to the authenticated owner while MYEVE_QDEV_ENABLED is on.
   "agent/tools/qualification_journey.ts",
   "agent/tools/qualification_journey.test.ts",
+  "agent/tools/qualification_journey.authorization.test.ts",
   // Canonical MyApps source ships, but activation remains owner + local-only.
   "agent/tools/installed_apps.ts",
   "agent/tools/installed_apps.test.ts",

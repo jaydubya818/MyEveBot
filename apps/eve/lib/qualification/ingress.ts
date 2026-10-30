@@ -1,5 +1,7 @@
 import { ensureQualificationHost } from "./host-bootstrap.ts";
 import { qualificationHost, type QdevConversationModel } from "./root.ts";
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
+import { cloudQualificationProject } from "../engineering/cloud-access-qualification.ts";
 
 /**
  * Pre-model ingress policy for a QDEV installation (MYEVE_QDEV_ENABLED=true). It runs at the head of every model
@@ -15,6 +17,17 @@ const refuse = (code: string): never => { throw new QdevIngressRefused(code); };
 export const qdevInstallation = () => process.env.MYEVE_QDEV_ENABLED === "true";
 
 type Principal = { principalId?: string; principalType?: string; authenticator?: string; attributes?: Record<string, unknown> };
+type RequestSession = { auth: { current?: Principal | null; initiator?: Principal | null }; parent?: unknown };
+const mixedInstallation = () => externalAlphaInstallation() || !!process.env.MYEVE_ALPHA_OWNER_BINDING || !!cloudQualificationProject();
+/** One request boundary for model selection and direct/replayed journey tools. No host lookup, ledger or provider call. */
+export function qdevRequestOwner(session: RequestSession): string | null {
+  const current = session.auth.current, initiator = session.auth.initiator;
+  const human = (p?: Principal | null) => !!p && p.authenticator === "myeve-web-session" && p.principalType === "user" && typeof p.principalId === "string" && p.principalId.length > 0
+    && p.attributes?.owner === "true" && p.attributes?.role !== "guest" && !p.attributes?.myeveRoleId
+    && p.attributes?.myeveRetainedSummary === undefined && p.attributes?.myeveEngineeringWorkId === undefined;
+  if (mixedInstallation() || !human(current) || !human(initiator) || current!.principalId !== initiator!.principalId || session.parent) return null;
+  return current!.principalId!;
+}
 export type QdevIngressInput = {
   session: { id: string; auth: { current?: Principal | null; initiator?: Principal | null }; parent?: unknown };
   stepKey: string;
@@ -23,13 +36,9 @@ export type QdevIngressInput = {
 };
 
 export async function qdevModelSelection(input: QdevIngressInput): Promise<{ model: QdevConversationModel; modelContextWindowTokens: number }> {
-  if (input.mixedInstallation) refuse("QDEV_INGRESS_MIXED_INSTALLATION");
-  const { session } = input, current = session.auth.current, initiator = session.auth.initiator;
-  const human = (p?: Principal | null) => !!p && p.authenticator === "myeve-web-session" && p.principalType === "user" && typeof p.principalId === "string" && p.principalId.length > 0
-    && p.attributes?.owner === "true" && p.attributes?.role !== "guest" && !p.attributes?.myeveRoleId
-    && p.attributes?.myeveRetainedSummary === undefined && p.attributes?.myeveEngineeringWorkId === undefined;
-  if (!human(current) || !human(initiator) || current!.principalId !== initiator!.principalId || ("parent" in session && session.parent)) refuse("QDEV_INGRESS_PRINCIPAL");
-  const ownerId = current!.principalId!;
+  if (input.mixedInstallation || mixedInstallation()) refuse("QDEV_INGRESS_MIXED_INSTALLATION");
+  const { session } = input, ownerId = qdevRequestOwner(session);
+  if (!ownerId) return refuse("QDEV_INGRESS_PRINCIPAL");
   ensureQualificationHost();
   const host = qualificationHost();
   if (!host.enabled()) refuse("QDEV_INGRESS_DISABLED");

@@ -12,6 +12,7 @@ on:
       - codex/qdev-20261030-paid-path-isolation
       - codex/qdev-20261030-conversation-bridge
       - codex/qdev-20261030-hook-isolation
+      - codex/qdev-20261030-root-auth
 
 permissions:
   contents: read
@@ -79,6 +80,7 @@ jobs:
           components/engineering/coding-sessions.test.tsx
           agent/tools/engineering_work.test.ts
           agent/tools/qualification_journey.test.ts
+          agent/tools/qualification_journey.authorization.test.ts
           agent/agent.qdev-ingress.test.ts
           lib/qualification/qdev-paid-paths.test.ts
           lib/qualification/conversation-model.test.ts
