@@ -12,6 +12,7 @@ on:
       - codex/qdev-20261030-paid-path-isolation
       - codex/qdev-20261030-conversation-bridge
       - codex/qdev-20261030-hook-isolation
+      - codex/qdev-20261030-verifier-separation
 
 permissions:
   contents: read

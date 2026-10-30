@@ -134,6 +134,31 @@ test('composition fails closed: bad credential name, overlapping or duplicate ve
   assert.throws(()=>composeRuntimePorts(ctx(),{...c,verifier:{...c.verifier,credentialName:'lowercase'}}),e=>e instanceof RuntimePortsRefused);
 });
 
+for(const variant of ['both producer sets','connection keys only','result keys only','different PEM formatting'])
+  test('independence: a renamed actual producer key is rejected with omitted exclusion lists: '+variant,async()=>{
+    const {custody:c,fetches}=await custody();
+    const otherProducer={...fx.key,keyId:'other-producer',publicKey:ver.key.publicKeyPem};
+    if(variant==='connection keys only')c.resultKeys=[otherProducer];
+    if(variant==='result keys only')c.factory.connection={...c.factory.connection,keys:[otherProducer]};
+    c.verifier={...c.verifier,producerKeyIds:[],producerPublicKeysPem:[],keys:[{
+      ...ver.key,keyId:'renamed-producer',publicKeyPem:variant==='different PEM formatting'?fx.producerPem.replace(/\n/g,'\r\n'):fx.producerPem,
+    }]};
+    assert.throws(()=>composeRuntimePorts(ctx(),c),e=>e instanceof RuntimePortsRefused&&e.code==='QDEV_PORTS_VERIFIER_KEYS_NOT_DISJOINT');
+    assert.deepEqual(fetches,[],'separation is checked before any transport effect');
+  });
+
+test('independence control: omitted exclusion lists cannot prevent a genuinely independent signed PASS',async()=>{
+  const {custody:c,fetches}=await custody();
+  c.verifier={...c.verifier,producerKeyIds:[],producerPublicKeysPem:[]};
+  const ports=composeRuntimePorts(ctx(),c);
+  const expected={projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
+    candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256};
+  const signed=ver.signVerdict(verdictFor(expected));
+  assert.equal(verifyVerdict({signed,verifierKeys:ports.verifierKeys,producerKeyIds:ports.producerKeyIds,producerPublicKeysPem:ports.producerPublicKeysPem,
+    expected,now:Date.parse('2026-10-30T12:00:00Z')}).outcome,'PASS');
+  assert.deepEqual(fetches,[]);
+});
+
 test('the ports provider stays disabled (null) without custody, with refused custody or a throwing custody source; the credential is read only through the runtime accessor',async()=>{
   assert.equal(await runtimePortsProvider(()=>null)(ctx()),null);
   const {custody:c}=await custody();

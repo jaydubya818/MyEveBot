@@ -57,7 +57,8 @@
       "codex/qdev-20261030-adapters": false,
       "codex/qdev-20261030-paid-path-isolation": false,
       "codex/qdev-20261030-conversation-bridge": false,
-      "codex/qdev-20261030-hook-isolation": false
+      "codex/qdev-20261030-hook-isolation": false,
+      "codex/qdev-20261030-verifier-separation": false
     }
   },
   "functions": {

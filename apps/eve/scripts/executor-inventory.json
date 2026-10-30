@@ -4772,9 +4772,9 @@
       "sha256": "c86d1e41248369428024d2b2a7d33f26282859a3e56345a0b642317d8479a9c1"
     },
     "lib/qualification/runtime-ports.ts": {
-      "classification": "INTERNAL",
-      "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused.",
-      "sha256": "f5d77b98b1b67bd3f451fa062a8cc5c48989ded90596ef185483d162f2708563"
+      "classification": "ENFORCED",
+      "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused. Producer/verifier separation derives the union of actual Result trust keys, actual Factory connection keys and declared additional exclusions. Normalized SPKI fingerprints and key IDs reject renamed/PEM-reformatted producer keys before any transport; the same derived union reaches verdict validation. No new private key, acceptance, paid or deployment authority.",
+      "sha256": "093da6d12e34ea318244c44f79ab5ffc019a4dd4d0168f17b0eac9e62a9ed19c"
     }
   }
 }

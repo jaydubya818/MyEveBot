@@ -1,4 +1,5 @@
 import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
+import { createPublicKey } from "node:crypto";
 import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
 import type { FactoryCapabilityClientConfig } from "../engineering/factory-capability-client.ts";
 import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
@@ -38,10 +39,17 @@ export class RuntimePortsRefused extends Error { constructor(readonly code: stri
 
 export function composeRuntimePorts(context: { bundle: QdevHostBundle; credential(name: string): string | undefined }, custody: QdevCustody): RuntimePorts {
   const binding = qualificationBinding(context.bundle.project);
+  // The runtime already knows both producer trust sets. Redundant exclusion lists cannot omit those keys or rename their bytes.
+  const actualProducerKeys = [...custody.resultKeys, ...custody.factory.connection.keys];
+  const producerKeyIds = [...new Set([...custody.verifier.producerKeyIds, ...actualProducerKeys.map(key => key.keyId)])];
+  const producerPublicKeysPem = [...new Set([...custody.verifier.producerPublicKeysPem, ...actualProducerKeys.map(key => key.publicKey)])];
+  const fingerprint = (pem: string) => createPublicKey(pem).export({ type: "spki", format: "der" }).toString("base64");
+  const producerFingerprints = new Set(producerPublicKeysPem.map(fingerprint));
   const credentialName = custody.verifier.credentialName;
   if (!/^[A-Z][A-Z0-9_]{2,63}$/.test(credentialName)) throw new RuntimePortsRefused("QDEV_PORTS_VERIFIER_CREDENTIAL_NAME");
   if (new Set([...custody.verifier.keys.map(k => k.keyId)]).size !== custody.verifier.keys.length
-    || custody.verifier.keys.some(k => custody.verifier.producerKeyIds.includes(k.keyId))) throw new RuntimePortsRefused("QDEV_PORTS_VERIFIER_KEYS_NOT_DISJOINT");
+    || custody.verifier.keys.some(k => producerKeyIds.includes(k.keyId) || producerFingerprints.has(fingerprint(k.publicKeyPem))))
+    throw new RuntimePortsRefused("QDEV_PORTS_VERIFIER_KEYS_NOT_DISJOINT");
   const { adapter } = buildOrderedFactoryClients({ connection: custody.factory.connection, capability: custody.factory.capability,
     factoryFetch: custody.factory.factoryFetch, capabilityFetch: custody.factory.capabilityFetch });
   const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs,
@@ -51,7 +59,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs });
   const myapps = new StaticBuildMyAppsPort(custody.myapps);
   return { agent, factory, verifier, myapps, expectedFor: custody.expectedFor, resultKeys: custody.resultKeys, sourceDigest: custody.sourceDigest,
-    verifierKeys: custody.verifier.keys, producerKeyIds: custody.verifier.producerKeyIds, producerPublicKeysPem: custody.verifier.producerPublicKeysPem,
+    verifierKeys: custody.verifier.keys, producerKeyIds, producerPublicKeysPem,
     newAllowanceId: custody.newAllowanceId };
 }
 
