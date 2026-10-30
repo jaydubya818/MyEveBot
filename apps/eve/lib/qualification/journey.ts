@@ -187,6 +187,11 @@ export class QualificationJourney {
     } catch (error) {
       throw new JourneyHalted(4, error instanceof Error ? error.message : "QDEV_DELIVERY", records);
     }
+    // The delivery fact is durable so a restart, a later session or a read-only progress view can tell "verified" from "delivered".
+    try {
+      if (!(await this.journal.read()).some(e => e.kind === "DELIVERY_ACCEPTED"))
+        await this.journal.append({ kind: "DELIVERY_ACCEPTED", stage: 4, digest: delivery.acceptedDeliverySha256, verdictSha256: digest(verdict) });
+    } catch { throw new JourneyHalted(4, "QDEV_JOURNAL_DELIVERY", records); }
     return { proposalId: "qdev-20261029-01", projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, stages: records,
       verdictSha256: digest(verdict), deliverySha256: delivery.acceptedDeliverySha256, readiness: "NOT_CLAIMED", authority: "NONE" };
   }

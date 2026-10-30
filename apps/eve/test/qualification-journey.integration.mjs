@@ -11,6 +11,7 @@ import {wireJourneyEnvironment} from '../lib/qualification/wiring.ts';
 import {RelayDeveloperTools} from '../lib/qualification/relay-tools.ts';
 import {presentJourney} from '../lib/qualification/presentation.ts';
 import {InMemoryJournal,PostgresJournal,JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
+import {projectProgress} from '../lib/qualification/progress.ts';
 import {QualificationGate,ProviderNotSent,QualificationGateRefused} from '../lib/qualification/gate.ts';
 import {syntheticFactory,syntheticVerifier,verdictFor,h,digest} from './qualification-synthetic.mjs';
 import {QualificationRoot,QualificationRootRefused} from '../lib/qualification/root.ts';
@@ -71,9 +72,15 @@ function environment(w,faults={}){
 const count=async(w,table)=>(await w.db.query('SELECT count(*)::int n FROM '+table)).rows[0].n;
 try{
  await test('a synthetic journey runs Sofie -> coding -> Factory -> independent verifier -> delivery with every call gated and settled',async()=>{
-  const w=await world('ok'),env=environment(w);
+  const w=await world('ok'),env=environment(w),journal=new InMemoryJournal();env.journal=journal;
   const evidence=await new QualificationJourney(w.accounting,w.project,env).run(plan());
   assert.deepEqual(env.calls,['s1-0','s1-1','s2-0','s3-0','s4-0']);
+  // Durable delivery fact: exactly one DELIVERY_ACCEPTED, linked to the accepted delivery, after stage 4; the read-only projection exposes the exact baseline.
+  const retained=await journal.read(),acceptedDelivery=retained.filter(e=>e.kind==='DELIVERY_ACCEPTED');
+  assert.equal(acceptedDelivery.length,1);assert.equal(acceptedDelivery[0].digest,evidence.deliverySha256);assert.equal(acceptedDelivery[0].verdictSha256,evidence.verdictSha256);
+  assert.ok(retained.findIndex(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===4)<retained.findIndex(e=>e.kind==='DELIVERY_ACCEPTED'));
+  const view=projectProgress(retained);assert.equal(view.state,'DELIVERED');assert.equal(view.baseline.deliverySha256,evidence.deliverySha256);
+  assert.equal(view.baseline.commit,evidence.stages[2].candidate.commit);
   assert.equal(evidence.stages.length,4);assert.equal(evidence.readiness,'NOT_CLAIMED');assert.equal(evidence.authority,'NONE');
   assert.equal(evidence.projectSha256,w.binding.projectSha256);
   assert.equal(await count(w,'qdev_work'),4);assert.equal(await count(w,'qdev_dispatch'),5);
@@ -330,9 +337,20 @@ try{
   assert.equal(probe.factory.length,1);assert.equal(await count(w,'qdev_dispatch'),5);
   // a halted journey is presented, not thrown
   const w2=await world('roothalt'),hw=wired(w2,{admitFactoryVersion:h('9')});
-  const r2=new QualificationRoot({enabled:()=>true,config:async owner=>({ownerId:owner,project:w2.project,plan:plan(),accounting:w2.accounting,journal:new InMemoryJournal(),relay:hw.config.relay,ports:(({project,relay,...p})=>p)(hw.config)})});
+  const haltJournal=new InMemoryJournal();
+  const r2=new QualificationRoot({enabled:()=>true,config:async owner=>({ownerId:owner,project:w2.project,plan:plan(),accounting:w2.accounting,journal:haltJournal,relay:hw.config.relay,ports:(({project,relay,...p})=>p)(hw.config)})});
   const halted=await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});
   assert.equal(halted.status,'HALTED');assert.equal(halted.haltedAt,3);
+  // The halt is also a durable, owner-safe journal fact that read-only progress reports; a repeat of the same halt is not appended twice.
+  const haltFacts=()=>haltJournal.read().then(events=>events.filter(e=>e.kind==='HALTED'));
+  assert.deepEqual((await haltFacts()).map(e=>[e.stage,e.code]),[[3,halted.code]]);
+  const haltView=projectProgress(await haltJournal.read());assert.equal(haltView.state,'HALTED');assert.equal(haltView.haltedAt,3);assert.equal(haltView.baseline,undefined);
+  // A restart finds the claimed-but-unsettled operation and reports the different, honest recovery halt; an identical repeat appends nothing.
+  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});
+  assert.deepEqual((await haltFacts()).map(e=>e.code),[halted.code,'QDEV_RECOVERY_UNKNOWN']);assert.equal(projectProgress(await haltJournal.read()).code,'QDEV_RECOVERY_UNKNOWN');
+  // Later runs report the different honest halt (the ledger fences the cohort); an identical repeat appends nothing.
+  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});assert.equal((await haltFacts()).at(-1).code,'QDEV_FENCED');
+  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});assert.deepEqual((await haltFacts()).map(e=>e.code),[halted.code,'QDEV_RECOVERY_UNKNOWN','QDEV_FENCED']);
  });
  await test('F5: a nested ProviderNotSent after the agent started fences the operation; it is not tombstoned and no successor is admitted',async()=>{
   const w=await world('f5agent'),base=environment(w);

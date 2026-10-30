@@ -14,6 +14,8 @@ export type JournalEvent =
   /** The exact authenticated identity accepted for the stage. A resumed journey must reproduce it or halt. */
   | { kind: "STAGE_ACCEPTED"; stage: number; digest: string; candidate?: { commit: string; tree: string }; buildArtifactSha256?: string }
   | { kind: "AGENT_EXECUTION"; stage: number; requestId: string; workOrderId: string; runId: string }
+  /** Durable fact that the independently verified candidate was observed delivered by MyApps (written once, after the delivery acceptance). */
+  | { kind: "DELIVERY_ACCEPTED"; stage: 4; digest: string; verdictSha256: string }
   | { kind: "HALTED"; stage: number; code: string };
 
 export interface JourneyJournal {

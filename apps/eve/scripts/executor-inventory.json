@@ -4653,13 +4653,13 @@
     },
     "lib/qualification/journey.ts": {
       "classification": "ENFORCED",
-      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration.",
-      "sha256": "1181ff898e0b2200d75c1b7abd43698b885672b05f3ca3383cad6bd409e0f8b9"
+      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration. Appends one durable DELIVERY_ACCEPTED journal fact after the delivery acceptance (journal failure halts QDEV_JOURNAL_DELIVERY).",
+      "sha256": "1ed6260942dc61145b2c54f42e10fcbad0b810ebdce3330e9996e1b19cd62cf0"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
-      "reason": "Orchestration journal for qdev-20261029-01 restart recovery: append-only, non-financial, lives in the app database. The qdev_* ledger stays the only accounting authority; the journal only prevents re-sending after a restart. Independent source review PENDING.",
-      "sha256": "8543df06883a256d05440ce5d8365856770646c4da380ea1e4e02b575622547f"
+      "reason": "Orchestration journal for qdev-20261029-01 restart recovery: append-only, non-financial, lives in the app database. The qdev_* ledger stays the only accounting authority; the journal only prevents re-sending after a restart. Independent source review PENDING. Adds the durable DELIVERY_ACCEPTED event (the confirmed-delivery fact an improvement baseline is bound to).",
+      "sha256": "89975ace130f1f4370e12cca0cf7e78fc85b9c787c26ce4b76652d59889c50c7"
     },
     "lib/qualification/relay-tools.ts": {
       "classification": "ENFORCED",
@@ -4713,8 +4713,8 @@
     },
     "lib/qualification/root.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated root composition for the qdev journey: the only caller of wireJourneyEnvironment outside tests. Disabled unless the host switch is on and the host returns a complete trusted configuration; requires the human owner the configuration was issued for (never a guest, delegated role, subagent or model-supplied owner); builds and charges nothing before those checks; the host-owned plan is the only plan. Spend authority remains solely the qdev ledger gate.",
-      "sha256": "abc7b5b32220b3260ebc0bec1a9f9722988d0d5fa2be29195b0ffff6dc6cfea8"
+      "reason": "Authenticated root composition for the qdev journey: the only caller of wireJourneyEnvironment outside tests. Disabled unless the host switch is on and the host returns a complete trusted configuration; requires the human owner the configuration was issued for (never a guest, delegated role, subagent or model-supplied owner); builds and charges nothing before those checks; the host-owned plan is the only plan. Spend authority remains solely the qdev ledger gate. Best-effort, deduplicated durable HALTED journal fact on a presented halt so read-only progress survives restarts; a journal failure never changes the halt.",
+      "sha256": "0ad5e94ba756206c5661f2e41895bfeb8caaa94b9c600f88ff94b8d93ea302da"
     },
     "lib/qualification/ingress.ts": {
       "classification": "ENFORCED",
@@ -4728,8 +4728,8 @@
     },
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
-      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed.",
-      "sha256": "9beb0766a2ba736374f9557525500bdb4a85e6f3f137b16719d9f8f5601ea187"
+      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed. Wires the read-only journal view and an owner-scoped, lazily opened Work store for inert improvement proposals into the conversation; it never builds a Work database connection at startup.",
+      "sha256": "ca0d626bdc710634a4192b59788352bba6301088b42d8342b89950db7804bfff"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
@@ -4763,8 +4763,8 @@
     },
     "lib/qualification/conversation-model.ts": {
       "classification": "INTERNAL",
-      "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests.",
-      "sha256": "374f220ad6c5aa23a4908d894cbcca6ef3cd273477b1846c3075ba3d0ec4b697"
+      "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests. Optional read-only retained-journal and improvement-recorder dependencies add owner status replies and, only after a confirmed delivery, record one inert unfunded improvement proposal bound to the accepted candidate; the approved request remains the only text that can select the journey tool, and without the dependencies behavior is unchanged. Evidence: post-delivery.test.ts.",
+      "sha256": "e38d165e2af54d54b4fddc466abd72da7aed873dc742b55e8362769b430a1ef3"
     },
     "lib/qualification/verifier-port.ts": {
       "classification": "ENFORCED",
@@ -4875,6 +4875,16 @@
       "classification": "ENFORCED",
       "reason": "Unpaid, read-only configuration preflight for the QDEV launcher. For stages 1-3 it reads only `engineering_work.max_cost_usd` of the three profile Works (owner-scoped, no provider, reservation, ledger or credential) and refuses the installation unless each Work budget, as both the native ceiling (floor) and the capability-challenge budget (ceil), is an exact micro-dollar amount that fits the approved plan's single Factory-backed operation reservation (CODING in stages 1-2, FACTORY in stage 3), the stage Work ceiling and the per-Work qdev limit; shared, missing or unreadable Works refuse. It prevents the charged-parent guard from refusing coding only after Sofie has spent. Evidence: qualification-custody-launcher.integration.mjs.",
       "sha256": "e2443455b1e7339878e0e29ac89807ceb8ab4318ac0d57bd1567a871850b98e1"
+    },
+    "lib/qualification/progress.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure, read-only projection of the retained journey journal into an owner-readable progress view (stage states, unconfirmed operations, halt code, and the exact accepted delivered candidate as the improvement baseline). It performs no I/O, provider, ledger, Relay, Factory, verifier or MyApps call and grants no authority; unsafe halt codes are never echoed and a claimed-but-unsettled operation is reported as unconfirmed, never complete. Evidence: post-delivery.test.ts, qualification-journey.integration.mjs.",
+      "sha256": "5105b999df66796589ad8e45d6e85585fa744878fe0a8ef1ae472a264e9f9d74"
+    },
+    "lib/qualification/improvement.ts": {
+      "classification": "INTERNAL",
+      "reason": "Post-delivery improvement proposal over the existing owner Work frontdoor (WorkStore.create/list/change only). It records an inert PAUSED Work at the schema-minimum placeholder cost, bound to the exact accepted delivered candidate, with an explicit not-started/unfunded objective; it makes no ledger grant, reservation, provider, Relay, Factory, verifier, MyApps or deployment call, never resets or reuses the spent charter, is idempotent per owner/candidate/request, is capped per candidate and re-pauses a Work found running (refusing if it cannot be confirmed paused). Running an improvement requires a separately approved funded scope. Evidence: post-delivery.test.ts and post-delivery.integration.test.ts over the real Work tables.",
+      "sha256": "db9ce5fbd655a72baaa0162ab9ae7c441334fe301697368aafa4b4eb390898d7"
     }
   }
 }

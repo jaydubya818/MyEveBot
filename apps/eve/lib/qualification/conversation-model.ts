@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import type { gateway } from "ai";
 import { z } from "zod";
 import type { QdevConversation } from "./root.ts";
+import type { JournalEvent } from "./journal.ts";
+import { ImprovementRefused, type ImprovementRecorder } from "./improvement.ts";
+import { describeProgress, projectProgress } from "./progress.ts";
 
 type Model = ReturnType<typeof gateway>;
 type Options = Parameters<Model["doGenerate"]>[0];
@@ -26,6 +29,10 @@ export type QualificationConversationConfig = {
   deliveryUrl?: string;
   /** Read-only current owner/enrollment/expiry/revocation check. It must never invoke a provider. */
   revalidate(input: { ownerId: string; sessionId: string; stepKey: string }): Promise<boolean>;
+  /** Optional read-only view of the retained journey journal. Enables progress answers; it never reaches a provider and grants nothing. */
+  retained?(): Promise<JournalEvent[]>;
+  /** Optional recorder for post-delivery improvement proposals. It records an inert, unfunded proposal only; it never starts, funds or resumes work. */
+  improvements?: ImprovementRecorder;
 };
 
 function result(content: Result["content"], toolCall = false): Result {
@@ -51,6 +58,14 @@ function present(value: unknown, deliveryUrl?: string): string {
     "Release readiness and tester activation still require their own authorization."].join("\n\n");
 }
 
+const statusIntent = /^\s*(status|progress|where (are we|is it)|how (is|'s) (it|the (journey|build|project|app)) (going|doing))\b/i;
+const improveIntent = /^\s*(improve|improvement|change|add|fix|update|make|remove|support|show|let|rename|redesign)\b/i;
+const improvementRefusal: Record<string, string> = {
+  QDEV_IMPROVEMENT_REQUEST: "That improvement request is empty or too long (2000 characters at most). Nothing was recorded.",
+  QDEV_IMPROVEMENT_LIMIT: "This delivered candidate already has the maximum number of recorded improvement proposals. Nothing new was recorded.",
+  QDEV_IMPROVEMENT_STATE: "The improvement proposal could not be confirmed as paused, so it is not reported as recorded.",
+};
+
 /** Free outer orchestration only. The authenticated tool/root and journey gate own every effect and every charged call.
  * No SDK provider, fallback, compaction, delegation or original-ledger access exists in this model. */
 export function qualificationConversation(config: QualificationConversationConfig): QdevConversation {
@@ -63,6 +78,24 @@ export function qualificationConversation(config: QualificationConversationConfi
     const url = new URL(config.deliveryUrl);
     if (url.protocol !== "https:" || url.username || url.password || url.hash || /[\s()<>]/.test(url.href)) throw Error("QDEV_CONVERSATION_DELIVERY_URL");
     deliveryUrl = url.href;
+  }
+  const retained = config.retained, improvements = config.improvements;
+  /** Owner questions outside the approved request: read-only progress, and an inert unfunded improvement proposal after confirmed delivery. */
+  async function ownerReply(text: string | undefined): Promise<string> {
+    const fallback = `This installation runs only its approved journey. Send: ${approvedRequest}`;
+    if (!retained || text === undefined) return fallback;
+    let view;
+    try { view = projectProgress(await retained()); } catch { return `${fallback}\n\nRetained progress is unavailable right now; nothing was started.`; }
+    if (improveIntent.test(text) && !statusIntent.test(text)) {
+      if (view.state !== "DELIVERED" || !view.baseline) return `${describeProgress(view, deliveryUrl)}\n\nAn improvement can be requested only after this journey's delivery is confirmed. Nothing was recorded.`;
+      if (!improvements) return "Improvement proposals are not enabled for this installation. Nothing was recorded.";
+      try {
+        const { workId, created } = await improvements.propose({ baseline: view.baseline, request: text });
+        return [`${created ? "Recorded" : "Already recorded"} as a paused, unfunded improvement proposal (Work ${workId}) based on the delivered candidate ${view.baseline.commit.slice(0, 12)} (delivery ${view.baseline.deliverySha256.slice(0, 12)}).`,
+          "Nothing was started, and no spend, provider call, deployment or tester activation is authorized. The spent charter is not reused; running this change needs a new funded scope approved by the owner."].join("\n\n");
+      } catch (error) { return error instanceof ImprovementRefused ? improvementRefusal[error.code] : "The improvement request could not be recorded. Nothing was started."; }
+    }
+    return statusIntent.test(text) || view.state === "DELIVERED" || view.state === "IN_PROGRESS" ? describeProgress(view, deliveryUrl) : `${describeProgress(view, deliveryUrl)}\n\n${fallback}`;
   }
   return { ownerId, contextWindowTokens: 200_000, model(input) {
     const identity = z.object({ sessionId: z.string().min(1).max(255), stepKey: z.string().min(1).max(1000) }).strict().parse(input);
@@ -106,8 +139,7 @@ export function qualificationConversation(config: QualificationConversationConfi
       }
       // A tool response without the expected call is never an invitation to rerun the journey.
       if (turn.some(m => m.role === "tool")) return textResult(unverified);
-      if (!approved)
-        return textResult(`This installation runs only its approved journey. Send: ${approvedRequest}`);
+      if (!approved) return textResult(await ownerReply(user.role === "user" && user.content.every(p => p.type === "text") ? user.content.map(p => p.type === "text" ? p.text : "").join("\n").trim() : undefined));
       if (!options.tools?.some(t => t.type === "function" && t.name === TOOL)) throw Error("QDEV_CONVERSATION_TOOL_UNAVAILABLE");
       return result([{ type: "tool-call", toolCallId, toolName: TOOL, input: "{}" }], true);
     }

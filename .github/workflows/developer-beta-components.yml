@@ -90,6 +90,7 @@ jobs:
           agent/agent.qdev-ingress.test.ts
           lib/qualification/qdev-paid-paths.test.ts
           lib/qualification/conversation-model.test.ts
+          lib/qualification/post-delivery.test.ts
           lib/external-alpha/paid-paths.test.ts
       - name: Public durable receipt recovery and V4 correlation
         env:
@@ -150,6 +151,11 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
         run: ../../node_modules/.bin/vitest run --maxWorkers=1 --testTimeout=120000 lib/missioncontrol/local-v4-source.integration.test.ts
+      - name: Post-delivery improvement proposals over the real owner Work tables (inert, paused, unfunded; no provider call)
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
+        run: ../../node_modules/.bin/vitest run --maxWorkers=1 --testTimeout=120000 lib/qualification/post-delivery.integration.test.ts
       - name: Scoped single-use owner activation approvals and serving-only loopback launch (no network egress)
         run: node --import tsx --test apps/eve/test/qualification-static-activation.test.mjs
       - name: Native Factory ceiling must fit the charged parent reservation (disposable PostgreSQL)

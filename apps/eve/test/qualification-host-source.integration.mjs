@@ -159,6 +159,12 @@ try{
   assert.equal(out.status,'COMPLETED_UNCLAIMED');assert.equal(out.readiness,'NOT_CLAIMED');assert.equal(out.authority,'NONE');assert.equal(out.stages.length,4);
   assert.equal(await count(w,'qdev_dispatch'),5);
   assert.ok((await w.db.query('SELECT count(*)::int n FROM qjourney_event')).rows[0].n>0);   // the PG journal received the durable events
+  // Retained progress and the post-delivery boundary come from that same durable PG journal; improvements are not enabled without a Work store dependency.
+  const afterModel=(await host.conversation(owner)).model({sessionId:'s-progress',stepKey:'s-progress:0'});
+  const ask=text=>afterModel.doGenerate({prompt:[{role:'user',content:[{type:'text',text}]}],tools:[]});
+  const status=await ask('status');assert.equal(status.finishReason.unified,'stop');assert.match(status.content[0].text,/delivery was confirmed/);assert.match(status.content[0].text,/new funded scope/);
+  assert.match((await ask('Add a dark mode toggle')).content[0].text,/not enabled/);
+  assert.equal(await count(w,'qdev_dispatch'),5);
   assert.equal((await new QualificationRoot(host).run({ownerId:w.policy.Q2.ownerId,kind:'human'}).catch(e=>e.code)),'QDEV_ROOT_UNCONFIGURED');
  });
  await test('loader: the conversation model proposes only the approved tool, revalidates against the ledger, and fails closed when the cohort is paused or the bundle changes',async()=>{

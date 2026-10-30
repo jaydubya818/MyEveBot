@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { QualificationAccounting, qualificationBinding, qualificationPolicySchema, qualificationProjectInputSchema } from "../external-alpha/qualification-accounting.ts";
 import { qualificationConversation } from "./conversation-model.ts";
+import { createImprovementRecorder } from "./improvement.ts";
 import { assemblyProfileSchema, qdevJourneyId } from "./custody-profile.ts";
 import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
@@ -58,7 +59,17 @@ export type RuntimeHostDeps = {
   database(url: string): ExecutionDatabase;
   /** Protected-custody ports (agent execution, Factory, verifier, MyApps). Absent or null keeps the installation disabled. */
   ports?(context: { bundle: QdevHostBundle; relay: RelayDeveloperTools; credential(name: string): string | undefined }): Promise<RuntimePorts | null>;
+  /** The owner's durable Work frontdoor, used only to record inert, unfunded post-delivery improvement proposals. Absent disables proposals (progress stays available). */
+  workStore?(ownerId: string): OwnerWorkStore;
 };
+export type OwnerWorkStore = Parameters<typeof createImprovementRecorder>[0]["store"];
+
+/** Owner-scoped Work store over the existing engineering frontdoor. Opened lazily on first use, so building the host touches no Work database. */
+export function ownerWorkStore(ownerId: string): OwnerWorkStore {
+  let opened: Promise<InstanceType<typeof import("../engineering/store.ts").WorkStore>> | undefined;
+  const store = () => opened ??= import("../engineering/store.ts").then(({ WorkStore }) => new WorkStore({ scopeKind: "personal", scopeId: ownerId, actorId: ownerId }));
+  return { list: async () => (await store()).list(), create: async value => (await store()).create(value), change: async (id, value) => (await store()).change(id, value) };
+}
 
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
 /** Fingerprint of the four required runtime inputs (hash only; values are never retained or printed). Null when any is absent or malformed. */
@@ -115,7 +126,8 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       return (await accounting.status()).state === "active";
     };
     const conversation = qualificationConversation({ ownerId: bundle.ownerId, approvedRequest: bundle.conversation.approvedRequest,
-      deliveryUrl: bundle.conversation.deliveryUrl, revalidate });
+      deliveryUrl: bundle.conversation.deliveryUrl, revalidate, retained: () => journal.read(),
+      improvements: deps.workStore ? createImprovementRecorder({ ownerId: bundle.ownerId, store: deps.workStore(bundle.ownerId) }) : undefined });
     return { ownerId: bundle.ownerId, project: bundle.project, plan, accounting, journal, relay, ports, conversation };
   }
 
@@ -147,4 +159,4 @@ export function pgExecutionDatabase(url: string): ExecutionDatabase {
 }
 
 /** Default production source: runtime-supplied, and disabled until a protected `ports` provider is enrolled. */
-export const runtimeHostSource = (ports?: RuntimeHostDeps["ports"]): QdevHostSource => createRuntimeHostSource({ database: pgExecutionDatabase, ports });
+export const runtimeHostSource = (ports?: RuntimeHostDeps["ports"]): QdevHostSource => createRuntimeHostSource({ database: pgExecutionDatabase, ports, workStore: ownerWorkStore });
