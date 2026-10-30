@@ -113,7 +113,7 @@ try{
   const base=wired(w),{project,relay,journal,...ports}=base.config;
   const source=createRuntimeHostSource({env,fetcher,database:url=>{opened.push(url);return url.includes('accounting')?{query:async(q,p)=>(await w.rt.query(q,p)).rows}:{query:async(q,p)=>(await w.db.query(q,p)).rows};},
    ports:async()=>calls.push('ports')&&ports});
-  return {env,source,relayCalls,opened,probe:base.probe,calls};
+  return {env,source,relayCalls,opened,probe:base.probe,calls,fetcher,portsProvider:async()=>ports,databaseFor:url=>url.includes('accounting')?{query:async(q,p)=>(await w.rt.query(q,p)).rows}:{query:async(q,p)=>(await w.db.query(q,p)).rows}};
  }
  await test('loader: disabled by default — no switch, no bundle, or any incomplete credential yields null and opens nothing',async()=>{
   const w=await world('l1');
@@ -173,6 +173,35 @@ try{
   await assert.rejects(model.doGenerate({prompt:[{role:'user',content:[{type:'text',text:APPROVED}]}],tools:tool}),/QDEV_CONVERSATION_UNAVAILABLE/);
   const replaced=await r.source.material(owner);                       // a replaced bundle is a new, unenrolled installation: the ledger itself refuses it
   await assert.rejects(replaced.accounting.status());
+ });
+ await test('loader: warm material and previously returned models fail closed when ANY required runtime input is removed or replaced, without a further database call',async()=>{
+  const names=['QDEV_ACCOUNTING_CREDENTIAL','QDEV_RELAY_CREDENTIAL','QDEV_ACCOUNTING_DATABASE_URL','QDEV_JOURNAL_DATABASE_URL'];
+  const tool=[{type:'function',name:'qualification_journey',inputSchema:{type:'object',properties:{}}}];
+  for(const mode of ['remove','replace']){
+   for(const name of names){
+    const w=await world('c'+(mode==='remove'?'x':'p')+names.indexOf(name)),r=await runtime(w),owner=w.policy.Q1.ownerId;
+    let queries=0;
+    const source=createRuntimeHostSource({env:r.env,fetcher:r.fetcher,database:url=>{const base=r.databaseFor(url);return {query:async(q,p)=>{queries++;return base.query(q,p);}};},ports:r.portsProvider});
+    const host=assembleQualificationHost(source);
+    const material=await source.material(owner);assert.ok(material,name);
+    const model=(await host.conversation(owner)).model({sessionId:'s',stepKey:'s:0'});
+    const call=()=>model.doGenerate({prompt:[{role:'user',content:[{type:'text',text:APPROVED}]}],tools:tool});
+    assert.equal((await call()).finishReason.unified,'tool-calls');                                    // warm and working
+    const old=r.env[name];
+    if(mode==='remove')delete r.env[name];
+    else r.env[name]=name.endsWith('CREDENTIAL')&&name.includes('ACCOUNTING')?'f'.repeat(64):name.includes('DATABASE')?old+'x':'replaced-relay-secret';
+    const before=queries;
+    if(mode==='remove')assert.equal(await source.material(owner),null,'warm material must not survive removal of '+name);
+    await assert.rejects(call(),/QDEV_CONVERSATION_UNAVAILABLE/,name);                                // previously returned model
+    await assert.rejects(material.accounting.status(),/QDEV_CONFIGURATION_REQUIRED/,name);             // previously returned ledger client
+    await assert.rejects(material.journal.read(),/QDEV_CONFIGURATION_REQUIRED/,name);                  // previously returned journal
+    await assert.rejects(material.relay.discover(),/QDEV_RELAY_CREDENTIAL|QDEV_CONFIGURATION_REQUIRED|QDEV_RELAY/,name);
+    assert.equal(queries,before,'no database call after '+mode+' of '+name);
+    for(const text of [String(await call().catch(e=>e.message)),String(await material.accounting.status().catch(e=>e.message))])
+     assert.equal(text.includes(old)||text.includes(w.t1),false,'failure evidence must not contain secret values');
+    if(mode==='replace'){const next=await source.material(owner);assert.notEqual(next,material);}      // replaced inputs build new material; the old object stays dead
+   }
+  }
  });
 }finally{
  await Promise.all(clients.map(c=>c.end().catch(()=>{})));

@@ -56,6 +56,13 @@ export type RuntimeHostDeps = {
 };
 
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
+/** Fingerprint of the four required runtime inputs (hash only; values are never retained or printed). Null when any is absent or malformed. */
+function runtimeFingerprint(env: NodeJS.ProcessEnv, names: QdevHostBundle["credentials"]): string | null {
+  const values = [names.accounting, names.relay, names.accountingDatabaseUrl, names.journalDatabaseUrl].map(name => env[name]);
+  if (!values.every(value => typeof value === "string" && value.length > 0)) return null;
+  if (!/^[a-f0-9]{64}$/.test(values[0]!) || !databaseUrl(values[2]) || !databaseUrl(values[3])) return null;
+  return sha(JSON.stringify(values));
+}
 const databaseUrl = (value: string | undefined) => {
   if (!value) return null;
   try { const url = new URL(value); return /^postgres(ql)?:$/.test(url.protocol) ? value : null; } catch { return null; }
@@ -64,7 +71,7 @@ const databaseUrl = (value: string | undefined) => {
 export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
   const env = deps.env ?? process.env;
   const now = deps.now ?? Date.now;
-  const cache = new Map<string, Promise<QdevHostMaterial | null>>();
+  const cache = new Map<string, { fingerprint: string; built: Promise<QdevHostMaterial | null> }>();
 
   function bundleFor(ownerId: string): { raw: string; bundle: QdevHostBundle } | null {
     const raw = env.MYEVE_QDEV_HOST_BUNDLE;
@@ -76,24 +83,29 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     return { raw, bundle: parsed };
   }
 
-  async function build(raw: string, bundle: QdevHostBundle): Promise<QdevHostMaterial | null> {
+  async function build(raw: string, bundle: QdevHostBundle, bound: string): Promise<QdevHostMaterial | null> {
     const secret = (name: string) => env[name];
+    /** Every use of previously returned material re-proves that the exact supplied inputs are still present and unchanged. */
+    const live = () => env.MYEVE_QDEV_ENABLED === "true" && runtimeFingerprint(env, bundle.credentials) === bound;
+    const guarded = (database: ExecutionDatabase): ExecutionDatabase => ({
+      query: async (sql, parameters) => { if (!live()) throw Error("QDEV_CONFIGURATION_REQUIRED"); return database.query(sql, parameters); },
+    });
     const accountingCredential = secret(bundle.credentials.accounting), relayCredential = secret(bundle.credentials.relay);
     const accountingUrl = databaseUrl(secret(bundle.credentials.accountingDatabaseUrl)), journalUrl = databaseUrl(secret(bundle.credentials.journalDatabaseUrl));
     if (!accountingCredential || !/^[a-f0-9]{64}$/.test(accountingCredential) || !relayCredential || !accountingUrl || !journalUrl) return null;
     let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
     const binding = qualificationBinding(bundle.project);
-    const accounting = new QualificationAccounting(deps.database(accountingUrl), accountingCredential, bundle.policy, binding);
-    const journal = new PostgresJournal(deps.database(journalUrl), sha(JSON.stringify([bundle.ownerId, binding.projectSha256, binding.sourceSha256])));
+    const accounting = new QualificationAccounting(guarded(deps.database(accountingUrl)), accountingCredential, bundle.policy, binding);
+    const journal = new PostgresJournal(guarded(deps.database(journalUrl)), sha(JSON.stringify([bundle.ownerId, binding.projectSha256, binding.sourceSha256])));
     const transport = new RelayMcpTransport({ enabled: true, origin: bundle.relay.origin, tools: relayToolMap(), fetcher: deps.fetcher,
-      credential: async () => { const current = env[bundle.credentials.relay]; if (!current) throw Error("QDEV_RELAY_CREDENTIAL"); return current; } });
+      credential: async () => { const current = env[bundle.credentials.relay]; if (!live() || !current) throw Error("QDEV_RELAY_CREDENTIAL"); return current; } });
     const relay = new RelayDeveloperTools(bundle.relay.grant, transport);
     const ports = deps.ports ? await deps.ports({ bundle, relay, credential: secret }) : null;
     if (!ports) return null;
     const bundleSha = sha(raw);
     /** Read-only current admission. It touches no provider: only the bundle's presence/expiry and the ledger's own status read. */
     const revalidate = async (input: { ownerId: string; sessionId: string; stepKey: string }) => {
-      if (input.ownerId !== bundle.ownerId || env.MYEVE_QDEV_ENABLED !== "true" || env.MYEVE_QDEV_HOST_BUNDLE === undefined) return false;
+      if (input.ownerId !== bundle.ownerId || !live() || env.MYEVE_QDEV_HOST_BUNDLE === undefined) return false;
       if (sha(env.MYEVE_QDEV_HOST_BUNDLE) !== bundleSha || Date.parse(bundle.notAfter) <= now()) return false;
       return (await accounting.status()).state === "active";
     };
@@ -108,11 +120,15 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       if (env.MYEVE_QDEV_ENABLED !== "true") return null;
       const found = bundleFor(ownerId);                      // revalidated on every call: expiry, owner and presence are never cached
       if (!found) return null;
-      const key = sha(found.raw);
-      let built = cache.get(key);
-      if (!built) { built = build(found.raw, found.bundle).catch(() => null); cache.set(key, built); }
-      const material = await built;
-      if (!material) cache.delete(key);                     // an incomplete installation may become complete later
+      const key = sha(found.raw), fingerprint = runtimeFingerprint(env, found.bundle.credentials);
+      if (!fingerprint) { cache.delete(key); return null; }  // a removed or malformed credential/database input disables warm material too
+      let entry = cache.get(key);
+      if (!entry || entry.fingerprint !== fingerprint) {     // replaced inputs build new material; the old one no longer passes `live()`
+        entry = { fingerprint, built: build(found.raw, found.bundle, fingerprint).catch(() => null) };
+        cache.set(key, entry);
+      }
+      const material = await entry.built;
+      if (!material) cache.delete(key);                      // an incomplete installation may become complete later
       return material;
     },
   };

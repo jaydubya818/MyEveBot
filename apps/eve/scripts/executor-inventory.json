@@ -4728,8 +4728,8 @@
     },
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
-      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call.",
-      "sha256": "1b6edacc912755f8841e86c88dd60b44205728495d3eec6564d5ad6606526dd4"
+      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed.",
+      "sha256": "5dc58d1337ff6d0d4bb31f489e1711fe6f7531c1e2d65975c2806578209fb1d8"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
