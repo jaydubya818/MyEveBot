@@ -86,7 +86,7 @@ BEGIN
  IF TG_TABLE_NAME='qdev_dispatch' THEN
   IF (to_jsonb(NEW)-'state') IS DISTINCT FROM (to_jsonb(OLD)-'state')
    OR (NEW.state IS DISTINCT FROM OLD.state AND NOT((OLD.state='DISPATCHED' AND NEW.state IN('RUNNING','FENCED','SETTLED','UNKNOWN','NOT_DISPATCHED'))
-     OR (OLD.state='RUNNING' AND NEW.state IN('FENCED','SETTLED','UNKNOWN')) OR (OLD.state='FENCED' AND NEW.state IN('SETTLED','UNKNOWN'))))
+     OR (OLD.state='RUNNING' AND NEW.state IN('FENCED','SETTLED','UNKNOWN','NOT_DISPATCHED')) OR (OLD.state='FENCED' AND NEW.state IN('SETTLED','UNKNOWN'))))
   THEN RAISE EXCEPTION 'QDEV_HISTORY_IMMUTABLE'; END IF;
  ELSIF TG_TABLE_NAME='qdev_work' THEN
   IF (to_jsonb(NEW)-ARRAY['state','local_allowance_id']) IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['state','local_allowance_id'])
@@ -164,7 +164,8 @@ BEGIN
    IF NOT EXISTS(SELECT 1 FROM qdev_dispatch WHERE work_id=prior.id AND operation_sha256=op AND state='SETTLED') THEN RAISE EXCEPTION 'QDEV_DENIED'; END IF;
   ELSE
    -- Exact no-send tombstone; the Work ceiling stays charged. UNKNOWN/SETTLED immutable.
-   UPDATE qdev_dispatch SET state='NOT_DISPATCHED' WHERE work_id=prior.id AND operation_sha256=op AND state='DISPATCHED';
+   -- RUNNING is only the pre-send marker; an authenticated no-send fact may still tombstone it.
+   UPDATE qdev_dispatch SET state='NOT_DISPATCHED' WHERE work_id=prior.id AND operation_sha256=op AND state IN('DISPATCHED','RUNNING');
    IF NOT EXISTS(SELECT 1 FROM qdev_dispatch WHERE work_id=prior.id AND operation_sha256=op AND state='NOT_DISPATCHED') THEN RAISE EXCEPTION 'QDEV_DENIED'; END IF;
   END IF;
   RETURN to_jsonb(prior);

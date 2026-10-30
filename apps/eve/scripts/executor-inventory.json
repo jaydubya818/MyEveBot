@@ -4620,6 +4620,41 @@
       "classification": "INTERNAL",
       "reason": "Engineering-authored qualification accounting client for qdev-20261029-01. Performs no provider call, model dispatch or external effect; only calls the dedicated qdev_cohort_call database function. Not wired to any runtime caller. Independent source review PENDING; fingerprint pins the exact bytes and must be re-reviewed on any change.",
       "sha256": "ca40df664ee1f887ecc8976442847587af419b8155ff411d8bd307a9b8e614fb"
+    },
+    "lib/qualification/plan.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure journey plan validation for qdev-20261029-01; performs no I/O, provider call or dispatch. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "83268ed6d3b89faef87dde18393a7edb2e9f86e04c7064c2b187b4daf9b80fcd"
+    },
+    "lib/qualification/gate.ts": {
+      "classification": "INTERNAL",
+      "reason": "Dispatch gate for qdev-20261029-01: calls the provider callback ONLY after the dedicated ledger accepted the exact parent/source binding; no retry; ambiguous outcomes fence. Provider access is injected by the caller; this module holds no credential or endpoint. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "a3c73ad0201ac607b1b48518799888493d8f92697041e6ac0b725c564bb524f1"
+    },
+    "lib/qualification/result.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure consumption of signed Factory Results over the existing V4 verifier; performs no I/O. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "e1edad3794a8c199e363b314b5994acedb9b0ae2ca339641fb0156d014d606b7"
+    },
+    "lib/qualification/verdict.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure verification of an independent verifier public signed verdict; holds no protected material and cannot produce a PASS. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "7d218105d0b31c802dc3efd2537c42bfb718f9c203044bdbbcffe7fc015303c5"
+    },
+    "lib/qualification/delivery.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure MyApps delivery observation check; deploys nothing and grants no installation or release authority. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "0c2d621cdf44831e51e8c7b8ea792161e7fa37cf9975aa9c1b5215a78ca9a4b2"
+    },
+    "lib/qualification/relay-grant.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure MyEve-side Relay developer grant denial matrix; holds no token and performs no Relay call. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "fc202be9abe30919dfbe515c61953988ebe732edb200f9b8ef6ab9b9d7468e47"
+    },
+    "lib/qualification/journey.ts": {
+      "classification": "INTERNAL",
+      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes.",
+      "sha256": "0fb3f7a0bd0b887c5af66f29aabd184c2c062fdff5ee218a5ad72c70101d84ac"
     }
   }
 }

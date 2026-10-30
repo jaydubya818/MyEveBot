@@ -190,3 +190,27 @@ authority exists, and none is created by the source below.
   execution: independent source acceptance, the approved qualification price
   card and model route, and runtime wiring of every Sofie, coding, Factory and
   verifier child through `dispatch`.
+
+### Runtime contracts (`apps/eve/lib/qualification/`, unwired, synthetic-tested)
+
+- `plan.ts` refuses an unfittable journey plan before any reservation or dispatch.
+- `gate.ts` is the only path a charged child (Sofie, coding, Factory, verifier)
+  may use: provider callback runs only after the ledger accepted the exact
+  parent/source binding; no retry; a proven no-send is tombstoned; any ambiguous
+  or unmeasured outcome fences and stays charged; crash recovery fences.
+- `result.ts` consumes signed Factory V4 Results over the existing verifier:
+  stage 1 must start at the approved dashboard baseline, each later stage at the
+  preceding accepted candidate; only current keys; all required evidence passed.
+- `verdict.ts` consumes the independent verifier's public signed verdict bound to
+  project, source, protected-specification digest, candidate and build artifact.
+  The verifier key set must be disjoint from every producer key; it cannot
+  produce a PASS and holds no protected material.
+- `delivery.ts` joins served bytes to the verified build artifact and requires a
+  rollback target; it deploys nothing and grants no authority.
+- `relay-grant.ts` is the MyEve-side denial matrix the real Relay enrollment must
+  satisfy (exact repo/base, output branch only, no force, workflows, admin or
+  deployment writes, no credential in a grant).
+- `journey.ts` sequences the four stages with every effect injected. A real run
+  needs the approved profile, price card, model route, resources and custody.
+- Ledger fix found by the journey tests: a proven no-send may tombstone an
+  operation already marked RUNNING (the gate's pre-send marker).
