@@ -33,6 +33,7 @@ export const externalAlphaPaidPaths: readonly PaidPath[] = Object.freeze([
   { id: "relay-mcp-memory", files: ["lib/relay/mcp-memory.ts"], disposition: "DENIED", note: "Dormant authored Relay memory operation; unregistered capabilities, no Agent/tool/route exposure. Both alpha installation names deny before credential resolution or SDK transport." },
   { id: "qualification-model", files: ["lib/qualification/client.ts"], disposition: "DENIED", note: "Permit-gated qualification model hook." },
   { id: "retained-summary", files: ["agent/lib/retained-work-summary.ts"], disposition: "NOT_PAID", note: "Deterministic canonical-evidence text, zero tokens, no provider." },
+  { id: "qdev-conversation", files: ["lib/qualification/conversation-model.ts"], disposition: "NOT_PAID", note: "Deterministic outer QDEV conversation: one approved journey-tool proposal or its linked safe presentation, zero tokens and no provider. Charged Sofie work stays inside the journey gate." },
   { id: "cloud-conversation-model", files: ["lib/engineering/cloud-conversation-model.ts"], disposition: "NOT_PAID", note: "Deterministic cloud qualification model (paidModelOperations: 0); type-only gateway import." },
   { id: "model-catalog", files: ["app/api/models/route.ts", "lib/readiness.ts", "agent/lib/gateway-models.ts"], disposition: "NOT_PAID", note: "Read-only model catalog/readiness requests; no inference." },
   { id: "embeddings", files: [], disposition: "NOT_PAID", note: "No direct embedding SDK calls; local search uses PostgreSQL full-text search. Remote semantic Memory is separately DENIED." },
@@ -47,10 +48,13 @@ export function externalAlphaPaidPathDenied(
   pathId: string,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return externalAlphaInstallation(env);
+  // QDEV has its own journey ledger and provider boundary. Existing auxiliary
+  // callers must stay closed even when no external-alpha policy is installed.
+  return env.MYEVE_QDEV_ENABLED === "true" || externalAlphaInstallation(env);
 }
 /** First statement of every denied dispatch site. Absent policy cannot reopen it:
- * the installation name alone is enough to deny. */
+ * the alpha installation name or QDEV switch alone is enough to deny. The
+ * existing error contract is shared by callers that also use the boolean guard. */
 export function denyExternalAlphaPaidPath(
   pathId: string,
   env: NodeJS.ProcessEnv = process.env,

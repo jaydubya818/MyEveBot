@@ -76,10 +76,12 @@ describe("paid-path inventory (external alpha)", () => {
   });
 });
 
-describe("denial under an external-alpha installation (no provider is reached)", () => {
+describe.each(["external-alpha", "qdev"] as const)("denial under a %s installation (no provider is reached)", (installation) => {
   const saved = { ...process.env };
   beforeAll(() => {
-    process.env.EVE_PROJECT_NAME = "myeve-alpha-tester-1";
+    process.env.EVE_PROJECT_NAME = installation === "external-alpha" ? "myeve-alpha-tester-1" : "myeve-qdev-isolated";
+    if (installation === "qdev") process.env.MYEVE_QDEV_ENABLED = "true";
+    else delete process.env.MYEVE_QDEV_ENABLED;
     delete process.env.MYEVE_EXTERNAL_ALPHA_POLICY;
   });
   afterAll(() => {
@@ -87,7 +89,7 @@ describe("denial under an external-alpha installation (no provider is reached)",
   });
   const denied = (e: unknown, id: string) => expect(String((e as Error)?.message)).toBe("EXTERNAL_ALPHA_PAID_PATH_DENIED:" + id);
 
-  it("the guard denies from the installation name alone, so absent policy stays closed", () => {
+  it("the guard denies from the installation alone, so absent policy stays closed", () => {
     expect(() => denyExternalAlphaPaidPath("x")).toThrow(ExternalAlphaPaidPathDenied);
     expect(() => denyExternalAlphaPaidPath("x", {} as NodeJS.ProcessEnv)).not.toThrow();
   });
