@@ -194,7 +194,7 @@ try{
   const relay=new RelayDeveloperTools(grantFor(),relayTransport(),testContract);
   const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
    verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,
-   agent:{async run(op,r){probe.agent.push(op.key);return agent?agent(op,r):{known:true,value:'ok'};}},
+   agent:{async run(op,r){probe.agent.push(op.key);if(agent)return agent(op,r);if(op.purpose!=='CODING')return {known:true,value:'ok'};const {requestId,workOrderId,runId}=base.expectedFor(op.stage);return {known:true,value:{execution:{requestId,workOrderId,runId}}};}},
    factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',...base.expectedFor(stage),factoryVersion:admitFactoryVersion??f.factoryVersion,sourceDigest:f.sourceDigest,
      inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,...admitOverrides}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
@@ -224,6 +224,30 @@ try{
    assert.equal(probe.factory.length,0,field);assert.equal(probe.verifier.length,0,field);
    assert.equal((await w.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state,'NOT_DISPATCHED',field);
   }
+ });
+ await test('wired ports: the actual agent request/run must match the snapshotted expected Result binding; foreign, unreported or replayed runs fence',async()=>{
+  const cases={
+   foreignRun:(op,base)=>({known:true,value:{execution:{...pick(base,op.stage),runId:randomUUID()}}}),
+   foreignRequest:(op,base)=>({known:true,value:{execution:{...pick(base,op.stage),requestId:'foreign-request'}}}),
+   foreignWorkOrder:(op,base)=>({known:true,value:{execution:{...pick(base,op.stage),workOrderId:randomUUID()}}}),
+   unreported:()=>({known:true,value:{}}),
+   extraKey:(op,base)=>({known:true,value:{execution:{...pick(base,op.stage),extra:1}}}),
+   replayedFromStage1:(op,base)=>({known:true,value:{execution:pick(base,1)}}),
+  };
+  const pick=(base,stage)=>{const {requestId,workOrderId,runId}=base.expectedFor(stage);return {requestId,workOrderId,runId};};
+  for(const [name,make] of Object.entries(cases)){
+   const w=await world('agentbind'+name.toLowerCase()),base=environment(w);
+   // stage 1 is genuine for the replay case; every other case is foreign at stage 1
+   const {env,probe}=wired(w,{agent:async(op)=>{
+     if(op.purpose!=='CODING')return {known:true,value:'ok'};
+     if(name==='replayedFromStage1'&&op.stage===1)return {known:true,value:{execution:pick(base,1)}};
+     return make(op,base);}});
+   const stage=name==='replayedFromStage1'?2:1;
+   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===stage&&e.code==='QDEV_EXPOSURE_UNKNOWN',name);
+   assert.equal(probe.factory.length,0,name);
+  }
+  const w=await world('agentunbound'),{env}=wired(w);
+  await assert.rejects(env.collectResult(1),e=>e.message==='QDEV_AGENT_EXECUTION_UNBOUND');
  });
  await test('wired ports: an agent that attempts a forbidden Relay action is stopped by the grant, and the Relay transport is never reached',async()=>{
   const w=await world('wirerelay');let reached=0;

@@ -4659,7 +4659,7 @@
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
       "reason": "Orchestration journal for qdev-20261029-01 restart recovery: append-only, non-financial, lives in the app database. The qdev_* ledger stays the only accounting authority; the journal only prevents re-sending after a restart. Independent source review PENDING.",
-      "sha256": "c284fd718531bcafb8bae2ce4542c1518c1ee911aa347bc5e8ff18f35611808e"
+      "sha256": "a66dfab358e3ca86b64e2acc268a1d5878f24786673e5d710369fa79dcf0968f"
     },
     "lib/qualification/relay-tools.ts": {
       "classification": "ENFORCED",
@@ -4689,7 +4689,7 @@
     "lib/qualification/wiring.ts": {
       "classification": "ENFORCED",
       "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
-      "sha256": "ace7fe9b4a02aeb33716dbb7d5dab2c8065a0f217bda01bee6f769d7e8f6afad"
+      "sha256": "e81a693dc04d88a347cd8f41b3d1e18b43c04f746372ddaf8a822c069d723302"
     },
     "lib/qualification/relay-mcp-transport.ts": {
       "classification": "ENFORCED",

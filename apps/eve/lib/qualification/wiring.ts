@@ -14,6 +14,13 @@ type Outcome = KnownOutcome<unknown> | UnknownOutcome<unknown>;
 type Op = { stage: number; key: string; purpose: QualificationPurpose };
 /** Sofie planning and Deep Agent execution. The agent only reaches Relay through the discovered, grant-checked tools. */
 export interface AgentPort { run(op: Op, relay: RelayDeveloperTools): Promise<Outcome>; }
+/**
+ * A CODING operation (stages 1-2) must report the request/work order/run it actually executed as
+ * `value.execution`. The wiring checks it against the snapshotted expected Result binding for that stage,
+ * records it in the journal, and refuses to hand a Result to the consumer unless it was bound. A foreign,
+ * mismatched, replayed or unreported execution is post-send ambiguity: the gate fences, nothing is resent.
+ */
+export type AgentExecution = { requestId: string; workOrderId: string; runId: string };
 export interface FactoryPort {
   /** Trusted request admission for the stage (from the existing Work admission path). */
   admit(stage: 1 | 2 | 3, start: StageStart): unknown;
@@ -50,11 +57,40 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
     if (!expectations.has(stage)) expectations.set(stage, structuredClone(c.expectedFor(stage)));
     return structuredClone(expectations.get(stage)!);
   };
+  // Actual agent executions per stage (stages 1-2), restored from the journal after a restart.
+  const agentExec = new Map<number, AgentExecution>();
+  let agentExecLoaded = false;
+  const loadAgentExec = async () => {
+    if (agentExecLoaded) return;
+    for (const e of (await c.journal?.read()) ?? []) if (e.kind === "AGENT_EXECUTION") agentExec.set(e.stage, { requestId: e.requestId, workOrderId: e.workOrderId, runId: e.runId });
+    agentExecLoaded = true;
+  };
+  const bindAgentExecution = async (stage: 1 | 2, outcome: Outcome): Promise<Outcome> => {
+    if (outcome.known !== true) return outcome;
+    await loadAgentExec();
+    const reported = (outcome.value as { execution?: unknown } | null)?.execution as Partial<AgentExecution> | undefined;
+    const exp = expectedFor(stage);
+    const valid = !!reported && typeof reported === "object" && Object.keys(reported).sort().join(",") === "requestId,runId,workOrderId"
+      && reported.requestId === exp.requestId && reported.workOrderId === exp.workOrderId && reported.runId === exp.runId;
+    const replay = valid && [...agentExec.entries()].some(([s, e]) => s !== stage && e.runId === reported!.runId);
+    const prior = agentExec.get(stage);
+    const conflicting = valid && !!prior && prior.runId !== reported!.runId;
+    if (!valid || replay || conflicting) return { known: false };
+    if (!prior) {
+      agentExec.set(stage, { requestId: reported!.requestId!, workOrderId: reported!.workOrderId!, runId: reported!.runId! });
+      await c.journal?.append({ kind: "AGENT_EXECUTION", stage, requestId: reported!.requestId!, workOrderId: reported!.workOrderId!, runId: reported!.runId! });
+    }
+    return outcome;
+  };
   const baseline = c.baseline ?? { commit: QDEV_BASELINE.inputCommit as string, tree: QDEV_BASELINE.inputTree as string };
   const startOf = (stage: number): StageStart | null => stage === 1 ? baseline : accepted.get(stage - 1) ?? null;
   return {
     async runOperation(op) {
-      if (op.purpose === "SOFIE" || op.purpose === "CODING") return c.agent.run(op, c.relay);
+      if (op.purpose === "SOFIE") return c.agent.run(op, c.relay);
+      if (op.purpose === "CODING") {
+        const outcome = await c.agent.run(op, c.relay);
+        return op.stage === 1 || op.stage === 2 ? bindAgentExecution(op.stage, outcome) : outcome;
+      }
       if (op.purpose === "FACTORY") {
         let bound: LocalFactoryBindingV4;
         try {
@@ -77,7 +113,14 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
       } catch { throw new ProviderNotSent("pre-send validation"); }
       return c.verifier.submit(handoff);
     },
-    collectResult: stage => c.factory.fetchResult(stage),
+    collectResult: async stage => {
+      if (stage === 1 || stage === 2) {
+        await loadAgentExec();
+        const e = agentExec.get(stage), exp = expectedFor(stage);
+        if (!e || e.requestId !== exp.requestId || e.workOrderId !== exp.workOrderId || e.runId !== exp.runId) throw new Error("QDEV_AGENT_EXECUTION_UNBOUND");
+      }
+      return c.factory.fetchResult(stage);
+    },
     expectedFor, resultKeys: () => c.resultKeys, sourceDigest: c.sourceDigest,
     collectVerdict: candidate => c.verifier.fetchVerdict(candidate),
     verifierKeys: c.verifierKeys, producerKeyIds: c.producerKeyIds, producerPublicKeysPem: c.producerPublicKeysPem,

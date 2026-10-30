@@ -10,6 +10,7 @@ export type JournalEvent =
   | { kind: "OP_CLAIMED"; stage: number; key: string }
   | { kind: "OP_SETTLED"; stage: number; key: string }
   | { kind: "STAGE_ACCEPTED"; stage: number; digest: string }
+  | { kind: "AGENT_EXECUTION"; stage: number; requestId: string; workOrderId: string; runId: string }
   | { kind: "HALTED"; stage: number; code: string };
 
 export interface JourneyJournal {
