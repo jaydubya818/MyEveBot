@@ -4700,6 +4700,11 @@
       "classification": "READ_ONLY",
       "reason": "Reads the bytes served at the delivered application URL (https, no redirects, bounded) and hashes them for delivery acceptance; deploys, installs and writes nothing. Disabled by default. Prior revision and restore point come from injected MyApps readers. Live MyApps NOT_RUN. Independent source review PENDING.",
       "sha256": "48e51d0d2885dfc16b6ba151d3e85222fe4b68033d669d56e47b00a069eb5c64"
+    },
+    "lib/qualification/factory-live-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim, dispatch only the exact prepared binding, no new transport, accounting or authority.",
+      "sha256": "fe7e0d3c254ccaa596c121244c2f7ea484531d9343d25633e3f8aaed4916bfdb"
     }
   }
 }

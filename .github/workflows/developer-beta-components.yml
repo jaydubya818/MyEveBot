@@ -105,6 +105,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-wiring.test.mjs
       - name: Qualification live-client adapters (disabled/fake transports)
         run: node --import tsx --test apps/eve/test/qualification-adapters.test.mjs
+      - name: Qualification Factory port over the existing live adapter (fake client)
+        run: node --import tsx --test apps/eve/test/qualification-factory-port.test.mjs
       - name: Qualification runtime boundary contracts
         run: node --import tsx --test apps/eve/test/qualification-runtime.test.mjs
       - name: Factory codec verifies the same MyEve signed vectors
