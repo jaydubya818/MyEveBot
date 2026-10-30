@@ -4664,7 +4664,7 @@
     "lib/qualification/relay-tools.ts": {
       "classification": "ENFORCED",
       "reason": "Deep Agent -> Relay developer-tool boundary: discovery shows only grant-permitted tools, execution checks the supplied write base and canonical path before transport, and the exact authorized repository/branch/base/path/force values are forwarded. Holds no credential. Not wired to a production caller. Codex-authored correction with denied-transport regressions; independent review PENDING.",
-      "sha256": "82d9711d798a165a8c67e376e483c363fc31250e6a2d2e5d76c0727f20349807"
+      "sha256": "2b5752f4495e0363efb844fdeb50efdba3dd70868c0ee485742f5850585303ee"
     },
     "lib/qualification/factory-dispatch.ts": {
       "classification": "INTERNAL",
@@ -4710,6 +4710,11 @@
       "classification": "READ_ONLY",
       "reason": "MyApps port over the existing StaticArtifactCandidate and verifyStaticBuildClaim contracts; releases the build identity only after the signed claim verifies against retained bytes, then delegates to the served-file observer. No deployment, signer, route or authority.",
       "sha256": "9fc7191dcab7604522651ecfa7d874539b6edc4cbb6d7dfef43eaeb8d947d4ab"
+    },
+    "lib/qualification/relay-tool-contract.ts": {
+      "classification": "ENFORCED",
+      "reason": "Strict tool-specific translation for Relay's frozen /mcp tools: caller input is a strict schema without provider selectors; owner/repo are constructed from the authorized grant repository; only supported bounded metadata, branch, Actions and deployment reads exist. No credential, I/O or authority.",
+      "sha256": "6d6baf4dd6f347a80c1e3e16fb7dbb9025dc2bde0a3068e0d393bb5786408942"
     }
   }
 }

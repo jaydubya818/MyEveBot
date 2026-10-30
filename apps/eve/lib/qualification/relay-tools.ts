@@ -1,4 +1,5 @@
 import { authorizeRelayAction, assertRelayGrant, RelayDenied, type RelayAction, type RelayDeveloperGrant } from "./relay-grant.ts";
+import { CANONICAL_RELAY_CONTRACT, type RelayToolContract, type RelayToolSpec } from "./relay-tool-contract.ts";
 
 /**
  * Deep Agent -> Relay developer-tool boundary. Discovery shows only tools whose
@@ -11,34 +12,35 @@ export interface RelayTransport {
   discover(): Promise<RelayTool[]>;
   execute(name: string, args: Record<string, unknown>): Promise<unknown>;
 }
-export type RelayCallArgs = { repository?: string; ref?: string; branch?: string; baseCommit?: string; path?: string; force?: boolean };
+export type RelayCallArgs = Record<string, unknown>;
 
 export class RelayDeveloperTools {
-  constructor(private readonly grant: RelayDeveloperGrant, private readonly transport: RelayTransport) { assertRelayGrant(grant); }
+  constructor(private readonly grant: RelayDeveloperGrant, private readonly transport: RelayTransport,
+    private readonly contract: RelayToolContract = CANONICAL_RELAY_CONTRACT) { assertRelayGrant(grant); }
 
-  private toAction(kind: RelayAction["kind"], a: RelayCallArgs): RelayAction {
-    const repository = a.repository ?? this.grant.repository;
-    if (kind === "write_contents")
-      return { kind, repository, branch: a.branch ?? "", baseCommit: a.baseCommit ?? this.grant.baseCommit, force: a.force, path: a.path ?? "" };
-    if (kind === "write_deployment" || kind === "edit_workflow" || kind === "administer_repository") return { kind, repository };
-    return { kind, repository, ref: a.ref };
+  private spec(tool: RelayTool): RelayToolSpec {
+    const spec = Object.hasOwn(this.contract, tool.name) ? this.contract[tool.name] : undefined;
+    if (!spec || spec.kind !== tool.kind) throw new RelayDenied("QDEV_RELAY_TOOL_UNSUPPORTED");
+    return spec;
   }
   private permitted(tool: RelayTool): boolean {
     try {
-      authorizeRelayAction(this.grant, this.toAction(tool.kind, tool.kind === "write_contents"
-        ? { branch: this.grant.outputBranch, path: "src/sample.ts" } : {}));
+      const spec = this.spec(tool);
+      authorizeRelayAction(this.grant, spec.action(this.grant, spec.input.parse(spec.sample)));
       return true;
     } catch (error) { if (error instanceof RelayDenied) return false; throw error; }
   }
-  /** Tools the grant allows; everything else is invisible to the agent. */
+  /** Tools that are in the supported contract AND whose action the grant allows; everything else is invisible. */
   async discover(): Promise<RelayTool[]> {
     return (await this.transport.discover()).filter(t => this.permitted(t));
   }
   async execute(tool: RelayTool, args: RelayCallArgs = {}): Promise<unknown> {
-    const action = this.toAction(tool.kind, args);
-    authorizeRelayAction(this.grant, action);
+    const spec = this.spec(tool);
+    // Strict, tool-specific input: unknown keys (owner, repo, repository, aliases) are denied, never forwarded.
+    const parsed = spec.input.safeParse(args);
+    if (!parsed.success) throw new RelayDenied("QDEV_RELAY_INPUT_DENIED");
+    authorizeRelayAction(this.grant, spec.action(this.grant, parsed.data));
     if (!(await this.discover()).some(t => t.name === tool.name && t.kind === tool.kind)) throw new RelayDenied("QDEV_RELAY_TOOL_NOT_DISCOVERED");
-    return this.transport.execute(tool.name, { ...args, repository: this.grant.repository,
-      ...(action.kind === "write_contents" ? { branch: action.branch, baseCommit: action.baseCommit, path: action.path, force: action.force ?? false } : {}) });
+    return this.transport.execute(tool.name, spec.native(this.grant, parsed.data));
   }
 }

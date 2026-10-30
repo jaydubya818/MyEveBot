@@ -13,6 +13,7 @@ import {presentJourney} from '../lib/qualification/presentation.ts';
 import {InMemoryJournal,PostgresJournal,JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
 import {QualificationGate,ProviderNotSent,QualificationGateRefused} from '../lib/qualification/gate.ts';
 import {syntheticFactory,syntheticVerifier,verdictFor,h,digest} from './qualification-synthetic.mjs';
+import {testContract} from './qualification-relay-testing.mjs';
 
 const connection=process.env.MYEVE_ISOLATED_COHORT_TEST_DATABASE;
 assert(connection,'Dedicated localhost PostgreSQL fixture URL required; never use DATABASE_URL');
@@ -190,7 +191,7 @@ try{
  /** Ports over the same synthetic Factory/verifier/MyApps used above; `probe` records what each port saw. */
  function wired(w,{agent,admitFactoryVersion,admitOverrides={}}={}){
   const base=environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
-  const relay=new RelayDeveloperTools(grantFor(),relayTransport());
+  const relay=new RelayDeveloperTools(grantFor(),relayTransport(),testContract);
   const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
    verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,
    agent:{async run(op,r){probe.agent.push(op.key);return agent?agent(op,r):{known:true,value:'ok'};}},

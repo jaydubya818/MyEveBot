@@ -11,6 +11,7 @@ import {presentJourney} from '../lib/qualification/presentation.ts';
 import {JourneyHalted} from '../lib/qualification/journey.ts';
 import {qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
 import {syntheticFactory,h} from './qualification-synthetic.mjs';
+import {testContract} from './qualification-relay-testing.mjs';
 
 const grant=(over={})=>({connectionId:'synthetic-connection',repository:QDEV_BASELINE.repository,baseCommit:QDEV_BASELINE.inputCommit,outputBranch:QDEV_BASELINE.outputBranch,
  permissions:{metadata:'read',contents:'write',actions:'read',deployments:'read'},repositoryAdmin:false,workflowEdit:false,productionDeployment:false,...over});
@@ -19,31 +20,31 @@ const transport=()=>{const calls=[];return {calls,discover:async()=>catalog,exec
 
 test('Relay discovery shows only grant-permitted tools; read-only grants hide writes',async()=>{
   const t=transport();
-  assert.deepEqual((await new RelayDeveloperTools(grant(),t).discover()).map(x=>x.name),['read_file','write_file']);
-  assert.deepEqual((await new RelayDeveloperTools(grant({permissions:{metadata:'read',contents:'read',actions:'read',deployments:'read'}}),t).discover()).map(x=>x.name),['read_file']);
+  assert.deepEqual((await new RelayDeveloperTools(grant(),t,testContract).discover()).map(x=>x.name),['read_file','write_file']);
+  assert.deepEqual((await new RelayDeveloperTools(grant({permissions:{metadata:'read',contents:'read',actions:'read',deployments:'read'}}),t,testContract).discover()).map(x=>x.name),['read_file']);
 });
 test('Relay execution re-authorizes the exact action before the transport is touched',async()=>{
-  const t=transport(),r=new RelayDeveloperTools(grant(),t),[read,write]=await r.discover();
+  const t=transport(),r=new RelayDeveloperTools(grant(),t,testContract),[read,write]=await r.discover();
   await r.execute(read,{ref:'main'});
   await r.execute(write,{branch:QDEV_BASELINE.outputBranch,path:'src/app.ts'});
   for(const [args,code] of [[{branch:'main',path:'a'},'QDEV_RELAY_BRANCH_DENIED'],[{branch:QDEV_BASELINE.outputBranch,path:'.github/workflows/x.yml'},'QDEV_RELAY_PATH_DENIED'],
     [{branch:QDEV_BASELINE.outputBranch,path:'a',force:true},'QDEV_RELAY_FORCE_DENIED'],[{repository:'other/repo',branch:QDEV_BASELINE.outputBranch,path:'a'},'QDEV_RELAY_FOREIGN_REPOSITORY']])
     await assert.rejects(r.execute(write,args),e=>e instanceof RelayDenied&&e.code===code,code);
   await assert.rejects(r.execute({name:'deploy',kind:'write_deployment'}),RelayDenied);
-  await assert.rejects(r.execute({name:'unlisted',kind:'read_contents'}),e=>e.code==='QDEV_RELAY_TOOL_NOT_DISCOVERED');
+  await assert.rejects(r.execute({name:'unlisted',kind:'read_contents'}),e=>e.code==='QDEV_RELAY_TOOL_UNSUPPORTED');
   assert.equal(t.calls.length,2);
   assert.equal(t.calls[1][1].baseCommit,QDEV_BASELINE.inputCommit);
 });
 test('Relay rejects a foreign write base and canonical path aliases before transport',async()=>{
-  const t=transport(),r=new RelayDeveloperTools(grant(),t),write={name:'write_file',kind:'write_contents'};
+  const t=transport(),r=new RelayDeveloperTools(grant(),t,testContract),write={name:'write_file',kind:'write_contents'};
   await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,baseCommit:'e'.repeat(40),path:'src/app.ts'}),e=>e.code==='QDEV_RELAY_BASE_DENIED');
   for(const path of ['./.github/workflows/ci.yml','.github/./workflows/ci.yml','.github//workflows/ci.yml','/.github/workflows/ci.yml','src/../.github/workflows/ci.yml','.github\\workflows\\ci.yml','.GitHub/Workflows/ci.yml','.github/ACTIONS/x/action.yml'])
     await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,path}),e=>e.code==='QDEV_RELAY_PATH_DENIED',path);
   assert.equal(t.calls.length,0);
 });
 test('an over-broad or credential-bearing grant is refused at construction',()=>{
-  assert.throws(()=>new RelayDeveloperTools(grant({repositoryAdmin:true}),transport()),RelayDenied);
-  assert.throws(()=>new RelayDeveloperTools(grant({connectionId:'bearer abc'}),transport()),RelayDenied);
+  assert.throws(()=>new RelayDeveloperTools(grant({repositoryAdmin:true}),transport(),testContract),RelayDenied);
+  assert.throws(()=>new RelayDeveloperTools(grant({connectionId:'bearer abc'}),transport(),testContract),RelayDenied);
 });
 
 const fx=syntheticFactory();
