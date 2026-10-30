@@ -204,8 +204,13 @@ export class StaticReleaseController {
     this.verifyRelease(hex);
   }
 
-  /** Install the exact retained artifact as the served revision. Idempotent for the already-installed digest. `seq` identifies the committed state for compensation. */
-  async publish(artifact: StaticArtifactCandidate): Promise<{ appId: string; version: number; digest: string; changed: boolean; seq: number }> {
+  /**
+   * Install the exact retained artifact as the served revision. Idempotent for the already-installed digest. `seq` identifies the committed
+   * state for compensation. `expectedPrior` (null = nothing installed; digest bare hex) is a compare-and-swap on the installation the caller
+   * captured as its prior: if anything else is installed when the commit is evaluated, nothing is installed and the call refuses with
+   * QDEV_PUBLISH_PRIOR_CHANGED, so a stale captured prior can never become the target of a later restore.
+   */
+  async publish(artifact: StaticArtifactCandidate, options: { expectedPrior?: { version: number; digest: string } | null } = {}): Promise<{ appId: string; version: number; digest: string; changed: boolean; seq: number }> {
     if (!isRetainedStaticArtifact(artifact)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     const hex = artifact.artifactDigest.replace(/^sha256:/, "");
     if (!HEX.test(hex)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
@@ -214,6 +219,10 @@ export class StaticReleaseController {
     this.writeRelease(artifact, hex);
     return this.mutate(s => {
       const current = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
+      if (options.expectedPrior !== undefined) {
+        const want = options.expectedPrior;
+        if (want === null ? current !== undefined : current?.version !== want.version || current.digest !== want.digest) throw new StaticPublishRefused("QDEV_PUBLISH_PRIOR_CHANGED");
+      }
       const done = (version: number, seq: number, changed: boolean) => ({ appId: this.c.appId, version, digest: "sha256:" + hex, changed, seq });
       if (current?.digest === hex) return { result: done(current.version, s.seq, false) };
       if (s.versions.length >= (this.c.maxVersions ?? 64)) throw new StaticPublishRefused("QDEV_PUBLISH_HISTORY_FULL");

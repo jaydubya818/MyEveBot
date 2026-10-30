@@ -30,7 +30,11 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     if (verdict?.outcome !== "PASS" || verdict.candidateCommit !== candidate.commit || verdict.candidateTree !== candidate.tree || verdict.buildArtifactSha256 !== bare)
       throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED");
     await this.c.reader.capture();
-    const published = await this.c.controller.publish(artifact);
+    // The prior is captured once; publication is a compare-and-swap on exactly that prior, so a release committed by anyone else in the
+    // meantime refuses the delivery instead of becoming something a later compensation would overwrite.
+    const prior = await this.c.reader.priorRevision(), id = prior.kind === "REVISION" ? /^(.+)@([1-9][0-9]*)$/.exec(prior.id) : null;
+    if (prior.kind === "REVISION" && !id) throw new StaticPublishRefused("QDEV_PUBLISH_PRIOR_INVALID");
+    const published = await this.c.controller.publish(artifact, { expectedPrior: prior.kind === "ABSENT" ? null : { version: Number(id![2]), digest: prior.sha256 } });
     try { return await this.c.build.observe(candidate); }
     catch (error) { await this.restorePrior({ seq: published.seq, version: published.version, digest: published.digest }); throw error; }
   }

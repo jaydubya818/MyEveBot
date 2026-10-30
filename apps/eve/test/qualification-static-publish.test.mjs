@@ -291,3 +291,30 @@ test('the loopback transport serves the handler and refuses any non-loopback bin
   }finally{await srv.close();}
   await assert.rejects(listenLoopback(c.handler(),{host:'0.0.0.0'}),code('QDEV_PUBLISH_NOT_LOOPBACK'));
 });
+
+test('publication compare-and-swaps the captured prior: a release committed while the permit is pending refuses the delivery and is never overwritten',async()=>{
+  const c=await compose(),prior=await art(F1,'6'),other=await art(F2,'7');
+  let gate=null,entered=null;
+  const d=deliveryFor(c,{ctlExtra:{activation:{permit:async r=>{if(r.operation==='PUBLISH'&&gate){entered();await gate;}return true;}}}});
+  await d.controller.publish(prior);
+  await d.port.retainBuild(c.candidate);
+  let release;gate=new Promise(r=>{release=r;});const waiting=new Promise(r=>{entered=r;});
+  const delivery=d.port.observe(c.candidate);const settled=delivery.then(()=>null,e=>e);
+  await waiting;                                   // the port captured prior v1 and its publish is waiting in the activation permit
+  const racer=ctl(d.root,{projectSha256:c.binding.projectSha256});await racer.publish(other);   // another permitted publisher installs v2
+  release();
+  const err=await settled;
+  assert.ok(err instanceof StaticPublishRefused&&err.code==='QDEV_PUBLISH_PRIOR_CHANGED',String(err?.code));
+  const st=await d.controller.stateSource().read('app-1');
+  assert.equal(st.installedDigest,other.artifactDigest);assert.equal(st.installedVersion,2);assert.deepEqual(st.restorableVersions,[1,2],'nothing was installed or restored');
+  assert.equal(await text(await get(d.hd,'/')),'<html>v2</html>');
+});
+
+test('a captured absence is also compare-and-swapped',async()=>{
+  const c=await compose(),other=await art(F2,'7'),d=deliveryFor(c);
+  await d.port.retainBuild(c.candidate);
+  await d.reader.capture();                         // prior = authenticated absence
+  await ctl(d.root,{projectSha256:c.binding.projectSha256}).publish(other);
+  await assert.rejects(d.port.observe(c.candidate),code('QDEV_PUBLISH_PRIOR_CHANGED'));
+  assert.equal(await text(await get(d.hd,'/')),'<html>v2</html>');
+});
