@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {syntheticFactory,h} from './qualification-synthetic.mjs';
+import {prepareAuthenticatedLocalFactoryInputV4} from '../lib/engineering/factory-authenticated-result.ts';
 import {LiveFactoryAdapter} from '../lib/engineering/factory-live-adapter.ts';
 import {LiveFactoryPort,FactoryResultPending} from '../lib/qualification/factory-live-port.ts';
 import {consumeStageResult} from '../lib/qualification/result.ts';
@@ -53,7 +54,7 @@ test('F2: through the real adapter a RUNNING readback never yields known:true; a
     const port=composed(async(url,init)=>{calls.push((init?.method??'GET')+' '+new URL(url).pathname.split('/').pop());return Response.json(body);},
       {now:(t=>()=>t+=20)(0)},{raw:uraw,request:ureq,identity:uid,e:ex});
     await port.ready(1);
-    assert.deepEqual(await port.dispatch(port.admit(1,fx.baseline)),{known:false},name);
+    assert.deepEqual(await port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline))),{known:false},name);
     assert.equal(calls.filter(c=>c==='POST dispatch').length,1,name+': dispatched exactly once');
   }
 });

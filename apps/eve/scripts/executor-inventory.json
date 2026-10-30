@@ -4704,7 +4704,7 @@
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
       "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "cf311f01eccba3e6c43842d8878a82fa579566741195d5f4bb61708d44667c2f"
+      "sha256": "11b65ab1fca9dd066eea939ceb557e58574ec62a569cc948d10d974c0e0277ec"
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
@@ -4773,8 +4773,13 @@
     },
     "lib/qualification/runtime-ports.ts": {
       "classification": "ENFORCED",
-      "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused. Producer/verifier separation derives the union of actual Result trust keys, actual Factory connection keys and declared additional exclusions. Normalized SPKI fingerprints and key IDs reject renamed/PEM-reformatted producer keys before any transport; the same derived union reaches verdict validation. No new private key, acceptance, paid or deployment authority.",
-      "sha256": "093da6d12e34ea318244c44f79ab5ffc019a4dd4d0168f17b0eac9e62a9ed19c"
+      "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused. Producer/verifier separation derives the union of actual Result trust keys, actual Factory connection keys and declared additional exclusions. Normalized SPKI fingerprints and key IDs reject renamed/PEM-reformatted producer keys before any transport; the same derived union reaches verdict validation. No new private key, acceptance, paid or deployment authority. The actual static-build provenance issuer is added to the same producer exclusions when its source is retained; independence is rechecked before verifier contact, and observed issuer IDs/keys remain in the arrays consumed by verdict validation.",
+      "sha256": "058a9548741b9d0f04622639f9ce3a2ad157e50d07a3d26413bb54f21f0163f4"
+    },
+    "lib/qualification/agent-execution-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "Concrete AgentExecutionPort over an injected Deep Agent runtime and the host's retained Factory admissions. The runtime only runs the agent and reports finished/final-usage; the CODING request/work order/run tuple is read from the authenticated retained admission and can never come from the model or runtime. Records exist only for handles this port started and only after the run finished; pre-start refusals are proven no-sends, anything after start is ambiguous (fenced, never resent). No transport, credential, spend or enrollment authority; the runtime binding (model spend) stays protected.",
+      "sha256": "b176c5097ff4a1cc47f80107913d57ba4fcd252b9b518d1bc7a63e314f4f92cf"
     }
   }
 }

@@ -110,6 +110,10 @@ jobs:
         env:
           MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
         run: node --import tsx --test apps/eve/test/qualification-host-source.integration.mjs
+      - name: Concrete RuntimePorts through the real loader over disposable PostgreSQL (synthetic Factory/verifier/MyApps transports)
+        env:
+          MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
+        run: node --import tsx --test apps/eve/test/qualification-runtime-ports.integration.mjs
       - name: Qualification review regressions over disposable PostgreSQL
         env:
           MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
@@ -132,6 +136,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-factory-ordered.test.mjs
       - name: Qualification Deep Agent adapter and guarded Sofie entrypoint (disabled port)
         run: node --import tsx --test apps/eve/test/qualification-agent-port.test.mjs
+      - name: Qualification retained-executor Deep Agent execution port (fake runtime)
+        run: node --import tsx --test apps/eve/test/qualification-agent-execution-port.test.mjs
       - name: Qualification concrete RuntimePorts composition and verifier transport (disposable loopback endpoint)
         run: node --import tsx --test apps/eve/test/qualification-runtime-ports.test.mjs
       - name: Qualification MyApps prior-revision and restore-point readers
