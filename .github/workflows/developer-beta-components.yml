@@ -17,6 +17,7 @@ on:
       - codex/qdev-20261030-peer-corrections
       - codex/qdev-20261030-native-budget-binding
       - codex/qdev-20261030-sofie-deadline
+      - codex/qdev-20261030-publishing-composition
 
 permissions:
   contents: read

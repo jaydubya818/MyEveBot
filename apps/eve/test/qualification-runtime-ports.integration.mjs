@@ -7,9 +7,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes,randomUUID,createHash,generateKeyPairSync,sign} from 'node:crypto';
-import {readFile,mkdtemp,writeFile} from 'node:fs/promises';
+import {readFile,mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {StaticReleaseController} from '../lib/qualification/static-publish.ts';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {join,dirname} from 'node:path';
 import {productionRuntimePorts} from '../lib/qualification/custody-loader.ts';
 import {createServer} from 'node:http';
 import {Client} from 'pg';
@@ -220,6 +222,41 @@ try{
   }finally{await hn.stop();}
  });
 
+
+ for (const mode of ['publish','noPermit','forgedSecondVerdict']) await test(`concrete publishing through the real root: ${mode}`,async()=>{
+  const w=await world('pub'+mode.slice(0,3).toLowerCase()),hn=await harness(w),dir=await mkdtemp(join(tmpdir(),'qdev-root-publish-'));let publishingCustodyPin;
+  try{
+   await w.db.query(JOURNAL_SCHEMA);
+   const activation=[];
+   const c=hn.custody();
+   const readOnlyController=new StaticReleaseController({root:dir,environment:'myeve-qdev-20261029',appId:'synthetic-app',installationId:'synthetic-install',ownerId:w.policy.Q1.ownerId,projectSha256:w.binding.projectSha256});
+   const served=readOnlyController.handler();let verdictReads=0;
+   if(mode==='forgedSecondVerdict')c.verifier.fetch=async(url,init)=>{
+    const response=await fetch(url,init);
+    if(new URL(url).pathname==='/qdev/v1/verdict'&&++verdictReads===2){const body=await response.json();return Response.json({...body,signatureBase64:'AA=='});}
+    return response;
+   };
+   c.myapps={...c.myapps,publishing:{root:dir,appId:'synthetic-app',installationId:'synthetic-install',...(mode==='noPermit'?{}:{activation:{permit:async request=>{activation.push(request);return true;}}})},
+    delivery:{...c.myapps.delivery,priorRevision:async()=>{throw Error('caller prior reader must be replaced');},restorePointId:async()=>{throw Error('caller restore reader must be replaced');},
+     fetcher:async url=>{hn.log.served.push(new URL(url).pathname);return served(new Request(url));}}};
+   if(mode==='publish'){globalThis.__qdevTestCustody=()=>c;publishingCustodyPin=await pinnedModule();}
+   const r=mode==='publish'?runtime(w,productionRuntimePorts,{custody:publishingCustodyPin}):runtime(w,runtimePortsProvider(()=>c));
+   const out=await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'});
+   const state=await readOnlyController.stateSource().read('synthetic-app');
+   if(mode==='publish'){
+    assert.equal(out.status,'COMPLETED_UNCLAIMED',JSON.stringify(out));assert.match(out.deliverySha256,/^[a-f0-9]{64}$/);
+    assert.equal(state.installedVersion,1);assert.ok(state.installedDigest);
+    assert.equal(await (await served(new Request('https://app.invalid/app.js'))).text(),files['dist/app.js'].toString());
+    assert.deepEqual(activation.map(x=>[x.operation,x.ownerId,x.projectSha256]),[['PUBLISH',r.owner,w.binding.projectSha256]]);
+    assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/evaluate','/qdev/v1/verdict','/qdev/v1/verdict'],'the concrete publishing gate verifies another pure signed read before mutation');
+   }else{
+    assert.equal(out.status,'HALTED');assert.equal(out.haltedAt,4);
+    assert.equal(out.code,mode==='noPermit'?'QDEV_PUBLISH_NOT_AUTHORIZED':'QDEV_VERDICT_SIGNATURE',JSON.stringify(out));
+    assert.equal(state.installedVersion,null);assert.equal(activation.length,0,'no publication authority used');
+    assert.equal((await served(new Request('https://app.invalid/'))).status,404);
+   }
+  }finally{delete globalThis.__qdevTestCustody;if(publishingCustodyPin)await rm(dirname(publishingCustodyPin.module),{recursive:true,force:true});await hn.stop();execFileSync('chmod',['-R','u+w',dir]);await rm(dir,{recursive:true,force:true});}
+ });
 
  /** Operator-installed custody module, pinned by path + SHA-256 in the bundle. The module hands the process-local test custody to the loader. */
  async function pinnedModule(source='export function custody(context){ return globalThis.__qdevTestCustody(context); }'){

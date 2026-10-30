@@ -9,16 +9,21 @@ import { FactoryCodingRuntime } from "./factory-coding-runtime.ts";
 import { LiveFactoryPort, type RetainedFactoryAdmission } from "./factory-live-port.ts";
 import { HttpVerifierPort } from "./verifier-port.ts";
 import { StaticBuildMyAppsPort, type StaticBuildPortConfig } from "./static-build.ts";
+import { StaticPublishingMyAppsPort } from "./static-publish-port.ts";
+import { StaticReleaseController, type StaticReleaseConfig } from "./static-publish.ts";
+import { MyAppsRevisionReader } from "./myapps-revisions.ts";
 import type { QdevHostBundle, RuntimeHostDeps, RuntimePorts } from "./host-source.ts";
 import type { StageExpected } from "./journey.ts";
 import type { ResultKey } from "../engineering/factory-producer-protocol.ts";
-import type { VerifierKey } from "./verdict.ts";
+import { verifyVerdict, type VerifierKey } from "./verdict.ts";
 
 /**
  * Concrete composition of the four protected-custody ports for a QDEV installation from their EXISTING adapters:
  * DeepAgentAdapter (owner-scoped execution port), LiveFactoryPort over the actual ordered Factory clients, the independent-verifier
  * transport and the static-build MyApps port. It adds no authority: every adapter keeps its own pre-send refusals, the qdev ledger gate
  * stays the only spend authority, and any missing or mismatched piece yields `null` (the installation stays disabled).
+ * Explicit static publishing creates a private release controller scoped from the root owner/project, replaces prior-state readers with
+ * its actual durable state, re-verifies the independent signed verdict and requires the host activation permit before publishing.
  *
  * The `custody` object is the protected, host-supplied part (execution-port implementation, retained Work store, verifier origin and
  * pinned keys, static-build source, Factory connection and ordered-admission signing material). It is injected by the protected host
@@ -39,7 +44,10 @@ export type QdevCustody = {
     factoryFetch?: typeof fetch; capabilityFetch?: typeof fetch; settleTimeoutMs?: number; pollMs?: number;
   };
   verifier: { origin: string; credentialName: string; fetch?: typeof fetch; timeoutMs?: number; keys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[] };
-  myapps: StaticBuildPortConfig;
+  myapps: StaticBuildPortConfig & {
+    /** Explicit host configuration only. Without an activation permit publishing refuses; absence preserves the observation-only port. */
+    publishing?: Pick<StaticReleaseConfig, "root" | "appId" | "installationId" | "activation">;
+  };
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   newAllowanceId(stage: number): string;
 };
@@ -73,15 +81,34 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
         sourceDigest: custody.sourceDigest, sofie: custody.agent.factoryCoding.sofie })
       : custody.agent.runtime }) });
   const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs });
-  const myapps = new StaticBuildMyAppsPort({ ...custody.myapps, source: async candidate => {
-    const source = await custody.myapps.source(candidate);
-    // Build provenance is producer authority too. Its actual signer becomes known during retention, before independent verification.
-    if (!producerKeyIds.includes(source.issuer.keyId)) producerKeyIds.push(source.issuer.keyId);
-    if (!producerPublicKeysPem.includes(source.issuer.publicKeyPem)) producerPublicKeysPem.push(source.issuer.publicKeyPem);
-    producerFingerprints.add(fingerprint(source.issuer.publicKeyPem));
-    assertIndependent();
-    return source;
+  const publishing = custody.myapps.publishing;
+  const controller = publishing ? new StaticReleaseController({
+    root: publishing.root, appId: publishing.appId, installationId: publishing.installationId, activation: publishing.activation,
+    environment: "myeve-qdev-20261029", ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
+  }) : null;
+  const reader = controller && publishing ? new MyAppsRevisionReader({ source: controller.stateSource(), appId: publishing.appId,
+    ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256 }) : null;
+  const build = new StaticBuildMyAppsPort({ ...custody.myapps,
+    delivery: { ...custody.myapps.delivery, ...(reader ? { priorRevision: reader.priorRevision, restorePointId: reader.restorePointId,
+      environment: "myeve-qdev-20261029" as const, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256 } : {}) },
+    source: async candidate => {
+      const source = await custody.myapps.source(candidate);
+      // Build provenance is producer authority too. Its actual signer becomes known during retention, before independent verification.
+      if (!producerKeyIds.includes(source.issuer.keyId)) producerKeyIds.push(source.issuer.keyId);
+      if (!producerPublicKeysPem.includes(source.issuer.publicKeyPem)) producerPublicKeysPem.push(source.issuer.publicKeyPem);
+      producerFingerprints.add(fingerprint(source.issuer.publicKeyPem));
+      assertIndependent();
+      return source;
   } });
+  const myapps = controller && reader && publishing ? new StaticPublishingMyAppsPort({ build, controller, reader,
+    installation: { environment: "myeve-qdev-20261029", installationId: publishing.installationId },
+    gate: async candidate => {
+      assertIndependent();
+      return verifyVerdict({ signed: await verifier.fetchVerdict(candidate), verifierKeys: custody.verifier.keys,
+        producerKeyIds, producerPublicKeysPem, expected: { ...binding, protectedSpecificationSha256: context.bundle.project.protectedSpecificationSha256,
+          candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256 } });
+    },
+  }) : build;
   return { agent, factory, verifier, myapps, expectedFor: custody.expectedFor, resultKeys: custody.resultKeys, sourceDigest: custody.sourceDigest,
     verifierKeys: custody.verifier.keys, producerKeyIds, producerPublicKeysPem,
     newAllowanceId: custody.newAllowanceId };
