@@ -357,7 +357,7 @@ jobs:
         lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
         lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts
         lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts
-        lib/missioncontrol/permit-store.integration.test.ts
+        lib/missioncontrol/permit-store.integration.test.ts lib/missioncontrol/local-v4-source.integration.test.ts
         lib/beta-feedback-postgres.test.ts
         lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
     - name: Historical installed Relay schema compatibility (not the selected release)
