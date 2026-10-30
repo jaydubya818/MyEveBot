@@ -35,8 +35,17 @@ export type QualificationRootConfig = {
   relay: RelayDeveloperTools;
   ports: Omit<WiringConfig, "project" | "relay" | "journal">;
 };
+/** Host-owned conversation model for the authenticated owner. The returned model must carry provider `myeve-qdev`
+ *  and is the ONLY model the QDEV installation may call; the host is responsible for its scoped client/accounting. */
+export type QdevConversationModel = { specificationVersion: string; provider: string; modelId: string; supportedUrls?: unknown; doGenerate(options: any): Promise<any>; doStream(options: any): Promise<any> };
+export type QdevConversation = {
+  ownerId: string; contextWindowTokens: number;
+  model(input: { sessionId: string; stepKey: string }): QdevConversationModel;
+};
 export type QualificationRootHost = {
   enabled(): boolean;
+  /** The owner's QDEV conversation model, or null when the owner is unconfigured, expired, revoked or foreign. */
+  conversation?(ownerId: string): Promise<QdevConversation | null>;
   /** Complete trusted configuration for this owner, or null when any protected input is missing. */
   config(ownerId: string): Promise<QualificationRootConfig | null>;
 };
@@ -79,3 +88,5 @@ export function registerQualificationHost(next: QualificationRootHost) {
   host = next;
 }
 export const qualificationRoot = () => new QualificationRoot(host);
+export const qualificationHost = (): QualificationRootHost => host;
+export const qualificationHostRegistered = () => host !== disabledQualificationHost;

@@ -5,6 +5,7 @@ vi.mock('../../lib/qualification/root.ts', () => ({
   QualificationRootRefused: class extends Error { constructor(readonly code: string) { super(code); } },
   qualificationRoot: () => ({ run: mocks.run }),
 }));
+vi.mock('../../lib/qualification/host-bootstrap.ts', () => ({ ensureQualificationHost: () => undefined }));
 import definition from './qualification_journey.ts';
 
 const context = (over: Record<string, unknown> = {}, parent?: unknown) => ({ session: { parent, auth: { current: {

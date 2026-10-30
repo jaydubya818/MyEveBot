@@ -75,6 +75,8 @@ jobs:
           lib/myapps/owner-tasks-work-config.test.ts
           components/engineering/coding-sessions.test.tsx
           agent/tools/engineering_work.test.ts
+          agent/tools/qualification_journey.test.ts
+          agent/agent.qdev-ingress.test.ts
       - name: Public durable receipt recovery and V4 correlation
         env:
           MYEVE_FACTORY_RECEIPT_TEST_PORT: '55479'

@@ -1,6 +1,7 @@
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
+import { ensureQualificationHost } from "../../lib/qualification/host-bootstrap.ts";
 import { qualificationRoot, QualificationRootRefused } from "../../lib/qualification/root.ts";
 
 /**
@@ -28,6 +29,7 @@ export default defineDynamic({
           const principal = owner(toolCtx as never);
           if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !principal || principal.ownerId !== ownerId)
             throw new QualificationRootRefused("QDEV_ROOT_PRINCIPAL");
+          ensureQualificationHost();
           return qualificationRoot().run(principal);
         },
       });

@@ -71,6 +71,9 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   // Internal engineering tools stay dormant behind their existing owner/runtime gates.
   "agent/tools/engineering_work.ts",
+  // Dormant qdev journey entrypoint: discoverable only to the authenticated owner while MYEVE_QDEV_ENABLED is on.
+  "agent/tools/qualification_journey.ts",
+  "agent/tools/qualification_journey.test.ts",
   // Canonical MyApps source ships, but activation remains owner + local-only.
   "agent/tools/installed_apps.ts",
   "agent/tools/installed_apps.test.ts",

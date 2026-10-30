@@ -15,6 +15,7 @@ import {ownerBudgetedModel,ownerModelStepKey} from "../lib/relay/owner/model.ts"
 import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
+import { qdevInstallation, qdevModelSelection } from "../lib/qualification/ingress.ts";
 
 import { clientTurnSettings, primaryChatSettings, rememberedChatSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
@@ -60,6 +61,10 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
+        // QDEV installation: the complete authenticated request is admitted by the QDEV host before ANY other branch, lookup or
+        // provider. Mixed installation modes are refused, and nothing here falls back to the generic Gateway.
+        if(qdevInstallation())return qdevModelSelection({session:ctx.session as never,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,
+          mixedInstallation:externalAlphaInstallation()||!!process.env.MYEVE_ALPHA_OWNER_BINDING||!!cloudQualificationProject()});
         const retained=ctx.session.auth.current?.attributes.myeveRetainedSummary;
         if(retained!==undefined){
           const binding=retainedSummaryBinding(retained),current=ctx.session.auth.current,initiator=ctx.session.auth.initiator;
@@ -118,6 +123,7 @@ export default defineAgent({
         const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected;
           // agent-model-selection: an external-alpha installation can only dispatch through its budgeted model (or the deterministic evidence summary).
           if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
+          if(qdevInstallation()&&(typeof value==='string'||value.provider!=='myeve-qdev'))throw Error('QDEV_PAID_PATH_DENIED:agent-model-selection');
           return typeof value==='string'?gateway(value):value; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
           doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),

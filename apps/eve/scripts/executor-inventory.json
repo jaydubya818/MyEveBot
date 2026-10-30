@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions. Reviewed build packaging only: retain the existing locked js-tiktoken vocabulary as a traced runtime package using Eve externalDependencies, avoiding the reproduced oversized bundled AST conversion failure. Tokenization bytes and owner, alpha, accounting and execution boundaries remain unchanged.",
-      "sha256": "ad1d1ca8159bff6b0815ba3495b63a960250e27a727652f24914f9b22f4a1bd5"
+      "reason": "Framework window unchanged; alpha wrapper enforces byte admission before dispatch. First-thread insertion does not overwrite owner/Agent/Role and conflicting persisted bindings deny. Evidence: persistent-agent and session-settings PostgreSQL regressions. Reviewed build packaging only: retain the existing locked js-tiktoken vocabulary as a traced runtime package using Eve externalDependencies, avoiding the reproduced oversized bundled AST conversion failure. Tokenization bytes and owner, alpha, accounting and execution boundaries remain unchanged. QDEV installation (MYEVE_QDEV_ENABLED=true): the first branch of every model selection is the pre-model ingress policy (lib/qualification/ingress.ts); it admits only the authenticated human owner's host-configured myeve-qdev conversation model and refuses before any provider, legacy ledger, Work or agent lookup, and with no Gateway fallback. Evidence: agent.qdev-ingress.test.ts drives the actual agent module (first request, post-tool continuation, stream; Q2/foreign/expired/revoked/delegated/mixed).",
+      "sha256": "03a3346056d70c698563537a8ebf60896e7a3ee7c63f5d024255841c1e6c732a"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -4714,12 +4714,22 @@
     "lib/qualification/root.ts": {
       "classification": "ENFORCED",
       "reason": "Authenticated root composition for the qdev journey: the only caller of wireJourneyEnvironment outside tests. Disabled unless the host switch is on and the host returns a complete trusted configuration; requires the human owner the configuration was issued for (never a guest, delegated role, subagent or model-supplied owner); builds and charges nothing before those checks; the host-owned plan is the only plan. Spend authority remains solely the qdev ledger gate.",
-      "sha256": "b1226c577f010ebc890dde298c955af7cc19f8ee9ba1da61e5fa3436cd73a87a"
+      "sha256": "abc7b5b32220b3260ebc0bec1a9f9722988d0d5fa2be29195b0ffff6dc6cfea8"
+    },
+    "lib/qualification/ingress.ts": {
+      "classification": "ENFORCED",
+      "reason": "Pre-model ingress policy for a QDEV installation: the complete authenticated request (human owner, same initiator, no guest/role/delegation/retained-summary/selected-Work attributes, no mixed installation mode) must be admitted by the registered QDEV host for that exact owner, and only the host's myeve-qdev conversation model is returned. Refuses before any provider call or legacy lookup; no Gateway fallback; adds no transport, credential or spend authority.",
+      "sha256": "9c08ed3580341d180ddb8213a839f0ee1d53ac46246c60eb64bb112fdb1aa1a9"
+    },
+    "lib/qualification/host-bootstrap.ts": {
+      "classification": "ENFORCED",
+      "reason": "Production assembly of the QualificationRootHost from a host source of protected material. The default source holds none, so config and conversation return null and every transport stays disabled; registers once and cannot be driven by request content. Opens no network, credential or provider.",
+      "sha256": "7b0b2ed185af987742eeedb19f9071a182025fef7f9f84e0dc751045cd124bec"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-authenticated, parameterless entrypoint to the qdev root. Dark unless MYEVE_QDEV_ENABLED=true; discoverable only to the authenticated human owner (not guest, delegated role or subagent) and rechecked on every execution; reports an unclaimed presentation and grants no readiness or authority.",
-      "sha256": "df3754fe32e9bf0448143440f53ad722cd81d316df0c1abdb59b59a309e767e4"
+      "sha256": "1bce93097b45116e6765c60ae362c09a09ce221cb2ba7cbbff78d5af60455d89"
     },
     "lib/qualification/factory-ordered-clients.ts": {
       "classification": "ENFORCED",
