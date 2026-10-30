@@ -39,8 +39,13 @@ export function authorizeRelayAction(grant: RelayDeveloperGrant, action: RelayAc
       if (grant.permissions.contents !== "write") throw new RelayDenied("QDEV_RELAY_WRITE_NOT_GRANTED");
       // Output only on the approved branch, never rewriting history, never main, never workflows.
       if (action.branch !== grant.outputBranch || action.branch === "main") throw new RelayDenied("QDEV_RELAY_BRANCH_DENIED");
+      if (action.baseCommit !== grant.baseCommit) throw new RelayDenied("QDEV_RELAY_BASE_DENIED");
       if (action.force) throw new RelayDenied("QDEV_RELAY_FORCE_DENIED");
-      if (/^\.github\/(workflows|actions)\//.test(action.path.replace(/^\/+/, "")) || /(^|\/)\.\.(\/|$)/.test(action.path))
+      // Accept only canonical relative paths so aliases cannot evade the denied
+      // workflow/action directories before the transport normalizes a path.
+      if (typeof action.path !== "string" || !action.path || action.path.startsWith("/") || action.path.includes("\\")
+        || action.path.split("/").some(part => !part || part === "." || part === "..")
+        || /^\.github\/(workflows|actions)(\/|$)/.test(action.path))
         throw new RelayDenied("QDEV_RELAY_PATH_DENIED");
       return true;
     }

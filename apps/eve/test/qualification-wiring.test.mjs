@@ -32,6 +32,14 @@ test('Relay execution re-authorizes the exact action before the transport is tou
   await assert.rejects(r.execute({name:'deploy',kind:'write_deployment'}),RelayDenied);
   await assert.rejects(r.execute({name:'unlisted',kind:'read_contents'}),e=>e.code==='QDEV_RELAY_TOOL_NOT_DISCOVERED');
   assert.equal(t.calls.length,2);
+  assert.equal(t.calls[1][1].baseCommit,QDEV_BASELINE.inputCommit);
+});
+test('Relay rejects a foreign write base and canonical path aliases before transport',async()=>{
+  const t=transport(),r=new RelayDeveloperTools(grant(),t),write={name:'write_file',kind:'write_contents'};
+  await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,baseCommit:'e'.repeat(40),path:'src/app.ts'}),e=>e.code==='QDEV_RELAY_BASE_DENIED');
+  for(const path of ['./.github/workflows/ci.yml','.github/./workflows/ci.yml','.github//workflows/ci.yml','/.github/workflows/ci.yml','src/../.github/workflows/ci.yml','.github\\workflows\\ci.yml'])
+    await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,path}),e=>e.code==='QDEV_RELAY_PATH_DENIED',path);
+  assert.equal(t.calls.length,0);
 });
 test('an over-broad or credential-bearing grant is refused at construction',()=>{
   assert.throws(()=>new RelayDeveloperTools(grant({repositoryAdmin:true}),transport()),RelayDenied);

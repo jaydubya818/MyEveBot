@@ -4648,8 +4648,8 @@
     },
     "lib/qualification/relay-grant.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure MyEve-side Relay developer grant denial matrix; holds no token and performs no Relay call. Independent source review PENDING; fingerprint pins exact bytes.",
-      "sha256": "fc202be9abe30919dfbe515c61953988ebe732edb200f9b8ef6ab9b9d7468e47"
+      "reason": "Pure MyEve-side Relay developer grant denial matrix. Checks the exact write base and canonical relative paths before workflow/action denial; holds no token and performs no Relay call. Codex-authored correction; independent review PENDING; fingerprint pins exact bytes.",
+      "sha256": "2825945d65f98a51d57a247b7df01c1f641f3b22c297c4ed5170dd27f910bc0c"
     },
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
@@ -4663,8 +4663,8 @@
     },
     "lib/qualification/relay-tools.ts": {
       "classification": "ENFORCED",
-      "reason": "Deep Agent -> Relay developer-tool boundary: discovery shows only grant-permitted tools and every execution is re-authorized against the exact grant (repository, base, output branch, no force/workflow/admin/deployment) before the injected transport is reached. Holds no credential. Not wired to a production caller. Independent source review PENDING.",
-      "sha256": "f56f83bc4411a735663d38f75f5784bbf0c6e2fad8f107c903b9310669d1da9b"
+      "reason": "Deep Agent -> Relay developer-tool boundary: discovery shows only grant-permitted tools, execution checks the supplied write base and canonical path before transport, and the exact authorized repository/branch/base/path/force values are forwarded. Holds no credential. Not wired to a production caller. Codex-authored correction with denied-transport regressions; independent review PENDING.",
+      "sha256": "82d9711d798a165a8c67e376e483c363fc31250e6a2d2e5d76c0727f20349807"
     },
     "lib/qualification/factory-dispatch.ts": {
       "classification": "INTERNAL",
@@ -4687,9 +4687,9 @@
       "sha256": "4c6a9ab2b132941f442dce1ffb460c1864f00d18ef49bd49efa9668a416e9673"
     },
     "lib/qualification/wiring.ts": {
-      "classification": "INTERNAL",
-      "reason": "Composes injected agent, Relay, Factory, verifier and MyApps ports into the journey environment; every effect is routed through the qdev spend gate, pre-send validation fails as a proven no-send. Wired to no production caller; ports are caller-supplied. Independent source review PENDING.",
-      "sha256": "c6a4820f70c7599bf29478b561b256e6914fafc0d4c3a35161681000473b38bc"
+      "classification": "ENFORCED",
+      "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
+      "sha256": "84b47acb3e3920065633995f969b2c41094e6f76864b50d466132c74f91c0e6c"
     }
   }
 }

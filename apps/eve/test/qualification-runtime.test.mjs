@@ -37,6 +37,7 @@ test('Relay developer grant allows reads and output-branch writes only',()=>{
  denied({kind:'write_contents',repository:repo,branch:'main',baseCommit:g.baseCommit,path:'a'},'QDEV_RELAY_BRANCH_DENIED');
  denied({kind:'write_contents',repository:repo,branch:'codex/other',baseCommit:g.baseCommit,path:'a'},'QDEV_RELAY_BRANCH_DENIED');
  denied({kind:'write_contents',repository:repo,branch:g.outputBranch,baseCommit:g.baseCommit,path:'a',force:true},'QDEV_RELAY_FORCE_DENIED');
+ denied({kind:'write_contents',repository:repo,branch:g.outputBranch,baseCommit:'e'.repeat(40),path:'a'},'QDEV_RELAY_BASE_DENIED');
  denied({kind:'write_contents',repository:repo,branch:g.outputBranch,baseCommit:g.baseCommit,path:'.github/workflows/ci.yml'},'QDEV_RELAY_PATH_DENIED');
  denied({kind:'write_contents',repository:repo,branch:g.outputBranch,baseCommit:g.baseCommit,path:'../x'},'QDEV_RELAY_PATH_DENIED');
  for(const kind of ['write_deployment','edit_workflow','administer_repository'])denied({kind,repository:repo},'QDEV_RELAY_ACTION_DENIED');

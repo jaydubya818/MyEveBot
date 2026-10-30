@@ -187,15 +187,14 @@ try{
   permissions:{metadata:'read',contents:'write',actions:'read',deployments:'read'},repositoryAdmin:false,workflowEdit:false,productionDeployment:false});
  const relayTransport=()=>({discover:async()=>[{name:'write_file',kind:'write_contents'},{name:'deploy',kind:'write_deployment'}],execute:async()=>({ok:true})});
  /** Ports over the same synthetic Factory/verifier/MyApps used above; `probe` records what each port saw. */
- function wired(w,{agent,admitFactoryVersion}={}){
+ function wired(w,{agent,admitFactoryVersion,admitOverrides={}}={}){
   const base=environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
   const relay=new RelayDeveloperTools(grantFor(),relayTransport());
   const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
    verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,
    agent:{async run(op,r){probe.agent.push(op.key);return agent?agent(op,r):{known:true,value:'ok'};}},
-   factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',factoryId:f.factoryId,factoryVersion:admitFactoryVersion??f.factoryVersion,
-     requestId:'synthetic-request-'+stage,requestDigest:h('5'),sourceDigest:f.sourceDigest,configurationDigest:f.configurationDigest,workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:1,
-     inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,configuration:f.configuration}),
+   factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',...base.expectedFor(stage),factoryVersion:admitFactoryVersion??f.factoryVersion,sourceDigest:f.sourceDigest,
+     inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,...admitOverrides}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
    verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
    myapps:{observe:c=>base.observeDelivery(c)}});
@@ -214,6 +213,15 @@ try{
   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_PROVIDER_NOT_SENT');
   assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
   assert.equal((await w.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state,'NOT_DISPATCHED');
+ });
+ await test('wired ports: a foreign request/run cannot be dispatched under another signed Result expectation',async()=>{
+  const fields={requestId:'foreign-request',requestDigest:h('8'),workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:2};
+  for(const [index,[field,value]] of Object.entries(fields).entries()){
+   const w=await world('wirejoin'+index),{env,probe}=wired(w,{admitOverrides:{[field]:value}});
+   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_PROVIDER_NOT_SENT',field);
+   assert.equal(probe.factory.length,0,field);assert.equal(probe.verifier.length,0,field);
+   assert.equal((await w.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state,'NOT_DISPATCHED',field);
+  }
  });
  await test('wired ports: an agent that attempts a forbidden Relay action is stopped by the grant, and the Relay transport is never reached',async()=>{
   const w=await world('wirerelay');let reached=0;
