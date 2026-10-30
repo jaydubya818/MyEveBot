@@ -20,6 +20,7 @@ const binding=qualificationBinding(project);
 const candidate={commit:'1'.repeat(40),tree:'2'.repeat(40),buildArtifactSha256:h('4')};
 const handoff=buildVerifierHandoff({project,binding,candidate});
 const CRED='v'.repeat(32);
+const RESERVE=650_000;
 
 /** Disposable loopback verifier. `script` decides the response per request; every request is recorded. */
 async function endpoint(t,script){
@@ -28,7 +29,8 @@ async function endpoint(t,script){
     seen.push({url:req.url,method:req.method,authorization:req.headers.authorization,body:body?JSON.parse(body):null});
     const r=script(req.url,seen.at(-1));
     if(r.redirect){res.writeHead(302,{location:r.redirect});return res.end();}
-    res.writeHead(r.status??200,{'content-type':'application/json'});res.end(JSON.stringify(r.json));});});
+    const reply=()=>{res.writeHead(r.status??200,{'content-type':'application/json'});res.end(JSON.stringify(r.json));};
+    r.delayMs?setTimeout(reply,r.delayMs):reply();});});
   await new Promise(r=>server.listen(0,'127.0.0.1',r));
   t.after(()=>new Promise(r=>{server.close(r);server.closeAllConnections?.();}));
   return {origin:'http://127.0.0.1:'+server.address().port,seen};
@@ -41,39 +43,63 @@ test('verifier origin: only https or exact loopback http; paths, userinfo, hostn
   assert.ok(port('https://verifier.example'));assert.ok(port('http://127.0.0.1:4321'));
 });
 
-test('pre-send refusals are ProviderNotSent and contact nothing: disabled, missing/short/whitespace credential, malformed handoff or candidate',async t=>{
+const FINAL=(over={})=>({state:'FINAL',handoffSha256:handoff.handoffSha256,usage:{settledMicrousd:0,quiescent:true},...over});
+/** A loopback verifier that answers the handoff and then the charged evaluation from the given finals. */
+const steps=(ack,final)=>url=>url==='/qdev/v1/handoff'?{json:ack}:{json:final};
+const ACK={accepted:true,handoffSha256:handoff.handoffSha256};
+
+test('pre-send refusals are ProviderNotSent and contact nothing: disabled, missing/short/whitespace credential, malformed handoff or candidate, invalid reserve',async t=>{
   const ep=await endpoint(t,()=>({json:{}}));
-  await assert.rejects(port(ep.origin,{enabled:undefined}).submit(handoff),ProviderNotSent);
+  await assert.rejects(port(ep.origin,{enabled:undefined}).submit(handoff,RESERVE),ProviderNotSent);
   for(const credential of [()=>undefined,()=>'short',()=>'x'.repeat(20)+'\n'+'y'.repeat(20),()=>'a b'.repeat(12)])
-    await assert.rejects(port(ep.origin,{credential}).submit(handoff),ProviderNotSent);
-  await assert.rejects(port(ep.origin).submit({...handoff,schema:'other'}),ProviderNotSent);
-  await assert.rejects(port(ep.origin).submit({...handoff,handoffSha256:'zz'}),ProviderNotSent);
+    await assert.rejects(port(ep.origin,{credential}).submit(handoff,RESERVE),ProviderNotSent);
+  await assert.rejects(port(ep.origin).submit({...handoff,schema:'other'},RESERVE),ProviderNotSent);
+  await assert.rejects(port(ep.origin).submit({...handoff,handoffSha256:'zz'},RESERVE),ProviderNotSent);
+  for(const reserve of [0,-1,1.5,NaN,undefined,'650000',1_300_001])await assert.rejects(port(ep.origin).submit(handoff,reserve),ProviderNotSent,String(reserve));
   await assert.rejects(port(ep.origin,{enabled:false}).fetchVerdict(candidate),ProviderNotSent);
   await assert.rejects(port(ep.origin).fetchVerdict({...candidate,commit:'nope'}),e=>e instanceof VerifierPortRefused&&e.code==='QDEV_VERIFIER_CANDIDATE');
   assert.equal(ep.seen.length,0);
 });
 
-test('submit sends the digest-only handoff once with the runtime credential and accepts only an exact echo of the handoff digest',async t=>{
-  const ep=await endpoint(t,()=>({json:{accepted:true,handoffSha256:handoff.handoffSha256}}));
-  assert.deepEqual(await port(ep.origin).submit(handoff),{known:true,value:{accepted:true,handoffSha256:handoff.handoffSha256}});
-  assert.equal(ep.seen.length,1);
-  assert.equal(ep.seen[0].url,'/qdev/v1/handoff');assert.equal(ep.seen[0].method,'POST');assert.equal(ep.seen[0].authorization,'Bearer '+CRED);
-  assert.deepEqual(ep.seen[0].body,handoff);
-  assert.ok(!JSON.stringify(ep.seen[0].body).includes(CRED));
+test('submit sends the handoff, then the charged evaluation with the reserve, and settles only on an exact FINAL quiescent usage within the reserve',async t=>{
+  const ep=await endpoint(t,steps(ACK,FINAL({usage:{settledMicrousd:1234,quiescent:true}})));
+  assert.deepEqual(await port(ep.origin).submit(handoff,RESERVE),{known:true,value:{accepted:true,handoffSha256:handoff.handoffSha256,settledMicrousd:1234}});
+  assert.deepEqual(ep.seen.map(s=>s.url),['/qdev/v1/handoff','/qdev/v1/evaluate']);
+  assert.ok(ep.seen.every(s=>s.method==='POST'&&s.authorization==='Bearer '+CRED));
+  assert.deepEqual(ep.seen[0].body,handoff);assert.deepEqual(ep.seen[1].body,{candidate,reserveMicrousd:RESERVE});
+  assert.ok(!JSON.stringify(ep.seen.map(s=>s.body)).includes(CRED));
   assert.deepEqual(Object.keys(ep.seen[0].body).sort(),['buildArtifactSha256','candidateCommit','candidateTree','handoffSha256','projectSha256','protectedSpecificationSha256','schema','sourceSha256']);
+  const exact=await endpoint(t,steps(ACK,FINAL({usage:{settledMicrousd:RESERVE,quiescent:true}})));
+  assert.equal((await port(exact.origin).submit(handoff,RESERVE)).known,true,'spending exactly the reserve is within the cap');
 });
 
-test('post-send ambiguity: wrong echo is unknown; non-200, redirect and unreachable are errors (never ProviderNotSent, never resent)',async t=>{
-  for(const json of [{accepted:true,handoffSha256:h('9')},{accepted:false,handoffSha256:handoff.handoffSha256},{accepted:true,handoffSha256:handoff.handoffSha256,extra:1},{},'x',null]){
-    const ep=await endpoint(t,()=>({json}));
-    assert.deepEqual(await port(ep.origin).submit(handoff),{known:false},JSON.stringify(json));assert.equal(ep.seen.length,1);
+test('usage is UNKNOWN (fenced, never settled) for a wrong ack, a non-FINAL or non-quiescent evaluation, usage above the reserve or malformed, and a wrong echo',async t=>{
+  for(const ack of [{accepted:true,handoffSha256:h('9')},{accepted:false,handoffSha256:handoff.handoffSha256},{accepted:true,handoffSha256:handoff.handoffSha256,extra:1},{},'x',null]){
+    const ep=await endpoint(t,steps(ack,FINAL()));
+    assert.deepEqual(await port(ep.origin).submit(handoff,RESERVE),{known:false},JSON.stringify(ack));assert.equal(ep.seen.length,1,'no evaluation after an unproven ack');
   }
+  for(const final of [FINAL({state:'RUNNING'}),FINAL({handoffSha256:h('9')}),FINAL({usage:{settledMicrousd:0,quiescent:false}}),FINAL({usage:{settledMicrousd:RESERVE+1,quiescent:true}}),
+    FINAL({usage:{settledMicrousd:-1,quiescent:true}}),FINAL({usage:{settledMicrousd:1.5,quiescent:true}}),FINAL({usage:{settledMicrousd:null,quiescent:true}}),FINAL({usage:{quiescent:true}}),
+    FINAL({usage:{settledMicrousd:0,quiescent:true,extra:1}}),FINAL({extra:1}),{state:'FINAL',handoffSha256:handoff.handoffSha256},{},'x',null]){
+    const ep=await endpoint(t,steps(ACK,final));
+    assert.deepEqual(await port(ep.origin).submit(handoff,RESERVE),{known:false},JSON.stringify(final));assert.equal(ep.seen.length,2);
+  }
+});
+
+test('post-send failures are ambiguous errors (never ProviderNotSent, never resent): non-200, redirect, unreachable, and an evaluation that exceeds its timeout',async t=>{
   for(const script of [()=>({status:500,json:{}}),()=>({status:202,json:{}}),()=>({redirect:'http://127.0.0.1:9/elsewhere'})]){
     const ep=await endpoint(t,script);
-    await assert.rejects(port(ep.origin).submit(handoff),e=>!(e instanceof ProviderNotSent)&&/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/.test(e.message));
+    await assert.rejects(port(ep.origin).submit(handoff,RESERVE),e=>!(e instanceof ProviderNotSent)&&/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/.test(e.message));
     assert.equal(ep.seen.length,1,'sent once, not retried, redirect not followed');
   }
-  await assert.rejects(port('http://127.0.0.1:1').submit(handoff),e=>!(e instanceof ProviderNotSent));
+  for(const script of [url=>url==='/qdev/v1/handoff'?{json:ACK}:{status:500,json:{}},url=>url==='/qdev/v1/handoff'?{json:ACK}:{redirect:'http://127.0.0.1:9/x'}]){
+    const ep=await endpoint(t,script);
+    await assert.rejects(port(ep.origin).submit(handoff,RESERVE),e=>!(e instanceof ProviderNotSent)&&/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/.test(e.message));
+    assert.deepEqual(ep.seen.map(s=>s.url),['/qdev/v1/handoff','/qdev/v1/evaluate'],'the evaluation is sent once and never resent');
+  }
+  const slow=await endpoint(t,url=>url==='/qdev/v1/handoff'?{json:ACK}:{json:FINAL(),delayMs:400});
+  await assert.rejects(port(slow.origin,{evaluationTimeoutMs:50}).submit(handoff,RESERVE),e=>!(e instanceof ProviderNotSent)&&/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/.test(e.message));
+  await assert.rejects(port('http://127.0.0.1:1').submit(handoff,RESERVE),e=>!(e instanceof ProviderNotSent));
 });
 
 test('fetchVerdict returns only a schema-valid signed envelope, and a transport cannot mint a PASS: forged, foreign and mismatched verdicts fail the journey signature check',async t=>{

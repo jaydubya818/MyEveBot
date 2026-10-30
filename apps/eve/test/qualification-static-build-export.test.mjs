@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { attestStaticBuild, exportStaticBuild, gitTreeId, parseDistTar, pinnedBuildArgs, staticBuildSourceFor } from "../lib/qualification/static-build-export.ts";
+import { attestStaticBuild, captureSource, createBoundedDockerRunner, createSourceLease, exportStaticBuild, gitTreeId, parseDistTar, pinnedBuildArgs, staticBuildSourceFor } from "../lib/qualification/static-build-export.ts";
 import { StaticBuildMyAppsPort } from "../lib/qualification/static-build.ts";
 import { canonical } from "../../../packages/myapps/src/contracts.ts";
 
@@ -21,10 +21,13 @@ function candidate(files, { exec = [] } = {}) {
   }
   return dir;
 }
+/** Tree id by real git with the repository kept OUTSIDE the candidate directory, so the candidate carries no .git. */
 function gitTree(dir) {
-  git(dir, "init", "-q");
-  git(dir, "add", "-A");
-  return git(dir, "write-tree");
+  const gitDir = mkdtempSync(join(tmpdir(), "qdev-export-gitdir-"));
+  const run = (...args) => execFileSync("git", args, { cwd: dir, encoding: "utf8", env: { ...process.env, GIT_DIR: gitDir, GIT_WORK_TREE: dir, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_SYSTEM: "/dev/null" } }).trim();
+  run("init", "-q");
+  run("add", "-A");
+  return run("write-tree");
 }
 function distTar(files) {
   const dir = mkdtempSync(join(tmpdir(), "qdev-export-dist-"));
@@ -56,6 +59,9 @@ test("gitTreeId equals git write-tree, including nesting, ordering, executable b
   const dir = candidate({ "package.json": "{}", "package-lock.json": "{}", "src/a.b": "1", "src/a/c.ts": "2", "src/a-z": "3", "z": "4", "bin/run.sh": "#!/bin/sh\n" }, { exec: ["bin/run.sh"] });
   const expected = gitTree(dir);
   assert.equal(gitTreeId(dir), expected);
+  mkdirSync(join(dir, ".git"));
+  writeFileSync(join(dir, ".git/HEAD"), "ref: refs/heads/main");
+  assert.equal(gitTreeId(dir), expected, "a root .git is ignored by the tree comparison");
   writeFileSync(join(dir, "package.json"), "{ }");
   assert.notEqual(gitTreeId(dir), expected);
 });
@@ -174,4 +180,171 @@ test("attestStaticBuild signs exactly the domain-separated canonical payload", a
   }));
   assert.equal(seen, "myeve.static-build-claim/v1\0" + canonical(claim.payload));
   assert.match(claim.signature, /^[A-Za-z0-9_-]{86}$/);
+});
+
+// ---- Exact-source binding: capture once, build only from a private read-only lease, verify before and after ----
+const mountSource = args => args.find(a => a.startsWith("type=bind,")).split(",")[1].slice("source=".length);
+const readTree = (dir, base = dir, out = {}) => {
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (lstatSync(path).isDirectory()) readTree(path, base, out); else out[path.slice(base.length + 1)] = readFileSync(path, "utf8");
+  }
+  return out;
+};
+
+test("a host write to the source directory while Docker runs cannot change the build: the container sees only the leased captured bytes", async () => {
+  const { src, config, tree } = exportFixture();
+  const original = readTree(src);
+  let seen;
+  const out = await exportStaticBuild({ ...config, docker: async args => {
+    const lease = mountSource(args);
+    // The container-side view starts exactly as the pinned tree, from a private read-only directory that is not the original path.
+    assert.notEqual(lease, src);
+    assert.ok(args.some(a => /^type=bind,.*,readonly$/.test(a)));
+    assert.equal(lstatSync(lease).mode & 0o777, 0o555);
+    assert.equal(lstatSync(join(lease, "src/main.tsx")).mode & 0o777, 0o444);
+    assert.deepEqual(readTree(lease), original);
+    // A host writer now changes the original in every way a mutable checkout allows; none of it reaches the lease.
+    writeFileSync(join(src, "src/main.tsx"), "export const attacker = 1");
+    writeFileSync(join(src, "src/extra.ts"), "export {}");
+    seen = readTree(lease);
+    return goodDist();
+  } });
+  assert.deepEqual(seen, original, "the leased bytes were unchanged by the host write");
+  assert.equal(out.inventory.sourceTree, tree, "the claim names the pinned tree that was actually built");
+  assert.notEqual(gitTreeId(src), tree, "the original did change, so a build from it would not match the claim");
+});
+
+test("a lease that is changed while the container runs refuses the build and is cleaned up", async () => {
+  for (const [label, tamper] of [
+    ["edit a file", lease => { chmodSync(join(lease, "src"), 0o755); chmodSync(join(lease, "src/main.tsx"), 0o644); writeFileSync(join(lease, "src/main.tsx"), "export const x = 1"); }],
+    ["add a file", lease => { chmodSync(lease, 0o755); writeFileSync(join(lease, "extra.js"), "1"); }],
+    ["replace by a symlink", lease => { chmodSync(join(lease, "src"), 0o755); rmSync(join(lease, "src/main.tsx")); symlinkSync("/etc/hosts", join(lease, "src/main.tsx")); }],
+    ["loosen a mode", lease => { chmodSync(join(lease, "package.json"), 0o666); }],
+  ]) {
+    const { config } = exportFixture();
+    let lease;
+    await assert.rejects(exportStaticBuild({ ...config, docker: async args => { lease = mountSource(args); tamper(lease); return goodDist(); } }), { code: "QDEV_EXPORT_LEASE_CHANGED" }, label);
+    assert.equal(existsSync(lease), false, "lease removed after refusal: " + label);
+  }
+});
+
+test("the lease is released after success and after a failed build", async () => {
+  const { config } = exportFixture();
+  let lease;
+  await exportStaticBuild({ ...config, docker: async args => { lease = mountSource(args); return goodDist(); } });
+  assert.equal(existsSync(lease), false);
+  await assert.rejects(exportStaticBuild({ ...config, docker: async args => { lease = mountSource(args); throw new Error("boom"); } }), /boom/);
+  assert.equal(existsSync(lease), false);
+});
+
+test("createSourceLease verifies bytes, modes, ownership and the entry set", () => {
+  const dir = candidate({ "package.json": "{}", "a/b.txt": "b", "bin/run.sh": "#!/bin/sh\n" }, { exec: ["bin/run.sh"] });
+  const lease = createSourceLease(captureSource(dir));
+  try {
+    lease.verify();
+    assert.equal(lstatSync(join(lease.dir, "bin/run.sh")).mode & 0o777, 0o555);
+    chmodSync(join(lease.dir, "a"), 0o755); chmodSync(join(lease.dir, "a/b.txt"), 0o644);
+    writeFileSync(join(lease.dir, "a/b.txt"), "B");
+    assert.throws(() => lease.verify(), { code: "QDEV_EXPORT_LEASE_CHANGED" });
+  } finally { lease.release(); }
+  assert.equal(existsSync(lease.dir), false);
+});
+
+test("sources that are mutable, aliased or carry metadata are refused instead of captured", async () => {
+  const bad = (code, mutate, label) => {
+    const dir = candidate({ "package.json": "{}", "src/a.ts": "1" });
+    mutate(dir);
+    assert.throws(() => captureSource(dir), { code }, label);
+    return dir;
+  };
+  bad("QDEV_EXPORT_SOURCE_ENTRY", dir => symlinkSync("package.json", join(dir, "link")), "symlink");
+  bad("QDEV_EXPORT_SOURCE_ENTRY", dir => symlinkSync("src", join(dir, "dirlink")), "directory symlink");
+  bad("QDEV_EXPORT_SOURCE_METADATA", dir => mkdirSync(join(dir, ".git")), "repository metadata");
+  bad("QDEV_EXPORT_SOURCE_METADATA", dir => writeFileSync(join(dir, "src/.DS_Store"), "x"), "Finder metadata");
+  bad("QDEV_EXPORT_SOURCE_METADATA", dir => writeFileSync(join(dir, "._package.json"), "x"), "AppleDouble metadata");
+  bad("QDEV_EXPORT_SOURCE_LINKED", dir => linkSync(join(dir, "package.json"), join(dir, "alias.json")), "hard link");
+  bad("QDEV_EXPORT_SOURCE_MODE", dir => chmodSync(join(dir, "package.json"), 0o4755), "setuid");
+  bad("QDEV_EXPORT_SOURCE_ROOT", dir => { rmSync(dir, { recursive: true }); symlinkSync(tmpdir(), dir); }, "symlinked root");
+  assert.throws(() => captureSource(join(tmpdir(), "qdev-export-does-not-exist")), { code: "QDEV_EXPORT_SOURCE_ROOT" });
+  const aliased = candidate({ "package.json": "{}" });
+  writeFileSync(join(aliased, "Readme.md"), "1");
+  writeFileSync(join(aliased, "README.md"), "2");
+  if (readdirSync(aliased).filter(n => n.toLowerCase() === "readme.md").length === 2) assert.throws(() => captureSource(aliased), { code: "QDEV_EXPORT_SOURCE_ALIAS" });
+  // exportStaticBuild never builds a source it cannot capture, and a root .git is refused there although gitTreeId ignores it.
+  const { config } = exportFixture();
+  mkdirSync(join(config.sourceDir, ".git"));
+  let built = 0;
+  await assert.rejects(exportStaticBuild({ ...config, docker: async () => { built++; return goodDist(); } }), { code: "QDEV_EXPORT_SOURCE_METADATA" });
+  assert.equal(built, 0);
+  assert.equal(gitTreeId(config.sourceDir), config.pins.tree, "gitTreeId still ignores a root .git for tree comparison");
+});
+
+test("captureSource refuses trees over the file limit", () => {
+  const dir = mkdtempSync(join(tmpdir(), "qdev-export-big-"));
+  for (let i = 0; i < 4097; i++) writeFileSync(join(dir, "f" + i), "x");
+  assert.throws(() => captureSource(dir), { code: "QDEV_EXPORT_SOURCE_LIMIT" });
+});
+
+// ---- The real bounded Docker runner, driven by a fake `docker` executable that records every invocation ----
+function fakeDocker(script) {
+  const dir = mkdtempSync(join(tmpdir(), "qdev-fake-docker-"));
+  const bin = join(dir, "docker"), log = join(dir, "log");
+  writeFileSync(bin, "#!/bin/sh\necho \"$@\" >> \"" + log + "\"\n" + script);
+  chmodSync(bin, 0o755);
+  const calls = () => existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [];
+  return { bin, calls, dir };
+}
+const runArgs = () => pinnedBuildArgs(IMAGE, "/work/src");
+const nameOf = args => args[args.indexOf("--name") + 1];
+
+test("pinnedBuildArgs names and labels the container so cleanup can find it", () => {
+  const args = runArgs();
+  assert.match(nameOf(args), /^qdev-build-[a-f0-9]{16}$/);
+  assert.equal(args[args.indexOf("--label") + 1], "myeve.qdev=static-build");
+  assert.notEqual(nameOf(runArgs()), nameOf(runArgs()));
+  assert.throws(() => pinnedBuildArgs(IMAGE, "/work/src", "mine"), { code: "QDEV_EXPORT_CONTAINER_NAME" });
+});
+
+test("the bounded runner returns the tar stream and does not clean up a build that succeeded", async () => {
+  const tar = join(mkdtempSync(join(tmpdir(), "qdev-fake-tar-")), "dist.tar");
+  writeFileSync(tar, goodDist());
+  const fake = fakeDocker("case \"$1\" in run) cat \"" + tar + "\";; esac\n");
+  const out = await createBoundedDockerRunner({ docker: fake.bin })(runArgs());
+  assert.deepEqual(parseDistTar(out).size, 2);
+  assert.equal(fake.calls().length, 1);
+});
+
+test("the bounded runner force-removes the named container on timeout, output overflow and failure", async () => {
+  const cases = [
+    ["timeout", "case \"$1\" in run) exec sleep 30;; esac\n", { timeoutMs: 300 }, "QDEV_EXPORT_DOCKER_TIMEOUT"],
+    ["overflow", "case \"$1\" in run) exec head -c 3000000 /dev/zero;; esac\n", { maxStdoutBytes: 1000 }, "QDEV_EXPORT_DOCKER_OUTPUT_LIMIT"],
+    ["failure", "case \"$1\" in run) echo broken >&2; exit 3;; esac\n", {}, "QDEV_EXPORT_DOCKER_EXIT"],
+  ];
+  for (const [label, script, options, code] of cases) {
+    const fake = fakeDocker(script), args = runArgs();
+    await assert.rejects(createBoundedDockerRunner({ docker: fake.bin, ...options })(args), { code }, label);
+    assert.ok(fake.calls().includes("rm -f " + nameOf(args)), label + ": container removed by name");
+  }
+});
+
+test("the bounded runner reports a removal it cannot confirm, an unavailable docker, and refuses unnamed runs", async () => {
+  const stuck = fakeDocker("case \"$1\" in run) exit 3;; rm) echo denied >&2; exit 1;; esac\n"), args = runArgs();
+  await assert.rejects(createBoundedDockerRunner({ docker: stuck.bin })(args), error => error.code === "QDEV_EXPORT_CLEANUP_FAILED:" + nameOf(args));
+  const gone = fakeDocker("case \"$1\" in run) exit 3;; rm) echo 'Error: No such container' >&2; exit 1;; esac\n");
+  await assert.rejects(createBoundedDockerRunner({ docker: gone.bin })(runArgs()), { code: "QDEV_EXPORT_DOCKER_EXIT" });
+  await assert.rejects(createBoundedDockerRunner({ docker: join(tmpdir(), "qdev-no-such-docker") })(runArgs()), { code: "QDEV_EXPORT_DOCKER_UNAVAILABLE" });
+  await assert.rejects(createBoundedDockerRunner({ docker: stuck.bin })(["run", "--rm", IMAGE]), { code: "QDEV_EXPORT_RUNNER_UNNAMED" });
+});
+
+test("exportStaticBuild runs end to end through the bounded runner against the lease", async () => {
+  const { config, tree } = exportFixture();
+  const tar = join(mkdtempSync(join(tmpdir(), "qdev-fake-tar-")), "dist.tar");
+  writeFileSync(tar, goodDist());
+  const fake = fakeDocker("case \"$1\" in run) cat \"" + tar + "\";; esac\n");
+  const out = await exportStaticBuild({ ...config, docker: createBoundedDockerRunner({ docker: fake.bin }) });
+  assert.equal(out.inventory.sourceTree, tree);
+  const [call] = fake.calls();
+  assert.ok(call.includes("--network none") && call.includes("--read-only") && call.includes("readonly"));
+  assert.ok(!call.includes(config.sourceDir), "the original directory is never mounted");
 });

@@ -1,46 +1,70 @@
 import { createHash, sign as cryptoSign, createPrivateKey, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { digest } from "../engineering/contract.ts";
 import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { verdictSchema, type SignedVerdict, type Verdict } from "./verdict.ts";
 
 /**
- * Server side of the `/qdev/v1` verifier contract that `HttpVerifierPort` consumes. It is the framework-neutral request handler of the
- * independently administered verifier: it authenticates the caller, binds the handoff to the pinned installation, accepts each candidate's
- * handoff exactly once (idempotent on the same digest, conflict on a different one), evaluates each accepted candidate AT MOST ONCE through
- * the injected protected evaluator under a hard deadline, and signs the resulting verdict with the injected protected signer.
+ * Server side of the `/qdev/v1` verifier contract that `HttpVerifierPort` consumes: the framework-neutral request handler of the
+ * independently administered verifier. It authenticates the caller, binds the handoff to the pinned installation, and EXECUTES the
+ * evaluation inside the charged `evaluate` call, so the qdev gate settles the verifier operation only after the evaluation has finished:
  *
- * Nothing protected lives here: the acceptance criteria are the evaluator's, the private key is the signer's, and credentials are
- * configured as SHA-256 digests only. The single evaluation is marked durably BEFORE it runs and the verdict is persisted before it is
- * returned, so a retried request returns the same signed bytes and can never re-roll an outcome; an evaluator failure, a deadline overrun
- * or a restart that lost the verdict is a signed NOT_RUN, which the journey treats as a halt.
+ *   POST /qdev/v1/handoff   VerifierHandoff                  -> { accepted: true, handoffSha256 }          (registers the candidate; evaluates nothing)
+ *   POST /qdev/v1/evaluate  { candidate, reserveMicrousd }    -> { state: "FINAL", handoffSha256, usage }   (runs the single evaluation, then returns)
+ *   POST /qdev/v1/verdict   { candidate }                     -> { verdict, signatureBase64 }               (PURE READ of a final verdict; never evaluates)
+ *
+ * The evaluation runs at most once per candidate (durably marked before it starts), with the charged reserve as its hard cap and a hard
+ * deadline. `usage.quiescent` is true only when the evaluator itself reported that all of its work has CEASED: an AbortSignal and a response
+ * deadline alone never establish that. An evaluator that has not ceased within the grace period, reports unusable usage, or exceeds the cap
+ * leaves `quiescent: false` and a signed NOT_RUN, which the client treats as unsettled exposure (the gate fences; nothing is resent). Paid
+ * evaluation is declared in configuration: an unpaid evaluator must report exactly zero usage.
+ *
+ * Nothing protected lives here: the criteria are the evaluator's, the private key is the signer's, credentials are SHA-256 digests only.
  */
 export type VerifierCandidate = { commit: string; tree: string; buildArtifactSha256: string };
 export type VerifierHandoffBody = {
   schema: "myeve.qualification-verifier-handoff/v1"; projectSha256: string; sourceSha256: string; protectedSpecificationSha256: string;
   candidateCommit: string; candidateTree: string; buildArtifactSha256: string; handoffSha256: string;
 };
+export type EvaluatorResult = { outcome: "PASS" | "FAIL" | "NOT_RUN"; usedMicrousd: number };
+/**
+ * Protected evaluator. `run` MUST settle only after every process, container and request it started has ceased (resolve or reject), and must
+ * honour `signal` and `budgetMicrousd` (its hard cap). Reject with EvaluatorNotQuiescent when cessation could not be proven.
+ */
+export interface QuiescentEvaluator {
+  run(input: { handoff: VerifierHandoffBody; candidate: VerifierCandidate }, context: { signal: AbortSignal; budgetMicrousd: number }): Promise<EvaluatorResult>;
+}
+export class EvaluatorNotQuiescent extends Error { constructor(message = "evaluator cessation not proven") { super(message); } }
+
+export type VerifierUsage = { settledMicrousd: number | null; quiescent: boolean };
+export type VerifierRecord = {
+  handoffSha256: string; phase: "HANDED_OFF" | "RUNNING" | "FINAL";
+  reserveMicrousd: number | null; beganAtMs: number | null; usage: VerifierUsage | null; signed: SignedVerdict | null;
+};
 export interface VerifierStore {
-  /** Atomically records the handoff for the candidate unless one exists; returns the stored handoff digest. */
+  /** Atomically records the handoff unless one exists; returns the stored handoff digest. */
   putHandoff(candidateKey: string, handoffSha256: string): Promise<{ handoffSha256: string }>;
-  getHandoff(candidateKey: string): Promise<{ handoffSha256: string } | null>;
-  getVerdict(candidateKey: string): Promise<SignedVerdict | null>;
-  /** Atomically marks the candidate's single evaluation as begun; true only for the first caller, ever (durable across restarts). */
-  beginEvaluation(candidateKey: string): Promise<boolean>;
-  /** Atomically records the verdict unless one exists; returns the stored (first) verdict. */
-  putVerdict(candidateKey: string, signed: SignedVerdict): Promise<SignedVerdict>;
+  get(candidateKey: string): Promise<VerifierRecord | null>;
+  /** Atomically HANDED_OFF -> RUNNING with the charged reserve; true only for the first caller, ever (durable across restarts). */
+  begin(candidateKey: string, reserveMicrousd: number, nowMs: number): Promise<boolean>;
+  /** Atomically RUNNING -> FINAL with usage and the signed verdict; returns the stored (first) final record. */
+  finish(candidateKey: string, usage: VerifierUsage, signed: SignedVerdict): Promise<VerifierRecord>;
 }
 export type VerifierServiceConfig = {
   /** SHA-256 (hex) of each accepted bearer credential. The credentials themselves are never configured here. */
   credentialSha256: string[];
   /** The one installation binding this verifier serves; handoffs for anything else are refused. */
   expected: { projectSha256: string; sourceSha256: string; protectedSpecificationSha256: string };
-  /** Protected criteria. Receives only digests and candidate identity. Any rejection or non-verdict becomes NOT_RUN. */
-  evaluate(input: { handoff: VerifierHandoffBody; candidate: VerifierCandidate }, signal: AbortSignal): Promise<"PASS" | "FAIL">;
+  evaluator: QuiescentEvaluator;
+  /** Explicit: a paid evaluator reports usage within the charged cap; an unpaid evaluator must report exactly zero. */
+  paid: boolean;
   /** Protected signer: Ed25519 over the canonical verdict bytes. */
   signer: { keyId: string; sign(message: Uint8Array): Promise<Uint8Array> | Uint8Array };
   store: VerifierStore;
   evaluationDeadlineMs: number;
+  /** How long an aborted evaluator may take to prove cessation before the run is reported non-quiescent. */
+  quiescenceGraceMs?: number;
   now?: () => number;
 };
 
@@ -49,7 +73,9 @@ const handoffSchema = z.object({
   schema: z.literal("myeve.qualification-verifier-handoff/v1"), projectSha256: hex(64), sourceSha256: hex(64), protectedSpecificationSha256: hex(64),
   candidateCommit: hex(40), candidateTree: hex(40), buildArtifactSha256: hex(64), handoffSha256: hex(64),
 }).strict();
-const candidateSchema = z.object({ candidate: z.object({ commit: hex(40), tree: hex(40), buildArtifactSha256: hex(64) }).strict() }).strict();
+const candidateShape = z.object({ commit: hex(40), tree: hex(40), buildArtifactSha256: hex(64) }).strict();
+const verdictRequest = z.object({ candidate: candidateShape }).strict();
+const evaluateRequest = z.object({ candidate: candidateShape, reserveMicrousd: z.number().int().min(1).max(QDEV_LIMITS.perWorkMicrousd) }).strict();
 const MAX_BODY = 8_192;
 const keyOf = (c: VerifierCandidate) => c.commit + ":" + c.tree + ":" + c.buildArtifactSha256;
 const json = (status: number, body: unknown) => Response.json(body, { status, headers: { "cache-control": "no-store" } });
@@ -62,28 +88,32 @@ export function ed25519Signer(keyId: string, privatePem: string): VerifierServic
   return { keyId, sign: message => cryptoSign(null, Buffer.from(message), key) };
 }
 
-/** Non-durable store for tests and single-process disposable use. Production binds a durable store with the same atomic put semantics. */
+/** Non-durable store for tests and single-process disposable use. Production binds a durable store with the same atomic semantics. */
 export function memoryVerifierStore(): VerifierStore {
-  const handoffs = new Map<string, { handoffSha256: string }>(), verdicts = new Map<string, SignedVerdict>(), begun = new Set<string>();
+  const rows = new Map<string, VerifierRecord>();
   return {
-    async beginEvaluation(k) { if (begun.has(k)) return false; begun.add(k); return true; },
-    async putHandoff(k, h) { if (!handoffs.has(k)) handoffs.set(k, { handoffSha256: h }); return handoffs.get(k)!; },
-    async getHandoff(k) { return handoffs.get(k) ?? null; },
-    async getVerdict(k) { return verdicts.get(k) ?? null; },
-    async putVerdict(k, s) { if (!verdicts.has(k)) verdicts.set(k, structuredClone(s)); return structuredClone(verdicts.get(k)!); },
+    async putHandoff(k, h) { if (!rows.has(k)) rows.set(k, { handoffSha256: h, phase: "HANDED_OFF", reserveMicrousd: null, beganAtMs: null, usage: null, signed: null }); return { handoffSha256: rows.get(k)!.handoffSha256 }; },
+    async get(k) { const r = rows.get(k); return r ? structuredClone(r) : null; },
+    async begin(k, reserve, nowMs) { const r = rows.get(k); if (!r || r.phase !== "HANDED_OFF") return false; Object.assign(r, { phase: "RUNNING", reserveMicrousd: reserve, beganAtMs: nowMs }); return true; },
+    async finish(k, usage, signed) { const r = rows.get(k); if (!r) throw new Error("QDEV_VERIFIER_NO_RECORD"); if (r.phase === "RUNNING") Object.assign(r, { phase: "FINAL", usage: structuredClone(usage), signed: structuredClone(signed) }); return structuredClone(r); },
   };
 }
 
 export function createVerifierHandler(config: VerifierServiceConfig): (request: Request) => Promise<Response> {
   if (!config.credentialSha256.length || config.credentialSha256.some(h => !/^[a-f0-9]{64}$/.test(h))) throw new Error("QDEV_VERIFIER_CREDENTIALS");
   if (!Number.isInteger(config.evaluationDeadlineMs) || config.evaluationDeadlineMs < 1 || config.evaluationDeadlineMs > 600_000) throw new Error("QDEV_VERIFIER_DEADLINE");
+  const grace = config.quiescenceGraceMs ?? 5_000;
+  if (!Number.isInteger(grace) || grace < 1 || grace > 60_000) throw new Error("QDEV_VERIFIER_GRACE");
+  if (typeof config.paid !== "boolean" || typeof config.evaluator?.run !== "function") throw new Error("QDEV_VERIFIER_EVALUATOR");
   if (!config.signer.keyId || config.signer.keyId.length > 120) throw new Error("QDEV_VERIFIER_SIGNER");
   const accepted = config.credentialSha256.map(h => Buffer.from(h, "hex"));
   const now = config.now ?? Date.now;
-  const inflight = new Map<string, Promise<SignedVerdict>>();
+  const inflight = new Map<string, Promise<VerifierRecord | null>>();
+  const orphanAfterMs = config.evaluationDeadlineMs + grace + 5_000;
 
   const authorized = (request: Request) => {
-    const match = /^Bearer (\S{16,512})$/.exec(request.headers.get("authorization") ?? "");
+    const value = request.headers.get("authorization") ?? "";
+    const match = /^Bearer (\S{16,512})$/.exec(value);
     if (!match) return false;
     const presented = createHash("sha256").update(match[1]).digest();
     let ok = false;
@@ -92,26 +122,13 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
   };
   const readBody = async (request: Request): Promise<unknown> => {
     if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json")) throw new Error("content-type");
-    if (Number(request.headers.get("content-length") ?? "0") > MAX_BODY) throw new Error("size");
+    const declared = Number(request.headers.get("content-length") ?? "0");
+    if (declared > MAX_BODY) throw new Error("size");
     const text = await request.text();
     if (Buffer.byteLength(text) > MAX_BODY) throw new Error("size");
     return JSON.parse(text);
   };
-
-  async function evaluateOnce(candidate: VerifierCandidate, handoff: VerifierHandoffBody, mayEvaluate: boolean): Promise<SignedVerdict> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), config.evaluationDeadlineMs);
-    let outcome: Verdict["outcome"] = "NOT_RUN";
-    try {
-      // A candidate whose single evaluation already began (crash, lost write) is never evaluated again: it is a signed NOT_RUN.
-      if (!mayEvaluate) throw new Error("already-begun");
-      const result = await Promise.race([
-        config.evaluate({ handoff: structuredClone(handoff), candidate: { ...candidate } }, controller.signal),
-        new Promise<never>((_, rej) => controller.signal.addEventListener("abort", () => rej(new Error("deadline")), { once: true })),
-      ]);
-      outcome = result === "PASS" ? "PASS" : result === "FAIL" ? "FAIL" : "NOT_RUN";
-    } catch { outcome = "NOT_RUN"; }
-    finally { clearTimeout(timer); controller.abort(); }
+  const sign = async (candidate: VerifierCandidate, handoff: VerifierHandoffBody, outcome: Verdict["outcome"]): Promise<SignedVerdict> => {
     const verdict = verdictSchema.parse({
       schema: "myeve.qualification-verdict/v1", verifierKeyId: config.signer.keyId,
       projectSha256: handoff.projectSha256, sourceSha256: handoff.sourceSha256, protectedSpecificationSha256: handoff.protectedSpecificationSha256,
@@ -120,11 +137,56 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
     });
     const signature = await config.signer.sign(Buffer.from(canonical(verdict)));
     return { verdict, signatureBase64: Buffer.from(signature).toString("base64") };
+  };
+  const handoffFor = (candidate: VerifierCandidate, handoffSha256: string): VerifierHandoffBody => {
+    const e = config.expected;
+    return { schema: "myeve.qualification-verifier-handoff/v1", projectSha256: e.projectSha256, sourceSha256: e.sourceSha256, protectedSpecificationSha256: e.protectedSpecificationSha256,
+      candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256, handoffSha256 };
+  };
+
+  /** Runs the single evaluation. Resolves only after the evaluator settled or the grace period after the deadline expired. */
+  async function evaluateOnce(key: string, candidate: VerifierCandidate, handoff: VerifierHandoffBody, reserve: number): Promise<VerifierRecord> {
+    const controller = new AbortController();
+    let settled = false, deadlineHit = false;
+    const run: Promise<{ ok: true; result: unknown } | { ok: false; notQuiescent: boolean }> = (async () => config.evaluator.run(
+      { handoff: structuredClone(handoff), candidate: { ...candidate } }, { signal: controller.signal, budgetMicrousd: reserve }))()
+      .then(result => ({ ok: true as const, result }), error => ({ ok: false as const, notQuiescent: error instanceof EvaluatorNotQuiescent }))
+      .finally(() => { settled = true; });
+    let timer: ReturnType<typeof setTimeout> | undefined, graceTimer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<"deadline">(resolve => { timer = setTimeout(() => { deadlineHit = true; controller.abort(); resolve("deadline"); }, config.evaluationDeadlineMs); });
+    const first = await Promise.race([run, deadline]);
+    clearTimeout(timer);
+    let observed = first === "deadline" ? undefined : first;
+    if (first === "deadline") {
+      // Abort is a request, not proof. Cessation is whatever the evaluator reports by settling within the grace period.
+      const waited = await Promise.race([run, new Promise<"grace">(resolve => { graceTimer = setTimeout(() => resolve("grace"), grace); })]);
+      clearTimeout(graceTimer);
+      if (waited !== "grace") observed = waited;
+    }
+    controller.abort();
+    const quiescent = settled && !(observed && !observed.ok && observed.notQuiescent);
+    let outcome: Verdict["outcome"] = "NOT_RUN";
+    let used: number | null = null;
+    if (observed?.ok) {
+      const r = observed.result as Partial<EvaluatorResult> | null;
+      const valid = !!r && typeof r === "object" && Number.isInteger(r.usedMicrousd) && r.usedMicrousd! >= 0 && r.usedMicrousd! <= reserve
+        && (config.paid || r.usedMicrousd === 0) && (r.outcome === "PASS" || r.outcome === "FAIL" || r.outcome === "NOT_RUN");
+      if (valid) { used = r!.usedMicrousd!; if (!deadlineHit) outcome = r!.outcome!; }
+    }
+    // An unpaid evaluator that produced no report cannot have spent; one that REPORTED unusable or non-zero usage broke its declaration, and a paid
+    // one with no valid final usage report has unknown spend: both stay unsettled.
+    if (!config.paid && quiescent && !observed?.ok) used = 0;
+    const usage: VerifierUsage = { settledMicrousd: quiescent ? used : null, quiescent: quiescent && used !== null };
+    const signed = await sign(candidate, handoff, usage.quiescent ? outcome : "NOT_RUN");
+    return config.store.finish(key, usage, signed);
   }
+
+  const status = (handoffSha256: string, record: VerifierRecord) =>
+    json(200, { state: "FINAL", handoffSha256, usage: { settledMicrousd: record.usage!.settledMicrousd, quiescent: record.usage!.quiescent } });
 
   return async request => {
     const path = new URL(request.url).pathname;
-    if (path !== "/qdev/v1/handoff" && path !== "/qdev/v1/verdict") return reject(404, "QDEV_VERIFIER_NOT_FOUND");
+    if (path !== "/qdev/v1/handoff" && path !== "/qdev/v1/evaluate" && path !== "/qdev/v1/verdict") return reject(404, "QDEV_VERIFIER_NOT_FOUND");
     if (request.method !== "POST") return reject(405, "QDEV_VERIFIER_METHOD");
     if (!authorized(request)) return reject(401, "QDEV_VERIFIER_UNAUTHORIZED");
     let body: unknown;
@@ -145,29 +207,43 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
       return json(200, { accepted: true, handoffSha256 });
     }
 
-    const parsed = candidateSchema.safeParse(body);
-    if (!parsed.success) return reject(400, "QDEV_VERIFIER_CANDIDATE");
-    const candidate = parsed.data.candidate, key = keyOf(candidate);
-    const existing = await config.store.getVerdict(key);
-    if (existing) return json(200, { verdict: existing.verdict, signatureBase64: existing.signatureBase64 });
-    const handoffRecord = await config.store.getHandoff(key);
-    if (!handoffRecord) return reject(409, "QDEV_VERIFIER_NO_HANDOFF");
-    if (!inflight.has(key)) {
-      const e = config.expected;
-      const handoff: VerifierHandoffBody = {
-        schema: "myeve.qualification-verifier-handoff/v1", projectSha256: e.projectSha256, sourceSha256: e.sourceSha256, protectedSpecificationSha256: e.protectedSpecificationSha256,
-        candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256, handoffSha256: handoffRecord.handoffSha256,
-      };
-      // Registered synchronously so concurrent requests for one candidate share a single evaluation.
-      const run = (async () => {
-        const first = await config.store.beginEvaluation(key);
-        return config.store.putVerdict(key, await evaluateOnce(candidate, handoff, first));
-      })().finally(() => inflight.delete(key));
-      inflight.set(key, run);
+    if (path === "/qdev/v1/verdict") {
+      // Pure read: a verdict is returned only once the single charged evaluation is FINAL. This route can never start an evaluation.
+      const parsed = verdictRequest.safeParse(body);
+      if (!parsed.success) return reject(400, "QDEV_VERIFIER_CANDIDATE");
+      const record = await config.store.get(keyOf(parsed.data.candidate));
+      if (!record) return reject(409, "QDEV_VERIFIER_NO_HANDOFF");
+      if (record.phase !== "FINAL" || !record.signed) return reject(409, "QDEV_VERIFIER_NOT_FINAL");
+      return json(200, { verdict: record.signed.verdict, signatureBase64: record.signed.signatureBase64 });
     }
+
+    const parsed = evaluateRequest.safeParse(body);
+    if (!parsed.success) return reject(400, "QDEV_VERIFIER_EVALUATE");
+    const { candidate, reserveMicrousd } = parsed.data, key = keyOf(candidate);
     try {
-      const signed = await inflight.get(key)!;
-      return json(200, { verdict: signed.verdict, signatureBase64: signed.signatureBase64 });
+      const record = await config.store.get(key);
+      if (!record) return reject(409, "QDEV_VERIFIER_NO_HANDOFF");
+      if (record.phase === "FINAL") return record.reserveMicrousd === reserveMicrousd ? status(record.handoffSha256, record) : reject(409, "QDEV_VERIFIER_RESERVE_CONFLICT");
+      let run = inflight.get(key);
+      if (!run) {
+        // Registered synchronously, before any await, so concurrent requests in this process share the one begin/evaluation.
+        run = (async () => {
+          if (record.phase !== "HANDED_OFF" || !(await config.store.begin(key, reserveMicrousd, now()))) return null;
+          return evaluateOnce(key, candidate, handoffFor(candidate, record.handoffSha256), reserveMicrousd);
+        })().finally(() => inflight.delete(key));
+        inflight.set(key, run);
+      }
+      const final = await run;
+      if (final) return final.reserveMicrousd === reserveMicrousd ? status(final.handoffSha256, final) : reject(409, "QDEV_VERIFIER_RESERVE_CONFLICT");
+      // The evaluation began elsewhere or before a restart. Never evaluate again; finalize only once it must have ended.
+      const current = await config.store.get(key);
+      if (!current) return reject(409, "QDEV_VERIFIER_NO_HANDOFF");
+      if (current.reserveMicrousd !== reserveMicrousd) return reject(409, "QDEV_VERIFIER_RESERVE_CONFLICT");
+      if (current.phase === "FINAL") return status(current.handoffSha256, current);
+      if (inflight.has(key) || current.beganAtMs === null || now() - current.beganAtMs < orphanAfterMs) return reject(409, "QDEV_VERIFIER_IN_PROGRESS");
+      const signed = await sign(candidate, handoffFor(candidate, current.handoffSha256), "NOT_RUN");
+      const finalized = await config.store.finish(key, { settledMicrousd: null, quiescent: false }, signed);
+      return status(finalized.handoffSha256, finalized);
     } catch { return reject(503, "QDEV_VERIFIER_UNAVAILABLE"); }
   };
 }

@@ -1,3 +1,4 @@
+import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import { verdictSchema, type SignedVerdict } from "./verdict.ts";
 import type { VerifierHandoff } from "./verifier-handoff.ts";
@@ -9,8 +10,12 @@ import type { VerifierPort } from "./wiring.ts";
  * the journey against the disjoint verifier key set, so a transport (or a compromised endpoint) cannot mint a PASS.
  *
  * Contract (the verifier service implements it; it is part of the protected custody, not of this repository):
- *   POST {origin}/qdev/v1/handoff  body = VerifierHandoff          -> 200 { accepted: true, handoffSha256 }
- *   POST {origin}/qdev/v1/verdict  body = { candidate }            -> 200 { verdict, signatureBase64 }
+ *   POST {origin}/qdev/v1/handoff   body = VerifierHandoff                        -> 200 { accepted: true, handoffSha256 }
+ *   POST {origin}/qdev/v1/evaluate  body = { candidate, reserveMicrousd }          -> 200 { state: "FINAL", handoffSha256, usage: { settledMicrousd, quiescent } }
+ *   POST {origin}/qdev/v1/verdict   body = { candidate }                           -> 200 { verdict, signatureBase64 }   (pure read of a FINAL verdict)
+ * `submit` is the CHARGED operation: it registers the handoff and then runs the single evaluation under the charged reserve as its hard cap.
+ * It settles (`known: true`) only when the service reports FINAL with quiescent === true and settled usage within the reserve; anything else
+ * is unsettled exposure and the gate fences. `fetchVerdict` is an uncharged read that cannot start an evaluation.
  * Authorization: `Bearer <credential>` from the runtime-supplied credential. Origin: https, or exact loopback for disposable endpoints.
  * Pre-send refusals are ProviderNotSent (nothing left the process). Once a request is sent, any failure is ambiguous: the gate
  * fences and nothing is resent. Redirects are refused.
@@ -18,6 +23,8 @@ import type { VerifierPort } from "./wiring.ts";
 export type HttpVerifierConfig = {
   enabled?: boolean; origin: string; credential: () => string | undefined;
   fetch?: typeof fetch; timeoutMs?: number;
+  /** Upper bound for the charged evaluation request (must exceed the service's evaluation deadline plus grace). */
+  evaluationTimeoutMs?: number;
 };
 export class VerifierPortRefused extends Error { constructor(readonly code: string) { super(code); } }
 const ORIGIN = /^(?:https:\/\/[a-z0-9.-]+(?::\d{1,5})?|http:\/\/127\.0\.0\.1:\d{1,5})$/;
@@ -32,24 +39,35 @@ export class HttpVerifierPort implements VerifierPort {
     if (typeof credential !== "string" || credential.length < 16 || /[\r\n\s]/.test(credential)) throw new ProviderNotSent("verifier credential unavailable");
     return "Bearer " + credential;
   }
-  private async call(path: string, body: unknown, authorization: string): Promise<unknown> {
+  private async call(path: string, body: unknown, authorization: string, timeoutMs = this.c.timeoutMs ?? 30_000): Promise<unknown> {
     const response = await (this.c.fetch ?? fetch)(this.c.origin + path, {
-      method: "POST", redirect: "error", signal: AbortSignal.timeout(this.c.timeoutMs ?? 30_000),
+      method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
       headers: { authorization, "content-type": "application/json" }, body: JSON.stringify(body),
     });
     if (response.status !== 200) throw new Error("QDEV_VERIFIER_STATUS_" + response.status);
     return response.json();
   }
 
-  async submit(handoff: VerifierHandoff): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
+  async submit(handoff: VerifierHandoff, reserveMicrousd: number): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
     if (handoff?.schema !== "myeve.qualification-verifier-handoff/v1" || !/^[a-f0-9]{64}$/.test(handoff.handoffSha256)) throw new ProviderNotSent("handoff malformed");
+    if (!Number.isSafeInteger(reserveMicrousd) || reserveMicrousd < 1 || reserveMicrousd > QDEV_LIMITS.perWorkMicrousd) throw new ProviderNotSent("verifier reserve invalid");
+    const candidate = { commit: handoff.candidateCommit, tree: handoff.candidateTree, buildArtifactSha256: handoff.buildArtifactSha256 };
+    if (!/^[a-f0-9]{40}$/.test(candidate.commit) || !/^[a-f0-9]{40}$/.test(candidate.tree) || !/^[a-f0-9]{64}$/.test(candidate.buildArtifactSha256)) throw new ProviderNotSent("handoff candidate malformed");
     const authorization = this.authorization();
-    let body: any;
-    try { body = await this.call("/qdev/v1/handoff", handoff, authorization); }
+    // From the first request on, the evaluation may run: every failure is ambiguous exposure and nothing is resent.
+    let ack: any, final: any;
+    try { ack = await this.call("/qdev/v1/handoff", handoff, authorization); }
     catch (error) { throw new Error("QDEV_VERIFIER_POST_SEND_AMBIGUOUS", { cause: error }); }
     // Acceptance must echo the exact handoff digest; anything else is unproven.
-    if (!body || typeof body !== "object" || Object.keys(body).sort().join(",") !== "accepted,handoffSha256" || body.accepted !== true || body.handoffSha256 !== handoff.handoffSha256) return { known: false };
-    return { known: true, value: { accepted: true, handoffSha256: handoff.handoffSha256 } };
+    if (!ack || typeof ack !== "object" || Object.keys(ack).sort().join(",") !== "accepted,handoffSha256" || ack.accepted !== true || ack.handoffSha256 !== handoff.handoffSha256) return { known: false };
+    try { final = await this.call("/qdev/v1/evaluate", { candidate, reserveMicrousd }, authorization, this.c.evaluationTimeoutMs ?? 12 * 60_000); }
+    catch (error) { throw new Error("QDEV_VERIFIER_POST_SEND_AMBIGUOUS", { cause: error }); }
+    const usage = final?.usage;
+    const settled = typeof final === "object" && final !== null && Object.keys(final).sort().join(",") === "handoffSha256,state,usage" && final.state === "FINAL"
+      && final.handoffSha256 === handoff.handoffSha256 && typeof usage === "object" && usage !== null && Object.keys(usage).sort().join(",") === "quiescent,settledMicrousd"
+      && usage.quiescent === true && Number.isSafeInteger(usage.settledMicrousd) && usage.settledMicrousd >= 0 && usage.settledMicrousd <= reserveMicrousd;
+    if (!settled) return { known: false };
+    return { known: true, value: { accepted: true, handoffSha256: handoff.handoffSha256, settledMicrousd: usage.settledMicrousd } };
   }
 
   async fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict> {

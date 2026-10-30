@@ -29,7 +29,8 @@ export interface FactoryPort {
   dispatch(binding: LocalFactoryBindingV4, reserveMicrousd: number): Promise<Outcome>;
   fetchResult(stage: 1 | 2 | 3): Promise<unknown>;
 }
-export interface VerifierPort { submit(handoff: VerifierHandoff): Promise<Outcome>; fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>; }
+/** `submit` is the charged operation: it must run the whole evaluation under `reserveMicrousd` and settle only when it is final and quiescent. */
+export interface VerifierPort { submit(handoff: VerifierHandoff, reserveMicrousd: number): Promise<Outcome>; fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>; }
 export interface MyAppsPort {
   /** Canonical retained static build + verified build claim for the accepted stage-3 candidate; returns its artifact digest. */
   retainBuild(candidate: { commit: string; tree: string }): Promise<{ buildArtifactSha256: string }>;
@@ -114,7 +115,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
         if (!candidate) throw new Error("QDEV_VERIFIER_CANDIDATE_REQUIRED");
         handoff = buildVerifierHandoff({ project: c.project, binding, candidate });
       } catch { throw new ProviderNotSent("pre-send validation"); }
-      return c.verifier.submit(handoff);
+      return c.verifier.submit(handoff, op.reserveMicrousd);
     },
     preflightStage: async stage => {
       if (!c.factory.preflight) return;

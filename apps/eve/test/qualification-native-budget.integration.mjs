@@ -133,9 +133,11 @@ async function harness(w,{verdictMode='valid',nativeMaxSpendUsd=1.35}={}){
   if(verdictMode==='buildSigned'){const v={...verdictFor(exp),verifierKeyId:issuer.keyId};return {verdict:v,signatureBase64:sign(null,Buffer.from(codec.canonical(v)),pair.privateKey).toString('base64')};}
   return w.verifier.signVerdict(verdictFor(exp));
  };
+ let lastHandoff=null;
  const server=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
   const parsed=body?JSON.parse(body):null;log.verifier.push({url:req.url,authorization:req.headers.authorization,body:parsed});
-  const json=req.url==='/qdev/v1/handoff'?{accepted:true,handoffSha256:parsed.handoffSha256}:req.url==='/qdev/v1/verdict'?verdictBody(parsed.candidate):{};
+  if(req.url==='/qdev/v1/handoff')lastHandoff=parsed.handoffSha256;
+  const json=req.url==='/qdev/v1/handoff'?{accepted:true,handoffSha256:parsed.handoffSha256}:req.url==='/qdev/v1/evaluate'?{state:'FINAL',handoffSha256:lastHandoff,usage:{settledMicrousd:0,quiescent:true}}:req.url==='/qdev/v1/verdict'?verdictBody(parsed.candidate):{};
   res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify(json));});});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const verifierOrigin='http://127.0.0.1:'+server.address().port;

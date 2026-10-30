@@ -91,7 +91,7 @@ async function harness(w,{verdictMode='valid'}={}){
   adm[n]={n,e,raw,request,identity,spend,signed:results[n].signed};byRequest.set(e.requestId,adm[n]);byWorkOrder.set(e.workOrderId,adm[n]);
  }
  const readback=(a,over={})=>({requestId:a.e.requestId,workOrderId:a.e.workOrderId,runId:a.e.runId,snapshot:null,identity:a.identity,state:'RUNNING',quiescent:false,evidenceRef:null,spend:a.spend,blocker:null,...over});
- const log={capability:[],factory:[],served:[],agent:[],verifier:[]};
+ const log={capability:[],factory:[],served:[],agent:[],verifier:[],verifierLedger:[]};
  const conn={origin:'http://127.0.0.1:12345',token:'c'.repeat(64),factoryId:fx.factoryId,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,factoryVersion:fx.factoryVersion,
   repositoryPath:'/synthetic',keys:[fx.key],spendContract:{version:'WORK_LEDGER_V1',sourceDigest:fx.sourceDigest},
   qualification:{scopeId:'synthetic-owner',profileHash:'e'.repeat(64),evidenceRef:'synthetic',qualifiedAt:'2026-01-01T00:00:00Z',expiresAt:'2099-01-01T00:00:00Z',mode:'LOCAL_FIXTURE',spendEnforced:true}};
@@ -139,9 +139,17 @@ async function harness(w,{verdictMode='valid'}={}){
   if(verdictMode==='buildSigned'){const v={...verdictFor(exp),verifierKeyId:issuer.keyId};return {verdict:v,signatureBase64:sign(null,Buffer.from(codec.canonical(v)),pair.privateKey).toString('base64')};}
   return w.verifier.signVerdict(verdictFor(exp));
  };
- const server=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
+ let lastHandoff=null;
+ const server=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',async()=>{
   const parsed=body?JSON.parse(body):null;log.verifier.push({url:req.url,authorization:req.headers.authorization,body:parsed});
-  const json=req.url==='/qdev/v1/handoff'?{accepted:true,handoffSha256:parsed.handoffSha256}:req.url==='/qdev/v1/verdict'?verdictBody(parsed.candidate):{};
+  let json={};
+  if(req.url==='/qdev/v1/handoff'){lastHandoff=parsed.handoffSha256;json={accepted:true,handoffSha256:parsed.handoffSha256};}
+  else if(req.url==='/qdev/v1/evaluate'){
+   // The charged evaluation: at this moment the gate must still hold the VERIFIER operation unsettled.
+   log.verifierLedger.push((await w.db.query("SELECT state FROM qdev_dispatch WHERE purpose='VERIFIER'")).rows.map(r=>r.state));
+   json={state:'FINAL',handoffSha256:lastHandoff,usage:{settledMicrousd:0,quiescent:true}};
+  }
+  else if(req.url==='/qdev/v1/verdict')json=verdictBody(parsed.candidate);
   res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify(json));});});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const verifierOrigin='http://127.0.0.1:'+server.address().port;
@@ -200,9 +208,10 @@ try{
    assert.equal(hn.log.factory.filter(c=>/POST .*\/dispatch$/.test(c)).length,1);
    assert.equal(hn.log.factory.filter(c=>/\/result$/.test(c)).length,3);
    // Verifier: exactly one digest-only handoff and one verdict fetch, with the runtime credential read through the accessor and never in the bundle
-   assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/verdict']);
+   assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/evaluate','/qdev/v1/verdict']);
    for(const v of hn.log.verifier)assert.equal(v.authorization,'Bearer '+CRED);
-   assert.deepEqual(hn.log.verifier[0].body,hn.expectedHandoff);assert.deepEqual(hn.log.verifier[1].body,{candidate:hn.candidate});
+   assert.deepEqual(hn.log.verifier[0].body,hn.expectedHandoff);assert.deepEqual(hn.log.verifier[1].body,{candidate:hn.candidate,reserveMicrousd:650000});assert.deepEqual(hn.log.verifier[2].body,{candidate:hn.candidate});
+   assert.deepEqual(hn.log.verifierLedger,[['RUNNING']],'the verifier operation is unsettled while the evaluation runs');
    assert.equal(r.env.MYEVE_QDEV_HOST_BUNDLE.includes(CRED),false);
    // MyApps: the actual served files were observed once each
    assert.deepEqual([...hn.log.served].sort(),['/app.js','/index.html']);
@@ -287,7 +296,7 @@ try{
    }]}]});
    assert.equal(answer.finishReason.unified,'stop');assert.match(answer.content.find(p=>p.type==='text').text,/completed all four stages/);
    assert.equal(forbiddenEgress,0);assert.equal(await count(w,'qdev_dispatch'),5);
-   assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/verdict']);
+   assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/evaluate','/qdev/v1/verdict']);
   }finally{
    globalThis.fetch=originalFetch;if(previousFlag===undefined)delete process.env.MYEVE_QDEV_ENABLED;else process.env.MYEVE_QDEV_ENABLED=previousFlag;
    await hn.stop();
@@ -345,7 +354,7 @@ try{
     const out=await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'});
     assert.equal(out.status,'HALTED');assert.equal(out.haltedAt,4);assert.equal(out.code,code);
     assert.equal(out.verdictSha256,undefined);assert.equal(out.deliverySha256,undefined);
-    assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/verdict']);
+    assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/evaluate','/qdev/v1/verdict']);
     assert.equal(hn.log.served.length,0,'no delivery is observed for an unaccepted verdict');
     assert.equal(hn.log.factory.filter(c=>/POST .*\/dispatch$/.test(c)).length,1);
    }finally{await hn.stop();}

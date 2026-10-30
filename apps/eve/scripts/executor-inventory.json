@@ -4689,7 +4689,7 @@
     "lib/qualification/wiring.ts": {
       "classification": "ENFORCED",
       "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority. Passes the actual journey reservation into native dispatch while retaining original source/start/Result checks. Agent tasks carry the same reservation; their concrete backend is separately required.",
-      "sha256": "99f01cd8c8832276850b93389cd584c0ec52df6d038ae44f08a6edf1b0675e32"
+      "sha256": "868528944f1b602ca4975d12d36850fe6662995d781df6d5d3c7c628d2183fb1"
     },
     "lib/qualification/relay-mcp-transport.ts": {
       "classification": "ENFORCED",
@@ -4768,8 +4768,8 @@
     },
     "lib/qualification/verifier-port.ts": {
       "classification": "ENFORCED",
-      "reason": "Disabled-by-default transport to the independently administered verifier: carries the digest-only handoff out and a schema-valid signed verdict envelope back. Origin is https or exact loopback only, redirects refused, credential supplied by the runtime accessor and checked pre-send; every refusal before the request is a proven no-send, any failure after it is ambiguous (fenced, never resent). Holds no specification or verifier key and cannot mint a verdict: the journey verifies the signature against the disjoint verifier key set. No enrollment, payment, spend or deployment authority.",
-      "sha256": "c86d1e41248369428024d2b2a7d33f26282859a3e56345a0b642317d8479a9c1"
+      "reason": "Disabled-by-default transport to the independently administered verifier: carries the digest-only handoff out, runs the charged /evaluate with the journey reservation and a bounded timeout, and reads back a pure schema-valid signed verdict. Usage is settled (known) only on an exact FINAL, quiescent response within 0..reserve; any other answer, or any failure after sending, is unknown and fenced. Origin is https or exact loopback only, redirects refused, credential supplied by the runtime accessor and checked pre-send; every refusal before the request is a proven no-send. Holds no specification or verifier key and cannot mint a verdict: the journey verifies the signature against the disjoint verifier key set. No enrollment, payment, spend or deployment authority.",
+      "sha256": "81a454d66b2545f07540ae51e88a9cb2715e9e03f60e3f9494db0ae631844089"
     },
     "lib/qualification/runtime-ports.ts": {
       "classification": "ENFORCED",
@@ -4783,8 +4783,8 @@
     },
     "lib/qualification/verifier-service.ts": {
       "classification": "ENFORCED",
-      "reason": "Server side of the /qdev/v1 verifier contract as a framework-neutral handler for the independently administered verifier. Authenticates callers by SHA-256 credential digest, pins handoffs to the one installation binding, accepts each candidate handoff once, evaluates each candidate at most once (durably marked before it runs) under a hard deadline through an injected protected evaluator, and signs the verdict with an injected protected signer; evaluator failure, deadline overrun or a lost verdict after the evaluation began is a signed NOT_RUN. Holds no criteria, key material, credential or enrollment; spend and deployment authority none.",
-      "sha256": "342c2022e3fbc01aef0f8d2cf3c7480924c51948ba632076b59b8054f68430c5"
+      "reason": "Server side of the /qdev/v1 verifier contract as a framework-neutral handler for the independently administered verifier. Authenticates callers by SHA-256 credential digest, pins handoffs to the one installation binding and accepts each candidate handoff once. The single evaluation runs INSIDE the charged /evaluate request: it is claimed durably once, runs under the caller's reserve as a hard cap and a deadline through an injected protected evaluator that must prove quiescence, and reports final usage (an unpaid verifier must report zero); a deadline overrun, an unproven cessation or a lost begin is never re-run. /verdict is a pure read that is refused until the record is FINAL. Holds no criteria, key material, credential or enrollment; spend and deployment authority none.",
+      "sha256": "561d26fa1ccf92ecb4dccb4f1bc98bfbc7549aa342e89abe16b0aec9249304e4"
     },
     "lib/qualification/retained-admissions.ts": {
       "classification": "ENFORCED",
@@ -4793,8 +4793,8 @@
     },
     "lib/qualification/static-build-export.ts": {
       "classification": "ENFORCED",
-      "reason": "Host-side producer half of static build retention. Recomputes the git tree id of a read-only candidate directory and requires it to equal the accepted candidate tree, requires the dependency lock and package manifest to equal the frozen build profile, runs the build only in a host-pinned immutable local image with no network, read-only root and source, unprivileged user and fixed CPU/memory/process bounds, reads the built dist back only as a strictly parsed ustar stream, and signs the provenance claim with an injected issuer signer. A claim is provenance only and never replaces the independent verdict. Holds no key, credential, network, deployment or enrollment authority.",
-      "sha256": "7866d4c417bb76c7a4a179bfbeb846660ebd54a7d4d28153341a5527ba3461e9"
+      "reason": "Host-side producer half of static build retention. Reads the candidate source ONCE into memory (refusing symlinks, special files, hard links, setuid bits, repository/Finder metadata, case aliases and over-limit trees), proves those captured bytes equal the accepted candidate tree, requires the dependency lock and package manifest to equal the frozen build profile, materializes exactly those bytes into a fresh private read-only lease (files 0444/0555, directories 0555, owned by this process) that is verified byte-exact before the container starts and again after it exits, and builds only from that lease in a host-pinned immutable local image with no network, read-only root and source, unprivileged user and fixed CPU/memory/process bounds under a named and labelled container. The bounded Docker runner caps stdout, enforces a wall-clock timeout and force-removes the named container on timeout, overflow or failure. The built dist is read back only as a strictly parsed ustar stream and the provenance claim is signed with an injected issuer signer. A claim is provenance only and never replaces the independent verdict. Holds no key, credential, network, deployment or enrollment authority.",
+      "sha256": "31810089eadc696ded42784fecd12fdccce8c0532f510292e5345902d6f01616"
     },
     "lib/qualification/custody-loader.ts": {
       "classification": "ENFORCED",
@@ -4805,6 +4805,16 @@
       "classification": "ENFORCED",
       "reason": "Productive CODING backend for the retained-executor agent port. Stages 1-2 run as native Factory work through the same LiveFactoryPort dispatch as stage 3: the lazily admitted retained admission is validated against the frozen expectation before any send, dispatch refuses a native ceiling above the charged parent reservation, and start returns only after the exact-identity readback is terminal, quiescent and within the native ceiling; unsettled or repeated starts are ambiguous exposure and never resent. Sofie planning is delegated to an injected runtime. Adds no transport, credential, spend or enrollment authority.",
       "sha256": "12f2e1d9dc98f97c6bf4ac9e7f9e4c84c265c35db99f7b72915c9d0ff12612c4"
+    },
+    "lib/qualification/verifier-runner.ts": {
+      "classification": "ENFORCED",
+      "reason": "Process-backed evaluator runner for the verifier service: starts one owned child process per evaluation under the service's cap, deadline and grace window, enforces output limits, and proves cessation only when the process has exited (killing the process group and running an injected container cleanup otherwise, else reporting not-quiescent). Holds no criteria, key or credential; the command and its protected criteria are the verifier operator's. No spend, enrollment or deployment authority.",
+      "sha256": "b579d6f092ee82e305dc9e7c4aa9cea78f630b2d8fa5ae1c4b5cd49debd46274"
+    },
+    "lib/qualification/verifier-store-pg.ts": {
+      "classification": "ENFORCED",
+      "reason": "Durable verifier store over the verifier's own PostgreSQL database (never the qdev ledger or journal): one append-only HANDED_OFF -> RUNNING -> FINAL row per candidate, with guarded atomic transitions so the single charged evaluation is claimed exactly once across processes and restarts, and triggers that forbid deletes, identity or reserve rewrites and regression of a FINAL row. Holds no credential, key or criteria; no spend, enrollment or deployment authority.",
+      "sha256": "75dfb1d3d6e5cd9ad6c57581113b46734766ace46ffdb8900a6e96606694d92c"
     }
   }
 }
