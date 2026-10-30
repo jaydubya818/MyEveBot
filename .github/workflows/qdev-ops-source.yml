@@ -2,13 +2,31 @@ name: QDEV operations source guards
 
 on:
   push:
-    branches: [codex/qdev-20261030-ops-safety, codex/qdev-20261030-peer-corrections]
+    branches: [codex/qdev-20261030-ops-safety, codex/qdev-20261030-peer-corrections, codex/qdev-20261030-infrastructure-plan]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  infrastructure-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.18.1
+      - name: Offline plan boundaries and price arithmetic
+        run: node --test scripts/qdev-ops/infrastructure/plan.test.mjs
+      - name: CloudFormation schema only (no cloud credentials or resource calls)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/qdev-cfn-lint"
+          "$RUNNER_TEMP/qdev-cfn-lint/bin/python" -m pip install --disable-pip-version-check cfn-lint==1.59.0
+          "$RUNNER_TEMP/qdev-cfn-lint/bin/cfn-lint" --regions us-east-2 --template scripts/qdev-ops/infrastructure/verifier-host.cloudformation.json
   fake-cli:
     strategy:
       matrix:
