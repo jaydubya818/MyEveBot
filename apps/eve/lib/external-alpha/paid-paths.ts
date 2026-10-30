@@ -47,10 +47,13 @@ export function externalAlphaPaidPathDenied(
   pathId: string,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return externalAlphaInstallation(env);
+  // QDEV has its own journey ledger and provider boundary. Existing auxiliary
+  // callers must stay closed even when no external-alpha policy is installed.
+  return env.MYEVE_QDEV_ENABLED === "true" || externalAlphaInstallation(env);
 }
 /** First statement of every denied dispatch site. Absent policy cannot reopen it:
- * the installation name alone is enough to deny. */
+ * the alpha installation name or QDEV switch alone is enough to deny. The
+ * existing error contract is shared by callers that also use the boolean guard. */
 export function denyExternalAlphaPaidPath(
   pathId: string,
   env: NodeJS.ProcessEnv = process.env,

@@ -96,9 +96,9 @@
       "sha256": "23e927d631949436f1f6d7968453a36bc5e2bae37ef95563eaf6c2a88241628d"
     },
     "agent/hooks/task-ledger.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Gate 4 review: External-alpha auxiliary compaction is denied by the compaction.requested hook before framework inference, including ordinary owner sessions; manual ingress is denied.",
-      "sha256": "6f35532d737b4eaecab77e90987ab2bab92eff51baa62dfabd4cad9ce998fe9b"
+      "classification": "ENFORCED",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Gate 4 review: External-alpha auxiliary compaction is denied by the compaction.requested hook before framework inference, including ordinary owner sessions; manual ingress is denied. QDEV original-ledger isolation correction: framework model step and late child/result events skip original task accounting; framework delegation is refused; auxiliary compaction is denied by the shared paid-path guard. The authorized root journey tool remains usable and accounts through its own gate. Actual hook regressions cover no legacy calls and unchanged ordinary-installation behavior. No financial authority is granted.",
+      "sha256": "2525f6f156ccb81887a0f5fcf613eae8e6bc0184c820e2b559da2a21a9d33277"
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
@@ -2246,9 +2246,9 @@
       "sha256": "69b210a05919306382f7866e76f215c81ad609a9c99dd61017255197bc69d057"
     },
     "lib/external-alpha/paid-paths.ts": {
-      "classification": "INTERNAL",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture.",
-      "sha256": "35895337606c76bd6e75ace89407e6a4c665ab9587aab3cc1d24a5241f01548e"
+      "classification": "ENFORCED",
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone. Reviewed dormant Relay MCP memory classification: DENIED before credential resolution/transport under either tester name; no capability registration, Agent connection or paid exposure. Existing paid paths and accounting unchanged. Evidence: paid-path/memory regressions and canonical local wire fixture. QDEV auxiliary-provider isolation correction: the QDEV installation switch alone denies the existing unintegrated paid dispatch sites before provider contact, retaining the existing shared error contract and external-alpha behavior. QDEV uses only the separately governed journey gate. Actual Jev provider and compaction regressions fail before the correction and pass after it; no paid provider used.",
+      "sha256": "c80912a85bdc4d18d2bd18ed81c82ba7b162719b24a802b7d5b181de7eaadb6c"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
