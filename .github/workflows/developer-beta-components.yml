@@ -8,6 +8,7 @@ on:
       - codex/qdev-20261029-admission
       - codex/qdev-20261029-integration
       - codex/qdev-20261030-review-corrections
+      - codex/qdev-20261030-adapters
 
 permissions:
   contents: read
@@ -102,6 +103,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-review-regressions.integration.mjs
       - name: Qualification wiring port contracts
         run: node --import tsx --test apps/eve/test/qualification-wiring.test.mjs
+      - name: Qualification live-client adapters (disabled/fake transports)
+        run: node --import tsx --test apps/eve/test/qualification-adapters.test.mjs
       - name: Qualification runtime boundary contracts
         run: node --import tsx --test apps/eve/test/qualification-runtime.test.mjs
       - name: Factory codec verifies the same MyEve signed vectors

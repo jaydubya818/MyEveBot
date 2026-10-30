@@ -4690,6 +4690,16 @@
       "classification": "ENFORCED",
       "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
       "sha256": "84b47acb3e3920065633995f969b2c41094e6f76864b50d466132c74f91c0e6c"
+    },
+    "lib/qualification/relay-mcp-transport.ts": {
+      "classification": "ENFORCED",
+      "reason": "MyEve client for Relay's private-preview /mcp tool path (Bearer, initialize/tools/list/tools/call). Disabled by default (no I/O unless enabled); https bare origin only; no redirects; bounded responses; JSON-RPC errors returned with HTTP 200 are denials; credential read per call from the host and never placed in errors; only host-mapped tools are visible or callable; never targets /api/v2 or federation. Reached only through RelayDeveloperTools, which authorizes the exact action against the grant first. Synthetic-double tests only; live Relay enrollment NOT_RUN. Independent source review PENDING.",
+      "sha256": "0ef2f186b8e038d44c22c466c07abae022c31671d13aaecf672f1bd81a43ec3f"
+    },
+    "lib/qualification/delivery-observer.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads the bytes served at the delivered application URL (https, no redirects, bounded) and hashes them for delivery acceptance; deploys, installs and writes nothing. Disabled by default. Prior revision and restore point come from injected MyApps readers. Live MyApps NOT_RUN. Independent source review PENDING.",
+      "sha256": "48e51d0d2885dfc16b6ba151d3e85222fe4b68033d669d56e47b00a069eb5c64"
     }
   }
 }
