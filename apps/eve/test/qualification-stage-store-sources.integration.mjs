@@ -12,6 +12,11 @@ import {canonicalAlphaTasksWork} from '../lib/external-alpha/work-tuple.ts';
 import {StoreBackedStageSources,StageSourcesRefused} from '../lib/qualification/factory-stage-store-sources.ts';
 import {FactoryStageAdmitter,FactoryStageAdmissionRefused} from '../lib/qualification/factory-stage-admission.ts';
 import {syntheticFactory} from './qualification-synthetic.mjs';
+import {FactoryReceiptStore} from '../lib/engineering/factory-receipt-store.ts';
+import {FactoryWriterStore} from '../lib/engineering/factory-writer.ts';
+import {capabilityRegistry} from '@mission-control/capability-control';
+import {readFile} from 'node:fs/promises';
+import {closeCapabilityWorkDatabase} from '../lib/capability-control/admission.ts';
 
 const connection=process.env.MYEVE_ISOLATED_COHORT_TEST_DATABASE;
 assert(connection,'Dedicated localhost PostgreSQL fixture URL required; never use DATABASE_URL');
@@ -25,7 +30,7 @@ const pool=new Pool({connectionString:dbUrl.href,max:4});
 const query=async(s,p)=>(await pool.query(s,p)).rows;
 const migrations=await loadMigrations();
 await runMigrations({query,transaction:async statements=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}},migrations);
-test.after(async()=>{await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();});
+test.after(async()=>{await closeCapabilityWorkDatabase();await pool.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');if(globalThis.__qdevRole)await admin.query('DROP ROLE IF EXISTS '+globalThis.__qdevRole);await admin.end();});
 
 const owner=randomUUID(),db={query};
 const store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},db);
@@ -131,4 +136,72 @@ test('identity refuses a writer that is not PREPARED, and the admitter refuses w
   await assert.rejects(new FactoryStageAdmitter(await run('DISPATCHED')).retained(1),code('QDEV_STAGE_WRITER_STATE'));
   await assert.rejects(new FactoryStageAdmitter(sources({1:id,2:'',3:''},{enabled:false})).retained(1),code('QDEV_STAGE_ADMISSION_DISABLED'));
   await assert.rejects(new FactoryStageAdmitter(sources({1:id,2:'',3:''},{admission:async()=>null})).retained(1),code('QDEV_STAGE_ADMISSION_REQUIRED'));
+});
+
+test('REAL register + RouteAdmissionService.admit + FactoryWriterStore: the stage identity is the actually admitted PREPARED writer; a restarted source never admits a second writer',async()=>{
+  const agentId='agent-1';
+  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps) VALUES($1,$2,'Sofie','sofie-real','engineer','qdev stage fixture',true,'active',1.3,3600,30) ON CONFLICT DO NOTHING`,[agentId,owner]);
+  // Capability-control installation fixture (same SQL/evidence shape as the existing owner-route integration), disposable database only.
+  for(const n of ['migration','enforcement','decisions','ordering','lifecycle'])await pool.query(await readFile(new URL('../../../docs/capability-control/'+n+'.sql',import.meta.url),'utf8'));
+  const installation='qdev-installation-'+randomUUID(),ids=capabilityRegistry.capabilities.map(c=>c.id);
+  const facts=Object.fromEntries(capabilityRegistry.capabilities.map(c=>[c.id,{supported:true,deployed:true,entitled:true,administrator:'ALLOW',
+    setup:Object.fromEntries(c.setupRequirements.map(k=>[k,true])),qualification:Object.fromEntries(c.qualificationRequirements.map(k=>[k,'QUALIFIED'])),lifecycle:'ACTIVE'}]));
+  await pool.query("INSERT INTO capability_control.installations VALUES($1,'fixture-organization','qualification',true)",[installation]);
+  await pool.query("INSERT INTO capability_control.platform_owner_bindings VALUES($1,'fixture-organization',$2,'fixture-binding',1,'fixture-auth','fixture-admin','fixture-member','fixture-installation','fixture-audit','ACTIVE',clock_timestamp()+interval '1 hour')",[installation,owner]);
+  await pool.query('INSERT INTO capability_control.owner_state(installation_id,owner_id,preferences) VALUES($1,$2,$3)',[installation,owner,Object.fromEntries(ids.map(i=>[i,'ENABLED']))]);
+  await pool.query("INSERT INTO capability_control.evidence VALUES($1,'fixture-organization',$2,$3,$4,clock_timestamp()-interval '1 second',clock_timestamp()+interval '1 hour','fixture-evidence')",[installation,owner,capabilityRegistry.version,facts]);
+  await pool.query("INSERT INTO capability_control.relay_agent_evidence VALUES($1,$2,'fixture-organization',$3,1,$4,'ACTIVE',clock_timestamp()+interval '1 hour','fixture-agent-record')",[installation,owner,agentId,JSON.stringify(ids)]);
+  await pool.query("INSERT INTO capability_control.policy_destinations VALUES($1,$2,'fixture-mc','fixture-incarnation',1,'fixture-key','{}')",[installation,owner]);
+  await pool.query("INSERT INTO capability_control.policy_changes(installation_id,owner_id,revision,policy_id,organization_id,capability_id,operation,destinations,status) VALUES($1,$2,1,'fixture-policy','fixture-organization','enterprise.fleet','enable','[]','ACKNOWLEDGED')",[installation,owner]);
+  const saved={};for(const [k,v] of Object.entries({MYEVE_CAPABILITY_CONTROL_ENABLED:'true',MYEVE_CAPABILITY_INSTALLATION_ID:installation,MYEVE_CAPABILITY_ENVIRONMENT:'qualification',
+    MYEVE_CAPABILITY_DATABASE_URL:dbUrl.href,MYEVE_CAPABILITY_ORIGIN:'http://127.0.0.1:3000',VERCEL:undefined,VERCEL_ENV:undefined})){saved[k]=process.env[k];if(v===undefined)delete process.env[k];else process.env[k]=v;}
+  // Capability admission refuses a superuser/bypass-RLS runtime, so the atomic transaction runs as a least-privilege role (same grants as the owner-route integration).
+  const role='qdev_rt_'+randomBytes(5).toString('hex');globalThis.__qdevRole=role;
+  await admin.query(`CREATE ROLE ${role} NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
+  for(const sql of [`GRANT USAGE ON SCHEMA public,capability_control TO ${role}`,`GRANT SELECT ON ALL TABLES IN SCHEMA public,capability_control TO ${role}`,
+    `GRANT UPDATE ON engineering_work TO ${role}`,`GRANT INSERT,UPDATE ON missioncontrol_control_attempts TO ${role}`,
+    `GRANT INSERT ON missioncontrol_work_bindings,missioncontrol_execution_permits,missioncontrol_admission_receipts,missioncontrol_permit_controls,missioncontrol_factory_readbacks,missioncontrol_control_acknowledgments TO ${role}`,
+    `GRANT EXECUTE ON FUNCTION capability_control.lock_admission_policy(text,text,text),missioncontrol_capability_snapshot(text,text,text,text),missioncontrol_enrollment_document(text) TO ${role}`,
+    `GRANT EXECUTE ON FUNCTION missioncontrol_assert_dispatch(text,uuid,integer,integer,boolean,text),missioncontrol_assert_alpha_admission(text,uuid,integer,integer,text,text,text) TO ${role}`,
+    `GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO ${role}`,`GRANT UPDATE ON agents,business_partnership TO ${role}`,
+    `GRANT EXECUTE ON FUNCTION business_assert_effect(text,uuid,integer,integer,text,jsonb) TO ${role}`,
+    `GRANT INSERT,UPDATE ON engineering_routing_decisions,engineering_route_runs,engineering_route_transitions,engineering_native_runtime TO ${role}`])await pool.query(sql);
+  await pool.query(`GRANT ${role} TO CURRENT_USER`);
+  const atomicDb={query:db.query,atomic:async action=>{const c=await pool.connect();try{await c.query('BEGIN');await c.query('SET LOCAL ROLE '+role);const r=await action({query:async(sql,v)=>(await c.query(sql,v)).rows});await c.query('COMMIT');return r;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
+  const astore=new WorkStore(store.principal,atomicDb);
+  const id=await seedWork();await pool.query("UPDATE engineering_work_model_budget SET deadline=clock_timestamp()+interval '120 seconds' WHERE work_id=$1",[id]);
+  const e=fx.stage(1,baseline).manifest.execution,rid=randomUUID();
+  const receipts=new FactoryReceiptStore(store.principal,db),writers=new FactoryWriterStore(astore);
+  const cfg=baseConfig();Object.assign(cfg.connection,{factoryId:e.factoryId,factoryVersion:e.factoryVersion,sourceDigest:e.sourceDigest,configurationDigest:e.configurationDigest});
+  const provider={id:cfg.connection.factoryId,version:cfg.connection.factoryVersion},scope={kind:'personal',id:owner};
+  // Authority facts are synthetic seams (no MissionControl enrollment, no provider); the stores, SQL guards and RouteAdmissionService are the real bodies.
+  const realAuthority={...authorityFor(cfg),read:async(work,receiptId,request)=>{
+    const now=Date.now();
+    const contract={contractVersion:2,workId:work.id,workVersion:work.version,criteriaVersion:work.criteriaVersion,scope,humanOwnerId:owner,coordinatingAgentId:agentId,objective:work.objective,
+      criteria:work.criteria.map(c=>({id:c.id,statement:c.statement,evidence:'deterministic'})),resourceRefs:['repository:'+work.repository],allowedOperations:['factory.submit'],budgetUsd:1.3,
+      deadline:request.deadline,policyVersion:1,composition:{role:{id:'software-engineer',version:1},capabilityPacks:[],mode:{id:'normal',version:1}},routingProfile:ROUTING_PROFILE,
+      routePolicy:{id:'personal-factory',version:1},definitionOfDone:['A verified Factory candidate is retained.'],allowedRoutes:['MYFACTORY']};
+    const context={contractVersion:2,workId:work.id,workVersion:work.version,scope,agentId,assembledAt:new Date(now).toISOString(),maxTokens:500,estimatedTokens:50,items:[]};
+    const facts={currentWorkVersion:work.version,currentCriteriaVersion:work.criteriaVersion,currentPolicyVersion:1,workActive:true,scope,agentId,authority:'ALLOW',remainingBudgetUsd:1.3,
+      allowedRoutes:['MYFACTORY'],allowedOperations:['factory.submit'],allowedResourceRefs:['repository:'+work.repository],
+      routePolicy:{id:'personal-factory',version:1,allowedRoutes:['MYFACTORY'],providers:{DIRECT:null,DEEP_AGENT:null,EXECUTOR:null,MYFACTORY:provider,RELAY:null}},
+      qualifications:{DIRECT:null,DEEP_AGENT:null,EXECUTOR:null,MYFACTORY:{provider,scope,status:'QUALIFIED',health:'HEALTHY',evidenceRef:'synthetic',observedAt:new Date(now).toISOString(),expiresAt:new Date(now+3600_000).toISOString()},RELAY:null},
+      writerState:'NONE',factoryAdmission:'ALLOW',relayGrant:'UNKNOWN',peerPolicy:'UNKNOWN',observedAt:new Date(now).toISOString()};
+    return {contract,context,facts,factory:{requestId:receiptId,repository:work.repository,baseSha:request.input.baseRef,profileHash:'5'.repeat(64),allowedPaths:['src/App.tsx'],deadline:request.deadline}};
+  }};
+  const adapter={prepare:async r=>({requestId:r.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'PREPARED',snapshot:{...e,requestId:r.requestId,inputCommit:baseline.commit},spend:{status:'KNOWN',ceilingUsd:1}})};
+  const mk=()=>new StoreBackedStageSources({enabled:true,store:astore,authority:realAuthority,receipts,writers,adapterFor:()=>adapter,workIds:{1:id,2:'',3:''},baseline,predecessor:()=>null,
+    admission:async()=>null,eligibility:()=>({admitted:true,reasons:[]}),newRequestId:()=>rid});
+  // The admitter refuses a null MissionControl proof by design, so the sources are driven directly with a null proof: receipts, RouteAdmissionService and the writer store are real.
+  const drive=async src=>{const w=await src.work(1),st=await src.start(1),req=await src.request(1,st);await src.missionControl(1,w);
+    const readback=await src.prepare(req,null);return {req,identity:await src.identity(1,w,readback,req)};};
+  const {req,identity}=await drive(mk());
+  const runs=await query('SELECT id,status FROM engineering_route_runs WHERE work_id=$1',[id]);
+  assert.equal(runs.length,1,'exactly one real run admitted');
+  assert.equal((await writers.inspect(id,runs[0].id)).dispatch_state,'PREPARED');
+  assert.equal(identity.runId,runs[0].id);assert.equal(identity.workId,id);assert.equal(identity.baseSha,baseline.commit);assert.equal(req.input.baseRef,baseline.commit);
+  assert.equal((await query('SELECT count(*)::int n FROM engineering_factory_requests WHERE work_id=$1',[id]))[0].n,1);
+  // A restarted source reuses the persisted preparation, but the already admitted decision fails closed instead of admitting a second writer.
+  const again=await drive(mk()).then(()=>null,e=>e);assert.equal(again?.code,'routing_changed','an already admitted decision fails closed');
+  assert.equal((await query('SELECT count(*)::int n FROM engineering_route_runs WHERE work_id=$1',[id]))[0].n,1,'no second writer');
 });
