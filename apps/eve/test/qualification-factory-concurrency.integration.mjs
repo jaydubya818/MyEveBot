@@ -44,6 +44,7 @@ const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {
 
 
 import {LiveFactoryPort} from '../lib/qualification/factory-live-port.ts';
+import {prepareAuthenticatedLocalFactoryInputV4} from '../lib/engineering/factory-authenticated-result.ts';
 import {syntheticFactory} from './qualification-synthetic.mjs';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 try {
@@ -62,7 +63,7 @@ try {
     result:async()=>({state:'RUNNING',result:null})}});
   await port.ready(1);
   const gate=new QualificationGate(x.accounting);
-  const first=gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-ack',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(port.admit(1,fx.baseline))});
+  const first=gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-ack',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))});
   await sleep(300);
   const stateWhileRunning=(await x.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state;
   let successor;
@@ -87,9 +88,9 @@ try {
     read:async()=>({requestId:e.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'RUNNING',quiescent:false,evidenceRef:null,accounting:{activeMicrousd:1,unknownMicrousd:0,settledMicrousd:0}}),result:async()=>({state:'RUNNING',result:null})}});
   await port.ready(1);
   const gate=new QualificationGate(x.accounting);
-  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(port.admit(1,fx.baseline))}),e2=>/QDEV_EXPOSURE_UNKNOWN/.test(e2.message));
+  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))}),e2=>/QDEV_EXPOSURE_UNKNOWN/.test(e2.message));
   assert.equal(dispatches,1);
-  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(port.admit(1,fx.baseline))}));
+  await assert.rejects(gate.run({admission:one.admission,allowanceId:one.allowance,operationKey:'factory-timeout',purpose:'FACTORY',reserveMicrousd:1300000,send:()=>port.dispatch(prepareAuthenticatedLocalFactoryInputV4(port.admit(1,fx.baseline)))}));
   assert.equal(dispatches,1,'a second claim never reaches the Factory');
  });
 } finally {
