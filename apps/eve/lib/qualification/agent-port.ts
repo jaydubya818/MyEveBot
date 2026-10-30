@@ -1,7 +1,7 @@
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import type { AgentPort, AgentExecution } from "./wiring.ts";
 import type { RelayDeveloperTools } from "./relay-tools.ts";
-import type { QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
+import { QDEV_LIMITS, type QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
 
 /**
  * Disabled-by-default Sofie / Deep Agent adapter for the qdev journey.
@@ -22,6 +22,8 @@ import type { QualificationPurpose } from "../external-alpha/qualification-accou
 export type AgentTask = {
   stage: number; key: string; purpose: "SOFIE" | "CODING"; ownerId: string; slot: "Q1" | "Q2";
   projectSha256: string; sourceSha256: string; relay: RelayDeveloperTools;
+  /** The actual charged parent reservation; execution backends must bound all child spend by it. */
+  reserveMicrousd: number;
 };
 export type AgentRunRecord = {
   /** Only a host-owned executor record is trusted; anything else (model text, tool output) is refused. */
@@ -64,12 +66,13 @@ export class DeepAgentAdapter implements AgentPort {
     if (!this.c.port.available()) refuse("QDEV_AGENT_UNAVAILABLE");
   }
 
-  async run(op: { stage: number; key: string; purpose: QualificationPurpose }, relay: RelayDeveloperTools): Promise<Outcome> {
+  async run(op: { stage: number; key: string; purpose: QualificationPurpose; reserveMicrousd: number }, relay: RelayDeveloperTools): Promise<Outcome> {
     let task: AgentTask;
     try {
       this.admit({ ownerId: this.c.ownerId, purpose: op.purpose, projectSha256: this.c.projectSha256, sourceSha256: this.c.sourceSha256 });
+      if (!Number.isSafeInteger(op.reserveMicrousd) || op.reserveMicrousd < 1 || op.reserveMicrousd > QDEV_LIMITS.perWorkMicrousd) throw new AgentPortRefused("QDEV_AGENT_BUDGET");
       task = { stage: op.stage, key: op.key, purpose: op.purpose as "SOFIE" | "CODING", ownerId: this.c.ownerId, slot: this.c.slot,
-        projectSha256: this.c.projectSha256, sourceSha256: this.c.sourceSha256, relay };
+        projectSha256: this.c.projectSha256, sourceSha256: this.c.sourceSha256, relay, reserveMicrousd: op.reserveMicrousd };
     } catch { throw new ProviderNotSent("agent admission refused"); }
     let handle: string;
     try { handle = (await this.c.port.start(task)).handle; }
