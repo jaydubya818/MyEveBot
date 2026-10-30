@@ -37,7 +37,7 @@ test('Relay execution re-authorizes the exact action before the transport is tou
 test('Relay rejects a foreign write base and canonical path aliases before transport',async()=>{
   const t=transport(),r=new RelayDeveloperTools(grant(),t),write={name:'write_file',kind:'write_contents'};
   await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,baseCommit:'e'.repeat(40),path:'src/app.ts'}),e=>e.code==='QDEV_RELAY_BASE_DENIED');
-  for(const path of ['./.github/workflows/ci.yml','.github/./workflows/ci.yml','.github//workflows/ci.yml','/.github/workflows/ci.yml','src/../.github/workflows/ci.yml','.github\\workflows\\ci.yml'])
+  for(const path of ['./.github/workflows/ci.yml','.github/./workflows/ci.yml','.github//workflows/ci.yml','/.github/workflows/ci.yml','src/../.github/workflows/ci.yml','.github\\workflows\\ci.yml','.GitHub/Workflows/ci.yml','.github/ACTIONS/x/action.yml'])
     await assert.rejects(r.execute(write,{branch:QDEV_BASELINE.outputBranch,path}),e=>e.code==='QDEV_RELAY_PATH_DENIED',path);
   assert.equal(t.calls.length,0);
 });

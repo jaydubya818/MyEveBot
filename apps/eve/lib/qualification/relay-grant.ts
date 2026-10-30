@@ -45,7 +45,7 @@ export function authorizeRelayAction(grant: RelayDeveloperGrant, action: RelayAc
       // workflow/action directories before the transport normalizes a path.
       if (typeof action.path !== "string" || !action.path || action.path.startsWith("/") || action.path.includes("\\")
         || action.path.split("/").some(part => !part || part === "." || part === "..")
-        || /^\.github\/(workflows|actions)(\/|$)/.test(action.path))
+        || /^\.github\/(workflows|actions)(\/|$)/i.test(action.path))
         throw new RelayDenied("QDEV_RELAY_PATH_DENIED");
       return true;
     }

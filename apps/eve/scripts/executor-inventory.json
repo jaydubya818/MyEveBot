@@ -4649,7 +4649,7 @@
     "lib/qualification/relay-grant.ts": {
       "classification": "INTERNAL",
       "reason": "Pure MyEve-side Relay developer grant denial matrix. Checks the exact write base and canonical relative paths before workflow/action denial; holds no token and performs no Relay call. Codex-authored correction; independent review PENDING; fingerprint pins exact bytes.",
-      "sha256": "2825945d65f98a51d57a247b7df01c1f641f3b22c297c4ed5170dd27f910bc0c"
+      "sha256": "089d1604ccbe711b2a174ada98bc29fabf4c22f237a1d7de910d37fe907daf20"
     },
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
