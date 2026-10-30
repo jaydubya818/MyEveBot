@@ -96,3 +96,24 @@ test('the delivery observer is disabled by default, https-only, bounded and fail
   await assert.rejects(observeServedDelivery(obsCfg({fetcher:async()=>new Response('x',{status:500})}),cand),e=>e.code==='QDEV_DELIVERY_UNAVAILABLE');
   await assert.rejects(observeServedDelivery(obsCfg({restorePointId:async()=>''}),cand),e=>e.code==='QDEV_DELIVERY_INVALID');
 });
+
+test('malformed MCP replies fail closed: wrong id, missing/duplicate result-error, extra keys, wrong result shape',async()=>{
+  const cases={
+    wrongId:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id+999,result:{content:[]}}),
+    nullId:rpc=>Response.json({jsonrpc:'2.0',id:null,result:{content:[]}}),
+    neither:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id}),
+    both:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id,result:{content:[]},error:{code:-1,message:'x'}}),
+    extraKey:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id,result:{content:[]},extra:1}),
+    nullResult:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id,result:null}),
+    noContent:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id,result:{}}),
+    arrayBody:()=>Response.json([]),
+    badError:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id,error:'nope'}),
+  };
+  for(const [name,reply] of Object.entries(cases)){
+    const {t}=make({},relay({hook:rpc=>rpc.method==='tools/call'?reply(rpc):undefined}));
+    await assert.rejects(t.execute('github_read_file',{}),e=>e instanceof RelayMcpError&&e.code==='QDEV_RELAY_INVALID_RESPONSE',name);
+  }
+  const {t:bad}=make({},relay({hook:rpc=>rpc.method==='initialize'?Response.json({jsonrpc:'2.0',id:rpc.id,result:{}}):undefined}));
+  await assert.rejects(bad.discover(),e=>e.code==='QDEV_RELAY_INVALID_RESPONSE');
+  const {t:ok}=make();assert.deepEqual(await ok.execute('github_read_file',{}),[{type:'text',text:'done'}]);
+});

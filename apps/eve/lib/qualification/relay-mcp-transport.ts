@@ -28,12 +28,13 @@ export class RelayMcpTransport implements RelayTransport {
   }
   private async rpc(method: string, params?: Record<string, unknown>): Promise<any> {
     if (!this.config.enabled) throw new RelayMcpError("QDEV_RELAY_MCP_DISABLED");
+    const id = this.nextId++;
     let response: Response;
     try {
       response = await (this.config.fetcher ?? fetch)(new URL("/mcp", this.config.origin), {
         method: "POST", redirect: "error", signal: AbortSignal.timeout(this.config.timeoutMs ?? 15000),
         headers: { "content-type": "application/json", accept: "application/json", authorization: `Bearer ${await this.config.credential()}` },
-        body: JSON.stringify({ jsonrpc: "2.0", id: this.nextId++, method, ...(params ? { params } : {}) }),
+        body: JSON.stringify({ jsonrpc: "2.0", id, method, ...(params ? { params } : {}) }),
       });
     } catch { throw new RelayMcpError("QDEV_RELAY_UNAVAILABLE"); }
     if (response.status === 401) throw new RelayMcpError("QDEV_RELAY_CREDENTIAL");
@@ -42,16 +43,23 @@ export class RelayMcpTransport implements RelayTransport {
     if (text.length > (this.config.maxBytes ?? 262144)) throw new RelayMcpError("QDEV_RELAY_RESPONSE_TOO_LARGE");
     let body: any;
     try { body = JSON.parse(text); } catch { throw new RelayMcpError("QDEV_RELAY_INVALID_RESPONSE"); }
-    if (!body || body.jsonrpc !== "2.0") throw new RelayMcpError("QDEV_RELAY_INVALID_RESPONSE");
-    if (body.error) {
+    // Fail closed: exact request id, exactly one of result/error, nothing else.
+    const invalid = () => new RelayMcpError("QDEV_RELAY_INVALID_RESPONSE");
+    if (!body || typeof body !== "object" || Array.isArray(body) || body.jsonrpc !== "2.0" || body.id !== id) throw invalid();
+    const hasResult = Object.hasOwn(body, "result"), hasError = Object.hasOwn(body, "error");
+    if (hasResult === hasError || Object.keys(body).some(k => !["jsonrpc", "id", "result", "error"].includes(k))) throw invalid();
+    if (hasError) {
+      if (!body.error || typeof body.error !== "object" || Array.isArray(body.error)) throw invalid();
       const raw = String(body.error.data?.code ?? body.error.code ?? "ERROR");
       throw new RelayMcpError("QDEV_RELAY_" + (/^[A-Z_]{1,40}$/.test(raw) ? raw : "ERROR"));
     }
+    if (!body.result || typeof body.result !== "object" || Array.isArray(body.result)) throw invalid();
     return body.result;
   }
   private async ready() {
     if (this.initialized) return;
-    await this.rpc("initialize", { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "myeve-qdev", version: "1" } });
+    const init = await this.rpc("initialize", { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "myeve-qdev", version: "1" } });
+    if (typeof init.protocolVersion !== "string") throw new RelayMcpError("QDEV_RELAY_INVALID_RESPONSE");
     this.initialized = true;
   }
   async discover(): Promise<RelayTool[]> {
@@ -65,7 +73,8 @@ export class RelayMcpTransport implements RelayTransport {
     if (!Object.hasOwn(this.config.tools, name)) throw new RelayMcpError("QDEV_RELAY_TOOL_UNMAPPED");
     await this.ready();
     const result = await this.rpc("tools/call", { name, arguments: args });
-    if (result?.isError === true) throw new RelayMcpError("QDEV_RELAY_TOOL_ERROR");
-    return result?.content ?? null;
+    if (result.isError === true) throw new RelayMcpError("QDEV_RELAY_TOOL_ERROR");
+    if (!Array.isArray(result.content)) throw new RelayMcpError("QDEV_RELAY_INVALID_RESPONSE");
+    return result.content;
   }
 }
