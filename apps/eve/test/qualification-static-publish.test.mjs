@@ -55,7 +55,9 @@ const verdictFrom=(c,buildArtifactSha256)=>{
 };
 
 
-import {mkdtempSync,mkdirSync,writeFileSync,chmodSync,statSync,symlinkSync,readFileSync,existsSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,chmodSync,statSync,symlinkSync,readFileSync,readdirSync,existsSync,rmSync} from 'node:fs';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -104,9 +106,9 @@ test('nothing installed serves 404; the same artifact is idempotent; a new artif
   assert.equal((await c.publish(a1)).changed,false);
   const r2=await c.publish(a2);assert.equal(r2.version,2);assert.equal(await text(await get(hd,'/')),'<html>v2</html>');
   const plan=await planFrom(reader);assert.equal(plan.kind,'RESTORE_REVISION');assert.equal(plan.revisionId,'app-1@1');
-  assert.deepEqual(await c.rollback(plan),{installed:1,changed:true});
+  assert.deepEqual(await c.rollback(plan),{installed:1,changed:true,seq:3});
   assert.equal(await text(await get(hd,'/')),'<html>v1</html>');
-  assert.deepEqual(await c.rollback(plan),{installed:1,changed:false});
+  assert.deepEqual(await c.rollback(plan),{installed:1,changed:false,seq:3});
   assert.equal((await c.publish(a2)).version,3,'versions are never reused');
   assert.deepEqual(await c.stateSource().read('app-1'),{installedVersion:3,installedDigest:a2.artifactDigest,restorableVersions:[1,2,3]});
 });
@@ -131,10 +133,10 @@ test('a first installation is removed back to authenticated absence',async()=>{
   const root=mkroot(),c=ctl(root),hd=c.handler(),reader=readerFor(c);await reader.capture();
   await c.publish(await art(F1));assert.equal((await get(hd,'/')).status,200);
   const plan=await planFrom(reader);assert.equal(plan.kind,'REMOVE_INSTALLATION');
-  assert.deepEqual(await c.rollback(plan),{installed:null,changed:true});
+  assert.deepEqual(await c.rollback(plan),{installed:null,changed:true,seq:2});
   const gone=await get(hd,'/');assert.equal(gone.status,404);
   assert.deepEqual(await c.stateSource().read('app-1'),{installedVersion:null,installedDigest:null,restorableVersions:[1]});
-  assert.deepEqual(await c.rollback(plan),{installed:null,changed:false});
+  assert.deepEqual(await c.rollback(plan),{installed:null,changed:false,seq:2});
 });
 
 test('a modified, extended or linked release is never served, restorable or reinstalled',async()=>{
@@ -160,7 +162,7 @@ test('every mutation needs the host activation permit; without it nothing is wri
   const no=ctl(root,{activation:{permit:async r=>{seen.push(r);return false;}}});
   await assert.rejects(no.publish(a1),code('QDEV_PUBLISH_NOT_AUTHORIZED'));
   assert.deepEqual(seen,[{operation:'PUBLISH',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,digest:a1.artifactDigest}]);
-  assert.equal(existsSync(join(root,'state.json')),false);assert.equal(existsSync(join(root,'releases',hexOf(a1))),false);
+  assert.deepEqual(readdirSync(join(root,'states')),[]);assert.equal(existsSync(join(root,'releases',hexOf(a1))),false);
   assert.equal((await off.handler()(new Request('https://app.invalid/'))).status,404);
   const yes=ctl(root);await yes.publish(a1);const reader=readerFor(yes);await reader.capture();await yes.publish(await art(F2,'2'));
   await assert.rejects(off.rollback(await planFrom(reader)),code('QDEV_PUBLISH_NOT_AUTHORIZED'));
@@ -177,17 +179,48 @@ test('state is owner, project and app scoped; foreign state is refused; only ret
   await assert.rejects(ctl(mkroot()).publish(fake),code('QDEV_PUBLISH_NOT_RETAINED'));
 });
 
-test('concurrent publishers on one root serialize without a lost update; stale locks recover; live locks refuse',async()=>{
+test('concurrent publishers on one root commit by exclusive-create CAS: no lost update, every success is in the history',async()=>{
   const root=mkroot(),c1=ctl(root),c2=ctl(root),a1=await art(F1,'1'),a2=await art(F2,'2');
   const [r1,r2]=await Promise.all([c1.publish(a1),c2.publish(a2)]);
   assert.deepEqual([r1.version,r2.version].sort(),[1,2]);
   assert.deepEqual((await c1.stateSource().read('app-1')).restorableVersions,[1,2]);
-  const events=JSON.parse(readFileSync(join(root,'state.json'),'utf8')).events;assert.deepEqual(events.map(e=>e.seq),[1,2]);
-  let dead=999_999;try{process.kill(dead,0);dead=0;}catch{}
-  if(dead){writeFileSync(join(root,'lock'),String(dead));assert.equal((await c1.publish(await art(F1,'4'))).version,3);}
-  writeFileSync(join(root,'lock'),String(process.pid));
-  await assert.rejects(ctl(root,{lockWaitMs:80}).publish(await art(F2,'5')),code('QDEV_PUBLISH_BUSY'));
-  rmSync(join(root,'lock'));
+  const files=readdirSync(join(root,'states')).sort();assert.deepEqual(files,['0000000001.json','0000000002.json']);
+  const last=JSON.parse(readFileSync(join(root,'states',files[1]),'utf8'));assert.deepEqual(last.events.map(e=>e.seq),[1,2]);
+  assert.equal(statSync(join(root,'states',files[0])).mode&0o777,0o444,'committed states are read-only');
+});
+
+test('many real OS processes racing on one root never lose or duplicate a committed publication',async()=>{
+  const worker=fileURLToPath(new URL('./qualification-static-publish-worker.mjs',import.meta.url));
+  for(let round=0;round<6;round++){
+    const root=mkroot();ctl(root);
+    const run=seed=>new Promise((resolve,reject)=>{
+      const child=spawn(process.execPath,['--import','tsx',worker,root,seed,PROJECT],{stdio:['ignore','pipe','inherit']});let out='';
+      child.stdout.on('data',d=>{out+=d;});child.on('error',reject);child.on('close',code=>code===0?resolve(JSON.parse(out)):reject(new Error('worker '+code+' '+out)));
+    });
+    const results=await Promise.all(['1','2','3'].map(run));
+    assert.deepEqual(results.map(r=>r.version).sort(),[1,2,3],'round '+round);assert.ok(results.every(r=>r.changed));
+    const files=readdirSync(join(root,'states')).sort();assert.equal(files.length,3);
+    const last=JSON.parse(readFileSync(join(root,'states',files.at(-1)),'utf8'));
+    assert.deepEqual(last.versions.map(v=>v.digest).sort(),results.map(r=>r.digest.slice(7)).sort(),'history holds exactly the successful publications');
+  }
+});
+
+test('compensation is a compare-and-swap: a newer release published during a delayed observation is never undone',async()=>{
+  const c=await compose(),prior=await art(F1,'6'),newer=await art(F2,'7');
+  const d=deliveryFor(c,{tamper:true});
+  await d.controller.publish(prior);
+  const other=ctl(d.root,{projectSha256:c.binding.projectSha256});
+  // The observation is delayed while another permitted publisher commits a newer release.
+  const original=d.hd;let raced=false;
+  const slowed=new StaticPublishingMyAppsPort({build:new StaticBuildMyAppsPort({now:()=>NOW,source:async()=>({inventory:c.inventory,claim:c.claimFor(),load:c.load,lockSha256:h('a'),binding:c.bind,issuer:c.issuer}),
+    delivery:{enabled:true,environment:ENV,servedOrigin:'https://app.invalid',projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,
+      priorRevision:async()=>d.reader.priorRevision(),restorePointId:async()=>d.reader.restorePointId(),now:()=>new Date('2026-10-30T01:00:00Z'),
+      fetcher:async url=>{if(!raced){raced=true;await other.publish(newer);}const r=await original(new Request(url));return new URL(url).pathname==='/app.js'?new Response('tampered'):r;}}}),
+    controller:d.controller,reader:d.reader,installation:INST,gate:async cand=>verdictFrom(c,cand.buildArtifactSha256)});
+  await slowed.retainBuild(c.candidate);
+  await assert.rejects(slowed.observe(c.candidate),code('QDEV_PUBLISH_COMPENSATION_SUPERSEDED'));
+  assert.equal(await text(await get(d.hd,'/')),'<html>v2</html>','the newer release stays served');
+  const st=await d.controller.stateSource().read('app-1');assert.equal(st.installedDigest,newer.artifactDigest);assert.equal(st.installedVersion,3);
 });
 
 test('the release root must be a private directory owned by this user',async()=>{

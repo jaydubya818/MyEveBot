@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import {
   chmodSync, closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync,
-  renameSync, rmSync, writeSync, type Stats,
+  linkSync, renameSync, rmSync, writeSync, type Stats,
 } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import { dirname, join } from "node:path";
@@ -17,7 +17,8 @@ import type { RollbackPlan } from "./rollback.ts";
  *  - Owner/project/app scoped: the durable state is bound to one (appId, ownerId, projectSha256) and refuses any other.
  *  - Immutable releases: `releases/<artifact hex>/` is written once from the retained bytes (0444 files, 0555 dirs), then
  *    re-verified byte-for-byte (manifest digest, every file, no extra entries, no links) before it can be installed or restored.
- *  - One atomic pointer: `state.json` (tmp + fsync + rename + dir fsync) names the installed version. Rollback moves the pointer to a
+ *  - One atomic pointer: the state is an append-only sequence of immutable files committed by link(2) (exclusive create of the next
+ *    sequence number = lock-free compare-and-swap; a concurrent writer loses with a conflict and re-evaluates). Rollback moves the pointer to a
  *    retained version whose digest and restore-point id exactly match the plan; nothing is deleted or rewritten.
  *  - Serving reads the installed release, verifies each file's length and sha256 against the manifest on every response, and fails
  *    closed (404 when nothing is installed, 500 on any integrity mismatch).
@@ -29,10 +30,10 @@ export class StaticPublishRefused extends Error { constructor(readonly code: str
 export type ActivationOperation = "PUBLISH" | "ROLLBACK";
 export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; digest: string; version?: number };
 export type StaticReleaseConfig = {
-  /** Private directory (0700, this uid, not a symlink) holding releases/ and state.json. */
+  /** Private directory (0700, this uid, not a symlink) holding releases/ and states/. */
   root: string; environment: "myeve-qdev-20261029"; appId: string; ownerId: string; projectSha256: string; installationId: string;
   activation?: { permit(request: ActivationRequest): Promise<boolean> };
-  now?: () => Date; maxVersions?: number; lockWaitMs?: number;
+  now?: () => Date; maxVersions?: number;
 };
 type Version = { version: number; digest: string; publishedAt: string };
 type State = {
@@ -93,55 +94,57 @@ export class StaticReleaseController {
     const st = lstatSync(root);
     if (st.isSymbolicLink() || !st.isDirectory() || (st.mode & 0o077) !== 0 || (typeof process.getuid === "function" && st.uid !== process.getuid())) throw new StaticPublishRefused("QDEV_PUBLISH_ROOT");
     mkdirSync(join(root, "releases"), { recursive: true, mode: 0o700 });
+    mkdirSync(join(root, "states"), { recursive: true, mode: 0o700 });
   }
 
-  private get statePath() { return join(this.c.root, "state.json"); }
+  private get statesDir() { return join(this.c.root, "states"); }
   private releaseDir(hex: string) { return join(this.c.root, "releases", hex); }
   private now() { return (this.c.now?.() ?? new Date()).toISOString(); }
+  private initialState(): State {
+    return { schema: "myeve.qdev-static-release-state/v1", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, seq: 0, installed: null, versions: [], events: [] };
+  }
 
+  /** The state is an append-only sequence of immutable files states/<seq>.json; the installed pointer is the highest one. */
   private loadState(): State {
-    let raw: Buffer;
-    try { raw = readNoFollow(this.statePath, MAX_STATE); }
-    catch (e) {
-      try { lstatSync(this.statePath); } catch { return { schema: "myeve.qdev-static-release-state/v1", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, seq: 0, installed: null, versions: [], events: [] }; }
-      throw e;
-    }
+    const names = readdirSync(this.statesDir).filter(n => !n.startsWith(".tmp-"));
+    if (names.some(n => !/^[0-9]{10}\.json$/.test(n))) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
+    names.sort();
+    names.forEach((n, i) => { if (Number(n.slice(0, 10)) !== i + 1) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); });
+    if (!names.length) return this.initialState();
     let s: State;
-    try { s = JSON.parse(raw.toString("utf8")); } catch { throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); }
-    if (s?.schema !== "myeve.qdev-static-release-state/v1" || !Array.isArray(s.versions) || !Array.isArray(s.events) || !Number.isInteger(s.seq)) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
+    try { s = JSON.parse(readNoFollow(join(this.statesDir, names.at(-1)!), MAX_STATE).toString("utf8")); } catch { throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); }
+    if (s?.schema !== "myeve.qdev-static-release-state/v1" || !Array.isArray(s.versions) || !Array.isArray(s.events) || s.seq !== names.length) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
     if (s.appId !== this.c.appId || s.ownerId !== this.c.ownerId || s.projectSha256 !== this.c.projectSha256) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_FOREIGN");
     if (s.installed !== null && !s.versions.some(v => v.version === s.installed)) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
     return s;
   }
-  private saveState(next: State, expectedSeq: number) {
-    if (this.loadState().seq !== expectedSeq) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_CONFLICT");
-    const tmp = join(this.c.root, "state.json." + randomBytes(6).toString("hex"));
-    const fd = openSync(tmp, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
+  /**
+   * Atomic compare-and-swap with no lock: the next state is fully written and fsynced to a private temp file, then committed by
+   * link(2) to states/<seq+1>.json, which fails with EEXIST if any other writer already committed that sequence number. Exactly one
+   * of any number of concurrent writers based on the same state wins; the others get QDEV_PUBLISH_STATE_CONFLICT and re-evaluate.
+   */
+  private commit(next: State, expectedSeq: number) {
+    if (next.seq !== expectedSeq + 1) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
+    const tmp = join(this.statesDir, ".tmp-" + randomBytes(8).toString("hex"));
+    const fd = openSync(tmp, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o444);
     try { writeSync(fd, JSON.stringify(next)); fsyncSync(fd); } finally { closeSync(fd); }
-    renameSync(tmp, this.statePath);
-    fsyncDir(this.c.root);
+    try { linkSync(tmp, join(this.statesDir, String(next.seq).padStart(10, "0") + ".json")); }
+    catch (e) { if ((e as NodeJS.ErrnoException).code === "EEXIST") throw new StaticPublishRefused("QDEV_PUBLISH_STATE_CONFLICT"); throw e; }
+    finally { try { rmSync(tmp); } catch { /* already gone */ } }
+    fsyncDir(this.statesDir);
   }
-
-  private async locked<T>(fn: () => T | Promise<T>): Promise<T> {
-    const run = this.chain.then(() => this.fileLocked(fn));
+  /** Serializes within this process (fewer conflicts) and retries on a lost CAS; correctness never depends on the serialization. */
+  private async mutate<T>(fn: (state: State) => { next: State; result: T } | { result: T }): Promise<T> {
+    const run = this.chain.then(async () => {
+      for (let attempt = 0; ; attempt++) {
+        const state = this.loadState(), out = fn(state);
+        if (!("next" in out)) return out.result;
+        try { this.commit(out.next, state.seq); return out.result; }
+        catch (e) { if (e instanceof StaticPublishRefused && e.code === "QDEV_PUBLISH_STATE_CONFLICT" && attempt < 16) { await sleep(5 + attempt * 5); continue; } throw e; }
+      }
+    });
     this.chain = run.catch(() => undefined);
     return run;
-  }
-  private async fileLocked<T>(fn: () => T | Promise<T>): Promise<T> {
-    const lock = join(this.c.root, "lock"), deadline = Date.now() + (this.c.lockWaitMs ?? 2000);
-    for (;;) {
-      try { const fd = openSync(lock, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600); try { writeSync(fd, String(process.pid)); } finally { closeSync(fd); } break; }
-      catch (e) {
-        if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e;
-        let pid = NaN; try { pid = Number(readFileSync(lock, "utf8")); } catch { /* vanished */ }
-        if (Number.isInteger(pid) && pid > 0) {
-          try { process.kill(pid, 0); } catch (k) { if ((k as NodeJS.ErrnoException).code === "ESRCH") { try { rmSync(lock); } catch { /* raced */ } continue; } }
-        }
-        if (Date.now() >= deadline) throw new StaticPublishRefused("QDEV_PUBLISH_BUSY");
-        await sleep(20);
-      }
-    }
-    try { return await fn(); } finally { try { rmSync(lock); } catch { /* already gone */ } }
   }
   private async permit(operation: ActivationOperation, hex: string, version?: number) {
     const ok = await this.c.activation?.permit({ operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) });
@@ -201,53 +204,62 @@ export class StaticReleaseController {
     this.verifyRelease(hex);
   }
 
-  /** Install the exact retained artifact as the served revision. Idempotent for the already-installed digest. */
-  async publish(artifact: StaticArtifactCandidate): Promise<{ appId: string; version: number; digest: string; changed: boolean }> {
+  /** Install the exact retained artifact as the served revision. Idempotent for the already-installed digest. `seq` identifies the committed state for compensation. */
+  async publish(artifact: StaticArtifactCandidate): Promise<{ appId: string; version: number; digest: string; changed: boolean; seq: number }> {
     if (!isRetainedStaticArtifact(artifact)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     const hex = artifact.artifactDigest.replace(/^sha256:/, "");
     if (!HEX.test(hex)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     await this.permit("PUBLISH", hex);
-    return this.locked(() => {
-      const s = this.loadState(), seq = s.seq;
-      this.writeRelease(artifact, hex);
+    this.loadState();   // refuse a foreign or invalid state before writing anything
+    this.writeRelease(artifact, hex);
+    return this.mutate(s => {
       const current = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
-      if (current?.digest === hex) return { appId: this.c.appId, version: current.version, digest: "sha256:" + hex, changed: false };
+      const done = (version: number, seq: number, changed: boolean) => ({ appId: this.c.appId, version, digest: "sha256:" + hex, changed, seq });
+      if (current?.digest === hex) return { result: done(current.version, s.seq, false) };
       if (s.versions.length >= (this.c.maxVersions ?? 64)) throw new StaticPublishRefused("QDEV_PUBLISH_HISTORY_FULL");
-      const version = (s.versions.at(-1)?.version ?? 0) + 1, at = this.now();
-      const next: State = { ...s, seq: seq + 1, installed: version,
-        versions: [...s.versions, { version, digest: hex, publishedAt: at }], events: [...s.events, { seq: seq + 1, kind: "PUBLISH", version, at }] };
-      this.saveState(next, seq);
-      return { appId: this.c.appId, version, digest: "sha256:" + hex, changed: true };
+      this.verifyRelease(hex);
+      const version = (s.versions.at(-1)?.version ?? 0) + 1, at = this.now(), seq = s.seq + 1;
+      const next: State = { ...s, seq, installed: version, versions: [...s.versions, { version, digest: hex, publishedAt: at }], events: [...s.events, { seq, kind: "PUBLISH", version, at }] };
+      return { next, result: done(version, seq, true) };
     });
   }
 
-  /** Move the served pointer exactly as planned by planRollback. Nothing is deleted; the restore target is re-verified first. */
-  async rollback(plan: RollbackPlan): Promise<{ installed: number | null; changed: boolean }> {
+  /**
+   * Move the served pointer exactly as planned by planRollback. Nothing is deleted; the restore target is re-verified first.
+   * `expected` makes the move a compensation: it applies only while the committed state is still exactly the one the caller
+   * published (sequence, installed version and digest); any newer commit refuses with QDEV_PUBLISH_COMPENSATION_SUPERSEDED
+   * and a newer release is never undone.
+   */
+  async rollback(plan: RollbackPlan, expected?: { seq: number; version: number; digest: string }): Promise<{ installed: number | null; changed: boolean; seq: number }> {
     if (plan?.installation?.environment !== this.c.environment || plan.installation.installationId !== this.c.installationId) throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
+    const superseded = (s: State) => {
+      if (!expected) return;
+      const cur = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
+      if (s.seq !== expected.seq || cur?.version !== expected.version || "sha256:" + cur.digest !== expected.digest) throw new StaticPublishRefused("QDEV_PUBLISH_COMPENSATION_SUPERSEDED");
+    };
     if (plan.kind === "RESTORE_REVISION") {
       const m = /^(.+)@([1-9][0-9]*)$/.exec(plan.revisionId);
       if (!m || m[1] !== this.c.appId || !HEX.test(plan.revisionSha256)) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
       const target = Number(m[2]);
       await this.permit("ROLLBACK", plan.revisionSha256, target);
-      return this.locked(() => {
-        const s = this.loadState(), v = s.versions.find(x => x.version === target);
+      return this.mutate<{ installed: number | null; changed: boolean; seq: number }>(s => {
+        superseded(s);
+        const v = s.versions.find(x => x.version === target);
         if (!v || v.digest !== plan.revisionSha256 || plan.restorePointId !== `myapps-restore:${this.c.appId}@${target}:${v.digest.slice(0, 16)}`) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
         this.verifyRelease(v.digest);
-        if (s.installed === target) return { installed: target, changed: false };
-        const at = this.now();
-        this.saveState({ ...s, seq: s.seq + 1, installed: target, events: [...s.events, { seq: s.seq + 1, kind: "ROLLBACK", version: target, at }] }, s.seq);
-        return { installed: target, changed: true };
+        if (s.installed === target) return { result: { installed: target, changed: false, seq: s.seq } };
+        const at = this.now(), seq = s.seq + 1;
+        return { next: { ...s, seq, installed: target, events: [...s.events, { seq, kind: "ROLLBACK" as const, version: target, at }] }, result: { installed: target, changed: true, seq } };
       });
     }
     const auth = sha(JSON.stringify({ kind: "ABSENT", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256 }));
     if (plan.kind !== "REMOVE_INSTALLATION" || plan.absenceAuthenticationSha256 !== auth || plan.restorePointId !== "myapps-absent:" + auth.slice(0, 32)) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
     await this.permit("ROLLBACK", auth);
-    return this.locked(() => {
-      const s = this.loadState();
-      if (s.installed === null) return { installed: null, changed: false };
-      const at = this.now();
-      this.saveState({ ...s, seq: s.seq + 1, installed: null, events: [...s.events, { seq: s.seq + 1, kind: "REMOVE", version: null, at }] }, s.seq);
-      return { installed: null, changed: true };
+    return this.mutate<{ installed: number | null; changed: boolean; seq: number }>(s => {
+      superseded(s);
+      if (s.installed === null) return { result: { installed: null, changed: false, seq: s.seq } };
+      const at = this.now(), seq = s.seq + 1;
+      return { next: { ...s, seq, installed: null, events: [...s.events, { seq, kind: "REMOVE" as const, version: null, at }] }, result: { installed: null, changed: true, seq } };
     });
   }
 
