@@ -4718,8 +4718,8 @@
     },
     "lib/qualification/myapps-revisions.ts": {
       "classification": "READ_ONLY",
-      "reason": "Prior-revision and restore-point readers over the existing MyApps installation state for the delivery observer. Captures the prior state once before delivery, reports an authenticated absence for a first install, and refuses rather than invents a restore point. No install, enable, rollback or deployment authority.",
-      "sha256": "548b2216370bb85d6ca062b114f655bcacd4645e4b8b0c561067a09a932371d4"
+      "reason": "Prior-revision and restore-point readers over the existing MyApps installation state for the delivery observer. Concurrent callers share the first capture attempt, including failure, so a later read cannot replace the pre-delivery restore target. Returned prior data is detached from retained state. Reports an authenticated absence for a first install and refuses rather than invents a restore point. No install, enable, rollback or deployment authority. Codex-authored F6 correction; independent review pending.",
+      "sha256": "f8f005da3072a80cb145e9f70c10c9353e609eb70d0c0f3239e0419ea4545393"
     },
     "lib/qualification/static-build.ts": {
       "classification": "READ_ONLY",

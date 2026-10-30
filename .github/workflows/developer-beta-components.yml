@@ -9,6 +9,7 @@ on:
       - codex/qdev-20261029-integration
       - codex/qdev-20261030-review-corrections
       - codex/qdev-20261030-adapters
+      - codex/qdev-20261030-myapps-capture
 
 permissions:
   contents: read
