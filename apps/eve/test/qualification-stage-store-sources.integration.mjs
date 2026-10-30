@@ -28,9 +28,11 @@ const root=new URL(connection);
 assert(['localhost','127.0.0.1'].includes(root.hostname)&&root.pathname==='/postgres','Dedicated localhost admin database required');
 const name='myeve_qdev_ss_'+randomBytes(6).toString('hex');
 const admin=new Client({connectionString:connection});await admin.connect();
+admin.on('error',()=>{});
 await admin.query('CREATE DATABASE '+name);
 const dbUrl=new URL(root);dbUrl.pathname='/'+name;
 const pool=new Pool({connectionString:dbUrl.href,max:4});
+pool.on('error',()=>{});   // idle clients may be terminated by the forced DROP DATABASE at teardown; that is not a test failure
 const query=async(s,p)=>(await pool.query(s,p)).rows;
 const migrations=await loadMigrations();
 await runMigrations({query,transaction:async statements=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}},migrations);
