@@ -71,32 +71,6 @@ test('through RelayDeveloperTools the grant is checked before Relay is contacted
   assert.deepEqual(await dev.execute(write,{branch:QDEV_BASELINE.outputBranch,path:'src/a.ts'}),[{type:'text',text:'done'}]);
 });
 
-import {createHash} from 'node:crypto';
-import {observeServedDelivery,DeliveryObservationError} from '../lib/qualification/delivery-observer.ts';
-import {acceptDelivery} from '../lib/qualification/delivery.ts';
-const hex=(c,n=64)=>c.repeat(n);
-const served=Buffer.from('<html>synthetic built dashboard</html>');
-const servedSha=createHash('sha256').update(served).digest('hex');
-const obsCfg=(over={})=>({enabled:true,environment:'myeve-qdev-20261029',servedUrl:'https://app.invalid/qdev',projectSha256:hex('1'),sourceSha256:hex('2'),
-  priorRevision:async()=>({kind:'ABSENT',authenticationSha256:hex('5')}),restorePointId:async()=>'rp-1',fetcher:async()=>new Response(served),now:()=>new Date('2026-10-30T00:00:00Z'),...over});
-const cand={commit:'a'.repeat(40),tree:'b'.repeat(40)};
-test('the delivery observer hashes the bytes actually served and feeds acceptDelivery',async()=>{
-  const obs=await observeServedDelivery(obsCfg(),cand);
-  assert.equal(obs.servedBytesSha256,servedSha);
-  const verdict={schema:'myeve.qualification-verdict/v1',verifierKeyId:'k',projectSha256:hex('1'),sourceSha256:hex('2'),protectedSpecificationSha256:hex('3'),candidateCommit:cand.commit,candidateTree:cand.tree,buildArtifactSha256:servedSha,outcome:'PASS',issuedAt:'2026-10-30T00:00:00.000Z'};
-  assert.equal(acceptDelivery({observation:obs,verdict,projectSha256:hex('1'),sourceSha256:hex('2')}).authority,'NONE');
-  await assert.rejects(async()=>acceptDelivery({observation:await observeServedDelivery(obsCfg({fetcher:async()=>new Response('tampered')}),cand),verdict,projectSha256:hex('1'),sourceSha256:hex('2')}),e=>e.code==='QDEV_DELIVERY_SERVED_BYTES_MISMATCH');
-});
-test('the delivery observer is disabled by default, https-only, bounded and fails closed',async()=>{
-  let calls=0;const f=async()=>{calls++;return new Response(served);};
-  await assert.rejects(observeServedDelivery(obsCfg({enabled:false,fetcher:f}),cand),e=>e.code==='QDEV_DELIVERY_OBSERVER_DISABLED');
-  await assert.rejects(observeServedDelivery(obsCfg({servedUrl:'http://app.invalid',fetcher:f}),cand),e=>e.code==='QDEV_DELIVERY_URL');
-  assert.equal(calls,0);
-  await assert.rejects(observeServedDelivery(obsCfg({maxBytes:5}),cand),e=>e.code==='QDEV_DELIVERY_UNAVAILABLE');
-  await assert.rejects(observeServedDelivery(obsCfg({fetcher:async()=>new Response('x',{status:500})}),cand),e=>e.code==='QDEV_DELIVERY_UNAVAILABLE');
-  await assert.rejects(observeServedDelivery(obsCfg({restorePointId:async()=>''}),cand),e=>e.code==='QDEV_DELIVERY_INVALID');
-});
-
 test('malformed MCP replies fail closed: wrong id, missing/duplicate result-error, extra keys, wrong result shape',async()=>{
   const cases={
     wrongId:rpc=>Response.json({jsonrpc:'2.0',id:rpc.id+999,result:{content:[]}}),

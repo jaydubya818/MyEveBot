@@ -21,7 +21,11 @@ export interface FactoryPort {
   fetchResult(stage: 1 | 2 | 3): Promise<unknown>;
 }
 export interface VerifierPort { submit(handoff: VerifierHandoff): Promise<Outcome>; fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>; }
-export interface MyAppsPort { observe(candidate: { commit: string; tree: string }): Promise<unknown>; }
+export interface MyAppsPort {
+  /** Canonical retained static build + verified build claim for the accepted stage-3 candidate; returns its artifact digest. */
+  retainBuild(candidate: { commit: string; tree: string }): Promise<{ buildArtifactSha256: string }>;
+  observe(candidate: { commit: string; tree: string }): Promise<unknown>;
+}
 
 export type WiringConfig = {
   project: QualificationProjectInput; agent: AgentPort; relay: RelayDeveloperTools; factory: FactoryPort; verifier: VerifierPort; myapps: MyAppsPort;
@@ -77,6 +81,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
     expectedFor, resultKeys: () => c.resultKeys, sourceDigest: c.sourceDigest,
     collectVerdict: candidate => c.verifier.fetchVerdict(candidate),
     verifierKeys: c.verifierKeys, producerKeyIds: c.producerKeyIds, producerPublicKeysPem: c.producerPublicKeysPem,
+    retainBuild: candidate => c.myapps.retainBuild(candidate),
     observeDelivery: candidate => c.myapps.observe(candidate),
     newAllowanceId: stage => c.newAllowanceId(stage), now: c.now, journal: c.journal, baseline: c.baseline,
     onStageAccepted: (stage, candidate) => { accepted.set(stage, candidate); },

@@ -23,6 +23,12 @@ export interface JourneyEnvironment {
   /** Fetches the custodian's public signed verdict for the exact candidate (an uncharged read). */
   collectVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>;
   verifierKeys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[];
+  /**
+   * Resolves the build identity of the accepted stage-3 candidate from the canonical MyApps retained static
+   * artifact + verified static build claim (NOT from the Result's git/check metadata digest). The verifier
+   * attests this digest and the delivery observer re-derives it from the served files.
+   */
+  retainBuild(candidate: { commit: string; tree: string }): Promise<{ buildArtifactSha256: string }>;
   observeDelivery(candidate: { commit: string; tree: string }): Promise<unknown>;
   newAllowanceId(stage: number): string;
   now?: () => number;
@@ -67,6 +73,7 @@ export class QualificationJourney {
     let preceding: { commit: string; tree: string } | null = null;
     let last: AcceptedStageResult | undefined;
     let verdict: Verdict | undefined;
+    let buildArtifactSha256: string | undefined;
     for (const stage of plan.stages) {
       const bindingId = "qdev-20261029-01:stage:" + stage.stage;
       let work;
@@ -106,11 +113,16 @@ export class QualificationJourney {
           last = consumeStageResult({ signed: await this.env.collectResult(s), keys: this.env.resultKeys(), project: this.project, stage: s,
             precedingCandidate: preceding, expected: this.env.expectedFor(s), sourceDigest: this.env.sourceDigest, now: this.env.now?.(), baseline: this.env.baseline });
           preceding = { commit: last.candidateCommit, tree: last.candidateTree };
-          this.env.onStageAccepted?.(s, { ...preceding, buildArtifactSha256: last.manifest.artifactDigest });
+          if (s === 3) {
+            const build = await this.env.retainBuild(preceding);
+            if (!/^[a-f0-9]{64}$/.test(build?.buildArtifactSha256 ?? "")) throw new Error("QDEV_BUILD_IDENTITY_INVALID");
+            buildArtifactSha256 = build.buildArtifactSha256;
+          }
+          this.env.onStageAccepted?.(s, { ...preceding, buildArtifactSha256: s === 3 ? buildArtifactSha256! : last.manifest.artifactDigest });
           record.resultManifestDigest = last.manifestDigest; record.candidate = preceding;
         } else {
-          if (!last) throw new Error("QDEV_VERDICT_WITHOUT_CANDIDATE");
-          const candidate = { commit: last.candidateCommit, tree: last.candidateTree, buildArtifactSha256: last.manifest.artifactDigest };
+          if (!last || !buildArtifactSha256) throw new Error("QDEV_VERDICT_WITHOUT_CANDIDATE");
+          const candidate = { commit: last.candidateCommit, tree: last.candidateTree, buildArtifactSha256 };
           verdict = verifyVerdict({ signed: await this.env.collectVerdict(candidate), verifierKeys: this.env.verifierKeys,
             producerKeyIds: this.env.producerKeyIds, producerPublicKeysPem: this.env.producerPublicKeysPem, now: this.env.now?.(),
             expected: { projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,

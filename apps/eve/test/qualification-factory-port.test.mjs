@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
-import {LiveFactoryPort,FactoryLivePortRefused} from '../lib/qualification/factory-live-port.ts';
+import {LiveFactoryPort,FactoryLivePortRefused,FactoryResultPending} from '../lib/qualification/factory-live-port.ts';
 import {ProviderNotSent} from '../lib/qualification/gate.ts';
 import {prepareAuthenticatedLocalFactoryInputV4} from '../lib/engineering/factory-authenticated-result.ts';
 import {syntheticFactory,h} from './qualification-synthetic.mjs';
@@ -21,11 +21,18 @@ function fixture(over={}){
     workOrderId:b.workOrderId,runId:b.runId,attemptNumber:1,inputCommit:b.inputCommit,inputTree:b.inputTree,configuration:b.configuration};
   return {raw,b,request,identity,snapshot};
 }
-function port(f,{enabled=true,readback,retained}={}){
+const terminal=(f,over={})=>({requestId:f.b.requestId,workOrderId:f.b.workOrderId,runId:f.b.runId,state:'COMPLETED',quiescent:true,evidenceRef:'evidence-1',
+  accounting:{activeMicrousd:0,unknownMicrousd:0,settledMicrousd:1000},...over});
+function port(f,opts={}){
+  const {enabled=true,readback,retained,reads,settleTimeoutMs=1000}=opts,hasEnvelope='envelope' in opts,envelope=opts.envelope;
   const calls=[];
+  const queue=[...(reads??[terminal(f)])];
   const live={prepared:async r=>{calls.push(['prepared',r.requestId]);return readback??{requestId:f.b.requestId,workOrderId:f.b.workOrderId,runId:f.b.runId,state:'PREPARED',snapshot:f.snapshot};},
-    dispatch:async i=>{calls.push(['dispatch',i.requestId]);},result:async b=>{calls.push(['result',b.requestId]);return {signed:true};}};
-  return {calls,port:new LiveFactoryPort({enabled,live,retained:()=>retained??{binding:f.raw,identity:f.identity,request:f.request}})};
+    dispatch:async i=>{calls.push(['dispatch',i.requestId]);},
+    read:async i=>{calls.push(['read',i.requestId]);return queue.length>1?queue.shift():queue[0];},
+    result:async b=>{calls.push(['result',b.requestId]);return hasEnvelope?envelope:{state:'COMPLETED',result:{signed:true}};}};
+  let t=0;
+  return {calls,port:new LiveFactoryPort({enabled,live,retained:()=>retained??{binding:f.raw,identity:f.identity,request:f.request},settleTimeoutMs,pollMs:10,now:()=>t,sleep:async ms=>{t+=ms;}})};
 }
 const refused=(p,code)=>assert.rejects(p,e=>e instanceof FactoryLivePortRefused&&e.code===code,code);
 
@@ -42,9 +49,9 @@ test('admit is refused until the exact prepared execution is proved, then dispat
   await p.ready(1);
   assert.deepEqual(p.admit(1,start),f.b);
   assert.throws(()=>p.admit(1,{commit:'3'.repeat(40),tree:start.tree}),e=>e.code==='QDEV_FACTORY_START_MISMATCH');
-  assert.deepEqual(await p.dispatch(p.admit(1,start)),{known:true,value:undefined});
+  assert.deepEqual(await p.dispatch(p.admit(1,start)),{known:true,value:{state:'COMPLETED',evidenceRef:'evidence-1',settledMicrousd:1000}});
   assert.deepEqual(await p.fetchResult(1),{signed:true});
-  assert.deepEqual(calls.map(c=>c[0]),['prepared','dispatch','result']);
+  assert.deepEqual(calls.map(c=>c[0]),['prepared','dispatch','read','result']);
 });
 test('a prepared readback that differs from the retained admission is refused before any claim',async()=>{
   const f=fixture();
@@ -67,4 +74,42 @@ test('dispatch refuses a binding that was not the prepared one, before the clien
   await assert.rejects(p.dispatch(other.b),e=>e instanceof ProviderNotSent);
   await assert.rejects(p.dispatch({...f.b,configurationDigest:h('6')}),e=>e instanceof ProviderNotSent);
   assert.deepEqual(calls.map(c=>c[0]),['prepared']);
+});
+
+test('F2: a dispatch acknowledgment is not final usage; known:true only after terminal quiescence with zero active/unknown spend',async()=>{
+  const f=fixture();
+  const running=terminal(f,{state:'RUNNING',quiescent:false,evidenceRef:null,accounting:{activeMicrousd:1000,unknownMicrousd:0,settledMicrousd:0}});
+  const a=port(f,{reads:[running,running,running,terminal(f)]});await a.port.ready(1);
+  assert.equal((await a.port.dispatch(a.port.admit(1,start))).known,true);
+  assert.equal(a.calls.filter(c=>c[0]==='read').length,4,'kept polling through nonterminal readbacks');
+  for(const [name,reads] of Object.entries({
+    stillRunningUntilTimeout:[running],
+    unknown:[terminal(f,{state:'UNKNOWN',quiescent:false,evidenceRef:null})],
+    activeSpend:[terminal(f,{accounting:{activeMicrousd:5,unknownMicrousd:0,settledMicrousd:0}})],
+    unknownSpend:[terminal(f,{accounting:{activeMicrousd:0,unknownMicrousd:5,settledMicrousd:0}})],
+    spendUnproven:[terminal(f,{accounting:{activeMicrousd:null,unknownMicrousd:null,settledMicrousd:null}})],
+    noEvidence:[terminal(f,{evidenceRef:null})],
+    foreignRun:[terminal(f,{runId:randomUUID()})],
+  })){
+    const x=port(f,{reads});await x.port.ready(1);
+    assert.deepEqual(await x.port.dispatch(x.port.admit(1,start)),{known:false},name);
+    assert.equal(x.calls.filter(c=>c[0]==='dispatch').length,1,name+': never resent');
+  }
+  const failing=port(f);await failing.port.ready(1);
+  failing.port.c.live.read=async()=>{throw new Error('unavailable');};
+  await assert.rejects(failing.port.dispatch(failing.port.admit(1,start)),e=>!(e instanceof ProviderNotSent));
+});
+test('F1: fetchResult unwraps the existing result-channel envelope; pending/unknown states are preserved without redispatch',async()=>{
+  const f=fixture();
+  const ok=port(f);await ok.port.ready(1);
+  assert.deepEqual(await ok.port.fetchResult(1),{signed:true});
+  for(const state of ['RUNNING','STOPPING','UNKNOWN']){
+    const x=port(f,{envelope:{state,result:null}});await x.port.ready(1);
+    await assert.rejects(x.port.fetchResult(1),e=>e instanceof FactoryResultPending&&e.message==='QDEV_FACTORY_RESULT_PENDING:'+state);
+    assert.equal(x.calls.filter(c=>c[0]==='dispatch').length,0);
+  }
+  for(const bad of [null,{result:{signed:true}},{state:'COMPLETED',result:{signed:true},extra:1},{state:'RUNNING',result:{signed:true}},{state:7,result:null}]){
+    const x=port(f,{envelope:bad});await x.port.ready(1);
+    await assert.rejects(x.port.fetchResult(1),e=>e.code==='QDEV_FACTORY_RESULT_ENVELOPE');
+  }
 });

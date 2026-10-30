@@ -59,7 +59,8 @@ function environment(w,faults={}){
   expectedFor:n=>f.expectedByStage[n],resultKeys:()=>[f.key],sourceDigest:f.sourceDigest,baseline:f.baseline,
   async collectVerdict(c){env.observed.verdict++;return w.verifier.signVerdict(verdictFor({projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256,protectedSpecificationSha256:w.project.protectedSpecificationSha256,candidateCommit:c.commit,candidateTree:c.tree,buildArtifactSha256:c.buildArtifactSha256,outcome:faults.verdict??'PASS'}));},
   verifierKeys:[w.verifier.key],producerKeyIds:[f.key.keyId],producerPublicKeysPem:[f.producerPem],
-  async observeDelivery(c){env.observed.delivery++;return {schema:'myeve.qualification-delivery/v1',environment:'myeve-qdev-20261029',projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256,candidateCommit:c.commit,candidateTree:c.tree,servedBytesSha256:accepted().buildArtifactSha256,priorRevision:{kind:'ABSENT',authenticationSha256:h('7')},rollbackRestorePointId:'restore-synthetic',observedAt:'2026-10-27T00:10:00.000Z'};},
+  async retainBuild(){return {buildArtifactSha256:h('e')};},
+  async observeDelivery(c){env.observed.delivery++;return {schema:'myeve.qualification-delivery/v1',environment:'myeve-qdev-20261029',projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256,candidateCommit:c.commit,candidateTree:c.tree,servedBytesSha256:h('e'),priorRevision:{kind:'ABSENT',authenticationSha256:h('7')},rollbackRestorePointId:'restore-synthetic',observedAt:'2026-10-27T00:10:00.000Z'};},
   newAllowanceId:()=>randomUUID(),
  };
  return env;
@@ -197,7 +198,7 @@ try{
      inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,...admitOverrides}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
    verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
-   myapps:{observe:c=>base.observeDelivery(c)}});
+   myapps:{retainBuild:c=>base.retainBuild(c),observe:c=>base.observeDelivery(c)}});
   return {env,probe};
  }
  await test('wired ports: agent, Relay, Factory dispatch, verifier handoff and MyApps compose into a gated journey',async()=>{
