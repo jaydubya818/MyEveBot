@@ -137,6 +137,28 @@ try{
   await x.q1().settle(w,a,op('s'));
   await assert.rejects(x.q1().dispatch(w,a,op('n'),'CODING',100000),/QDEV_FENCED/);
  });
+
+ await test('QDEV-05: a cohort fence committed between the claim and RUNNING stops the send (zero provider callbacks)',async()=>{
+  const x=await fixture('r5');const {w,a}=await ready(x);const s2=await second(x);
+  await x.q1().dispatch(w,a,op('s'),'SOFIE',100000);await x.q1().running(w,a,op('s'));await x.q1().settle(w,a,op('s'));
+  const w2=await x.q1().bind(await reserve(x,'w2'),randomUUID());const a2=w2.local_allowance_id;
+  const real=x.q1();let callbacks=0;
+  const racing=Object.create(real);
+  racing.dispatch=async(...args)=>{const r=await real.dispatch(...args);await s2.acct().fence(w);return r;};
+  assert.equal((await x.db.query("SELECT state FROM qdev_work WHERE id=$1",[w.id])).rows[0].state,'CLOSED');
+  await assert.rejects(new QualificationGate(racing).run({admission:w2,allowanceId:a2,operationKey:op('late'),purpose:'CODING',reserveMicrousd:100000,
+    send:async()=>{callbacks++;return {known:true,value:1};}}),/QDEV_FENCED/);
+  assert.equal(callbacks,0);
+  assert.equal((await real.status()).state,'paused');
+  const rows=(await x.db.query("SELECT k.ordinal,k.state work_state,d.state dispatch_state FROM qdev_dispatch d JOIN qdev_work k ON k.id=d.work_id ORDER BY k.ordinal")).rows;
+  assert.deepEqual(rows,[{ordinal:1,work_state:'UNKNOWN',dispatch_state:'SETTLED'},{ordinal:2,work_state:'BOUND',dispatch_state:'NOT_DISPATCHED'}]);
+  // direct entry point: RUNNING is refused while any Work in the cohort is UNKNOWN, but settlement stays available
+  const y=await fixture('r5b');const r=await ready(y);
+  await y.q1().dispatch(r.w,r.a,op('s'),'SOFIE',100000);
+  await y.db.query("UPDATE qdev_work SET state='UNKNOWN' WHERE id=$1",[r.w.id]);
+  await assert.rejects(y.q1().running(r.w,r.a,op('s')),/QDEV_FENCED/);
+  await y.q1().cancelUnsent(r.w,r.a,op('s'));
+ });
 }finally{
  await Promise.all(clients.map(c=>c.end().catch(()=>{})));
  for(const name of names)await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');

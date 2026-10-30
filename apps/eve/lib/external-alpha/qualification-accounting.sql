@@ -158,7 +158,13 @@ BEGIN
   op=p->>'operationSha256';
   IF mode='running' THEN
    -- Authenticated known observation, never an allocation retry.
-   IF prior.state<>'BOUND' OR c.activated_at IS NULL OR c.revoked_at IS NOT NULL OR n>=c.valid_until THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
+   -- RUNNING is the final pre-send authorization, so it enforces the same cohort-wide
+   -- UNKNOWN/FENCED barrier as a new claim, under the charter lock. Settlement, hold,
+   -- cancel_unsent and fence deliberately stay available for safe cleanup.
+   IF prior.state<>'BOUND' OR c.activated_at IS NULL OR c.revoked_at IS NOT NULL OR n>=c.valid_until
+    OR EXISTS(SELECT 1 FROM qdev_work WHERE cohort_id=c.id AND state='UNKNOWN')
+    OR EXISTS(SELECT 1 FROM qdev_dispatch y JOIN qdev_work x ON x.id=y.work_id WHERE x.cohort_id=c.id AND y.state IN('UNKNOWN','FENCED'))
+   THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
    UPDATE qdev_dispatch SET state='RUNNING' WHERE work_id=prior.id AND operation_sha256=op AND state='DISPATCHED';
    IF NOT EXISTS(SELECT 1 FROM qdev_dispatch WHERE work_id=prior.id AND operation_sha256=op AND state='RUNNING') THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
   ELSIF mode='hold' THEN
