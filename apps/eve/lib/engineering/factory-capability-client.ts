@@ -14,7 +14,10 @@ export type FactoryCapabilityClientConfig={origin:string;binding:Omit<TerminalBi
 export class FactoryCapabilityClient{
  constructor(readonly config:FactoryCapabilityClientConfig,readonly send:typeof fetch=fetch){
   const url=new URL(config.origin);
-  if(url.origin!==config.origin||url.username||url.password||url.protocol!=='https:'
+  /* HTTPS, or the exact IPv4 loopback origin used by the qualified local supervisor (never a hostname, never
+   * a non-loopback http origin). LiveFactoryAdapter additionally requires this origin to equal the Factory origin. */
+  const loopback=url.protocol==='http:'&&url.hostname==='127.0.0.1'&&url.port!==''&&!url.pathname.slice(1)&&!url.search&&!url.hash;
+  if(url.origin!==config.origin||url.username||url.password||(url.protocol!=='https:'&&!loopback)
     ||!config.binding.missionId||!config.key||typeof config.sourcePermit!=='function'||typeof config.relayPermit!=='function')throw Error('FACTORY_CAPABILITY_CONFIGURATION');
  }
  private async request(path:string,body:unknown){

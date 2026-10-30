@@ -4488,7 +4488,7 @@
     "lib/engineering/factory-capability-client.ts": {
       "classification": "INTERNAL",
       "reason": "Owned Factory capability transport: signed MissionControl-derived challenge and Factory PERMIT exchange for one retained preparation; strict signed terminal readback before any challenge; a sealed or readback terminal aborts before any permit. No publication, release, settlement or paid authority. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
-      "sha256": "1163e87d505626d20f5ec6a8316b25bf7ff761a2e3a92a20a08d9da4842fee24"
+      "sha256": "bd0694952359efa669e7481167552fd0eaf6b12cfa7d0695f55645f491f89fb7"
     },
     "lib/engineering/factory-capability-source.ts": {
       "classification": "ENFORCED",
@@ -4723,8 +4723,8 @@
     },
     "lib/qualification/factory-ordered-clients.ts": {
       "classification": "ENFORCED",
-      "reason": "Constructs the actual FactoryCapabilityClient and LiveFactoryAdapter (requireOrderedAdmission) pair for a hosted cloud Factory connection and refuses loopback local V4 connections with a typed error, because the frozen upstream has no local ordered-admission contract. Does not relax origin equality, binding equality or the ordering requirement; adds no transport or authority.",
-      "sha256": "a21c85f8160be5683bba2223d3b52338f4f5df3e43ef7cbe8f54aadb53ef4239"
+      "reason": "Constructs the actual FactoryCapabilityClient and LiveFactoryAdapter (requireOrderedAdmission) pair for a hosted cloud or exact-loopback local V4 Factory connection. Canonical local topology: ordered-admission receiver served from the same loopback supervisor origin (server contract is a protected MyFactory change; until it exists every call fails closed). Does not relax origin equality, binding equality, scheme/loopback limits or the ordering requirement; adds no transport or authority.",
+      "sha256": "b6e9fd12c1613541b7575dc9610b7895431b7e9965f6472560a4ad63cebc009e"
     },
     "lib/qualification/agent-port.ts": {
       "classification": "ENFORCED",
