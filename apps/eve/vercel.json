@@ -65,7 +65,8 @@
       "codex/qdev-20261030-native-budget-binding": false,
       "codex/qdev-20261030-sofie-deadline": false,
       "codex/qdev-20261030-publishing-composition": false,
-      "codex/qdev-20261030-runtime-schema": false
+      "codex/qdev-20261030-runtime-schema": false,
+      "codex/qdev-20261030-infrastructure-plan": false
     }
   },
   "functions": {

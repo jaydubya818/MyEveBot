@@ -1,0 +1,11 @@
+# Inert named-tunnel example. Custodian fills identifiers only after exposure approval.
+# No verifier/Factory/Relay/MissionControl/model-proxy route belongs here.
+tunnel: 00000000-0000-4000-8000-000000000000
+credentials-file: /ABSOLUTE/OPERATOR/CUSTODY/tunnel-credentials.json
+metrics: 127.0.0.1:20457
+ingress:
+  - hostname: qdev-chat.example.invalid
+    service: http://127.0.0.1:3000
+  - hostname: qdev-apps.example.invalid
+    service: http://127.0.0.1:4318
+  - service: http_status:404

@@ -1,0 +1,135 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "INERT QDEV verifier host preparation. Separate custodian account only. No service bootstrap or execution authority.",
+  "Metadata": {
+    "Purpose": "Source-only 72-hour qualification estimate; not a hard spending cap",
+    "Region": "us-east-2",
+    "NoAutomaticServiceStart": true
+  },
+  "Parameters": {
+    "CustodianVpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "Custodian-owned isolated VPC in us-east-2; producer cannot administer it."
+    },
+    "CustodianPublicSubnetId": {
+      "Type": "AWS::EC2::Subnet::Id",
+      "Description": "Subnet in that VPC with internet-gateway route and DNS; no NAT gateway."
+    },
+    "PinnedArm64AmiId": {
+      "Type": "AWS::EC2::Image::Id",
+      "Description": "Custodian-attested immutable AL2023 ARM64 HVM EBS AMI ID, with SSM Agent. No latest-image resolution."
+    },
+    "CustodianSsmInstanceProfile": {
+      "Type": "String",
+      "MinLength": 1,
+      "MaxLength": 128,
+      "AllowedPattern": "[A-Za-z0-9+=,.@_-]+",
+      "Description": "Pre-existing custodian-only SSM instance profile name. No producer/provider/secret permissions."
+    },
+    "ReviewSourceSha": {
+      "Type": "String",
+      "AllowedPattern": "[a-f0-9]{40}",
+      "Description": "Exact reviewed application source SHA for the installation record; not permission to install it."
+    }
+  },
+  "Resources": {
+    "VerifierSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "GroupDescription": "QDEV verifier: no inbound; HTTPS outbound for SSM and approved custody dependencies",
+        "VpcId": {
+          "Ref": "CustodianVpcId"
+        },
+        "SecurityGroupIngress": [],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "CidrIp": "0.0.0.0/0",
+            "Description": "SSM TLS and approved custody dependencies; not an application sandbox"
+          }
+        ]
+      }
+    },
+    "VerifierInstance": {
+      "Type": "AWS::EC2::Instance",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ImageId": {
+          "Ref": "PinnedArm64AmiId"
+        },
+        "InstanceType": "c7g.large",
+        "IamInstanceProfile": {
+          "Ref": "CustodianSsmInstanceProfile"
+        },
+        "MetadataOptions": {
+          "HttpTokens": "required",
+          "HttpEndpoint": "enabled",
+          "HttpPutResponseHopLimit": 1,
+          "InstanceMetadataTags": "disabled"
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": true,
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Fn::GetAtt": [
+                  "VerifierSecurityGroup",
+                  "GroupId"
+                ]
+              }
+            ],
+            "SubnetId": {
+              "Ref": "CustodianPublicSubnetId"
+            },
+            "DeleteOnTermination": true
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeType": "gp3",
+              "VolumeSize": 20,
+              "Encrypted": true,
+              "DeleteOnTermination": false,
+              "Iops": 3000
+            }
+          }
+        ],
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "qdev-independent-verifier"
+          },
+          {
+            "Key": "qdev:source",
+            "Value": {
+              "Ref": "ReviewSourceSha"
+            }
+          },
+          {
+            "Key": "qdev:scope",
+            "Value": "new-isolated-qualification-only"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "VerifierInstanceId": {
+      "Value": {
+        "Ref": "VerifierInstance"
+      }
+    },
+    "ProtectedServiceState": {
+      "Value": "NO_SERVICE_INSTALLED; custodian attestation and scoped authority required"
+    }
+  }
+}

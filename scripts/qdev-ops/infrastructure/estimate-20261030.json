@@ -1,0 +1,57 @@
+{
+  "schema": "myeve.qdev-infrastructure-estimate/v1",
+  "status": "PREPARATION_ONLY_NOT_A_SPENDING_CAP",
+  "region": "us-east-2",
+  "windowHours": 72,
+  "compute": {
+    "instanceType": "c7g.large",
+    "vcpu": 2,
+    "memoryGiB": 4,
+    "architecture": "arm64",
+    "usdMicrosPerHour": 72300,
+    "evidence": "public-compute-price-20261030.json"
+  },
+  "ipv4": {
+    "count": 1,
+    "usdMicrosPerHour": 5000,
+    "source": "https://aws.amazon.com/vpc/pricing/"
+  },
+  "storage": {
+    "gib": 20,
+    "usdMicrosPerGiBMonth": 80000,
+    "monthHours": 720,
+    "status": "Planning rate from AWS gp3 pricing example; exact regional/account quote must be confirmed before allocation",
+    "source": "https://aws.amazon.com/ebs/pricing/"
+  },
+  "transfer": {
+    "plannedGiB": 1,
+    "usdMicrosPerGiB": 90000,
+    "status": "Conservative planning assumption; no free-tier/credit allowance counted; not an egress quota",
+    "source": "https://aws.amazon.com/ec2/pricing/on-demand/"
+  },
+  "sessionManager": {
+    "usdMicros": 0,
+    "scope": "EC2 only; excludes optional logging, storage and network charges",
+    "source": "https://aws.amazon.com/systems-manager/pricing/"
+  },
+  "tunnel": {
+    "incrementalPlanUsdMicros": 0,
+    "status": "Assumes existing owned DNS zone and eligible named-tunnel Free plan; no account eligibility, domain, SLA or credits verified",
+    "source": "https://www.cloudflare.com/plans/zero-trust-services/"
+  },
+  "excluded": [
+    "tax",
+    "Mac electricity and existing hardware/network",
+    "domain purchase or DNS plan change",
+    "database plan upgrades",
+    "additional transfer/logs/snapshots/storage",
+    "continued operation beyond 72 hours",
+    "protected setup or paid execution authority"
+  ],
+  "modelLedgerCapUsdMicros": 5200000,
+  "infrastructureEstimateUsdMicros": 5815600,
+  "combinedPlanningUsdMicros": 11015600,
+  "retained20GiBStorageUsdMicrosPer30DayMonth": 1600000,
+  "automaticStopInstalled": false,
+  "realResourcesCreated": false
+}
