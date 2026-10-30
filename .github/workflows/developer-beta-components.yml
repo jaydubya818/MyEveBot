@@ -156,6 +156,10 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
         run: ../../node_modules/.bin/vitest run --maxWorkers=1 --testTimeout=120000 lib/qualification/post-delivery.integration.test.ts
+      - name: Verifier host launcher (real loopback HttpVerifierPort -> handler -> durable store -> owned evaluator; duplicate, restart, dropped-ack and crash fencing) over disposable PostgreSQL
+        env:
+          MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
+        run: node --import tsx --test apps/eve/test/qualification-verifier-host.integration.mjs
       - name: Scoped single-use owner activation approvals and serving-only loopback launch (no network egress)
         run: node --import tsx --test apps/eve/test/qualification-static-activation.test.mjs
       - name: Native Factory ceiling must fit the charged parent reservation (disposable PostgreSQL)
