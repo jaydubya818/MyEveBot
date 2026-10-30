@@ -196,7 +196,7 @@ try{
    for(const a of hn.log.agent){assert.equal(a.ownerId,r.owner);assert.equal(a.slot,'Q1');assert.equal(a.projectSha256,w.binding.projectSha256);assert.deepEqual(a.tools,['relay_github_repo_get']);}
    // Factory: stages 1-2 are agent-executed (Result read from the retained admission only); the ordered clients read the retained preparation for stage 3,
    // dispatched it exactly once, and never challenged/prepared/permitted anything
-   assert.deepEqual(hn.log.capability,['/api/capability-admission/readback']);
+   assert.deepEqual(hn.log.capability,Array(3).fill('/api/capability-admission/readback'));   // one preparation readback per Factory-run stage (1-2 CODING, 3 FACTORY)
    assert.equal(hn.log.factory.filter(c=>/POST .*\/dispatch$/.test(c)).length,1);
    assert.equal(hn.log.factory.filter(c=>/\/result$/.test(c)).length,3);
    // Verifier: exactly one digest-only handoff and one verdict fetch, with the runtime credential read through the accessor and never in the bundle
@@ -242,6 +242,21 @@ try{
    assert.equal(loaded,0,'a module whose bytes do not match the pinned digest is never imported or called');
    assert.equal(await count(w,'qdev_dispatch'),0);assert.deepEqual(hn.log.verifier,[]);
   }finally{delete globalThis.__qdevTestCustody;await hn.stop();}
+ });
+
+ await test('positive: Factory-backed CODING runs stages 1-2 as native Factory work under the charged reservation, with lazy per-stage admission',async()=>{
+  const w=await world('fc1'),hn=await harness(w);try{
+   await w.db.query(JOURNAL_SCHEMA);
+   const sofie={available:()=>true,async start(t){hn.log.agent.push({key:t.key,purpose:t.purpose});return {handle:'sofie-'+t.key};},async finished(){return {usageFinal:true};}};
+   const r=runtime(w,runtimePortsProvider(()=>{const c=hn.custody();return {...c,agent:{slot:'Q1',factoryCoding:{sofie}}};}));
+   const out=await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'});
+   assert.equal(out.status,'COMPLETED_UNCLAIMED',JSON.stringify(out));assert.equal(out.authority,'NONE');assert.equal(out.stages.length,4);
+   assert.equal(await count(w,'qdev_dispatch'),5);
+   // Every Factory-run stage is prepared (readback only; nothing challenged, prepared or permitted here) and dispatched exactly once by qdev.
+   assert.deepEqual(hn.log.capability,Array(3).fill('/api/capability-admission/readback'));
+   assert.equal(hn.log.factory.filter(c=>/POST .*\/dispatch$/.test(c)).length,3);
+   assert.deepEqual(hn.log.agent.map(a=>[a.key,a.purpose]),[['s1-0','SOFIE']]);
+  }finally{await hn.stop();}
  });
  await test('actual Eve definitions and agent selector use the real free model, tool and loader/root journey with zero provider egress',async()=>{
   const w=await world('sdk'),hn=await harness(w),previousFlag=process.env.MYEVE_QDEV_ENABLED,originalFetch=globalThis.fetch;

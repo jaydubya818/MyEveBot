@@ -285,18 +285,24 @@ try{
   await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_CHANGED');
   assert.equal(await count(w,'qdev_dispatch'),before);
  });
- await test('F4: the Factory preflight runs only for the Factory stage, after the preceding candidate was accepted and before anything is reserved',async()=>{
-  const w=await world('f4pre'),calls=[];let works=-1;
-  const {env}=wired(w,{preflight:async(stage,start)=>{works=await count(w,'qdev_work');calls.push({stage,start});}});
+ await test('F4: preflight runs once per Factory-run stage (CODING stages 1-2 and FACTORY stage 3), each after the preceding candidate was accepted and before that stage reserves anything',async()=>{
+  const w=await world('f4pre'),calls=[],works=[];
+  const {env}=wired(w,{preflight:async(stage,start)=>{works.push(await count(w,'qdev_work'));calls.push({stage,start});}});
   const evidence=await new QualificationJourney(w.accounting,w.project,env).run(plan());
-  assert.equal(calls.length,1);assert.equal(calls[0].stage,3);assert.deepEqual({commit:calls[0].start.commit,tree:calls[0].start.tree},evidence.stages[1].candidate);   // stage 3 prepared from the accepted stage-2 candidate
-  assert.equal(works,2);                                                                                                      // only stages 1-2 had reserved anything
+  assert.deepEqual(calls.map(c=>c.stage),[1,2,3]);
+  assert.deepEqual({commit:calls[1].start.commit,tree:calls[1].start.tree},evidence.stages[0].candidate);   // stage 2 prepared from the accepted stage-1 candidate
+  assert.deepEqual({commit:calls[2].start.commit,tree:calls[2].start.tree},evidence.stages[1].candidate);   // stage 3 prepared from the accepted stage-2 candidate
+  assert.deepEqual(works,[0,1,2]);                                                                          // each stage had reserved nothing when its own preflight ran
  });
  await test('F4: a failed preflight halts the stage with nothing reserved, claimed or sent, and a rerun does not skip it',async()=>{
-  const w=await world('f4fail'),{env,probe}=wired(w,{preflight:async()=>{throw new Error('QDEV_STAGE_ADMISSION_TERMINAL');}});
-  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_STAGE_ADMISSION_TERMINAL');
-  assert.equal(await count(w,'qdev_work'),2);assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
-  assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].n,0);
+  for(const [label,failAt,reserved,dispatched] of [['f4fail',3,2,3],['f4fail1',1,0,0],['f4fail2',2,1,2]]){
+   const w=await world(label),{env,probe}=wired(w,{preflight:async stage=>{if(stage===failAt)throw new Error('QDEV_STAGE_ADMISSION_TERMINAL');}});
+   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===failAt&&e.code==='QDEV_STAGE_ADMISSION_TERMINAL');
+   assert.equal(await count(w,'qdev_work'),reserved);
+   if(failAt===3){assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
+    assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].n,0);}
+   assert.equal(await count(w,'qdev_dispatch'),dispatched);   // only the operations of the stages accepted before the failed preflight
+  }
  });
  /** Authenticated root: the only composition of the real adapters into the gated journey. */
  await test('root: disabled, unauthenticated, foreign or unconfigured callers are refused before anything is built or charged',async()=>{

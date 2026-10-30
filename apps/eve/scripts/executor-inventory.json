@@ -4654,7 +4654,7 @@
     "lib/qualification/journey.ts": {
       "classification": "ENFORCED",
       "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration.",
-      "sha256": "8d23f96c450c9775ca93cc8f9ebba44624842beae32962d014756c9ec9b04e54"
+      "sha256": "1181ff898e0b2200d75c1b7abd43698b885672b05f3ca3383cad6bd409e0f8b9"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
@@ -4774,7 +4774,7 @@
     "lib/qualification/runtime-ports.ts": {
       "classification": "ENFORCED",
       "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused. Producer/verifier separation derives the union of actual Result trust keys, actual Factory connection keys and declared additional exclusions. Normalized SPKI fingerprints and key IDs reject renamed/PEM-reformatted producer keys before any transport; the same derived union reaches verdict validation. No new private key, acceptance, paid or deployment authority. The actual static-build provenance issuer is added to the same producer exclusions when its source is retained; independence is rechecked before verifier contact, and observed issuer IDs/keys remain in the arrays consumed by verdict validation.",
-      "sha256": "058a9548741b9d0f04622639f9ce3a2ad157e50d07a3d26413bb54f21f0163f4"
+      "sha256": "b666ac763547403b1a9dc43ea5d027d6fa8ca9850150df2ec851371c7129c7df"
     },
     "lib/qualification/agent-execution-port.ts": {
       "classification": "ENFORCED",
@@ -4800,6 +4800,11 @@
       "classification": "ENFORCED",
       "reason": "Production startup binding for the protected-custody ports. The host bundle may pin one operator-installed custody module by absolute normalized path and SHA-256; the loader reads it, requires the bytes to match the pin, imports exactly those verified bytes, and composes the runtime ports from the custody it returns. Any absence, mismatch, throw or refusal returns null so the installation stays disabled. It reads no credential value, opens no transport, reserves and dispatches nothing, and grants no authority; composeRuntimePorts keeps every adapter's own refusals.",
       "sha256": "85115d4d857e6824326e75cd704bea7f87fb3289a69a6b694e5915cb6853d82d"
+    },
+    "lib/qualification/factory-coding-runtime.ts": {
+      "classification": "ENFORCED",
+      "reason": "Productive CODING backend for the retained-executor agent port. Stages 1-2 run as native Factory work through the same LiveFactoryPort dispatch as stage 3: the lazily admitted retained admission is validated against the frozen expectation before any send, dispatch refuses a native ceiling above the charged parent reservation, and start returns only after the exact-identity readback is terminal, quiescent and within the native ceiling; unsettled or repeated starts are ambiguous exposure and never resent. Sofie planning is delegated to an injected runtime. Adds no transport, credential, spend or enrollment authority.",
+      "sha256": "12f2e1d9dc98f97c6bf4ac9e7f9e4c84c265c35db99f7b72915c9d0ff12612c4"
     }
   }
 }

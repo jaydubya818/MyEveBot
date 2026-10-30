@@ -100,13 +100,13 @@ export class QualificationJourney {
       try {
         const events = await this.journal.read();
         if (stage.stage <= 3) {
-          // Async preparation runs after the predecessor was accepted and before this stage's first effect; later
+          // Async preparation (Factory-run stages: CODING and FACTORY) runs after the predecessor was accepted and before this stage's first effect; later
           // stages' run identities are never required up front. Then the stage's full canonical Result expectation
           // is persisted (or, on resume, compared) BEFORE any reservation, claim or send: a changed expectation
           // halts and never replaces the retained one.
           if (this.env.preflightStage) {
             const done = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
-            if (stage.operations.some(op => op.purpose === "FACTORY" && !done.has(op.key))) await this.env.preflightStage(stage.stage as 1 | 2 | 3);
+            if (stage.operations.some(op => (op.purpose === "FACTORY" || op.purpose === "CODING") && !done.has(op.key))) await this.env.preflightStage(stage.stage as 1 | 2 | 3);
           }
           await this.freezeExpectation(stage.stage as 1 | 2 | 3);
         }

@@ -152,6 +152,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-agent-execution-port.test.mjs
       - name: Qualification /qdev/v1 verifier service against the real client and verdict verifier
         run: node --import tsx --test apps/eve/test/qualification-verifier-service.test.mjs
+      - name: Qualification Factory-backed CODING runtime (real LiveFactoryPort, fake Factory HTTP surface)
+        run: node --import tsx --test apps/eve/test/qualification-factory-coding-runtime.test.mjs
       - name: Qualification pinned custody module loader (production startup binding)
         run: node --import tsx --test apps/eve/test/qualification-custody-loader.test.mjs
       - name: Qualification static build export (tree proof, pinned offline build contract, strict dist tar, issuer attestation)
