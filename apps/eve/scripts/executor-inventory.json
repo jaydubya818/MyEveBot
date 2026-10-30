@@ -3630,8 +3630,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): sealed terminal is Work/generation-scoped; a version bump cannot reopen preparation (M1 closure); ADMISSION_UNCERTAIN requires an explicit new generation.",
-      "sha256": "b2ffe3790f79400192065e90ce89eec734eebb653faa56ac4e5148d0e6e2deb0"
+      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): sealed terminal is Work/generation-scoped; a version bump cannot reopen preparation (M1 closure); ADMISSION_UNCERTAIN requires an explicit new generation. Reviewed refactor only: the prepare-request construction and the MissionControl, prepare, receipt registration and RouteAdmissionService.admit block moved verbatim into factory-admission-step.ts (shared with the qualification stage admitter); order, fencing hooks (assertActive, observation) and the no-snapshot and validation branches are unchanged.",
+      "sha256": "04bcc522f224e904390b2c69b571d2f32caf2b097aa277e6b48bae2e22802eb6"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -4708,8 +4708,8 @@
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
-      "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority.",
-      "sha256": "4f9b922b766dfba10470dc492b1b1bf845ef74e6312b42f323933d44ab2c0779"
+      "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority. Reviewed: sources may now be asynchronous; every value is awaited before the same ordered checks, so the order, refusals and absence of fallbacks are unchanged.",
+      "sha256": "a4eb920dd94239bc4ae7eba11e95681750597dfe61602929fca8641f7378c5b2"
     },
     "lib/qualification/root.ts": {
       "classification": "ENFORCED",
@@ -4835,6 +4835,16 @@
       "classification": "ENFORCED",
       "reason": "MyAppsPort that publishes only after re-verifying a signed PASS verdict for exactly the retained build artifact and candidate, captures the prior installation state once before delivery, publishes through the activation-gated release controller, observes the served files with the existing delivery observer, and restores the captured prior revision or authenticated absence on any failed observation by compare-and-swap against the exact state it published (a failed restore is reported; a newer release is never undone). Adds no authority: a verdict never grants activation. Evidence: qualification-static-publish.test.mjs delivery cases (non-PASS, wrong artifact, activation absent, tampered served bytes, failed restore).",
       "sha256": "2c0f3561f968f00c211616a9ae8972ce407493202e1827312b951ab44e61546f"
+    },
+    "lib/engineering/factory-admission-step.ts": {
+      "classification": "ENFORCED",
+      "reason": "Shared ordered admission bodies extracted verbatim from FactoryWorkDriver: buildFactoryPrepareRequest (the retained prepare request for a Work revision at an explicit base, with the spend contract and the conversation Factory ceiling) and admitPreparedFactory / registerAndAdmitPrepared (owner MissionControl admission, LiveFactoryAdapter.prepare, authenticated binding, receipt registration, RouteAdmissionService.admit which acquires the PREPARED writer). Never dispatches, stops or takes custody; adds no transport or authority; spend must be startable before registration. Evidence: qualification-stage-store-sources.integration.mjs and the existing writer and receipt integrations.",
+      "sha256": "3f0e8310731bf1ea990c9953a231f3e5ef55d35b468ece678d4a9aa4df23452d"
+    },
+    "lib/qualification/factory-stage-store-sources.ts": {
+      "classification": "ENFORCED",
+      "reason": "Store-backed sources for FactoryStageAdmitter over WorkStore, RoutingStore, FactoryReceiptStore and FactoryWriterStore. Reads only the host-pinned engineering Work of each stage, starts stage 1 at the pinned baseline and stages 2 and 3 only at the accepted predecessor candidate, persists the Factory preparation once per Work revision through the same route authority, eligibility decision and database guards as the driver (reusing a persisted preparation only at the identical base and configuration, refusing a terminal one), then runs owner MissionControl admission, the injected adapter prepare, the shared register and admit body and the PREPARED writer identity. It never calls the production approved-base preflight (a single pinned manifest used only by FactoryWorkDriver.start) and never relaxes it. It does not dispatch, stop or take custody and holds no credential, transport or paid authority. Evidence: qualification-stage-store-sources.integration.mjs.",
+      "sha256": "9f856aa36f09f7bf01d7a96c5fa81353d31926d05c3a6b8499065cd14184dc08"
     }
   }
 }

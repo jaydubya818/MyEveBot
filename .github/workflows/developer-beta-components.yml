@@ -127,6 +127,10 @@ jobs:
         env:
           MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
         run: node --import tsx --test apps/eve/test/qualification-verifier-store.integration.mjs
+      - name: Store-backed Factory stage sources over disposable PostgreSQL (pinned Work, persisted preparation, ordered admission)
+        env:
+          MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
+        run: node --import tsx --test apps/eve/test/qualification-stage-store-sources.integration.mjs
       - name: Native Factory ceiling must fit the charged parent reservation (disposable PostgreSQL)
         env:
           MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres

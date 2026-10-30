@@ -27,16 +27,16 @@ export type StageWork = { id: string; version: number; generation: number; crite
 export type FactoryStageAdmissionSources = {
   enabled?: boolean;
   /** Trusted Work snapshot for the stage (from the Work store). */
-  work(stage: 1 | 2 | 3): StageWork;
+  work(stage: 1 | 2 | 3): StageWork | Promise<StageWork>;
   /** Trusted retained prepare request for the stage starting from `start`. */
-  request(stage: 1 | 2 | 3, start: StageStart): FactoryPrepareRequest;
-  start(stage: 1 | 2 | 3): StageStart;
+  request(stage: 1 | 2 | 3, start: StageStart): FactoryPrepareRequest | Promise<FactoryPrepareRequest>;
+  start(stage: 1 | 2 | 3): StageStart | Promise<StageStart>;
   /** Fresh MissionControl admission (production: requestOwnerFactoryAdmission). null is refused: qdev requires ordered admission. */
   missionControl(stage: 1 | 2 | 3, work: StageWork): Promise<MissionControlAdmissionProof | null>;
   /** Production: LiveFactoryAdapter.prepare bound to its FactoryCapabilityClient. */
   prepare(request: FactoryPrepareRequest, proof: MissionControlAdmissionProof): Promise<FactoryReadback>;
   /** Writer identity (dispatchIdentity/writerGeneration/run) for the prepared attempt, from the writer store. */
-  identity(stage: 1 | 2 | 3, work: StageWork, readback: FactoryReadback, request: FactoryPrepareRequest): FactoryExecutionIdentity;
+  identity(stage: 1 | 2 | 3, work: StageWork, readback: FactoryReadback, request: FactoryPrepareRequest): FactoryExecutionIdentity | Promise<FactoryExecutionIdentity>;
 };
 
 export class FactoryStageAdmitter {
@@ -51,7 +51,7 @@ export class FactoryStageAdmitter {
 
   private async admit(stage: 1 | 2 | 3): Promise<RetainedFactoryAdmission> {
     if (this.s.enabled !== true) return refuse("QDEV_STAGE_ADMISSION_DISABLED");
-    const work = this.s.work(stage), start = this.s.start(stage), request = this.s.request(stage, start);
+    const work = await this.s.work(stage), start = await this.s.start(stage), request = await this.s.request(stage, start);
     if (request.workId !== work.id || request.workGeneration !== work.generation || request.input.baseRef !== start.commit)
       return refuse("QDEV_STAGE_ADMISSION_REQUEST");
     const proof = await this.s.missionControl(stage, work);
@@ -77,7 +77,7 @@ export class FactoryStageAdmitter {
       sourceDigest: snap.sourceDigest, configurationDigest: snap.configurationDigest, workOrderId: snap.workOrderId, runId: snap.runId,
       attemptNumber: snap.attemptNumber, inputCommit: snap.inputCommit, localSnapshotVersion: 4 as const, inputTree: snap.inputTree, configuration: snap.configuration,
     };
-    const identity = this.s.identity(stage, work, response, request);
+    const identity = await this.s.identity(stage, work, response, request);
     if (canonical(identity.allowedPaths) !== canonical(request.input.allowedPaths)) return refuse("QDEV_STAGE_ADMISSION_IDENTITY");
     return { binding, identity, request };
   }

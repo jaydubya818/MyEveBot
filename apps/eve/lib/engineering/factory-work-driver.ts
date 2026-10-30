@@ -1,6 +1,5 @@
 import {FactoryPreparationTerminalReceived,sealFactoryPreparationTerminal,factoryPreparationForGeneration} from './factory-preparation-terminal.ts';
 import {pollOwnerFactoryWorkControl} from '../missioncontrol/owner-control-runtime.ts';
-import {requestOwnerFactoryAdmission} from '../missioncontrol/admit-execution.ts';
 import {productionCloudConfiguration} from './production-runtime-guard.ts';
 import {assertProductionApproval} from './production-approval.ts';
 import {FactoryValidationLifecycle,saveValidationPreparation} from './factory-validation-lifecycle.ts';
@@ -13,12 +12,11 @@ import {randomUUID} from 'node:crypto';
 import {digest} from './contract.ts';
 import {decideExecutionRoute} from '../digital-worker/routing.ts';
 import {RoutingStore} from './routing-store.ts';
-import {RouteAdmissionService} from './route-admission.ts';
 import {FactoryRouteAuthority,type FactoryRuntime} from './factory-routing.ts';
+import {admitPreparedFactory,buildFactoryPrepareRequest} from './factory-admission-step.ts';
 import {LiveFactoryAdapter,FactoryValidationGrantPending,repairWorkOrderFor,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
 import {FactoryWriterStore} from './factory-writer.ts';
 import {FactoryReceiptStore} from './factory-receipt-store.ts';
-import {prepareAuthenticatedFactoryInput} from './factory-authenticated-result.ts';
 import {admitFactoryResult} from './factory-result-consumer.ts';
 import {DirectVerificationDriver,DockerVerificationResourceInspector} from './direct-verification-driver.ts';
 import {DirectDevelopmentStore,type DirectProtectedVerifier} from './direct-development.ts';
@@ -82,8 +80,7 @@ export class FactoryWorkDriver {
    if(!budget || Date.parse(String(budget.deadline))<=Date.now())throw new WorkError('factory_conversation_budget','Current canonical Sofie allowance and deadline are required.');
    deadline=new Date(budget.deadline as string).toISOString();
   }
-  const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
-   input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
+  const prepare:FactoryPrepareRequest=buildFactoryPrepareRequest({work,config,budgetUsd:snapshot.contract.budgetUsd,baseRef:source.sha,deadline,requestId:randomUUID(),repairWorkOrderId});
   const validation='releaseValidation' in config.connection||'productionCanary' in config.connection;
   if('productionCanary' in config.connection){
    const pin=productionCloudConfiguration();
@@ -150,18 +147,10 @@ export class FactoryWorkDriver {
   try{
    if(preparation.configurationHash!==factoryExecutionConfigurationHash(config))throw new WorkError('factory_configuration_changed','Retained Factory configuration changed; reconcile without redispatch.');
    if(decision.status==='PROPOSED'){
-    // Owner approval and current remote policy precede even Factory preparation.
-    const missionControl=await requestOwnerFactoryAdmission(store,work,config);
-    await assertActive();
-    const response=await adapter.prepare(preparation.request,missionControl);await assertActive();await observation(id,decision.id,response,true);
-    if(!response.snapshot){if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:response.state};}
-    assertFactorySpendCanStart(response.spend);
-    const s=response.snapshot;
-    const binding=prepareAuthenticatedFactoryInput({workId:id,workVersion:work.version,workGeneration:work.generation,criteriaVersion:work.criteriaVersion,agentId:config.engineering.agentId,
-     factoryId:s.factoryId,factoryVersion:s.factoryVersion,requestId:s.requestId,requestDigest:s.requestDigest,sourceDigest:s.sourceDigest,configurationDigest:s.configurationDigest,workOrderId:s.workOrderId,runId:s.runId,attemptNumber:s.attemptNumber,inputCommit:s.inputCommit});
-    await assertActive();const registered=await receipts.register(binding);
-    const admission=new RouteAdmissionService(store,{read:w=>this.authority.read(w,registered.id,preparation.request)},missionControl);
-    await assertActive();await admission.admit(id,{decisionId:decision.id,expectedWorkVersion:work.version,expectedWorkGeneration:work.generation,request:{route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]}});
+    // Owner approval and current remote policy precede even Factory preparation; the ordered body is shared with the qualification stage admitter.
+    const admitted=await admitPreparedFactory({store,receipts,authority:this.authority,adapter,work,decisionId:decision.id,request:preparation.request,config,assertActive,
+     observe:response=>observation(id,decision.id,response,true)});
+    if(admitted.kind==='NO_SNAPSHOT'){if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:admitted.response.state};}
     decision=await this.decision(id);
    }
    const [row]=await store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
