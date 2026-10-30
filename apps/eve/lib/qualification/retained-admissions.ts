@@ -57,6 +57,9 @@ export class DurableStageAdmitter {
     return rows.length ? validate(rows[0].admission, stage) : null;
   }
 
+  /** Read-only: the stored, re-validated admission or null. It never claims, prepares or writes. */
+  peek(stage: Stage): Promise<RetainedFactoryAdmission | null> { return this.stored(stage); }
+
   private readonly inflight = new Map<Stage, Promise<RetainedFactoryAdmission>>();
 
   /** Concurrent callers in one process share one admission attempt; a failed attempt is not memoized (the claim row fences any retry). */

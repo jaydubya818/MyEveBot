@@ -4493,7 +4493,7 @@
     "lib/engineering/factory-capability-source.ts": {
       "classification": "ENFORCED",
       "reason": "Capability issuer: rebuilds the challenge from the retained preparation and the verified MissionControl permit, binds the backend-specific policy destination and approved expiry, and refuses when a terminal is sealed for the Work/generation. Issues no authority beyond the verified permit; no reservation effect. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
-      "sha256": "752c0a9296d8d5adda1c0669eac21e62fe9113a68f553594d06239c0bf0359b6"
+      "sha256": "5afcd04a621dad0b316096dad96a7557e48bce105abe05b27a0cc2aa44864644"
     },
     "lib/engineering/factory-preparation-terminal.ts": {
       "classification": "INTERNAL",
@@ -4789,7 +4789,7 @@
     "lib/qualification/retained-admissions.ts": {
       "classification": "ENFORCED",
       "reason": "Durable, append-only retention of the per-stage Factory admission in the qdev journal database. A claim row is inserted before preparation so only one process ever prepares a stage; the stored admission is re-validated with the authenticated binding parser on every read; a claim without an admission (crash or failed preparation) is PENDING and never re-prepared. Adds no transport, credential, spend or enrollment authority.",
-      "sha256": "14d9f18704defa1d3b1d686ad8d2c3d19609ebb688f9b6da69c3ae89344e3445"
+      "sha256": "5fe9a4306894e04ee5753ad9293729ddf930877b58b1ffa021e5508086569d0c"
     },
     "lib/qualification/static-build-export.ts": {
       "classification": "ENFORCED",
@@ -4845,6 +4845,11 @@
       "classification": "ENFORCED",
       "reason": "Store-backed sources for FactoryStageAdmitter over WorkStore, RoutingStore, FactoryReceiptStore and FactoryWriterStore. Reads only the host-pinned engineering Work of each stage, starts stage 1 at the pinned baseline and stages 2 and 3 only at the accepted predecessor candidate, persists the Factory preparation once per Work revision through the same route authority, eligibility decision and database guards as the driver (reusing a persisted preparation only at the identical base and configuration, refusing a terminal one), then runs owner MissionControl admission, the injected adapter prepare, the shared register and admit body and the PREPARED writer identity. It never calls the production approved-base preflight (a single pinned manifest used only by FactoryWorkDriver.start) and never relaxes it. It does not dispatch, stop or take custody and holds no credential, transport or paid authority. Evidence: qualification-stage-store-sources.integration.mjs.",
       "sha256": "63448f4a23e58160a6fd739532e20aad0e82098af246fb471318f86bcc1f4beb"
+    },
+    "lib/qualification/custody-assembly.ts": {
+      "classification": "ENFORCED",
+      "reason": "Non-secret composition of the QDEV custody ports from existing qualified bodies. Stage chain: StoreBackedStageSources over FactoryStageAdmitter and DurableStageAdmitter, where the stage 2/3 start is read at call time from the durable journal's own STAGE_ACCEPTED candidate for the predecessor (conflicting or malformed acceptances refuse) and the frozen Result expectation is derived from the retained, re-validated LocalFactoryBindingV4 (never from a returned Result); a read-only warm restores expectations after restart without claiming or preparing. Ordered Factory capability configuration from canonical authorities only: the MissionControl owner enrollment, the installed capability destination row, issueFactorySourcePermit for the actual local V4 request and the existing FactoryRelayLeaseClient (no operator-written signing callback). Static build source: archives the accepted candidate commit from the Factory repository with a bounded git/tar capture into a private directory that is removed afterwards, requires the commit's tree to equal the accepted pin, then delegates to exportStaticBuild and staticBuildSourceFor with an injected Ed25519 issuer signer. Sofie planning runtime over the injected language model and price. Local V4 only. Reads no secret value, opens no transport, reserves nothing, dispatches nothing and holds no credential, deployment or enrollment authority. Evidence: qualification-custody-assembly.integration.mjs.",
+      "sha256": "014a383313b243057a31658cce5e7fb3c98f08dba7055c4f8a19cb0feee9bb2f"
     }
   }
 }
