@@ -3,6 +3,7 @@ import { z } from "zod";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { ensureQualificationHost } from "../../lib/qualification/host-bootstrap.ts";
 import { qualificationRoot, QualificationRootRefused } from "../../lib/qualification/root.ts";
+import { qdevRequestOwner } from "../../lib/qualification/ingress.ts";
 
 /**
  * Owner-authenticated entrypoint to the qdev journey. It takes NO model parameters: the plan, project,
@@ -11,10 +12,8 @@ import { qualificationRoot, QualificationRootRefused } from "../../lib/qualifica
  * execution rechecks that. Spend authority remains solely the qdev ledger gate.
  */
 const owner = (ctx: { session: { auth: { current?: any }; parent?: unknown } }) => {
-  const p = ctx.session.auth.current;
-  if (!p || p.principalType !== "user" || p.attributes?.owner !== "true" || p.attributes?.role === "guest" || p.attributes?.myeveRoleId || ctx.session.parent)
-    return null;
-  return { ownerId: String(p.principalId), kind: "human" as const };
+  const ownerId = qdevRequestOwner(ctx.session);
+  return ownerId ? { ownerId, kind: "human" as const } : null;
 };
 export default defineDynamic({
   events: {

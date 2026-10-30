@@ -4718,8 +4718,8 @@
     },
     "lib/qualification/ingress.ts": {
       "classification": "ENFORCED",
-      "reason": "Pre-model ingress policy for a QDEV installation: the complete authenticated request (human owner, same initiator, no guest/role/delegation/retained-summary/selected-Work attributes, no mixed installation mode) must be admitted by the registered QDEV host for that exact owner, and only the host's myeve-qdev conversation model is returned. Refuses before any provider call or legacy lookup; no Gateway fallback; adds no transport, credential or spend authority.",
-      "sha256": "9c08ed3580341d180ddb8213a839f0ee1d53ac46246c60eb64bb112fdb1aa1a9"
+      "reason": "Shared request boundary for QDEV model selection and direct/replayed journey-tool execution: matched current/initiator web human owner; no guest, role, parent, selected Work or retained summary; runtime mixed profiles fail closed. Model selection admits the exact host owner and myeve-qdev provider only, before legacy lookup or provider call. Adds no transport or spend authority.",
+      "sha256": "d6c7f8e88f92410c996fc56005668c92b90c87c2572efd8a683a35002e72543f"
     },
     "lib/qualification/host-bootstrap.ts": {
       "classification": "ENFORCED",
@@ -4733,8 +4733,8 @@
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-authenticated, parameterless entrypoint to the qdev root. Dark unless MYEVE_QDEV_ENABLED=true; discoverable only to the authenticated human owner (not guest, delegated role or subagent) and rechecked on every execution; reports an unclaimed presentation and grants no readiness or authority.",
-      "sha256": "1bce93097b45116e6765c60ae362c09a09ce221cb2ba7cbbff78d5af60455d89"
+      "reason": "Parameterless QDEV root entrypoint. Discovery and direct/replayed execution share qdevRequestOwner with model ingress: matched current/initiator web human owner, no guest, role, subagent, selected Work or retained-summary context, and no mixed installation. Availability and discovered owner rechecked before root, ledger or provider effects. Grants no readiness or paid authority.",
+      "sha256": "b36a549572dbe0f5e6e503b12267456fc90e0234c0a681144b0eb0b22b4bb61b"
     },
     "lib/qualification/factory-ordered-clients.ts": {
       "classification": "ENFORCED",
