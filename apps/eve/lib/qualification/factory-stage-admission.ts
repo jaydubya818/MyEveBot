@@ -2,6 +2,7 @@ import type { MissionControlAdmissionProof } from "../missioncontrol/admit-execu
 import type { FactoryPrepareRequest, FactoryReadback } from "../engineering/factory-live-adapter.ts";
 import type { FactoryExecutionIdentity } from "../engineering/factory-writer.ts";
 import { assertFactorySpendCanStart } from "../engineering/factory-spend.ts";
+import { FactoryPreparationTerminalReceived } from "../engineering/factory-preparation-terminal.ts";
 import { canonical } from "../engineering/factory-producer-protocol.ts";
 import type { RetainedFactoryAdmission } from "./factory-live-port.ts";
 import type { StageStart } from "./factory-dispatch.ts";
@@ -55,7 +56,13 @@ export class FactoryStageAdmitter {
       return refuse("QDEV_STAGE_ADMISSION_REQUEST");
     const proof = await this.s.missionControl(stage, work);
     if (!proof) return refuse("QDEV_STAGE_ADMISSION_REQUIRED");
-    const response = await this.s.prepare(request, proof);
+    let response: FactoryReadback;
+    try { response = await this.s.prepare(request, proof); }
+    catch (error) {
+      // The ordered client reports a signed preparation terminal (declined/held) by throwing it: that is a refusal, never a retry.
+      if (error instanceof FactoryPreparationTerminalReceived) return refuse("QDEV_STAGE_ADMISSION_TERMINAL");
+      throw error;
+    }
     const snap = response.snapshot as Record<string, any> | null;
     if (!snap) return refuse("QDEV_STAGE_ADMISSION_SNAPSHOT");
     if (response.state !== "PREPARED" || response.requestId !== request.requestId) return refuse("QDEV_STAGE_ADMISSION_STATE");

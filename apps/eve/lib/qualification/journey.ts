@@ -31,6 +31,11 @@ export interface JourneyEnvironment {
   retainBuild(candidate: { commit: string; tree: string }): Promise<{ buildArtifactSha256: string }>;
   observeDelivery(candidate: { commit: string; tree: string }): Promise<unknown>;
   newAllowanceId(stage: number): string;
+  /**
+   * Optional async preparation proof for a stage that dispatches a Factory run. Called after the preceding stage was
+   * accepted and before the stage reserves, claims or sends anything; a failure halts the stage with nothing charged.
+   */
+  preflightStage?(stage: 1 | 2 | 3): Promise<void>;
   now?: () => number;
   /** Called after a stage Result was accepted (also on resume), so adapters can track the accepted candidate chain. */
   onStageAccepted?(stage: 1 | 2 | 3, candidate: { commit: string; tree: string; buildArtifactSha256: string }): void;
@@ -101,6 +106,10 @@ export class QualificationJourney {
       let work;
       try {
         const events = await this.journal.read();
+        if (stage.stage <= 3 && this.env.preflightStage) {
+          const done = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
+          if (stage.operations.some(op => op.purpose === "FACTORY" && !done.has(op.key))) await this.env.preflightStage(stage.stage as 1 | 2 | 3);
+        }
         const bound = events.find(e => e.kind === "STAGE_BOUND" && e.stage === stage.stage) as Extract<JournalEvent, { kind: "STAGE_BOUND" }> | undefined;
         const settled = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
         const claimed = new Set(events.filter(e => e.kind === "OP_CLAIMED" && e.stage === stage.stage).map(e => (e as { key: string }).key));

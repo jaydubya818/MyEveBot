@@ -190,7 +190,7 @@ try{
   permissions:{metadata:'read',contents:'write',actions:'read',deployments:'read'},repositoryAdmin:false,workflowEdit:false,productionDeployment:false});
  const relayTransport=()=>({discover:async()=>[{name:'write_file',kind:'write_contents'},{name:'deploy',kind:'write_deployment'}],execute:async()=>({ok:true})});
  /** Ports over the same synthetic Factory/verifier/MyApps used above; `probe` records what each port saw. */
- function wired(w,{agent,admitFactoryVersion,admitOverrides={},base:given,journal}={}){
+ function wired(w,{agent,admitFactoryVersion,admitOverrides={},base:given,journal,preflight}={}){
   const base=given??environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
   const relay=new RelayDeveloperTools(grantFor(),relayTransport(),testContract);
   const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
@@ -198,6 +198,7 @@ try{
    agent:{async run(op,r){probe.agent.push(op.key);if(agent)return agent(op,r);if(op.purpose!=='CODING')return {known:true,value:'ok'};const {requestId,workOrderId,runId}=base.expectedFor(op.stage);return {known:true,value:{execution:{requestId,workOrderId,runId}}};}},
    factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',...base.expectedFor(stage),factoryVersion:admitFactoryVersion??f.factoryVersion,sourceDigest:f.sourceDigest,
      inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,...admitOverrides}),
+    ...(preflight?{preflight}:{}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
    verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
    myapps:{retainBuild:c=>base.retainBuild(c),observe:c=>base.observeDelivery(c)}});
@@ -271,6 +272,28 @@ try{
   assert.equal(await count(w,'qdev_dispatch'),dispatchesBefore);   // nothing resent, nothing refunded
   assert.deepEqual((await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED'),acceptedBefore);
   assert.equal(base.observed.delivery,1);
+ });
+ await test('F3 (candidate variant): a replacement Result with a different candidate commit/tree and drifted expectation halts without any resend',async()=>{
+  const w=await world('f3cand'),journal=new InMemoryJournal(),base=environment(w),f=w.factory;
+  const first=await rerun(w,base,journal);const before=await count(w,'qdev_dispatch');
+  const b=f.stage(4,first.stages[1].candidate);f.expectedByStage[3]=structuredClone(f.expectedByStage[4]);   // another valid signed Result, different candidate
+  assert.notEqual(b.candidate.commit,first.stages[2].candidate.commit);
+  const orig=base.collectResult;base.collectResult=async n=>n===3?b.signed:orig(n);
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_CHANGED');
+  assert.equal(await count(w,'qdev_dispatch'),before);
+ });
+ await test('F4: the Factory preflight runs only for the Factory stage, after the preceding candidate was accepted and before anything is reserved',async()=>{
+  const w=await world('f4pre'),calls=[];let works=-1;
+  const {env}=wired(w,{preflight:async(stage,start)=>{works=await count(w,'qdev_work');calls.push({stage,start});}});
+  const evidence=await new QualificationJourney(w.accounting,w.project,env).run(plan());
+  assert.equal(calls.length,1);assert.equal(calls[0].stage,3);assert.deepEqual({commit:calls[0].start.commit,tree:calls[0].start.tree},evidence.stages[1].candidate);   // stage 3 prepared from the accepted stage-2 candidate
+  assert.equal(works,2);                                                                                                      // only stages 1-2 had reserved anything
+ });
+ await test('F4: a failed preflight halts the stage with nothing reserved, claimed or sent, and a rerun does not skip it',async()=>{
+  const w=await world('f4fail'),{env,probe}=wired(w,{preflight:async()=>{throw new Error('QDEV_STAGE_ADMISSION_TERMINAL');}});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_STAGE_ADMISSION_TERMINAL');
+  assert.equal(await count(w,'qdev_work'),2);assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
+  assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].n,0);
  });
  await test('F3: expectations are persisted before any effect, in full, for stages 1-3',async()=>{
   const w=await world('f3pre'),journal=new InMemoryJournal(),base=environment(w);

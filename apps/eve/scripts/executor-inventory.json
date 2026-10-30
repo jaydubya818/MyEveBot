@@ -4654,7 +4654,7 @@
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
       "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook.",
-      "sha256": "d1c644d8889fe167c62b2822bf5aae0cb1ef6a0a2004dd7a5b43c211ba13d9c9"
+      "sha256": "f74f7392e00f3d9b988f882740890dd6823273a123f8afc145e72f9adcedf0c0"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
@@ -4689,7 +4689,7 @@
     "lib/qualification/wiring.ts": {
       "classification": "ENFORCED",
       "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
-      "sha256": "1b5446866aa5c77facac07cc858340f35068185d591f7f0a73185edef8991e3e"
+      "sha256": "3f9c879fe187fbfdd7485dfd3ed87ccf95a22c7156f83895f33f005cdae38cc3"
     },
     "lib/qualification/relay-mcp-transport.ts": {
       "classification": "ENFORCED",
@@ -4704,12 +4704,17 @@
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
       "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "59974f868fd621c4919443e9fc0f673b443cecea33ade6ff23713200ab35edb8"
+      "sha256": "d2df059a5e134e8a550d78ee73bb7ebda3f8d0c8534707758a5f4cf97f567b20"
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
       "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority.",
-      "sha256": "3696755c62bc71893c399db4ad7b755e31a06914b9875de1c8eca51477a0b7e4"
+      "sha256": "4f9b922b766dfba10470dc492b1b1bf845ef74e6312b42f323933d44ab2c0779"
+    },
+    "lib/qualification/factory-ordered-clients.ts": {
+      "classification": "ENFORCED",
+      "reason": "Constructs the actual FactoryCapabilityClient and LiveFactoryAdapter (requireOrderedAdmission) pair for a hosted cloud Factory connection and refuses loopback local V4 connections with a typed error, because the frozen upstream has no local ordered-admission contract. Does not relax origin equality, binding equality or the ordering requirement; adds no transport or authority.",
+      "sha256": "a21c85f8160be5683bba2223d3b52338f4f5df3e43ef7cbe8f54aadb53ef4239"
     },
     "lib/qualification/agent-port.ts": {
       "classification": "ENFORCED",

@@ -69,6 +69,17 @@ export class LiveFactoryPort implements FactoryPort {
     this.ready_.set(stage, { binding, identity: retained.identity });
   }
 
+  /**
+   * Journey lifecycle hook: runs after the preceding stage's candidate was ACCEPTED and before any ledger
+   * reservation for this stage. Prepares/proves the stage against the exact accepted start (stage 3 depends on
+   * the accepted stage-2 candidate), so a mismatched host admission halts with nothing reserved or sent.
+   */
+  async preflight(stage: 1 | 2 | 3, start: StageStart): Promise<void> {
+    await this.ready(stage);
+    const r = this.ready_.get(stage)!;
+    if (r.binding.inputCommit !== start.commit || r.binding.inputTree !== start.tree) refuse("QDEV_FACTORY_START_MISMATCH");
+  }
+
   private checkIdentity(b: LocalFactoryBindingV4, i: FactoryExecutionIdentity, r: FactoryPrepareRequest) {
     if (i.workId !== b.workId || i.workGeneration !== b.workGeneration || i.factoryId !== b.factoryId || i.factoryVersion !== b.factoryVersion
       || i.requestId !== b.requestId || i.workOrderId !== b.workOrderId || i.remoteRunId !== b.runId || i.baseSha !== b.inputCommit

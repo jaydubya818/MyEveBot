@@ -24,6 +24,8 @@ export type AgentExecution = { requestId: string; workOrderId: string; runId: st
 export interface FactoryPort {
   /** Trusted request admission for the stage (from the existing Work admission path). */
   admit(stage: 1 | 2 | 3, start: StageStart): unknown;
+  /** Async per-stage preparation proof against the accepted start, called by the journey before the stage reserves anything. */
+  preflight?(stage: 1 | 2 | 3, start: StageStart): Promise<void>;
   dispatch(binding: LocalFactoryBindingV4): Promise<Outcome>;
   fetchResult(stage: 1 | 2 | 3): Promise<unknown>;
 }
@@ -113,6 +115,12 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
         handoff = buildVerifierHandoff({ project: c.project, binding, candidate });
       } catch { throw new ProviderNotSent("pre-send validation"); }
       return c.verifier.submit(handoff);
+    },
+    preflightStage: async stage => {
+      if (!c.factory.preflight) return;
+      const start = startOf(stage);
+      if (!start) throw new Error("QDEV_DISPATCH_START_REQUIRED");
+      await c.factory.preflight(stage, start);
     },
     collectResult: async stage => {
       if (stage === 1 || stage === 2) {

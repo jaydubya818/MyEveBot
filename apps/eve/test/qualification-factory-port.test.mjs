@@ -113,3 +113,11 @@ test('F1: fetchResult unwraps the existing result-channel envelope; pending/unkn
     await assert.rejects(x.port.fetchResult(1),e=>e.code==='QDEV_FACTORY_RESULT_ENVELOPE');
   }
 });
+test('F4: preflight proves the prepared execution against the exact accepted start and refuses a different one before any claim',async()=>{
+  const f=fixture(),{port:p,calls}=port(f);
+  await p.preflight(1,start);assert.deepEqual(p.admit(1,start),f.b);assert.deepEqual(calls.map(c=>c[0]),['prepared']);
+  const other=port(f);
+  await refused(other.port.preflight(1,{commit:'3'.repeat(40),tree:start.tree}),'QDEV_FACTORY_START_MISMATCH');
+  await refused(other.port.preflight(1,{commit:start.commit,tree:'4'.repeat(40)}),'QDEV_FACTORY_START_MISMATCH');
+  assert.deepEqual(other.calls.map(c=>c[0]),['prepared','prepared']);   // no dispatch ever
+});
