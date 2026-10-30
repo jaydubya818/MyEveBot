@@ -4654,12 +4654,12 @@
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
       "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook.",
-      "sha256": "8372d6feabd580e8c921a20e202b438955a5a4dcdb839b563fb7d30c02da72fe"
+      "sha256": "d1c644d8889fe167c62b2822bf5aae0cb1ef6a0a2004dd7a5b43c211ba13d9c9"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
       "reason": "Orchestration journal for qdev-20261029-01 restart recovery: append-only, non-financial, lives in the app database. The qdev_* ledger stays the only accounting authority; the journal only prevents re-sending after a restart. Independent source review PENDING.",
-      "sha256": "a66dfab358e3ca86b64e2acc268a1d5878f24786673e5d710369fa79dcf0968f"
+      "sha256": "8543df06883a256d05440ce5d8365856770646c4da380ea1e4e02b575622547f"
     },
     "lib/qualification/relay-tools.ts": {
       "classification": "ENFORCED",
@@ -4689,7 +4689,7 @@
     "lib/qualification/wiring.ts": {
       "classification": "ENFORCED",
       "reason": "Runtime composition for QualificationJourney's qdev spend gate. Before Factory transport, the admitted request/run/configuration tuple must match a snapshot of canonical Result expectations; Result consumption uses that same immutable snapshot. Pre-send validation failures are no-send facts. Holds no credential and is wired to no production caller. Codex-authored correction with foreign request/run regressions; independent review PENDING, no execution authority.",
-      "sha256": "e81a693dc04d88a347cd8f41b3d1e18b43c04f746372ddaf8a822c069d723302"
+      "sha256": "1b5446866aa5c77facac07cc858340f35068185d591f7f0a73185edef8991e3e"
     },
     "lib/qualification/relay-mcp-transport.ts": {
       "classification": "ENFORCED",
@@ -4704,7 +4704,12 @@
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
       "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "b462cca2aedd83ebfd3034c206243ade89298c4ca26396ab932d16062dc06eec"
+      "sha256": "59974f868fd621c4919443e9fc0f673b443cecea33ade6ff23713200ab35edb8"
+    },
+    "lib/qualification/factory-stage-admission.ts": {
+      "classification": "ENFORCED",
+      "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority.",
+      "sha256": "3696755c62bc71893c399db4ad7b755e31a06914b9875de1c8eca51477a0b7e4"
     },
     "lib/qualification/static-build.ts": {
       "classification": "READ_ONLY",

@@ -88,6 +88,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
     async runOperation(op) {
       if (op.purpose === "SOFIE") return c.agent.run(op, c.relay);
       if (op.purpose === "CODING") {
+        if (op.stage === 1 || op.stage === 2) expectedFor(op.stage); // snapshot the expectation before the agent can act
         const outcome = await c.agent.run(op, c.relay);
         return op.stage === 1 || op.stage === 2 ? bindAgentExecution(op.stage, outcome) : outcome;
       }

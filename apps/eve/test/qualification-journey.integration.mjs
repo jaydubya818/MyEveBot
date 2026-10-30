@@ -160,7 +160,8 @@ try{
   e1.collectResult=async n=>{if(n===2&&fail){fail=false;throw new Error('read unavailable');}return real(n);};
   await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),e=>e instanceof JourneyHalted&&e.stage===2);
   assert.deepEqual(e1.calls,['s1-0','s1-1','s2-0']);
-  const e2=environment(w);e2.journal=journal;
+  // The restarted host presents the same Factory expectations/Results (a regenerated set would be a substitution, see F3).
+  const e2=e1;e2.collectResult=real;e2.calls.length=0;
   const evidence=await new QualificationJourney(w.accounting,w.project,e2).run(plan());
   assert.deepEqual(e2.calls,['s3-0','s4-0']);
   assert.equal(evidence.stages.length,4);assert.equal(await count(w,'qdev_dispatch'),5);
@@ -171,7 +172,7 @@ try{
   const e1=environment(w,{sendFails:'s1-1'});e1.journal=journal;
   await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),JourneyHalted);
   const before=await count(w,'qdev_dispatch');
-  const e2=environment(w);e2.journal=journal;
+  const e2=e1;e2.calls.length=0;
   await assert.rejects(new QualificationJourney(w.accounting,w.project,e2).run(plan()),JourneyHalted);
   assert.deepEqual(e2.calls,[]);assert.equal(await count(w,'qdev_dispatch'),before);
   assert.equal((await w.rt.query("SELECT (qdev_cohort_call($1::jsonb)->>'state') s",[JSON.stringify({mode:'status',cohortId:w.cohort,ownerId:w.policy.Q1.ownerId,slot:'Q1',policySha256:digest(w.policy.Q1),credential:w.t1,projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256})])).rows[0].s,'paused');
@@ -189,18 +190,18 @@ try{
   permissions:{metadata:'read',contents:'write',actions:'read',deployments:'read'},repositoryAdmin:false,workflowEdit:false,productionDeployment:false});
  const relayTransport=()=>({discover:async()=>[{name:'write_file',kind:'write_contents'},{name:'deploy',kind:'write_deployment'}],execute:async()=>({ok:true})});
  /** Ports over the same synthetic Factory/verifier/MyApps used above; `probe` records what each port saw. */
- function wired(w,{agent,admitFactoryVersion,admitOverrides={}}={}){
-  const base=environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
+ function wired(w,{agent,admitFactoryVersion,admitOverrides={},base:given,journal}={}){
+  const base=given??environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
   const relay=new RelayDeveloperTools(grantFor(),relayTransport(),testContract);
   const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
-   verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,
+   verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,journal,
    agent:{async run(op,r){probe.agent.push(op.key);if(agent)return agent(op,r);if(op.purpose!=='CODING')return {known:true,value:'ok'};const {requestId,workOrderId,runId}=base.expectedFor(op.stage);return {known:true,value:{execution:{requestId,workOrderId,runId}}};}},
    factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',...base.expectedFor(stage),factoryVersion:admitFactoryVersion??f.factoryVersion,sourceDigest:f.sourceDigest,
      inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,...admitOverrides}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
    verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
    myapps:{retainBuild:c=>base.retainBuild(c),observe:c=>base.observeDelivery(c)}});
-  return {env,probe};
+  return {env,probe,base};
  }
  await test('wired ports: agent, Relay, Factory dispatch, verifier handoff and MyApps compose into a gated journey',async()=>{
   const w=await world('wire'),{env,probe}=wired(w);
@@ -254,6 +255,67 @@ try{
   const {env}=wired(w,{agent:async(op,relay)=>{const [t]=await relay.discover();await relay.execute(t,{branch:'main',path:'a'});reached++;return {known:true,value:1};}});
   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPOSURE_UNKNOWN');
   assert.equal(reached,0);
+ });
+
+ /** F3: recovery is bound to the retained pre-effect expectations and the accepted manifest/candidate/build identities. */
+ const rerun=async(w,base,journal)=>{const {env}=wired(w,{base,journal});return new QualificationJourney(w.accounting,w.project,env).run(plan());};
+ await test('F3: a fresh environment cannot substitute a different signed Factory run B for the accepted run A on recovery',async()=>{
+  const w=await world('f3run'),journal=new InMemoryJournal(),base=environment(w);
+  const first=await rerun(w,base,journal);
+  const dispatchesBefore=await count(w,'qdev_dispatch'),acceptedBefore=(await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED');
+  const runA=base.expectedFor(3).runId,orig=base.collectResult;
+  const b=w.factory.stage(3,first.stages[1].candidate);          // independently valid signed run B, never dispatched by this journey
+  base.collectResult=async n=>n===3?b.signed:orig(n);
+  assert.notEqual(base.expectedFor(3).runId,runA);
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_CHANGED');
+  assert.equal(await count(w,'qdev_dispatch'),dispatchesBefore);   // nothing resent, nothing refunded
+  assert.deepEqual((await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED'),acceptedBefore);
+  assert.equal(base.observed.delivery,1);
+ });
+ await test('F3: expectations are persisted before any effect, in full, for stages 1-3',async()=>{
+  const w=await world('f3pre'),journal=new InMemoryJournal(),base=environment(w);
+  const {env}=wired(w,{base,journal,agent:async()=>{throw new Error('socket reset after write');}});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()));
+  const ev=await journal.read(),firstEffect=ev.findIndex(e=>e.kind==='STAGE_BOUND'||e.kind==='OP_CLAIMED');
+  const exps=ev.filter(e=>e.kind==='STAGE_EXPECTATION');
+  assert.deepEqual(exps.map(e=>e.stage),[1,2,3]);assert.ok(ev.indexOf(exps[2])<firstEffect);
+  for(const e of exps){assert.deepEqual(e.expected,w.factory.expectedByStage[e.stage]);assert.equal(e.digest,digest(e.expected));}
+ });
+ await test('F3: an accepted stage keeps its exact manifest and build identity; a different signed Result or build halts',async()=>{
+  const w=await world('f3id'),journal=new InMemoryJournal(),base=environment(w);
+  await rerun(w,base,journal);const events=await journal.read();
+  const accepted3=events.find(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===3);
+  assert.equal(accepted3.buildArtifactSha256,h('e'));assert.ok(accepted3.candidate.commit);
+  // a different build identity for the same Result
+  const realBuild=base.retainBuild;base.retainBuild=async()=>({buildArtifactSha256:h('f')});
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_ACCEPTED_IDENTITY_CHANGED');
+  base.retainBuild=realBuild;
+  // a retained acceptance for a different manifest than the Result now presented
+  for(const [field,value] of [['digest',h('a')],['candidate',{commit:'1'.repeat(40),tree:'2'.repeat(40)}]]){
+   const tampered=new InMemoryJournal();
+   for(const e of events)await tampered.append(e.kind==='STAGE_ACCEPTED'&&e.stage===3?{...e,[field]:value}:e);
+   await assert.rejects(rerun(w,base,tampered),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_ACCEPTED_IDENTITY_CHANGED',field);
+  }
+  // an untouched journal still resumes and re-accepts the identical identity
+  const again=await rerun(w,base,journal);assert.equal(again.stages[2].resultManifestDigest,accepted3.digest);
+ });
+ await test('F3: a stage with effects but no retained expectation, or a tampered expectation, cannot resume',async()=>{
+  const w=await world('f3legacy'),journal=new InMemoryJournal(),base=environment(w);
+  await rerun(w,base,journal);const events=await journal.read();
+  const legacy=new InMemoryJournal();for(const e of events)if(e.kind!=='STAGE_EXPECTATION')await legacy.append(e);
+  await assert.rejects(rerun(w,base,legacy),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPECTATION_MISSING');
+  const forged=new InMemoryJournal();
+  for(const e of events)await forged.append(e.kind==='STAGE_EXPECTATION'&&e.stage===3?{...e,expected:{...e.expected,runId:randomUUID()}}:e);
+  await assert.rejects(rerun(w,base,forged),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_TAMPERED');
+ });
+ await test('F3: the agent expectation is snapshotted before the agent runs, so a drifting expectation cannot be followed',async()=>{
+  const w=await world('f3agent'),base=environment(w),f=w.factory;
+  const {env,probe}=wired(w,{base,agent:async(op)=>{
+    if(op.purpose!=='CODING')return {known:true,value:'ok'};
+    f.expectedByStage[op.stage]={...f.expectedByStage[op.stage],runId:randomUUID()};   // expectation drifts while the agent runs
+    const {requestId,workOrderId,runId}=f.expectedByStage[op.stage];return {known:true,value:{execution:{requestId,workOrderId,runId}}};}});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPOSURE_UNKNOWN');
+  assert.equal(probe.factory.length,0);
  });
 }finally{
  await Promise.all(clients.map(c=>c.end().catch(()=>{})));

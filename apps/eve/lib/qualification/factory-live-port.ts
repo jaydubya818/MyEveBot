@@ -30,7 +30,7 @@ export type FactoryLiveClient = {
 };
 export type RetainedFactoryAdmission = { binding: unknown; identity: FactoryExecutionIdentity; request: FactoryPrepareRequest };
 export type FactoryLivePortConfig = {
-  enabled?: boolean; live: FactoryLiveClient; retained(stage: 1 | 2 | 3): RetainedFactoryAdmission;
+  enabled?: boolean; live: FactoryLiveClient; retained(stage: 1 | 2 | 3): RetainedFactoryAdmission | Promise<RetainedFactoryAdmission>;
   /** Maximum wait for terminal quiescence + spend proof before the operation is left fenced. */
   settleTimeoutMs?: number; pollMs?: number; sleep?: (ms: number) => Promise<void>; now?: () => number;
 };
@@ -54,7 +54,7 @@ export class LiveFactoryPort implements FactoryPort {
   /** Proves, before any gate claim, that Factory holds a prepared execution matching the retained admission. */
   async ready(stage: 1 | 2 | 3): Promise<void> {
     if (this.c.enabled !== true) refuse("QDEV_FACTORY_DISABLED");
-    const retained = this.c.retained(stage);
+    const retained = await this.c.retained(stage);
     const binding = prepareAuthenticatedLocalFactoryInputV4(retained.binding);
     this.checkIdentity(binding, retained.identity, retained.request);
     const readback = await this.c.live.prepared(retained.request);

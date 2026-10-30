@@ -65,6 +65,21 @@ export class QualificationJourney {
     this.journal = env.journal ?? new InMemoryJournal();
   }
 
+  private async freezeExpectation(stage: 1 | 2 | 3): Promise<void> {
+    const expected = this.env.expectedFor(stage);
+    const current = digest(expected);
+    const events = await this.journal.read();
+    const prior = events.find(e => e.kind === "STAGE_EXPECTATION" && e.stage === stage) as Extract<JournalEvent, { kind: "STAGE_EXPECTATION" }> | undefined;
+    if (prior) {
+      if (digest(prior.expected) !== prior.digest) throw new Error("QDEV_EXPECTATION_TAMPERED");
+      if (prior.digest !== current) throw new Error("QDEV_EXPECTATION_CHANGED");
+      return;
+    }
+    // A stage that already has effects but no retained expectation cannot be trusted to resume.
+    if (events.some(e => e.kind !== "STAGE_EXPECTATION" && e.kind !== "HALTED" && "stage" in e && e.stage === stage)) throw new Error("QDEV_EXPECTATION_MISSING");
+    await this.journal.append({ kind: "STAGE_EXPECTATION", stage, digest: current, expected: structuredClone(expected) });
+  }
+
   async run(rawPlan: unknown): Promise<JourneyEvidence> {
     // Refuse an unfittable plan BEFORE any reservation or dispatch.
     const plan: JourneyPlan = validateJourneyPlan(rawPlan);
@@ -74,6 +89,13 @@ export class QualificationJourney {
     let last: AcceptedStageResult | undefined;
     let verdict: Verdict | undefined;
     let buildArtifactSha256: string | undefined;
+    // Persist (or, on resume, compare) the full canonical Result expectations for every Factory-consumed stage
+    // BEFORE any reservation, claim or send. A changed expectation halts: it never replaces the retained one.
+    for (const stage of plan.stages) {
+      if (stage.stage > 3) continue;
+      try { await this.freezeExpectation(stage.stage as 1 | 2 | 3); }
+      catch (error) { throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records); }
+    }
     for (const stage of plan.stages) {
       const bindingId = "qdev-20261029-01:stage:" + stage.stage;
       let work;
@@ -107,7 +129,9 @@ export class QualificationJourney {
         throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
       }
       const record: StageRecord = { stage: stage.stage, workId: work.id };
+      let priorAccepted: Extract<JournalEvent, { kind: "STAGE_ACCEPTED" }> | undefined;
       try {
+        priorAccepted = (await this.journal.read()).find(e => e.kind === "STAGE_ACCEPTED" && e.stage === stage.stage) as typeof priorAccepted;
         if (stage.stage <= 3) {
           const s = stage.stage as 1 | 2 | 3;
           last = consumeStageResult({ signed: await this.env.collectResult(s), keys: this.env.resultKeys(), project: this.project, stage: s,
@@ -118,6 +142,11 @@ export class QualificationJourney {
             if (!/^[a-f0-9]{64}$/.test(build?.buildArtifactSha256 ?? "")) throw new Error("QDEV_BUILD_IDENTITY_INVALID");
             buildArtifactSha256 = build.buildArtifactSha256;
           }
+          // An already accepted stage keeps its exact authenticated manifest/candidate/build identity.
+          if (priorAccepted && (priorAccepted.digest !== last.manifestDigest
+            || (priorAccepted.candidate && (priorAccepted.candidate.commit !== preceding.commit || priorAccepted.candidate.tree !== preceding.tree))
+            || (s === 3 && priorAccepted.buildArtifactSha256 !== undefined && priorAccepted.buildArtifactSha256 !== buildArtifactSha256)))
+            throw new Error("QDEV_ACCEPTED_IDENTITY_CHANGED");
           this.env.onStageAccepted?.(s, { ...preceding, buildArtifactSha256: s === 3 ? buildArtifactSha256! : last.manifest.artifactDigest });
           record.resultManifestDigest = last.manifestDigest; record.candidate = preceding;
         } else {
@@ -134,7 +163,12 @@ export class QualificationJourney {
         throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
       }
       records.push(record);
-      await this.journal.append({ kind: "STAGE_ACCEPTED", stage: stage.stage, digest: record.resultManifestDigest ?? digest({ verdict }) }).catch(() => undefined);
+      if (!priorAccepted) {
+        try {
+          await this.journal.append({ kind: "STAGE_ACCEPTED", stage: stage.stage, digest: record.resultManifestDigest ?? digest({ verdict }),
+            ...(record.candidate ? { candidate: record.candidate } : {}), ...(stage.stage === 3 ? { buildArtifactSha256 } : {}) });
+        } catch { throw new JourneyHalted(stage.stage, "QDEV_JOURNAL_ACCEPT", records); } // fail closed: an unrecorded acceptance cannot be enforced on resume
+      }
     }
     if (!verdict || !last) throw new JourneyHalted(4, "QDEV_JOURNEY_INCOMPLETE", records);
     let delivery;

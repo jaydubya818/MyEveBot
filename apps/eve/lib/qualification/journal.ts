@@ -9,7 +9,10 @@ export type JournalEvent =
   | { kind: "STAGE_BOUND"; stage: number; workId: string; allowanceId: string }
   | { kind: "OP_CLAIMED"; stage: number; key: string }
   | { kind: "OP_SETTLED"; stage: number; key: string }
-  | { kind: "STAGE_ACCEPTED"; stage: number; digest: string }
+  /** Full canonical Result expectations for stages 1-3, persisted before any stage effect and compared on resume. */
+  | { kind: "STAGE_EXPECTATION"; stage: 1 | 2 | 3; digest: string; expected: unknown }
+  /** The exact authenticated identity accepted for the stage. A resumed journey must reproduce it or halt. */
+  | { kind: "STAGE_ACCEPTED"; stage: number; digest: string; candidate?: { commit: string; tree: string }; buildArtifactSha256?: string }
   | { kind: "AGENT_EXECUTION"; stage: number; requestId: string; workOrderId: string; runId: string }
   | { kind: "HALTED"; stage: number; code: string };
 
