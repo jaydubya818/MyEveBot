@@ -4711,6 +4711,16 @@
       "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority.",
       "sha256": "3696755c62bc71893c399db4ad7b755e31a06914b9875de1c8eca51477a0b7e4"
     },
+    "lib/qualification/agent-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "Disabled-by-default Sofie/Deep Agent adapter and guarded entrypoint for the qdev journey over an injected execution port. Requires explicit host enablement, the qualified owner/project binding and real-provider availability; refusals before start are proven no-sends; after start any failure, missing final-usage proof or non-executor record is unknown exposure (fenced, never resent). The coding execution tuple comes only from the host-owned executor record. No enrollment, transport, credential, payment or authority.",
+      "sha256": "567bda77efc2172daf4936d74402a098fbefef0c1f8634bcb7c1378a8e3f05d3"
+    },
+    "lib/qualification/myapps-revisions.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Prior-revision and restore-point readers over the existing MyApps installation state for the delivery observer. Captures the prior state once before delivery, reports an authenticated absence for a first install, and refuses rather than invents a restore point. No install, enable, rollback or deployment authority.",
+      "sha256": "548b2216370bb85d6ca062b114f655bcacd4645e4b8b0c561067a09a932371d4"
+    },
     "lib/qualification/static-build.ts": {
       "classification": "READ_ONLY",
       "reason": "MyApps port over the existing StaticArtifactCandidate and verifyStaticBuildClaim contracts; releases the build identity only after the signed claim verifies against retained bytes, then delegates to the served-file observer. No deployment, signer, route or authority.",
