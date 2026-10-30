@@ -36,7 +36,7 @@ export function syntheticFactory(){
   expectedByStage[n]=expected;
   return {signed,candidate:{commit:candidate,tree:candTreeId},manifest};
  }
- return {pair,key,baseline,factoryVersion,sourceDigest,stage,expectedByStage,producerPem:key.publicKey};
+ return {pair,key,baseline,factoryVersion,sourceDigest,configuration,configurationDigest,factoryId,stage,expectedByStage,producerPem:key.publicKey};
 }
 
 /** A separately administered synthetic verifier (disjoint key set from the producer). */

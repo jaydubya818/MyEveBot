@@ -4653,8 +4653,43 @@
     },
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
-      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes.",
-      "sha256": "0fb3f7a0bd0b887c5af66f29aabd184c2c062fdff5ee218a5ad72c70101d84ac"
+      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook.",
+      "sha256": "091ff60444cba9c8f6e11a3fa1c3101951bc9293875c621efe9a933bbf3ec9ab"
+    },
+    "lib/qualification/journal.ts": {
+      "classification": "INTERNAL",
+      "reason": "Orchestration journal for qdev-20261029-01 restart recovery: append-only, non-financial, lives in the app database. The qdev_* ledger stays the only accounting authority; the journal only prevents re-sending after a restart. Independent source review PENDING.",
+      "sha256": "c284fd718531bcafb8bae2ce4542c1518c1ee911aa347bc5e8ff18f35611808e"
+    },
+    "lib/qualification/relay-tools.ts": {
+      "classification": "ENFORCED",
+      "reason": "Deep Agent -> Relay developer-tool boundary: discovery shows only grant-permitted tools and every execution is re-authorized against the exact grant (repository, base, output branch, no force/workflow/admin/deployment) before the injected transport is reached. Holds no credential. Not wired to a production caller. Independent source review PENDING.",
+      "sha256": "f56f83bc4411a735663d38f75f5784bbf0c6e2fad8f107c903b9310669d1da9b"
+    },
+    "lib/qualification/factory-dispatch.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure check that an admitted Factory binding (existing V4 validator) matches the approved FactoryVersion and the exact start commit/tree; creates no accounting or authority and dispatches nothing. Independent source review PENDING.",
+      "sha256": "f9af5540d61bc48a3799d3117b74b7619c54d73d5c549ee924b37aabc3992f9d"
+    },
+    "lib/qualification/verifier-handoff.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure digest-only verifier handoff builder; carries no protected specification content or key. Independent source review PENDING.",
+      "sha256": "423518a1289916e16223eb4715ea9466f9e7852fd75d0e413e62f689376f348f"
+    },
+    "lib/qualification/rollback.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure MyApps rollback decision naming the exact restore target; performs no installation change. Independent source review PENDING.",
+      "sha256": "e3db81819aaaf2caeec84548e4c3fa0541ea0ebfb1c04b11728e7dbaf5cff226"
+    },
+    "lib/qualification/presentation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure owner-safe journey projection; never states readiness and grants no authority. Independent source review PENDING.",
+      "sha256": "4c6a9ab2b132941f442dce1ffb460c1864f00d18ef49bd49efa9668a416e9673"
+    },
+    "lib/qualification/wiring.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes injected agent, Relay, Factory, verifier and MyApps ports into the journey environment; every effect is routed through the qdev spend gate, pre-send validation fails as a proven no-send. Wired to no production caller; ports are caller-supplied. Independent source review PENDING.",
+      "sha256": "c6a4820f70c7599bf29478b561b256e6914fafc0d4c3a35161681000473b38bc"
     }
   }
 }

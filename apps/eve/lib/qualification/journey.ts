@@ -2,11 +2,12 @@ import type { QualificationAccounting, QualificationProjectInput, QualificationP
 import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
 import { digest } from "../engineering/contract.ts";
 import type { LocalResultV4Expected, ResultKey } from "../engineering/factory-producer-protocol.ts";
-import { QualificationGate, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
+import { QualificationGate, ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import { validateJourneyPlan, type JourneyPlan } from "./plan.ts";
 import { consumeStageResult, type AcceptedStageResult } from "./result.ts";
 import { verifyVerdict, type SignedVerdict, type VerifierKey, type Verdict } from "./verdict.ts";
 import { acceptDelivery } from "./delivery.ts";
+import { InMemoryJournal, type JournalEvent, type JourneyJournal } from "./journal.ts";
 
 export type StageExpected = Omit<LocalResultV4Expected, "inputCommit" | "inputTree" | "factoryVersion" | "sourceDigest">;
 /** Everything that touches a provider, a Factory, the custodian or MyApps is injected.
@@ -25,6 +26,10 @@ export interface JourneyEnvironment {
   observeDelivery(candidate: { commit: string; tree: string }): Promise<unknown>;
   newAllowanceId(stage: number): string;
   now?: () => number;
+  /** Called after a stage Result was accepted (also on resume), so adapters can track the accepted candidate chain. */
+  onStageAccepted?(stage: 1 | 2 | 3, candidate: { commit: string; tree: string; buildArtifactSha256: string }): void;
+  /** Durable orchestration journal; enables restart recovery without re-sending. */
+  journal?: JourneyJournal;
   /** Synthetic tests only; the default is the approved dashboard baseline. */
   baseline?: { commit: string; tree: string };
 }
@@ -48,8 +53,10 @@ export type JourneyEvidence = {
  */
 export class QualificationJourney {
   private readonly gate: QualificationGate;
+  private readonly journal: JourneyJournal;
   constructor(private readonly accounting: QualificationAccounting, private readonly project: QualificationProjectInput, private readonly env: JourneyEnvironment) {
     this.gate = new QualificationGate(accounting);
+    this.journal = env.journal ?? new InMemoryJournal();
   }
 
   async run(rawPlan: unknown): Promise<JourneyEvidence> {
@@ -64,12 +71,31 @@ export class QualificationJourney {
       const bindingId = "qdev-20261029-01:stage:" + stage.stage;
       let work;
       try {
-        work = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
-        const allowanceId = this.env.newAllowanceId(stage.stage);
-        work = await this.accounting.bind(work, allowanceId);
-        for (const op of stage.operations)
-          await this.gate.run({ admission: work, allowanceId: work.local_allowance_id as string, operationKey: op.key, purpose: op.purpose,
-            reserveMicrousd: op.reserveMicrousd, send: () => this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose }) });
+        const events = await this.journal.read();
+        const bound = events.find(e => e.kind === "STAGE_BOUND" && e.stage === stage.stage) as Extract<JournalEvent, { kind: "STAGE_BOUND" }> | undefined;
+        const settled = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
+        const claimed = new Set(events.filter(e => e.kind === "OP_CLAIMED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
+        // Recovery: an operation claimed but never settled is ambiguous exposure. Fence it; never re-send.
+        const dangling = stage.operations.find(op => claimed.has(op.key) && !settled.has(op.key));
+        const pending = stage.operations.filter(op => !settled.has(op.key));
+        if (bound && pending.length === 0) {
+          work = { id: bound.workId } as Awaited<ReturnType<QualificationAccounting["bind"]>>; // fully accounted earlier: no ledger call
+        } else {
+          work = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
+          const allowanceId = bound?.allowanceId ?? this.env.newAllowanceId(stage.stage);
+          work = await this.accounting.bind(work, allowanceId);
+          if (!bound) await this.journal.append({ kind: "STAGE_BOUND", stage: stage.stage, workId: work.id, allowanceId });
+          if (dangling) { await this.gate.recoverInterrupted(work); throw new Error("QDEV_RECOVERY_UNKNOWN"); }
+          for (const op of pending) {
+            await this.gate.run({ admission: work, allowanceId, operationKey: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd,
+              send: async () => {
+                // A journal failure happens before any send, so it is a proven no-send.
+                try { await this.journal.append({ kind: "OP_CLAIMED", stage: stage.stage, key: op.key }); } catch { throw new ProviderNotSent(); }
+                return this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose });
+              } });
+            await this.journal.append({ kind: "OP_SETTLED", stage: stage.stage, key: op.key });
+          }
+        }
       } catch (error) {
         throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
       }
@@ -80,6 +106,7 @@ export class QualificationJourney {
           last = consumeStageResult({ signed: await this.env.collectResult(s), keys: this.env.resultKeys(), project: this.project, stage: s,
             precedingCandidate: preceding, expected: this.env.expectedFor(s), sourceDigest: this.env.sourceDigest, now: this.env.now?.(), baseline: this.env.baseline });
           preceding = { commit: last.candidateCommit, tree: last.candidateTree };
+          this.env.onStageAccepted?.(s, { ...preceding, buildArtifactSha256: last.manifest.artifactDigest });
           record.resultManifestDigest = last.manifestDigest; record.candidate = preceding;
         } else {
           if (!last) throw new Error("QDEV_VERDICT_WITHOUT_CANDIDATE");
@@ -95,6 +122,7 @@ export class QualificationJourney {
         throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
       }
       records.push(record);
+      await this.journal.append({ kind: "STAGE_ACCEPTED", stage: stage.stage, digest: record.resultManifestDigest ?? digest({ verdict }) }).catch(() => undefined);
     }
     if (!verdict || !last) throw new JourneyHalted(4, "QDEV_JOURNEY_INCOMPLETE", records);
     let delivery;

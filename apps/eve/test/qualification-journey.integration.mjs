@@ -7,6 +7,10 @@ import {readFile} from 'node:fs/promises';
 import {Client} from 'pg';
 import {QualificationAccounting,qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
 import {QualificationJourney,JourneyHalted} from '../lib/qualification/journey.ts';
+import {wireJourneyEnvironment} from '../lib/qualification/wiring.ts';
+import {RelayDeveloperTools} from '../lib/qualification/relay-tools.ts';
+import {presentJourney} from '../lib/qualification/presentation.ts';
+import {InMemoryJournal,PostgresJournal,JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
 import {QualificationGate,ProviderNotSent,QualificationGateRefused} from '../lib/qualification/gate.ts';
 import {syntheticFactory,syntheticVerifier,verdictFor,h,digest} from './qualification-synthetic.mjs';
 
@@ -146,6 +150,76 @@ try{
   const foreign=new QualificationGate(new QualificationAccounting({query:async(q,p)=>(await w.rt.query(q,p)).rows},w.t1,w.policy.Q1,qualificationBinding({...w.project,operatingProfileSha256:h('9')})));
   await assert.rejects(foreign.run({admission:bound,allowanceId:allowance,operationKey:'x',purpose:'CODING',reserveMicrousd:10,send:async()=>{sent++;return {known:true,value:1};}}),e=>/PARENT_BINDING_MISMATCH/.test(e.code));
   assert.equal(sent,0);
+ });
+
+ await test('restart recovery: a halted journey resumes from the journal without re-sending any settled operation',async()=>{
+  const w=await world('rec'),journal=new InMemoryJournal();
+  const e1=environment(w);e1.journal=journal;let fail=true;const real=e1.collectResult;
+  e1.collectResult=async n=>{if(n===2&&fail){fail=false;throw new Error('read unavailable');}return real(n);};
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),e=>e instanceof JourneyHalted&&e.stage===2);
+  assert.deepEqual(e1.calls,['s1-0','s1-1','s2-0']);
+  const e2=environment(w);e2.journal=journal;
+  const evidence=await new QualificationJourney(w.accounting,w.project,e2).run(plan());
+  assert.deepEqual(e2.calls,['s3-0','s4-0']);
+  assert.equal(evidence.stages.length,4);assert.equal(await count(w,'qdev_dispatch'),5);
+  assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE state<>'SETTLED'")).rows[0].n,0);
+ });
+ await test('restart recovery: a claimed-but-unsettled operation is ambiguous exposure and is never re-sent',async()=>{
+  const w=await world('rec2'),journal=new InMemoryJournal();
+  const e1=environment(w,{sendFails:'s1-1'});e1.journal=journal;
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),JourneyHalted);
+  const before=await count(w,'qdev_dispatch');
+  const e2=environment(w);e2.journal=journal;
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,e2).run(plan()),JourneyHalted);
+  assert.deepEqual(e2.calls,[]);assert.equal(await count(w,'qdev_dispatch'),before);
+  assert.equal((await w.rt.query("SELECT (qdev_cohort_call($1::jsonb)->>'state') s",[JSON.stringify({mode:'status',cohortId:w.cohort,ownerId:w.policy.Q1.ownerId,slot:'Q1',policySha256:digest(w.policy.Q1),credential:w.t1,projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256})])).rows[0].s,'paused');
+ });
+ await test('the PostgreSQL journal is append-only and round-trips events',async()=>{
+  const w=await world('jrn');await w.db.query(JOURNAL_SCHEMA);
+  const j=new PostgresJournal({query:async(q,p)=>(await w.db.query(q,p)).rows},'j1');
+  await j.append({kind:'STAGE_BOUND',stage:1,workId:randomUUID(),allowanceId:randomUUID()});await j.append({kind:'OP_CLAIMED',stage:1,key:'k'});
+  assert.deepEqual((await j.read()).map(e=>e.kind),['STAGE_BOUND','OP_CLAIMED']);
+  await assert.rejects(w.db.query('UPDATE qjourney_event SET kind=$1',['X']),/QJOURNEY_IMMUTABLE/);
+  await assert.rejects(w.db.query('DELETE FROM qjourney_event'),/QJOURNEY_IMMUTABLE/);
+ });
+
+ const grantFor=()=>({connectionId:'synthetic-connection',repository:QDEV_BASELINE.repository,baseCommit:QDEV_BASELINE.inputCommit,outputBranch:QDEV_BASELINE.outputBranch,
+  permissions:{metadata:'read',contents:'write',actions:'read',deployments:'read'},repositoryAdmin:false,workflowEdit:false,productionDeployment:false});
+ const relayTransport=()=>({discover:async()=>[{name:'write_file',kind:'write_contents'},{name:'deploy',kind:'write_deployment'}],execute:async()=>({ok:true})});
+ /** Ports over the same synthetic Factory/verifier/MyApps used above; `probe` records what each port saw. */
+ function wired(w,{agent,admitFactoryVersion}={}){
+  const base=environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
+  const relay=new RelayDeveloperTools(grantFor(),relayTransport());
+  const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
+   verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,
+   agent:{async run(op,r){probe.agent.push(op.key);return agent?agent(op,r):{known:true,value:'ok'};}},
+   factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',factoryId:f.factoryId,factoryVersion:admitFactoryVersion??f.factoryVersion,
+     requestId:'synthetic-request-'+stage,requestDigest:h('5'),sourceDigest:f.sourceDigest,configurationDigest:f.configurationDigest,workOrderId:randomUUID(),runId:randomUUID(),attemptNumber:1,
+     inputCommit:start.commit,inputTree:start.tree,localSnapshotVersion:4,configuration:f.configuration}),
+    async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
+   verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
+   myapps:{observe:c=>base.observeDelivery(c)}});
+  return {env,probe};
+ }
+ await test('wired ports: agent, Relay, Factory dispatch, verifier handoff and MyApps compose into a gated journey',async()=>{
+  const w=await world('wire'),{env,probe}=wired(w);
+  const evidence=await new QualificationJourney(w.accounting,w.project,env).run(plan());
+  assert.equal(evidence.stages.length,4);assert.deepEqual(probe.agent,['s1-0','s1-1','s2-0']);
+  assert.equal(probe.factory.length,1);assert.equal(probe.factory[0].inputCommit,evidence.stages[1].candidate.commit);
+  assert.equal(probe.verifier.length,1);assert.equal(probe.verifier[0].candidateCommit,evidence.stages[2].candidate.commit);
+  assert.equal(presentJourney(evidence).readiness,'NOT_CLAIMED');
+ });
+ await test('wired ports: a Factory admission with the wrong FactoryVersion is a proven no-send; the Factory port is never called',async()=>{
+  const w=await world('wirebad'),{env,probe}=wired(w,{admitFactoryVersion:h('9')});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_PROVIDER_NOT_SENT');
+  assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
+  assert.equal((await w.db.query("SELECT state FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].state,'NOT_DISPATCHED');
+ });
+ await test('wired ports: an agent that attempts a forbidden Relay action is stopped by the grant, and the Relay transport is never reached',async()=>{
+  const w=await world('wirerelay');let reached=0;
+  const {env}=wired(w,{agent:async(op,relay)=>{const [t]=await relay.discover();await relay.execute(t,{branch:'main',path:'a'});reached++;return {known:true,value:1};}});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPOSURE_UNKNOWN');
+  assert.equal(reached,0);
  });
 }finally{
  await Promise.all(clients.map(c=>c.end().catch(()=>{})));
