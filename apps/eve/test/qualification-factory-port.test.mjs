@@ -28,8 +28,8 @@ function port(f,opts={}){
   const calls=[];
   const queue=[...(reads??[terminal(f)])];
   const live={prepared:async r=>{calls.push(['prepared',r.requestId]);return readback??{requestId:f.b.requestId,workOrderId:f.b.workOrderId,runId:f.b.runId,state:'PREPARED',snapshot:f.snapshot};},
-    dispatch:async i=>{calls.push(['dispatch',i.requestId]);},
-    read:async i=>{calls.push(['read',i.requestId]);return queue.length>1?queue.shift():queue[0];},
+    dispatch:async i=>{calls.push(['dispatch',i.requestId]);if(opts.dispatchError)throw opts.dispatchError;},
+    read:async i=>{calls.push(['read',i.requestId]);if(opts.readError)throw opts.readError;return queue.length>1?queue.shift():queue[0];},
     result:async b=>{calls.push(['result',b.requestId]);return hasEnvelope?envelope:{state:'COMPLETED',result:{signed:true}};}};
   let t=0;
   return {calls,port:new LiveFactoryPort({enabled,live,retained:()=>retained??{binding:f.raw,identity:f.identity,request:f.request},settleTimeoutMs,pollMs:10,now:()=>t,sleep:async ms=>{t+=ms;}})};
@@ -120,4 +120,13 @@ test('F4: preflight proves the prepared execution against the exact accepted sta
   await refused(other.port.preflight(1,{commit:'3'.repeat(40),tree:start.tree}),'QDEV_FACTORY_START_MISMATCH');
   await refused(other.port.preflight(1,{commit:start.commit,tree:'4'.repeat(40)}),'QDEV_FACTORY_START_MISMATCH');
   assert.deepEqual(other.calls.map(c=>c[0]),['prepared','prepared']);   // no dispatch ever
+});
+test('F5: a ProviderNotSent from a nested layer after dispatch began is ambiguous exposure, never a tombstone',async()=>{
+  for(const [name,opts] of [['read',{readError:new ProviderNotSent('read preflight refusal')}],['dispatch',{dispatchError:new ProviderNotSent('client says not sent')}]]){
+    const f=fixture(),{port:p}=port(f,opts);await p.ready(1);
+    await assert.rejects(p.dispatch(p.admit(1,start)),e=>!(e instanceof ProviderNotSent)&&e.message==='QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS'&&e.cause instanceof ProviderNotSent,name);
+  }
+  // the genuine pre-dispatch refusals stay proven no-sends
+  const f=fixture(),{port:p}=port(f);
+  await assert.rejects(p.dispatch({...p.admit.call({ready_:new Map([[1,{binding:f.b}]])},1,start)}),ProviderNotSent);
 });

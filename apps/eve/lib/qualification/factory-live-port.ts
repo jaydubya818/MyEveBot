@@ -105,7 +105,13 @@ export class LiveFactoryPort implements FactoryPort {
     if (this.c.enabled !== true) throw new ProviderNotSent("factory disabled");
     const ready = [...this.ready_.values()].find(r => r.binding.operationId === binding.operationId);
     if (!ready || canonical(ready.binding) !== canonical(binding)) throw new ProviderNotSent("binding not prepared");
-    // Any failure from here on is ambiguous exposure: the gate fences, it never resends.
+    // Any failure from here on is ambiguous exposure: the gate fences, it never resends. A ProviderNotSent
+    // thrown by a nested layer (client, readback) must not tombstone an operation whose dispatch has begun.
+    try { return await this.sendAndSettle(ready); }
+    catch (error) { throw new Error("QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS", { cause: error }); }
+  }
+
+  private async sendAndSettle(ready: Ready): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
     await this.c.live.dispatch(ready.identity);
     const now = this.c.now ?? Date.now, sleep = this.c.sleep ?? (ms => new Promise<void>(r => setTimeout(r, ms)));
     const deadline = now() + (this.c.settleTimeoutMs ?? 30 * 60_000);

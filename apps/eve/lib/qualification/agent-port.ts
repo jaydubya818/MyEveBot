@@ -39,6 +39,8 @@ export interface AgentExecutionPort {
   record(handle: string): Promise<AgentRunRecord | null>;
 }
 export class AgentNotStarted extends Error {}
+/** Post-start failure: a plain Error (never ProviderNotSent) so the gate fences instead of tombstoning. */
+const ambiguous = (code: string, cause: unknown) => new Error(code, { cause });
 export class AgentPortRefused extends Error { constructor(readonly code: string) { super(code); } }
 
 export type DeepAgentConfig = {
@@ -71,9 +73,16 @@ export class DeepAgentAdapter implements AgentPort {
     } catch { throw new ProviderNotSent("agent admission refused"); }
     let handle: string;
     try { handle = (await this.c.port.start(task)).handle; }
-    catch (error) { if (error instanceof AgentNotStarted) throw new ProviderNotSent("agent not started"); throw error; }
+    catch (error) {
+      // Only the explicit whole-execution pre-start proof is a no-send. Any other failure (including a
+      // ProviderNotSent thrown by a nested layer) happened once start began and is ambiguous exposure.
+      if (error instanceof AgentNotStarted) throw new ProviderNotSent("agent not started");
+      throw ambiguous("QDEV_AGENT_START_AMBIGUOUS", error);
+    }
     // From here the provider may have been charged: never throw ProviderNotSent, never resend.
-    const record = await this.c.port.record(handle);
+    let record: AgentRunRecord | null;
+    try { record = await this.c.port.record(handle); }
+    catch (error) { throw ambiguous("QDEV_AGENT_RECORD_UNAVAILABLE", error); }
     const trusted = !!record && record.source === "EXECUTOR_RECORD" && record.taskKey === op.key
       && record.ownerId === this.c.ownerId && record.projectSha256 === this.c.projectSha256 && record.usageFinal === true;
     if (!trusted) return { known: false };

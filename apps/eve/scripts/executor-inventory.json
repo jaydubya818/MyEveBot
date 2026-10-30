@@ -4654,7 +4654,7 @@
     "lib/qualification/journey.ts": {
       "classification": "INTERNAL",
       "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook.",
-      "sha256": "f74f7392e00f3d9b988f882740890dd6823273a123f8afc145e72f9adcedf0c0"
+      "sha256": "7e6c32e69a38171a15bf1395cefe07b8ac2e252e8de59d95365abb5e63de3fb1"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
@@ -4704,7 +4704,7 @@
     "lib/qualification/factory-live-port.ts": {
       "classification": "ENFORCED",
       "reason": "Adapter from the qdev journey's FactoryPort to the existing LiveFactoryAdapter (ordered admission through FactoryCapabilityClient). Disabled by default; prepared-execution proof precedes any gate claim; dispatch sends once for the exact prepared binding and reports known only after exact-identity terminal quiescence with zero active/unknown spend (acknowledgment is never final usage; timeout/UNKNOWN/unproven spend leaves the gate fenced, never resent); unwraps the result-channel envelope and reports pending states without redispatch. No new transport, accounting or authority.",
-      "sha256": "d2df059a5e134e8a550d78ee73bb7ebda3f8d0c8534707758a5f4cf97f567b20"
+      "sha256": "cf311f01eccba3e6c43842d8878a82fa579566741195d5f4bb61708d44667c2f"
     },
     "lib/qualification/factory-stage-admission.ts": {
       "classification": "ENFORCED",
@@ -4719,7 +4719,7 @@
     "lib/qualification/agent-port.ts": {
       "classification": "ENFORCED",
       "reason": "Disabled-by-default Sofie/Deep Agent adapter and guarded entrypoint for the qdev journey over an injected execution port. Requires explicit host enablement, the qualified owner/project binding and real-provider availability; refusals before start are proven no-sends; after start any failure, missing final-usage proof or non-executor record is unknown exposure (fenced, never resent). The coding execution tuple comes only from the host-owned executor record. No enrollment, transport, credential, payment or authority.",
-      "sha256": "567bda77efc2172daf4936d74402a098fbefef0c1f8634bcb7c1378a8e3f05d3"
+      "sha256": "840468a8a2fe97838b43af8110083fd39de913995c6c2a5d97d72003f34f263c"
     },
     "lib/qualification/myapps-revisions.ts": {
       "classification": "READ_ONLY",

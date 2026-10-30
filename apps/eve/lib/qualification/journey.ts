@@ -94,21 +94,21 @@ export class QualificationJourney {
     let last: AcceptedStageResult | undefined;
     let verdict: Verdict | undefined;
     let buildArtifactSha256: string | undefined;
-    // Persist (or, on resume, compare) the full canonical Result expectations for every Factory-consumed stage
-    // BEFORE any reservation, claim or send. A changed expectation halts: it never replaces the retained one.
-    for (const stage of plan.stages) {
-      if (stage.stage > 3) continue;
-      try { await this.freezeExpectation(stage.stage as 1 | 2 | 3); }
-      catch (error) { throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records); }
-    }
     for (const stage of plan.stages) {
       const bindingId = "qdev-20261029-01:stage:" + stage.stage;
       let work;
       try {
         const events = await this.journal.read();
-        if (stage.stage <= 3 && this.env.preflightStage) {
-          const done = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
-          if (stage.operations.some(op => op.purpose === "FACTORY" && !done.has(op.key))) await this.env.preflightStage(stage.stage as 1 | 2 | 3);
+        if (stage.stage <= 3) {
+          // Async preparation runs after the predecessor was accepted and before this stage's first effect; later
+          // stages' run identities are never required up front. Then the stage's full canonical Result expectation
+          // is persisted (or, on resume, compared) BEFORE any reservation, claim or send: a changed expectation
+          // halts and never replaces the retained one.
+          if (this.env.preflightStage) {
+            const done = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));
+            if (stage.operations.some(op => op.purpose === "FACTORY" && !done.has(op.key))) await this.env.preflightStage(stage.stage as 1 | 2 | 3);
+          }
+          await this.freezeExpectation(stage.stage as 1 | 2 | 3);
         }
         const bound = events.find(e => e.kind === "STAGE_BOUND" && e.stage === stage.stage) as Extract<JournalEvent, { kind: "STAGE_BOUND" }> | undefined;
         const settled = new Set(events.filter(e => e.kind === "OP_SETTLED" && e.stage === stage.stage).map(e => (e as { key: string }).key));

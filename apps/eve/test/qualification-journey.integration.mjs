@@ -13,6 +13,7 @@ import {presentJourney} from '../lib/qualification/presentation.ts';
 import {InMemoryJournal,PostgresJournal,JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
 import {QualificationGate,ProviderNotSent,QualificationGateRefused} from '../lib/qualification/gate.ts';
 import {syntheticFactory,syntheticVerifier,verdictFor,h,digest} from './qualification-synthetic.mjs';
+import {DeepAgentAdapter} from '../lib/qualification/agent-port.ts';
 import {testContract} from './qualification-relay-testing.mjs';
 
 const connection=process.env.MYEVE_ISOLATED_COHORT_TEST_DATABASE;
@@ -295,14 +296,30 @@ try{
   assert.equal(await count(w,'qdev_work'),2);assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
   assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].n,0);
  });
- await test('F3: expectations are persisted before any effect, in full, for stages 1-3',async()=>{
+ await test('F5: a nested ProviderNotSent after the agent started fences the operation; it is not tombstoned and no successor is admitted',async()=>{
+  const w=await world('f5agent'),base=environment(w);
+  const adapter=new DeepAgentAdapter({enabled:true,ownerId:w.policy.Q1.ownerId,slot:'Q1',projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256,
+    port:{available:()=>true,start:async()=>({handle:'h'}),record:async()=>{throw new ProviderNotSent('read preflight refusal');}}});
+  const {env,probe}=wired(w,{base,agent:(op,relay)=>adapter.run(op,relay)});
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPOSURE_UNKNOWN');
+  const rows=(await w.db.query("SELECT state FROM qdev_dispatch ORDER BY created_at")).rows.map(r=>r.state);
+  assert.ok(rows.length>=1&&!rows.includes('NOT_DISPATCHED'),JSON.stringify(rows));
+  assert.equal(await count(w,'qdev_work'),1);assert.equal(probe.factory.length,0);
+  assert.equal((await w.rt.query("SELECT (qdev_cohort_call($1::jsonb)->>'state') s",[JSON.stringify({mode:'status',cohortId:w.cohort,ownerId:w.policy.Q1.ownerId,slot:'Q1',policySha256:digest(w.policy.Q1),credential:w.t1,projectSha256:w.binding.projectSha256,sourceSha256:w.binding.sourceSha256})])).rows[0].s,'paused');
+ });
+ await test('F3: each stage persists its full expectation before that stage has any effect, and only after its predecessor was accepted',async()=>{
   const w=await world('f3pre'),journal=new InMemoryJournal(),base=environment(w);
-  const {env}=wired(w,{base,journal,agent:async()=>{throw new Error('socket reset after write');}});
-  await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()));
-  const ev=await journal.read(),firstEffect=ev.findIndex(e=>e.kind==='STAGE_BOUND'||e.kind==='OP_CLAIMED');
-  const exps=ev.filter(e=>e.kind==='STAGE_EXPECTATION');
-  assert.deepEqual(exps.map(e=>e.stage),[1,2,3]);assert.ok(ev.indexOf(exps[2])<firstEffect);
-  for(const e of exps){assert.deepEqual(e.expected,w.factory.expectedByStage[e.stage]);assert.equal(e.digest,digest(e.expected));}
+  await rerun(w,base,journal);
+  const ev=await journal.read();
+  for(const n of [1,2,3]){
+    const exp=ev.findIndex(e=>e.kind==='STAGE_EXPECTATION'&&e.stage===n),bound=ev.findIndex(e=>e.kind==='STAGE_BOUND'&&e.stage===n),prev=ev.findIndex(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===n-1);
+    assert.ok(exp>=0&&exp<bound,'stage '+n);if(n>1)assert.ok(prev<exp,'stage '+n+' frozen after predecessor accepted');
+    const e=ev[exp];assert.deepEqual(e.expected,w.factory.expectedByStage[n]);assert.equal(e.digest,digest(e.expected));
+  }
+  // a failing stage 1 never forces later stages' identities into the journal
+  const w2=await world('f3lazy'),j2=new InMemoryJournal(),{env}=wired(w2,{journal:j2,agent:async()=>{throw new Error('socket reset after write');}});
+  await assert.rejects(new QualificationJourney(w2.accounting,w2.project,env).run(plan()));
+  assert.deepEqual((await j2.read()).filter(e=>e.kind==='STAGE_EXPECTATION').map(e=>e.stage),[1]);
  });
  await test('F3: an accepted stage keeps its exact manifest and build identity; a different signed Result or build halts',async()=>{
   const w=await world('f3id'),journal=new InMemoryJournal(),base=environment(w);

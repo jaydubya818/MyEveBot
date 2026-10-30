@@ -32,7 +32,7 @@ test('guarded entrypoint refuses a foreign owner, binding, purpose or unavailabl
 });
 test('only a provable not-started failure is ProviderNotSent; any other start failure is ambiguous and rethrown',async()=>{
   await assert.rejects(build({},{start:async()=>{throw new AgentNotStarted();}}).a.run(coding,relay),ProviderNotSent);
-  await assert.rejects(build({},{start:async()=>{throw new Error('socket reset after write');}}).a.run(coding,relay),e=>!(e instanceof ProviderNotSent)&&/socket reset/.test(e.message));
+  await assert.rejects(build({},{start:async()=>{throw new Error('socket reset after write');}}).a.run(coding,relay),e=>!(e instanceof ProviderNotSent)&&/socket reset/.test(e.cause.message));
 });
 test('coding reports the executor-record execution and only that; the task carries the grant-checked relay',async()=>{
   const {a,calls}=build();
@@ -54,4 +54,12 @@ test('untrusted, foreign, non-final or incomplete records are unknown exposure, 
 });
 test('Sofie planning needs a trusted final record but reports no execution binding',async()=>{
   const {a}=build();assert.deepEqual(await a.run({stage:1,key:'s1-0',purpose:'SOFIE'},relay),{known:true,value:{sofie:'completed'}});
+});
+
+test('F5: ProviderNotSent from a nested layer once start began (start or record) is ambiguous, not a tombstone; AgentNotStarted stays a no-send',async()=>{
+  for(const [name,port] of [['start',{start:async()=>{throw new ProviderNotSent('nested');}}],['record',{record:async()=>{throw new ProviderNotSent('read preflight refusal');}}]]){
+    const {a}=build({},port);
+    await assert.rejects(a.run(coding,relay),e=>!(e instanceof ProviderNotSent)&&/^QDEV_AGENT_(START_AMBIGUOUS|RECORD_UNAVAILABLE)$/.test(e.message)&&e.cause instanceof ProviderNotSent,name);
+  }
+  await assert.rejects(build({},{start:async()=>{throw new AgentNotStarted();}}).a.run(coding,relay),ProviderNotSent);
 });
