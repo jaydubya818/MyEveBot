@@ -4785,6 +4785,11 @@
       "classification": "ENFORCED",
       "reason": "Server side of the /qdev/v1 verifier contract as a framework-neutral handler for the independently administered verifier. Authenticates callers by SHA-256 credential digest, pins handoffs to the one installation binding, accepts each candidate handoff once, evaluates each candidate at most once (durably marked before it runs) under a hard deadline through an injected protected evaluator, and signs the verdict with an injected protected signer; evaluator failure, deadline overrun or a lost verdict after the evaluation began is a signed NOT_RUN. Holds no criteria, key material, credential or enrollment; spend and deployment authority none.",
       "sha256": "342c2022e3fbc01aef0f8d2cf3c7480924c51948ba632076b59b8054f68430c5"
+    },
+    "lib/qualification/retained-admissions.ts": {
+      "classification": "ENFORCED",
+      "reason": "Durable, append-only retention of the per-stage Factory admission in the qdev journal database. A claim row is inserted before preparation so only one process ever prepares a stage; the stored admission is re-validated with the authenticated binding parser on every read; a claim without an admission (crash or failed preparation) is PENDING and never re-prepared. Adds no transport, credential, spend or enrollment authority.",
+      "sha256": "14d9f18704defa1d3b1d686ad8d2c3d19609ebb688f9b6da69c3ae89344e3445"
     }
   }
 }
