@@ -4679,7 +4679,7 @@
     "lib/qualification/rollback.ts": {
       "classification": "INTERNAL",
       "reason": "Pure MyApps rollback decision naming the exact restore target; performs no installation change. Independent source review PENDING.",
-      "sha256": "e3db81819aaaf2caeec84548e4c3fa0541ea0ebfb1c04b11728e7dbaf5cff226"
+      "sha256": "123b230d822134eb313090675d9bc841e55483299da83420b9695cb2f6b23049"
     },
     "lib/qualification/presentation.ts": {
       "classification": "INTERNAL",
@@ -4754,7 +4754,7 @@
     "lib/qualification/static-build.ts": {
       "classification": "READ_ONLY",
       "reason": "MyApps port over the existing StaticArtifactCandidate and verifyStaticBuildClaim contracts; releases the build identity only after the signed claim verifies against retained bytes, then delegates to the served-file observer. No deployment, signer, route or authority.",
-      "sha256": "9fc7191dcab7604522651ecfa7d874539b6edc4cbb6d7dfef43eaeb8d947d4ab"
+      "sha256": "a24114042eb75894680ea05b6e411fb5edd780806ec7c7940b8cf7a700d68c04"
     },
     "lib/qualification/relay-tool-contract.ts": {
       "classification": "ENFORCED",
@@ -4825,6 +4825,16 @@
       "classification": "ENFORCED",
       "reason": "AI SDK binding of the MeteredModel seam. The language model (provider, gateway, credentials) is supplied by the host's protected custody; this adapter issues exactly one provider request per runtime step (no SDK multi-step loop, no tool execute, no retries, no fallback), passes the runtime's output ceiling and abort signal, declares Relay tools without executing them (the strict input schema and grant check run in RelayDeveloperTools), maps SDK usage to input/output tokens and returns null when none was reported. Holds no credential, provider, spend or enrollment authority.",
       "sha256": "309a9a4818d4289fe8754e593ef2d976d5cac152bdfe192ac2d47b8e9cb4d63f"
+    },
+    "lib/qualification/static-publish.ts": {
+      "classification": "ENFORCED",
+      "reason": "MyApps static release controller: the separately authorized host that StaticArtifactCandidate.candidateBytes names. Writes the exact retained artifact bytes once into an immutable release (0444 files, 0555 dirs) under a private owner-only root, re-verifies manifest digest, every file, absence of extra entries and links before any install or restore, and moves one atomic state pointer (tmp, fsync, rename) bound to a single appId, owner and project. Rollback moves the pointer only to a retained version whose digest and restore-point id exactly match the plan; nothing is deleted. The GET/HEAD handler verifies length and sha256 of every served file and fails closed. Every mutation requires the host-injected activation permit and refuses when absent; the optional Node transport binds loopback only. Holds no key, credential, network egress, deployment, tester or enrollment authority. Evidence: qualification-static-publish.test.mjs (tamper, extension, symlink, foreign scope, concurrency, stale and live lock, root hygiene, activation absent).",
+      "sha256": "17a55f0728a2e667f01abfa9266a9900571fe7235a41fa590b587c55f3b39f12"
+    },
+    "lib/qualification/static-publish-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "MyAppsPort that publishes only after re-verifying a signed PASS verdict for exactly the retained build artifact and candidate, captures the prior installation state once before delivery, publishes through the activation-gated release controller, observes the served files with the existing delivery observer, and restores the captured prior revision or authenticated absence on any failed observation (a failed restore is reported). Adds no authority: a verdict never grants activation. Evidence: qualification-static-publish.test.mjs delivery cases (non-PASS, wrong artifact, activation absent, tampered served bytes, failed restore).",
+      "sha256": "6edb3243914355ec6f42a04cb9829cba912c621377a71b32231bec220c864972"
     }
   }
 }

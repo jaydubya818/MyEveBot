@@ -39,6 +39,13 @@ export class StaticBuildMyAppsPort implements MyAppsPort {
     return { buildArtifactSha256: bareSha256(artifact.artifactDigest) };
   }
 
+  /** The retained, claim-verified artifact for exactly this candidate, for the separately authorized publish host. */
+  retainedArtifact(candidate: { commit: string; tree: string }): StaticArtifactCandidate {
+    const r = this.retained;
+    if (!r || r.commit !== candidate.commit || r.tree !== candidate.tree) throw new StaticBuildRefused("QDEV_BUILD_NOT_RETAINED");
+    return r.candidate;
+  }
+
   async observe(candidate: { commit: string; tree: string }): Promise<unknown> {
     const r = this.retained;
     if (!r || r.commit !== candidate.commit || r.tree !== candidate.tree) throw new StaticBuildRefused("QDEV_BUILD_NOT_RETAINED");

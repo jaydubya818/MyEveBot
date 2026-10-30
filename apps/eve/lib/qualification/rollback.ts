@@ -7,7 +7,7 @@ export type RollbackPlan =
   | { kind: "REMOVE_INSTALLATION"; installation: InstallationIdentity; absenceAuthenticationSha256: string; restorePointId: string };
 export class RollbackRefused extends Error { constructor(readonly code: string) { super(code); } }
 
-export function planRollback(observation: DeliveryObservation, installation: InstallationIdentity): RollbackPlan {
+export function planRollback(observation: Pick<DeliveryObservation, "environment" | "priorRevision" | "rollbackRestorePointId">, installation: InstallationIdentity): RollbackPlan {
   if (!installation?.installationId || installation.environment !== observation.environment) throw new RollbackRefused("QDEV_ROLLBACK_INSTALLATION_IDENTITY");
   if (!observation.rollbackRestorePointId) throw new RollbackRefused("QDEV_ROLLBACK_NO_RESTORE_POINT");
   const p = observation.priorRevision;

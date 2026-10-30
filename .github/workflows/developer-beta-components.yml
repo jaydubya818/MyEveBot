@@ -166,6 +166,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-static-build-export.test.mjs
       - name: Qualification concrete RuntimePorts composition and verifier transport (disposable loopback endpoint)
         run: node --import tsx --test apps/eve/test/qualification-runtime-ports.test.mjs
+      - name: Qualification MyApps static release controller (immutable releases, atomic pointer, verifying handler, exact rollback, gated delivery port)
+        run: node --import tsx --test apps/eve/test/qualification-static-publish.test.mjs
       - name: Qualification MyApps prior-revision and restore-point readers
         run: node --import tsx --test apps/eve/test/qualification-myapps-revisions.test.mjs
       - name: Qualification delivery identity composition (build claim, verdict, served files)
