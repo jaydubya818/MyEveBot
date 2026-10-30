@@ -16,6 +16,7 @@ on:
       - codex/qdev-20261030-root-auth
       - codex/qdev-20261030-peer-corrections
       - codex/qdev-20261030-native-budget-binding
+      - codex/qdev-20261030-sofie-deadline
 
 permissions:
   contents: read

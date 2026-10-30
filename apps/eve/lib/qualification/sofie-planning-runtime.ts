@@ -14,7 +14,7 @@ import { RelayDenied } from "./relay-grant.ts";
  *    running total and a total above the reservation is a violation. Any violation, missing usage, thrown error or abort leaves the run
  *    `usageFinal: false`, which the journey treats as unproven spend (fenced, never settled, never resent).
  *  - `start` returns only after the whole conversation has settled (every model step and tool call has returned or been aborted), so a
- *    record exists only for a quiescent run. A step that ignores its abort and never settles is reported as `QDEV_SOFIE_NOT_QUIESCENT`
+ *    record exists only for a quiescent run. A model step or Relay call that ignores its abort and never settles is reported as `QDEV_SOFIE_NOT_QUIESCENT`
  *    after the deadline plus grace; that is ambiguous exposure and fences the operation.
  *  - Only the first step can be refused as "not started": once a model request has been issued every failure is ambiguous.
  *
@@ -123,6 +123,18 @@ export class SofiePlanningRuntime implements AgentRuntime {
     return maxOutputTokens >= 1 ? { maxOutputTokens, promptBound } : null;
   }
 
+  /** Abort is a request for cessation. Bound every awaited model/tool call by the same grace window, including an already-aborted signal. */
+  private async awaitQuiescence<T>(pending: Promise<T>, signal: AbortSignal): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onAbort = () => { timer ??= setTimeout(() => rejectUnsettled(new SofieRuntimeRefused("QDEV_SOFIE_NOT_QUIESCENT")), this.c.quiescenceGraceMs); };
+    let rejectUnsettled!: (error: Error) => void;
+    const unsettled = new Promise<never>((_, reject) => { rejectUnsettled = reject; });
+    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) onAbort();
+    try { return await Promise.race([pending, unsettled]); }
+    finally { clearTimeout(timer); signal.removeEventListener("abort", onAbort); }
+  }
+
   private async run(task: AgentTask, tools: RelayTool[], messages: ModelMessage[]): Promise<SofieRunSummary> {
     const controller = new AbortController();
     let timedOut = false;
@@ -131,6 +143,7 @@ export class SofiePlanningRuntime implements AgentRuntime {
     const violate = (reason: string) => { usageFinal = false; outcome = "VIOLATION"; code = reason; };
     try {
       for (;;) {
+        if (controller.signal.aborted) { usageFinal = false; outcome = "FAILED"; code = "QDEV_SOFIE_DEADLINE"; break; }
         if (steps >= this.c.maxSteps) { outcome = "STEP_LIMIT"; break; }
         const plan = this.plan(messages, tools, committed, task.reserveMicrousd);
         if (!plan) { outcome = steps === 0 ? "FAILED" : "BUDGET_EXHAUSTED"; break; }
@@ -138,15 +151,11 @@ export class SofiePlanningRuntime implements AgentRuntime {
         let output: ModelStepOutput;
         // Cessation is the step promise settling; the abort signal alone is never taken as cessation.
         const call = Promise.resolve().then(() => this.c.model.step({ system: this.c.system, messages: [...messages], tools: [...tools], maxOutputTokens: plan.maxOutputTokens, signal: controller.signal }));
-        let graceTimer: ReturnType<typeof setTimeout> | undefined;
-        const unsettled = new Promise<never>((_, reject) => controller.signal.addEventListener("abort", () => {
-          graceTimer = setTimeout(() => reject(new SofieRuntimeRefused("QDEV_SOFIE_NOT_QUIESCENT")), this.c.quiescenceGraceMs);
-        }, { once: true }));
-        try { output = await Promise.race([call, unsettled]); }
+        try { output = await this.awaitQuiescence(call, controller.signal); }
         catch (error) {
           if (error instanceof SofieRuntimeRefused) throw error;
           usageFinal = false; outcome = "FAILED"; code = timedOut ? "QDEV_SOFIE_DEADLINE" : "QDEV_SOFIE_MODEL_ERROR"; break;
-        } finally { clearTimeout(graceTimer); }
+        }
         const usage = output?.usage;
         if (!usage || !Number.isSafeInteger(usage.inputTokens) || !Number.isSafeInteger(usage.outputTokens) || usage.inputTokens < 0 || usage.outputTokens < 0) { violate("QDEV_SOFIE_USAGE_MISSING"); break; }
         if (usage.outputTokens > plan.maxOutputTokens || usage.inputTokens > plan.promptBound) {
@@ -155,11 +164,15 @@ export class SofiePlanningRuntime implements AgentRuntime {
         }
         committed += stepCostMicrousd(this.c.price, usage.inputTokens, usage.outputTokens);
         if (committed > task.reserveMicrousd) { violate("QDEV_SOFIE_OVER_RESERVE"); break; }
+        if (controller.signal.aborted) { usageFinal = false; outcome = "FAILED"; code = "QDEV_SOFIE_DEADLINE"; break; }
         if (!Array.isArray(output.messages) || !Array.isArray(output.toolCalls)) { violate("QDEV_SOFIE_OUTPUT"); break; }
         messages.push(...output.messages);
         if (output.toolCalls.length === 0) { outcome = "COMPLETED"; break; }
         if (output.toolCalls.length > 8) { violate("QDEV_SOFIE_TOOL_CALLS"); break; }
-        for (const toolCall of output.toolCalls) messages.push(await this.runTool(task, toolCall, controller.signal));
+        for (const toolCall of output.toolCalls) {
+          if (controller.signal.aborted) break;
+          messages.push(await this.awaitQuiescence(this.runTool(task, toolCall, controller.signal), controller.signal));
+        }
       }
     } finally { clearTimeout(timer); controller.abort(); }
     return { usageFinal, spentMicrousd: committed, steps, outcome, ...(code ? { code } : {}) };
