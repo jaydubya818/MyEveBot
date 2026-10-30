@@ -49,7 +49,7 @@ export type StageStoreSourcesConfig = {
   newRequestId?: () => string;
 };
 
-type StageState = { work: Work; decisionId: string; config: FactoryRuntime; proof: MissionControlAdmissionProof | null };
+type StageState = { work: Work; decisionId: string; config: FactoryRuntime; proof: MissionControlAdmissionProof | null; start?: StageStart };
 
 export class StoreBackedStageSources implements FactoryStageAdmissionSources {
   readonly enabled: boolean;
@@ -87,7 +87,7 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
       if (kept.terminal) return refuse("QDEV_STAGE_PREPARATION_TERMINAL");
       if (kept.request.workGeneration !== work.generation || kept.request.input.baseRef !== start.commit) return refuse("QDEV_STAGE_PREPARATION_BASE");
       if (kept.configurationHash !== factoryExecutionConfigurationHash(config)) return refuse("QDEV_STAGE_CONFIGURATION_CHANGED");
-      st.decisionId = decision.id;
+      st.decisionId = decision.id; st.start = start;
       return kept.request;
     }
     const snapshot = await this.c.authority.assess(work);
@@ -109,7 +109,7 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     const saved = await this.c.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
       WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING *`, [...this.scope(id), decision.id, preparation]);
     if (!saved[0]) return refuse("QDEV_STAGE_PREPARATION_CHANGED");
-    st.decisionId = decision.id;
+    st.decisionId = decision.id; st.start = start;
     return request;
   }
 
@@ -126,10 +126,28 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     return this.c.adapterFor(config.connection).prepare(request, proof);
   }
 
+  private authorityAtPredecessor(st: StageState): Pick<FactoryRouteAuthority, "read"> {
+    const start = st.start;
+    if (!start) return refuse("QDEV_STAGE_AUTHORITY_BASE");
+    return {
+      read: async (work, requestId, prepared) => {
+        if (!prepared || prepared.input.baseRef !== start.commit) return refuse("QDEV_STAGE_AUTHORITY_BASE");
+        const snapshot = await this.c.authority.read(work, requestId, prepared);
+        if (!snapshot.factory) return refuse("QDEV_STAGE_AUTHORITY_BASE");
+        return { ...snapshot, factory: { ...snapshot.factory, baseSha: start.commit } };
+      },
+    };
+  }
+
   async identity(stage: 1 | 2 | 3, work: StageWork, readback: FactoryReadback, request: FactoryPrepareRequest): Promise<FactoryExecutionIdentity> {
     const st = this.state.get(stage);
     if (!st?.decisionId || st.work.id !== work.id) return refuse("QDEV_STAGE_WORK_CHANGED");
-    const receipt = await (this.c.admitPrepared ?? productionRegisterAndAdmit)({ store: this.c.store, receipts: this.c.receipts, authority: this.c.authority, work: st.work, decisionId: st.decisionId,
+    // Stages 2/3 start at the accepted predecessor candidate, which the production route authority cannot know: it pins the writer base to the single
+    // approved manifest. The writer SQL guard compares that base with the Factory-reported inputCommit, so for these stages the authority's base is bound to
+    // the authenticated predecessor start the admitter already verified (never a model- or Factory-supplied value). Stage 1 keeps the unmodified production
+    // authority, so its approved-base cross-check is untouched, and the production approved-base preflight is neither called nor relaxed here.
+    const authority = stage === 1 ? this.c.authority : this.authorityAtPredecessor(st);
+    const receipt = await (this.c.admitPrepared ?? productionRegisterAndAdmit)({ store: this.c.store, receipts: this.c.receipts, authority, work: st.work, decisionId: st.decisionId,
       request, response: readback, missionControl: st.proof, config: st.config });
     if (receipt?.decisionId !== st.decisionId || typeof receipt.runId !== "string" || !receipt.runId) return refuse("QDEV_STAGE_RUN_MISSING");
     const run = await this.c.writers.inspect(work.id, receipt.runId);

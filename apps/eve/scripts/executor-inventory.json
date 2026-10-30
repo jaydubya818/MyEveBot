@@ -4839,12 +4839,12 @@
     "lib/engineering/factory-admission-step.ts": {
       "classification": "ENFORCED",
       "reason": "Shared ordered admission bodies extracted verbatim from FactoryWorkDriver: buildFactoryPrepareRequest (the retained prepare request for a Work revision at an explicit base, with the spend contract and the conversation Factory ceiling) and admitPreparedFactory / registerAndAdmitPrepared (owner MissionControl admission, LiveFactoryAdapter.prepare, authenticated binding, receipt registration, RouteAdmissionService.admit which acquires the PREPARED writer). Never dispatches, stops or takes custody; adds no transport or authority; spend must be startable before registration. Evidence: qualification-stage-store-sources.integration.mjs and the existing writer and receipt integrations.",
-      "sha256": "3f0e8310731bf1ea990c9953a231f3e5ef55d35b468ece678d4a9aa4df23452d"
+      "sha256": "a4ac87dfc60bdf96505490cf27a3419b2e556b9e60485bf79493b21455845e50"
     },
     "lib/qualification/factory-stage-store-sources.ts": {
       "classification": "ENFORCED",
       "reason": "Store-backed sources for FactoryStageAdmitter over WorkStore, RoutingStore, FactoryReceiptStore and FactoryWriterStore. Reads only the host-pinned engineering Work of each stage, starts stage 1 at the pinned baseline and stages 2 and 3 only at the accepted predecessor candidate, persists the Factory preparation once per Work revision through the same route authority, eligibility decision and database guards as the driver (reusing a persisted preparation only at the identical base and configuration, refusing a terminal one), then runs owner MissionControl admission, the injected adapter prepare, the shared register and admit body and the PREPARED writer identity. It never calls the production approved-base preflight (a single pinned manifest used only by FactoryWorkDriver.start) and never relaxes it. It does not dispatch, stop or take custody and holds no credential, transport or paid authority. Evidence: qualification-stage-store-sources.integration.mjs.",
-      "sha256": "9f856aa36f09f7bf01d7a96c5fa81353d31926d05c3a6b8499065cd14184dc08"
+      "sha256": "63448f4a23e58160a6fd739532e20aad0e82098af246fb471318f86bcc1f4beb"
     }
   }
 }

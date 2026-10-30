@@ -56,7 +56,7 @@ export async function admitPreparedFactory(c: {
 
 /** After a PREPARED readback: authenticated binding -> receipt registration -> RouteAdmissionService.admit (acquires the PREPARED writer). Never dispatches. */
 export async function registerAndAdmitPrepared(c: {
-  store: WorkStore; receipts: FactoryReceiptStore; authority: FactoryRouteAuthority; work: Work; decisionId: string; request: FactoryPrepareRequest;
+  store: WorkStore; receipts: FactoryReceiptStore; authority: Pick<FactoryRouteAuthority, "read">; work: Work; decisionId: string; request: FactoryPrepareRequest;
   response: FactoryReadback; missionControl: MissionControlAdmissionProof | null; config: FactoryRuntime; assertActive?: () => Promise<void>;
 }): Promise<RouteAdmissionReceipt> {
   const assertActive = c.assertActive ?? (async () => {});

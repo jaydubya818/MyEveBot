@@ -14,6 +14,10 @@ import {FactoryStageAdmitter,FactoryStageAdmissionRefused} from '../lib/qualific
 import {syntheticFactory} from './qualification-synthetic.mjs';
 import {FactoryReceiptStore} from '../lib/engineering/factory-receipt-store.ts';
 import {FactoryWriterStore} from '../lib/engineering/factory-writer.ts';
+import {FactoryRouteAuthority} from '../lib/engineering/factory-routing.ts';
+import {NativeRouteAuthority} from '../lib/engineering/native-routing.ts';
+import {LiveFactoryAdapter} from '../lib/engineering/factory-live-adapter.ts';
+import {digest} from '../lib/engineering/contract.ts';
 import {capabilityRegistry} from '@mission-control/capability-control';
 import {readFile} from 'node:fs/promises';
 import {closeCapabilityWorkDatabase} from '../lib/capability-control/admission.ts';
@@ -138,7 +142,26 @@ test('identity refuses a writer that is not PREPARED, and the admitter refuses w
   await assert.rejects(new FactoryStageAdmitter(sources({1:id,2:'',3:''},{admission:async()=>null})).retained(1),code('QDEV_STAGE_ADMISSION_REQUIRED'));
 });
 
-test('REAL register + RouteAdmissionService.admit + FactoryWriterStore: the stage identity is the actually admitted PREPARED writer; a restarted source never admits a second writer',async()=>{
+test('stage 2/3 writer authority is bound only to the authenticated predecessor start; any other prepared base, or a missing factory binding, is refused',async()=>{
+  const id=await seedWork(),pred={commit:'a'.repeat(40),tree:'b'.repeat(40)},seen=[];
+  const base={readConfig:async()=>baseConfig(),assess:async()=>({selection:{route:'MYFACTORY',reason:'x'},contract:{budgetUsd:1.3,routingProfile:ROUTING_PROFILE},context:{},facts:{}}),
+    read:async(w,rid,prepared)=>{seen.push('production');return {factory:{requestId:rid,baseSha:'9'.repeat(40)}};}};
+  let probe;
+  const s=new StoreBackedStageSources({enabled:true,store,authority:base,receipts:{},writers:{inspect:async()=>({dispatch_state:'PREPARED'}),identity:async()=>({})},adapterFor:()=>({}),
+    workIds:{1:'',2:id,3:''},baseline,predecessor:()=>pred,eligibility:()=>({admitted:true,reasons:[]}),admission:async()=>({synthetic:'proof'}),newRequestId:()=>randomUUID(),
+    admitPrepared:async c=>{probe=c.authority;return {decisionId:c.decisionId,runId:randomUUID()};}});
+  const w=await s.work(2),req=await s.request(2,await s.start(2)),readback={};
+  await s.identity(2,w,readback,req);
+  const bound=await probe.read(await store.get(id),'req-1',req);
+  assert.equal(bound.factory.baseSha,pred.commit,'the writer base is the accepted predecessor, not the approved baseline');
+  await assert.rejects(probe.read(await store.get(id),'req-1',{...req,input:{...req.input,baseRef:'f'.repeat(40)}}),code('QDEV_STAGE_AUTHORITY_BASE'));
+  await assert.rejects(probe.read(await store.get(id),'req-1'),code('QDEV_STAGE_AUTHORITY_BASE'));
+  base.read=async()=>({});
+  await assert.rejects(probe.read(await store.get(id),'req-1',req),code('QDEV_STAGE_AUTHORITY_BASE'));
+});
+
+test('REAL authority + receipts + RouteAdmissionService.admit + writer SQL guard: stage 1 at the baseline and stage 2 at the accepted predecessor each admit exactly one PREPARED writer; a restart never admits a second',async()=>{
+  const oldNativeRead=NativeRouteAuthority.prototype.read,oldLiveHealth=LiveFactoryAdapter.prototype.healthy;
   const agentId='agent-1';
   await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps) VALUES($1,$2,'Sofie','sofie-real','engineer','qdev stage fixture',true,'active',1.3,3600,30) ON CONFLICT DO NOTHING`,[agentId,owner]);
   // Capability-control installation fixture (same SQL/evidence shape as the existing owner-route integration), disposable database only.
@@ -169,13 +192,15 @@ test('REAL register + RouteAdmissionService.admit + FactoryWriterStore: the stag
   await pool.query(`GRANT ${role} TO CURRENT_USER`);
   const atomicDb={query:db.query,atomic:async action=>{const c=await pool.connect();try{await c.query('BEGIN');await c.query('SET LOCAL ROLE '+role);const r=await action({query:async(sql,v)=>(await c.query(sql,v)).rows});await c.query('COMMIT');return r;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
   const astore=new WorkStore(store.principal,atomicDb);
+  for(const reviewStage of [1,2]){
+  try{
   const id=await seedWork();await pool.query("UPDATE engineering_work_model_budget SET deadline=clock_timestamp()+interval '120 seconds' WHERE work_id=$1",[id]);
   const e=fx.stage(1,baseline).manifest.execution,rid=randomUUID();
   const receipts=new FactoryReceiptStore(store.principal,db),writers=new FactoryWriterStore(astore);
   const cfg=baseConfig();Object.assign(cfg.connection,{factoryId:e.factoryId,factoryVersion:e.factoryVersion,sourceDigest:e.sourceDigest,configurationDigest:e.configurationDigest});
   const provider={id:cfg.connection.factoryId,version:cfg.connection.factoryVersion},scope={kind:'personal',id:owner};
   // Authority facts are synthetic seams (no MissionControl enrollment, no provider); the stores, SQL guards and RouteAdmissionService are the real bodies.
-  const realAuthority={...authorityFor(cfg),read:async(work,receiptId,request)=>{
+  const nativeFixtureAuthority={...authorityFor(cfg),read:async(work,receiptId,request)=>{
     const now=Date.now();
     const contract={contractVersion:2,workId:work.id,workVersion:work.version,criteriaVersion:work.criteriaVersion,scope,humanOwnerId:owner,coordinatingAgentId:agentId,objective:work.objective,
       criteria:work.criteria.map(c=>({id:c.id,statement:c.statement,evidence:'deterministic'})),resourceRefs:['repository:'+work.repository],allowedOperations:['factory.submit'],budgetUsd:1.3,
@@ -189,19 +214,29 @@ test('REAL register + RouteAdmissionService.admit + FactoryWriterStore: the stag
       writerState:'NONE',factoryAdmission:'ALLOW',relayGrant:'UNKNOWN',peerPolicy:'UNKNOWN',observedAt:new Date(now).toISOString()};
     return {contract,context,facts,factory:{requestId:receiptId,repository:work.repository,baseSha:request.input.baseRef,profileHash:'5'.repeat(64),allowedPaths:['src/App.tsx'],deadline:request.deadline}};
   }};
-  const adapter={prepare:async r=>({requestId:r.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'PREPARED',snapshot:{...e,requestId:r.requestId,inputCommit:baseline.commit},spend:{status:'KNOWN',ceilingUsd:1}})};
-  const mk=()=>new StoreBackedStageSources({enabled:true,store:astore,authority:realAuthority,receipts,writers,adapterFor:()=>adapter,workIds:{1:id,2:'',3:''},baseline,predecessor:()=>null,
+  const chained={commit:'e'.repeat(40),tree:'f'.repeat(40)},requiredStart=reviewStage===1?baseline:chained;
+  cfg.engineering.approvedBase={sha:baseline.commit};
+  cfg.connection={...cfg.connection,origin:'http://127.0.0.1:12345',token:'c'.repeat(64),keys:[fx.key],sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,factoryVersion:fx.factoryVersion,
+    qualification:{...cfg.connection.qualification,profileHash:digest(cfg.engineering.profile),spendEnforced:true}};
+  const oldNative=NativeRouteAuthority.prototype.read,oldHealth=LiveFactoryAdapter.prototype.healthy;
+  NativeRouteAuthority.prototype.read=async function(work){return nativeFixtureAuthority.read(work,randomUUID(),{input:{baseRef:requiredStart.commit},deadline:new Date(Date.now()+100000).toISOString()});};
+  LiveFactoryAdapter.prototype.healthy=async()=>true;
+  const realAuthority=new FactoryRouteAuthority(astore,async()=>cfg);
+  const adapter={prepare:async r=>({requestId:r.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'PREPARED',snapshot:{...e,requestId:r.requestId,inputCommit:requiredStart.commit,inputTree:requiredStart.tree},spend:{status:'KNOWN',ceilingUsd:1}})};
+  const mk=()=>new StoreBackedStageSources({enabled:true,store:astore,authority:realAuthority,receipts,writers,adapterFor:()=>adapter,workIds:{1:reviewStage===1?id:'',2:reviewStage===2?id:'',3:''},baseline,predecessor:()=>chained,
     admission:async()=>null,eligibility:()=>({admitted:true,reasons:[]}),newRequestId:()=>rid});
   // The admitter refuses a null MissionControl proof by design, so the sources are driven directly with a null proof: receipts, RouteAdmissionService and the writer store are real.
-  const drive=async src=>{const w=await src.work(1),st=await src.start(1),req=await src.request(1,st);await src.missionControl(1,w);
-    const readback=await src.prepare(req,null);return {req,identity:await src.identity(1,w,readback,req)};};
+  const drive=async src=>{const w=await src.work(reviewStage),st=await src.start(reviewStage),req=await src.request(reviewStage,st);await src.missionControl(reviewStage,w);
+    const readback=await src.prepare(req,null);return {req,identity:await src.identity(reviewStage,w,readback,req)};};
   const {req,identity}=await drive(mk());
   const runs=await query('SELECT id,status FROM engineering_route_runs WHERE work_id=$1',[id]);
   assert.equal(runs.length,1,'exactly one real run admitted');
   assert.equal((await writers.inspect(id,runs[0].id)).dispatch_state,'PREPARED');
-  assert.equal(identity.runId,runs[0].id);assert.equal(identity.workId,id);assert.equal(identity.baseSha,baseline.commit);assert.equal(req.input.baseRef,baseline.commit);
+  assert.equal(identity.runId,runs[0].id);assert.equal(identity.workId,id);assert.equal(identity.baseSha,requiredStart.commit);assert.equal(req.input.baseRef,requiredStart.commit);
   assert.equal((await query('SELECT count(*)::int n FROM engineering_factory_requests WHERE work_id=$1',[id]))[0].n,1);
   // A restarted source reuses the persisted preparation, but the already admitted decision fails closed instead of admitting a second writer.
   const again=await drive(mk()).then(()=>null,e=>e);assert.equal(again?.code,'routing_changed','an already admitted decision fails closed');
   assert.equal((await query('SELECT count(*)::int n FROM engineering_route_runs WHERE work_id=$1',[id]))[0].n,1,'no second writer');
+  }finally{NativeRouteAuthority.prototype.read=oldNativeRead;LiveFactoryAdapter.prototype.healthy=oldLiveHealth;}
+  }
 });
