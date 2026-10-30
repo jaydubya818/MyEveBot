@@ -1,0 +1,30 @@
+name: QDEV operations source guards
+
+on:
+  push:
+    branches: [codex/qdev-20261030-ops-safety, codex/qdev-20261030-peer-corrections]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fake-cli:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Syntax and fake service boundaries only
+        shell: bash
+        run: |
+          for file in scripts/qdev-ops/*.sh; do bash -n "$file"; done
+          cd "$RUNNER_TEMP"
+          env -i PATH="$PATH" QDEV_OPS_TEST_STORE_PARENT="$GITHUB_WORKSPACE" \
+            bash "$GITHUB_WORKSPACE/scripts/qdev-ops/test-qdev-ops.sh"
+          env -i PATH="$PATH" node --test "$GITHUB_WORKSPACE/scripts/qdev-ops/test-setup-safety.test.mjs"

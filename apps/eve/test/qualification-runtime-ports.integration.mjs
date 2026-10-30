@@ -12,7 +12,7 @@ import {createServer} from 'node:http';
 import {Client} from 'pg';
 import {QualificationAccounting,qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
 import {JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
-import {QualificationRoot} from '../lib/qualification/root.ts';
+import {QualificationRoot,registerQualificationHost} from '../lib/qualification/root.ts';
 import {createRuntimeHostSource} from '../lib/qualification/host-source.ts';
 import {assembleQualificationHost} from '../lib/qualification/host-bootstrap.ts';
 import {runtimePortsProvider} from '../lib/qualification/runtime-ports.ts';
@@ -206,6 +206,42 @@ try{
    assert.ok((await w.db.query('SELECT count(*)::int n FROM qjourney_event')).rows[0].n>0);
    assert.equal(await new QualificationRoot(r.host).run({ownerId:w.policy.Q2.ownerId,kind:'human'}).catch(e=>e.code),'QDEV_ROOT_UNCONFIGURED');
   }finally{await hn.stop();}
+ });
+
+ await test('actual Eve definitions and agent selector use the real free model, tool and loader/root journey with zero provider egress',async()=>{
+  const w=await world('sdk'),hn=await harness(w),previousFlag=process.env.MYEVE_QDEV_ENABLED,originalFetch=globalThis.fetch;
+  let forbiddenEgress=0;
+  try{
+   process.env.MYEVE_QDEV_ENABLED='true';
+   globalThis.fetch=async(input,init)=>{
+    const url=new URL(input instanceof Request?input.url:String(input));
+    if(url.protocol!=='http:'||url.hostname!=='127.0.0.1'){forbiddenEgress++;throw Error('UNEXPECTED_PROVIDER_EGRESS');}
+    return originalFetch(input,init);
+   };
+   await w.db.query(JOURNAL_SCHEMA);
+   const r=runtime(w,runtimePortsProvider(()=>hn.custody()));
+   // Use the actual Eve definitions, not mocks of defineAgent/defineDynamic or a replacement conversation model.
+   const [{default:agent},{default:toolDefinition}]=await Promise.all([import('../agent/agent.ts'),import('../agent/tools/qualification_journey.ts')]);
+   registerQualificationHost(r.host);
+   const principal={principalId:r.owner,principalType:'user',authenticator:'myeve-web-session',attributes:{owner:'true'}};
+   const context={session:{id:randomUUID(),auth:{current:principal,initiator:principal}},messages:[]};
+   const selected=await agent.model.events['step.started']({},context);
+   const user={role:'user',content:[{type:'text',text:APPROVED}]};
+   const requested=await selected.model.doGenerate({prompt:[user],tools:[{type:'function',name:'qualification_journey',inputSchema:{type:'object'}}]});
+   assert.equal(requested.finishReason.unified,'tool-calls');
+   const call=requested.content.find(p=>p.type==='tool-call');assert.equal(call.toolName,'qualification_journey');
+   const tool=await toolDefinition.events['step.started']({},context);assert.ok(tool);
+   const out=await tool.execute({},context);assert.equal(out.status,'COMPLETED_UNCLAIMED',JSON.stringify(out));
+   const answer=await selected.model.doGenerate({prompt:[user,{role:'assistant',content:[call]},{role:'tool',content:[{
+    type:'tool-result',toolCallId:call.toolCallId,toolName:call.toolName,output:{type:'json',value:out},
+   }]}]});
+   assert.equal(answer.finishReason.unified,'stop');assert.match(answer.content.find(p=>p.type==='text').text,/completed all four stages/);
+   assert.equal(forbiddenEgress,0);assert.equal(await count(w,'qdev_dispatch'),5);
+   assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/verdict']);
+  }finally{
+   globalThis.fetch=originalFetch;if(previousFlag===undefined)delete process.env.MYEVE_QDEV_ENABLED;else process.env.MYEVE_QDEV_ENABLED=previousFlag;
+   await hn.stop();
+  }
  });
 
  await test('independence: the actual static-build producer cannot also issue the independent verdict',async()=>{
