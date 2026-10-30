@@ -13,6 +13,7 @@ import {presentJourney} from '../lib/qualification/presentation.ts';
 import {InMemoryJournal,PostgresJournal,JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
 import {QualificationGate,ProviderNotSent,QualificationGateRefused} from '../lib/qualification/gate.ts';
 import {syntheticFactory,syntheticVerifier,verdictFor,h,digest} from './qualification-synthetic.mjs';
+import {QualificationRoot,QualificationRootRefused} from '../lib/qualification/root.ts';
 import {DeepAgentAdapter} from '../lib/qualification/agent-port.ts';
 import {testContract} from './qualification-relay-testing.mjs';
 
@@ -194,7 +195,7 @@ try{
  function wired(w,{agent,admitFactoryVersion,admitOverrides={},base:given,journal,preflight}={}){
   const base=given??environment(w),f=w.factory,probe={agent:[],factory:[],verifier:[]};
   const relay=new RelayDeveloperTools(grantFor(),relayTransport(),testContract);
-  const env=wireJourneyEnvironment({project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
+  const config={project:w.project,relay,expectedFor:base.expectedFor,resultKeys:f.key?[f.key]:[],sourceDigest:f.sourceDigest,
    verifierKeys:base.verifierKeys,producerKeyIds:base.producerKeyIds,producerPublicKeysPem:base.producerPublicKeysPem,newAllowanceId:()=>randomUUID(),baseline:f.baseline,journal,
    agent:{async run(op,r){probe.agent.push(op.key);if(agent)return agent(op,r);if(op.purpose!=='CODING')return {known:true,value:'ok'};const {requestId,workOrderId,runId}=base.expectedFor(op.stage);return {known:true,value:{execution:{requestId,workOrderId,runId}}};}},
    factory:{admit:(stage,start)=>({workId:randomUUID(),workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'synthetic-agent',...base.expectedFor(stage),factoryVersion:admitFactoryVersion??f.factoryVersion,sourceDigest:f.sourceDigest,
@@ -202,8 +203,9 @@ try{
     ...(preflight?{preflight}:{}),
     async dispatch(b){probe.factory.push(b);return {known:true,value:'ok'};},fetchResult:n=>base.collectResult(n)},
    verifier:{async submit(hf){probe.verifier.push(hf);return {known:true,value:'ok'};},fetchVerdict:c=>base.collectVerdict(c)},
-   myapps:{retainBuild:c=>base.retainBuild(c),observe:c=>base.observeDelivery(c)}});
-  return {env,probe,base};
+   myapps:{retainBuild:c=>base.retainBuild(c),observe:c=>base.observeDelivery(c)}};
+  const env=wireJourneyEnvironment(config);
+  return {env,probe,base,config};
  }
  await test('wired ports: agent, Relay, Factory dispatch, verifier handoff and MyApps compose into a gated journey',async()=>{
   const w=await world('wire'),{env,probe}=wired(w);
@@ -295,6 +297,36 @@ try{
   await assert.rejects(new QualificationJourney(w.accounting,w.project,env).run(plan()),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_STAGE_ADMISSION_TERMINAL');
   assert.equal(await count(w,'qdev_work'),2);assert.equal(probe.factory.length,0);assert.equal(probe.verifier.length,0);
   assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE purpose='FACTORY'")).rows[0].n,0);
+ });
+ /** Authenticated root: the only composition of the real adapters into the gated journey. */
+ await test('root: disabled, unauthenticated, foreign or unconfigured callers are refused before anything is built or charged',async()=>{
+  const w=await world('root'),{config}=wired(w);let built=0;
+  const { project, relay, ...ports } = config;
+  const cfg=()=>({ownerId:w.policy.Q1.ownerId,project:w.project,plan:plan(),accounting:w.accounting,journal:new InMemoryJournal(),relay,ports});
+  const human={ownerId:w.policy.Q1.ownerId,kind:'human'};
+  const mk=(enabled,config)=>new QualificationRoot({enabled:()=>enabled,config:async()=>{built++;return config;}});
+  const refused=(p,code)=>assert.rejects(p,e=>e instanceof QualificationRootRefused&&e.code===code,code);
+  await refused(mk(false,cfg()).run(human),'QDEV_ROOT_DISABLED');
+  assert.equal(built,0);
+  for(const bad of [null,{...human,kind:'agent'},{...human,guest:true},{...human,delegatedRole:true},{...human,subagent:true},{ownerId:'',kind:'human'}])
+    await refused(mk(true,cfg()).run(bad),'QDEV_ROOT_PRINCIPAL');
+  assert.equal(built,0);
+  await refused(mk(true,null).run(human),'QDEV_ROOT_UNCONFIGURED');
+  await refused(mk(true,{...cfg(),ownerId:w.policy.Q2.ownerId}).run(human),'QDEV_ROOT_OWNER');
+  assert.equal(await count(w,'qdev_work'),0);assert.equal(await count(w,'qdev_dispatch'),0);
+ });
+ await test('root: the owner-authenticated root runs the real wiring and journey and reports an unclaimed presentation',async()=>{
+  const w=await world('rootok'),{config,probe}=wired(w);
+  const { project, relay, ...ports } = config;
+  const root=new QualificationRoot({enabled:()=>true,config:async owner=>({ownerId:owner,project:w.project,plan:plan(),accounting:w.accounting,journal:new InMemoryJournal(),relay,ports})});
+  const out=await root.run({ownerId:w.policy.Q1.ownerId,kind:'human'});
+  assert.equal(out.status,'COMPLETED_UNCLAIMED');assert.equal(out.readiness,'NOT_CLAIMED');assert.equal(out.authority,'NONE');assert.equal(out.stages.length,4);
+  assert.equal(probe.factory.length,1);assert.equal(await count(w,'qdev_dispatch'),5);
+  // a halted journey is presented, not thrown
+  const w2=await world('roothalt'),hw=wired(w2,{admitFactoryVersion:h('9')});
+  const r2=new QualificationRoot({enabled:()=>true,config:async owner=>({ownerId:owner,project:w2.project,plan:plan(),accounting:w2.accounting,journal:new InMemoryJournal(),relay:hw.config.relay,ports:(({project,relay,...p})=>p)(hw.config)})});
+  const halted=await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});
+  assert.equal(halted.status,'HALTED');assert.equal(halted.haltedAt,3);
  });
  await test('F5: a nested ProviderNotSent after the agent started fences the operation; it is not tombstoned and no successor is admitted',async()=>{
   const w=await world('f5agent'),base=environment(w);

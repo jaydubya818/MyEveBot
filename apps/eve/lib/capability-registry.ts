@@ -453,6 +453,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
   tool("engineering_factory", { description: FACTORY_START_PROPOSAL_CONTRACT, permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG or MYEVE_FACTORY_WORKER_ENABLED"], keywords: ["engineering", "factory", "work", "recovery"] }),
   tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
+  tool("qualification_journey", { description: "Run the approved, ledger-gated qualification journey for the authenticated owner (no parameters); unclaimed presentation only, no readiness or authority.", permissions: ["engineering.work.write"], risk: "high", riskCategories: ["durable-data", "sandbox-data"], configuration: ["MYEVE_QDEV_ENABLED"], keywords: ["qualification", "journey", "factory", "verification", "delivery"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
   tool("get_routine_readiness", {description:"Inspect owner-scoped Routine readiness without changing authority or executing work.",permissions:["routines.read"],configuration:["DATABASE_URL"],keywords:["routine","readiness"]}),
   tool("list_goals", { description: "List owner goals and their progress.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "progress", "status"] }),
@@ -599,6 +600,9 @@ function availabilityFor(
     if(localOwnerAppsConfigured(env))return {status:'available',configured:true};
     return { status: "disabled", configured: false, reason: "MyApps requires separately authorized trusted local composition." };
   }
+  // The qualification journey is dark until the host switch is on; the ledger gate still governs every spend.
+  if (definition.id === "tool.qualification_journey" && env.MYEVE_QDEV_ENABLED !== "true")
+    return { status: "disabled", configured: false, reason: "The qualification journey requires separately authorized activation." };
   // Discovery is gated; execution retains the canonical owner, Work and provider fences.
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
       (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {

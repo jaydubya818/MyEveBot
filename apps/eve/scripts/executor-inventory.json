@@ -2013,7 +2013,7 @@
     "lib/capability-registry.ts": {
       "classification": "ENFORCED",
       "reason": "Existing capability discovery and deployment/agent controls retained. Installed apps become discoverable only with a strict digest-bound local owner registration, exact owner/installation/database matching and existing local capability gates. External Alpha, Vercel and production remain denied; preferences or a local flag alone are insufficient. Availability does not authorize an effect.",
-      "sha256": "9e2e3c140ef298cf5d00d3e712f60c64b23c272f0e44779ca7381a3a815cc967"
+      "sha256": "7a76e0621336ec4b8a35e3c63fd4198593b979e6b8edc35774f6ca0face31fd2"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -4711,6 +4711,16 @@
       "reason": "Ordered stage admission for the qdev journey: owner request, MissionControl admission proof, prepared-execution proof and retained admission must all validate against a snapshot of the Work state before any Factory gate claim. Disabled by default; refuses on stale snapshot, unproven spend or identity mismatch. Composes the existing requestOwnerFactoryAdmission surface and LiveFactoryPort; no new transport, accounting or authority.",
       "sha256": "4f9b922b766dfba10470dc492b1b1bf845ef74e6312b42f323933d44ab2c0779"
     },
+    "lib/qualification/root.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated root composition for the qdev journey: the only caller of wireJourneyEnvironment outside tests. Disabled unless the host switch is on and the host returns a complete trusted configuration; requires the human owner the configuration was issued for (never a guest, delegated role, subagent or model-supplied owner); builds and charges nothing before those checks; the host-owned plan is the only plan. Spend authority remains solely the qdev ledger gate.",
+      "sha256": "b1226c577f010ebc890dde298c955af7cc19f8ee9ba1da61e5fa3436cd73a87a"
+    },
+    "agent/tools/qualification_journey.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-authenticated, parameterless entrypoint to the qdev root. Dark unless MYEVE_QDEV_ENABLED=true; discoverable only to the authenticated human owner (not guest, delegated role or subagent) and rechecked on every execution; reports an unclaimed presentation and grants no readiness or authority.",
+      "sha256": "df3754fe32e9bf0448143440f53ad722cd81d316df0c1abdb59b59a309e767e4"
+    },
     "lib/qualification/factory-ordered-clients.ts": {
       "classification": "ENFORCED",
       "reason": "Constructs the actual FactoryCapabilityClient and LiveFactoryAdapter (requireOrderedAdmission) pair for a hosted cloud Factory connection and refuses loopback local V4 connections with a typed error, because the frozen upstream has no local ordered-admission contract. Does not relax origin equality, binding equality or the ordering requirement; adds no transport or authority.",
@@ -4723,8 +4733,8 @@
     },
     "lib/qualification/myapps-revisions.ts": {
       "classification": "READ_ONLY",
-      "reason": "Prior-revision and restore-point readers over the existing MyApps installation state for the delivery observer. Captures the prior state once before delivery, reports an authenticated absence for a first install, and refuses rather than invents a restore point. No install, enable, rollback or deployment authority.",
-      "sha256": "548b2216370bb85d6ca062b114f655bcacd4645e4b8b0c561067a09a932371d4"
+      "reason": "Prior-revision and restore-point readers over the existing MyApps installation state for the delivery observer. Concurrent callers share the first capture attempt, including failure, so a later read cannot replace the pre-delivery restore target. Returned prior data is detached from retained state. Reports an authenticated absence for a first install and refuses rather than invents a restore point. No install, enable, rollback or deployment authority. Codex-authored F6 correction; independent review pending.",
+      "sha256": "f8f005da3072a80cb145e9f70c10c9353e609eb70d0c0f3239e0419ea4545393"
     },
     "lib/qualification/static-build.ts": {
       "classification": "READ_ONLY",

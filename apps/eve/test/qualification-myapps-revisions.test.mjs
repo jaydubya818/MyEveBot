@@ -29,6 +29,34 @@ test('the prior state is captured once: a post-delivery state can never be repor
   state={installedVersion:2,installedDigest:'sha256:'+'d'.repeat(64),restorableVersions:[1,2]};await r.capture();
   assert.equal((await r.priorRevision()).id,'app-1@1');assert.equal(reads(),1);
 });
+test('overlapping captures share one read and preserve the pre-delivery restore target',async()=>{
+  let reads=0,firstResolve,secondResolve;
+  const r=new MyAppsRevisionReader({source:{read:()=>new Promise(resolve=>{if(reads++===0)firstResolve=resolve;else secondResolve=resolve;})},
+    appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64)});
+  const first=r.capture(),second=r.capture();
+  firstResolve({installedVersion:1,installedDigest:D,restorableVersions:[1]});await first;
+  // A second request can return after delivery and observe the newly installed version.
+  if(secondResolve)secondResolve({installedVersion:2,installedDigest:'sha256:'+'d'.repeat(64),restorableVersions:[1,2]});
+  await second;
+  assert.equal(reads,1);assert.equal((await r.priorRevision()).id,'app-1@1');
+  assert.match(await r.restorePointId(),/^myapps-restore:app-1@1:/);
+});
+test('returned prior data cannot alter the retained restore target',async()=>{
+  const {r}=make({installedVersion:3,installedDigest:D,restorableVersions:[3]});await r.capture();
+  const before=await r.priorRevision(),restore=await r.restorePointId();
+  before.id='app-1@99';before.sha256='f'.repeat(64);
+  assert.deepEqual(await r.priorRevision(),{kind:'REVISION',id:'app-1@3',sha256:'c'.repeat(64)});
+  assert.equal(await r.restorePointId(),restore);
+});
+test('a failed capture remains failed for concurrent and later callers without another read',async()=>{
+  let reads=0;
+  const error=new Error('synthetic state unavailable');
+  const r=new MyAppsRevisionReader({source:{read:async()=>{reads++;throw error;}},appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64)});
+  const first=r.capture(),second=r.capture();
+  await Promise.all([assert.rejects(first,e=>e===error),assert.rejects(second,e=>e===error)]);
+  await assert.rejects(r.capture(),e=>e===error);assert.equal(reads,1);
+  await assert.rejects(r.priorRevision(),e=>e.code==='QDEV_MYAPPS_PRIOR_NOT_CAPTURED');
+});
 test('inconsistent, malformed or non-restorable state is refused, never invented',async()=>{
   for(const [state,code] of [
     [{installedVersion:2,installedDigest:null,restorableVersions:[2]},'QDEV_MYAPPS_STATE_INCONSISTENT'],

@@ -19,11 +19,16 @@ const sha = (t: string) => createHash("sha256").update(t).digest("hex");
 
 export class MyAppsRevisionReader {
   private captured?: { prior: Awaited<ReturnType<DeliveryObserverConfig["priorRevision"]>>; restorePointId: string };
+  private capturePromise?: Promise<void>;
   constructor(private readonly s: { source: InstallationStateSource; appId: string; ownerId: string; projectSha256: string }) {}
 
-  /** Must be called before delivery. Idempotent: the first capture wins. */
-  async capture(): Promise<void> {
-    if (this.captured) return;
+  /** Must be called before delivery. All callers share the first attempt, including its failure. */
+  capture(): Promise<void> {
+    this.capturePromise ??= this.captureOnce();
+    return this.capturePromise;
+  }
+
+  private async captureOnce(): Promise<void> {
     const state = await this.s.source.read(this.s.appId);
     const { installedVersion: v, installedDigest: d } = state;
     if (v === null || d === null) {
@@ -41,6 +46,6 @@ export class MyAppsRevisionReader {
     if (!this.captured) throw new MyAppsRevisionError("QDEV_MYAPPS_PRIOR_NOT_CAPTURED");
     return this.captured;
   }
-  priorRevision = async () => this.get().prior;
+  priorRevision = async () => structuredClone(this.get().prior);
   restorePointId = async () => this.get().restorePointId;
 }
