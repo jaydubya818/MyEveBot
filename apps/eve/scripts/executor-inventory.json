@@ -4808,8 +4808,8 @@
     },
     "lib/qualification/verifier-runner.ts": {
       "classification": "ENFORCED",
-      "reason": "Process-backed evaluator runner for the verifier service: starts one owned child process per evaluation under the service's cap, deadline and grace window, enforces output limits, and proves cessation only when the process has exited (killing the process group and running an injected container cleanup otherwise, else reporting not-quiescent). Holds no criteria, key or credential; the command and its protected criteria are the verifier operator's. No spend, enrollment or deployment authority.",
-      "sha256": "b579d6f092ee82e305dc9e7c4aa9cea78f630b2d8fa5ae1c4b5cd49debd46274"
+      "reason": "Process-backed evaluator runner for the verifier service: starts one owned child process per evaluation under the service's cap, deadline and grace window, enforces output limits, and proves cessation only when the WHOLE process group is gone: on every completion path (normal exit, error, overflow, abort) the group is SIGKILLed and observed absent within a bound, a group still alive or a cleanup that fails or overruns its bound is EvaluatorNotQuiescent. Leader exit alone is never cessation. Holds no criteria, key or credential; the command and its protected criteria are the verifier operator's. No spend, enrollment or deployment authority.",
+      "sha256": "1ef0a9582674ed99ef2de0c2dfa2712d0bbf766182bc2e5c753bd7225b61cfcd"
     },
     "lib/qualification/verifier-store-pg.ts": {
       "classification": "ENFORCED",

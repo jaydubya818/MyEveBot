@@ -4,9 +4,10 @@ import { EvaluatorNotQuiescent, type EvaluatorResult, type QuiescentEvaluator } 
 /**
  * Generic production runner body for the verifier's protected evaluator: it executes the evaluator as an OWNED child process (its own process
  * group), hands it the handoff, candidate identity and charged budget on stdin only, reads one strictly-validated JSON result from stdout, and
- * settles ONLY after the child has been reaped and its stdio closed. An abort (deadline, shutdown) kills the whole process group with SIGKILL and
- * still waits for that cessation; a failed `cleanup` (for example removing a named container) means cessation is not proven and is reported as
- * EvaluatorNotQuiescent, never as success.
+ * settles ONLY after the WHOLE process group has ceased. Leader exit is not group cessation: on every completion path (normal exit, error,
+ * output overflow, abort) the group is SIGKILLed and then observed gone (`kill(-pgid, 0)` reporting ESRCH) within a bound; a group that is
+ * still alive after that bound, and a failed or overlong `cleanup` (for example removing a named container), mean cessation is not proven and
+ * are reported as EvaluatorNotQuiescent, never as success.
  *
  * The evaluator command, its image/criteria and any credential it needs are protected custody; none is read here. The child receives an empty
  * environment plus the entries the host lists explicitly, so no ambient credential is inherited. Descendants that leave the process group and
@@ -19,14 +20,29 @@ export type ProcessEvaluatorConfig = {
   /** The ONLY environment the child sees. */
   env?: Record<string, string>;
   maxOutputBytes?: number;
+  /** Bound for the process group to be observed gone after it is killed (default 2000 ms). */
+  groupExitTimeoutMs?: number;
+  /** Bound for `cleanup` (default 20000 ms); exceeding it is not proven cessation. */
+  cleanupTimeoutMs?: number;
   /** Runs after the child is reaped (for a container: remove it by its identifiable name). Must throw when cessation cannot be proven. */
   cleanup?(): Promise<void>;
   /** Optional hook for tests/observability: receives the child's pid once spawned. */
   onSpawn?(pid: number): void;
 };
 
+/** Kills every member of the group and polls until none remains; false when members are still alive at the bound. */
+async function groupGone(pgid: number, timeoutMs: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try { process.kill(-pgid, "SIGKILL"); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ESRCH") return true; }
+    try { process.kill(-pgid, 0); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ESRCH") return true; }
+    if (Date.now() >= deadline) return false;
+    await new Promise(r => setTimeout(r, 10));
+  }
+}
+
 export function processEvaluator(c: ProcessEvaluatorConfig): QuiescentEvaluator {
-  const maxOutput = c.maxOutputBytes ?? 64 * 1024;
+  const maxOutput = c.maxOutputBytes ?? 64 * 1024, groupTimeout = c.groupExitTimeoutMs ?? 2_000, cleanupTimeout = c.cleanupTimeoutMs ?? 20_000;
   return {
     run(input, context) {
       return new Promise<EvaluatorResult>((resolve, reject) => {
@@ -45,10 +61,15 @@ export function processEvaluator(c: ProcessEvaluatorConfig): QuiescentEvaluator 
         child.stdin!.on("error", () => { /* child exited before reading its input */ });
         child.stdin!.end(JSON.stringify({ handoff: input.handoff, candidate: input.candidate, budgetMicrousd: context.budgetMicrousd }));
         child.on("error", error => { spawnFailed = true; failure ??= error; });
+        // The leader exiting says nothing about its descendants (which may also be holding stdout open): end the group as soon as it exits.
+        child.on("exit", killGroup);
         child.on("close", async (code, signal) => {
           context.signal.removeEventListener("abort", onAbort);
-          try { await c.cleanup?.(); }
-          catch (error) { return reject(new EvaluatorNotQuiescent(error instanceof Error ? error.message : "cleanup failed")); }
+          if (child.pid && !(await groupGone(child.pid, groupTimeout))) return reject(new EvaluatorNotQuiescent("process group still alive"));
+          try {
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            await Promise.race([Promise.resolve(c.cleanup?.()), new Promise<never>((_, rej) => { timer = setTimeout(() => rej(new Error("cleanup timed out")), cleanupTimeout); })]).finally(() => clearTimeout(timer));
+          } catch (error) { return reject(new EvaluatorNotQuiescent(error instanceof Error ? error.message : "cleanup failed")); }
           if (spawnFailed) return reject(failure!);
           if (failure || overflow) return reject(failure ?? new Error("QDEV_EVALUATOR_OUTPUT_LIMIT"));
           if (code !== 0 || signal) return reject(new Error("QDEV_EVALUATOR_EXIT"));

@@ -218,3 +218,30 @@ test('configuration is validated: credential digests, deadline, grace, evaluator
   const rsa=generateKeyPairSync('rsa',{modulusLength:2048}).privateKey.export({type:'pkcs8',format:'pem'}).toString();
   assert.throws(()=>ed25519Signer('k',rsa),/QDEV_VERIFIER_SIGNER_KEY/);
 });
+
+// ---- Leader close is not group cessation (independent review of 954c01ad) ----
+import {readFileSync,rmSync} from 'node:fs';
+const pidAlive=pid=>{try{process.kill(pid,0);return true;}catch{return false;}};
+const directRun=evaluator=>evaluator.run({handoff,candidate},{signal:new AbortController().signal,budgetMicrousd:RESERVE});
+
+test('processEvaluator: a same-group descendant that outlives a normally exiting leader is killed and observed gone before the result settles',async()=>{
+  for(const [label,stdio] of [['stdio ignored',"'ignore'"],['inherits stdout',"['ignore','inherit','ignore']"]]){
+    const pidfile=`/tmp/qdev-desc-${process.pid}-${Math.random().toString(16).slice(2)}`;
+    let leader;
+    const code=`const {spawn}=require('node:child_process'),fs=require('node:fs');
+      const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:false,stdio:${stdio}});c.unref();
+      fs.writeFileSync(process.env.PIDFILE,String(c.pid));
+      fs.writeSync(1,JSON.stringify({outcome:'PASS',usedMicrousd:0}));`;
+    const result=await directRun(processEvaluator({command:process.execPath,args:['-e',code],env:{PIDFILE:pidfile},onSpawn:p=>{leader=p;}}));
+    assert.deepEqual(result,{outcome:'PASS',usedMicrousd:0},label);
+    const childPid=Number(readFileSync(pidfile,'utf8'));rmSync(pidfile,{force:true});
+    assert.ok(childPid>0&&childPid!==leader,label);
+    assert.equal(pidAlive(childPid),false,'the descendant is gone by the time the run settles: '+label);
+  }
+});
+
+test('processEvaluator: a cleanup that never finishes is non-quiescence within its bound',async()=>{
+  const started=Date.now();
+  await assert.rejects(directRun(processEvaluator({command:process.execPath,args:['-e',`process.stdout.write(JSON.stringify({outcome:'PASS',usedMicrousd:0}))`],cleanupTimeoutMs:60,cleanup:()=>new Promise(()=>{})})),EvaluatorNotQuiescent);
+  assert.ok(Date.now()-started<2000);
+});
