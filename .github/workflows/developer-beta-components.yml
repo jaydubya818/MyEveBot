@@ -156,6 +156,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-agent-execution-port.test.mjs
       - name: Qualification /qdev/v1 verifier service (charged evaluation, quiescent final usage, pure verdict read)
         run: node --import tsx --test apps/eve/test/qualification-verifier-service.test.mjs
+      - name: Qualification metered SOFIE planning runtime (reservation-bounded steps, usage finality, quiescence, AI SDK adapter with a mock model)
+        run: node --import tsx --test apps/eve/test/qualification-sofie-runtime.test.mjs
       - name: Qualification Factory-backed CODING runtime (real LiveFactoryPort, fake Factory HTTP surface)
         run: node --import tsx --test apps/eve/test/qualification-factory-coding-runtime.test.mjs
       - name: Qualification pinned custody module loader (production startup binding)

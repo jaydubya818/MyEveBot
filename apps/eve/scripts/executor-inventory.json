@@ -4815,6 +4815,16 @@
       "classification": "ENFORCED",
       "reason": "Durable verifier store over the verifier's own PostgreSQL database (never the qdev ledger or journal): one append-only HANDED_OFF -> RUNNING -> FINAL row per candidate, with guarded atomic transitions so the single charged evaluation is claimed exactly once across processes and restarts, and triggers that forbid deletes, identity or reserve rewrites and regression of a FINAL row. Holds no credential, key or criteria; no spend, enrollment or deployment authority.",
       "sha256": "75dfb1d3d6e5cd9ad6c57581113b46734766ace46ffdb8900a6e96606694d92c"
+    },
+    "lib/qualification/sofie-planning-runtime.ts": {
+      "classification": "ENFORCED",
+      "reason": "Generic metered AgentRuntime body for the journey's SOFIE operation. Runs one bounded model conversation against the grant-checked Relay developer tools and never exceeds the CHARGED parent reservation: each step's worst-case price (prompt bytes plus an explicit client overhead allowance, plus the step output ceiling) must fit what remains, the output ceiling sent to the model is derived from it, reported usage must be present, integral and within the ceiling sent, and any violation, missing usage, error or abort leaves the run not final. start returns only after every model step and tool call has settled (an unsettled step after the deadline plus grace is reported as not quiescent); only a proven pre-send refusal is AgentNotStarted. Tool denials are returned to the model as data and carry no authority. The model client, provider, gateway, credentials and price source are injected protected custody; this module reads no credential and opens no connection.",
+      "sha256": "db6e0bcaaa175a73b4e4b59ca47a8585b674135468ad68405c34faf36cb6cc73"
+    },
+    "lib/qualification/sofie-ai-sdk-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "AI SDK binding of the MeteredModel seam. The language model (provider, gateway, credentials) is supplied by the host's protected custody; this adapter issues exactly one provider request per runtime step (no SDK multi-step loop, no tool execute, no retries, no fallback), passes the runtime's output ceiling and abort signal, declares Relay tools without executing them (the strict input schema and grant check run in RelayDeveloperTools), maps SDK usage to input/output tokens and returns null when none was reported. Holds no credential, provider, spend or enrollment authority.",
+      "sha256": "309a9a4818d4289fe8754e593ef2d976d5cac152bdfe192ac2d47b8e9cb4d63f"
     }
   }
 }
