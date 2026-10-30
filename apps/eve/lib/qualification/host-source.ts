@@ -41,6 +41,8 @@ export const hostBundleSchema = z.object({
   credentials: z.object({ accounting: envName, relay: envName, accountingDatabaseUrl: envName, journalDatabaseUrl: envName }).strict(),
   relay: z.object({ origin: z.string().url(), grant: grantSchema }).strict(),
   conversation: z.object({ approvedRequest: z.string().trim().min(1).max(4000), deliveryUrl: z.string().url().optional() }).strict(),
+  /** The one operator-installed custody module (absolute path + SHA-256 of its bytes) that supplies the protected ports. Absent keeps the ports disabled. */
+  custody: z.object({ module: z.string().min(2).max(1024), sha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict().optional(),
 }).strict();
 export type QdevHostBundle = z.infer<typeof hostBundleSchema>;
 

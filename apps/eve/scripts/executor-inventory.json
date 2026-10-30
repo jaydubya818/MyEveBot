@@ -4724,12 +4724,12 @@
     "lib/qualification/host-bootstrap.ts": {
       "classification": "ENFORCED",
       "reason": "Production assembly of the QualificationRootHost from a host source of protected material. The default source is the runtime loader (host-source.ts) with no protected ports enrolled, so config and conversation return null and every transport stays disabled; registers once and cannot be driven by request content. Opens no network, credential or provider.",
-      "sha256": "8d24ff300b1d4fb1688e20dd228ca082849e4d21c5490c57d07fa7ab0acd5f97"
+      "sha256": "c7a6329578087aab0b24fd7cf650a2647a73abdf65c57e62f1d28a7a7f866044"
     },
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
       "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed.",
-      "sha256": "5dc58d1337ff6d0d4bb31f489e1711fe6f7531c1e2d65975c2806578209fb1d8"
+      "sha256": "eebdb4464037672a30b840c6b0356db626b254db50582a8dec58c437aef58c00"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
@@ -4795,6 +4795,11 @@
       "classification": "ENFORCED",
       "reason": "Host-side producer half of static build retention. Recomputes the git tree id of a read-only candidate directory and requires it to equal the accepted candidate tree, requires the dependency lock and package manifest to equal the frozen build profile, runs the build only in a host-pinned immutable local image with no network, read-only root and source, unprivileged user and fixed CPU/memory/process bounds, reads the built dist back only as a strictly parsed ustar stream, and signs the provenance claim with an injected issuer signer. A claim is provenance only and never replaces the independent verdict. Holds no key, credential, network, deployment or enrollment authority.",
       "sha256": "7866d4c417bb76c7a4a179bfbeb846660ebd54a7d4d28153341a5527ba3461e9"
+    },
+    "lib/qualification/custody-loader.ts": {
+      "classification": "ENFORCED",
+      "reason": "Production startup binding for the protected-custody ports. The host bundle may pin one operator-installed custody module by absolute normalized path and SHA-256; the loader reads it, requires the bytes to match the pin, imports exactly those verified bytes, and composes the runtime ports from the custody it returns. Any absence, mismatch, throw or refusal returns null so the installation stays disabled. It reads no credential value, opens no transport, reserves and dispatches nothing, and grants no authority; composeRuntimePorts keeps every adapter's own refusals.",
+      "sha256": "85115d4d857e6824326e75cd704bea7f87fb3289a69a6b694e5915cb6853d82d"
     }
   }
 }

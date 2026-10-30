@@ -7,7 +7,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes,randomUUID,createHash,generateKeyPairSync,sign} from 'node:crypto';
-import {readFile} from 'node:fs/promises';
+import {readFile,mkdtemp,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {productionRuntimePorts} from '../lib/qualification/custody-loader.ts';
 import {createServer} from 'node:http';
 import {Client} from 'pg';
 import {QualificationAccounting,qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
@@ -165,10 +168,10 @@ async function harness(w,{verdictMode='valid'}={}){
 }
 
 /** Loader + bundle for a world. Credentials are referenced by NAME; the verifier credential is read only through the runtime accessor. */
-function runtime(w,provider,{verifierCredential=true}={}){
+function runtime(w,provider,{verifierCredential=true,custody}={}){
  const bundle={version:1,ownerId:w.policy.Q1.ownerId,notAfter:new Date(Date.now()+3600e3).toISOString(),policy:w.policy.Q1,project:w.project,plan:plan(),
   credentials:{accounting:'QDEV_ACCOUNTING_CREDENTIAL',relay:'QDEV_RELAY_CREDENTIAL',accountingDatabaseUrl:'QDEV_ACCOUNTING_DATABASE_URL',journalDatabaseUrl:'QDEV_JOURNAL_DATABASE_URL'},
-  relay:{origin:'https://relay.example.test',grant:grantFor()},conversation:{approvedRequest:APPROVED,deliveryUrl:'https://dashboard.example.test/app'}};
+  relay:{origin:'https://relay.example.test',grant:grantFor()},conversation:{approvedRequest:APPROVED,deliveryUrl:'https://dashboard.example.test/app'},...(custody?{custody}:{})};
  const env={MYEVE_QDEV_ENABLED:'true',MYEVE_QDEV_HOST_BUNDLE:JSON.stringify(bundle),QDEV_ACCOUNTING_CREDENTIAL:w.t1,QDEV_RELAY_CREDENTIAL:'relay-secret-'+randomBytes(8).toString('hex'),
   QDEV_ACCOUNTING_DATABASE_URL:'postgres://accounting.invalid/a',QDEV_JOURNAL_DATABASE_URL:'postgres://journal.invalid/j'};
  if(verifierCredential)env.QDEV_VERIFIER_CREDENTIAL=CRED;
@@ -208,6 +211,38 @@ try{
   }finally{await hn.stop();}
  });
 
+
+ /** Operator-installed custody module, pinned by path + SHA-256 in the bundle. The module hands the process-local test custody to the loader. */
+ async function pinnedModule(source='export function custody(context){ return globalThis.__qdevTestCustody(context); }'){
+  const dir=await mkdtemp(join(tmpdir(),'qdev-custody-')),module=join(dir,'custody.mjs');await writeFile(module,source);
+  return {module,sha256:createHash('sha256').update(source).digest('hex')};
+ }
+ await test('positive: production startup source (productionRuntimePorts) loads the pinned custody module and runs the root journey to COMPLETED',async()=>{
+  const w=await world('pm1'),hn=await harness(w);try{
+   await w.db.query(JOURNAL_SCHEMA);
+   globalThis.__qdevTestCustody=()=>hn.custody();
+   const r=runtime(w,productionRuntimePorts,{custody:await pinnedModule()});
+   const out=await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'});
+   assert.equal(out.status,'COMPLETED_UNCLAIMED',JSON.stringify(out));assert.equal(out.authority,'NONE');
+   assert.equal(await count(w,'qdev_dispatch'),5);
+  }finally{delete globalThis.__qdevTestCustody;await hn.stop();}
+ });
+ await test('negative: an unpinned, tampered, relative or throwing custody module keeps the installation disabled with nothing reserved or contacted',async()=>{
+  const w=await world('pm2'),hn=await harness(w);try{
+   await w.db.query(JOURNAL_SCHEMA);
+   let loaded=0;globalThis.__qdevTestCustody=()=>{loaded++;return hn.custody();};
+   const good=await pinnedModule();
+   const tampered=await pinnedModule();await writeFile(tampered.module,'export function custody(){ return globalThis.__qdevTestCustody(); } // swapped');
+   const throwing=await pinnedModule('export function custody(){ throw new Error("custody unavailable"); }');
+   const noFunction=await pinnedModule('export const custody = 1;');
+   for(const custody of [undefined,tampered,{...good,sha256:'0'.repeat(64)},{module:'custody.mjs',sha256:good.sha256},{module:good.module.replace('custody.mjs','../custody.mjs'),sha256:good.sha256},throwing,noFunction]){
+    const r=runtime(w,productionRuntimePorts,{custody});
+    await assert.rejects(new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'}),/QDEV_ROOT_UNCONFIGURED/,JSON.stringify(custody));
+   }
+   assert.equal(loaded,0,'a module whose bytes do not match the pinned digest is never imported or called');
+   assert.equal(await count(w,'qdev_dispatch'),0);assert.deepEqual(hn.log.verifier,[]);
+  }finally{delete globalThis.__qdevTestCustody;await hn.stop();}
+ });
  await test('actual Eve definitions and agent selector use the real free model, tool and loader/root journey with zero provider egress',async()=>{
   const w=await world('sdk'),hn=await harness(w),previousFlag=process.env.MYEVE_QDEV_ENABLED,originalFetch=globalThis.fetch;
   let forbiddenEgress=0;

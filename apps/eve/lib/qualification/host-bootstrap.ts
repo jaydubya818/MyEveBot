@@ -37,7 +37,14 @@ export function assembleQualificationHost(source: QdevHostSource): Qualification
   };
 }
 
+/**
+ * Production default: the runtime loader with the pinned-custody ports provider. The provider is imported lazily and only when an installation is
+ * enabled and enrolled, so a disabled deployment never loads the Factory/verifier/MyApps adapters. No pinned custody module means no ports, and the
+ * installation stays disabled exactly as before.
+ */
+export const productionHostSource = (): QdevHostSource => runtimeHostSource(async context => (await import("./custody-loader.ts")).productionRuntimePorts(context));
+
 /** Registers the host once at server startup of a QDEV installation; later calls are no-ops. Never driven by request content. */
-export function ensureQualificationHost(source: QdevHostSource = runtimeHostSource()) {
+export function ensureQualificationHost(source: QdevHostSource = productionHostSource()) {
   if (!qualificationHostRegistered()) registerQualificationHost(assembleQualificationHost(source));
 }
