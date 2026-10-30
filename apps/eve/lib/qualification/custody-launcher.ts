@@ -10,6 +10,8 @@ import { WorkStore } from "../engineering/store.ts";
 import { assembleQdevCustody, candidateStaticBuildSource, createBoundedDockerRunner, ed25519Signer, orderedAdapterFor, ownerFactoryCapabilityConfig,
   storeBackedStageChain } from "./custody-assembly.ts";
 import { qdevJourneyId } from "./custody-profile.ts";
+import { validateJourneyPlan } from "./plan.ts";
+import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
 import { approverFingerprints, fileActivation } from "./static-activation.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { PostgresJournal } from "./journal.ts";
@@ -55,6 +57,9 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   const runtimeConfig = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, profile.workIds.stage1);
   const config = await runtimeConfig(), connection = config.connection;
   if (!("repositoryPath" in connection) || "transport" in connection) return null;
+  // Unpaid preflight before anything can run: each stage Work budget must fit its approved operation reservation (else coding is refused only after Sofie has spent).
+  let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
+  await checkStageWorkBudgets(store.database, ownerId, plan, { 1: profile.workIds.stage1, 2: profile.workIds.stage2, 3: profile.workIds.stage3 });
 
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
     missionId: profile.capability.missionId, signer, send: deps.capabilityFetch,

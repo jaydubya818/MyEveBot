@@ -14,6 +14,7 @@ import {loadCustody} from '../lib/qualification/custody-loader.ts';
 import {composeRuntimePorts} from '../lib/qualification/runtime-ports.ts';
 import {RETAINED_ADMISSION_SCHEMA} from '../lib/qualification/retained-admissions.ts';
 import {JOURNAL_SCHEMA,PostgresJournal} from '../lib/qualification/journal.ts';
+import {evaluateStageWorkBudgets} from '../lib/qualification/work-budget-preflight.ts';
 import {QDEV_BASELINE,qualificationBinding} from '../lib/external-alpha/qualification-accounting.ts';
 import {WorkStore} from '../lib/engineering/store.ts';
 import {factoryRelayLeaseEnrollmentDigest} from '../lib/engineering/factory-relay-lease-client.ts';
@@ -59,15 +60,22 @@ const profile=()=>({slot:'Q1',workIds:{stage1:randomUUID(),stage2:randomUUID(),s
   publishing:{root:releaseRoot,installationId:INSTALL},servedOrigin:'https://apps.example.com'});
 const bundleFor=(over={})=>({version:1,ownerId:OWNER,notAfter:'2099-01-01T00:00:00.000Z',project,
   credentials:{accounting:'QDEV_ACCOUNTING_CREDENTIAL',relay:'QDEV_RELAY_CREDENTIAL',accountingDatabaseUrl:'QDEV_ACCOUNTING_DATABASE_URL',journalDatabaseUrl:'QDEV_JOURNAL_DATABASE_URL'},
-  conversation:{approvedRequest:'Build the approved dashboard'},assembly:profile(),...over});
+  conversation:{approvedRequest:'Build the approved dashboard'},assembly:profile(),plan:PLAN,...over});
 const secrets=()=>({QDEV_CAPABILITY_PROPAGATION:JSON.stringify({signer:{keyId:'signer-1',jwk:{kty:'EC',crv:'P-256',x:'x'.repeat(43),y:'y'.repeat(43),d:'d'.repeat(43)}}}),
   QDEV_FACTORY_RELAY_CREDENTIAL:'relay-cred-'+randomBytes(6).toString('hex'),QDEV_FACTORY_RELAY_WORKLOAD_TOKEN:'workload-'+randomBytes(6).toString('hex'),
   QDEV_MODEL_GATEWAY_KEY:'gateway-'+randomBytes(6).toString('hex'),QDEV_BUILD_ISSUER_KEY:issuerPair.privateKey.export({type:'pkcs8',format:'pem'}),
   QDEV_VERIFIER_CREDENTIAL:'verifier-'+randomBytes(6).toString('hex'),QDEV_JOURNAL_DATABASE_URL:'postgres://journal.invalid/j'});
 const conn={origin:'http://127.0.0.1:12345',token:'a'.repeat(64),factoryId:fx.factoryId,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,factoryVersion:fx.factoryVersion,
   repositoryPath:'/synthetic',keys:[fx.key],qualification:{scopeId:OWNER,profileHash:sha('e'),evidenceRef:'synthetic',qualifiedAt:'2026-01-01T00:00:00Z',expiresAt:'2099-01-01T00:00:00Z',mode:'LOCAL_FIXTURE',spendEnforced:false}};
-const fakeStore=(rows={})=>{
-  const database={async atomic(fn){return fn(database);},async query(sql){
+const PLAN={slot:'Q1',stages:[
+  {stage:1,workCeilingMicrousd:1300000,operations:[{key:'s1-sofie',purpose:'SOFIE',reserveMicrousd:200000},{key:'s1-coding',purpose:'CODING',reserveMicrousd:900000}]},
+  {stage:2,workCeilingMicrousd:1300000,operations:[{key:'s2-coding',purpose:'CODING',reserveMicrousd:1000000}]},
+  {stage:3,workCeilingMicrousd:1300000,operations:[{key:'s3-factory',purpose:'FACTORY',reserveMicrousd:1000000}]},
+  {stage:4,workCeilingMicrousd:1300000,operations:[{key:'s4-verifier',purpose:'VERIFIER',reserveMicrousd:300000}]}]};
+const WORK_USD=[0.9,1,1];
+const fakeStore=(rows={},ids)=>{
+  const database={async atomic(fn){return fn(database);},async query(sql,params){
+    if(/engineering_work/.test(sql))return (rows.works??WORK_USD).map((usd,index)=>({id:params[1][index],max_cost_usd:String(usd)}));
     if(/set_config/.test(sql))return [];
     if(/missioncontrol_owner_enrollments/.test(sql))return rows.enrollment===null?[]:[{document:rows.enrollment??enrollment}];
     if(/capability_control\.installations/.test(sql))return [{organization_id:'org-1'}];
@@ -104,6 +112,24 @@ try{
   assert.ok(ports.agent&&ports.factory&&ports.verifier&&ports.myapps&&typeof ports.expectedFor==='function');
   // nothing protected appears anywhere in the non-secret bundle
   for(const v of Object.values(env))assert.equal(JSON.stringify(b).includes(v),false);
+ });
+
+ await test('unpaid budget preflight: a stage Work budget above its approved operation reservation refuses the installation before any provider can run; fitting budgets and exact plan operations pass',async()=>{
+  const env=secrets(),b=bundleFor();
+  const refused=async(works,code,bundle=b)=>assert.rejects(assembleFromProfile(context(bundle,env),deps({store:()=>fakeStore({works})})),{code});
+  await refused([1,1,1],'QDEV_WORK_BUDGET_EXCEEDS_OPERATION_RESERVATION:1');      // stage 1 CODING reserves 0.90, not the 1.30 qdev Work ceiling
+  await refused([0.9,1.1,1],'QDEV_WORK_BUDGET_EXCEEDS_OPERATION_RESERVATION:2');
+  await refused([0.9,1,1.3],'QDEV_WORK_BUDGET_EXCEEDS_OPERATION_RESERVATION:3');
+  await refused([0.9,1],'QDEV_WORK_BUDGET_WORK_MISSING');
+  await refused([0.9000001,1,1],'QDEV_WORK_BUDGET_UNREADABLE:1');                  // not an exact micro-dollar amount
+  const noFactoryOperation=structuredClone(PLAN);noFactoryOperation.stages[1].operations[0].purpose='FACTORY';
+  assert.equal(await assembleFromProfile(context(bundleFor({plan:noFactoryOperation}),env),deps()),null,'a plan that fails its own validation installs nothing');
+  assert.equal(await assembleFromProfile(context(bundleFor({plan:undefined}),env),deps()),null,'no plan installs nothing');
+  assert.ok(await assembleFromProfile(context(b,env),deps({store:()=>fakeStore({works:[0.9,1,1]})})),'exactly-fitting budgets are accepted');
+  assert.ok(await assembleFromProfile(context(b,env),deps({store:()=>fakeStore({works:[0.5,0.25,0.000001]})})),'smaller budgets are accepted');
+  const rows=evaluateStageWorkBudgets(PLAN,{1:'a',2:'b',3:'c'},{a:0.9,b:1,c:1});
+  assert.deepEqual(rows.map(r=>[r.stage,r.nativeCeilingMicrousd,r.challengeBudgetMicrousd,r.operationReserveMicrousd]),[[1,900000,900000,900000],[2,1000000,1000000,1000000],[3,1000000,1000000,1000000]]);
+  assert.throws(()=>evaluateStageWorkBudgets(PLAN,{1:'a',2:'a',3:'c'},{a:0.9,c:1}),{code:'QDEV_WORK_BUDGET_SHARED_WORK'});
  });
 
  await test('activation: absent profile keeps publishing refused; a configured owner-approver is independent of every pipeline key and authorizes only a matching signed approval, once',async()=>{
