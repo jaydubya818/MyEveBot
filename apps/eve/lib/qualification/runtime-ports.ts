@@ -3,6 +3,7 @@ import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
 import type { FactoryCapabilityClientConfig } from "../engineering/factory-capability-client.ts";
 import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
 import { DeepAgentAdapter, type AgentExecutionPort } from "./agent-port.ts";
+import { RetainedExecutorAgentPort, type AgentRuntime } from "./agent-execution-port.ts";
 import { LiveFactoryPort, type RetainedFactoryAdmission } from "./factory-live-port.ts";
 import { HttpVerifierPort } from "./verifier-port.ts";
 import { StaticBuildMyAppsPort, type StaticBuildPortConfig } from "./static-build.ts";
@@ -22,7 +23,8 @@ import type { VerifierKey } from "./verdict.ts";
  * module at runtime and is never read from the bundle, the environment or a model.
  */
 export type QdevCustody = {
-  agent: { port: AgentExecutionPort; slot: "Q1" | "Q2" };
+  /** Either a fully host-bound execution port, or a Deep Agent runtime whose CODING tuple is read from the retained Factory admission. */
+  agent: { slot: "Q1" | "Q2" } & ({ port: AgentExecutionPort; runtime?: undefined } | { runtime: AgentRuntime; port?: undefined });
   factory: {
     connection: FactoryConnection; capability: FactoryCapabilityClientConfig;
     retained(stage: 1 | 2 | 3): RetainedFactoryAdmission | Promise<RetainedFactoryAdmission>;
@@ -47,7 +49,8 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs,
     live: { prepared: r => adapter.prepared(r), dispatch: i => adapter.dispatch(i), read: i => adapter.read(i), result: b => adapter.result(b) } });
   const agent = new DeepAgentAdapter({ enabled: true, ownerId: context.bundle.ownerId, slot: custody.agent.slot,
-    projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, port: custody.agent.port });
+    projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,
+    port: custody.agent.port ?? new RetainedExecutorAgentPort({ runtime: custody.agent.runtime, retained: custody.factory.retained }) });
   const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs });
   const myapps = new StaticBuildMyAppsPort(custody.myapps);
   return { agent, factory, verifier, myapps, expectedFor: custody.expectedFor, resultKeys: custody.resultKeys, sourceDigest: custody.sourceDigest,

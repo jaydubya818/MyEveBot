@@ -4774,7 +4774,12 @@
     "lib/qualification/runtime-ports.ts": {
       "classification": "INTERNAL",
       "reason": "Pure composition of the existing qdev ports (DeepAgentAdapter, LiveFactoryPort over the ordered Factory clients, verifier transport, static-build MyApps port) from host-supplied protected custody for a ports provider. Performs no I/O when composing, adds no transport, credential, spend or authority, refuses a malformed verifier credential name, overlapping verifier/producer keys or an insecure verifier origin, and yields null (installation stays disabled) when custody is absent or refused.",
-      "sha256": "f5d77b98b1b67bd3f451fa062a8cc5c48989ded90596ef185483d162f2708563"
+      "sha256": "561c061d83d24a5f1dba99a57cd1b2d5e732b10c10bd5774ee663b992e6a4252"
+    },
+    "lib/qualification/agent-execution-port.ts": {
+      "classification": "ENFORCED",
+      "reason": "Concrete AgentExecutionPort over an injected Deep Agent runtime and the host's retained Factory admissions. The runtime only runs the agent and reports finished/final-usage; the CODING request/work order/run tuple is read from the authenticated retained admission and can never come from the model or runtime. Records exist only for handles this port started and only after the run finished; pre-start refusals are proven no-sends, anything after start is ambiguous (fenced, never resent). No transport, credential, spend or enrollment authority; the runtime binding (model spend) stays protected.",
+      "sha256": "b176c5097ff4a1cc47f80107913d57ba4fcd252b9b518d1bc7a63e314f4f92cf"
     }
   }
 }
