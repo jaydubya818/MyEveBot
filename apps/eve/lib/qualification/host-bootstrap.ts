@@ -1,10 +1,11 @@
+import { runtimeHostSource } from "./host-source.ts";
 import { registerQualificationHost, qualificationHostRegistered, type QdevConversation, type QualificationRootConfig, type QualificationRootHost } from "./root.ts";
 
 /**
  * Production host bootstrap for the QDEV installation. It assembles the QualificationRootHost from a host SOURCE of
  * protected material (scoped execution, MissionControl, Factory, verifier and MyApps clients, the approved plan,
- * the qdev ledger and journal, and the owner's conversation model). The default source holds no material and every
- * transport is therefore disabled: `config` and `conversation` return null (fail closed) until protected enrollment
+ * the qdev ledger and journal, and the owner's conversation model). The default source is the runtime-supplied loader (host-source.ts) with no protected ports enrolled, so every
+ * transport is disabled: `config` and `conversation` return null (fail closed) until protected enrollment
  * and custody provide a real source. No credential, network or provider is touched here.
  */
 export type QdevHostMaterial = QualificationRootConfig & { conversation: QdevConversation };
@@ -37,6 +38,6 @@ export function assembleQualificationHost(source: QdevHostSource): Qualification
 }
 
 /** Registers the host once at server startup of a QDEV installation; later calls are no-ops. Never driven by request content. */
-export function ensureQualificationHost(source: QdevHostSource = disabledHostSource) {
+export function ensureQualificationHost(source: QdevHostSource = runtimeHostSource()) {
   if (!qualificationHostRegistered()) registerQualificationHost(assembleQualificationHost(source));
 }

@@ -4723,8 +4723,13 @@
     },
     "lib/qualification/host-bootstrap.ts": {
       "classification": "ENFORCED",
-      "reason": "Production assembly of the QualificationRootHost from a host source of protected material. The default source holds none, so config and conversation return null and every transport stays disabled; registers once and cannot be driven by request content. Opens no network, credential or provider.",
-      "sha256": "7b0b2ed185af987742eeedb19f9071a182025fef7f9f84e0dc751045cd124bec"
+      "reason": "Production assembly of the QualificationRootHost from a host source of protected material. The default source is the runtime loader (host-source.ts) with no protected ports enrolled, so config and conversation return null and every transport stays disabled; registers once and cannot be driven by request content. Opens no network, credential or provider.",
+      "sha256": "8d24ff300b1d4fb1688e20dd228ca082849e4d21c5490c57d07fa7ab0acd5f97"
+    },
+    "lib/qualification/host-source.ts": {
+      "classification": "ENFORCED",
+      "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call.",
+      "sha256": "1b6edacc912755f8841e86c88dd60b44205728495d3eec6564d5ad6606526dd4"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
