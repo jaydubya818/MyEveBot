@@ -63,13 +63,13 @@ CREATE TABLE qdev_work (
  binding_sha256 text NOT NULL CHECK(binding_sha256 ~ '^[a-f0-9]{64}$'),
  request_sha256 text NOT NULL CHECK(request_sha256 ~ '^[a-f0-9]{64}$'),
  ceiling_microusd bigint NOT NULL CHECK(ceiling_microusd BETWEEN 1 AND 1300000),
- state text NOT NULL DEFAULT 'RESERVED' CHECK(state IN('RESERVED','BOUND','UNKNOWN')),
+ state text NOT NULL DEFAULT 'RESERVED' CHECK(state IN('RESERVED','BOUND','CLOSED','UNKNOWN')),
  local_allowance_id uuid,
  deadline timestamptz NOT NULL,
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(project_id,ordinal), UNIQUE(owner_id,binding_sha256), UNIQUE(owner_id,local_allowance_id),
  FOREIGN KEY(cohort_id,owner_id) REFERENCES qdev_member(cohort_id,owner_id),
- CHECK((state='RESERVED' AND local_allowance_id IS NULL) OR state='UNKNOWN' OR (state='BOUND' AND local_allowance_id IS NOT NULL))
+ CHECK((state='RESERVED' AND local_allowance_id IS NULL) OR state='UNKNOWN' OR (state IN('BOUND','CLOSED') AND local_allowance_id IS NOT NULL))
 );
 CREATE TABLE qdev_dispatch (
  work_id uuid NOT NULL REFERENCES qdev_work(id),
@@ -91,7 +91,7 @@ BEGIN
  ELSIF TG_TABLE_NAME='qdev_work' THEN
   IF (to_jsonb(NEW)-ARRAY['state','local_allowance_id']) IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['state','local_allowance_id'])
    OR (OLD.local_allowance_id IS NOT NULL AND NEW.local_allowance_id IS DISTINCT FROM OLD.local_allowance_id)
-   OR (NEW.state IS DISTINCT FROM OLD.state AND NOT((OLD.state,NEW.state) IN (VALUES ('RESERVED','BOUND'),('RESERVED','UNKNOWN'),('BOUND','UNKNOWN'))))
+   OR (NEW.state IS DISTINCT FROM OLD.state AND NOT((OLD.state,NEW.state) IN (VALUES ('RESERVED','BOUND'),('RESERVED','UNKNOWN'),('BOUND','UNKNOWN'),('BOUND','CLOSED'),('CLOSED','UNKNOWN'))))
   THEN RAISE EXCEPTION 'QDEV_HISTORY_IMMUTABLE'; END IF;
  ELSIF TG_TABLE_NAME IN('qdev_member','qdev_project') THEN RAISE EXCEPTION 'QDEV_HISTORY_IMMUTABLE';
  ELSE
@@ -139,15 +139,20 @@ BEGIN
  IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'QDEV_ISOLATION'; END IF;
  SELECT * INTO STRICT c FROM qdev_charter WHERE id=m.cohort_id FOR UPDATE;
  n=clock_timestamp();
+ -- The exact approved parent and source tuple is verified for EVERY mutation
+ -- (lifecycle, fence, dispatch, reserve) before any state or accounting changes.
+ SELECT * INTO pr FROM qdev_project WHERE owner_id=m.owner_id AND cohort_id=c.id;
+ IF NOT FOUND OR pr.project_sha256 IS DISTINCT FROM p->>'projectSha256' OR pr.source_sha256 IS DISTINCT FROM p->>'sourceSha256'
+ THEN RAISE EXCEPTION 'QDEV_PARENT_BINDING_MISMATCH'; END IF;
  -- Fencing and proven-known settlement stay available after revocation/expiry.
  IF mode='fence' THEN
-  UPDATE qdev_work SET state='UNKNOWN' WHERE owner_id=m.owner_id AND id=(p->>'id')::uuid RETURNING * INTO prior;
+  UPDATE qdev_work SET state='UNKNOWN' WHERE owner_id=m.owner_id AND project_id=pr.id AND id=(p->>'id')::uuid RETURNING * INTO prior;
   IF NOT FOUND THEN RAISE EXCEPTION 'QDEV_DENIED'; END IF;
   UPDATE qdev_dispatch SET state='UNKNOWN' WHERE work_id=prior.id AND state IN('DISPATCHED','RUNNING','FENCED');
   RETURN to_jsonb(prior);
  END IF;
  IF mode IN('hold','settle','cancel_unsent','running') THEN
-  SELECT * INTO prior FROM qdev_work WHERE owner_id=m.owner_id AND id=(p->>'id')::uuid;
+  SELECT * INTO prior FROM qdev_work WHERE owner_id=m.owner_id AND project_id=pr.id AND id=(p->>'id')::uuid;
   IF NOT FOUND OR prior.local_allowance_id IS DISTINCT FROM (p->>'allowanceId')::uuid
    OR p->>'operationSha256' IS NULL OR p->>'operationSha256' !~ '^[a-f0-9]{64}$' THEN RAISE EXCEPTION 'QDEV_DENIED'; END IF;
   op=p->>'operationSha256';
@@ -175,10 +180,6 @@ BEGIN
   OR EXISTS(SELECT 1 FROM qdev_work WHERE cohort_id=c.id AND state='UNKNOWN')
   OR EXISTS(SELECT 1 FROM qdev_dispatch y JOIN qdev_work x ON x.id=y.work_id WHERE x.cohort_id=c.id AND y.state IN('UNKNOWN','FENCED'))
  THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
- -- The caller must present the exact approved parent and source tuple.
- SELECT * INTO pr FROM qdev_project WHERE owner_id=m.owner_id AND cohort_id=c.id;
- IF NOT FOUND OR pr.project_sha256 IS DISTINCT FROM p->>'projectSha256' OR pr.source_sha256 IS DISTINCT FROM p->>'sourceSha256'
- THEN RAISE EXCEPTION 'QDEV_PARENT_BINDING_MISMATCH'; END IF;
  IF mode IN('bind','assert','dispatch') THEN
   SELECT * INTO prior FROM qdev_work WHERE owner_id=m.owner_id AND project_id=pr.id AND id=(p->>'id')::uuid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'QDEV_DENIED'; END IF;
@@ -196,13 +197,22 @@ BEGIN
    IF FOUND THEN
     IF d.state='NOT_DISPATCHED' THEN RAISE EXCEPTION 'QDEV_NOT_DISPATCHED'; END IF;
     IF d.purpose<>purpose OR d.reserve_microusd<>amount THEN RAISE EXCEPTION 'QDEV_BINDING_CHANGED'; END IF;
-    RETURN to_jsonb(prior);
+    -- Send authority is single-use. A second request for an admitted operation is
+    -- either a concurrent duplicate or a retry after a lost acknowledgment:
+    -- ambiguous exposure, so it is durably fenced and never granted again.
+    IF d.state IN('DISPATCHED','RUNNING') THEN
+     UPDATE qdev_dispatch SET state='UNKNOWN' WHERE work_id=prior.id AND operation_sha256=op;
+     UPDATE qdev_work SET state='UNKNOWN' WHERE id=prior.id;
+     RETURN jsonb_build_object('claim','FENCED','id',prior.id);
+    END IF;
+    RETURN jsonb_build_object('claim','CONSUMED','id',prior.id,'operationState',d.state);
    END IF;
    -- Strictly sequential operations inside the Work; no overlapping paid calls.
-   IF EXISTS(SELECT 1 FROM qdev_dispatch x WHERE x.work_id=prior.id AND x.state IN('DISPATCHED','RUNNING')) THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
+   IF EXISTS(SELECT 1 FROM qdev_dispatch x JOIN qdev_work z ON z.id=x.work_id WHERE z.cohort_id=c.id AND x.state IN('DISPATCHED','RUNNING')) THEN RAISE EXCEPTION 'QDEV_FENCED'; END IF;
    SELECT COALESCE(sum(reserve_microusd),0) INTO exposure FROM qdev_dispatch WHERE work_id=prior.id AND state<>'NOT_DISPATCHED';
    IF exposure+amount>prior.ceiling_microusd THEN RAISE EXCEPTION 'QDEV_WORK_CEILING_EXCEEDED'; END IF;
    INSERT INTO qdev_dispatch(work_id,operation_sha256,purpose,reserve_microusd,state) VALUES(prior.id,op,purpose,amount,'DISPATCHED');
+   RETURN to_jsonb(prior)||jsonb_build_object('claim','NEW','operationSha256',op);
   END IF;
   RETURN to_jsonb(prior);
  END IF;
@@ -232,6 +242,7 @@ BEGIN
  INSERT INTO qdev_work(id,project_id,cohort_id,owner_id,ordinal,binding_sha256,request_sha256,ceiling_microusd,deadline)
  VALUES((p->>'id')::uuid,pr.id,c.id,m.owner_id,project_works+1,p->>'bindingSha256',p->>'requestSha256',amount,
   LEAST(n+interval '300 seconds',c.valid_until)) RETURNING * INTO prior;
+ IF project_works>0 THEN UPDATE qdev_work SET state='CLOSED' WHERE project_id=pr.id AND ordinal=project_works AND state='BOUND'; END IF;
  RETURN to_jsonb(prior);
 END $$;
 REVOKE ALL ON qdev_charter,qdev_member,qdev_project,qdev_work,qdev_dispatch FROM PUBLIC;

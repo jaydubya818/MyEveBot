@@ -132,3 +132,11 @@ test('delivery is accepted only for the verified candidate and exact served byte
  rej({environment:'production'},'QDEV_DELIVERY_INVALID');
  assert.throws(()=>acceptDelivery({...base,verdict:{...pass,outcome:'FAIL'},observation:obs()}),e=>e.code==='QDEV_DELIVERY_UNVERIFIED');
 });
+
+test('the SQL financial admission surface is pinned in the governance inventory with an ENFORCED classification',async()=>{
+  const {readFile}=await import('node:fs/promises');const {createHash}=await import('node:crypto');
+  const inv=JSON.parse(await readFile(new URL('../scripts/executor-inventory.json',import.meta.url),'utf8')).executors;
+  const sql=createHash('sha256').update(await readFile(new URL('../lib/external-alpha/qualification-accounting.sql',import.meta.url))).digest('hex');
+  for(const f of ['lib/external-alpha/qualification-accounting.ts','lib/qualification/gate.ts'])assert.equal(inv[f].classification,'ENFORCED',f);
+  assert(inv['lib/external-alpha/qualification-accounting.ts'].reason.includes('sqlSha256='+sql),'SQL changed without governance re-pin');
+});

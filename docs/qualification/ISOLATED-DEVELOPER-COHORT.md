@@ -214,3 +214,11 @@ authority exists, and none is created by the source below.
   needs the approved profile, price card, model route, resources and custody.
 - Ledger fix found by the journey tests: a proven no-send may tombstone an
   operation already marked RUNNING (the gate's pre-send marker).
+
+## Corrections after independent review of 12ea9722 (unqualified until the successor SHA is reviewed)
+
+- QDEV-01: admitting a successor Work atomically moves the predecessor to `CLOSED`; only a `BOUND` Work may bind/assert/dispatch, and a dispatch is refused while any operation in the cohort is DISPATCHED/RUNNING.
+- QDEV-02: `dispatch` returns send permission (`claim: NEW`) exactly once per operation. A repeat or concurrent duplicate of an admitted DISPATCHED/RUNNING operation is durably fenced (operation and Work UNKNOWN) and returns `FENCED`; a terminal operation returns `CONSUMED`. The client throws unless the claim is NEW, so a lost acknowledgment can never yield a second send.
+- QDEV-03: the exact approved project/source tuple is verified for every mutation (running, hold, settle, cancel_unsent, fence, bind, assert, dispatch, reserve) before any state or accounting change; lifecycle lookups are scoped to the owner's project.
+- QDEV-04: the SQL/client pair and the gate are classified ENFORCED; the SQL SHA-256 is pinned in the inventory and checked by a pure test.
+Regressions: `test/qualification-review-regressions.integration.mjs` (all six fail on 758ec3b4).

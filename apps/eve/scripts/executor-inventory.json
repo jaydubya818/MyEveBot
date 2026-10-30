@@ -4617,9 +4617,9 @@
       "sha256": "e6cc454eb8619de18f2e7a6c7f40644b1b159021542b431921cb70e85d835fa2"
     },
     "lib/external-alpha/qualification-accounting.ts": {
-      "classification": "INTERNAL",
-      "reason": "Engineering-authored qualification accounting client for qdev-20261029-01. Performs no provider call, model dispatch or external effect; only calls the dedicated qdev_cohort_call database function. Not wired to any runtime caller. Independent source review PENDING; fingerprint pins the exact bytes and must be re-reviewed on any change.",
-      "sha256": "ca40df664ee1f887ecc8976442847587af419b8155ff411d8bd307a9b8e614fb"
+      "classification": "ENFORCED",
+      "reason": "Financial admission control for qdev-20261029-01, governed together with lib/external-alpha/qualification-accounting.sql (sqlSha256=5ce97171d7fe450bbf1ba8d268e2dc08dcc2443e2103ba8accc07def73905aa0; any SQL change must update this pin and be re-reviewed). Client plus SECURITY DEFINER function charge the full nonrefundable Work ceiling at reservation, bind owner/project/source/Work/allowance, grant single-use send claims, close predecessor Works and fence UNKNOWN/lost acknowledgments. Every mutation verifies the exact approved project/source tuple. Not wired to any production caller and no provider is contacted here. Evidence: qualification-accounting, qualification-review-regressions and qualification-journey PostgreSQL suites. Independent review of 12ea9722 returned CHANGES NEEDED (QDEV-01..04); corrections are in this successor and are NOT qualified until the independent reviewer checks the exact new SHA.",
+      "sha256": "e5c9cb1b9de9d1e6ef3481f92fcec31c562a16b74937ffe21eff8ae7d1aedc01"
     },
     "lib/qualification/plan.ts": {
       "classification": "INTERNAL",
@@ -4627,9 +4627,9 @@
       "sha256": "83268ed6d3b89faef87dde18393a7edb2e9f86e04c7064c2b187b4daf9b80fcd"
     },
     "lib/qualification/gate.ts": {
-      "classification": "INTERNAL",
-      "reason": "Dispatch gate for qdev-20261029-01: calls the provider callback ONLY after the dedicated ledger accepted the exact parent/source binding; no retry; ambiguous outcomes fence. Provider access is injected by the caller; this module holds no credential or endpoint. Independent source review PENDING; fingerprint pins exact bytes.",
-      "sha256": "a3c73ad0201ac607b1b48518799888493d8f92697041e6ac0b725c564bb524f1"
+      "classification": "ENFORCED",
+      "reason": "Spend gate for qdev-20261029-01: the provider callback runs only after the ledger granted a single-use send claim bound to the exact project/source; a failed or ambiguous claim never re-sends, never cancels another claimant, and ambiguity fences. Provider access is injected; the module holds no credential. Governed with the qualification-accounting SQL/client pair. Not wired to any production caller. Independent review of the successor SHA PENDING; not qualified.",
+      "sha256": "345c33f28dcaa63db2427e5a09228b89ca874f3792547c3397daf01ac9297e27"
     },
     "lib/qualification/result.ts": {
       "classification": "INTERNAL",

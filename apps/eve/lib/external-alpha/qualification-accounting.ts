@@ -67,7 +67,7 @@ export type QualificationPurpose = "SOFIE" | "CODING" | "FACTORY" | "VERIFIER";
 type Work = {
   id: string; project_id: string; cohort_id: string; owner_id: string; ordinal: number;
   binding_sha256: string; request_sha256: string; ceiling_microusd: string;
-  state: "RESERVED" | "BOUND" | "UNKNOWN"; local_allowance_id: string | null; deadline: string;
+  state: "RESERVED" | "BOUND" | "CLOSED" | "UNKNOWN"; local_allowance_id: string | null; deadline: string;
 };
 
 export const qualificationStatusSchema = z.object({
@@ -130,7 +130,16 @@ export class QualificationAccounting {
    * with its own reserve before any provider call. Operations are sequential. */
   async dispatch(admission: Work, allowanceId: string, operationKey: string, purpose: QualificationPurpose, reserveMicrousd: number) {
     if (!Number.isSafeInteger(reserveMicrousd) || reserveMicrousd < 1) throw Error("QDEV_WORK_CEILING_EXCEEDED");
-    return this.call({ mode: "dispatch", id: admission.id, allowanceId, operationSha256: digest(operationKey), purpose, reserveMicrousd });
+    const operationSha256 = digest(operationKey);
+    const receipt = await this.call<Work & { claim?: string; operationSha256?: string }>({
+      mode: "dispatch", id: admission.id, allowanceId, operationSha256, purpose, reserveMicrousd });
+    // Send authority is single-use: only a freshly consumed claim for exactly this
+    // operation permits a provider call. Observations, repeats and fenced
+    // ambiguity never return success.
+    if (receipt.claim === "FENCED") throw Error("QDEV_FENCED");
+    if (receipt.claim !== "NEW" || receipt.operationSha256 !== operationSha256 || receipt.id !== admission.id
+      || receipt.local_allowance_id !== allowanceId || receipt.owner_id !== this.policy.ownerId) throw Error("QDEV_ALREADY_CLAIMED");
+    return receipt;
   }
   running(admission: Work, allowanceId: string, operationKey: string) { return this.op("running", admission, allowanceId, operationKey); }
   hold(admission: Work, allowanceId: string, operationKey: string) { return this.op("hold", admission, allowanceId, operationKey); }

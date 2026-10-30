@@ -31,13 +31,22 @@ export class QualificationGate {
   }): Promise<T> {
     const { admission: a, allowanceId, operationKey } = input;
     // 1. Admission. Any refusal here means the provider was never contacted.
+    // The claim is single-use: a repeat, concurrent duplicate or retry after a
+    // lost acknowledgment is fenced by the database and never reaches send().
     try {
       await this.accounting.dispatch(a, allowanceId, operationKey, input.purpose, input.reserveMicrousd);
+    } catch (error) {
+      const code = /QDEV_[A-Z_]+/.exec(error instanceof Error ? error.message : "")?.[0] ?? "QDEV_UNAVAILABLE";
+      // Ambiguous acknowledgment: the claim may have committed. Fence best-effort;
+      // the database also fences any later request for the same operation.
+      if (code === "QDEV_UNAVAILABLE") await this.accounting.fence(a).catch(() => undefined);
+      throw new QualificationGateRefused(code);
+    }
+    try {
       await this.accounting.running(a, allowanceId, operationKey);
     } catch (error) {
       const code = /QDEV_[A-Z_]+/.exec(error instanceof Error ? error.message : "")?.[0] ?? "QDEV_UNAVAILABLE";
-      // A failure AFTER dispatch was recorded but before running is acknowledged
-      // is ambiguous only to the ledger, not the provider (never sent): tombstone it.
+      // We own the fresh claim and never sent: tombstone it (never a refund).
       await this.accounting.cancelUnsent(a, allowanceId, operationKey).catch(() => undefined);
       throw new QualificationGateRefused(code);
     }

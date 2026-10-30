@@ -112,11 +112,10 @@ try{
   await f.q1().dispatch(w1,allowance,op('sofie'),'SOFIE',200000);
   await assert.rejects(reserve(f,'w2'),/QDEV_FENCED/);
  });
- await test('operations are sequential, bounded by the Work ceiling and idempotent',async()=>{
+ await test('operations are sequential and bounded by the Work ceiling',async()=>{
   const a=w1.local_allowance_id;
   await assert.rejects(f.q1().dispatch(w1,a,op('coding'),'CODING',500000),/QDEV_FENCED/);
   await f.q1().running(w1,a,op('sofie'));
-  await f.q1().dispatch(w1,a,op('sofie'),'SOFIE',200000);
   await assert.rejects(f.q1().dispatch(w1,a,op('sofie'),'SOFIE',200001),/QDEV_BINDING_CHANGED/);
   await f.q1().settle(w1,a,op('sofie'));
   await f.q1().dispatch(w1,a,op('coding'),'CODING',900000);
