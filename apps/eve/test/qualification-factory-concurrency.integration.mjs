@@ -13,6 +13,8 @@ const admin=new Client({connectionString:root});await admin.connect();
 const schema=await readFile(new URL('../lib/external-alpha/qualification-accounting.sql',import.meta.url),'utf8');
 const prefix='review_'+randomBytes(4).toString('hex');
 const databases=[],roles=[],clients=[];
+/** Generated per run; test-only; used for every disposable role so hosted PostgreSQL password auth is preserved. */
+const rolePassword=randomBytes(24).toString('hex');
 const hash=s=>createHash('sha256').update(s).digest('hex');
 const h=c=>c.repeat(64);
 const binding=qualificationBinding({...QDEV_BASELINE,operatingProfileSha256:h('1'),factoryVersionSha256:h('2'),protectedSpecificationSha256:h('3'),sources:{myeve:'a'.repeat(40),factory:'b'.repeat(40),relay:'c'.repeat(40),missioncontrol:'d'.repeat(40)}});
@@ -20,7 +22,7 @@ async function client(url){const c=new Client({connectionString:url});await c.co
 async function fixture(label,{history=false}={}){
  const name='myeve_qdev_'+prefix+'_'+label,role=prefix+'_'+label;
  databases.push(name);roles.push(role);
- await admin.query('CREATE ROLE '+role+' LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE');
+ await admin.query("CREATE ROLE "+role+" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '"+rolePassword+"'");
  await admin.query('CREATE DATABASE '+name);await admin.query('REVOKE CONNECT ON DATABASE '+name+' FROM PUBLIC');
  await admin.query('GRANT CONNECT ON DATABASE '+name+' TO '+role);
  const dbUrl=new URL(root);dbUrl.pathname='/'+name;const db=await client(dbUrl.href);if(history)for(const file of ['shared-accounting.sql','shared-accounting-recovery.sql','shared-accounting-zero-gap.sql','shared-accounting-chat-only.sql'])await db.query(await readFile(new URL('../lib/external-alpha/'+file,import.meta.url),'utf8'));await db.query(schema);
@@ -31,7 +33,7 @@ async function fixture(label,{history=false}={}){
  await db.query(`INSERT INTO qdev_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256,paid_works) VALUES($1,'Q1',$2,$3,$4,4)`,[policy.cohortId,policy.ownerId,digest(policy),hash(token)]);
  await db.query('INSERT INTO qdev_project(id,cohort_id,owner_id,project_sha256,source_sha256) VALUES($1,$2,$3,$4,$5)',[randomUUID(),policy.cohortId,policy.ownerId,binding.projectSha256,binding.sourceSha256]);
  await db.query('UPDATE qdev_charter SET activated_at=clock_timestamp()');
- const url=new URL(root);url.pathname='/'+name;url.username=role;
+ const url=new URL(root);url.pathname='/'+name;url.username=role;url.password=rolePassword;
  const rt=await client(url.href);
  const adapter={query:async(q,p)=>(await rt.query(q,p)).rows};
  const accounting=new QualificationAccounting(adapter,token,policy,binding);
