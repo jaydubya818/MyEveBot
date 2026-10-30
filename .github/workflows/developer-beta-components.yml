@@ -141,6 +141,8 @@ jobs:
         run: node --import tsx --test apps/eve/test/qualification-agent-port.test.mjs
       - name: Qualification retained-executor Deep Agent execution port (fake runtime)
         run: node --import tsx --test apps/eve/test/qualification-agent-execution-port.test.mjs
+      - name: Qualification /qdev/v1 verifier service against the real client and verdict verifier
+        run: node --import tsx --test apps/eve/test/qualification-verifier-service.test.mjs
       - name: Qualification concrete RuntimePorts composition and verifier transport (disposable loopback endpoint)
         run: node --import tsx --test apps/eve/test/qualification-runtime-ports.test.mjs
       - name: Qualification MyApps prior-revision and restore-point readers

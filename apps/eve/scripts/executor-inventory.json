@@ -4780,6 +4780,11 @@
       "classification": "ENFORCED",
       "reason": "Concrete AgentExecutionPort over an injected Deep Agent runtime and the host's retained Factory admissions. The runtime only runs the agent and reports finished/final-usage; the CODING request/work order/run tuple is read from the authenticated retained admission and can never come from the model or runtime. Records exist only for handles this port started and only after the run finished; pre-start refusals are proven no-sends, anything after start is ambiguous (fenced, never resent). No transport, credential, spend or enrollment authority; the runtime binding (model spend) stays protected.",
       "sha256": "b176c5097ff4a1cc47f80107913d57ba4fcd252b9b518d1bc7a63e314f4f92cf"
+    },
+    "lib/qualification/verifier-service.ts": {
+      "classification": "ENFORCED",
+      "reason": "Server side of the /qdev/v1 verifier contract as a framework-neutral handler for the independently administered verifier. Authenticates callers by SHA-256 credential digest, pins handoffs to the one installation binding, accepts each candidate handoff once, evaluates each candidate at most once (durably marked before it runs) under a hard deadline through an injected protected evaluator, and signs the verdict with an injected protected signer; evaluator failure, deadline overrun or a lost verdict after the evaluation began is a signed NOT_RUN. Holds no criteria, key material, credential or enrollment; spend and deployment authority none.",
+      "sha256": "342c2022e3fbc01aef0f8d2cf3c7480924c51948ba632076b59b8054f68430c5"
     }
   }
 }
