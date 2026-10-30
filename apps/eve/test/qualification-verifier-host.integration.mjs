@@ -9,7 +9,9 @@ import {createServer} from 'node:net';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import pg from 'pg';
+import {spawn} from 'node:child_process';
 import {startVerifierHost,VerifierHostRefused} from '../lib/qualification/verifier-host.ts';
+import {EvaluatorNotQuiescent} from '../lib/qualification/verifier-service.ts';
 import {PostgresVerifierStore,VERIFIER_SCHEMA} from '../lib/qualification/verifier-store-pg.ts';
 import {HttpVerifierPort} from '../lib/qualification/verifier-port.ts';
 import {verifyVerdict} from '../lib/qualification/verdict.ts';
@@ -28,8 +30,8 @@ const urlFor=n=>{const u=new URL(root);u.pathname='/'+n;return u.href;};
 const pools=[];
 const open=url=>{const pool=new pg.Pool({connectionString:url,max:4});pool.on('error',()=>{});pools.push(pool);return {query:async(s,p)=>(await pool.query(s,p)).rows};};
 const setup=new pg.Client({connectionString:urlFor(name)});await setup.connect();await setup.query(VERIFIER_SCHEMA);await setup.end();
-const hosts=[];
-test.after(async()=>{for(const x of hosts)await x.close().catch(()=>{});for(const p of pools)await p.end().catch(()=>{});await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.query('DROP DATABASE IF EXISTS '+emptyName+' WITH (FORCE)');await admin.end();});
+const hosts=[],extraDatabases=[];
+test.after(async()=>{for(const x of extraDatabases)await admin.query('DROP DATABASE IF EXISTS '+x+' WITH (FORCE)').catch(()=>{});for(const x of hosts)await x.close().catch(()=>{});for(const p of pools)await p.end().catch(()=>{});await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.query('DROP DATABASE IF EXISTS '+emptyName+' WITH (FORCE)');await admin.end();});
 
 const dir=mkdtempSync(join(tmpdir(),'qdev-vh-'));
 const runLog=join(dir,'runs.log');
@@ -161,4 +163,87 @@ test('the profile expiry also applies to requests after a successful start',asyn
   const host=await launch(await profile({notAfter:'2030-01-01T01:00:00.000Z'}),{},{now:()=>clock});
   const call=()=>fetch(host.origin+'/qdev/v1/verdict',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+CRED},body:JSON.stringify({candidate:candidate(1)})});
   assert.equal((await call()).status,200);clock+=2*3600_000;assert.equal((await call()).status,503);
+});
+
+// ---- QVHOST-02: the immutability guard must be the exact intended, enabled trigger on the exact public relation ----
+async function guardVariant(label,statements){
+  const variant=`${name}_g${extraDatabases.length}`;extraDatabases.push(variant);
+  await admin.query('CREATE DATABASE '+variant);
+  const client=new pg.Client({connectionString:urlFor(variant)});await client.connect();
+  try{await client.query(VERIFIER_SCHEMA);for(const statement of statements)await client.query(statement);}finally{await client.end();}
+  try{await launch(await profile(),{QDEV_TEST_VERIFIER_DB:urlFor(variant)});return 'STARTED';}catch(e){return e.code??e.message;}
+}
+test('QVHOST-02: a disabled, replica-only, misattached, replaced, extra, wrong-event or relocated guard refuses startup; the intended guard starts',async()=>{
+  const T='qdev_verifier_candidate',G='qdev_verifier_guard';
+  assert.equal(await guardVariant('healthy',[]),'STARTED');
+  const cases={
+    disabled:[`ALTER TABLE ${T} DISABLE TRIGGER ${G}`],
+    replicaOnly:[`ALTER TABLE ${T} ENABLE REPLICA TRIGGER ${G}`],
+    wrongFunction:[`DROP TRIGGER ${G} ON ${T}`,'CREATE FUNCTION public.evil_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW; END $$',`CREATE TRIGGER ${G} BEFORE UPDATE OR DELETE ON ${T} FOR EACH ROW EXECUTE FUNCTION public.evil_guard()`],
+    replacedBody:['CREATE OR REPLACE FUNCTION public.qdev_verifier_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW; END $$'],
+    misattached:[`DROP TRIGGER ${G} ON ${T}`,'CREATE TABLE decoy(x int)',`CREATE TRIGGER ${G} BEFORE UPDATE OR DELETE ON decoy FOR EACH ROW EXECUTE FUNCTION public.qdev_verifier_guard()`],
+    extraTrigger:[`CREATE TRIGGER extra_audit BEFORE INSERT ON ${T} FOR EACH ROW EXECUTE FUNCTION public.qdev_verifier_guard()`],
+    wrongEvent:[`DROP TRIGGER ${G} ON ${T}`,`CREATE TRIGGER ${G} BEFORE UPDATE ON ${T} FOR EACH ROW EXECUTE FUNCTION public.qdev_verifier_guard()`],
+    statementLevel:[`DROP TRIGGER ${G} ON ${T}`,`CREATE TRIGGER ${G} BEFORE UPDATE OR DELETE ON ${T} FOR EACH STATEMENT EXECUTE FUNCTION public.qdev_verifier_guard()`],
+    relocated:['CREATE SCHEMA other',`ALTER TABLE ${T} SET SCHEMA other`],
+  };
+  for(const [label,statements] of Object.entries(cases))assert.equal(await guardVariant(label,statements),'QDEV_VERIFIER_HOST_SCHEMA',label);
+});
+
+// ---- QVHOST-01: orderly shutdown drains and reaps every running evaluation before reporting a clean stop ----
+const pidScript=join(dir,'evaluator-pids.mjs');
+writeFileSync(pidScript,`#!/usr/bin/env node
+import {spawn} from 'node:child_process';import {writeFileSync} from 'node:fs';
+let input='';for await(const c of process.stdin)input+=c;
+const child=spawn('sleep',['120'],{stdio:'ignore'});
+writeFileSync(process.env.QDEV_TEST_PIDFILE,JSON.stringify({evaluator:process.pid,child:child.pid}));
+await new Promise(()=>{});
+`);
+chmodSync(pidScript,0o755);
+const pidSha=createHash('sha256').update(readFileSync(pidScript)).digest('hex');
+const alive=pid=>{try{process.kill(pid,0);return true;}catch(e){return e.code!=='ESRCH';}};
+const until=async(check,ms=15_000)=>{const end=Date.now()+ms;for(;;){const value=await check();if(value)return value;if(Date.now()>end)throw new Error('timeout');await new Promise(r=>setTimeout(r,50));}};
+
+test('QVHOST-01: SIGTERM to the actual CLI stops accepting, aborts and reaps the running evaluation (owned process group, disconnected client) before a clean exit 0',async()=>{
+  const c=candidate(5),handoff=buildVerifierHandoff({project,binding,candidate:c}),pidFile=join(dir,'cli.pids');
+  const p=await profile({evaluator:{command:pidScript,sha256:pidSha,args:[],envNames:['PATH','QDEV_TEST_PIDFILE'],paid:false,deadlineMs:2000,graceMs:500}});
+  const cli=spawn(process.execPath,['--import','tsx',new URL('../scripts/qdev-verifier-host.ts',import.meta.url).pathname],
+    {env:{...envFor(p),QDEV_TEST_PIDFILE:pidFile},stdio:['ignore','pipe','pipe']});
+  let out='',exit;const done=new Promise(resolve=>cli.on('exit',(code,signal)=>{exit={code,signal};resolve();}));
+  cli.stdout.on('data',d=>{out+=d;});cli.stderr.on('data',d=>{out+=d;});
+  const listening=await until(()=>/\{"listening":"(http:\/\/127\.0\.0\.1:\d+)"/.exec(out)?.[1]);
+  assert.equal(listening,'http://127.0.0.1:'+p.listenPort);
+  const port=new HttpVerifierPort({enabled:true,origin:listening,credential:()=>CRED,evaluationTimeoutMs:600});
+  await assert.rejects(port.submit(handoff,650_000),/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/);   // the client disconnects while the evaluation is running
+  const pids=await until(()=>existsSync(pidFile)&&JSON.parse(readFileSync(pidFile,'utf8')));
+  assert.ok(alive(pids.evaluator)&&alive(pids.child));
+  cli.kill('SIGTERM');await done;
+  assert.deepEqual(exit,{code:0,signal:null},out);
+  assert.equal(alive(pids.evaluator),false,'the owned evaluator was reaped before the CLI exited');
+  assert.equal(alive(pids.child),false,'no descendant of the owned process group remains');
+  const record=await new PostgresVerifierStore(open(urlFor(name))).get(c.commit+':'+c.tree+':'+c.buildArtifactSha256);
+  assert.equal(record.phase,'FINAL');assert.equal(record.signed.verdict.outcome,'NOT_RUN');   // aborted like an expired deadline; never a PASS and never re-evaluated
+  const restarted=await launch(await profile());
+  assert.equal((await portFor(restarted).fetchVerdict(c)).verdict.outcome,'NOT_RUN');assert.equal(runs().filter(x=>x===c.commit).length,0);
+});
+
+test('shutdown in process: new requests are refused while draining, an in-flight evaluation is aborted and awaited, and the stop is clean only when cessation is proven',async()=>{
+  const c=candidate(6),handoff=buildVerifierHandoff({project,binding,candidate:c});
+  let started;const running=new Promise(r=>{started=r;});
+  const evaluator={run:(input,{signal})=>{started();return new Promise((_,reject)=>signal.addEventListener('abort',()=>setTimeout(()=>reject(new Error('aborted')),50)));}};
+  const host=await launch(await profile(),{},{evaluator}),port=portFor(host,{evaluationTimeoutMs:30_000});
+  const submitting=port.submit(handoff,650_000).catch(e=>e);
+  await running;
+  const closing=host.close();
+  assert.deepEqual(await closing,{clean:true});
+  const settled=await submitting;                      // the in-flight request received its response before sockets were torn down
+  assert.equal(settled.known,true);
+  const record=await new PostgresVerifierStore(open(urlFor(name))).get(c.commit+':'+c.tree+':'+c.buildArtifactSha256);
+  assert.equal(record.phase,'FINAL');assert.equal(record.signed.verdict.outcome,'NOT_RUN');
+  await assert.rejects(fetch(host.origin+'/qdev/v1/verdict',{method:'POST'}));   // no longer listening
+
+  const c2=candidate(7),handoff2=buildVerifierHandoff({project,binding,candidate:c2});
+  const stuck=await launch(await profile(),{},{evaluator:{run:async()=>{throw new EvaluatorNotQuiescent('group still alive');}}});
+  assert.equal((await portFor(stuck).submit(handoff2,650_000)).known,false);
+  assert.deepEqual(await stuck.close(),{clean:false},'unproven cessation is reported, never as a clean stop');
 });

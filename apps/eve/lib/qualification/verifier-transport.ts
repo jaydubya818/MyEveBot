@@ -6,6 +6,8 @@ import { createServer, type IncomingMessage, type Server } from "node:http";
  *  - The request body is read at most `maxBodyBytes` (declared or streamed); anything larger is refused with 413 and the connection is destroyed.
  *  - The request URL is a fixed loopback origin plus the request path, so a Host header or absolute-form target cannot redirect routing.
  *  - A client that disconnects mid-request never cancels the handler: the single durable evaluation continues and its result is read later.
+ *  - close() stops accepting (new requests get 503), then waits for EVERY in-flight handler call, including those of already-disconnected clients,
+ *    before it force-closes sockets. Connections are never dropped while an evaluation they started is still running.
  */
 export class VerifierTransportRefused extends Error { constructor(readonly code: string) { super(code); } }
 export type VerifierListening = { origin: string; close(): Promise<void> };
@@ -29,9 +31,16 @@ async function readBounded(req: IncomingMessage, max: number): Promise<Buffer | 
 export async function listenVerifierLoopback(handler: (request: Request) => Promise<Response>, options: { port: number; maxBodyBytes: number }): Promise<VerifierListening> {
   if (!Number.isInteger(options.port) || options.port < 0 || options.port > 65535) throw new VerifierTransportRefused("QDEV_VERIFIER_PORT");
   if (!Number.isInteger(options.maxBodyBytes) || options.maxBodyBytes < 1 || options.maxBodyBytes > 1_048_576) throw new VerifierTransportRefused("QDEV_VERIFIER_BODY_LIMIT");
-  const server: Server = createServer(async (req, res) => {
+  const active = new Set<Promise<void>>();
+  let closing = false;
+  const server: Server = createServer((req, res) => {
+    const task = serve(req, res).finally(() => active.delete(task));
+    active.add(task);
+  });
+  async function serve(req: IncomingMessage, res: import("node:http").ServerResponse): Promise<void> {
     const finish = (status: number, body = "") => { if (!res.headersSent) res.writeHead(status, { "cache-control": "no-store", ...(body ? { "content-type": "application/json" } : {}) }); res.end(body); };
     try {
+      if (closing) return finish(503, '{"error":"QDEV_VERIFIER_SHUTTING_DOWN"}');
       const path = req.url ?? "/";
       if (!path.startsWith("/") || path.startsWith("//")) return finish(400, '{"error":"QDEV_VERIFIER_REQUEST"}');
       const headers = new Headers();
@@ -47,9 +56,17 @@ export async function listenVerifierLoopback(handler: (request: Request) => Prom
       if (!res.headersSent) res.writeHead(response.status, Object.fromEntries(response.headers));
       res.end(bytes);
     } catch { finish(500, '{"error":"QDEV_VERIFIER_UNAVAILABLE"}'); }
-  });
+  }
   server.headersTimeout = 10_000; server.requestTimeout = 10_000; server.keepAliveTimeout = 5_000; server.maxHeadersCount = 50; server.maxConnections = 16;
   await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(options.port, HOST, () => resolve()); });
   const address = server.address() as { port: number };
-  return { origin: `http://${HOST}:${address.port}`, close: () => new Promise<void>(resolve => { server.close(() => resolve()); server.closeAllConnections?.(); }) };
+  const close = async () => {
+    closing = true;
+    const stopped = new Promise<void>(resolve => server.close(() => resolve()));
+    server.closeIdleConnections?.();
+    while (active.size) await Promise.allSettled([...active]);
+    server.closeAllConnections?.();
+    await stopped;
+  };
+  return { origin: `http://${HOST}:${address.port}`, close };
 }

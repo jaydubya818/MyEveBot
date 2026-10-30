@@ -65,6 +65,9 @@ export type VerifierServiceConfig = {
   evaluationDeadlineMs: number;
   /** How long an aborted evaluator may take to prove cessation before the run is reported non-quiescent. */
   quiescenceGraceMs?: number;
+  /** Process shutdown. Once aborted, no new evaluation begins and every running one is aborted exactly like an expired deadline: the evaluator must prove
+   * cessation within the grace period or the run is reported non-quiescent (never as success). */
+  shutdown?: AbortSignal;
   now?: () => number;
 };
 
@@ -153,9 +156,16 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
       .then(result => ({ ok: true as const, result }), error => ({ ok: false as const, notQuiescent: error instanceof EvaluatorNotQuiescent }))
       .finally(() => { settled = true; });
     let timer: ReturnType<typeof setTimeout> | undefined, graceTimer: ReturnType<typeof setTimeout> | undefined;
-    const deadline = new Promise<"deadline">(resolve => { timer = setTimeout(() => { deadlineHit = true; controller.abort(); resolve("deadline"); }, config.evaluationDeadlineMs); });
+    let onShutdown: (() => void) | undefined;
+    const deadline = new Promise<"deadline">(resolve => {
+      const expire = () => { deadlineHit = true; controller.abort(); resolve("deadline"); };
+      timer = setTimeout(expire, config.evaluationDeadlineMs);
+      onShutdown = expire;
+      if (config.shutdown?.aborted) expire(); else config.shutdown?.addEventListener("abort", expire, { once: true });
+    });
     const first = await Promise.race([run, deadline]);
     clearTimeout(timer);
+    if (onShutdown) config.shutdown?.removeEventListener("abort", onShutdown);
     let observed = first === "deadline" ? undefined : first;
     if (first === "deadline") {
       // Abort is a request, not proof. Cessation is whatever the evaluator reports by settling within the grace period.
@@ -189,6 +199,7 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
     if (path !== "/qdev/v1/handoff" && path !== "/qdev/v1/evaluate" && path !== "/qdev/v1/verdict") return reject(404, "QDEV_VERIFIER_NOT_FOUND");
     if (request.method !== "POST") return reject(405, "QDEV_VERIFIER_METHOD");
     if (!authorized(request)) return reject(401, "QDEV_VERIFIER_UNAUTHORIZED");
+    if (config.shutdown?.aborted) return reject(503, "QDEV_VERIFIER_SHUTTING_DOWN");
     let body: unknown;
     try { body = await readBody(request); } catch { return reject(400, "QDEV_VERIFIER_REQUEST"); }
 
