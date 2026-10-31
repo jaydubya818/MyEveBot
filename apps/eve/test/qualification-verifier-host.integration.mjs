@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,generateKeyPairSync,randomBytes} from 'node:crypto';
-import {chmodSync,mkdtempSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {chmodSync,mkdtempSync,readFileSync,readdirSync,writeFileSync,existsSync} from 'node:fs';
 import {createServer} from 'node:net';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -17,6 +17,7 @@ import {HttpVerifierPort} from '../lib/qualification/verifier-port.ts';
 import {verifyVerdict} from '../lib/qualification/verdict.ts';
 import {buildVerifierHandoff} from '../lib/qualification/verifier-handoff.ts';
 import {qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
+import {StaticArtifactCandidate} from '../../../packages/myapps/src/static-artifact.ts';
 import {syntheticFactory,h} from './qualification-synthetic.mjs';
 
 const connection=process.env.MYEVE_ISOLATED_COHORT_TEST_DATABASE;
@@ -37,12 +38,14 @@ const dir=mkdtempSync(join(tmpdir(),'qdev-vh-'));
 const runLog=join(dir,'runs.log');
 const evaluatorPath=join(dir,'evaluator.mjs');
 writeFileSync(evaluatorPath,`#!/usr/bin/env node
-import {appendFileSync} from 'node:fs';
+import {appendFileSync,readFileSync} from 'node:fs';import {createHash} from 'node:crypto';
 let input='';for await(const c of process.stdin)input+=c;
-const {handoff,candidate,budgetMicrousd}=JSON.parse(input);
+const {handoff,candidate,budgetMicrousd,artifact}=JSON.parse(input);
+let staged=!!artifact&&artifact.artifactSha256===candidate.buildArtifactSha256;
+for(const f of artifact?.files??[]){if(createHash('sha256').update(readFileSync(artifact.dir+'/'+f.path)).digest('hex')!==f.sha256)staged=false;}
 appendFileSync(process.env.QDEV_TEST_RUNLOG,candidate.commit+'\\n');
 await new Promise(r=>setTimeout(r,Number(process.env.QDEV_TEST_DELAY_MS||0)));
-process.stdout.write(JSON.stringify({outcome:handoff.candidateCommit===candidate.commit&&budgetMicrousd>0?'PASS':'FAIL',usedMicrousd:0}));
+process.stdout.write(JSON.stringify({outcome:staged&&handoff.candidateCommit===candidate.commit&&budgetMicrousd>0?'PASS':'FAIL',usedMicrousd:0}));
 `);
 chmodSync(evaluatorPath,0o755);
 const evaluatorSha=createHash('sha256').update(readFileSync(evaluatorPath)).digest('hex');
@@ -57,11 +60,23 @@ const pair=generateKeyPairSync('ed25519'),pem=pair.privateKey.export({type:'pkcs
 const verifierKey={keyId:'verifier-key-vh',publicKeyPem:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
 const CRED='verifier-host-credential-'+'z'.repeat(24);
 const freePort=()=>new Promise((resolve,reject)=>{const s=createServer();s.once('error',reject);s.listen(0,'127.0.0.1',()=>{const {port}=s.address();s.close(()=>resolve(port));});});
-const candidate=n=>({commit:String(n).repeat(40),tree:'2'.repeat(40),buildArtifactSha256:h('4')});
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const sources=new Map();
+for(const n of [1,2,3,4,5,6,7,8,9]){
+  const files={'dist/index.html':Buffer.from('<html>host '+n+'</html>'),'dist/app.js':Buffer.from('console.log('+n+')')};
+  const commit=String(n).repeat(40),tree='2'.repeat(40);
+  const inventory={schema:'myeve.dashboard.build-inventory/v1',scope:'BROWSER_BUILD_ONLY',sourceCommit:commit,sourceTree:tree,lockSha256:h('a'),node:'v24.0.0',
+    files:Object.entries(files).map(([path,b])=>({path,bytes:b.length,sha256:sha(b)})),independentVerification:'NOT_ESTABLISHED',signedResult:false,releaseQualified:false};
+  const pins={sourceCommit:commit,sourceTree:tree,lockSha256:h('a')};
+  sources.set(n,{inventory,pins,artifact:await StaticArtifactCandidate.retain(inventory,pins,async p=>files[p])});
+}
+const candidate=n=>{const s=sources.get(n);return {commit:s.pins.sourceCommit,tree:s.pins.sourceTree,buildArtifactSha256:s.artifact.artifactDigest.slice('sha256:'.length)};};
+const stagingFor=c=>{for(const s of sources.values())if(s.pins.sourceCommit===c.commit&&s.pins.sourceTree===c.tree)return s;throw new Error('no retained artifact');};
+const artifactRoot=join(dir,'artifacts');
 
 async function profile(over={}){
   return {version:1,notAfter:'2099-01-01T00:00:00.000Z',listenPort:await freePort(),expected,credentialSha256:[createHash('sha256').update(CRED).digest('hex')],
-    signer:{keyId:'verifier-key-vh',pemEnv:'QDEV_TEST_SIGNER_PEM'},databaseUrlEnv:'QDEV_TEST_VERIFIER_DB',
+    signer:{keyId:'verifier-key-vh',pemEnv:'QDEV_TEST_SIGNER_PEM'},databaseUrlEnv:'QDEV_TEST_VERIFIER_DB',artifactRoot,
     evaluator:{command:evaluatorPath,sha256:evaluatorSha,args:[],envNames:['PATH','QDEV_TEST_RUNLOG','QDEV_TEST_DELAY_MS'],paid:false,deadlineMs:3000,graceMs:500},...over};
 }
 const envFor=(p,extra={})=>({MYEVE_QDEV_VERIFIER_ENABLED:'true',MYEVE_QDEV_VERIFIER_PROFILE:JSON.stringify(p),QDEV_TEST_SIGNER_PEM:pem,QDEV_TEST_VERIFIER_DB:urlFor(name),
@@ -70,7 +85,7 @@ async function launch(p,extra={},deps={}){
   const host=await startVerifierHost({env:envFor(p,extra),database:url=>open(url),...deps});
   if(host)hosts.push(host);return host;
 }
-const portFor=(host,over={})=>new HttpVerifierPort({enabled:true,origin:host.origin,credential:()=>CRED,...over});
+const portFor=(host,over={})=>new HttpVerifierPort({enabled:true,origin:host.origin,credential:()=>CRED,staging:stagingFor,...over});
 const verify=(signed,c,now)=>verifyVerdict({now,signed,verifierKeys:[verifierKey],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],expected:{...expected,candidateCommit:c.commit,candidateTree:c.tree,buildArtifactSha256:c.buildArtifactSha256}});
 
 test('disabled by default: nothing is read, opened or listening without the explicit switch; an enabled but incomplete start is refused',async()=>{
@@ -84,6 +99,9 @@ test('launch is fail-closed on profile, expiry, evaluator digest, signer, databa
   const code=async(p,extra={},deps={})=>{try{await launch(p,extra,deps);return 'STARTED';}catch(e){return e.code??e.message;}};
   const base=await profile();
   assert.equal(await code({...base,host:'0.0.0.0'}),'QDEV_VERIFIER_HOST_PROFILE');
+  assert.equal(await code({...base,artifactRoot:undefined}),'QDEV_VERIFIER_HOST_PROFILE');       // a verifier that cannot receive bytes cannot evaluate them
+  assert.equal(await code({...base,artifactRoot:'relative/artifacts'}),'QDEV_VERIFIER_HOST_PROFILE');
+  assert.equal(await code({...base,artifactRoot:evaluatorPath}),'QDEV_VERIFIER_HOST_ARTIFACT_ROOT');   // not a directory
   assert.equal(await code({...base,listenPort:80}),'QDEV_VERIFIER_HOST_PROFILE');
   assert.equal(await code({...base,evaluator:{...base.evaluator,command:'evaluator.mjs'}}),'QDEV_VERIFIER_HOST_PROFILE');
   assert.equal(await code({...base,notAfter:'2020-01-01T00:00:00.000Z'}),'QDEV_VERIFIER_HOST_EXPIRED');
@@ -213,7 +231,7 @@ test('QVHOST-01: SIGTERM to the actual CLI stops accepting, aborts and reaps the
   cli.stdout.on('data',d=>{out+=d;});cli.stderr.on('data',d=>{out+=d;});
   const listening=await until(()=>/\{"listening":"(http:\/\/127\.0\.0\.1:\d+)"/.exec(out)?.[1]);
   assert.equal(listening,'http://127.0.0.1:'+p.listenPort);
-  const port=new HttpVerifierPort({enabled:true,origin:listening,credential:()=>CRED,evaluationTimeoutMs:600});
+  const port=new HttpVerifierPort({enabled:true,origin:listening,credential:()=>CRED,evaluationTimeoutMs:600,staging:stagingFor});
   await assert.rejects(port.submit(handoff,650_000),/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/);   // the client disconnects while the evaluation is running
   const pids=await until(()=>existsSync(pidFile)&&JSON.parse(readFileSync(pidFile,'utf8')));
   assert.ok(alive(pids.evaluator)&&alive(pids.child));
@@ -247,3 +265,31 @@ test('shutdown in process: new requests are refused while draining, an in-flight
   assert.equal((await portFor(stuck).submit(handoff2,650_000)).known,false);
   assert.deepEqual(await stuck.close(),{clean:false},'unproven cessation is reported, never as a clean stop');
 });
+
+test('host end to end: the producer stages the exact retained bytes through the real listener, the evaluator consumes them, an unstaged or tampered artifact never evaluates',async()=>{
+  const c=candidate(8),handoff=buildVerifierHandoff({project,binding,candidate:c});
+  const host=await launch(await profile());
+  // an unstaged handoff is refused by the host itself
+  const raw=await fetch(host.origin+'/qdev/v1/handoff',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+CRED},body:JSON.stringify(handoff)});
+  assert.equal(raw.status,409);assert.equal((await raw.json()).error,'QDEV_ARTIFACT_NOT_STAGED');assert.equal(runs().filter(x=>x===c.commit).length,0);
+  await assert.rejects(portFor(host,{staging:undefined}).submit(handoff,650_000),/QDEV_VERIFIER_POST_SEND_AMBIGUOUS/);
+  assert.equal(runs().filter(x=>x===c.commit).length,0);
+  const settled=await portFor(host).submit(handoff,650_000);
+  assert.equal(settled.known,true);assert.equal(runs().filter(x=>x===c.commit).length,1);
+  assert.equal(verify(await portFor(host).fetchVerdict(c),c).outcome,'PASS','PASS requires the evaluator to have verified the staged exact bytes');
+  await host.close();
+  // the staged bytes are durable: a restarted host (same artifactRoot) serves the same FINAL record and re-staging is idempotent
+  const restarted=await launch(await profile());
+  assert.equal((await portFor(restarted).submit(handoff,650_000)).known,true);assert.equal(runs().filter(x=>x===c.commit).length,1);
+  // a candidate whose retained bytes were altered on disk before the evaluation never starts
+  const t=candidate(9),th=buildVerifierHandoff({project,binding,candidate:t});
+  await stageViaPort(restarted,t);
+  const staged=join(artifactRoot,readdirSync(artifactRoot).find(x=>!x.endsWith('.pending')&&readFileSync(join(artifactRoot,x,'manifest.json'),'utf8').includes(t.commit)),'files','dist','app.js');
+  chmodSync(staged,0o644);writeFileSync(staged,'console.log("tampered")');
+  await assert.rejects(portFor(restarted).submit(th,650_000),/artifact staging failed: QDEV_ARTIFACT_STATUS_409/);
+  assert.equal(runs().filter(x=>x===t.commit).length,0);
+});
+async function stageViaPort(host,c){
+  const {stageArtifact}=await import('../lib/qualification/artifact-staging.ts');
+  await stageArtifact({origin:host.origin,authorization:'Bearer '+CRED,source:stagingFor(c),candidate:c,binding});
+}

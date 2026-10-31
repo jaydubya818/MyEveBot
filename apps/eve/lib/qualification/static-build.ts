@@ -46,6 +46,13 @@ export class StaticBuildMyAppsPort implements MyAppsPort {
     return r.candidate;
   }
 
+  /** The exact retained inventory, pins and bytes for the accepted candidate, for the verifier staging upload (a detached inventory copy; no authority). */
+  stagingSource(candidate: { commit: string; tree: string }): { inventory: unknown; pins: StaticSourcePins; artifact: StaticArtifactCandidate } {
+    const r = this.retained;
+    if (!r || r.commit !== candidate.commit || r.tree !== candidate.tree) throw new StaticBuildRefused("QDEV_BUILD_NOT_RETAINED");
+    return { inventory: structuredClone(r.inventory), pins: { ...r.pins }, artifact: r.candidate };
+  }
+
   async observe(candidate: { commit: string; tree: string }): Promise<unknown> {
     const r = this.retained;
     if (!r || r.commit !== candidate.commit || r.tree !== candidate.tree) throw new StaticBuildRefused("QDEV_BUILD_NOT_RETAINED");

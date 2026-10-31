@@ -3,7 +3,7 @@ import { EvaluatorNotQuiescent, type EvaluatorResult, type QuiescentEvaluator } 
 
 /**
  * Generic production runner body for the verifier's protected evaluator: it executes the evaluator as an OWNED child process (its own process
- * group), hands it the handoff, candidate identity and charged budget on stdin only, reads one strictly-validated JSON result from stdout, and
+ * group), hands it the handoff, candidate identity, charged budget and (when staged) the verified artifact directory with its file digests on stdin only, reads one strictly-validated JSON result from stdout, and
  * settles ONLY after the WHOLE process group has ceased. Leader exit is not group cessation: on every completion path (normal exit, error,
  * output overflow, abort) the group is SIGKILLed and then observed gone (`kill(-pgid, 0)` reporting ESRCH) within a bound; a group that is
  * still alive after that bound, and a failed or overlong `cleanup` (for example removing a named container), mean cessation is not proven and
@@ -59,7 +59,7 @@ export function processEvaluator(c: ProcessEvaluatorConfig): QuiescentEvaluator 
           if (Buffer.byteLength(output) > maxOutput) { overflow = true; failure ??= new Error("QDEV_EVALUATOR_OUTPUT_LIMIT"); killGroup(); }
         });
         child.stdin!.on("error", () => { /* child exited before reading its input */ });
-        child.stdin!.end(JSON.stringify({ handoff: input.handoff, candidate: input.candidate, budgetMicrousd: context.budgetMicrousd }));
+        child.stdin!.end(JSON.stringify({ handoff: input.handoff, candidate: input.candidate, budgetMicrousd: context.budgetMicrousd, ...(input.artifact ? { artifact: input.artifact } : {}) }));
         child.on("error", error => { spawnFailed = true; failure ??= error; });
         // The leader exiting says nothing about its descendants (which may also be holding stdout open): end the group as soon as it exits.
         child.on("exit", killGroup);

@@ -93,7 +93,7 @@ async function harness(w,{verdictMode='valid'}={}){
   adm[n]={n,e,raw,request,identity,spend,signed:results[n].signed};byRequest.set(e.requestId,adm[n]);byWorkOrder.set(e.workOrderId,adm[n]);
  }
  const readback=(a,over={})=>({requestId:a.e.requestId,workOrderId:a.e.workOrderId,runId:a.e.runId,snapshot:null,identity:a.identity,state:'RUNNING',quiescent:false,evidenceRef:null,spend:a.spend,blocker:null,...over});
- const log={capability:[],factory:[],served:[],agent:[],verifier:[],verifierLedger:[]};
+ const log={capability:[],factory:[],served:[],agent:[],verifier:[],verifierLedger:[],staged:[]};
  const conn={origin:'http://127.0.0.1:12345',token:'c'.repeat(64),factoryId:fx.factoryId,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,factoryVersion:fx.factoryVersion,
   repositoryPath:'/synthetic',keys:[fx.key],spendContract:{version:'WORK_LEDGER_V1',sourceDigest:fx.sourceDigest},
   qualification:{scopeId:'synthetic-owner',profileHash:'e'.repeat(64),evidenceRef:'synthetic',qualifiedAt:'2026-01-01T00:00:00Z',expiresAt:'2099-01-01T00:00:00Z',mode:'LOCAL_FIXTURE',spendEnforced:true}};
@@ -142,8 +142,19 @@ async function harness(w,{verdictMode='valid'}={}){
   return w.verifier.signVerdict(verdictFor(exp));
  };
  let lastHandoff=null;
- const server=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',async()=>{
-  const parsed=body?JSON.parse(body):null;log.verifier.push({url:req.url,authorization:req.headers.authorization,body:parsed});
+ const server=createServer((req,res)=>{const chunks=[];req.on('data',c=>chunks.push(c));req.on('end',async()=>{
+  const raw=Buffer.concat(chunks);
+  // Artifact staging (uncharged, before the handoff): the exact retained bytes arrive one inventoried file per request, then a commit receipt is returned.
+  if(req.url==='/qdev/v1/artifact/file'){
+   log.staged.push({path:req.headers['x-qdev-path'],sha256:req.headers['x-qdev-sha256'],bytes:raw,candidate:req.headers['x-qdev-candidate'],binding:req.headers['x-qdev-binding'],authorization:req.headers.authorization,verifierCallsBefore:log.verifier.length});
+   res.writeHead(200,{'content-type':'application/json'});return res.end(JSON.stringify({received:true,path:req.headers['x-qdev-path'],sha256:req.headers['x-qdev-sha256']}));}
+  const body=raw.toString('utf8');
+  const parsed=body?JSON.parse(body):null;
+  if(req.url==='/qdev/v1/artifact/commit'){
+   log.staged.push({commit:true,body:parsed,authorization:req.headers.authorization,verifierCallsBefore:log.verifier.length});
+   res.writeHead(200,{'content-type':'application/json'});
+   return res.end(JSON.stringify({staged:true,artifactSha256:buildArtifactSha256,inventoryDigest:retained.inventoryDigest,files:inventory.files.length,bytes:inventory.files.reduce((n,f)=>n+f.bytes,0)}));}
+  log.verifier.push({url:req.url,authorization:req.headers.authorization,body:parsed});
   let json={};
   if(req.url==='/qdev/v1/handoff'){lastHandoff=parsed.handoffSha256;json={accepted:true,handoffSha256:parsed.handoffSha256};}
   else if(req.url==='/qdev/v1/evaluate'){
@@ -212,6 +223,12 @@ try{
    // Verifier: exactly one digest-only handoff and one verdict fetch, with the runtime credential read through the accessor and never in the bundle
    assert.deepEqual(hn.log.verifier.map(v=>v.url),['/qdev/v1/handoff','/qdev/v1/evaluate','/qdev/v1/verdict']);
    for(const v of hn.log.verifier)assert.equal(v.authorization,'Bearer '+CRED);
+   // The retained exact bytes were staged at the independent host BEFORE the first verifier call, and the proof handoff itself carries digests only
+   const stagedFiles=hn.log.staged.filter(x=>!x.commit),commits=hn.log.staged.filter(x=>x.commit);
+   assert.equal(commits.length,1);assert.ok(hn.log.staged.every(x=>x.verifierCallsBefore===0&&x.authorization==='Bearer '+CRED));
+   assert.deepEqual(stagedFiles.map(f=>[f.path,f.sha256,f.bytes.toString('utf8')]).sort(),Object.entries(files).map(([p,b])=>[p,createHash('sha256').update(b).digest('hex'),Buffer.from(b).toString('utf8')]).sort(),'the exact built bytes, one request per inventoried file');
+   assert.equal(commits[0].body.candidate.buildArtifactSha256,hn.candidate.buildArtifactSha256);
+   assert.ok(!JSON.stringify(hn.log.verifier[0].body).includes('<'),'the handoff is digest-only');
    assert.deepEqual(hn.log.verifier[0].body,hn.expectedHandoff);assert.deepEqual(hn.log.verifier[1].body,{candidate:hn.candidate,reserveMicrousd:650000});assert.deepEqual(hn.log.verifier[2].body,{candidate:hn.candidate});
    assert.deepEqual(hn.log.verifierLedger,[['RUNNING']],'the verifier operation is unsettled while the evaluation runs');
    assert.equal(r.env.MYEVE_QDEV_HOST_BUNDLE.includes(CRED),false);

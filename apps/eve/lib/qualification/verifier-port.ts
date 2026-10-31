@@ -2,6 +2,7 @@ import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import { verdictSchema, type SignedVerdict } from "./verdict.ts";
 import type { VerifierHandoff } from "./verifier-handoff.ts";
+import { ArtifactStagingRefused, stageArtifact, type ArtifactSource } from "./artifact-staging.ts";
 import type { VerifierPort } from "./wiring.ts";
 
 /**
@@ -10,6 +11,8 @@ import type { VerifierPort } from "./wiring.ts";
  * the journey against the disjoint verifier key set, so a transport (or a compromised endpoint) cannot mint a PASS.
  *
  * Contract (the verifier service implements it; it is part of the protected custody, not of this repository):
+ *   POST {origin}/qdev/v1/artifact/file   one inventoried file (octet-stream)   -> 200 { received: true, path, sha256 }     (uncharged staging, before the handoff)
+ *   POST {origin}/qdev/v1/artifact/commit { candidate, binding, pins, inventory }  -> 200 { staged: true, artifactSha256, inventoryDigest, files, bytes }
  *   POST {origin}/qdev/v1/handoff   body = VerifierHandoff                        -> 200 { accepted: true, handoffSha256 }
  *   POST {origin}/qdev/v1/evaluate  body = { candidate, reserveMicrousd }          -> 200 { state: "FINAL", handoffSha256, usage: { settledMicrousd, quiescent } }
  *   POST {origin}/qdev/v1/verdict   body = { candidate }                           -> 200 { verdict, signatureBase64 }   (pure read of a FINAL verdict)
@@ -25,6 +28,10 @@ export type HttpVerifierConfig = {
   fetch?: typeof fetch; timeoutMs?: number;
   /** Upper bound for the charged evaluation request (must exceed the service's evaluation deadline plus grace). */
   evaluationTimeoutMs?: number;
+  /** Retained exact built bytes of the accepted candidate. Uploaded (uncharged, idempotent, bounded) BEFORE the handoff so the independent host evaluates the exact bytes;
+   * a staging failure is a pre-handoff refusal (no evaluation can have started). The handoff itself stays digest-only. */
+  staging?: (candidate: { commit: string; tree: string }) => ArtifactSource;
+  stagingTimeoutMs?: number;
 };
 export class VerifierPortRefused extends Error { constructor(readonly code: string) { super(code); } }
 const ORIGIN = /^(?:https:\/\/[a-z0-9.-]+(?::\d{1,5})?|http:\/\/127\.0\.0\.1:\d{1,5})$/;
@@ -54,6 +61,13 @@ export class HttpVerifierPort implements VerifierPort {
     const candidate = { commit: handoff.candidateCommit, tree: handoff.candidateTree, buildArtifactSha256: handoff.buildArtifactSha256 };
     if (!/^[a-f0-9]{40}$/.test(candidate.commit) || !/^[a-f0-9]{40}$/.test(candidate.tree) || !/^[a-f0-9]{64}$/.test(candidate.buildArtifactSha256)) throw new ProviderNotSent("handoff candidate malformed");
     const authorization = this.authorization();
+    if (this.c.staging) {
+      // Uncharged precursor. Failing here leaves nothing registered at the verifier, so the pre-send contract holds: the evaluation cannot have started.
+      try {
+        await stageArtifact({ origin: this.c.origin, authorization, fetch: this.c.fetch, timeoutMs: this.c.stagingTimeoutMs, source: this.c.staging({ commit: candidate.commit, tree: candidate.tree }),
+          candidate, binding: { projectSha256: handoff.projectSha256, sourceSha256: handoff.sourceSha256 } });
+      } catch (error) { throw new ProviderNotSent("artifact staging failed: " + (error instanceof ArtifactStagingRefused ? error.code : "QDEV_ARTIFACT_TRANSPORT")); }
+    }
     // From the first request on, the evaluation may run: every failure is ambiguous exposure and nothing is resent.
     let ack: any, final: any;
     try { ack = await this.call("/qdev/v1/handoff", handoff, authorization); }

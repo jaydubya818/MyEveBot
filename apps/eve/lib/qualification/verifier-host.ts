@@ -3,6 +3,7 @@ import { lstatSync, readFileSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
+import { ARTIFACT_COMMIT_BODY_LIMIT, ARTIFACT_FILE_BODY_LIMIT, ARTIFACT_PATHS, ArtifactStagingStore } from "./artifact-staging.ts";
 import { dockerRemoveCleanup, processEvaluator } from "./verifier-runner.ts";
 import { createVerifierHandler, ed25519Signer, EvaluatorNotQuiescent, type QuiescentEvaluator } from "./verifier-service.ts";
 import { PostgresVerifierStore, VERIFIER_SCHEMA } from "./verifier-store-pg.ts";
@@ -15,6 +16,7 @@ import { listenVerifierLoopback } from "./verifier-transport.ts";
  *  - The profile is NON-secret and contains no criteria: the pinned installation digests, SHA-256 digests of the accepted bearer credentials, the NAMES of the
  *    environment variables holding the signer PEM and the verifier-only database URL, and the evaluator command with the SHA-256 of its executable bytes.
  *    The evaluator (criteria, image, anything protected) is the operator's custody; this source only runs it as an owned process group and settles on proven cessation.
+ *  - Exact built bytes arrive through the bounded artifact routes into `artifactRoot` BEFORE the handoff (see artifact-staging.ts); a handoff for unstaged bytes is refused.
  *  - The listener is fixed exact IPv4 loopback (see verifier-transport.ts); TLS, domain, tunnel and tester access remain separate protected owner actions.
  *  - The durable store is the verifier's OWN PostgreSQL database. The schema is applied by the operator; the launcher only verifies it (table and immutability
  *    trigger present) and refuses otherwise, so a start never changes a database.
@@ -31,6 +33,8 @@ export const verifierHostProfileSchema = z.object({
   credentialSha256: z.array(hex(64)).min(1).max(4),
   signer: z.object({ keyId: z.string().min(1).max(120), pemEnv: envName }).strict(),
   databaseUrlEnv: envName,
+  /** The verifier host's own private directory for staged exact artifact bytes (created 0700 when absent; never served or published). */
+  artifactRoot: absolute,
   evaluator: z.object({
     command: absolute, sha256: hex(64), args: z.array(z.string().max(512)).max(32), cwd: absolute.optional(), envNames: z.array(envName).max(16),
     /** Declared, never inferred: an unpaid evaluator must report exactly zero usage. */
@@ -81,6 +85,9 @@ export async function startVerifierHost(deps: VerifierHostDeps): Promise<Verifie
   let url: URL;
   try { url = new URL(databaseUrl ?? ""); if (!/^postgres(ql)?:$/.test(url.protocol)) throw new Error("scheme"); } catch { throw new VerifierHostRefused("QDEV_VERIFIER_HOST_DATABASE"); }
 
+  let artifacts: ArtifactStagingStore;
+  try { artifacts = new ArtifactStagingStore({ root: profile.artifactRoot }); } catch { throw new VerifierHostRefused("QDEV_VERIFIER_HOST_ARTIFACT_ROOT"); }
+
   const database = deps.database(url.href);
   try {
     // Exact public target relation, the one intended guard function (by schema and body), enabled on origin writes, BEFORE ROW UPDATE|DELETE, and nothing else.
@@ -111,11 +118,12 @@ export async function startVerifierHost(deps: VerifierHostDeps): Promise<Verifie
   const shutdown = new AbortController();
   const handler = createVerifierHandler({
     credentialSha256: profile.credentialSha256, expected: profile.expected, evaluator, paid: profile.evaluator.paid, signer,
-    store: new PostgresVerifierStore(database), evaluationDeadlineMs: profile.evaluator.deadlineMs, quiescenceGraceMs: profile.evaluator.graceMs, now, shutdown: shutdown.signal,
+    store: new PostgresVerifierStore(database), artifacts, evaluationDeadlineMs: profile.evaluator.deadlineMs, quiescenceGraceMs: profile.evaluator.graceMs, now, shutdown: shutdown.signal,
   });
   // The profile's expiry applies to every request, not only the start.
   const guarded = async (request: Request) => now() >= notAfter ? Response.json({ error: "QDEV_VERIFIER_EXPIRED" }, { status: 503, headers: { "cache-control": "no-store" } }) : handler(request);
-  const listening = await listenVerifierLoopback(guarded, { port: profile.listenPort, maxBodyBytes: MAX_BODY });
+  const listening = await listenVerifierLoopback(guarded, { port: profile.listenPort,
+    maxBodyBytes: path => path === ARTIFACT_PATHS.file ? ARTIFACT_FILE_BODY_LIMIT : path === ARTIFACT_PATHS.commit ? ARTIFACT_COMMIT_BODY_LIMIT : MAX_BODY });
   let closing: Promise<{ clean: boolean }> | undefined;
   /** Stop accepting, abort every running evaluation like an expired deadline, wait for each handler call (even for disconnected clients) and each owned evaluator to cease. */
   const close = () => closing ??= (async () => {

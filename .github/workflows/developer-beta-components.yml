@@ -156,6 +156,8 @@ jobs:
         env:
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres
         run: ../../node_modules/.bin/vitest run --maxWorkers=1 --testTimeout=120000 lib/qualification/post-delivery.integration.test.ts
+      - name: Exact-byte artifact staging to the independent verifier host (real loopback upload/receipt, evaluator consumption, tamper, wrong binding, duplicate and restart controls; no paid call)
+        run: node --import tsx --test apps/eve/test/qualification-artifact-staging.test.mjs
       - name: Verifier host launcher (real loopback HttpVerifierPort -> handler -> durable store -> owned evaluator; duplicate, restart, dropped-ack and crash fencing) over disposable PostgreSQL
         env:
           MYEVE_ISOLATED_COHORT_TEST_DATABASE: postgresql://q37_admin:synthetic-q37-ci-only@127.0.0.1:55479/postgres

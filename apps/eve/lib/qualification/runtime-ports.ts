@@ -80,7 +80,9 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
       ? new FactoryCodingRuntime({ project: context.bundle.project, factory, retained: custody.factory.retained, expectedFor: custody.expectedFor,
         sourceDigest: custody.sourceDigest, sofie: custody.agent.factoryCoding.sofie })
       : custody.agent.runtime }) });
-  const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs });
+  const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs,
+    // The retained exact bytes reach the independent host before the charged evaluation (uncharged, bounded, idempotent).
+    staging: candidate => build.stagingSource(candidate) });
   const publishing = custody.myapps.publishing;
   const controller = publishing ? new StaticReleaseController({
     root: publishing.root, appId: publishing.appId, installationId: publishing.installationId, activation: publishing.activation,

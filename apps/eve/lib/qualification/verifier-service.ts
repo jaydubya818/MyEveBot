@@ -4,6 +4,7 @@ import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { digest } from "../engineering/contract.ts";
 import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { verdictSchema, type SignedVerdict, type Verdict } from "./verdict.ts";
+import { ARTIFACT_COMMIT_BODY_LIMIT, ARTIFACT_PATHS, ArtifactStagingRefused, artifactRoutes, type ArtifactStagingStore, type StagedArtifact } from "./artifact-staging.ts";
 
 /**
  * Server side of the `/qdev/v1` verifier contract that `HttpVerifierPort` consumes: the framework-neutral request handler of the
@@ -33,7 +34,7 @@ export type EvaluatorResult = { outcome: "PASS" | "FAIL" | "NOT_RUN"; usedMicrou
  * honour `signal` and `budgetMicrousd` (its hard cap). Reject with EvaluatorNotQuiescent when cessation could not be proven.
  */
 export interface QuiescentEvaluator {
-  run(input: { handoff: VerifierHandoffBody; candidate: VerifierCandidate }, context: { signal: AbortSignal; budgetMicrousd: number }): Promise<EvaluatorResult>;
+  run(input: { handoff: VerifierHandoffBody; candidate: VerifierCandidate; artifact?: StagedArtifact }, context: { signal: AbortSignal; budgetMicrousd: number }): Promise<EvaluatorResult>;
 }
 export class EvaluatorNotQuiescent extends Error { constructor(message = "evaluator cessation not proven") { super(message); } }
 
@@ -62,6 +63,9 @@ export type VerifierServiceConfig = {
   /** Protected signer: Ed25519 over the canonical verdict bytes. */
   signer: { keyId: string; sign(message: Uint8Array): Promise<Uint8Array> | Uint8Array };
   store: VerifierStore;
+  /** Durable exact-byte staging area. When configured, a handoff for an unstaged candidate is refused and every staged byte is re-verified before the evaluation begins;
+   * the evaluator receives the staged directory and file digests. Without it the service is digest-only (tests / non-artifact evaluators). */
+  artifacts?: ArtifactStagingStore;
   evaluationDeadlineMs: number;
   /** How long an aborted evaluator may take to prove cessation before the run is reported non-quiescent. */
   quiescenceGraceMs?: number;
@@ -113,6 +117,7 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
   const now = config.now ?? Date.now;
   const inflight = new Map<string, Promise<VerifierRecord | null>>();
   const orphanAfterMs = config.evaluationDeadlineMs + grace + 5_000;
+  const artifactApi = config.artifacts ? artifactRoutes(config.artifacts, config.expected) : null;
 
   const authorized = (request: Request) => {
     const value = request.headers.get("authorization") ?? "";
@@ -123,12 +128,12 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
     for (const known of accepted) ok = timingSafeEqual(presented, known) || ok;
     return ok;
   };
-  const readBody = async (request: Request): Promise<unknown> => {
+  const readBody = async (request: Request, max = MAX_BODY): Promise<unknown> => {
     if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json")) throw new Error("content-type");
     const declared = Number(request.headers.get("content-length") ?? "0");
-    if (declared > MAX_BODY) throw new Error("size");
+    if (declared > max) throw new Error("size");
     const text = await request.text();
-    if (Buffer.byteLength(text) > MAX_BODY) throw new Error("size");
+    if (Buffer.byteLength(text) > max) throw new Error("size");
     return JSON.parse(text);
   };
   const sign = async (candidate: VerifierCandidate, handoff: VerifierHandoffBody, outcome: Verdict["outcome"]): Promise<SignedVerdict> => {
@@ -148,11 +153,11 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
   };
 
   /** Runs the single evaluation. Resolves only after the evaluator settled or the grace period after the deadline expired. */
-  async function evaluateOnce(key: string, candidate: VerifierCandidate, handoff: VerifierHandoffBody, reserve: number): Promise<VerifierRecord> {
+  async function evaluateOnce(key: string, candidate: VerifierCandidate, handoff: VerifierHandoffBody, reserve: number, artifact?: StagedArtifact): Promise<VerifierRecord> {
     const controller = new AbortController();
     let settled = false, deadlineHit = false;
     const run: Promise<{ ok: true; result: unknown } | { ok: false; notQuiescent: boolean }> = (async () => config.evaluator.run(
-      { handoff: structuredClone(handoff), candidate: { ...candidate } }, { signal: controller.signal, budgetMicrousd: reserve }))()
+      { handoff: structuredClone(handoff), candidate: { ...candidate }, ...(artifact ? { artifact: structuredClone(artifact) } : {}) }, { signal: controller.signal, budgetMicrousd: reserve }))()
       .then(result => ({ ok: true as const, result }), error => ({ ok: false as const, notQuiescent: error instanceof EvaluatorNotQuiescent }))
       .finally(() => { settled = true; });
     let timer: ReturnType<typeof setTimeout> | undefined, graceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -196,12 +201,15 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
 
   return async request => {
     const path = new URL(request.url).pathname;
-    if (path !== "/qdev/v1/handoff" && path !== "/qdev/v1/evaluate" && path !== "/qdev/v1/verdict") return reject(404, "QDEV_VERIFIER_NOT_FOUND");
+    const isArtifact = path === ARTIFACT_PATHS.file || path === ARTIFACT_PATHS.commit;
+    if (path !== "/qdev/v1/handoff" && path !== "/qdev/v1/evaluate" && path !== "/qdev/v1/verdict" && !(isArtifact && artifactApi)) return reject(404, "QDEV_VERIFIER_NOT_FOUND");
     if (request.method !== "POST") return reject(405, "QDEV_VERIFIER_METHOD");
     if (!authorized(request)) return reject(401, "QDEV_VERIFIER_UNAUTHORIZED");
     if (config.shutdown?.aborted) return reject(503, "QDEV_VERIFIER_SHUTTING_DOWN");
+    if (path === ARTIFACT_PATHS.file) return artifactApi!.file(request);
     let body: unknown;
-    try { body = await readBody(request); } catch { return reject(400, "QDEV_VERIFIER_REQUEST"); }
+    try { body = await readBody(request, path === ARTIFACT_PATHS.commit ? ARTIFACT_COMMIT_BODY_LIMIT : MAX_BODY); } catch { return reject(400, "QDEV_VERIFIER_REQUEST"); }
+    if (path === ARTIFACT_PATHS.commit) return artifactApi!.commit(body);
 
     if (path === "/qdev/v1/handoff") {
       const parsed = handoffSchema.safeParse(body);
@@ -213,6 +221,8 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
       if (handoff.projectSha256 !== e.projectSha256 || handoff.sourceSha256 !== e.sourceSha256 || handoff.protectedSpecificationSha256 !== e.protectedSpecificationSha256)
         return reject(403, "QDEV_VERIFIER_FOREIGN_BINDING");
       const key = keyOf({ commit: handoff.candidateCommit, tree: handoff.candidateTree, buildArtifactSha256: handoff.buildArtifactSha256 });
+      // The exact bytes must already be staged: nothing is registered, and so nothing can be evaluated, for bytes this host does not hold.
+      if (config.artifacts && !(await config.artifacts.has({ commit: handoff.candidateCommit, tree: handoff.candidateTree, buildArtifactSha256: handoff.buildArtifactSha256 }))) return reject(409, "QDEV_ARTIFACT_NOT_STAGED");
       const stored = await config.store.putHandoff(key, handoffSha256);
       if (stored.handoffSha256 !== handoffSha256) return reject(409, "QDEV_VERIFIER_HANDOFF_CONFLICT");
       return json(200, { accepted: true, handoffSha256 });
@@ -239,8 +249,11 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
       if (!run) {
         // Registered synchronously, before any await, so concurrent requests in this process share the one begin/evaluation.
         run = (async () => {
-          if (record.phase !== "HANDED_OFF" || !(await config.store.begin(key, reserveMicrousd, now()))) return null;
-          return evaluateOnce(key, candidate, handoffFor(candidate, record.handoffSha256), reserveMicrousd);
+          if (record.phase !== "HANDED_OFF") return null;
+          // Re-verify every staged byte BEFORE the durable begin: a tampered or missing artifact never starts (or charges) an evaluation.
+          const artifact = config.artifacts ? await config.artifacts.open(candidate) : undefined;
+          if (!(await config.store.begin(key, reserveMicrousd, now()))) return null;
+          return evaluateOnce(key, candidate, handoffFor(candidate, record.handoffSha256), reserveMicrousd, artifact);
         })().finally(() => inflight.delete(key));
         inflight.set(key, run);
       }
@@ -255,6 +268,6 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
       const signed = await sign(candidate, handoffFor(candidate, current.handoffSha256), "NOT_RUN");
       const finalized = await config.store.finish(key, { settledMicrousd: null, quiescent: false }, signed);
       return status(finalized.handoffSha256, finalized);
-    } catch { return reject(503, "QDEV_VERIFIER_UNAVAILABLE"); }
+    } catch (error) { return error instanceof ArtifactStagingRefused ? reject(409, error.code) : reject(503, "QDEV_VERIFIER_UNAVAILABLE"); }
   };
 }
