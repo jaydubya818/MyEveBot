@@ -50,11 +50,12 @@ async function probe(
   try {
     await withTimeout(check.label, operation());
     return { ...check, state: "ready", detail: healthyDetail };
-  } catch {
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
     return {
       ...check,
       state: "error",
-      detail: `${check.label} is configured but could not be reached. Check the credential and provider status.`,
+      detail: `${check.label} is configured but could not be reached: ${reason}`,
     };
   }
 }
@@ -145,11 +146,12 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
             : setup(databaseBase, "Database is reachable. Apply the latest migration before launch."),
         );
       }
-    } catch {
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
       checks.push({
         ...databaseBase,
         state: "error",
-        detail: "Database is configured but could not be reached. Check the connection and provider status.",
+        detail: `Database is configured but could not be reached: ${reason}`,
       });
     }
   }
