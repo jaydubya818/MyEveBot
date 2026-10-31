@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,generateKeyPairSync} from 'node:crypto';
-import {chmodSync,existsSync,mkdirSync,mkdtempSync,readFileSync,readdirSync,writeFileSync} from 'node:fs';
+import {chmodSync,existsSync,mkdirSync,mkdtempSync,readFileSync,readdirSync,statSync,writeFileSync} from 'node:fs';
+import {spawn} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {StaticArtifactCandidate} from '../../../packages/myapps/src/static-artifact.ts';
@@ -208,4 +209,70 @@ test('staging source is retained-only and the staging store refuses unsafe roots
   assert.throws(()=>new ArtifactStagingStore({root:'/tmp/../etc'}),/QDEV_ARTIFACT_ROOT/);
   const real=join(dir,'real');mkdirSync(real);
   assert.ok(new ArtifactStagingStore({root:real}));
+});
+
+// ---- QART-01: duplicate commits of one content-addressed candidate converge on the single verified committed receipt ----
+async function stagedPending(n,root){
+  const s=await sourceFor(n),c=candidateOf(s),store=new ArtifactStagingStore({root});
+  for(const [p,b] of Object.entries(s.files))await store.receiveFile(c,p,sha(b),b);
+  return {s,c,store};
+}
+const snapshot=(root,c)=>{const key=readdirSync(root).find(x=>!x.endsWith('.pending')&&existsSync(join(root,x,'manifest.json')));
+  const files=['manifest.json','files/dist/index.html','files/dist/app.js'].map(f=>{const st=statSync(join(root,key,f));return [f,st.ino,st.mtimeMs,st.size];});return {key,files};};
+
+test('QART-01: concurrent identical commits in one process all succeed with the same receipt and never disturb the winner',async()=>{
+  for(let round=0;round<5;round++){
+    const root=join(dir,'qart-a-'+round),{s,c,store}=await stagedPending('abcde'[round],root);
+    const results=await Promise.allSettled(Array.from({length:8},()=>store.commit(c,s.pins,s.inventory)));
+    assert.deepEqual(results.map(r=>r.status),Array(8).fill('fulfilled'),JSON.stringify(results.filter(r=>r.status==='rejected').map(r=>r.reason?.code??String(r.reason))));
+    const receipts=results.map(r=>r.value);for(const r of receipts)assert.deepEqual(r,receipts[0]);
+    assert.equal(receipts[0].artifactSha256,c.buildArtifactSha256);
+    assert.equal((await store.open(c)).artifactSha256,c.buildArtifactSha256);
+    assert.deepEqual(readdirSync(root).filter(x=>x.endsWith('.pending')),[],'no pending area is left behind');
+    const before=snapshot(root,c);
+    await Promise.all([store.commit(c,s.pins,s.inventory),store.commit(c,s.pins,s.inventory)]);
+    assert.deepEqual(snapshot(root,c),before,'a later duplicate commit neither rewrites nor replaces the committed winner');
+  }
+});
+
+test('QART-01: separate store instances over one root converge too',async()=>{
+  const root=join(dir,'qart-b'),{s,c}=await stagedPending('f',root);
+  const stores=Array.from({length:6},()=>new ArtifactStagingStore({root}));
+  const results=await Promise.allSettled(stores.map(x=>x.commit(c,s.pins,s.inventory)));
+  assert.deepEqual(results.map(r=>r.status),Array(6).fill('fulfilled'),JSON.stringify(results.filter(r=>r.status==='rejected').map(r=>r.reason?.code)));
+  for(const r of results)assert.deepEqual(r.value,results[0].value);
+});
+
+test('QART-01: separate processes committing at the same instant converge on one receipt',async()=>{
+  const root=join(dir,'qart-c'),{s,c}=await stagedPending('9',root);
+  const invPath=join(dir,'qart-c-inventory.json');writeFileSync(invPath,JSON.stringify(s.inventory));
+  const worker=join(dir,'qart-worker.mjs');
+  writeFileSync(worker,`import {readFileSync} from 'node:fs';import {ArtifactStagingStore} from ${JSON.stringify(new URL('../lib/qualification/artifact-staging.ts',import.meta.url).href)};
+const [root,commit,tree,build,pins,inv,at]=process.argv.slice(2);
+const store=new ArtifactStagingStore({root});
+while(Date.now()<Number(at))await new Promise(r=>setTimeout(r,1));
+try{process.stdout.write(JSON.stringify({ok:await store.commit({commit,tree,buildArtifactSha256:build},JSON.parse(pins),JSON.parse(readFileSync(inv,'utf8')))}));}
+catch(e){process.stdout.write(JSON.stringify({error:e.code??String(e)}));}
+`);
+  const at=Date.now()+2500;
+  const outputs=await Promise.all(Array.from({length:4},()=>new Promise((resolve,reject)=>{
+    const child=spawn(process.execPath,['--import','tsx',worker,root,c.commit,c.tree,c.buildArtifactSha256,JSON.stringify(s.pins),invPath,String(at)],{stdio:['ignore','pipe','pipe']});
+    let out='',err='';child.stdout.on('data',d=>out+=d);child.stderr.on('data',d=>err+=d);child.on('error',reject);child.on('close',code=>code===0?resolve(JSON.parse(out)):reject(new Error(err||String(code))));})));
+  assert.deepEqual(outputs.map(o=>Object.keys(o)[0]),Array(4).fill('ok'),JSON.stringify(outputs));
+  for(const o of outputs)assert.deepEqual(o.ok,outputs[0].ok);
+  assert.equal((await new ArtifactStagingStore({root}).open(c)).artifactSha256,c.buildArtifactSha256);
+});
+
+test('QART-01: an in-progress or leftover manifest in the pending area is never treated as committed, and a later commit recovers',async()=>{
+  const root=join(dir,'qart-d'),{s,c,store}=await stagedPending('a',root);
+  const pending=join(root,readdirSync(root).find(x=>x.endsWith('.pending')));
+  writeFileSync(join(pending,'manifest.json'),'{"schema":"myeve.qdev-staged-artifact/v1"}');   // as left by a crash between the manifest write and the rename
+  assert.equal(await store.has(c),false);
+  await assert.rejects(store.open(c),/QDEV_ARTIFACT_NOT_STAGED/);
+  const receipt=await store.commit(c,s.pins,s.inventory);
+  assert.equal(receipt.artifactSha256,c.buildArtifactSha256);assert.equal((await store.open(c)).artifactSha256,c.buildArtifactSha256);
+  // a genuinely bad commit still fails when nothing was committed (the gates are unchanged)
+  const bad=join(dir,'qart-e'),bp=await stagedPending('b',bad);
+  await assert.rejects(bp.store.commit(bp.c,bp.s.pins,{...bp.s.inventory,files:bp.s.inventory.files.map((f,i)=>i?f:{...f,sha256:h('8')})}),e=>e.status===422);
+  assert.equal(await bp.store.has(bp.c),false);
 });

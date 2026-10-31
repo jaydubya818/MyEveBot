@@ -111,8 +111,22 @@ export class ArtifactStagingStore {
     renameSync(staged, target);   // atomic replace: a retried upload of the same file is idempotent
   }
 
-  /** Verifies the pending bytes against the exact inventory and the candidate's build identity, then atomically commits. Idempotent. */
+  /**
+   * Verifies the pending bytes against the exact inventory and the candidate's build identity, then atomically commits. Idempotent and safe under concurrency
+   * (callers in this process, other store instances or other processes): the candidate key is content-addressed, so the directory rename is the single commit
+   * point and the first rename wins. Any caller that fails while the pending area is being consumed by a winner, or that loses the rename, converges on the
+   * winner's receipt only after `open` has re-verified the COMMITTED bytes; a committed directory exists only once its manifest was written (the manifest is
+   * written inside the pending area before the rename), so an in-progress or leftover pending manifest is never mistaken for a commit. A caller whose own
+   * verification fails while nothing was committed still fails with its own refusal.
+   */
   async commit(c: ArtifactCandidate, pins: StaticSourcePins, inventory: unknown): Promise<ArtifactReceipt> {
+    try { return await this.commitOnce(c, pins, inventory); }
+    catch (error) {
+      if (await this.has(c)) return this.receipt(await this.open(c));
+      throw error;
+    }
+  }
+  private async commitOnce(c: ArtifactCandidate, pins: StaticSourcePins, inventory: unknown): Promise<ArtifactReceipt> {
     if (await this.has(c)) return this.receipt(await this.open(c));
     if (pins.sourceCommit !== c.commit || pins.sourceTree !== c.tree) return refuse("QDEV_ARTIFACT_SOURCE_MISMATCH", 403);
     const pending = this.pending(c), files = join(pending, "files");
@@ -125,15 +139,22 @@ export class ArtifactStagingStore {
     const present = listFiles(files).map(f => f.path).sort(), wanted = artifact.files.map(f => f.path).sort();
     if (present.length !== wanted.length || present.some((p, i) => p !== wanted[i])) return refuse("QDEV_ARTIFACT_FILESET", 422);
     const manifest = { schema: "myeve.qdev-staged-artifact/v1", candidate: c, pins, inventory: structuredClone(inventory), inventoryDigest: artifact.inventoryDigest, artifactDigest: artifact.artifactDigest };
-    durableWrite(join(pending, MANIFEST), Buffer.from(JSON.stringify(manifest)));
-    rmSync(join(pending, "tmp"), { recursive: true, force: true });
+    // The manifest is written under a unique temporary name and atomically moved into place, so concurrent committers never collide on it and a crash
+    // leaves at most a pending manifest, which `has` (committed directory only) never treats as committed.
+    const temporary = join(pending, "tmp", "manifest-" + randomBytes(8).toString("hex"));
+    durableWrite(temporary, Buffer.from(JSON.stringify(manifest)));
+    renameSync(temporary, join(pending, MANIFEST));
     for (const f of present) chmodSync(join(files, f), 0o444);
     try { renameSync(pending, this.committed(c)); }
     catch (error) {
-      // A concurrent commit of the same (content-addressed) candidate won the rename: the result is identical.
-      if (!["ENOTEMPTY", "EEXIST"].includes(String((error as NodeJS.ErrnoException).code))) throw error;
+      // A concurrent commit of the same (content-addressed) candidate won the rename (target present, or the pending area is already gone): the winner is
+      // never overwritten or removed, and the caller converges on it below after re-verification.
+      if (!["ENOTEMPTY", "EEXIST", "ENOENT"].includes(String((error as NodeJS.ErrnoException).code))) throw error;
+      if (!(await this.has(c))) throw error;
       rmSync(pending, { recursive: true, force: true });
     }
+    // The empty scratch directory is removed after the commit point so it can never be consumed from a concurrent committer's pending area.
+    rmSync(join(this.committed(c), "tmp"), { recursive: true, force: true });
     return this.receipt(await this.open(c));
   }
 

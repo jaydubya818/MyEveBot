@@ -134,7 +134,13 @@ async function harness(w,{verdictMode='valid',nativeMaxSpendUsd=1.35}={}){
   return w.verifier.signVerdict(verdictFor(exp));
  };
  let lastHandoff=null;
- const server=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
+ const server=createServer((req,res)=>{const chunks=[];req.on('data',c=>chunks.push(c));req.on('end',()=>{
+  const raw=Buffer.concat(chunks);
+  // Artifact staging (uncharged, before the handoff): acknowledge the exact retained bytes and return the commit receipt.
+  if(req.url==='/qdev/v1/artifact/file'){res.writeHead(200,{'content-type':'application/json'});return res.end(JSON.stringify({received:true,path:req.headers['x-qdev-path'],sha256:req.headers['x-qdev-sha256']}));}
+  if(req.url==='/qdev/v1/artifact/commit'){res.writeHead(200,{'content-type':'application/json'});
+   return res.end(JSON.stringify({staged:true,artifactSha256:buildArtifactSha256,inventoryDigest:retained.inventoryDigest,files:inventory.files.length,bytes:inventory.files.reduce((n,f)=>n+f.bytes,0)}));}
+  const body=raw.toString('utf8');
   const parsed=body?JSON.parse(body):null;log.verifier.push({url:req.url,authorization:req.headers.authorization,body:parsed});
   if(req.url==='/qdev/v1/handoff')lastHandoff=parsed.handoffSha256;
   const json=req.url==='/qdev/v1/handoff'?{accepted:true,handoffSha256:parsed.handoffSha256}:req.url==='/qdev/v1/evaluate'?{state:'FINAL',handoffSha256:lastHandoff,usage:{settledMicrousd:0,quiescent:true}}:req.url==='/qdev/v1/verdict'?verdictBody(parsed.candidate):{};
