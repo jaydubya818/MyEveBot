@@ -121,7 +121,8 @@ export async function readExternalAlphaWork(store: WorkStore, work: Work): Promi
   let factoryOutcome: ExternalAlphaWorkReadback["factoryOutcome"] = null;
   if (row.readback) {
     if (digest(row.readback) !== row.readback_sha256) throw integrity();
-    factoryOutcome = terminalState.parse((row.readback as any).readbackAttestation.state);
+    const readback = row.readback as { readbackAttestation?: { state?: unknown } };
+    factoryOutcome = terminalState.parse(readback.readbackAttestation?.state);
   }
   const custody = await resultCustody(store.database, p.scopeId, work, { authorityId: row.id as string });
   const [ledger] = await store.database.query(`SELECT a.ceiling_microusd,
