@@ -2213,7 +2213,7 @@
     "lib/email-api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "132da3314ab90d52c3f937a91438ea96f48c6a80c1f2edd42fe07f543029e0c8"
+      "sha256": "72feab0bf1ae6e30f72f04eef668cfa36b5691a80b24c2f4200267f54609e40b"
     },
     "lib/eve-template-stamp.ts": {
       "classification": "INTERNAL",
@@ -2273,7 +2273,7 @@
     "lib/external-alpha/work-readback.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "69ffae6a294623bcb226e2cde22b040eea56ed9f9eb44b3953b6b9dad0ad334d"
+      "sha256": "76746bc39ce7bf8f399327f694d15cd8ac59142c15f0de3d17f355b0e67469c8"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2438,7 +2438,7 @@
     "lib/readiness.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "4d5b59ccfa45720e4b78125f8aa47090c11e6881dec4cd6c3fb9b5d3a3603300"
+      "sha256": "e0266f8ca58766bfd16eb6c981865d40eef6e69fc90d52ad1da67f274ab220eb"
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",
@@ -4202,7 +4202,7 @@
     "lib/external-alpha/bounded-context.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Current context-headroom review: Bounded Proof limitations preserved with explicit incomplete/unavailable disclosure. Common revision/producer/time fields factored without altering exact criterion states or distinct hashes; reconstruction tests verify identity. Shared projection used by mandatory alpha context and tool results; 32000-byte hard limit unchanged.",
-      "sha256": "5d9e3c0e3b1b94d606b8e001c800ea539cf5ecdb315df48727c252c66a97bcf5"
+      "sha256": "2a09f703800d7b559cafda6c636b90e32afc16cb0768503744b411195309373e"
     },
     "lib/external-alpha/context.ts": {
       "classification": "INTERNAL",
