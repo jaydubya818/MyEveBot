@@ -129,8 +129,10 @@ export function compactWorkData(value: unknown): Record<string,unknown> {
  if(!source || typeof source!=="object" || Array.isArray(source))return {dataOnly:true,sourceSha256:digest(value)};
  const work=pick(source.work??source,["id","scopeId","scopeKind","title","objective","version","generation","criteriaVersion","criteria","lifecycle","control"]);
  const projection=pick(source.projection,["status","currentTruth","lastChange","nextStep","readiness","needsYou","lifecycle","currentCandidate","currentAuthority"]);
- const native=pick((source.projection as any)?.nativeResult,["id","resultId","authorityId","candidateSha","contentHash","workVersion","workGeneration","verdict","cleanupConfirmed","settlementState","current"]);
- const original=(source.projection as any)?.nativeResult?.proof;
+ const projObj = source.projection as Record<string, unknown> | null | undefined;
+ const native=pick(projObj?.nativeResult,["id","resultId","authorityId","candidateSha","contentHash","workVersion","workGeneration","verdict","cleanupConfirmed","settlementState","current"]);
+ const nativeObj = projObj?.nativeResult as Record<string, unknown> | null | undefined;
+ const original=nativeObj?.proof;
  const proof=original ? compactProofData(original) : {};
  if(Object.keys(proof).length)native.proof=proof;
  if(Object.keys(native).length)projection.nativeResult=native;

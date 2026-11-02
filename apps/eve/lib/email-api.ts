@@ -155,7 +155,8 @@ export async function emailAccount(): Promise<EmailAccount> {
   try {
     const registration = await getWebhookRegistration(INBOUND_WEBHOOK_CLIENT_ID);
     inboundReady = registration !== null && registration.url === inboundWebhookUrl();
-  } catch {
+  } catch (error) {
+    console.error("Inbound webhook registration check failed.", error);
     inboundReady = false;
   }
   return {
@@ -169,7 +170,8 @@ export async function unreadThreadCount(): Promise<number> {
   try {
     const unread = await listThreads({ labels: [UNREAD_LABEL], limit: 100 });
     return unread.count;
-  } catch {
+  } catch (error) {
+    console.error("Unread thread count unavailable.", error);
     return 0;
   }
 }
