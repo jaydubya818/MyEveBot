@@ -2092,9 +2092,9 @@ function ChatThread({
   // not cleared on unmount: a turn keeps running server-side when the user
   // switches threads, and revisiting the thread resolves the real status.
   useEffect(() => {
-    onBusyChange(isBusy);
+    onBusyChange(isBusy || savingConversation || uploading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBusy]);
+  }, [isBusy, savingConversation, uploading]);
 
   // Per-turn cost/token totals from step.completed events, keyed by turnId so
   // each assistant reply can show what it cost.
@@ -2141,7 +2141,10 @@ function ChatThread({
 
   async function addFiles(files: Iterable<File>) {
     if (ownerConflict) return;
-    if (uploadInProgress.current) return;
+    if (uploadInProgress.current || preparingSend.current || resuming) {
+      setUploadError("Wait until the current message is ready before adding files.");
+      return;
+    }
     setUploadError(null);
     const additions: PendingAttachment[] = [];
     for (const file of files) {
@@ -2198,6 +2201,7 @@ function ChatThread({
     recognition.interimResults = false;
     recognition.lang = navigator.language || "en-US";
     recognition.onresult = (event) => {
+      if (preparingSend.current || uploadInProgress.current) return;
       let transcript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
@@ -2225,11 +2229,11 @@ function ChatThread({
     if (ownerConflict) return;
     const text = draft.trim();
     if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current || preparingSend.current) return;
+    recognitionRef.current?.stop();
     if (!await prepareConversation()) return;
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
-    recognitionRef.current?.stop();
     if (staged.length > 0) {
       uploadInProgress.current = true;
       setUploading(true);
@@ -2293,6 +2297,7 @@ function ChatThread({
   }
 
   function editMessage(text: string) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setDraft(text);
     composerRef.current?.focus();
   }
@@ -2315,7 +2320,7 @@ function ChatThread({
 
   async function retryMessage(text: string) {
     if (ownerConflict) return;
-    if (isBusy || text.length === 0 || preparingSend.current) return;
+    if (isBusy || text.length === 0 || preparingSend.current || uploadInProgress.current) return;
     if (!await prepareConversation()) return;
     onActivity();
     void agent.send(text);
@@ -2503,7 +2508,7 @@ function ChatThread({
                           ? usageByTurn.get(message.metadata.turnId)
                           : undefined
                       }
-                      busy={isBusy}
+                      busy={isBusy || savingConversation || uploading}
                       isLastUser={message.id === lastUserId}
                       isLastAssistant={message.id === lastAssistantId}
                       onEdit={editMessage}

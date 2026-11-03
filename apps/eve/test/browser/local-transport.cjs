@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const { Agent, Dispatcher, setGlobalDispatcher } = require('undici');
 const configured = new URL(process.env.MYEVE_TEST_DATABASE_URL || '');
 if (!['localhost', '127.0.0.1'].includes(configured.hostname) || !configured.port || configured.pathname !== '/blocker_fixes') throw new Error('Use the isolated local blocker_fixes database.');
+if ([...configured.searchParams.keys()].some(key => key !== 'application_name')) throw new Error('Non-isolated database options denied.');
 const databaseIdentity = new URL(configured);
 databaseIdentity.searchParams.delete('application_name');
 const pool = new Pool({connectionString: configured.href, max:8});

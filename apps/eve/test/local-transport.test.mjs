@@ -51,3 +51,20 @@ for (const [name, connection, allowed] of [
     assert.equal(result.status, 0, result.stderr);
   });
 }
+
+test('local transport rejects configured host overrides before constructing a pool', () => {
+  const result = spawnSync(process.execPath, ['-e', `
+    const Module = require('node:module');
+    const load = Module._load;
+    Module._load = function(name, ...args) {
+      if (name === 'pg') return {Pool: class { constructor() { throw Error('Pool must not be constructed'); } }};
+      return load.call(this, name, ...args);
+    };
+    require(process.argv[1]);
+  `, transport], {
+    encoding: 'utf8', env: {PATH: process.env.PATH, MYEVE_TEST_DATABASE_URL: `${configured}?host=example.invalid`}, timeout: 10000,
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Non-isolated database options denied/);
+  assert.doesNotMatch(result.stderr, /Pool must not be constructed/);
+});
