@@ -137,6 +137,7 @@ test('reconnect waits for the durable session before accepting a new draft', asy
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page.getByText('Migration fixture reply.', { exact: true })).toHaveCount(1, { timeout: 45000 });
   await expect(page.getByRole('button', { name: 'Stop', exact: true })).toHaveCount(0);
+  await composer.fill('Preserve this unsent draft across reconnect.');
   let release;
   const gate = new Promise(resolve => { release = resolve; });
   await page.route('**/eve/v1/session/*/stream*', async route => { await gate; await route.continue(); });
@@ -144,8 +145,10 @@ test('reconnect waits for the durable session before accepting a new draft', asy
   try {
     await expect(page.getByRole('status').filter({ hasText: 'Restoring conversation' })).toBeVisible();
     await expect(composer).toBeDisabled();
+    await expect(composer).toHaveValue('Preserve this unsent draft across reconnect.');
   } finally { release(); }
   await expect(composer).toBeEnabled();
+  await expect(composer).toHaveValue('Preserve this unsent draft across reconnect.');
   await composer.fill('Preserve this new draft after reconnect.');
   await expect(composer).toHaveValue('Preserve this new draft after reconnect.');
   await expect(page.getByText('Migration fixture reply.', { exact: true })).toHaveCount(1);
@@ -180,6 +183,7 @@ test('a successful first turn survives reload and continues on desktop and mobil
   await expect(page.getByRole('button', { name: 'Stop', exact: true })).toHaveCount(0);
   await page.reload();
   await expect(page.getByText('Migration fixture reply.', { exact: true })).toHaveCount(1);
+  await expect(composer).toHaveValue('');
   await composer.fill('fixture follow-up');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page.getByText('Migration fixture reply.', { exact: true })).toHaveCount(2, { timeout: 45000 });

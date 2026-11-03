@@ -1188,6 +1188,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function deleteThread(id: string) {
     try {
       ownerLocalStorage.removeItem(chatKey(id));
+      ownerSessionStorage.removeItem(`${chatKey(id)}:draft`);
     } catch {
       // Ignore storage failures.
     }
@@ -1874,7 +1875,18 @@ function ChatThread({
     };
   }
   const activeLabel = roleName ?? agentName;
-  const [draft, setDraft] = useState(initialDraft ?? "");
+  const [draft, setDraft] = useState(() => {
+    try {
+      return ownerSessionStorage.getItem(`${chatKey(threadId)}:draft`) ?? initialDraft ?? "";
+    } catch {
+      return initialDraft ?? "";
+    }
+  });
+  useEffect(() => {
+    try {
+      ownerSessionStorage.setItem(`${chatKey(threadId)}:draft`, draft);
+    } catch { /* Drafts remain available in the current component. */ }
+  }, [draft, threadId]);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
