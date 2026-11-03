@@ -341,7 +341,9 @@ function PreviewExperience({
                       ? "The useful changes and next steps, without the noise."
                       : view === "results"
                         ? "What was accomplished, what supports it, and what comes next."
-                        : "A useful next step starts with a clear outcome."}
+                        : view === "activity"
+                          ? "Memory changes, learning updates, and context from recent work."
+                          : "A useful next step starts with a clear outcome."}
             </p>
           </div>
           <div className="owner-actions">

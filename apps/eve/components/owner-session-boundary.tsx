@@ -10,9 +10,16 @@ export function OwnerSessionBoundary({children}:{children:ReactNode}) {
   if(window.location.pathname==='/login'){setReady(true);return;}
   let disposed=false;
   const original=window.fetch.bind(window);
-  const changed=()=>{setReady(false); window.location.replace('/login?returnTo='+encodeURIComponent(window.location.pathname));};
+  const changed=()=>{setReady(false); window.location.replace('/login?returnTo='+encodeURIComponent(window.location.pathname+window.location.search));};
   const storage=(event:StorageEvent)=>{if(event.key===OWNER_BROWSER_EVENT)changed();};
   window.addEventListener('storage',storage);window.addEventListener(OWNER_BROWSER_EVENT,changed);
+  // QA-14: Re-verify auth when the browser restores this page from the
+  // Back-Forward Cache (BFCache). After sign-out the user presses Back,
+  // BFCache resumes the old page without re-running useEffect — so the
+  // loading state hangs indefinitely. The pageshow event fires on BFCache
+  // restoration (persisted:true) and triggers a fresh auth check.
+  const onPageShow=(e:PageTransitionEvent)=>{if(e.persisted)changed();};
+  window.addEventListener('pageshow',onPageShow);
   void original('/api/auth/status',{cache:'no-store'}).then(async response=>{
    const status=await response.json();
    if(disposed)return;
@@ -29,7 +36,7 @@ export function OwnerSessionBoundary({children}:{children:ReactNode}) {
    };
    setReady(true);
   }).catch(()=>{if(!disposed)setFailed(true);});
-  return()=>{disposed=true;window.fetch=original;window.removeEventListener('storage',storage);window.removeEventListener(OWNER_BROWSER_EVENT,changed);};
+  return()=>{disposed=true;window.fetch=original;window.removeEventListener('storage',storage);window.removeEventListener(OWNER_BROWSER_EVENT,changed);window.removeEventListener('pageshow',onPageShow);};
  },[]);
  return ready?children:<main className="p-8" role="status">{failed?'Could not verify your session. Reload to try again.':'Opening your private workspace…'}</main>;
 }
