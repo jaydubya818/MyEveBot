@@ -2007,8 +2007,8 @@
     },
     "lib/capability-notice.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. QA-38: extracted formatLimitedModeDetail helper; pure text formatting, no auth or data effects; regression tests in test/capability-notice.test.mjs.",
+      "sha256": "9dd2a3d7eb1f5d9d914014414126c6f41285f43a4836b6f2d2b262463e215f59"
     },
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",

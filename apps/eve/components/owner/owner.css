@@ -571,3 +571,10 @@
 @media(max-width:900px) { .owner-work-navigation { grid-column: 1 / -1; grid-template-columns: repeat(3,minmax(0,1fr)); } }
 
 .owner-room-canvas { min-height: 220px; padding: 16px 0; border-bottom: 1px solid var(--color-kumo-hairline); margin-bottom: 16px; }
+
+/* QA-39: Footer navigation links need adequate touch targets on mobile. */
+.owner-footer a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
