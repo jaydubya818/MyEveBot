@@ -71,7 +71,7 @@
     "raindrop-ai": "0.8.0-otelv2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "read-excel-file": "^6.0.3",
+    "read-excel-file": "^9.3.12",
     "remark-breaks": "^4.0.0",
     "remotion": "4.0.536",
     "streamdown": "^2.7.0",
