@@ -93,34 +93,33 @@ export class QualificationJourney {
    * allowance or its settlements belong to this cohort, so EVERY recovered binding is re-proved against the canonical ledger of the CURRENT cohort/policy
    * before any reservation, binding, dispatch, Result or delivery trusts it, and nothing is ever allocated here:
    *  - the journaled approved-plan digest must be this plan's (a history copied from another plan fails closed);
-   *  - the Work must exist with the journaled id and allowance and carry exactly this stage's canonical binding/request (which includes the approved-plan
-   *    digest)/ceiling/owner/cohort, as a BOUND Work (`assert`) or as CLOSED history proved through its settled operation;
-   *  - every journaled settlement must be the ledger's own SETTLED operation: for a BOUND Work the exact operation, purpose and reservation re-read through the
-   *    single-use claim path (an absent operation is tombstoned and refused, a DISPATCHED/RUNNING one is fenced by the ledger and refused); for CLOSED history
-   *    the SETTLED operation of that Work (the ledger closes a Work only once every operation is SETTLED or NOT_DISPATCHED).
-   * Any mismatch halts at the stage as QDEV_RECOVERY_COHORT_MISMATCH / QDEV_RECOVERY_RECEIPT_MISMATCH / QDEV_JOURNEY_PLAN_MISMATCH, before delivery is observed.
+   *  - the Work must be BOUND (`assert`, read-only) with the journaled id and allowance and carry exactly this stage's canonical binding/request (which
+   *    includes the approved-plan digest)/ceiling/owner/cohort;
+   *  - every journaled settlement must be the ledger's own SETTLED operation, exact operation, purpose and reservation, re-read through the single-use claim
+   *    path (an absent operation is tombstoned and refused, a DISPATCHED/RUNNING one is fenced by the ledger and refused);
+   *  - a Work that is no longer BOUND (CLOSED history) CANNOT be proved: the accounting API offers no read-only per-operation observation (`settle` repairs a
+   *    DISPATCHED/RUNNING receipt to SETTLED and takes no purpose or reservation; `dispatch`/`assert` need a BOUND Work; the runtime role has no table
+   *    SELECT). Journaled settlements on such a Work are therefore never trusted: recovery halts as QDEV_RECOVERY_CLOSED_UNVERIFIABLE.
+   * Any mismatch halts at the stage as QDEV_RECOVERY_COHORT_MISMATCH / QDEV_RECOVERY_RECEIPT_MISMATCH / QDEV_JOURNEY_PLAN_MISMATCH /
+   * QDEV_RECOVERY_CLOSED_UNVERIFIABLE, before delivery is observed.
    */
   private async verifyRecoveredWork(stage: JourneyPlan["stages"][number], bindingId: string, bound: Extract<JournalEvent, { kind: "STAGE_BOUND" }>, requestSha256: string,
     approvedPlanSha256: string, settled: JourneyPlan["stages"][number]["operations"]) {
     if (bound.approvedPlanSha256 !== approvedPlanSha256) throw new Error("QDEV_JOURNEY_PLAN_MISMATCH");
     const mismatch = () => new Error("QDEV_RECOVERY_COHORT_MISMATCH");
-    const denied = (error: unknown) => error instanceof Error && error.message === "QDEV_DENIED" ? mismatch() : error;
     const reference = { id: bound.workId } as Awaited<ReturnType<QualificationAccounting["bind"]>>;
-    let row: Awaited<ReturnType<QualificationAccounting["bind"]>> | undefined;
+    let row: Awaited<ReturnType<QualificationAccounting["bind"]>>;
     try { row = await this.accounting.assertBound(reference, bound.allowanceId); }
-    catch (error) { if (!(error instanceof Error) || error.message !== "QDEV_DENIED") throw error; }
-    if (!row) {
-      if (!settled.length) throw mismatch();
-      try { row = await this.accounting.verifyClosedSettlement(reference, bound.allowanceId, settled[0]!.key); } catch (error) { throw denied(error); }
-      if (row.state !== "CLOSED") throw mismatch();
+    catch (error) {
+      if (!(error instanceof Error) || error.message !== "QDEV_DENIED") throw error;
+      // Not a BOUND Work of this cohort/allowance: either history copied from elsewhere or a CLOSED predecessor. Neither can be proved read-only.
+      throw settled.length ? new Error("QDEV_RECOVERY_CLOSED_UNVERIFIABLE") : mismatch();
     }
-    if (row.id !== bound.workId || row.local_allowance_id !== bound.allowanceId || (row.state !== "BOUND" && row.state !== "CLOSED")) throw mismatch();
+    if (row.id !== bound.workId || row.local_allowance_id !== bound.allowanceId || row.state !== "BOUND") throw mismatch();
     this.accounting.expectWork(row, { bindingId, requestSha256, ceilingMicrousd: stage.workCeilingMicrousd });
-    for (const [index, op] of settled.entries()) {
-      try {
-        if (row.state === "BOUND") await this.accounting.verifySettledOperation(row, bound.allowanceId, op.key, op.purpose, op.reserveMicrousd);
-        else if (index > 0) await this.accounting.verifyClosedSettlement(row, bound.allowanceId, op.key);
-      } catch (error) { throw denied(error); }
+    for (const op of settled) {
+      try { await this.accounting.verifySettledOperation(row, bound.allowanceId, op.key, op.purpose, op.reserveMicrousd); }
+      catch (error) { throw error instanceof Error && error.message === "QDEV_DENIED" ? mismatch() : error; }
     }
     return row;
   }
@@ -140,6 +139,10 @@ export class QualificationJourney {
       let work;
       try {
         const events = await this.journal.read();
+        // Settlements, claims or acceptances for a stage WITHOUT its verified binding are orphan history (a copied or truncated journal): they would remove
+        // operations from `pending` and select a fresh reservation without any cohort/plan/Work proof. Halt before any preparation, reservation or dispatch.
+        if (!events.some(e => e.kind === "STAGE_BOUND" && e.stage === stage.stage)
+          && events.some(e => e.kind !== "STAGE_EXPECTATION" && e.kind !== "HALTED" && "stage" in e && e.stage === stage.stage)) throw new Error("QDEV_RECOVERY_ORPHAN_HISTORY");
         if (stage.stage <= 3) {
           // Async preparation (Factory-run stages: CODING and FACTORY) runs after the predecessor was accepted and before this stage's first effect; later
           // stages' run identities are never required up front. Then the stage's full canonical Result expectation

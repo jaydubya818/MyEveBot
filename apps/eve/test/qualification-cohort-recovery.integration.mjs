@@ -237,10 +237,14 @@ function rebound(w,hn,r,{db,policy,token},{journal,planOverride}={}){
  return journal?{...host,config:async o=>{const c=await host.config(o);return c&&{...c,journal:journal(c)};}}:host;
 }
 const boundWorks=async host=>(await (await host.config(host.owner)).journal.read()).filter(e=>e.kind==='STAGE_BOUND').map(e=>e.workId);
+const haltedWith=(res,code,at)=>{assert.equal(res.status,'HALTED');assert.equal(res.code,code);if(at!==undefined)assert.equal(res.haltedAt,at);};
+/** Every Work and operation row (the whole accounting state a recovery could touch), serialized for exact before/after comparison. */
+const ledger=async w=>JSON.stringify([(await w.db.query('SELECT ordinal,state,local_allowance_id FROM qdev_work ORDER BY ordinal')).rows,
+ (await w.db.query('SELECT work_id,operation_sha256,purpose,reserve_microusd,state FROM qdev_dispatch ORDER BY work_id,operation_sha256')).rows]);
 const count0=async(db,cohort)=>(await db.query('SELECT count(*)::int n FROM qdev_work WHERE cohort_id=$1',[cohort])).rows[0].n;
 
 try {
- await test('control: a same-binding restart of a COMPLETED (CLOSED-history) journey recovers, re-proves the Works in the ledger and re-sends nothing',async()=>{
+ await test('control: a restart of a COMPLETED journey whose stages 1-3 are CLOSED history halts QDEV_RECOVERY_CLOSED_UNVERIFIABLE: the accounting API cannot prove CLOSED receipts read-only, so nothing is trusted, re-sent or mutated',async()=>{
   const w=await world('djr1ctl'),hn=await harness(w);
   try {
    await w.db.query(JOURNAL_SCHEMA);
@@ -248,13 +252,12 @@ try {
    const first=await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'});assert.equal(first.status,'COMPLETED_UNCLAIMED');
    assert.equal(await count0(w.db,w.cohort),4);
    assert.deepEqual((await w.db.query("SELECT ordinal,state FROM qdev_work ORDER BY ordinal")).rows.map(x=>x.state),['CLOSED','CLOSED','CLOSED','BOUND'],'stages 1-3 are CLOSED history');
-   const before=snapshot(hn),ids=await boundWorks({config:r.host.config,owner:r.owner});
+   const before=snapshot(hn),ledgerBefore=await ledger(w);
    const same=runtime(w,runtimePortsProvider(()=>hn.custody()));
-   const again=await new QualificationRoot(same.host).run({ownerId:r.owner,kind:'human'});
-   assert.equal(again.status,'COMPLETED_UNCLAIMED');assert.deepEqual(again.stages,first.stages,'the same accepted candidates');
-   assert.deepEqual(await boundWorks({config:same.host.config,owner:r.owner}),ids,'the same four Works');
-   const d=delta(hn,before);assert.equal(d.agent,0);assert.equal(d.dispatches,0);assert.equal(d.evaluations,0,'nothing is re-sent or re-evaluated');
+   haltedWith(await new QualificationRoot(same.host).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_CLOSED_UNVERIFIABLE',1);
+   assert.deepEqual(delta(hn,before),NOTHING,'no delivery observation, agent call, dispatch or evaluation');
    assert.equal(await count0(w.db,w.cohort),4,'no Work is allocated by recovery');
+   assert.equal(await ledger(w),ledgerBefore,'recovery did not touch the ledger (no settle probe, no repair, no tombstone)');
   } finally {await hn.stop();}
  });
 
@@ -292,7 +295,7 @@ try {
    const same=await replacement(w,'djr1l2a',{policy:w.policy.Q1,token:w.t1,paidWorks:4});
    let before=snapshot(hn);
    const a=await new QualificationRoot(rebound(w,hn,r,same)).run({ownerId:r.owner,kind:'human'});
-   assert.equal(a.status,'HALTED');assert.equal(a.code,'QDEV_RECOVERY_COHORT_MISMATCH');assert.equal(a.haltedAt,1);
+   assert.equal(a.status,'HALTED');assert.equal(a.code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE');assert.equal(a.haltedAt,1);
    assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(same.db,same.policy.cohortId),0,'verification allocated nothing');
    // (b) the pre-fix shape: a different cohort reading a copy of the first cohort's journal stream
    const id=qdevJourneyId(r.owner,w.project,w.policy.Q1,validateJourneyPlan(plan())),copy='misconfigured-'+suffix;
@@ -300,10 +303,10 @@ try {
    const paid=await replacement(w,'djr1l2b',{paidWorks:4});            // funded, empty: must not allocate or adopt anything
    before=snapshot(hn);
    const b=await new QualificationRoot(rebound(w,hn,r,paid,{journal:()=>new PostgresJournal({query:async(q,p)=>(await w.db.query(q,p)).rows},copy)})).run({ownerId:r.owner,kind:'human'});
-   assert.equal(b.status,'HALTED');assert.equal(b.code,'QDEV_RECOVERY_COHORT_MISMATCH');
+   assert.equal(b.status,'HALTED');assert.equal(b.code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE');
    assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(paid.db,paid.policy.cohortId),0);
-   // the original cohort is unaffected by both attempts
-   const again=await new QualificationRoot(runtime(w,runtimePortsProvider(()=>hn.custody())).host).run({ownerId:r.owner,kind:'human'});assert.equal(again.status,'COMPLETED_UNCLAIMED');
+   // the original cohort's ledger is unaffected by both attempts
+   assert.equal(await count0(w.db,w.cohort),4,'the original cohort still holds exactly its four Works');
   } finally {await hn.stop();}
  });
 
@@ -318,7 +321,13 @@ try {
   const r=runtime(w,runtimePortsProvider(()=>hn.custody()));
   assert.equal((await new QualificationRoot(r.host).run({ownerId:r.owner,kind:'human'})).status,'COMPLETED_UNCLAIMED');
   return {w,hn,r};};
- const haltedWith=(res,code,at)=>{assert.equal(res.status,'HALTED');assert.equal(res.code,code);if(at!==undefined)assert.equal(res.haltedAt,at);};
+ /** A genuine PARTIAL history: stage 1's SOFIE settled, the journal refuses the CODING claim (proven no-send, tombstoned), the journey halts. Stage 1's Work stays BOUND. */
+ const partial=async label=>{const w=await world(label+(seq++)),hn=await harness(w);await w.db.query(JOURNAL_SCHEMA);
+  await w.db.query('ALTER TABLE qdev_dispatch DISABLE TRIGGER USER');
+  const r=runtime(w,runtimePortsProvider(()=>hn.custody())),same={db:w.rt,policy:w.policy.Q1,token:w.t1};
+  const failing=rebound(w,hn,r,same,{journal:c=>({read:()=>c.journal.read(),append:e=>e.kind==='OP_CLAIMED'&&e.key==='s1-1'?Promise.reject(new Error('journal unavailable')):c.journal.append(e)})});
+  haltedWith(await new QualificationRoot(failing).run({ownerId:r.owner,kind:'human'}),'QDEV_PROVIDER_NOT_SENT',1);
+  return {w,hn,r,same};};
 
  await test('DJR-01 round 2 #1: PARTIALLY settled history (settled SOFIE, pending CODING) is re-proved before any reservation/binding/dispatch; a replacement or other funded cohort allocates and dispatches nothing',async()=>{
   const w=await world('djr1r2a'),hn=await harness(w);
@@ -339,42 +348,84 @@ try {
    // (a) the ledger is replaced by an empty, funded database with the same policy and credential
    const replaced=await replacement(w,'djr1r2a1',{policy:w.policy.Q1,token:w.t1,paidWorks:4});
    before=snapshot(hn);
-   haltedWith(await new QualificationRoot(rebound(w,hn,r,replaced)).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_COHORT_MISMATCH',1);
+   haltedWith(await new QualificationRoot(rebound(w,hn,r,replaced)).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_CLOSED_UNVERIFIABLE',1);
    assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(replaced.db,replaced.policy.cohortId),0,'no Work reserved or bound on the replacement ledger');
    // (b) a copy of the partial journal read under another funded cohort
    const copy='partial-copy-'+suffix;await copyStream(w,streamOf(w,r),copy);
    const other=await replacement(w,'djr1r2a2',{paidWorks:4});
-   haltedWith(await new QualificationRoot(rebound(w,hn,r,other,{journal:()=>pgJournal(w,copy)})).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_COHORT_MISMATCH',1);
+   haltedWith(await new QualificationRoot(rebound(w,hn,r,other,{journal:()=>pgJournal(w,copy)})).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_CLOSED_UNVERIFIABLE',1);
    assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(other.db,other.policy.cohortId),0);
   } finally {await hn.stop();}
  });
 
- await test('DJR-01 round 2 #2: completed recovery verifies the canonical operation receipts: absent, RUNNING, re-reserved or missing-closed-history accounting is refused before delivery',async()=>{
+ await test('DJR-01 round 2 #2: the canonical receipt of a journaled settlement on a BOUND Work (exact key, purpose, reservation, SETTLED) is verified: absent, RUNNING, re-reserved and other-purpose receipts are refused before any dispatch',async()=>{
+  const sofie="work_id=(SELECT id FROM qdev_work WHERE ordinal=1) AND purpose='SOFIE'";
   const variants=[
-   ['verifier receipt absent (snapshot taken after the stage-4 bind, before its dispatch)',w=>w.db.query("DELETE FROM qdev_dispatch WHERE work_id=(SELECT id FROM qdev_work WHERE ordinal=4)"),'QDEV_RECOVERY_RECEIPT_MISMATCH',4],
-   ['verifier receipt restored as RUNNING',w=>w.db.query("UPDATE qdev_dispatch SET state='RUNNING' WHERE work_id=(SELECT id FROM qdev_work WHERE ordinal=4)"),'QDEV_RECOVERY_RECEIPT_MISMATCH',4],
-   ['verifier receipt with a different reservation',w=>w.db.query("UPDATE qdev_dispatch SET reserve_microusd=reserve_microusd+1 WHERE work_id=(SELECT id FROM qdev_work WHERE ordinal=4)"),'QDEV_BINDING_CHANGED',4],
-   ['verifier receipt with a different purpose',w=>w.db.query("UPDATE qdev_dispatch SET purpose='FACTORY' WHERE work_id=(SELECT id FROM qdev_work WHERE ordinal=4)"),'QDEV_BINDING_CHANGED',4],
-   ['closed stage-1 history without its settled operations',w=>w.db.query("DELETE FROM qdev_dispatch WHERE work_id=(SELECT id FROM qdev_work WHERE ordinal=1)"),'QDEV_RECOVERY_COHORT_MISMATCH',1],
+   ['receipt absent (snapshot taken before the SOFIE dispatch)',w=>w.db.query('DELETE FROM qdev_dispatch WHERE '+sofie),'QDEV_RECOVERY_RECEIPT_MISMATCH'],
+   ['receipt restored as RUNNING',w=>w.db.query("UPDATE qdev_dispatch SET state='RUNNING' WHERE "+sofie),'QDEV_RECOVERY_RECEIPT_MISMATCH'],
+   ['receipt with a different reservation',w=>w.db.query('UPDATE qdev_dispatch SET reserve_microusd=reserve_microusd+1 WHERE '+sofie),'QDEV_BINDING_CHANGED'],
+   ['receipt with a different purpose',w=>w.db.query("UPDATE qdev_dispatch SET purpose='FACTORY' WHERE "+sofie),'QDEV_BINDING_CHANGED'],
   ];
-  for(const [name,mutate,code,at] of variants){
-   const {w,hn,r}=await completed('djr1r2b');
+  for(const [name,mutate,code] of variants){
+   const {w,hn,r}=await partial('djr1r2b');
    try {
     await mutate(w);
     const before=snapshot(hn);
     const res=await new QualificationRoot(runtime(w,runtimePortsProvider(()=>hn.custody())).host).run({ownerId:r.owner,kind:'human'});
-    assert.equal(res.status,'HALTED',name);assert.equal(res.code,code,name);assert.equal(res.haltedAt,at,name);
+    assert.equal(res.status,'HALTED',name);assert.equal(res.code,code,name);assert.equal(res.haltedAt,1,name);
     assert.deepEqual(delta(hn,before),NOTHING,name+': no delivery observation, agent call, dispatch or evaluation');
+    assert.equal(await count0(w.db,w.cohort),1,name+': no further Work was allocated');
    } finally {await hn.stop();}
   }
  });
 
+ await test('DJR-01 round 3 #1: CLOSED history is never trusted or repaired: a completed journal over a ledger whose closed Works hold wrong-purpose, wrong-reservation, RUNNING or missing receipts halts QDEV_RECOVERY_CLOSED_UNVERIFIABLE and leaves the ledger byte-identical',async()=>{
+  const at=(ordinal,extra='')=>`work_id=(SELECT id FROM qdev_work WHERE ordinal=${ordinal})${extra}`;
+  const variants=[
+   ['unmutated CLOSED history (control)',()=>null],
+   ['stage 2 CODING receipt replaced by a SETTLED FACTORY receipt reserved at 1 microUSD (reviewer counterexample)',w=>w.db.query(`UPDATE qdev_dispatch SET purpose='FACTORY',reserve_microusd=1 WHERE ${at(2)}`)],
+   ['stage 2 receipt with a different purpose only',w=>w.db.query(`UPDATE qdev_dispatch SET purpose='FACTORY' WHERE ${at(2)}`)],
+   ['stage 2 receipt with a different reservation only',w=>w.db.query(`UPDATE qdev_dispatch SET reserve_microusd=reserve_microusd+1 WHERE ${at(2)}`)],
+   ['stage 2 receipt restored as RUNNING (the ledger would silently settle it)',w=>w.db.query(`UPDATE qdev_dispatch SET state='RUNNING' WHERE ${at(2)}`)],
+   ['stage 3 receipt restored as DISPATCHED',w=>w.db.query(`UPDATE qdev_dispatch SET state='DISPATCHED' WHERE ${at(3)}`)],
+   ['stage 3 receipt missing',w=>w.db.query(`DELETE FROM qdev_dispatch WHERE ${at(3)}`)],
+   ['stage 1 settled operations missing',w=>w.db.query(`DELETE FROM qdev_dispatch WHERE ${at(1)}`)],
+  ];
+  for(const [name,mutate] of variants){
+   const {w,hn,r}=await completed('djr3a');
+   try {
+    await mutate(w);
+    const before=snapshot(hn),ledgerBefore=await ledger(w);
+    const res=await new QualificationRoot(runtime(w,runtimePortsProvider(()=>hn.custody())).host).run({ownerId:r.owner,kind:'human'});
+    assert.equal(res.status,'HALTED',name);assert.equal(res.code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE',name);assert.equal(res.haltedAt,1,name);
+    assert.deepEqual(delta(hn,before),NOTHING,name+': no delivery observation, agent call, dispatch or evaluation');
+    assert.equal(await ledger(w),ledgerBefore,name+': recovery did not mutate the ledger');
+   } finally {await hn.stop();}
+  }
+ });
+
+ await test('DJR-01 round 3 #2: settlements WITHOUT a binding are orphan history: a copied partial stage-1 expectation + settled SOFIE event in another funded cohort\'s namespace halts before any reservation, dispatch or delivery',async()=>{
+  const {w,hn,r}=await partial('djr3b');
+  try {
+   const P=validateJourneyPlan(plan()),paid=await replacement(w,'djr3borphan',{paidWorks:4});
+   const target=qdevJourneyId(r.owner,w.project,paid.policy,P);assert.notEqual(target,streamOf(w,r));
+   // everything the reviewer copied: expectation, claim and settled SOFIE - and NOT the STAGE_BOUND binding
+   await w.db.query("INSERT INTO qjourney_event(journey_id,kind,stage,payload) SELECT $2,kind,stage,payload FROM qjourney_event WHERE journey_id=$1 AND kind<>'STAGE_BOUND' ORDER BY seq",[streamOf(w,r),target]);
+   const copied=await pgJournal(w,target).read();
+   assert.deepEqual(copied.filter(e=>e.kind==='OP_SETTLED').map(e=>e.key),['s1-0']);assert.equal(copied.some(e=>e.kind==='STAGE_BOUND'),false);assert.equal(copied.some(e=>e.kind==='STAGE_EXPECTATION'),true);
+   const before=snapshot(hn);
+   haltedWith(await new QualificationRoot(rebound(w,hn,r,paid)).run({ownerId:r.owner,kind:'human'}),'QDEV_RECOVERY_ORPHAN_HISTORY',1);
+   assert.deepEqual(delta(hn,before),NOTHING,'no CODING dispatch, agent call, delivery observation or evaluation');
+   assert.equal(await count0(paid.db,paid.policy.cohortId),0,'the funded cohort reserved and bound nothing');
+   assert.equal((await pgJournal(w,target).read()).some(e=>e.kind==='STAGE_BOUND'),false,'no binding was journaled');
+  } finally {await hn.stop();}
+ });
+
  await test('DJR-01 round 2 #3: history copied from approved plan P into plan P-prime is refused by the journal AND by the canonical accounting request material',async()=>{
-  const {w,hn,r}=await completed('djr1r2c');
+  const {w,hn,r,same}=await partial('djr1r2c');
   try {
    const pPrime=validateJourneyPlan(planPrime()),P=validateJourneyPlan(plan());
    assert.notEqual(digest(P),digest(pPrime));assert.equal(stageRequestSha256(P.stages[0],P)!==stageRequestSha256(pPrime.stages[0],pPrime),true,'stage 1 is identical in both plans but its accounting request material is not');
-   const same={db:w.rt,policy:w.policy.Q1,token:w.t1};
    const idP=streamOf(w,r),idPPrime=qdevJourneyId(r.owner,w.project,w.policy.Q1,pPrime);assert.notEqual(idP,idPPrime);
    // (a) the stream and its history copied verbatim into P-prime's namespace
    await copyStream(w,idP,idPPrime);
@@ -385,9 +436,9 @@ try {
    const forged='forged-plan-'+suffix;
    await copyStream(w,idP,forged,`CASE WHEN kind='STAGE_BOUND' THEN jsonb_set(payload,'{approvedPlanSha256}',to_jsonb('${digest(pPrime)}'::text)) ELSE payload END`);
    haltedWith(await new QualificationRoot(rebound(w,hn,r,same,{planOverride:planPrime(),journal:()=>pgJournal(w,forged)})).run({ownerId:r.owner,kind:'human'}),'QDEV_RECEIPT_MISMATCH',1);
-   assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(w.db,w.cohort),4,'no Work was allocated');
-   // control: the original plan still recovers over the same ledger
-   assert.equal((await new QualificationRoot(runtime(w,runtimePortsProvider(()=>hn.custody())).host).run({ownerId:r.owner,kind:'human'})).status,'COMPLETED_UNCLAIMED');
+   assert.deepEqual(delta(hn,before),NOTHING);assert.equal(await count0(w.db,w.cohort),1,'no Work was allocated');
+   // control: the original plan still recovers over the same ledger (it proves stage 1 and proceeds to the already tombstoned CODING operation)
+   haltedWith(await new QualificationRoot(rebound(w,hn,r,same)).run({ownerId:r.owner,kind:'human'}),'QDEV_NOT_DISPATCHED',1);
   } finally {await hn.stop();}
  });
 
@@ -406,7 +457,7 @@ try {
    assert.equal((await pgJournal(w,idNow).read()).length>0,true);
    before=snapshot(hn);
    const res=await new QualificationRoot(runtime(w,runtimePortsProvider(()=>hn.custody())).host).run({ownerId:r.owner,kind:'human'});
-   assert.equal(res.status,'COMPLETED_UNCLAIMED','the current-id stream is the only history the current host reads');
+   haltedWith(res,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE',1);   // the current-id stream is the only history the current host reads
    const emptied=await new QualificationRoot(rebound(w,hn,r,same,{journal:()=>pgJournal(w,'no-history-'+suffix)})).run({ownerId:r.owner,kind:'human'});
    haltedWith(emptied,'QDEV_DENIED',1);assert.deepEqual(delta(hn,before),{...NOTHING,served:delta(hn,before).served},'no agent call or dispatch from an empty stream over an existing ledger');
   } finally {await hn.stop();}

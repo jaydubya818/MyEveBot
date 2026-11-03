@@ -163,18 +163,30 @@ try{
   assert.equal(sent,0);
  });
 
- await test('restart recovery: a halted journey resumes from the journal without re-sending any settled operation',async()=>{
+ await test('restart recovery: a journey halted in stage 1 (its Work still BOUND) resumes from the journal, re-proving the settled operations and re-sending none of them',async()=>{
   const w=await world('rec'),journal=new InMemoryJournal();
+  const e1=environment(w);e1.journal=journal;let fail=true;const real=e1.collectResult;
+  e1.collectResult=async n=>{if(n===1&&fail){fail=false;throw new Error('read unavailable');}return real(n);};
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1);
+  assert.deepEqual(e1.calls,['s1-0','s1-1']);
+  // The restarted host presents the same Factory expectations/Results (a regenerated set would be a substitution, see F3).
+  const e2=e1;e2.collectResult=real;e2.calls.length=0;
+  const evidence=await new QualificationJourney(w.accounting,w.project,e2).run(plan());
+  assert.deepEqual(e2.calls,['s2-0','s3-0','s4-0']);
+  assert.equal(evidence.stages.length,4);assert.equal(await count(w,'qdev_dispatch'),5);
+  assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE state<>'SETTLED'")).rows[0].n,0);
+ });
+ await test('restart recovery (round 3): once a stage\'s Work is CLOSED its settlements cannot be proved read-only, so a later restart halts QDEV_RECOVERY_CLOSED_UNVERIFIABLE at that stage: nothing is re-sent, allocated or mutated',async()=>{
+  const w=await world('recclosed'),journal=new InMemoryJournal();
   const e1=environment(w);e1.journal=journal;let fail=true;const real=e1.collectResult;
   e1.collectResult=async n=>{if(n===2&&fail){fail=false;throw new Error('read unavailable');}return real(n);};
   await assert.rejects(new QualificationJourney(w.accounting,w.project,e1).run(plan()),e=>e instanceof JourneyHalted&&e.stage===2);
   assert.deepEqual(e1.calls,['s1-0','s1-1','s2-0']);
-  // The restarted host presents the same Factory expectations/Results (a regenerated set would be a substitution, see F3).
+  const ledger=async()=>JSON.stringify([(await w.db.query('SELECT ordinal,state FROM qdev_work ORDER BY ordinal')).rows,(await w.db.query('SELECT operation_sha256,purpose,reserve_microusd,state FROM qdev_dispatch ORDER BY operation_sha256')).rows]);
+  const before=await ledger();
   const e2=e1;e2.collectResult=real;e2.calls.length=0;
-  const evidence=await new QualificationJourney(w.accounting,w.project,e2).run(plan());
-  assert.deepEqual(e2.calls,['s3-0','s4-0']);
-  assert.equal(evidence.stages.length,4);assert.equal(await count(w,'qdev_dispatch'),5);
-  assert.equal((await w.db.query("SELECT count(*)::int n FROM qdev_dispatch WHERE state<>'SETTLED'")).rows[0].n,0);
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,e2).run(plan()),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_RECOVERY_CLOSED_UNVERIFIABLE');
+  assert.deepEqual(e2.calls,[]);assert.equal(await ledger(),before);
  });
  await test('restart recovery: a claimed-but-unsettled operation is ambiguous exposure and is never re-sent',async()=>{
   const w=await world('rec2'),journal=new InMemoryJournal();
@@ -270,26 +282,29 @@ try{
 
  /** F3: recovery is bound to the retained pre-effect expectations and the accepted manifest/candidate/build identities. */
  const rerun=async(w,base,journal)=>{const {env}=wired(w,{base,journal});return new QualificationJourney(w.accounting,w.project,env).run(plan());};
- await test('F3: a fresh environment cannot substitute a different signed Factory run B for the accepted run A on recovery',async()=>{
+ /** A first run that halts in stage 1 (after its operations settled, before the Result is accepted): stage 1's Work is still BOUND, so resume re-proves it. */
+ const haltStage1=async(w,base,journal)=>{const real=base.collectResult;let fail=true;
+  base.collectResult=async n=>{if(n===1&&fail){fail=false;throw new Error('read unavailable');}return real(n);};
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===1);base.collectResult=real;};
+ await test('F3: a fresh environment cannot substitute a different signed Factory run B for the retained expectation of run A on recovery',async()=>{
   const w=await world('f3run'),journal=new InMemoryJournal(),base=environment(w);
-  const first=await rerun(w,base,journal);
-  const dispatchesBefore=await count(w,'qdev_dispatch'),acceptedBefore=(await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED');
-  const runA=base.expectedFor(3).runId,orig=base.collectResult;
-  const b=w.factory.stage(3,first.stages[1].candidate);          // independently valid signed run B, never dispatched by this journey
-  base.collectResult=async n=>n===3?b.signed:orig(n);
-  assert.notEqual(base.expectedFor(3).runId,runA);
-  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_CHANGED');
+  await haltStage1(w,base,journal);
+  const dispatchesBefore=await count(w,'qdev_dispatch'),eventsBefore=(await journal.read()).length;
+  const runA=base.expectedFor(1).runId,orig=base.collectResult;
+  const b=w.factory.stage(1,w.factory.baseline);                 // independently valid signed run B, never dispatched by this journey
+  base.collectResult=async n=>n===1?b.signed:orig(n);
+  assert.notEqual(base.expectedFor(1).runId,runA);
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPECTATION_CHANGED');
   assert.equal(await count(w,'qdev_dispatch'),dispatchesBefore);   // nothing resent, nothing refunded
-  assert.deepEqual((await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED'),acceptedBefore);
-  assert.equal(base.observed.delivery,1);
+  assert.equal((await journal.read()).filter(e=>e.kind==='STAGE_ACCEPTED').length,0);assert.equal((await journal.read()).length,eventsBefore);
+  assert.equal(base.observed.delivery,0);
  });
  await test('F3 (candidate variant): a replacement Result with a different candidate commit/tree and drifted expectation halts without any resend',async()=>{
   const w=await world('f3cand'),journal=new InMemoryJournal(),base=environment(w),f=w.factory;
-  const first=await rerun(w,base,journal);const before=await count(w,'qdev_dispatch');
-  const b=f.stage(4,first.stages[1].candidate);f.expectedByStage[3]=structuredClone(f.expectedByStage[4]);   // another valid signed Result, different candidate
-  assert.notEqual(b.candidate.commit,first.stages[2].candidate.commit);
-  const orig=base.collectResult;base.collectResult=async n=>n===3?b.signed:orig(n);
-  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_CHANGED');
+  await haltStage1(w,base,journal);const before=await count(w,'qdev_dispatch');
+  const b=f.stage(4,f.baseline);f.expectedByStage[1]=structuredClone(f.expectedByStage[4]);   // another valid signed Result, different candidate
+  const orig=base.collectResult;base.collectResult=async n=>n===1?b.signed:orig(n);
+  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPECTATION_CHANGED');
   assert.equal(await count(w,'qdev_dispatch'),before);
  });
  await test('F4: preflight runs once per Factory-run stage (CODING stages 1-2 and FACTORY stage 3), each after the preceding candidate was accepted and before that stage reserves anything',async()=>{
@@ -345,12 +360,11 @@ try{
   const haltFacts=()=>haltJournal.read().then(events=>events.filter(e=>e.kind==='HALTED'));
   assert.deepEqual((await haltFacts()).map(e=>[e.stage,e.code]),[[3,halted.code]]);
   const haltView=projectProgress(await haltJournal.read());assert.equal(haltView.state,'HALTED');assert.equal(haltView.haltedAt,3);assert.equal(haltView.baseline,undefined);
-  // A restart finds the claimed-but-unsettled operation and reports the different, honest recovery halt; an identical repeat appends nothing.
-  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});
-  assert.deepEqual((await haltFacts()).map(e=>e.code),[halted.code,'QDEV_RECOVERY_UNKNOWN']);assert.equal(projectProgress(await haltJournal.read()).code,'QDEV_RECOVERY_UNKNOWN');
-  // Later runs report the different honest halt (the ledger fences the cohort); an identical repeat appends nothing.
-  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});assert.equal((await haltFacts()).at(-1).code,'QDEV_FENCED');
-  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});assert.deepEqual((await haltFacts()).map(e=>e.code),[halted.code,'QDEV_RECOVERY_UNKNOWN','QDEV_FENCED']);
+  // A restart cannot prove stage 1's CLOSED settlements read-only: it reports the honest, different recovery halt at stage 1 and trusts nothing; an identical repeat appends nothing.
+  const restarted=await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});
+  assert.equal(restarted.status,'HALTED');assert.equal(restarted.code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE');assert.equal(restarted.haltedAt,1);
+  assert.deepEqual((await haltFacts()).map(e=>[e.stage,e.code]),[[3,halted.code],[1,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE']]);assert.equal(projectProgress(await haltJournal.read()).code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE');
+  await r2.run({ownerId:w2.policy.Q1.ownerId,kind:'human'});assert.deepEqual((await haltFacts()).map(e=>e.code),[halted.code,'QDEV_RECOVERY_CLOSED_UNVERIFIABLE']);
  });
  await test('F5: a nested ProviderNotSent after the agent started fences the operation; it is not tombstoned and no successor is admitted',async()=>{
   const w=await world('f5agent'),base=environment(w);
@@ -378,22 +392,23 @@ try{
   assert.deepEqual((await j2.read()).filter(e=>e.kind==='STAGE_EXPECTATION').map(e=>e.stage),[1]);
  });
  await test('F3: an accepted stage keeps its exact manifest and build identity; a different signed Result or build halts',async()=>{
-  const w=await world('f3id'),journal=new InMemoryJournal(),base=environment(w);
-  await rerun(w,base,journal);const events=await journal.read();
-  const accepted3=events.find(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===3);
+  // a completed journey retains the exact build identity of stage 3
+  const wc=await world('f3idc'),jc=new InMemoryJournal(),bc=environment(wc);
+  await rerun(wc,bc,jc);const accepted3=(await jc.read()).find(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===3);
   assert.equal(accepted3.buildArtifactSha256,h('e'));assert.ok(accepted3.candidate.commit);
-  // a different build identity for the same Result
-  const realBuild=base.retainBuild;base.retainBuild=async()=>({buildArtifactSha256:h('f')});
-  await assert.rejects(rerun(w,base,journal),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_ACCEPTED_IDENTITY_CHANGED');
-  base.retainBuild=realBuild;
-  // a retained acceptance for a different manifest than the Result now presented
+  // stage 1 accepted, stage 2 refused at preflight (nothing reserved): stage 1's Work is still BOUND, so the retained acceptance is re-checked on resume
+  const w=await world('f3id'),journal=new InMemoryJournal(),base=environment(w);
+  let blocked=true;const gated=()=>wired(w,{base,journal,preflight:async stage=>{if(stage===2&&blocked)throw new Error('QDEV_STAGE_ADMISSION_TERMINAL');}}).env;
+  await assert.rejects(new QualificationJourney(w.accounting,w.project,gated()).run(plan()),e=>e instanceof JourneyHalted&&e.stage===2&&e.code==='QDEV_STAGE_ADMISSION_TERMINAL');
+  const events=await journal.read(),accepted1=events.find(e=>e.kind==='STAGE_ACCEPTED'&&e.stage===1);assert.ok(accepted1&&accepted1.candidate.commit);
+  // a retained acceptance for a different manifest/candidate than the Result now presented
   for(const [field,value] of [['digest',h('a')],['candidate',{commit:'1'.repeat(40),tree:'2'.repeat(40)}]]){
    const tampered=new InMemoryJournal();
-   for(const e of events)await tampered.append(e.kind==='STAGE_ACCEPTED'&&e.stage===3?{...e,[field]:value}:e);
-   await assert.rejects(rerun(w,base,tampered),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_ACCEPTED_IDENTITY_CHANGED',field);
+   for(const e of events)await tampered.append(e.kind==='STAGE_ACCEPTED'&&e.stage===1?{...e,[field]:value}:e);
+   await assert.rejects(rerun(w,base,tampered),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_ACCEPTED_IDENTITY_CHANGED',field);
   }
   // an untouched journal still resumes and re-accepts the identical identity
-  const again=await rerun(w,base,journal);assert.equal(again.stages[2].resultManifestDigest,accepted3.digest);
+  blocked=false;const again=await new QualificationJourney(w.accounting,w.project,gated()).run(plan());assert.equal(again.stages[0].resultManifestDigest,accepted1.digest);
  });
  await test('F3: a stage with effects but no retained expectation, or a tampered expectation, cannot resume',async()=>{
   const w=await world('f3legacy'),journal=new InMemoryJournal(),base=environment(w);
@@ -401,8 +416,8 @@ try{
   const legacy=new InMemoryJournal();for(const e of events)if(e.kind!=='STAGE_EXPECTATION')await legacy.append(e);
   await assert.rejects(rerun(w,base,legacy),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPECTATION_MISSING');
   const forged=new InMemoryJournal();
-  for(const e of events)await forged.append(e.kind==='STAGE_EXPECTATION'&&e.stage===3?{...e,expected:{...e.expected,runId:randomUUID()}}:e);
-  await assert.rejects(rerun(w,base,forged),e=>e instanceof JourneyHalted&&e.stage===3&&e.code==='QDEV_EXPECTATION_TAMPERED');
+  for(const e of events)await forged.append(e.kind==='STAGE_EXPECTATION'&&e.stage===1?{...e,expected:{...e.expected,runId:randomUUID()}}:e);
+  await assert.rejects(rerun(w,base,forged),e=>e instanceof JourneyHalted&&e.stage===1&&e.code==='QDEV_EXPECTATION_TAMPERED');
  });
  await test('F3: the agent expectation is snapshotted before the agent runs, so a drifting expectation cannot be followed',async()=>{
   const w=await world('f3agent'),base=environment(w),f=w.factory;

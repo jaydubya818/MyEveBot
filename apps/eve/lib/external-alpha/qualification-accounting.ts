@@ -135,12 +135,6 @@ export class QualificationAccounting {
     if (receipt.claim === "NEW") await this.cancelUnsent(admission, allowanceId, operationKey).catch(() => undefined);
     if (receipt.claim !== "CONSUMED" || receipt.id !== admission.id || receipt.operationState !== "SETTLED") throw Error("QDEV_RECOVERY_RECEIPT_MISMATCH");
   }
-  /**
-   * Recovery proof for a Work that is no longer BOUND (CLOSED history): `settle` on an operation that is already SETTLED is an idempotent read that
-   * returns the Work row; an absent operation, another allowance or a Work without that SETTLED operation is refused QDEV_DENIED. A Work is only ever
-   * closed after every one of its operations is SETTLED or NOT_DISPATCHED, so this never changes a legitimately closed Work.
-   */
-  verifyClosedSettlement(admission: Work, allowanceId: string, operationKey: string) { return this.op("settle", admission, allowanceId, operationKey); }
   async bind(admission: Work, allowanceId: string) {
     const bound = await this.call({ mode: "bind", id: admission.id, allowanceId });
     if (bound.id !== admission.id || bound.local_allowance_id !== allowanceId || bound.state !== "BOUND") throw Error("QDEV_RECEIPT_MISMATCH");
