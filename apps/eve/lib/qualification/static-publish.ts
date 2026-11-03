@@ -34,7 +34,7 @@ export type ActivationOperation = "PUBLISH" | "ROLLBACK";
 export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: StaticReleaseConfig["environment"]; installationId: string; digest: string; version?: number };
 export type StaticReleaseConfig = {
   /** Private directory (0700, this uid, not a symlink) holding releases/ and states/. */
-  root: string; environment: "myeve-qdev-20261029"; appId: string; ownerId: string; projectSha256: string; installationId: string;
+  root: string; environment: string; appId: string; ownerId: string; projectSha256: string; installationId: string;
   /** `permit` consumes a single-use approval. `check` (optional) validates the same approval WITHOUT consuming it; with it, an unauthorized request never reaches the claim. */
   activation?: { permit(request: ActivationRequest): Promise<boolean>; check?(request: ActivationRequest): Promise<boolean> };
   now?: () => Date; maxVersions?: number;

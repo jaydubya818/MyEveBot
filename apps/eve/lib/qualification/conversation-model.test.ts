@@ -6,7 +6,7 @@ const user = { role: "user", content: [{ type: "text", text: request }] };
 const tools = [{ type: "function", name: "qualification_journey", inputSchema: { type: "object", properties: {} } }];
 const options = (prompt: unknown[] = [user], extra = {}) => ({ prompt, tools, ...extra }) as any;
 const completed = { status: "COMPLETED_UNCLAIMED", readiness: "NOT_CLAIMED", authority: "NONE",
-  stages: [1, 2, 3, 4].map(stage => ({ stage })), verdictSha256: "a".repeat(64), deliverySha256: "b".repeat(64) };
+  stages: [1, 2, 3, 4].map(stage => ({ stage })), verdictSha256: "a".repeat(64), deliverySha256: "b".repeat(64), assurance: "INDEPENDENT" };
 const first = await qualificationConversation({ ownerId: "owner:Q1", approvedRequest: request, revalidate: async () => true })
   .model({ sessionId: "session", stepKey: "session:0" }).doGenerate(options());
 const generatedId = first.content[0].toolCallId;

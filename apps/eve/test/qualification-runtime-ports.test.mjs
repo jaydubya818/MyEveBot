@@ -103,7 +103,7 @@ test('post-send failures are ambiguous errors (never ProviderNotSent, never rese
 });
 
 test('fetchVerdict returns only a schema-valid signed envelope, and a transport cannot mint a PASS: forged, foreign and mismatched verdicts fail the journey signature check',async t=>{
-  const exp={projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
+  const exp={assurance:'INDEPENDENT',projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
     candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256};
   const good=ver.signVerdict(verdictFor(exp));
   const check=signed=>verifyVerdict({signed,verifierKeys:[ver.key],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],expected:exp,now:Date.parse('2026-10-30T12:00:00Z')});
@@ -177,7 +177,7 @@ test('independence control: omitted exclusion lists cannot prevent a genuinely i
   const {custody:c,fetches}=await custody();
   c.verifier={...c.verifier,producerKeyIds:[],producerPublicKeysPem:[]};
   const ports=composeRuntimePorts(ctx(),c);
-  const expected={projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
+  const expected={assurance:'INDEPENDENT',projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
     candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256};
   const signed=ver.signVerdict(verdictFor(expected));
   assert.equal(verifyVerdict({signed,verifierKeys:ports.verifierKeys,producerKeyIds:ports.producerKeyIds,producerPublicKeysPem:ports.producerPublicKeysPem,

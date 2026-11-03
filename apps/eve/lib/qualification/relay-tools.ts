@@ -1,4 +1,5 @@
-import { authorizeRelayAction, assertRelayGrant, RelayDenied, type RelayAction, type RelayDeveloperGrant } from "./relay-grant.ts";
+import { authorizeRelayAction, assertRelayGrant, RelayDenied, type RelayAction, type RelayDeveloperGrant, type RelayGrantScope } from "./relay-grant.ts";
+import { QDEV_BASELINE } from "../external-alpha/qualification-accounting.ts";
 import { CANONICAL_RELAY_CONTRACT, type RelayToolContract, type RelayToolSpec } from "./relay-tool-contract.ts";
 
 /**
@@ -16,7 +17,9 @@ export type RelayCallArgs = Record<string, unknown>;
 
 export class RelayDeveloperTools {
   constructor(private readonly grant: RelayDeveloperGrant, private readonly transport: RelayTransport,
-    private readonly contract: RelayToolContract = CANONICAL_RELAY_CONTRACT) { assertRelayGrant(grant); }
+    private readonly contract: RelayToolContract = CANONICAL_RELAY_CONTRACT,
+    /** The installation scope the grant must match (default: the frozen qualification baseline). */
+    private readonly scope: RelayGrantScope = QDEV_BASELINE) { assertRelayGrant(grant, scope); }
 
   private spec(tool: RelayTool): RelayToolSpec {
     const spec = Object.hasOwn(this.contract, tool.name) ? this.contract[tool.name] : undefined;
@@ -26,7 +29,7 @@ export class RelayDeveloperTools {
   private permitted(tool: RelayTool): boolean {
     try {
       const spec = this.spec(tool);
-      authorizeRelayAction(this.grant, spec.action(this.grant, spec.input.parse(spec.sample)));
+      authorizeRelayAction(this.grant, spec.action(this.grant, spec.input.parse(spec.sample)), this.scope);
       return true;
     } catch (error) { if (error instanceof RelayDenied) return false; throw error; }
   }
@@ -39,7 +42,7 @@ export class RelayDeveloperTools {
     // Strict, tool-specific input: unknown keys (owner, repo, repository, aliases) are denied, never forwarded.
     const parsed = spec.input.safeParse(args);
     if (!parsed.success) throw new RelayDenied("QDEV_RELAY_INPUT_DENIED");
-    authorizeRelayAction(this.grant, spec.action(this.grant, parsed.data));
+    authorizeRelayAction(this.grant, spec.action(this.grant, parsed.data), this.scope);
     if (!(await this.discover()).some(t => t.name === tool.name && t.kind === tool.kind)) throw new RelayDenied("QDEV_RELAY_TOOL_NOT_DISCOVERED");
     return this.transport.execute(tool.name, spec.native(this.grant, parsed.data));
   }

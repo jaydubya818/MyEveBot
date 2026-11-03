@@ -1,4 +1,5 @@
-import { qualificationBinding, QDEV_BASELINE, type QualificationProjectInput, type QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
+import type { QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
+import { journeyBinding, journeyProfile, type JourneyProjectInput } from "./journey-profile.ts";
 import type { LocalFactoryBindingV4 } from "../engineering/factory-receipt-store.ts";
 import type { ResultKey } from "../engineering/factory-producer-protocol.ts";
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
@@ -38,7 +39,7 @@ export interface MyAppsPort {
 }
 
 export type WiringConfig = {
-  project: QualificationProjectInput; agent: AgentPort; relay: RelayDeveloperTools; factory: FactoryPort; verifier: VerifierPort; myapps: MyAppsPort;
+  project: JourneyProjectInput; agent: AgentPort; relay: RelayDeveloperTools; factory: FactoryPort; verifier: VerifierPort; myapps: MyAppsPort;
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   verifierKeys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[];
   newAllowanceId(stage: number): string; journal?: JourneyJournal; now?: () => number; baseline?: StageStart;
@@ -51,7 +52,7 @@ export type WiringConfig = {
  * any provider contact. Port failures after that are the gate's ambiguous exposure.
  */
 export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
-  const binding = qualificationBinding(c.project);
+  const binding = journeyBinding(c.project), profile = journeyProfile(c.project);
   const accepted = new Map<number, { commit: string; tree: string; buildArtifactSha256: string }>();
   const expectations = new Map<1 | 2 | 3, StageExpected>();
   // Snapshot canonical admission expectations before dispatch. Result validation
@@ -85,7 +86,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
     }
     return outcome;
   };
-  const baseline = c.baseline ?? { commit: QDEV_BASELINE.inputCommit as string, tree: QDEV_BASELINE.inputTree as string };
+  const baseline = c.baseline ?? { commit: profile.baseline.inputCommit, tree: profile.baseline.inputTree };
   const startOf = (stage: number): StageStart | null => stage === 1 ? baseline : accepted.get(stage - 1) ?? null;
   return {
     async runOperation(op) {
@@ -136,7 +137,7 @@ export function wireJourneyEnvironment(c: WiringConfig): JourneyEnvironment {
     verifierKeys: c.verifierKeys, producerKeyIds: c.producerKeyIds, producerPublicKeysPem: c.producerPublicKeysPem,
     retainBuild: candidate => c.myapps.retainBuild(candidate),
     observeDelivery: candidate => c.myapps.observe(candidate),
-    newAllowanceId: stage => c.newAllowanceId(stage), now: c.now, journal: c.journal, baseline: c.baseline,
+    newAllowanceId: stage => c.newAllowanceId(stage), now: c.now, journal: c.journal, baseline: c.baseline ?? baseline,
     onStageAccepted: (stage, candidate) => { accepted.set(stage, candidate); },
   };
 }

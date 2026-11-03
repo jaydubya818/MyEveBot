@@ -1,4 +1,4 @@
-import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
+import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { createPublicKey } from "node:crypto";
 import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
 import type { FactoryCapabilityClientConfig } from "../engineering/factory-capability-client.ts";
@@ -55,7 +55,7 @@ export type QdevCustody = {
 export class RuntimePortsRefused extends Error { constructor(readonly code: string) { super(code); } }
 
 export function composeRuntimePorts(context: { bundle: QdevHostBundle; credential(name: string): string | undefined }, custody: QdevCustody): RuntimePorts {
-  const binding = qualificationBinding(context.bundle.project);
+  const binding = journeyBinding(context.bundle.project), profile = journeyProfile(context.bundle.project), environment = profile.environment;
   // The runtime already knows both producer trust sets. Redundant exclusion lists cannot omit those keys or rename their bytes.
   const actualProducerKeys = [...custody.resultKeys, ...custody.factory.connection.keys];
   const producerKeyIds = [...new Set([...custody.verifier.producerKeyIds, ...actualProducerKeys.map(key => key.keyId)])];
@@ -86,14 +86,14 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   const publishing = custody.myapps.publishing;
   const controller = publishing ? new StaticReleaseController({
     root: publishing.root, appId: publishing.appId, installationId: publishing.installationId, activation: publishing.activation,
-    environment: "myeve-qdev-20261029", ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
+    environment, ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
   }) : null;
   const reader = controller && publishing ? new MyAppsRevisionReader({ source: controller.stateSource(), appId: publishing.appId,
     ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
-    installation: { environment: "myeve-qdev-20261029", installationId: publishing.installationId } }) : null;
+    installation: { environment, installationId: publishing.installationId } }) : null;
   const build = new StaticBuildMyAppsPort({ ...custody.myapps,
     delivery: { ...custody.myapps.delivery, ...(reader ? { priorRevision: reader.priorRevision, restorePointId: reader.restorePointId,
-      environment: "myeve-qdev-20261029" as const, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256 } : {}) },
+      environment, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256 } : {}) },
     source: async candidate => {
       const source = await custody.myapps.source(candidate);
       // Build provenance is producer authority too. Its actual signer becomes known during retention, before independent verification.
@@ -104,11 +104,11 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
       return source;
   } });
   const myapps = controller && reader && publishing ? new StaticPublishingMyAppsPort({ build, controller, reader,
-    installation: { environment: "myeve-qdev-20261029", installationId: publishing.installationId },
+    installation: { environment, installationId: publishing.installationId },
     gate: async candidate => {
       assertIndependent();
       return verifyVerdict({ signed: await verifier.fetchVerdict(candidate), verifierKeys: custody.verifier.keys,
-        producerKeyIds, producerPublicKeysPem, expected: { ...binding, protectedSpecificationSha256: context.bundle.project.protectedSpecificationSha256,
+        producerKeyIds, producerPublicKeysPem, expected: { ...binding, assurance: profile.assurance, protectedSpecificationSha256: context.bundle.project.protectedSpecificationSha256,
           candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256 } });
     },
   }) : build;

@@ -52,7 +52,7 @@ const verdictFrom=(c,buildArtifactSha256)=>{
   const signed=c.vf.signVerdict(verdictFor({projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,protectedSpecificationSha256:c.project.protectedSpecificationSha256,
     candidateCommit:c.candidate.commit,candidateTree:c.candidate.tree,buildArtifactSha256}));
   return verifyVerdict({signed,verifierKeys:[c.vf.key],producerKeyIds:[c.fx.key.keyId],producerPublicKeysPem:[c.fx.producerPem],now:Date.parse('2026-10-28T00:00:00Z'),
-    expected:{projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,protectedSpecificationSha256:c.project.protectedSpecificationSha256,candidateCommit:c.candidate.commit,candidateTree:c.candidate.tree,buildArtifactSha256}});
+    expected:{assurance:'INDEPENDENT',projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,protectedSpecificationSha256:c.project.protectedSpecificationSha256,candidateCommit:c.candidate.commit,candidateTree:c.candidate.tree,buildArtifactSha256}});
 };
 
 test('the Result metadata digest and the retained static artifact digest are different identities',async()=>{

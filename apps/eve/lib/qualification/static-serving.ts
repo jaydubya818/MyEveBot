@@ -1,5 +1,5 @@
 
-import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
+import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { listenLoopback, StaticReleaseController } from "./static-publish.ts";
 
@@ -17,7 +17,7 @@ export async function launchStaticServing(bundle: QdevHostBundle, options: { now
   const profile = bundle.assembly;
   if (!profile || Date.parse(bundle.notAfter) <= (options.now?.() ?? Date.now())) return null;
   const controller = new StaticReleaseController({ root: profile.publishing.root, appId: profile.build.appId, installationId: profile.publishing.installationId,
-    environment: "myeve-qdev-20261029", ownerId: bundle.ownerId, projectSha256: qualificationBinding(bundle.project).projectSha256 });
+    environment: journeyProfile(bundle.project).environment, ownerId: bundle.ownerId, projectSha256: journeyBinding(bundle.project).projectSha256 });
   const handler = controller.handler();
   const listening = await listenLoopback(handler, { host: options.host, port: profile.publishing.servePort ?? 0 });
   return { origin: listening.origin, handler, close: listening.close };

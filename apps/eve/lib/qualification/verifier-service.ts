@@ -4,6 +4,7 @@ import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { digest } from "../engineering/contract.ts";
 import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { verdictSchema, type SignedVerdict, type Verdict } from "./verdict.ts";
+import { VERDICT_ASSURANCE, type VerdictAssurance } from "./journey-profile.ts";
 import { ARTIFACT_COMMIT_BODY_LIMIT, ARTIFACT_PATHS, ArtifactStagingRefused, artifactRoutes, type ArtifactStagingStore, type StagedArtifact } from "./artifact-staging.ts";
 
 /**
@@ -58,6 +59,8 @@ export type VerifierServiceConfig = {
   /** The one installation binding this verifier serves; handoffs for anything else are refused. */
   expected: { projectSha256: string; sourceSha256: string; protectedSpecificationSha256: string };
   evaluator: QuiescentEvaluator;
+  /** Explicit, signed into every verdict: INDEPENDENT only for separately administered custody; PRIVATE_BETA_LOCAL for an owner-local verifier. */
+  assurance: VerdictAssurance;
   /** Explicit: a paid evaluator reports usage within the charged cap; an unpaid evaluator must report exactly zero. */
   paid: boolean;
   /** Protected signer: Ed25519 over the canonical verdict bytes. */
@@ -113,6 +116,7 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
   if (!Number.isInteger(grace) || grace < 1 || grace > 60_000) throw new Error("QDEV_VERIFIER_GRACE");
   if (typeof config.paid !== "boolean" || typeof config.evaluator?.run !== "function") throw new Error("QDEV_VERIFIER_EVALUATOR");
   if (!config.signer.keyId || config.signer.keyId.length > 120) throw new Error("QDEV_VERIFIER_SIGNER");
+  if (!(VERDICT_ASSURANCE as readonly unknown[]).includes(config.assurance)) throw new Error("QDEV_VERIFIER_ASSURANCE");
   const accepted = config.credentialSha256.map(h => Buffer.from(h, "hex"));
   const now = config.now ?? Date.now;
   const inflight = new Map<string, Promise<VerifierRecord | null>>();
@@ -138,7 +142,7 @@ export function createVerifierHandler(config: VerifierServiceConfig): (request: 
   };
   const sign = async (candidate: VerifierCandidate, handoff: VerifierHandoffBody, outcome: Verdict["outcome"]): Promise<SignedVerdict> => {
     const verdict = verdictSchema.parse({
-      schema: "myeve.qualification-verdict/v1", verifierKeyId: config.signer.keyId,
+      schema: "myeve.qualification-verdict/v1", assurance: config.assurance, verifierKeyId: config.signer.keyId,
       projectSha256: handoff.projectSha256, sourceSha256: handoff.sourceSha256, protectedSpecificationSha256: handoff.protectedSpecificationSha256,
       candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256,
       outcome, issuedAt: new Date(now()).toISOString(),

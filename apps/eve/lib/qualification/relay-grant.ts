@@ -1,5 +1,8 @@
 import { QDEV_BASELINE } from "../external-alpha/qualification-accounting.ts";
 
+/** The repository/branch/base a grant must be scoped to: the frozen qualification baseline, or a private-beta installation baseline. */
+export type RelayGrantScope = { repository: string; outputBranch: string; inputCommit: string };
+
 /**
  * MyEve-side check of a Relay developer-tool grant for the isolated journey.
  * The real grant is created by the GitHub/Relay administrator and enforced by
@@ -21,17 +24,17 @@ export class RelayDenied extends Error {
   constructor(readonly code: string) { super(code); }
 }
 
-export function assertRelayGrant(grant: RelayDeveloperGrant) {
-  if (grant.repository !== QDEV_BASELINE.repository || grant.outputBranch !== QDEV_BASELINE.outputBranch
-    || grant.baseCommit !== QDEV_BASELINE.inputCommit) throw new RelayDenied("QDEV_RELAY_GRANT_SCOPE");
+export function assertRelayGrant(grant: RelayDeveloperGrant, scope: RelayGrantScope = QDEV_BASELINE) {
+  if (grant.repository !== scope.repository || grant.outputBranch !== scope.outputBranch
+    || grant.baseCommit !== scope.inputCommit) throw new RelayDenied("QDEV_RELAY_GRANT_SCOPE");
   if (grant.repositoryAdmin !== false || grant.workflowEdit !== false || grant.productionDeployment !== false
     || grant.permissions.deployments !== "read" || grant.permissions.actions !== "read" || grant.permissions.metadata !== "read")
     throw new RelayDenied("QDEV_RELAY_GRANT_TOO_BROAD");
   if (/token|secret|password|bearer/i.test(JSON.stringify(grant))) throw new RelayDenied("QDEV_RELAY_GRANT_CREDENTIAL");
 }
 
-export function authorizeRelayAction(grant: RelayDeveloperGrant, action: RelayAction): true {
-  assertRelayGrant(grant);
+export function authorizeRelayAction(grant: RelayDeveloperGrant, action: RelayAction, scope: RelayGrantScope = QDEV_BASELINE): true {
+  assertRelayGrant(grant, scope);
   if (action.repository !== grant.repository) throw new RelayDenied("QDEV_RELAY_FOREIGN_REPOSITORY");
   switch (action.kind) {
     case "read_metadata": case "read_contents": case "read_actions": case "read_deployments": return true;

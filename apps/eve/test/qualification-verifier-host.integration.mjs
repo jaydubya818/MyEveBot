@@ -86,7 +86,7 @@ async function launch(p,extra={},deps={}){
   if(host)hosts.push(host);return host;
 }
 const portFor=(host,over={})=>new HttpVerifierPort({enabled:true,origin:host.origin,credential:()=>CRED,staging:stagingFor,...over});
-const verify=(signed,c,now)=>verifyVerdict({now,signed,verifierKeys:[verifierKey],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],expected:{...expected,candidateCommit:c.commit,candidateTree:c.tree,buildArtifactSha256:c.buildArtifactSha256}});
+const verify=(signed,c,now)=>verifyVerdict({now,signed,verifierKeys:[verifierKey],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],expected:{...expected,assurance:'PRIVATE_BETA_LOCAL',candidateCommit:c.commit,candidateTree:c.tree,buildArtifactSha256:c.buildArtifactSha256}});
 
 test('disabled by default: nothing is read, opened or listening without the explicit switch; an enabled but incomplete start is refused',async()=>{
   const boom=()=>{throw new Error('OPENED');};

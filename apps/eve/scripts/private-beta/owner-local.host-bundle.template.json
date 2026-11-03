@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "profile": "myeve.private-beta.owner/v1",
+  "installation": "owner-local",
+  "ownerId": "<OWNER_UUID: the owner's MyEve principal id>",
+  "notAfter": "<ISO-8601 expiry, e.g. 2026-11-17T00:00:00.000Z>",
+  "template": {
+    "installation": {
+      "profile": "myeve.private-beta.owner/v1",
+      "environment": "myeve-pb-owner-local",
+      "repository": "<owner/repo the Factory builds in>",
+      "inputCommit": "<40-hex baseline commit>",
+      "inputTree": "<40-hex baseline tree>",
+      "outputBranch": "<non-main output branch, e.g. sofie/owner-requests>",
+      "operatingProfileSha256": "<64-hex operating profile digest>",
+      "factoryVersionSha256": "<64-hex: host-facts.json factory.factoryVersion>",
+      "sources": {
+        "myeve": "<40-hex MyEve source commit>",
+        "factory": "<40-hex MyFactory source commit>",
+        "relay": "<40-hex Relay source commit>",
+        "missioncontrol": "<40-hex MissionControl source commit>"
+      }
+    },
+    "plan": {
+      "slot": "Q1",
+      "stages": [
+        { "stage": 1, "workCeilingMicrousd": 1300000, "operations": [
+          { "key": "s1-sofie", "purpose": "SOFIE", "reserveMicrousd": 325000 },
+          { "key": "s1-coding", "purpose": "CODING", "reserveMicrousd": 650000 } ] },
+        { "stage": 2, "workCeilingMicrousd": 1300000, "operations": [ { "key": "s2-coding", "purpose": "CODING", "reserveMicrousd": 650000 } ] },
+        { "stage": 3, "workCeilingMicrousd": 1300000, "operations": [ { "key": "s3-factory", "purpose": "FACTORY", "reserveMicrousd": 650000 } ] },
+        { "stage": 4, "workCeilingMicrousd": 1300000, "operations": [ { "key": "s4-verifier", "purpose": "VERIFIER", "reserveMicrousd": 650000 } ] }
+      ]
+    }
+  },
+  "credentials": {
+    "accounting": "QDEV_ACCOUNTING_CREDENTIAL",
+    "relay": "QDEV_RELAY_CREDENTIAL",
+    "accountingDatabaseUrl": "QDEV_ACCOUNTING_DATABASE_URL",
+    "journalDatabaseUrl": "QDEV_JOURNAL_DATABASE_URL"
+  },
+  "relay": {
+    "origin": "<Relay MCP origin>",
+    "grant": {
+      "connectionId": "<Relay GitHub connection id>",
+      "repository": "<same owner/repo as template.installation.repository>",
+      "baseCommit": "<same 40-hex as template.installation.inputCommit>",
+      "outputBranch": "<same branch as template.installation.outputBranch>",
+      "permissions": { "metadata": "read", "contents": "write", "actions": "read", "deployments": "read" },
+      "repositoryAdmin": false,
+      "workflowEdit": false,
+      "productionDeployment": false
+    }
+  },
+  "conversation": {},
+  "assembly": "<assembly profile object (custody-profile.ts assemblyProfileSchema): workIds, baseline == template baseline, capability, model, verifier keys of the PRIVATE_BETA_LOCAL verifier host, build, publishing, servedOrigin>"
+}

@@ -20,7 +20,7 @@ const handoff=buildVerifierHandoff({project,binding,candidate});
 const CRED='verifier-credential-'+'x'.repeat(24),RESERVE=650_000;
 const KEY=candidate.commit+':'+candidate.tree+':'+candidate.buildArtifactSha256;
 const expected={projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256};
-const exp2={...expected,candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256};
+const exp2={...expected,assurance:'INDEPENDENT',candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256};
 const pair=generateKeyPairSync('ed25519'),pem=pair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
 const verifierKey={keyId:'verifier-key-1',publicKeyPem:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
 const check=signed=>verifyVerdict({signed,verifierKeys:[verifierKey],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],expected:exp2});
@@ -29,7 +29,7 @@ const pass={outcome:'PASS',usedMicrousd:0};
 function service(over={}){
   const calls=[];
   const evaluator=over.evaluator??{run:async(input,ctx)=>{calls.push({input,ctx});return pass;}};
-  const config={credentialSha256:[createHash('sha256').update(CRED).digest('hex')],expected,evaluationDeadlineMs:500,quiescenceGraceMs:50,paid:false,store:memoryVerifierStore(),
+  const config={credentialSha256:[createHash('sha256').update(CRED).digest('hex')],expected,assurance:'INDEPENDENT',evaluationDeadlineMs:500,quiescenceGraceMs:50,paid:false,store:memoryVerifierStore(),
     signer:ed25519Signer('verifier-key-1',pem),...over,evaluator};
   const handler=createVerifierHandler(config);
   const fetch=async(url,init)=>handler(new Request(url,init));
@@ -213,7 +213,7 @@ test('a restart after the evaluation began never evaluates again: in-progress in
 
 test('configuration is validated: credential digests, deadline, grace, evaluator, paid declaration, signer key type',()=>{
   const base=service().config;
-  for(const patch of [{credentialSha256:[]},{credentialSha256:['nope']},{evaluationDeadlineMs:0},{evaluationDeadlineMs:700000},{quiescenceGraceMs:0},{paid:undefined},{evaluator:{}}])
+  for(const patch of [{credentialSha256:[]},{credentialSha256:['nope']},{evaluationDeadlineMs:0},{evaluationDeadlineMs:700000},{quiescenceGraceMs:0},{paid:undefined},{evaluator:{}},{assurance:undefined},{assurance:'SELF_DECLARED'}])
     assert.throws(()=>createVerifierHandler({...base,...patch}),/QDEV_VERIFIER_/);
   const rsa=generateKeyPairSync('rsa',{modulusLength:2048}).privateKey.export({type:'pkcs8',format:'pem'}).toString();
   assert.throws(()=>ed25519Signer('k',rsa),/QDEV_VERIFIER_SIGNER_KEY/);

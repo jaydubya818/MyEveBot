@@ -1,6 +1,6 @@
 import { prepareAuthenticatedLocalFactoryInputV4 } from "../engineering/factory-authenticated-result.ts";
 import type { LocalFactoryBindingV4 } from "../engineering/factory-receipt-store.ts";
-import { QDEV_BASELINE, type QualificationProjectInput } from "../external-alpha/qualification-accounting.ts";
+import { journeyProfile, type JourneyProjectInput } from "./journey-profile.ts";
 
 /**
  * Relay -> MyFactory dispatch contract. The Work admission itself comes from the
@@ -16,10 +16,10 @@ export class FactoryDispatchRefused extends Error {
 export type StageStart = { commit: string; tree: string };
 
 export function bindFactoryDispatch(input: {
-  admitted: unknown; project: QualificationProjectInput; stage: 1 | 2 | 3; start: StageStart | null; baseline?: StageStart;
+  admitted: unknown; project: JourneyProjectInput; stage: 1 | 2 | 3; start: StageStart | null; baseline?: StageStart;
 }): LocalFactoryBindingV4 {
   const expectedStart = input.stage === 1
-    ? (input.baseline ?? { commit: QDEV_BASELINE.inputCommit as string, tree: QDEV_BASELINE.inputTree as string })
+    ? (input.baseline ?? (({ inputCommit, inputTree }) => ({ commit: inputCommit, tree: inputTree }))(journeyProfile(input.project).baseline))
     : input.start;
   if (!expectedStart) throw new FactoryDispatchRefused("QDEV_DISPATCH_START_REQUIRED");
   let binding: LocalFactoryBindingV4;

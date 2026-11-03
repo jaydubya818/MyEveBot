@@ -46,5 +46,5 @@ export function syntheticVerifier(){
  const signVerdict=verdict=>({verdict,signatureBase64:sign(null,Buffer.from(codec.canonical(verdict)),pair.privateKey).toString('base64')});
  return {pair,key,signVerdict};
 }
-export const verdictFor=(over)=>({schema:'myeve.qualification-verdict/v1',verifierKeyId:'synthetic-verifier-key',outcome:'PASS',issuedAt:'2026-10-27T00:00:00.000Z',...over});
+export const verdictFor=(over)=>({schema:'myeve.qualification-verdict/v1',assurance:'INDEPENDENT',verifierKeyId:'synthetic-verifier-key',outcome:'PASS',issuedAt:'2026-10-27T00:00:00.000Z',...over});
 export {digest,codec};

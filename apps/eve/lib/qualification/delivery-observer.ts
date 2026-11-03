@@ -23,7 +23,7 @@ export class DeliveryObservationError extends Error {
   constructor(readonly code: string) { super(code); }
 }
 export type DeliveryObserverConfig = {
-  enabled: boolean; environment: "myeve-qdev-20261029"; servedOrigin: string;
+  enabled: boolean; environment: string; servedOrigin: string;
   projectSha256: string; sourceSha256: string;
   priorRevision(): Promise<DeliveryObservation["priorRevision"]>; restorePointId(): Promise<string>;
   fetcher?: typeof fetch; maxFileBytes?: number; now?: () => Date;

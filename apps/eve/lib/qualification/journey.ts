@@ -1,5 +1,6 @@
-import type { QualificationAccounting, QualificationProjectInput, QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
-import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
+import type { QualificationAccounting, QualificationPurpose } from "../external-alpha/qualification-accounting.ts";
+import { journeyBinding, journeyProfile, stageBindingId, type JourneyProjectInput, type VerdictAssurance } from "./journey-profile.ts";
+import { assertPlanBindsProject } from "./owner-request.ts";
 import { digest } from "../engineering/contract.ts";
 import type { LocalResultV4Expected, ResultKey } from "../engineering/factory-producer-protocol.ts";
 import { QualificationGate, ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
@@ -53,8 +54,10 @@ export class JourneyHalted extends Error {
 }
 export type StageRecord = { stage: number; workId: string; resultManifestDigest?: string; candidate?: { commit: string; tree: string } };
 export type JourneyEvidence = {
-  proposalId: "qdev-20261029-01"; projectSha256: string; sourceSha256: string;
+  proposalId: string; projectSha256: string; sourceSha256: string;
   stages: StageRecord[]; verdictSha256: string; deliverySha256: string;
+  /** The signed assurance of the accepted verdict; always the one the project profile requires. */
+  assurance: VerdictAssurance;
   /** This record never asserts readiness; only an authorized real run can. */
   readiness: "NOT_CLAIMED"; authority: "NONE";
 };
@@ -68,7 +71,7 @@ export type JourneyEvidence = {
 export class QualificationJourney {
   private readonly gate: QualificationGate;
   private readonly journal: JourneyJournal;
-  constructor(private readonly accounting: QualificationAccounting, private readonly project: QualificationProjectInput, private readonly env: JourneyEnvironment) {
+  constructor(private readonly accounting: QualificationAccounting, private readonly project: JourneyProjectInput, private readonly env: JourneyEnvironment) {
     this.gate = new QualificationGate(accounting);
     this.journal = env.journal ?? new InMemoryJournal();
   }
@@ -127,7 +130,9 @@ export class QualificationJourney {
   async run(rawPlan: unknown): Promise<JourneyEvidence> {
     // Refuse an unfittable plan BEFORE any reservation or dispatch.
     const plan: JourneyPlan = validateJourneyPlan(rawPlan);
-    const binding = qualificationBinding(this.project);
+    // The plan must be the one derived for exactly this project (a private-beta request binding, or an unbound frozen qdev plan).
+    assertPlanBindsProject(plan, this.project);
+    const binding = journeyBinding(this.project), profile = journeyProfile(this.project);
     const approvedPlanSha256 = digest(plan);
     const records: StageRecord[] = [];
     let preceding: { commit: string; tree: string } | null = null;
@@ -135,7 +140,7 @@ export class QualificationJourney {
     let verdict: Verdict | undefined;
     let buildArtifactSha256: string | undefined;
     for (const stage of plan.stages) {
-      const bindingId = "qdev-20261029-01:stage:" + stage.stage;
+      const bindingId = stageBindingId(this.project, approvedPlanSha256, stage.stage);
       let work;
       try {
         const events = await this.journal.read();
@@ -212,7 +217,7 @@ export class QualificationJourney {
           const candidate = { commit: last.candidateCommit, tree: last.candidateTree, buildArtifactSha256 };
           verdict = verifyVerdict({ signed: await this.env.collectVerdict(candidate), verifierKeys: this.env.verifierKeys,
             producerKeyIds: this.env.producerKeyIds, producerPublicKeysPem: this.env.producerPublicKeysPem, now: this.env.now?.(),
-            expected: { projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,
+            expected: { assurance: profile.assurance, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,
               protectedSpecificationSha256: this.project.protectedSpecificationSha256, candidateCommit: candidate.commit,
               candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256 } });
         }
@@ -232,7 +237,7 @@ export class QualificationJourney {
     let delivery;
     try {
       delivery = acceptDelivery({ observation: await this.env.observeDelivery({ commit: last.candidateCommit, tree: last.candidateTree }),
-        verdict, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256 });
+        verdict, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, environment: profile.environment, baselineCommit: profile.baseline.inputCommit });
     } catch (error) {
       throw new JourneyHalted(4, error instanceof Error ? error.message : "QDEV_DELIVERY", records);
     }
@@ -241,7 +246,7 @@ export class QualificationJourney {
       if (!(await this.journal.read()).some(e => e.kind === "DELIVERY_ACCEPTED"))
         await this.journal.append({ kind: "DELIVERY_ACCEPTED", stage: 4, digest: delivery.acceptedDeliverySha256, verdictSha256: digest(verdict) });
     } catch { throw new JourneyHalted(4, "QDEV_JOURNAL_DELIVERY", records); }
-    return { proposalId: "qdev-20261029-01", projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, stages: records,
-      verdictSha256: digest(verdict), deliverySha256: delivery.acceptedDeliverySha256, readiness: "NOT_CLAIMED", authority: "NONE" };
+    return { proposalId: profile.id, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, stages: records,
+      verdictSha256: digest(verdict), deliverySha256: delivery.acceptedDeliverySha256, assurance: verdict.assurance, readiness: "NOT_CLAIMED", authority: "NONE" };
   }
 }

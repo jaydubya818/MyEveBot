@@ -1,5 +1,5 @@
 import { runtimeHostSource } from "./host-source.ts";
-import { registerQualificationHost, qualificationHostRegistered, type QdevConversation, type QualificationRootConfig, type QualificationRootHost } from "./root.ts";
+import { registerQualificationHost, qualificationHostRegistered, type OwnerRequestRootConfig, type QdevConversation, type QualificationRootConfig, type QualificationRootHost } from "./root.ts";
 
 /**
  * Production host bootstrap for the QDEV installation. It assembles the QualificationRootHost from a host SOURCE of
@@ -8,7 +8,7 @@ import { registerQualificationHost, qualificationHostRegistered, type QdevConver
  * transport is disabled: `config` and `conversation` return null (fail closed) until protected enrollment
  * and custody provide a real source. No credential, network or provider is touched here.
  */
-export type QdevHostMaterial = QualificationRootConfig & { conversation: QdevConversation };
+export type QdevHostMaterial = (QualificationRootConfig | OwnerRequestRootConfig) & { conversation: QdevConversation };
 export type QdevHostSource = {
   enabled(): boolean;
   /** Complete trusted material for exactly this owner, or null (unenrolled, expired, revoked, foreign, incomplete). */

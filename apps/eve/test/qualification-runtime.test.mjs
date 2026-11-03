@@ -90,7 +90,7 @@ function verification(){
  const c=chain(),v=syntheticVerifier(),pre=r=>({commit:r.candidateCommit,tree:r.candidateTree}),a=c.take(1,c.s1.signed,null),b=c.take(2,c.s2.signed,pre(a)),d=c.take(3,c.s3.signed,pre(b)),bind=qualificationBinding(c.project);
  const expected={projectSha256:bind.projectSha256,sourceSha256:bind.sourceSha256,protectedSpecificationSha256:c.project.protectedSpecificationSha256,candidateCommit:d.candidateCommit,candidateTree:d.candidateTree,buildArtifactSha256:d.manifest.artifactDigest};
  const verdict=over=>verdictFor({...expected,...over});
- const run=(signed,over={})=>verifyVerdict({signed,verifierKeys:[v.key],producerKeyIds:[c.f.key.keyId],producerPublicKeysPem:[c.f.producerPem],expected,...over});
+ const run=(signed,over={})=>verifyVerdict({signed,verifierKeys:[v.key],producerKeyIds:[c.f.key.keyId],producerPublicKeysPem:[c.f.producerPem],expected:{assurance:'INDEPENDENT',...expected},...over});
  return {c,v,expected,verdict,run,bind,accepted:d};
 }
 test('an independent signed PASS verdict bound to the exact candidate is accepted',()=>{

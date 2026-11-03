@@ -1,4 +1,5 @@
-import type { QualificationAccounting, QualificationProjectInput } from "../external-alpha/qualification-accounting.ts";
+import type { QualificationAccounting } from "../external-alpha/qualification-accounting.ts";
+import type { JourneyProjectInput } from "./journey-profile.ts";
 import { QualificationJourney, JourneyHalted } from "./journey.ts";
 import { presentJourney, type JourneyPresentation } from "./presentation.ts";
 import { wireJourneyEnvironment, type WiringConfig } from "./wiring.ts";
@@ -27,7 +28,7 @@ export type QualificationPrincipal = {
 export type QualificationRootConfig = {
   /** The qualified cohort member this configuration was issued for. */
   ownerId: string;
-  project: QualificationProjectInput;
+  project: JourneyProjectInput;
   /** The approved journey plan is host-owned; the model supplies nothing. */
   plan: unknown;
   accounting: QualificationAccounting;
@@ -35,6 +36,27 @@ export type QualificationRootConfig = {
   relay: RelayDeveloperTools;
   ports: Omit<WiringConfig, "project" | "relay" | "journal">;
 };
+/**
+ * Private-beta owner-local installation: the plan is DERIVED from the owner-confirmed request text (owner-request.ts). `derive` returns the complete
+ * per-request configuration (derived project, plan, cohort accounting, journal and ports) and the plan digest it was derived for, or null when any
+ * protected input is missing. The root never trusts a model-supplied digest: it re-derives and compares.
+ */
+export type OwnerRequestRootConfig = {
+  ownerId: string;
+  /** `expectedPlanSha256` is the confirmed digest: on a mismatch the host returns the actual digest with `config: null` and builds nothing. */
+  ownerRequest: { derive(request: string, expectedPlanSha256: string): Promise<{ planSha256: string; config: QualificationRootConfig | null } | null> };
+};
+/** The confirmed request presented to the tool: the exact request text and the full plan digest the owner confirmed. */
+export type QualificationRequest = { request: string; planSha256: string };
+const isOwnerRequestConfig = (c: QualificationRootConfig | OwnerRequestRootConfig): c is OwnerRequestRootConfig => "ownerRequest" in c;
+function parseRequest(input: unknown): QualificationRequest | null | undefined {
+  if (input === undefined || (input && typeof input === "object" && !Array.isArray(input) && Object.keys(input).length === 0)) return undefined;
+  const v = input as Partial<QualificationRequest> | null;
+  if (!v || typeof v !== "object" || Array.isArray(v) || Object.keys(v).sort().join(",") !== "planSha256,request") return null;
+  if (typeof v.request !== "string" || v.request.length < 1 || v.request.length > 4000 || typeof v.planSha256 !== "string" || !/^[a-f0-9]{64}$/.test(v.planSha256)) return null;
+  return { request: v.request, planSha256: v.planSha256 };
+}
+
 /** Host-owned conversation model for the authenticated owner. The returned model must carry provider `myeve-qdev`
  *  and is the ONLY model the QDEV installation may call; the host is responsible for its scoped client/accounting. */
 export type QdevConversationModel = { specificationVersion: string; provider: string; modelId: string; supportedUrls?: unknown; doGenerate(options: any): Promise<any>; doStream(options: any): Promise<any> };
@@ -47,24 +69,37 @@ export type QualificationRootHost = {
   /** The owner's QDEV conversation model, or null when the owner is unconfigured, expired, revoked or foreign. */
   conversation?(ownerId: string): Promise<QdevConversation | null>;
   /** Complete trusted configuration for this owner, or null when any protected input is missing. */
-  config(ownerId: string): Promise<QualificationRootConfig | null>;
+  config(ownerId: string): Promise<QualificationRootConfig | OwnerRequestRootConfig | null>;
 };
 
 export class QualificationRoot {
   private running = false;
   constructor(private readonly host: QualificationRootHost) {}
 
-  async run(principal: QualificationPrincipal | null): Promise<JourneyPresentation> {
+  async run(principal: QualificationPrincipal | null, input?: unknown): Promise<JourneyPresentation> {
     if (!this.host.enabled()) throw new QualificationRootRefused("QDEV_ROOT_DISABLED");
     if (!principal || principal.kind !== "human" || principal.guest || principal.delegatedRole || principal.subagent || !principal.ownerId)
       throw new QualificationRootRefused("QDEV_ROOT_PRINCIPAL");
-    const config = await this.host.config(principal.ownerId);
-    if (!config) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
-    if (config.ownerId !== principal.ownerId) throw new QualificationRootRefused("QDEV_ROOT_OWNER");
+    const request = parseRequest(input);
+    if (request === null) throw new QualificationRootRefused("QDEV_ROOT_REQUEST_INVALID");
+    const hostConfig = await this.host.config(principal.ownerId);
+    if (!hostConfig) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
+    if (hostConfig.ownerId !== principal.ownerId) throw new QualificationRootRefused("QDEV_ROOT_OWNER");
+    // A frozen installation runs only its host plan; an owner-request installation runs only a confirmed request.
+    if (isOwnerRequestConfig(hostConfig) ? !request : !!request) throw new QualificationRootRefused(request ? "QDEV_ROOT_REQUEST_UNEXPECTED" : "QDEV_ROOT_REQUEST_REQUIRED");
     // One Work at a time per process; the ledger enforces the cohort-wide concurrency.
     if (this.running) throw new QualificationRootRefused("QDEV_ROOT_BUSY");
     this.running = true;
     try {
+      let config: QualificationRootConfig;
+      if (isOwnerRequestConfig(hostConfig)) {
+        const derived = await hostConfig.ownerRequest.derive(request!.request, request!.planSha256);
+        if (!derived) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
+        if (derived.planSha256 !== request!.planSha256) throw new QualificationRootRefused("QDEV_ROOT_REQUEST_MISMATCH");
+        if (!derived.config) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
+        if (derived.config.ownerId !== principal.ownerId) throw new QualificationRootRefused("QDEV_ROOT_OWNER");
+        config = derived.config;
+      } else config = hostConfig;
       const env = wireJourneyEnvironment({ ...config.ports, project: config.project, relay: config.relay, journal: config.journal });
       try {
         return presentJourney(await new QualificationJourney(config.accounting, config.project, env).run(config.plan));

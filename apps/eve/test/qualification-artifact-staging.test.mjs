@@ -55,7 +55,7 @@ test.after(async()=>{for(const c of closers)await c().catch(()=>{});});
 /** A verifier service over a real loopback listener. `root`/`store` may be shared to model a restart. */
 async function service({root=join(dir,'root-'+closers.length),store=memoryVerifierStore(),withArtifacts=true}={}){
   const artifacts=new ArtifactStagingStore({root});
-  const handler=createVerifierHandler({credentialSha256:[sha(CRED)],expected,paid:false,signer:ed25519Signer('staging-key',pem),store,evaluationDeadlineMs:5000,quiescenceGraceMs:500,
+  const handler=createVerifierHandler({credentialSha256:[sha(CRED)],expected,assurance:'INDEPENDENT',paid:false,signer:ed25519Signer('staging-key',pem),store,evaluationDeadlineMs:5000,quiescenceGraceMs:500,
     ...(withArtifacts?{artifacts}:{}),evaluator:processEvaluator({command:process.execPath,args:[script],env:{QDEV_TEST_LOG:log}})});
   const listening=await listenVerifierLoopback(handler,{port:0,maxBodyBytes:limits});closers.push(listening.close);
   const requests=[];

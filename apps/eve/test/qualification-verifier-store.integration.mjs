@@ -31,7 +31,7 @@ const project={...QDEV_BASELINE,operatingProfileSha256:h('1'),factoryVersionSha2
 const binding=qualificationBinding(project);
 const candidate={commit:'1'.repeat(40),tree:'2'.repeat(40),buildArtifactSha256:h('4')};
 const key=c=>c.commit+':'+c.tree+':'+c.buildArtifactSha256;
-const signed=(outcome='PASS')=>({verdict:{schema:'myeve.qualification-verdict/v1',verifierKeyId:'verifier-key-1',projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
+const signed=(outcome='PASS')=>({verdict:{schema:'myeve.qualification-verdict/v1',assurance:'INDEPENDENT',verifierKeyId:'verifier-key-1',projectSha256:binding.projectSha256,sourceSha256:binding.sourceSha256,protectedSpecificationSha256:project.protectedSpecificationSha256,
   candidateCommit:candidate.commit,candidateTree:candidate.tree,buildArtifactSha256:candidate.buildArtifactSha256,outcome,issuedAt:'2026-10-30T12:00:00.000Z'},signatureBase64:Buffer.from('sig').toString('base64')});
 
 test('lifecycle HANDED_OFF -> RUNNING -> FINAL; begin and finish are once-only; handoff is idempotent and conflicts are visible',async()=>{
@@ -85,7 +85,7 @@ test('the real service and port on the durable store: charged submit, pure verdi
   let runs=0;
   const mk=async()=>{
     const conn=await open();
-    const handler=createVerifierHandler({credentialSha256:[createHash('sha256').update(CRED).digest('hex')],expected,evaluationDeadlineMs:500,quiescenceGraceMs:50,paid:false,
+    const handler=createVerifierHandler({credentialSha256:[createHash('sha256').update(CRED).digest('hex')],expected,assurance:'INDEPENDENT',evaluationDeadlineMs:500,quiescenceGraceMs:50,paid:false,
       store:new PostgresVerifierStore(conn.db),signer:ed25519Signer('verifier-key-1',pem),evaluator:{run:async()=>{runs++;return {outcome:'PASS',usedMicrousd:0};}}});
     return new HttpVerifierPort({enabled:true,origin:'https://verifier.example',credential:()=>CRED,fetch:async(url,init)=>handler(new Request(url,init))});
   };
@@ -94,7 +94,7 @@ test('the real service and port on the durable store: charged submit, pure verdi
   assert.equal(settled.known,true);assert.equal(settled.value.settledMicrousd,0);assert.equal(runs,1);
   const v=await a.fetchVerdict(c3);
   assert.equal(verifyVerdict({signed:v,verifierKeys:[verifierKey],producerKeyIds:[fx.key.keyId],producerPublicKeysPem:[fx.producerPem],
-    expected:{...expected,candidateCommit:c3.commit,candidateTree:c3.tree,buildArtifactSha256:c3.buildArtifactSha256}}).outcome,'PASS');
+    expected:{...expected,assurance:'INDEPENDENT',candidateCommit:c3.commit,candidateTree:c3.tree,buildArtifactSha256:c3.buildArtifactSha256}}).outcome,'PASS');
   const b=await mk();   // a second handler (a restarted process) over the same database
   assert.equal((await b.submit(handoff,650_000)).known,true);
   assert.deepEqual(await b.fetchVerdict(c3),v);

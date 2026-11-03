@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import type { DeliveryObservation } from "./delivery.ts";
 
 /** MyApps rollback decision for an observed delivery. Pure: it names the exact restore target; MyApps performs it. */
-export type InstallationIdentity = { environment: "myeve-qdev-20261029"; installationId: string };
+/** `environment` is the journey profile's release environment (the frozen qualification one, or a parameterized private-beta one). */
+export type InstallationIdentity = { environment: string; installationId: string };
 export type RollbackPlan =
   | { kind: "RESTORE_REVISION"; installation: InstallationIdentity; revisionId: string; revisionSha256: string; restorePointId: string }
   | { kind: "REMOVE_INSTALLATION"; installation: InstallationIdentity; absenceAuthenticationSha256: string; restorePointId: string };

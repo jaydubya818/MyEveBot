@@ -8,6 +8,7 @@ import { dockerRemoveCleanup, processEvaluator } from "./verifier-runner.ts";
 import { createVerifierHandler, ed25519Signer, EvaluatorNotQuiescent, type QuiescentEvaluator } from "./verifier-service.ts";
 import { PostgresVerifierStore, VERIFIER_SCHEMA } from "./verifier-store-pg.ts";
 import { listenVerifierLoopback } from "./verifier-transport.ts";
+import { VERDICT_ASSURANCE } from "./journey-profile.ts";
 
 /**
  * Generic launcher for the independently administered verifier host: the ordinary server glue around the qualified service, runner and durable store.
@@ -28,6 +29,12 @@ const absolute = z.string().min(2).max(1024).refine(value => isAbsolute(value) &
 export const verifierHostProfileSchema = z.object({
   version: z.literal(1),
   notAfter: z.string().datetime(),
+  /**
+   * Signed into every verdict. This launcher listens only on loopback, so the default and the private-beta value is PRIVATE_BETA_LOCAL. INDEPENDENT is
+   * accepted only together with a named custody administrator other than the installation owner and the digest of their custody attestation.
+   */
+  assurance: z.enum(VERDICT_ASSURANCE).default("PRIVATE_BETA_LOCAL"),
+  independentCustody: z.object({ administratorId: z.string().min(1).max(255), attestationSha256: hex(64) }).strict().optional(),
   listenPort: z.number().int().min(1024).max(65535),
   expected: z.object({ projectSha256: hex(64), sourceSha256: hex(64), protectedSpecificationSha256: hex(64) }).strict(),
   credentialSha256: z.array(hex(64)).min(1).max(4),
@@ -42,7 +49,7 @@ export const verifierHostProfileSchema = z.object({
     /** Named container removed (docker rm -f) before cessation is claimed. */
     containerName: z.string().regex(/^[a-z0-9][a-z0-9_.-]{5,63}$/).optional(),
   }).strict(),
-}).strict();
+}).strict().refine(p => (p.assurance === "INDEPENDENT") === (p.independentCustody !== undefined), { message: "INDEPENDENT assurance requires (only) a named independent custody attestation" });
 export type VerifierHostProfile = z.infer<typeof verifierHostProfileSchema>;
 
 export class VerifierHostRefused extends Error { constructor(readonly code: string) { super(code); } }
@@ -117,7 +124,7 @@ export async function startVerifierHost(deps: VerifierHostDeps): Promise<Verifie
   } };
   const shutdown = new AbortController();
   const handler = createVerifierHandler({
-    credentialSha256: profile.credentialSha256, expected: profile.expected, evaluator, paid: profile.evaluator.paid, signer,
+    credentialSha256: profile.credentialSha256, expected: profile.expected, evaluator, assurance: profile.assurance, paid: profile.evaluator.paid, signer,
     store: new PostgresVerifierStore(database), artifacts, evaluationDeadlineMs: profile.evaluator.deadlineMs, quiescenceGraceMs: profile.evaluator.graceMs, now, shutdown: shutdown.signal,
   });
   // The profile's expiry applies to every request, not only the start.

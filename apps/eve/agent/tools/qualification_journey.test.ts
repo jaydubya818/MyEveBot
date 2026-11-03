@@ -31,7 +31,7 @@ it('is discoverable only to the authenticated human owner while the host switch 
 it('executes through the root for the discovered owner only and rechecks availability and principal', async () => {
   const ctx = context(), tool = await discover(ctx);
   expect(await tool.execute({}, ctx)).toMatchObject({ readiness: 'NOT_CLAIMED', authority: 'NONE' });
-  expect(mocks.run).toHaveBeenCalledExactlyOnceWith({ ownerId: 'owner', kind: 'human' });
+  expect(mocks.run).toHaveBeenCalledExactlyOnceWith({ ownerId: 'owner', kind: 'human' }, {});
   mocks.run.mockClear(); mocks.available = false;
   await expect(tool.execute({}, ctx)).rejects.toThrow('QDEV_ROOT_PRINCIPAL');
   mocks.available = true; ctx.session.auth.current.principalId = 'different-owner';

@@ -2,7 +2,7 @@
 import { createGateway, type LanguageModel } from "ai";
 import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
-import { qualificationBinding } from "../external-alpha/qualification-accounting.ts";
+import { isPrivateBetaProject, journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { FactoryReceiptStore } from "../engineering/factory-receipt-store.ts";
 import { FactoryWriterStore } from "../engineering/factory-writer.ts";
 import { factoryConfigForWork, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
@@ -44,6 +44,8 @@ const propagation = z.object({ signer: z.object({ keyId: z.string().min(1), jwk:
 export async function assembleFromProfile(context: Context, deps: LauncherDeps): Promise<QdevCustody | null> {
   const { bundle } = context, profile = bundle.assembly;
   if (!profile || bundle.custody) return null;
+  // A private-beta project starts from its own installation baseline; the pinned Factory stage-1 baseline must be exactly that commit/tree.
+  if (isPrivateBetaProject(bundle.project) && (profile.baseline.commit !== bundle.project.inputCommit || profile.baseline.tree !== bundle.project.inputTree)) return null;
   const secret = (name: string) => { const value = context.credential(name); return value && value.length <= 16384 ? value : null; };
   const signerJson = secret(profile.capability.signerEnv), relayCredential = secret(profile.capability.relay.credentialEnv),
     workloadToken = secret(profile.capability.relay.workloadTokenEnv), modelKey = secret(profile.model.apiKeyEnv),
@@ -82,7 +84,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
     docker: deps.docker ?? createBoundedDockerRunner(), retained: chain.retained, issuer: profile.build.issuer, sign: ed25519Signer(issuerPem), now: deps.now });
   // The observer's prior-revision/restore readers are replaced by the release controller's own durable state when `publishing` is configured (always, here).
   const unreachable = async (): Promise<never> => { throw new Error("QDEV_LAUNCHER_DELIVERY_READER"); };
-  const binding = qualificationBinding(bundle.project);
+  const binding = journeyBinding(bundle.project), environment = journeyProfile(bundle.project).environment;
   // Owner-signed, scoped, single-use approvals are the ONLY way publishing is authorized. The approver must be independent of every key the pipeline holds.
   let activation;
   if (profile.publishing.activation) {
@@ -91,7 +93,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
       ...(profile.verifier.producerPublicKeysPem ?? [])].map(pem => approverFingerprints([{ publicKeyPem: pem } as never])[0]);
     if (pipeline.some(fingerprint => approvers.has(fingerprint))) return null;
     activation = fileActivation({ dir: profile.publishing.activation.dir, keys: profile.publishing.activation.approverKeys, ownerId, appId: profile.build.appId,
-      projectSha256: binding.projectSha256, environment: "myeve-qdev-20261029", installationId: profile.publishing.installationId, now: deps.now });
+      projectSha256: binding.projectSha256, environment, installationId: profile.publishing.installationId, now: deps.now });
   }
   return assembleQdevCustody({
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,
@@ -99,7 +101,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
       system: profile.model.system, temperature: profile.model.temperature },
     verifier: { origin: profile.verifier.origin, credentialName: profile.verifier.credentialEnv, timeoutMs: profile.verifier.timeoutMs, keys: profile.verifier.keys,
       producerKeyIds: profile.verifier.producerKeyIds ?? [], producerPublicKeysPem: profile.verifier.producerPublicKeysPem ?? [] },
-    myapps: { source, now: deps.now, delivery: { enabled: true, environment: "myeve-qdev-20261029", servedOrigin: profile.servedOrigin, projectSha256: binding.projectSha256,
+    myapps: { source, now: deps.now, delivery: { enabled: true, environment, servedOrigin: profile.servedOrigin, projectSha256: binding.projectSha256,
       sourceSha256: binding.sourceSha256, priorRevision: unreachable, restorePointId: unreachable },
       publishing: { root: profile.publishing.root, appId: profile.build.appId, installationId: profile.publishing.installationId, ...(activation ? { activation } : {}) } },
   });

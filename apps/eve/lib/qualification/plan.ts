@@ -26,9 +26,21 @@ const stageSchema = z.object({
   workCeilingMicrousd: z.number().int().min(1).max(QDEV_LIMITS.perWorkMicrousd),
   operations: z.array(operationSchema).min(1).max(8),
 }).strict();
+const hex64 = z.string().regex(/^[a-f0-9]{64}$/);
+/**
+ * Private-beta only: what an owner-derived plan is FOR. Because it is part of the plan, the approved-plan digest (stage request material, journey id,
+ * cohort id and stage binding ids) binds the exact request text digest, repository, baseline, output branch and release environment. A frozen qdev
+ * plan never carries it (see `assertPlanBindsProject`).
+ */
+export const planBindsSchema = z.object({
+  profile: z.literal("myeve.private-beta.owner/v1"), requestSha256: hex64,
+  repository: z.string().min(3).max(201), inputCommit: z.string().regex(/^[a-f0-9]{40}$/), outputBranch: z.string().min(1).max(255),
+  environment: z.string().min(1).max(64),
+}).strict();
 export const journeyPlanSchema = z.object({
   slot: z.literal("Q1"),
   stages: z.array(stageSchema).min(1).max(QDEV_LIMITS.maxWorks),
+  binds: planBindsSchema.optional(),
 }).strict();
 export type JourneyPlan = z.infer<typeof journeyPlanSchema>;
 

@@ -13,7 +13,7 @@ import type { Verdict } from "./verdict.ts";
 const hex = (n: number) => z.string().regex(new RegExp("^[a-f0-9]{" + n + "}$"));
 export const deliveryObservationSchema = z.object({
   schema: z.literal("myeve.qualification-delivery/v1"),
-  environment: z.literal("myeve-qdev-20261029"),
+  environment: z.string().regex(/^myeve-[a-z0-9][a-z0-9-]{2,62}$/),
   projectSha256: hex(64), sourceSha256: hex(64),
   candidateCommit: hex(40), candidateTree: hex(40),
   servedBytesSha256: hex(64),
@@ -31,10 +31,13 @@ export class DeliveryRejected extends Error {
 
 export function acceptDelivery(input: {
   observation: unknown; verdict: Verdict; projectSha256: string; sourceSha256: string; outputBranch?: string;
+  /** The release environment of the journey profile (default: the frozen qualification environment) and its baseline commit. */
+  environment?: string; baselineCommit?: string;
 }) {
   const parsed = deliveryObservationSchema.safeParse(input.observation);
   if (!parsed.success) throw new DeliveryRejected("QDEV_DELIVERY_INVALID");
   const d = parsed.data;
+  if (d.environment !== (input.environment ?? "myeve-qdev-20261029")) throw new DeliveryRejected("QDEV_DELIVERY_ENVIRONMENT");
   if (input.verdict.outcome !== "PASS") throw new DeliveryRejected("QDEV_DELIVERY_UNVERIFIED");
   if (d.projectSha256 !== input.projectSha256 || d.sourceSha256 !== input.sourceSha256
     || d.projectSha256 !== input.verdict.projectSha256 || d.sourceSha256 !== input.verdict.sourceSha256)
@@ -43,6 +46,6 @@ export function acceptDelivery(input: {
     throw new DeliveryRejected("QDEV_DELIVERY_CANDIDATE_MISMATCH");
   // Served bytes are compared byte-for-byte (by digest) with the verified build; no inference.
   if (d.servedBytesSha256 !== input.verdict.buildArtifactSha256) throw new DeliveryRejected("QDEV_DELIVERY_SERVED_BYTES_MISMATCH");
-  if (d.candidateCommit === QDEV_BASELINE.inputCommit) throw new DeliveryRejected("QDEV_DELIVERY_BASELINE_IS_NOT_A_BUILD");
+  if (d.candidateCommit === (input.baselineCommit ?? QDEV_BASELINE.inputCommit)) throw new DeliveryRejected("QDEV_DELIVERY_BASELINE_IS_NOT_A_BUILD");
   return { acceptedDeliverySha256: digest(d), delivery: d, authority: "NONE" as const };
 }

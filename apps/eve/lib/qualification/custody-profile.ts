@@ -1,7 +1,8 @@
 
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { qualificationBinding, qualificationPolicySchema, type QualificationPolicy, type QualificationProjectInput } from "../external-alpha/qualification-accounting.ts";
+import { qualificationPolicySchema, type QualificationPolicy } from "../external-alpha/qualification-accounting.ts";
+import { journeyBinding, type JourneyProjectInput } from "./journey-profile.ts";
 import { digest } from "../engineering/contract.ts";
 import type { JourneyPlan } from "./plan.ts";
 
@@ -71,8 +72,8 @@ export type AssemblyProfile = z.infer<typeof assemblyProfileSchema>;
  * accounting cohort + policy and the approved plan, so a different cohort, policy or plan for the same owner/project/source reads a different (empty)
  * journal and different retained admissions instead of adopting another cohort's history.
  */
-export function qdevJourneyId(ownerId: string, project: QualificationProjectInput, policy: QualificationPolicy, plan: JourneyPlan): string {
-  const binding = qualificationBinding(project), parsed = qualificationPolicySchema.parse(policy);
+export function qdevJourneyId(ownerId: string, project: JourneyProjectInput, policy: QualificationPolicy, plan: JourneyPlan): string {
+  const binding = journeyBinding(project), parsed = qualificationPolicySchema.parse(policy);
   if (parsed.ownerId !== ownerId) throw new Error("QDEV_JOURNEY_POLICY_OWNER");
   return createHash("sha256").update(JSON.stringify(["qdev.journey/v2", ownerId, binding.projectSha256, binding.sourceSha256, digest(parsed), digest(plan)])).digest("hex");
 }

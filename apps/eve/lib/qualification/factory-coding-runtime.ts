@@ -1,5 +1,5 @@
 import type { LocalFactoryBindingV4 } from "../engineering/factory-receipt-store.ts";
-import type { QualificationProjectInput } from "../external-alpha/qualification-accounting.ts";
+import type { JourneyProjectInput } from "./journey-profile.ts";
 import { digest } from "../engineering/contract.ts";
 import { AgentNotStarted, type AgentTask } from "./agent-port.ts";
 import type { AgentRuntime } from "./agent-execution-port.ts";
@@ -24,7 +24,7 @@ import type { FactoryPort } from "./wiring.ts";
  * no-send. Adds no transport, credential, spend or enrollment authority, and never resends: a second start for a stage is ambiguous, not retried.
  */
 export type FactoryCodingConfig = {
-  project: QualificationProjectInput; baseline?: StageStart;
+  project: JourneyProjectInput; baseline?: StageStart;
   factory: Pick<FactoryPort, "admit" | "dispatch">;
   retained(stage: 1 | 2 | 3): RetainedFactoryAdmission | Promise<RetainedFactoryAdmission>;
   /** The frozen Result expectation for the stage (the same source the journey freezes). */

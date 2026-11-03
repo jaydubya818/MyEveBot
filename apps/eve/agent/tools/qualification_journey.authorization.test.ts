@@ -47,5 +47,5 @@ for (const key of ['MYEVE_ALPHA_OWNER_BINDING', 'TEST_QDEV_MIXED_ALPHA', 'TEST_Q
 it('the matched web owner can still discover and execute the direct tool (control)', async () => {
   const ctx = context(), tool = await discover(ctx);
   await tool.execute({}, ctx);
-  expect(calls.run).toHaveBeenCalledExactlyOnceWith({ownerId: 'owner', kind: 'human'});
+  expect(calls.run).toHaveBeenCalledExactlyOnceWith({ownerId: 'owner', kind: 'human'}, {});
 });

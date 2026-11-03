@@ -17,7 +17,7 @@ import type { FactoryRuntime } from "../engineering/factory-routing.ts";
 import type { ResultKey } from "../engineering/factory-producer-protocol.ts";
 import type { WorkStore } from "../engineering/store.ts";
 import { MissionControlBindings } from "../missioncontrol/permit-store.ts";
-import type { QualificationProjectInput } from "../external-alpha/qualification-accounting.ts";
+import type { JourneyProjectInput } from "./journey-profile.ts";
 import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
 import { DurableStageAdmitter } from "./retained-admissions.ts";
 import { FactoryStageAdmitter } from "./factory-stage-admission.ts";
@@ -214,7 +214,7 @@ export function ed25519Signer(privateKeyPem: string): (message: Uint8Array) => U
 }
 
 export type AssemblyInputs = {
-  slot: "Q1" | "Q2"; project: QualificationProjectInput; approvedRequest: string;
+  slot: "Q1" | "Q2"; project: JourneyProjectInput; approvedRequest: string;
   chain: QdevStageChain;
   connection: FactoryConnection; capability: FactoryCapabilityClientConfig;
   sofie: { model: LanguageModel; price: ModelPrice; system: string; temperature?: number };
