@@ -191,6 +191,17 @@ const userTextOf = (m: Message | undefined): string | undefined =>
   m?.role === "user" && m.content.every(p => p.type === "text") ? m.content.map(p => p.type === "text" ? p.text : "").join("\n").trim() : undefined;
 const assistantTextOf = (m: Message | undefined): string | undefined =>
   m?.role === "assistant" ? m.content.map(p => p.type === "text" ? p.text : "").join("\n") : undefined;
+/**
+ * The web channel inserts its own `Client context:\n{json}` user message (thread id, client time, selected model) ahead of an owner turn. It is channel
+ * metadata, never an owner request or confirmation, so the proposal/confirmation adjacency skips it like a system message. Only a message made entirely of
+ * such well-formed markers is skipped; anything else (including a malformed marker) still breaks adjacency and refuses.
+ */
+const CLIENT_CONTEXT_PREFIX = "Client context:\n";
+const isClientContext = (m: Message | undefined): boolean => m?.role === "user" && m.content.length > 0 && m.content.every(p => {
+  if (p.type !== "text" || !p.text.startsWith(CLIENT_CONTEXT_PREFIX)) return false;
+  try { const v: unknown = JSON.parse(p.text.slice(CLIENT_CONTEXT_PREFIX.length)); return v !== null && typeof v === "object" && !Array.isArray(v); } catch { return false; }
+});
+const metadata = (m: Message | undefined) => m?.role === "system" || isClientContext(m);
 const ownerFallback = "Send the development request you want built (for example: \"Build me a React dashboard showing GitHub repository health and failing CI pipelines.\"). I will show the derived plan and its digest; nothing runs until you confirm it.";
 const confirmMismatch = "That confirmation does not match the plan proposed immediately before it, so nothing was started. Send the request again to get a fresh proposal.";
 
@@ -210,12 +221,12 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
     const match = CONFIRM.exec(userTextOf(prompt[index]) ?? "");
     if (!match) return null;
     let a = index - 1;
-    while (a >= 0 && prompt[a].role === "system") a--;
+    while (a >= 0 && metadata(prompt[a])) a--;
     const proposal = PROPOSAL.exec(assistantTextOf(prompt[a]) ?? "");
     const proposed = prompt[a];
     if (!proposal || proposed?.role !== "assistant" || proposed.content.some(p => p.type !== "text")) return { code: match[1].toLowerCase(), derivation: null };
     let u = a - 1;
-    while (u >= 0 && prompt[u].role === "system") u--;
+    while (u >= 0 && metadata(prompt[u])) u--;
     const derivation = safeDerive(userTextOf(prompt[u]));
     const ok = derivation && derivation.planSha256 === proposal[1] && derivation.planSha256.slice(0, 12) === match[1].toLowerCase();
     return { code: match[1].toLowerCase(), derivation: ok ? derivation : null };
@@ -237,7 +248,7 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
       if (current !== true) throw Error("QDEV_CONVERSATION_UNAVAILABLE");
       options.abortSignal?.throwIfAborted();
       if (Buffer.byteLength(JSON.stringify(options.prompt)) > 1_000_000) throw Error("QDEV_CONVERSATION_BOUND");
-      const userIndex = options.prompt.findLastIndex(m => m.role === "user");
+      const userIndex = options.prompt.findLastIndex(m => m.role === "user" && !isClientContext(m));
       if (userIndex < 0) return textResult(ownerFallback);
       const confirmation = confirmed(options.prompt, userIndex), d = confirmation?.derivation ?? null;
       const toolCallId = "qdev-" + createHash("sha256").update(JSON.stringify([ownerId, identity.sessionId, userIndex, d?.planSha256 ?? null])).digest("hex").slice(0, 32);

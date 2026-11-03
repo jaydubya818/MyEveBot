@@ -152,6 +152,23 @@ it("a confirmation that does not match the immediately preceding proposal starts
   expect(textOf(await model.doGenerate(opts([userMsg("hi")])))).toMatch(/Nothing was started/);
 });
 
+it("the web channel's Client context marker between the proposal and the confirmation is skipped as metadata, never treated as the owner's turn", async () => {
+  const model = conversation(), d = derive(REQUEST);
+  const marker = userMsg('Client context:\n{"eveWebModel":"anthropic/claude-sonnet-5","webThreadId":"t-1","clientTime":"Nov 3, 2026, 1:16 p.m. PST"}');
+  // Exactly the prompt shape the real web UI sends on the second owner turn.
+  const proposed = textOf(await model.doGenerate(opts([marker, userMsg(REQUEST), marker])));
+  expect(proposed).toContain(`[plan ${d.planSha256}]`);
+  const started = await model.doGenerate(opts([{ role: "system", content: "s" }, userMsg(REQUEST), assistantMsg(proposed), marker, userMsg(`confirm ${d.planSha256.slice(0, 12)}`), marker]));
+  expect(started.content).toEqual([expect.objectContaining({ type: "tool-call", input: JSON.stringify({ request: d.request, planSha256: d.planSha256 }) })]);
+  // Only a well-formed marker is metadata: a malformed one, or a marker mixed with owner text, still breaks adjacency.
+  for (const between of [userMsg("Client context:\nnot json"), { role: "user", content: [marker.content[0], { type: "text", text: "and also" }] }]) {
+    const r = await model.doGenerate(opts([userMsg(REQUEST), assistantMsg(proposed), between, userMsg(`confirm ${d.planSha256.slice(0, 12)}`)]));
+    expect(textOf(r)).toMatch(/does not match/);
+  }
+  // A marker is never proposed as a request.
+  expect(textOf(await model.doGenerate(opts([marker])))).not.toContain("[plan ");
+});
+
 it("the conversation needs exactly one of approvedRequest and ownerRequest", () => {
   const revalidate = async () => true;
   expect(() => qualificationConversation({ ownerId: OWNER, revalidate } as never)).toThrow(/QDEV_CONVERSATION_CONFIGURATION/);
