@@ -211,3 +211,20 @@ it("the committed owner-local bundle template parses once its placeholders are f
   expect(ownerLocalBundleSchema.safeParse({ ...filled, testers: [] }).success).toBe(false);
   expect(ownerLocalBundleSchema.safeParse({ ...filled, installation: "tester" }).success).toBe(false);
 });
+
+it("the serving launcher serves an owner-local bundle only for one named confirmed request, as exactly that request's derivation", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { servingBundleFrom } = await import("./static-serving.ts");
+  const t = JSON.parse(readFileSync(new URL("../../scripts/private-beta/owner-local.host-bundle.template.json", import.meta.url), "utf8"));
+  const filled = { ...t, ownerId: OWNER, notAfter: "2099-01-01T00:00:00.000Z", template: { ...t.template, installation: { ...installation } },
+    relay: { origin: "https://relay.example.test", grant: { ...t.relay.grant, connectionId: "c", repository: installation.repository, baseCommit: installation.inputCommit, outputBranch: installation.outputBranch } } };
+  delete filled.assembly;
+  const raw = JSON.stringify(filled);
+  expect(servingBundleFrom(raw, undefined)).toBeNull();                 // no confirmed request named: nothing to serve
+  expect(servingBundleFrom("{not json", REQUEST)).toBeNull();
+  expect(servingBundleFrom(JSON.stringify({ ...filled, testers: [] }), REQUEST)).toBeNull();
+  const served = servingBundleFrom(raw, REQUEST)!, d = derive(REQUEST);
+  expect(served.version).toBe(1);
+  expect(journeyBinding(served.project)).toEqual(journeyBinding(d.project));
+  expect(served.conversation.approvedRequest).toBe(d.request);
+});

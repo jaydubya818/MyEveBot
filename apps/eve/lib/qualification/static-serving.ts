@@ -1,6 +1,6 @@
 
 import { journeyBinding, journeyProfile } from "./journey-profile.ts";
-import type { QdevHostBundle } from "./host-source.ts";
+import { derivedRequestBundle, hostBundleSchema, ownerLocalBundleSchema, type QdevHostBundle } from "./host-source.ts";
 import { listenLoopback, StaticReleaseController } from "./static-publish.ts";
 
 /**
@@ -11,6 +11,19 @@ import { listenLoopback, StaticReleaseController } from "./static-publish.ts";
  * actions that map the public origin to this loopback origin; nothing here exposes anything publicly.
  */
 export type ServingHandle = { origin: string; handler: (request: Request) => Promise<Response>; close(): Promise<void> };
+
+/**
+ * The bundle the serving launcher serves. A frozen (v1) bundle is served as is. A private-beta owner-local (v2) bundle has no project until a request is
+ * confirmed, so the operator names the confirmed request text (MYEVE_QDEV_SERVE_REQUEST) and the served project is exactly that request's derivation
+ * (the same `derivedRequestBundle` the journey uses). Anything malformed returns null (nothing starts).
+ */
+export function servingBundleFrom(raw: string, request: string | undefined): QdevHostBundle | null {
+  try {
+    const json = JSON.parse(raw);
+    if (json?.version === 2) return request ? derivedRequestBundle(ownerLocalBundleSchema.parse(json), request).bundle : null;
+    return hostBundleSchema.parse(json);
+  } catch { return null; }
+}
 
 /** Starts the loopback server for the bundle's installed release, or returns null (nothing started) when no assembly profile exists or the bundle expired. */
 export async function launchStaticServing(bundle: QdevHostBundle, options: { now?: () => number; host?: string } = {}): Promise<ServingHandle | null> {
