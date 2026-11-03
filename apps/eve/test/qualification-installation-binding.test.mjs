@@ -18,7 +18,9 @@ import {h} from './qualification-synthetic.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const PROJECT=h('9'),ENV='myeve-qdev-20261029',A={environment:ENV,installationId:'inst-1'},B={environment:ENV,installationId:'foreign-installation'};
 const dirs=[];
-const mk=()=>{const d=mkdtempSync(join(tmpdir(),'qdev-instbind-'));chmodSync(d,0o700);dirs.push(d);return d;};
+// Temp directories honor MYEVE_TEST_TMPDIR (then TMPDIR) so the suite runs in sandboxes where the default temp location is read-only.
+const TMP=process.env.MYEVE_TEST_TMPDIR||tmpdir();mkdirSync(TMP,{recursive:true});
+const mk=()=>{const d=mkdtempSync(join(TMP,'qdev-instbind-'));chmodSync(d,0o700);dirs.push(d);return d;};
 test.after(()=>{for(const d of dirs){try{execFileSync('chmod',['-R','u+w',d]);rmSync(d,{recursive:true,force:true});}catch{}}});
 const art=async(map,seed='1')=>{const commit=seed.repeat(40),tree=seed.repeat(40);
   const inv={schema:'myeve.dashboard.build-inventory/v1',scope:'BROWSER_BUILD_ONLY',sourceCommit:commit,sourceTree:tree,lockSha256:h('a'),node:'v24.0.0',
@@ -109,4 +111,52 @@ test('DJR-02: an owner approval must name the installation it authorizes',async(
   assert.equal(await permits(ok,A).permit({...request,installationId:'foreign-installation'}),false,'a request for another installation is refused');
   assert.equal(await permits(ok,A).permit(request),true);assert.equal(await permits(ok,A).permit(request),false,'single use');
   assert.throws(()=>new FileActivationPermits({dir:ok,keys,ownerId:'owner-q1',appId:'app-1',projectSha256:PROJECT}),/QDEV_ACTIVATION_CONFIG/);
+});
+
+const publishApproval=(artifact,installation,nonce)=>({schema:'myeve.qdev-activation-approval/v1',operation:'PUBLISH',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,
+  environment:installation.environment,installationId:installation.installationId,digest:'sha256:'+artifact.artifactDigest.replace(/^sha256:/,''),keyId:keys[0].keyId,
+  notBefore:new Date(Date.now()-1000).toISOString(),notAfter:new Date(Date.now()+60000).toISOString(),nonce});
+
+test('DJR-02 round 2: concurrent publishers for two installations over one empty root - the loser consumes no approval and writes no release',async()=>{
+  const root=mk(),artA=await art(F1,'1'),artB=await art({'dist/index.html':Buffer.from('<html>b</html>')},'2');
+  const dirA=approvalsDir(),dirB=approvalsDir();
+  place(dirA,publishApproval(artA,A,'synthetic-installation-claim-A-nonce'));place(dirB,publishApproval(artB,B,'synthetic-installation-claim-B-nonce'));
+  const a=ctl(root,A,{activation:permits(dirA,A)}),b=ctl(root,B,{activation:permits(dirB,B)});
+  const [ra,rb]=await Promise.allSettled([a.publish(artA),b.publish(artB)]);   // both pass the state read before either awaits its permit
+  assert.equal(ra.status,'fulfilled');
+  assert.equal(rb.status,'rejected');assert.equal(rb.reason.code,'QDEV_PUBLISH_INSTALLATION_IDENTITY');
+  assert.equal(consumed(dirA),1);assert.equal(consumed(dirB),0,'the losing installation consumed no approval');
+  assert.deepEqual(readdirSync(join(root,'releases')),[artA.artifactDigest.replace(/^sha256:/,'')],'the loser wrote no release');
+  assert.deepEqual(await a.stateSource().read('app-1'),{installedVersion:1,installedDigest:'sha256:'+artA.artifactDigest.replace(/^sha256:/,''),restorableVersions:[1]});
+  // the claim is durable: the other installation stays refused (read, serve, publish) and the unconsumed approval is still not usable
+  await assert.rejects(b.stateSource().read('app-1'),e=>e.code==='QDEV_PUBLISH_INSTALLATION_IDENTITY');
+  await assert.rejects(b.publish(artB),e=>e.code==='QDEV_PUBLISH_INSTALLATION_IDENTITY');assert.equal(consumed(dirB),0);
+  // same-installation controllers share the claim (restart / second process)
+  const again=ctl(root,A,{activation:{permit:async()=>true}});assert.equal((await again.publish(artA)).changed,false);
+});
+
+test('DJR-02 round 2: a claimed-but-empty root also refuses another installation, and a concurrent same-installation claim is not an error',async()=>{
+  const root=mk(),art1=await art(F1,'1');
+  await ctl(root,A).rollback(await absencePlan(A));                          // claims the root for A without any state change
+  await assert.rejects(ctl(root,B).publish(art1),e=>e.code==='QDEV_PUBLISH_INSTALLATION_IDENTITY');
+  const two=await Promise.all([ctl(root,A).publish(art1),ctl(root,A).publish(art1)]);
+  assert.equal(two.filter(x=>x.changed).length,1);
+});
+
+test('DJR-02 round 2: a schema-v1 (pre-installation) release root is rejected before any approval is consumed or any release is written, for every installation',async()=>{
+  const root=mk();ctl(root);                                                  // creates releases/ and states/
+  const v1={schema:'myeve.qdev-static-release-state/v1',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,seq:1,installed:null,versions:[],events:[]};
+  writeFileSync(join(root,'states','0000000001.json'),JSON.stringify(v1),{mode:0o444});
+  const artifact=await art(F1,'1');
+  for(const installation of [A,B]){
+    const dir=approvalsDir();place(dir,publishApproval(artifact,installation,'synthetic-v1-root-nonce-'+installation.installationId));
+    let calls=0;
+    const spy=ctl(root,installation,{activation:{permit:async()=>{calls++;return true;}}}),real=ctl(root,installation,{activation:permits(dir,installation)});
+    await assert.rejects(spy.publish(artifact),e=>e.code==='QDEV_PUBLISH_STATE_INVALID');assert.equal(calls,0,'the permit is never asked');
+    await assert.rejects(real.publish(artifact),e=>e.code==='QDEV_PUBLISH_STATE_INVALID');assert.equal(consumed(dir),0);
+    await assert.rejects(real.rollback(await absencePlan(installation)),e=>e.code==='QDEV_PUBLISH_STATE_INVALID');assert.equal(consumed(dir),0);
+    await assert.rejects(real.stateSource().read('app-1'),e=>e.code==='QDEV_PUBLISH_STATE_INVALID');
+  }
+  assert.deepEqual(readdirSync(join(root,'releases')),[],'no release was written');
+  assert.equal(existsSync(join(root,'identity.json')),false,'the root was not claimed');
 });

@@ -101,6 +101,37 @@ export class StaticReleaseController {
   }
 
   private get statesDir() { return join(this.c.root, "states"); }
+  private get identityPath() { return join(this.c.root, "identity.json"); }
+  private identityRecord() {
+    return JSON.stringify({ schema: "myeve.qdev-static-release-identity/v1", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
+      environment: this.c.environment, installationId: this.c.installationId });
+  }
+  /** Compares the root's claimed identity with this controller's. Absent file: nothing claimed yet (returns false). */
+  private checkIdentityFile(): boolean {
+    try { lstatSync(this.identityPath); } catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return false; throw e; }
+    const text = readNoFollow(this.identityPath, 4096).toString("utf8");
+    if (text === this.identityRecord()) return true;
+    let claimed: Record<string, unknown>;
+    try { claimed = JSON.parse(text); } catch { throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); }
+    if (claimed?.schema !== "myeve.qdev-static-release-identity/v1") throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
+    if (claimed.appId !== this.c.appId || claimed.ownerId !== this.c.ownerId || claimed.projectSha256 !== this.c.projectSha256) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_FOREIGN");
+    throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
+  }
+  /**
+   * Atomically claims this release root for exactly this installation (exclusive link(2) of an immutable identity file, like the state sequence). The first
+   * claimant wins; every other installation refuses QDEV_PUBLISH_INSTALLATION_IDENTITY. Mutators call this BEFORE the activation permit, so a losing concurrent
+   * publisher consumes no approval and writes no release.
+   */
+  private claimInstallation() {
+    if (this.checkIdentityFile()) return;
+    const tmp = join(this.c.root, ".tmp-identity-" + randomBytes(8).toString("hex"));
+    const fd = openSync(tmp, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o444);
+    try { writeSync(fd, this.identityRecord()); fsyncSync(fd); } finally { closeSync(fd); }
+    try { linkSync(tmp, this.identityPath); }
+    catch (e) { if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e; this.checkIdentityFile(); return; }   // lost the race: compare with the winner
+    finally { try { rmSync(tmp); } catch { /* already gone */ } }
+    fsyncDir(this.c.root);
+  }
   private releaseDir(hex: string) { return join(this.c.root, "releases", hex); }
   private now() { return (this.c.now?.() ?? new Date()).toISOString(); }
   private initialState(): State {
@@ -110,6 +141,7 @@ export class StaticReleaseController {
 
   /** The state is an append-only sequence of immutable files states/<seq>.json; the installed pointer is the highest one. */
   private loadState(): State {
+    this.checkIdentityFile();   // an already-claimed root refuses another installation even before any state exists
     const names = readdirSync(this.statesDir).filter(n => !n.startsWith(".tmp-"));
     if (names.some(n => !/^[0-9]{10}\.json$/.test(n))) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
     names.sort();
@@ -220,7 +252,8 @@ export class StaticReleaseController {
     if (!isRetainedStaticArtifact(artifact)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     const hex = artifact.artifactDigest.replace(/^sha256:/, "");
     if (!HEX.test(hex)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
-    this.loadState();   // refuse a foreign (owner, project, installation) or invalid state BEFORE an approval is consumed or anything is written
+    this.loadState();          // refuse a foreign (owner, project, installation) or invalid (incl. pre-v2) state BEFORE an approval is consumed or anything is written
+    this.claimInstallation();  // atomic: a concurrent publisher for another installation loses here, consuming no approval and writing no release
     await this.permit("PUBLISH", hex);
     this.writeRelease(artifact, hex);
     return this.mutate(s => {
@@ -247,7 +280,8 @@ export class StaticReleaseController {
    */
   async rollback(plan: RollbackPlan, expected?: { seq: number; version: number; digest: string }): Promise<{ installed: number | null; changed: boolean; seq: number }> {
     if (plan?.installation?.environment !== this.c.environment || plan.installation.installationId !== this.c.installationId) throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
-    this.loadState();   // an existing root under another installation refuses before any approval is consumed or any state is written
+    this.loadState();          // an existing root under another installation (or a pre-v2 root) refuses before any approval is consumed or any state is written
+    this.claimInstallation();
     const superseded = (s: State) => {
       if (!expected) return;
       const cur = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
