@@ -21,7 +21,12 @@ const localFactoryConnectionSchema=z.object({
  sourceDigest:hash,configurationDigest:hash,factoryVersion:hash,repositoryPath:z.string().startsWith('/'),
  keys:z.array(z.object({factoryId:z.string(),keyId:z.string(),publicKey:z.string(),activeFrom:z.string(),notAfter:z.string(),retiredAt:z.string().optional(),revokedAt:z.string().optional()}).strict()).min(1),
  qualification:z.object({scopeId:z.string(),profileHash:hash,evidenceRef:z.string().min(1),qualifiedAt:z.string().datetime(),expiresAt:z.string().datetime(),
- mode:z.enum(['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE','LIVE']),spendEnforced:z.boolean(),spendReview:factorySpendReviewSchema.optional()}).strict()}).strict();
+ // OWNER_SUBSCRIPTION_LOCAL (private beta, owner-only loopback host): the Factory's own Codex route on the owner's subscription. It is a distinct
+ // pinned mode, never LIVE: health matches it only when it is exactly the pinned mode, and its unmetered spend is refused below (never settled as $0).
+ mode:z.enum(['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE','LIVE','OWNER_SUBSCRIPTION_LOCAL']),spendEnforced:z.boolean(),spendReview:factorySpendReviewSchema.optional()}).strict()}).strict();
+/** The Factory's subscription spend readback: operation units only, every *Microusd amount null. MyEve has no settlement kind for it yet. */
+const subscriptionSpendSchema=z.object({status:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN']),metering:z.literal('SUBSCRIPTION_UNMETERED'),costKnown:z.literal(false)}).passthrough();
+export class FactorySubscriptionSettlementUnsupported extends Error{constructor(){super('FACTORY_SUBSCRIPTION_SETTLEMENT_UNSUPPORTED: unmetered subscription usage has no MyEve settlement kind; it is never recorded as $0. The run stays unsettled and fenced.');}}
 export const cloudFactoryConnectionSchema=localFactoryConnectionSchema.omit({repositoryPath:true,qualification:true}).extend({
  repairBinding:z.never().optional(),
  transport:z.literal('CLOUD'),protocol:z.literal('MYFACTORY_EXECUTION_V2'),projectId:z.literal('prj_IRXTY6HOzS2q9wRPdabsJnmddzl4'),
@@ -74,7 +79,9 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
    }
    throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
   }
-  const data=readbackSchema.parse(await boundedJson(response,128000)) as unknown as FactoryReadback;
+  const raw=await boundedJson(response,128000) as Record<string,unknown>|null;
+  if(raw&&typeof raw==='object'&&subscriptionSpendSchema.safeParse(raw.spend).success)throw new FactorySubscriptionSettlementUnsupported();
+  const data=readbackSchema.parse(raw) as unknown as FactoryReadback;
   if(isWorkSpend(data.spend)){
    if(this.config.spendContract?.version!==(isWorkSpendV2(data.spend)?'WORK_LEDGER_V2':'WORK_LEDGER_V1')||this.config.spendContract.sourceDigest!==this.config.sourceDigest)throw Error('Unreviewed Factory spend contract');
   }else if(this.config.qualification.mode!=='LOCAL_FIXTURE')throw Error('Paid Factory requires complete Work ledger accounting');

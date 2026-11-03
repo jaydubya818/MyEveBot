@@ -25,7 +25,7 @@ export const factorySpendPlanSchema=z.object({
 export type FactorySpendPlan=z.infer<typeof factorySpendPlanSchema>;
 export const factorySpendContractSchema=z.object({version:z.enum(['WORK_LEDGER_V1','WORK_LEDGER_V2']),sourceDigest:hash}).strict();
 export type FactorySpendProfile={sourceDigest:string;factoryVersion:string;spendContract?:z.infer<typeof factorySpendContractSchema>;
- spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'CLOUD_DETERMINISTIC'|'CLOUD_PRODUCTION_VALIDATION'|'LIVE';spendEnforced:boolean;spendReview?:FactorySpendReview}};
+ spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'CLOUD_DETERMINISTIC'|'CLOUD_PRODUCTION_VALIDATION'|'LIVE'|'OWNER_SUBSCRIPTION_LOCAL';spendEnforced:boolean;spendReview?:FactorySpendReview}};
 export function factorySpendAdmission(profile:FactorySpendProfile,now=Date.now()){
  const q=profile.qualification,r=q.spendReview,reasons:string[]=[];
  if(q.mode==='LOCAL_FIXTURE')return {allowed:true,reasons};
