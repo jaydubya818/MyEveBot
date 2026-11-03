@@ -6,7 +6,8 @@
  * exposure and halts the journey (the ledger fences it).
  */
 export type JournalEvent =
-  | { kind: "STAGE_BOUND"; stage: number; workId: string; allowanceId: string }
+  /** `approvedPlanSha256` is the full approved-plan digest the Work was reserved under; recovery refuses a bound stage without exactly the current plan's digest. */
+  | { kind: "STAGE_BOUND"; stage: number; workId: string; allowanceId: string; approvedPlanSha256?: string }
   | { kind: "OP_CLAIMED"; stage: number; key: string }
   | { kind: "OP_SETTLED"; stage: number; key: string }
   /** Full canonical Result expectations for stages 1-3, persisted before any stage effect and compared on resume. */

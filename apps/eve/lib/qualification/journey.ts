@@ -45,6 +45,9 @@ export interface JourneyEnvironment {
   baseline?: { commit: string; tree: string };
 }
 
+/** The canonical accounting request material of a stage. It carries the FULL approved-plan digest, so the ledger itself (not only the journal key) refuses a Work reserved under another plan. */
+export const stageRequestSha256 = (stage: JourneyPlan["stages"][number], plan: JourneyPlan): string => digest({ plan: stage, approvedPlanSha256: digest(plan) });
+
 export class JourneyHalted extends Error {
   constructor(readonly stage: number, readonly code: string, readonly completed: StageRecord[]) { super(code); }
 }
@@ -86,16 +89,39 @@ export class QualificationJourney {
   }
 
   /**
-   * Recovery of a stage that is already bound and fully settled in the journal. Read-only against the ledger unless the Work already exists:
-   * (1) the current cohort must hold at least as many Works as the journal claims were bound (a zero-Work or replaced cohort fails here, without
-   * allocating anything), then (2) the canonical idempotent re-read of the stage binding (`reserveWork` returns the existing row; the client verifies owner,
-   * cohort, binding, request and ceiling) must return exactly the journaled Work and allowance, still BOUND or CLOSED. CLOSED history recovers normally; any
-   * other cohort, policy, database or Work fails closed as QDEV_RECOVERY_COHORT_MISMATCH (or the ledger's own refusal) before delivery is observed.
+   * Recovery of a stage that the journal says is already bound (fully settled OR partially settled). The journal alone is NOT proof that the Work, its
+   * allowance or its settlements belong to this cohort, so EVERY recovered binding is re-proved against the canonical ledger of the CURRENT cohort/policy
+   * before any reservation, binding, dispatch, Result or delivery trusts it, and nothing is ever allocated here:
+   *  - the journaled approved-plan digest must be this plan's (a history copied from another plan fails closed);
+   *  - the Work must exist with the journaled id and allowance and carry exactly this stage's canonical binding/request (which includes the approved-plan
+   *    digest)/ceiling/owner/cohort, as a BOUND Work (`assert`) or as CLOSED history proved through its settled operation;
+   *  - every journaled settlement must be the ledger's own SETTLED operation: for a BOUND Work the exact operation, purpose and reservation re-read through the
+   *    single-use claim path (an absent operation is tombstoned and refused, a DISPATCHED/RUNNING one is fenced by the ledger and refused); for CLOSED history
+   *    the SETTLED operation of that Work (the ledger closes a Work only once every operation is SETTLED or NOT_DISPATCHED).
+   * Any mismatch halts at the stage as QDEV_RECOVERY_COHORT_MISMATCH / QDEV_RECOVERY_RECEIPT_MISMATCH / QDEV_JOURNEY_PLAN_MISMATCH, before delivery is observed.
    */
-  private async verifyRecoveredWork(stage: JourneyPlan["stages"][number], bindingId: string, bound: Extract<JournalEvent, { kind: "STAGE_BOUND" }>, journaledWorks: number) {
-    if ((await this.accounting.status()).ownWorks < journaledWorks) throw new Error("QDEV_RECOVERY_COHORT_MISMATCH");
-    const row = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
-    if (row.id !== bound.workId || row.local_allowance_id !== bound.allowanceId || (row.state !== "BOUND" && row.state !== "CLOSED")) throw new Error("QDEV_RECOVERY_COHORT_MISMATCH");
+  private async verifyRecoveredWork(stage: JourneyPlan["stages"][number], bindingId: string, bound: Extract<JournalEvent, { kind: "STAGE_BOUND" }>, requestSha256: string,
+    approvedPlanSha256: string, settled: JourneyPlan["stages"][number]["operations"]) {
+    if (bound.approvedPlanSha256 !== approvedPlanSha256) throw new Error("QDEV_JOURNEY_PLAN_MISMATCH");
+    const mismatch = () => new Error("QDEV_RECOVERY_COHORT_MISMATCH");
+    const denied = (error: unknown) => error instanceof Error && error.message === "QDEV_DENIED" ? mismatch() : error;
+    const reference = { id: bound.workId } as Awaited<ReturnType<QualificationAccounting["bind"]>>;
+    let row: Awaited<ReturnType<QualificationAccounting["bind"]>> | undefined;
+    try { row = await this.accounting.assertBound(reference, bound.allowanceId); }
+    catch (error) { if (!(error instanceof Error) || error.message !== "QDEV_DENIED") throw error; }
+    if (!row) {
+      if (!settled.length) throw mismatch();
+      try { row = await this.accounting.verifyClosedSettlement(reference, bound.allowanceId, settled[0]!.key); } catch (error) { throw denied(error); }
+      if (row.state !== "CLOSED") throw mismatch();
+    }
+    if (row.id !== bound.workId || row.local_allowance_id !== bound.allowanceId || (row.state !== "BOUND" && row.state !== "CLOSED")) throw mismatch();
+    this.accounting.expectWork(row, { bindingId, requestSha256, ceilingMicrousd: stage.workCeilingMicrousd });
+    for (const [index, op] of settled.entries()) {
+      try {
+        if (row.state === "BOUND") await this.accounting.verifySettledOperation(row, bound.allowanceId, op.key, op.purpose, op.reserveMicrousd);
+        else if (index > 0) await this.accounting.verifyClosedSettlement(row, bound.allowanceId, op.key);
+      } catch (error) { throw denied(error); }
+    }
     return row;
   }
 
@@ -103,6 +129,7 @@ export class QualificationJourney {
     // Refuse an unfittable plan BEFORE any reservation or dispatch.
     const plan: JourneyPlan = validateJourneyPlan(rawPlan);
     const binding = qualificationBinding(this.project);
+    const approvedPlanSha256 = digest(plan);
     const records: StageRecord[] = [];
     let preceding: { commit: string; tree: string } | null = null;
     let last: AcceptedStageResult | undefined;
@@ -130,25 +157,28 @@ export class QualificationJourney {
         // Recovery: an operation claimed but never settled is ambiguous exposure. Fence it; never re-send.
         const dangling = stage.operations.find(op => claimed.has(op.key) && !settled.has(op.key));
         const pending = stage.operations.filter(op => !settled.has(op.key));
-        if (bound && pending.length === 0) {
-          // Fully accounted earlier: nothing is re-sent or re-bound. The journal alone is NOT proof that the Work belongs to this cohort, so the
-          // recovered Work is re-proved against the canonical ledger of the CURRENT cohort/policy before anything downstream (Result, delivery) trusts it.
-          work = await this.verifyRecoveredWork(stage, bindingId, bound, events.filter(e => e.kind === "STAGE_BOUND" && e.stage <= stage.stage).length);
+        const requestSha256 = stageRequestSha256(stage, plan);
+        let allowanceId: string;
+        if (bound) {
+          // Every recovered binding (settled or partially settled) is re-proved BEFORE any reservation, binding or dispatch; a replacement ledger or a
+          // history copied from another cohort/plan can never reserve a different Work or bind the journal's old allowance.
+          work = await this.verifyRecoveredWork(stage, bindingId, bound, requestSha256, approvedPlanSha256, stage.operations.filter(op => settled.has(op.key)));
+          allowanceId = bound.allowanceId;
         } else {
-          work = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
-          const allowanceId = bound?.allowanceId ?? this.env.newAllowanceId(stage.stage);
+          work = await this.accounting.reserveWork({ bindingId, requestSha256, ceilingMicrousd: stage.workCeilingMicrousd });
+          allowanceId = this.env.newAllowanceId(stage.stage);
           work = await this.accounting.bind(work, allowanceId);
-          if (!bound) await this.journal.append({ kind: "STAGE_BOUND", stage: stage.stage, workId: work.id, allowanceId });
-          if (dangling) { await this.gate.recoverInterrupted(work); throw new Error("QDEV_RECOVERY_UNKNOWN"); }
-          for (const op of pending) {
-            await this.gate.run({ admission: work, allowanceId, operationKey: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd,
-              send: async () => {
-                // A journal failure happens before any send, so it is a proven no-send.
-                try { await this.journal.append({ kind: "OP_CLAIMED", stage: stage.stage, key: op.key }); } catch { throw new ProviderNotSent(); }
-                return this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd });
-              } });
-            await this.journal.append({ kind: "OP_SETTLED", stage: stage.stage, key: op.key });
-          }
+          await this.journal.append({ kind: "STAGE_BOUND", stage: stage.stage, workId: work.id, allowanceId, approvedPlanSha256 });
+        }
+        if (dangling) { await this.gate.recoverInterrupted(work); throw new Error("QDEV_RECOVERY_UNKNOWN"); }
+        for (const op of pending) {
+          await this.gate.run({ admission: work, allowanceId, operationKey: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd,
+            send: async () => {
+              // A journal failure happens before any send, so it is a proven no-send.
+              try { await this.journal.append({ kind: "OP_CLAIMED", stage: stage.stage, key: op.key }); } catch { throw new ProviderNotSent(); }
+              return this.env.runOperation({ stage: stage.stage, key: op.key, purpose: op.purpose, reserveMicrousd: op.reserveMicrousd });
+            } });
+          await this.journal.append({ kind: "OP_SETTLED", stage: stage.stage, key: op.key });
         }
       } catch (error) {
         throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);

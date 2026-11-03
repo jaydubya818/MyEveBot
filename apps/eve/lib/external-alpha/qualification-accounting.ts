@@ -115,11 +115,32 @@ export class QualificationAccounting {
     sha256.parse(input.requestSha256);
     const row = await this.call({ mode: "reserve_work", id: randomUUID(), bindingSha256: digest(input.bindingId),
       requestSha256: input.requestSha256, ceilingMicrousd: input.ceilingMicrousd });
+    this.expectWork(row, input);
+    return row;
+  }
+  /** The canonical Work receipt check (owner, cohort, stage binding, request material, ceiling), shared by reservation and recovery. */
+  expectWork(row: Work, input: { bindingId: string; requestSha256: string; ceilingMicrousd: number }) {
     if (row.owner_id !== this.policy.ownerId || row.cohort_id !== this.policy.cohortId || row.binding_sha256 !== digest(input.bindingId)
       || row.request_sha256 !== input.requestSha256 || Number(row.ceiling_microusd) !== input.ceilingMicrousd)
       throw Error("QDEV_RECEIPT_MISMATCH");
-    return row;
   }
+  /**
+   * Recovery proof for a journaled settlement on a BOUND Work: the ledger must already hold exactly this operation (purpose and reservation) as SETTLED.
+   * It goes through the single-use claim path, so an absent operation is a fresh claim that is immediately tombstoned and refused, and a DISPATCHED/RUNNING
+   * one is fenced by the ledger and refused. Nothing is ever sent.
+   */
+  async verifySettledOperation(admission: Work, allowanceId: string, operationKey: string, purpose: QualificationPurpose, reserveMicrousd: number) {
+    const operationSha256 = digest(operationKey);
+    const receipt = await this.call<{ claim?: string; id?: string; operationState?: string }>({ mode: "dispatch", id: admission.id, allowanceId, operationSha256, purpose, reserveMicrousd });
+    if (receipt.claim === "NEW") await this.cancelUnsent(admission, allowanceId, operationKey).catch(() => undefined);
+    if (receipt.claim !== "CONSUMED" || receipt.id !== admission.id || receipt.operationState !== "SETTLED") throw Error("QDEV_RECOVERY_RECEIPT_MISMATCH");
+  }
+  /**
+   * Recovery proof for a Work that is no longer BOUND (CLOSED history): `settle` on an operation that is already SETTLED is an idempotent read that
+   * returns the Work row; an absent operation, another allowance or a Work without that SETTLED operation is refused QDEV_DENIED. A Work is only ever
+   * closed after every one of its operations is SETTLED or NOT_DISPATCHED, so this never changes a legitimately closed Work.
+   */
+  verifyClosedSettlement(admission: Work, allowanceId: string, operationKey: string) { return this.op("settle", admission, allowanceId, operationKey); }
   async bind(admission: Work, allowanceId: string) {
     const bound = await this.call({ mode: "bind", id: admission.id, allowanceId });
     if (bound.id !== admission.id || bound.local_allowance_id !== allowanceId || bound.state !== "BOUND") throw Error("QDEV_RECEIPT_MISMATCH");
