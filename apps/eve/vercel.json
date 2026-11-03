@@ -19,7 +19,9 @@
       "codex/peer-conversation-ui": false,
       "codex/telegram-current-integration": false,
       "codex/cloud-execution": false,
-      "codex/unified-capability-control-plane": false
+      "codex/unified-capability-control-plane": false,
+      "security/*": false,
+      "security/builder-production-only-secrets": false
     }
   },
   "functions": {
