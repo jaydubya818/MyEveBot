@@ -8,13 +8,16 @@ import { dirname, join } from "node:path";
 import { digest } from "../../../../packages/myapps/src/contracts.ts";
 import { isRetainedStaticArtifact, type StaticArtifactCandidate, type StaticFile } from "../../../../packages/myapps/src/static-artifact.ts";
 import type { InstallationStateSource } from "./myapps-revisions.ts";
-import type { RollbackPlan } from "./rollback.ts";
+import { absenceAuthenticationSha256, type RollbackPlan } from "./rollback.ts";
 
 /**
  * Concrete MyApps static release controller for the isolated journey: publish, serve and rollback of the EXACT retained
  * StaticArtifactCandidate bytes. It is the "separately authorized host" that StaticArtifactCandidate.candidateBytes names.
  *
- *  - Owner/project/app scoped: the durable state is bound to one (appId, ownerId, projectSha256) and refuses any other.
+ *  - Owner/project/app/installation scoped: the durable state is bound to one (appId, ownerId, projectSha256, environment, installationId) and
+ *    refuses any other. The installation identity is persisted in every state file, so reopening an existing release root under a different
+ *    installation refuses (QDEV_PUBLISH_INSTALLATION_IDENTITY) BEFORE an approval is consumed or any state is written. Activation requests,
+ *    owner approvals, the authenticated-absence digest and rollback plans all name the installation.
  *  - Immutable releases: `releases/<artifact hex>/` is written once from the retained bytes (0444 files, 0555 dirs), then
  *    re-verified byte-for-byte (manifest digest, every file, no extra entries, no links) before it can be installed or restored.
  *  - One atomic pointer: the state is an append-only sequence of immutable files committed by link(2) (exclusive create of the next
@@ -28,7 +31,7 @@ import type { RollbackPlan } from "./rollback.ts";
  */
 export class StaticPublishRefused extends Error { constructor(readonly code: string) { super(code); } }
 export type ActivationOperation = "PUBLISH" | "ROLLBACK";
-export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; digest: string; version?: number };
+export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: StaticReleaseConfig["environment"]; installationId: string; digest: string; version?: number };
 export type StaticReleaseConfig = {
   /** Private directory (0700, this uid, not a symlink) holding releases/ and states/. */
   root: string; environment: "myeve-qdev-20261029"; appId: string; ownerId: string; projectSha256: string; installationId: string;
@@ -37,7 +40,7 @@ export type StaticReleaseConfig = {
 };
 type Version = { version: number; digest: string; publishedAt: string };
 type State = {
-  schema: "myeve.qdev-static-release-state/v1"; appId: string; ownerId: string; projectSha256: string; seq: number;
+  schema: "myeve.qdev-static-release-state/v2"; appId: string; ownerId: string; projectSha256: string; environment: StaticReleaseConfig["environment"]; installationId: string; seq: number;
   installed: number | null; versions: Version[];
   events: { seq: number; kind: "PUBLISH" | "ROLLBACK" | "REMOVE"; version: number | null; at: string }[];
 };
@@ -101,7 +104,8 @@ export class StaticReleaseController {
   private releaseDir(hex: string) { return join(this.c.root, "releases", hex); }
   private now() { return (this.c.now?.() ?? new Date()).toISOString(); }
   private initialState(): State {
-    return { schema: "myeve.qdev-static-release-state/v1", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, seq: 0, installed: null, versions: [], events: [] };
+    return { schema: "myeve.qdev-static-release-state/v2", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, environment: this.c.environment, installationId: this.c.installationId,
+      seq: 0, installed: null, versions: [], events: [] };
   }
 
   /** The state is an append-only sequence of immutable files states/<seq>.json; the installed pointer is the highest one. */
@@ -113,8 +117,9 @@ export class StaticReleaseController {
     if (!names.length) return this.initialState();
     let s: State;
     try { s = JSON.parse(readNoFollow(join(this.statesDir, names.at(-1)!), MAX_STATE).toString("utf8")); } catch { throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); }
-    if (s?.schema !== "myeve.qdev-static-release-state/v1" || !Array.isArray(s.versions) || !Array.isArray(s.events) || s.seq !== names.length) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
+    if (s?.schema !== "myeve.qdev-static-release-state/v2" || !Array.isArray(s.versions) || !Array.isArray(s.events) || s.seq !== names.length) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
     if (s.appId !== this.c.appId || s.ownerId !== this.c.ownerId || s.projectSha256 !== this.c.projectSha256) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_FOREIGN");
+    if (s.environment !== this.c.environment || s.installationId !== this.c.installationId) throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
     if (s.installed !== null && !s.versions.some(v => v.version === s.installed)) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID");
     return s;
   }
@@ -147,7 +152,8 @@ export class StaticReleaseController {
     return run;
   }
   private async permit(operation: ActivationOperation, hex: string, version?: number) {
-    const ok = await this.c.activation?.permit({ operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) });
+    const ok = await this.c.activation?.permit({ operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
+      environment: this.c.environment, installationId: this.c.installationId, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) });
     if (ok !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
   }
 
@@ -214,8 +220,8 @@ export class StaticReleaseController {
     if (!isRetainedStaticArtifact(artifact)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     const hex = artifact.artifactDigest.replace(/^sha256:/, "");
     if (!HEX.test(hex)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
+    this.loadState();   // refuse a foreign (owner, project, installation) or invalid state BEFORE an approval is consumed or anything is written
     await this.permit("PUBLISH", hex);
-    this.loadState();   // refuse a foreign or invalid state before writing anything
     this.writeRelease(artifact, hex);
     return this.mutate(s => {
       const current = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
@@ -241,6 +247,7 @@ export class StaticReleaseController {
    */
   async rollback(plan: RollbackPlan, expected?: { seq: number; version: number; digest: string }): Promise<{ installed: number | null; changed: boolean; seq: number }> {
     if (plan?.installation?.environment !== this.c.environment || plan.installation.installationId !== this.c.installationId) throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
+    this.loadState();   // an existing root under another installation refuses before any approval is consumed or any state is written
     const superseded = (s: State) => {
       if (!expected) return;
       const cur = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);
@@ -261,7 +268,7 @@ export class StaticReleaseController {
         return { next: { ...s, seq, installed: target, events: [...s.events, { seq, kind: "ROLLBACK" as const, version: target, at }] }, result: { installed: target, changed: true, seq } };
       });
     }
-    const auth = sha(JSON.stringify({ kind: "ABSENT", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256 }));
+    const auth = absenceAuthenticationSha256({ appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, installation: { environment: this.c.environment, installationId: this.c.installationId } });
     if (plan.kind !== "REMOVE_INSTALLATION" || plan.absenceAuthenticationSha256 !== auth || plan.restorePointId !== "myapps-absent:" + auth.slice(0, 32)) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
     await this.permit("ROLLBACK", auth);
     return this.mutate<{ installed: number | null; changed: boolean; seq: number }>(s => {

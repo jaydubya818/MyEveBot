@@ -80,7 +80,7 @@ const F2={'dist/index.html':Buffer.from('<html>v2</html>'),'dist/assets/app.js':
 const get=(hd,path,method='GET')=>hd(new Request('https://app.invalid'+path,{method}));
 const text=async r=>Buffer.from(await r.arrayBuffer()).toString();
 const hexOf=a=>a.artifactDigest.slice(7);
-const readerFor=c=>new MyAppsRevisionReader({source:c.stateSource(),appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT});
+const readerFor=c=>new MyAppsRevisionReader({source:c.stateSource(),appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,installation:INST});
 const planFrom=async r=>planRollback({environment:ENV,priorRevision:await r.priorRevision(),rollbackRestorePointId:await r.restorePointId()},INST);
 const code=c=>e=>e instanceof StaticPublishRefused&&e.code===c;
 
@@ -161,7 +161,7 @@ test('every mutation needs the host activation permit; without it nothing is wri
   await assert.rejects(off.publish(a1),code('QDEV_PUBLISH_NOT_AUTHORIZED'));
   const no=ctl(root,{activation:{permit:async r=>{seen.push(r);return false;}}});
   await assert.rejects(no.publish(a1),code('QDEV_PUBLISH_NOT_AUTHORIZED'));
-  assert.deepEqual(seen,[{operation:'PUBLISH',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,digest:a1.artifactDigest}]);
+  assert.deepEqual(seen,[{operation:'PUBLISH',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,environment:ENV,installationId:'inst-1',digest:a1.artifactDigest}]);
   assert.deepEqual(readdirSync(join(root,'states')),[]);assert.equal(existsSync(join(root,'releases',hexOf(a1))),false);
   assert.equal((await off.handler()(new Request('https://app.invalid/'))).status,404);
   const yes=ctl(root);await yes.publish(a1);const reader=readerFor(yes);await reader.capture();await yes.publish(await art(F2,'2'));
@@ -235,7 +235,7 @@ function deliveryFor(c,{ctlExtra={},tamper=false,gate}={}){
     delivery:{enabled:true,environment:ENV,servedOrigin:'https://app.invalid',projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,
       priorRevision:async()=>reader.priorRevision(),restorePointId:async()=>reader.restorePointId(),now:()=>new Date('2026-10-30T01:00:00Z'),
       fetcher:async url=>{const r=await hd(new Request(url));return tamper&&new URL(url).pathname==='/app.js'?new Response('tampered'):r;}}});
-  const reader=new MyAppsRevisionReader({source:controller.stateSource(),appId:'app-1',ownerId:'owner-q1',projectSha256:c.binding.projectSha256});
+  const reader=new MyAppsRevisionReader({source:controller.stateSource(),appId:'app-1',ownerId:'owner-q1',projectSha256:c.binding.projectSha256,installation:INST});
   const port=new StaticPublishingMyAppsPort({build,controller,reader,installation:INST,gate:gate??(async cand=>verdictFrom(c,cand.buildArtifactSha256))});
   return {controller,hd,port,reader,root};
 }

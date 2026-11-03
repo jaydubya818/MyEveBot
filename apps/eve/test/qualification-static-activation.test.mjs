@@ -19,12 +19,12 @@ const owner=generateKeyPairSync('ed25519'),other=generateKeyPairSync('ed25519');
 const pem=k=>k.export({type:'pkcs8',format:'pem'}),pub=k=>k.export({type:'spki',format:'pem'});
 const key=(keyId='owner-approver',pair=owner,over={})=>({keyId,publicKeyPem:pub(pair.publicKey),activeFrom:'2026-01-01T00:00:00.000Z',notAfter:'2100-01-01T00:00:00.000Z',...over});
 const NOW=Date.parse('2026-10-30T20:00:00Z');
-const approval=(over={})=>({schema:'myeve.qdev-activation-approval/v1',operation:'PUBLISH',appId:APP,ownerId:OWNER,projectSha256:PROJECT,digest:'sha256:'+'a'.repeat(64),keyId:'owner-approver',
+const approval=(over={})=>({schema:'myeve.qdev-activation-approval/v1',operation:'PUBLISH',appId:APP,ownerId:OWNER,projectSha256:PROJECT,environment:'myeve-qdev-20261029',installationId:INSTALL,digest:'sha256:'+'a'.repeat(64),keyId:'owner-approver',
   notBefore:'2026-10-30T19:00:00.000Z',notAfter:'2026-10-30T21:00:00.000Z',nonce:randomBytes(12).toString('hex'),...over});
-const request=(over={})=>({operation:'PUBLISH',appId:APP,ownerId:OWNER,projectSha256:PROJECT,digest:'sha256:'+'a'.repeat(64),...over});
+const request=(over={})=>({operation:'PUBLISH',appId:APP,ownerId:OWNER,projectSha256:PROJECT,environment:'myeve-qdev-20261029',installationId:INSTALL,digest:'sha256:'+'a'.repeat(64),...over});
 function dir(){const d=mkdtempSync(join(tmpdir(),'qdev-act-'));chmodSync(d,0o700);mkdirSync(join(d,'approvals'),{mode:0o700});return d;}
 const place=(d,name,text,mode=0o600)=>{const p=join(d,'approvals',name);writeFileSync(p,text,{mode});chmodSync(p,mode);return p;};
-const permits=(d,over={})=>new FileActivationPermits({dir:d,keys:[key()],ownerId:OWNER,appId:APP,projectSha256:PROJECT,now:()=>NOW,...over});
+const permits=(d,over={})=>new FileActivationPermits({dir:d,keys:[key()],ownerId:OWNER,appId:APP,projectSha256:PROJECT,environment:'myeve-qdev-20261029',installationId:INSTALL,now:()=>NOW,...over});
 
 test('no approval, an empty directory or an unsafe directory never authorizes',async()=>{
   const d=dir();

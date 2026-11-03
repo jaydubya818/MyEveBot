@@ -5,7 +5,7 @@ import {deliveryObservationSchema} from '../lib/qualification/delivery.ts';
 
 const D='sha256:'+'c'.repeat(64);
 const make=(state)=>{let reads=0;const source={async read(){reads++;return typeof state==='function'?state():state;}};
-  return {r:new MyAppsRevisionReader({source,appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64)}),reads:()=>reads};};
+  return {r:new MyAppsRevisionReader({source,appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64),installation:{environment:'myeve-qdev-20261029',installationId:'inst-1'}}),reads:()=>reads};};
 
 test('readers refuse before the prior state is captured',async()=>{
   const {r}=make({installedVersion:null,installedDigest:null,restorableVersions:[]});
@@ -20,7 +20,7 @@ test('an installed prior revision is reported with its bare digest and a retaine
 test('a first installation is an authenticated absence bound to app, owner and project',async()=>{
   const {r}=make({installedVersion:null,installedDigest:null,restorableVersions:[]});await r.capture();
   const p=await r.priorRevision();assert.equal(p.kind,'ABSENT');assert.match(p.authenticationSha256,/^[a-f0-9]{64}$/);
-  const other=new MyAppsRevisionReader({source:{read:async()=>({installedVersion:null,installedDigest:null,restorableVersions:[]})},appId:'app-1',ownerId:'owner-q2',projectSha256:'a'.repeat(64)});
+  const other=new MyAppsRevisionReader({source:{read:async()=>({installedVersion:null,installedDigest:null,restorableVersions:[]})},appId:'app-1',ownerId:'owner-q2',projectSha256:'a'.repeat(64),installation:{environment:'myeve-qdev-20261029',installationId:'inst-1'}});
   await other.capture();assert.notEqual((await other.priorRevision()).authenticationSha256,p.authenticationSha256);
 });
 test('the prior state is captured once: a post-delivery state can never be reported as prior',async()=>{
@@ -32,7 +32,7 @@ test('the prior state is captured once: a post-delivery state can never be repor
 test('overlapping captures share one read and preserve the pre-delivery restore target',async()=>{
   let reads=0,firstResolve,secondResolve;
   const r=new MyAppsRevisionReader({source:{read:()=>new Promise(resolve=>{if(reads++===0)firstResolve=resolve;else secondResolve=resolve;})},
-    appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64)});
+    appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64),installation:{environment:'myeve-qdev-20261029',installationId:'inst-1'}});
   const first=r.capture(),second=r.capture();
   firstResolve({installedVersion:1,installedDigest:D,restorableVersions:[1]});await first;
   // A second request can return after delivery and observe the newly installed version.
@@ -51,7 +51,7 @@ test('returned prior data cannot alter the retained restore target',async()=>{
 test('a failed capture remains failed for concurrent and later callers without another read',async()=>{
   let reads=0;
   const error=new Error('synthetic state unavailable');
-  const r=new MyAppsRevisionReader({source:{read:async()=>{reads++;throw error;}},appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64)});
+  const r=new MyAppsRevisionReader({source:{read:async()=>{reads++;throw error;}},appId:'app-1',ownerId:'owner-q1',projectSha256:'a'.repeat(64),installation:{environment:'myeve-qdev-20261029',installationId:'inst-1'}});
   const first=r.capture(),second=r.capture();
   await Promise.all([assert.rejects(first,e=>e===error),assert.rejects(second,e=>e===error)]);
   await assert.rejects(r.capture(),e=>e===error);assert.equal(reads,1);

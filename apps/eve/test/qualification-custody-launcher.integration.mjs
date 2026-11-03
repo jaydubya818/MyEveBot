@@ -151,7 +151,7 @@ try{
   const b=withActivation([key(approver)]);
   const custody=await assembleFromProfile(context(b,env),deps());
   const permit=custody.myapps.publishing.activation.permit;
-  const request={operation:'PUBLISH',appId:'app-1',ownerId:OWNER,projectSha256:qualificationBinding(project).projectSha256,digest:'sha256:'+'a'.repeat(64)};
+  const request={operation:'PUBLISH',appId:'app-1',ownerId:OWNER,projectSha256:qualificationBinding(project).projectSha256,environment:'myeve-qdev-20261029',installationId:INSTALL,digest:'sha256:'+'a'.repeat(64)};
   assert.equal(await permit(request),false,'configured but no approval: still denied');
   const approval={schema:'myeve.qdev-activation-approval/v1',...request,keyId:'owner-approver',notBefore:new Date(Date.now()-60000).toISOString(),notAfter:new Date(Date.now()+3600000).toISOString(),nonce:randomBytes(12).toString('hex')};
   const file=join(actDir,'approvals','a.json');writeFileSync(file,signActivationApproval(approval,approver.privateKey.export({type:'pkcs8',format:'pem'})),{mode:0o600});

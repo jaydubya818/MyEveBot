@@ -4,13 +4,14 @@ import { closeSync, constants, fstatSync, lstatSync, mkdirSync, openSync, readdi
 import { join } from "node:path";
 import { canonical } from "../../../../packages/myapps/src/contracts.ts";
 import type { ActivationOperation, ActivationRequest, StaticReleaseConfig } from "./static-publish.ts";
+import type { InstallationIdentity } from "./rollback.ts";
 
 /**
  * Scoped, single-use, owner-signed activation approvals for the QDEV static release controller.
  *
  * The controller refuses every mutation unless `activation.permit(request)` returns exactly `true`. This is the ordinary body behind that seam: it
  * verifies an Ed25519-signed approval FILE written by the owner (the approver key lives with the owner; only its PUBLIC key is pinned in the profile)
- * and consumes it once. An approval names the operation, app, owner, project, exact release digest (and exact rollback version) it authorizes, a
+ * and consumes it once. An approval names the operation, app, owner, project, installation (environment + installation id), exact release digest (and exact rollback version) it authorizes, a
  * short validity window and a nonce. No approval, a mismatched scope, an expired/not-yet-valid/over-long window, an unknown/revoked/forged key, a
  * tampered payload, an unsafe directory or file, or an already consumed approval yields `false`. Nothing here deploys, exposes or activates by itself.
  */
@@ -20,7 +21,8 @@ const MAX_FILES = 64, MAX_BYTES = 8192, MAX_WINDOW_MS = 24 * 3600_000;
 const HEX64 = /^[a-f0-9]{64}$/;
 
 export type ActivationApproval = {
-  schema: typeof SCHEMA; operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; digest: string; version?: number;
+  schema: typeof SCHEMA; operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: InstallationIdentity["environment"]; installationId: string;
+  digest: string; version?: number;
   keyId: string; notBefore: string; notAfter: string; nonce: string;
 };
 export type ApproverKey = { keyId: string; publicKeyPem: string; activeFrom: string; notAfter: string; revokedAt?: string };
@@ -54,13 +56,13 @@ function readRegular(path: string): Buffer | null {
 }
 
 export class FileActivationPermits {
-  private readonly scope: { ownerId: string; appId: string; projectSha256: string };
+  private readonly scope: { ownerId: string; appId: string; projectSha256: string; environment: InstallationIdentity["environment"]; installationId: string };
   private chain: Promise<unknown> = Promise.resolve();
-  constructor(private readonly c: { dir: string; keys: ApproverKey[]; ownerId: string; appId: string; projectSha256: string; now?: () => number }) {
-    if (!c.ownerId || !c.appId || !HEX64.test(c.projectSha256) || !c.keys.length || c.keys.length > 4) throw new Error("QDEV_ACTIVATION_CONFIG");
+  constructor(private readonly c: { dir: string; keys: ApproverKey[]; ownerId: string; appId: string; projectSha256: string; environment: InstallationIdentity["environment"]; installationId: string; now?: () => number }) {
+    if (!c.ownerId || !c.appId || !HEX64.test(c.projectSha256) || !c.environment || !c.installationId || !c.keys.length || c.keys.length > 4) throw new Error("QDEV_ACTIVATION_CONFIG");
     for (const key of c.keys) { if (createPublicKey(key.publicKeyPem).asymmetricKeyType !== "ed25519") throw new Error("QDEV_ACTIVATION_KEY"); }
     if (new Set(c.keys.map(k => k.keyId)).size !== c.keys.length) throw new Error("QDEV_ACTIVATION_KEY");
-    this.scope = { ownerId: c.ownerId, appId: c.appId, projectSha256: c.projectSha256 };
+    this.scope = { ownerId: c.ownerId, appId: c.appId, projectSha256: c.projectSha256, environment: c.environment, installationId: c.installationId };
   }
 
   /** The seam the controller calls. Serialized so concurrent requests cannot both consume one approval. */
@@ -93,8 +95,9 @@ export class FileActivationPermits {
 
   private matches(p: ActivationApproval, request: ActivationRequest, now: number): boolean {
     if (p.schema !== SCHEMA || p.operation !== request.operation || p.appId !== request.appId || p.ownerId !== request.ownerId || p.projectSha256 !== request.projectSha256
-      || p.digest !== request.digest || p.version !== request.version || typeof p.nonce !== "string" || p.nonce.length < 16 || p.nonce.length > 128) return false;
-    if (p.appId !== this.scope.appId || p.ownerId !== this.scope.ownerId || p.projectSha256 !== this.scope.projectSha256) return false;
+      || p.environment !== request.environment || p.installationId !== request.installationId || p.digest !== request.digest || p.version !== request.version || typeof p.nonce !== "string" || p.nonce.length < 16 || p.nonce.length > 128) return false;
+    if (p.appId !== this.scope.appId || p.ownerId !== this.scope.ownerId || p.projectSha256 !== this.scope.projectSha256
+      || p.environment !== this.scope.environment || p.installationId !== this.scope.installationId) return false;
     const from = Date.parse(p.notBefore), to = Date.parse(p.notAfter);
     return Number.isFinite(from) && Number.isFinite(to) && from <= now && now < to && to - from <= MAX_WINDOW_MS;
   }

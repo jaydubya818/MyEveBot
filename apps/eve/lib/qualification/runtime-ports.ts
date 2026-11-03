@@ -89,7 +89,8 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
     environment: "myeve-qdev-20261029", ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
   }) : null;
   const reader = controller && publishing ? new MyAppsRevisionReader({ source: controller.stateSource(), appId: publishing.appId,
-    ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256 }) : null;
+    ownerId: context.bundle.ownerId, projectSha256: binding.projectSha256,
+    installation: { environment: "myeve-qdev-20261029", installationId: publishing.installationId } }) : null;
   const build = new StaticBuildMyAppsPort({ ...custody.myapps,
     delivery: { ...custody.myapps.delivery, ...(reader ? { priorRevision: reader.priorRevision, restorePointId: reader.restorePointId,
       environment: "myeve-qdev-20261029" as const, projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256 } : {}) },

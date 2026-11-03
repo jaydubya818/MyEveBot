@@ -91,7 +91,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
       ...(profile.verifier.producerPublicKeysPem ?? [])].map(pem => approverFingerprints([{ publicKeyPem: pem } as never])[0]);
     if (pipeline.some(fingerprint => approvers.has(fingerprint))) return null;
     activation = fileActivation({ dir: profile.publishing.activation.dir, keys: profile.publishing.activation.approverKeys, ownerId, appId: profile.build.appId,
-      projectSha256: binding.projectSha256, now: deps.now });
+      projectSha256: binding.projectSha256, environment: "myeve-qdev-20261029", installationId: profile.publishing.installationId, now: deps.now });
   }
   return assembleQdevCustody({
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,
