@@ -4653,8 +4653,8 @@
     },
     "lib/qualification/journey.ts": {
       "classification": "ENFORCED",
-      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration. Appends one durable DELIVERY_ACCEPTED journal fact after the delivery acceptance (journal failure halts QDEV_JOURNAL_DELIVERY).",
-      "sha256": "1ed6260942dc61145b2c54f42e10fcbad0b810ebdce3330e9996e1b19cd62cf0"
+      "reason": "Journey orchestrator for qdev-20261029-01; every provider, Factory, custodian and MyApps effect is injected and routed through the dispatch gate. Wired to no production caller. Independent source review PENDING; fingerprint pins exact bytes. Adds journal-based restart recovery (never re-sends a claimed operation) and an accepted-stage hook. Carries the exact validated operation reservation into runOperation inside the same charged gate closure; this is now an enforced accounting boundary, not internal-only orchestration. Appends one durable DELIVERY_ACCEPTED journal fact after the delivery acceptance (journal failure halts QDEV_JOURNAL_DELIVERY). DJR-01 reconciliation 20261102: a stage already bound and settled in the journal is re-proved against the current cohort ledger (status floor, then the canonical idempotent reserveWork re-read returning exactly the journaled Work/allowance, BOUND or CLOSED) before any Result or delivery is trusted; mismatch halts QDEV_RECOVERY_COHORT_MISMATCH. No new effect path; independent re-review PENDING.",
+      "sha256": "e2d50138842204aee6ca6f00d94748de7cca291e5fde5621c22392d6c784775f"
     },
     "lib/qualification/journal.ts": {
       "classification": "INTERNAL",
@@ -4729,7 +4729,7 @@
     "lib/qualification/host-source.ts": {
       "classification": "ENFORCED",
       "reason": "Concrete runtime source loader for the QDEV host. Reads one strict, credential-free bundle and named credential variables only at call time; any missing, malformed, foreign-owner, expired or incomplete input yields null (disabled). Builds the ledger client, journal, Relay MCP transport and deterministic conversation but dispatches, reserves and calls no provider: protected custody ports (agent execution, Factory, verifier, MyApps) must be injected, otherwise it stays disabled. Conversation revalidation is a read-only ledger status call. Previously returned ledger, journal, Relay and conversation objects re-prove that every required runtime input is still present and unchanged on each use and otherwise fail closed. Wires the read-only journal view and an owner-scoped, lazily opened improvement storage frontdoor for inert proposals into the conversation; it never builds a Work database connection at startup.",
-      "sha256": "a807b748a216529a1a62a02cd1d22943f0924e9de57ff92501762c8479ebab6d"
+      "sha256": "30f7298ffb3ec503dc514ea4045cadb3c8592fc950c96655726c8bd158ddf25a"
     },
     "agent/tools/qualification_journey.ts": {
       "classification": "ENFORCED",
@@ -4853,13 +4853,13 @@
     },
     "lib/qualification/custody-profile.ts": {
       "classification": "ENFORCED",
-      "reason": "Strict, non-secret assembly profile schema carried in the qdev host bundle (ids, public keys, pins and the NAMES of environment variables only; unknown keys such as a literal credential, private key or activation permit are refused) and the single durable journey-id formula shared by the journal and the retained stage admissions. Pure schema and hashing: no I/O, no credential, transport, reservation or dispatch. Evidence: qualification-custody-launcher.integration.mjs.",
-      "sha256": "1e038a6dc4b1116fdafbb69d4f8a6d7b1a68d0cdfa4e8fecd6c826b29e8ede6d"
+      "reason": "Strict, non-secret assembly profile schema carried in the qdev host bundle (ids, public keys, pins and the NAMES of environment variables only; unknown keys such as a literal credential, private key or activation permit are refused) and the single durable journey-id formula shared by the journal and the retained stage admissions. Pure schema and hashing: no I/O, no credential, transport, reservation or dispatch. Evidence: qualification-custody-launcher.integration.mjs. DJR-01 reconciliation 20261102: qdevJourneyId now binds the accounting cohort, policy and approved plan so journals and retained admissions are cohort-scoped. Independent re-review PENDING.",
+      "sha256": "d230d5e77ea96288d74e29e2f496b410a60893ecfbb4af47f19ceb1fe4b6aca4"
     },
     "lib/qualification/custody-launcher.ts": {
       "classification": "ENFORCED",
       "reason": "Production launcher that turns the bundle assembly profile plus protected values read by NAME into QdevCustody from existing qualified bodies (custody-assembly, StoreBackedStageSources chain, canonical MissionControl enrollment and capability destination, issueFactorySourcePermit, FactoryRelayLeaseClient, candidateStaticBuildSource, SofiePlanningRuntime, existing verifier and static release ports). Used only by productionRuntimePorts when a bundle carries an assembly (mutually exclusive with a pinned custody module). Hands each protected value only to the adapter that needs it, never logs or returns one, requires the operator-applied journal and retention tables (no DDL at startup), wires publishing authorization ONLY from the profile's owner-approver public keys and approvals directory through the single-use signed-approval permit (the approver key must be independent of the verifier, build-issuer and Factory producer keys; with no profile entry or no valid approval publishing stays refused) and returns null (installation disabled) on any missing, malformed, foreign or refused input. Reserves, dispatches and deploys nothing. Evidence: qualification-custody-launcher.integration.mjs. Before any dependency is built it runs the unpaid Work-budget preflight (work-budget-preflight.ts) against the validated plan and refuses the installation when a stage Work budget exceeds its approved operation reservation.",
-      "sha256": "133da4b462b08da078f9a59131757ef8d62fae89d3e1fb5472e9d2f36f6594fd"
+      "sha256": "30254d92ad9e05400d6d05f1d86c94edaaf820515389a1aa2fae4d1dd5921e5b"
     },
     "lib/qualification/static-activation.ts": {
       "classification": "ENFORCED",

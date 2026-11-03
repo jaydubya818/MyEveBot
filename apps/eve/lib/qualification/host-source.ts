@@ -111,7 +111,7 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
     const binding = qualificationBinding(bundle.project);
     const accounting = new QualificationAccounting(guarded(deps.database(accountingUrl)), accountingCredential, bundle.policy, binding);
-    const journal = new PostgresJournal(guarded(deps.database(journalUrl)), qdevJourneyId(bundle.ownerId, bundle.project));
+    const journal = new PostgresJournal(guarded(deps.database(journalUrl)), qdevJourneyId(bundle.ownerId, bundle.project, bundle.policy, plan));
     const transport = new RelayMcpTransport({ enabled: true, origin: bundle.relay.origin, tools: relayToolMap(), fetcher: deps.fetcher,
       credential: async () => { const current = env[bundle.credentials.relay]; if (!live() || !current) throw Error("QDEV_RELAY_CREDENTIAL"); return current; } });
     const relay = new RelayDeveloperTools(bundle.relay.grant, transport);

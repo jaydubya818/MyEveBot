@@ -66,7 +66,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
     relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
 
-  const journalId = qdevJourneyId(ownerId, bundle.project), journalDb = deps.database(journalUrl);
+  const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);
   // The journal and retained-admission tables are applied by the operator (DDL is never run at startup). Absent tables keep the installation disabled.
   const [tables] = await journalDb.query("SELECT to_regclass('qjourney_event') AS journal, to_regclass('qdev_admission_claim') AS claim, to_regclass('qdev_retained_admission') AS retained");
   if (!tables?.journal || !tables.claim || !tables.retained) return null;

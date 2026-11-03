@@ -16,6 +16,7 @@ import {RETAINED_ADMISSION_SCHEMA} from '../lib/qualification/retained-admission
 import {JOURNAL_SCHEMA,PostgresJournal} from '../lib/qualification/journal.ts';
 import {evaluateStageWorkBudgets} from '../lib/qualification/work-budget-preflight.ts';
 import {QDEV_BASELINE,qualificationBinding} from '../lib/external-alpha/qualification-accounting.ts';
+import {validateJourneyPlan} from '../lib/qualification/plan.ts';
 import {WorkStore} from '../lib/engineering/store.ts';
 import {factoryRelayLeaseEnrollmentDigest} from '../lib/engineering/factory-relay-lease-client.ts';
 import {FileActivationPermits,signActivationApproval} from '../lib/qualification/static-activation.ts';
@@ -35,7 +36,8 @@ await db.query(JOURNAL_SCHEMA);await db.query(RETAINED_ADMISSION_SCHEMA);
 const journalDb={query:async(q,p)=>(await db.query(q,p)).rows};
 
 const fx=syntheticFactory(),sha=c=>c.repeat(64);
-const OWNER='owner-1',INSTALL='install-1';
+const OWNER='5a1f0c9e-6a54-4d0a-9d55-0d3b7b1f6a01',INSTALL='install-1';
+const POLICY={cohortId:'8d3c2f10-4f58-4c4a-8f63-3f0f6a1b2c02',ownerId:OWNER,slot:'Q1'};
 const project={...QDEV_BASELINE,operatingProfileSha256:h('1'),factoryVersionSha256:fx.factoryVersion,protectedSpecificationSha256:h('3'),
   sources:{myeve:'a'.repeat(40),factory:'b'.repeat(40),relay:'c'.repeat(40),missioncontrol:'d'.repeat(40)}};
 const enrollment={schema:'mc-owner-enrollment/v1',environment:'APPROVED_NONPRODUCTION',installationId:INSTALL,revision:1,ownerId:OWNER,ownerSubject:'sub-1',missionControlOwnerId:'mco-1',
@@ -58,7 +60,7 @@ const profile=()=>({slot:'Q1',workIds:{stage1:randomUUID(),stage2:randomUUID(),s
       publicKeyPem:issuerPair.publicKey.export({type:'spki',format:'pem'}),spkiSha256:createHash('sha256').update(issuerSpki).digest('hex'),notBefore:'2020-01-01T00:00:00.000Z',notAfter:'2100-01-01T00:00:00.000Z',revoked:false},
     signerEnv:'QDEV_BUILD_ISSUER_KEY'},
   publishing:{root:releaseRoot,installationId:INSTALL},servedOrigin:'https://apps.example.com'});
-const bundleFor=(over={})=>({version:1,ownerId:OWNER,notAfter:'2099-01-01T00:00:00.000Z',project,
+const bundleFor=(over={})=>({version:1,ownerId:OWNER,notAfter:'2099-01-01T00:00:00.000Z',policy:POLICY,project,
   credentials:{accounting:'QDEV_ACCOUNTING_CREDENTIAL',relay:'QDEV_RELAY_CREDENTIAL',accountingDatabaseUrl:'QDEV_ACCOUNTING_DATABASE_URL',journalDatabaseUrl:'QDEV_JOURNAL_DATABASE_URL'},
   conversation:{approvedRequest:'Build the approved dashboard'},assembly:profile(),plan:PLAN,...over});
 const secrets=()=>({QDEV_CAPABILITY_PROPAGATION:JSON.stringify({signer:{keyId:'signer-1',jwk:{kty:'EC',crv:'P-256',x:'x'.repeat(43),y:'y'.repeat(43),d:'d'.repeat(43)}}}),
@@ -95,7 +97,14 @@ try{
     x=>{x.baseline.commit='abc'},x=>{x.build.image='node:latest'},x=>{x.workIds.stage4='x'},x=>{x.model.price.inputMicrousdPerMillionTokens=0}]){
    const bad=structuredClone(p);mutate(bad);assert.equal(assemblyProfileSchema.safeParse(bad).success,false,JSON.stringify(bad).slice(0,120));
   }
-  assert.equal(qdevJourneyId(OWNER,project).length,64);
+  const journeyPlan=validateJourneyPlan(PLAN),id=qdevJourneyId(OWNER,project,POLICY,journeyPlan);
+  assert.equal(id.length,64);
+  // DJR-01: the id binds the cohort, policy and approved plan, so none of them can be swapped under the same owner/project/source
+  assert.notEqual(id,qdevJourneyId(OWNER,project,{...POLICY,cohortId:'9e4d3a21-5a69-4d5b-9a74-4a1a7b2c3d03'},journeyPlan),'another cohort');
+  assert.notEqual(id,qdevJourneyId(OWNER,project,{...POLICY,slot:'Q2'},journeyPlan),'another slot');
+  assert.notEqual(id,qdevJourneyId(OWNER,project,POLICY,{...journeyPlan,stages:journeyPlan.stages.map((st,i)=>i===0?{...st,workCeilingMicrousd:st.workCeilingMicrousd-1}:st)}),'another plan');
+  assert.throws(()=>qdevJourneyId(OWNER,project,{...POLICY,ownerId:'7c2b1e32-6b7a-4e6c-8b85-5b2b8c3d4e04'},journeyPlan),/QDEV_JOURNEY_POLICY_OWNER/);
+  assert.equal(id,qdevJourneyId(OWNER,project,{...POLICY},validateJourneyPlan(structuredClone(PLAN))),'deterministic');
  });
 
  await test('launcher: profile + named protected values -> QdevCustody -> the real composeRuntimePorts (verifier/producer independence, release controller, no activation permit)',async()=>{
@@ -155,7 +164,7 @@ try{
 
  await test('resume: the journey id is the host journal id, so retained stage admissions are restored (warm) without preparing again',async()=>{
   const env=secrets(),b=bundleFor();
-  const journey=qdevJourneyId(OWNER,project),e=fx.stage(1,fx.baseline).manifest.execution;
+  const journey=qdevJourneyId(OWNER,project,POLICY,validateJourneyPlan(PLAN)),e=fx.stage(1,fx.baseline).manifest.execution;
   const binding={workId:b.assembly.workIds.stage1,workVersion:1,workGeneration:1,criteriaVersion:1,agentId:'agent-1',factoryId:fx.factoryId,factoryVersion:fx.factoryVersion,requestId:e.requestId,
     requestDigest:e.requestDigest,sourceDigest:fx.sourceDigest,configurationDigest:fx.configurationDigest,workOrderId:e.workOrderId,runId:e.runId,attemptNumber:1,inputCommit:e.inputCommit,
     inputTree:e.inputTree,localSnapshotVersion:4,configuration:fx.configuration};

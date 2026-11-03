@@ -85,6 +85,20 @@ export class QualificationJourney {
     await this.journal.append({ kind: "STAGE_EXPECTATION", stage, digest: current, expected: structuredClone(expected) });
   }
 
+  /**
+   * Recovery of a stage that is already bound and fully settled in the journal. Read-only against the ledger unless the Work already exists:
+   * (1) the current cohort must hold at least as many Works as the journal claims were bound (a zero-Work or replaced cohort fails here, without
+   * allocating anything), then (2) the canonical idempotent re-read of the stage binding (`reserveWork` returns the existing row; the client verifies owner,
+   * cohort, binding, request and ceiling) must return exactly the journaled Work and allowance, still BOUND or CLOSED. CLOSED history recovers normally; any
+   * other cohort, policy, database or Work fails closed as QDEV_RECOVERY_COHORT_MISMATCH (or the ledger's own refusal) before delivery is observed.
+   */
+  private async verifyRecoveredWork(stage: JourneyPlan["stages"][number], bindingId: string, bound: Extract<JournalEvent, { kind: "STAGE_BOUND" }>, journaledWorks: number) {
+    if ((await this.accounting.status()).ownWorks < journaledWorks) throw new Error("QDEV_RECOVERY_COHORT_MISMATCH");
+    const row = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
+    if (row.id !== bound.workId || row.local_allowance_id !== bound.allowanceId || (row.state !== "BOUND" && row.state !== "CLOSED")) throw new Error("QDEV_RECOVERY_COHORT_MISMATCH");
+    return row;
+  }
+
   async run(rawPlan: unknown): Promise<JourneyEvidence> {
     // Refuse an unfittable plan BEFORE any reservation or dispatch.
     const plan: JourneyPlan = validateJourneyPlan(rawPlan);
@@ -117,7 +131,9 @@ export class QualificationJourney {
         const dangling = stage.operations.find(op => claimed.has(op.key) && !settled.has(op.key));
         const pending = stage.operations.filter(op => !settled.has(op.key));
         if (bound && pending.length === 0) {
-          work = { id: bound.workId } as Awaited<ReturnType<QualificationAccounting["bind"]>>; // fully accounted earlier: no ledger call
+          // Fully accounted earlier: nothing is re-sent or re-bound. The journal alone is NOT proof that the Work belongs to this cohort, so the
+          // recovered Work is re-proved against the canonical ledger of the CURRENT cohort/policy before anything downstream (Result, delivery) trusts it.
+          work = await this.verifyRecoveredWork(stage, bindingId, bound, events.filter(e => e.kind === "STAGE_BOUND" && e.stage <= stage.stage).length);
         } else {
           work = await this.accounting.reserveWork({ bindingId, requestSha256: digest({ plan: stage }), ceilingMicrousd: stage.workCeilingMicrousd });
           const allowanceId = bound?.allowanceId ?? this.env.newAllowanceId(stage.stage);
