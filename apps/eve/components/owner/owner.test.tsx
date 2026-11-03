@@ -30,13 +30,27 @@ describe("owner decision and proof components", () => {
     expect(html).toContain("Expired");
     expect(html).not.toContain(">Allow this action<");
   });
-  it("does not imply verification for a successful result without checks", () => {
+  it("does not imply verification for a result without a linked task", () => {
     const html = renderToStaticMarkup(
-      <Proof result={exampleSnapshot().outcomes[0]} />,
+      <Proof result={{ ...exampleSnapshot().outcomes[0]!, runId: null }} />,
     );
     expect(html).toContain("Independent verification is not recorded");
     expect(html).toContain("Event reference");
     expect(html).toContain("does not provide an event-content reader");
+  });
+  it("shows checks and verification summary when preview outcome links to a task", () => {
+    const snapshot = exampleSnapshot();
+    // The preview fixture links the result to its task; suppliedTask is found
+    // by the caller (experience.tsx) via snapshot.tasks.find.
+    const html = renderToStaticMarkup(
+      <Proof
+        result={snapshot.outcomes[0]}
+        task={snapshot.tasks.find((t) => t.id === snapshot.outcomes[0]!.runId)}
+        preview
+      />,
+    );
+    expect(html).toContain("Required sections are present");
+    expect(html).not.toContain("Independent verification is not recorded");
   });
   it("labels previews and attaches useful feedback controls to the result", () => {
     expect(renderToStaticMarkup(<Proof preview />)).toContain(

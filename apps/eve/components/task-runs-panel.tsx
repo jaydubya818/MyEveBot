@@ -60,8 +60,22 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
 
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => void load(), 4000);
-    return () => window.clearInterval(timer);
+    // Pause polling while the tab is hidden so background tabs don't rack up
+    // silent failures and don't waste requests the user will never see.
+    function startTimer() {
+      return window.setInterval(() => {
+        if (!document.hidden) void load();
+      }, 4000);
+    }
+    let timer = startTimer();
+    function onVisibility() {
+      if (!document.hidden) void load();
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [load]);
 
   const selected = tasks?.find((task) => task.id === selectedId) ?? null;
@@ -93,16 +107,27 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
     return <p className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">{error}</p>;
   }
   if (tasks === null) return <div className="flex justify-center py-12"><Loader size={18} /></div>;
+  // Stale-data banner: error occurred after the first successful load.
+  const staleWarning = error !== null && tasks !== null ? (
+    <p className="mb-4 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-2 text-sm text-kumo-warning">
+      Activity data may be stale — {error}
+    </p>
+  ) : null;
   if (tasks.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-kumo-hairline px-5 py-10 text-center">
-        <p className="text-sm font-medium">No audited tasks yet</p>
-        <p className="mt-1 text-sm text-kumo-subtle">Ask {AGENT_NAME} to run the local and isolated-preview self-test.</p>
-      </div>
+      <>
+        {staleWarning}
+        <div className="rounded-2xl border border-dashed border-kumo-hairline px-5 py-10 text-center">
+          <p className="text-sm font-medium">No audited tasks yet</p>
+          <p className="mt-1 text-sm text-kumo-subtle">Ask {AGENT_NAME} to run the local and isolated-preview self-test.</p>
+        </div>
+      </>
     );
   }
 
   return (
+    <>
+      {staleWarning}
     <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
       <ul className="flex flex-col gap-2" aria-label="Task runs">
         {tasks.map((task) => (
@@ -240,6 +265,7 @@ export function TaskRunsPanel({ onOpenThread }: { onOpenThread: (threadId: strin
         </article>
       )}
     </div>
+    </>
   );
 }
 
