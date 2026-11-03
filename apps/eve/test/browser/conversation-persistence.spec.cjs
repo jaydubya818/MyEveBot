@@ -92,6 +92,45 @@ test('failed save preserves staged attachments and retry is gated by storage', a
   await expect(composer).toHaveValue('Preserve this attachment draft.');
 });
 
+test('staged files cannot be removed during the save wait', async ({ page }) => {
+  const composer = page.getByRole('textbox', { name: 'Message Ava', exact: true });
+  await composer.fill('fixture pending attachment');
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Attach files', exact: true }).click();
+  await (await chooser).setFiles({ name: 'pending.txt', mimeType: 'text/plain', buffer: Buffer.from('Synthetic pending notes.') });
+  await expect(page.getByRole('button', { name: 'Remove pending.txt', exact: true })).toBeVisible();
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/threads/*', async route => {
+    if (route.request().method() === 'PUT') {
+      await gate;
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' });
+    } else await route.continue();
+  });
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
+  try {
+    await expect(page.getByRole('status').filter({ hasText: 'Saving conversation' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Remove pending.txt', exact: true })).toHaveCount(0);
+    await expect(page.getByText('pending.txt', { exact: true })).toBeVisible();
+    await expect(composer).toBeDisabled();
+  } finally { release(); }
+  await expect(page.getByRole('alert').filter({ hasText: 'Your conversation could not be saved' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove pending.txt', exact: true })).toBeVisible();
+  await expect(composer).toHaveValue('fixture pending attachment');
+});
+
+test('authenticated local runtime denies anonymous and forged-owner session creation', async ({ browser }) => {
+  const context = await browser.newContext();
+  try {
+    for (const path of ['/api/threads', '/eve/v1/session']) {
+      const response = path.includes('/eve/')
+        ? await context.request.post('http://localhost:3073' + path, { data: {}, headers: { 'x-myeve-owner-id': 'acceptance-sarah' } })
+        : await context.request.get('http://localhost:3073' + path);
+      expect(response.status()).toBe(401);
+    }
+  } finally { await context.close(); }
+});
+
 test('reconnect waits for the durable session before accepting a new draft', async ({ page }) => {
   const composer = page.getByRole('textbox', { name: 'Message Ava', exact: true });
   await composer.fill('fixture before reconnect');

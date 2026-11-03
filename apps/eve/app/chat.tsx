@@ -2172,6 +2172,7 @@ function ChatThread({
   }
 
   function removeAttachment(id: string) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setAttachments((prev) => prev.filter((attachment) => attachment.id !== id));
   }
 
@@ -2184,6 +2185,7 @@ function ChatThread({
   const activePaletteIndex = Math.min(paletteIndex, paletteCommands.length - 1);
 
   function applyCommand(command: SlashCommand) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setDraft(command.prompt);
     setPaletteIndex(0);
     composerRef.current?.focus();
@@ -2583,6 +2585,7 @@ function ChatThread({
                     type="button"
                     role="option"
                     aria-selected={commandIndex === activePaletteIndex}
+                    disabled={composerDisabled}
                     className={cn(
                       "flex w-full items-baseline gap-2 px-3 py-2 text-start text-sm",
                       commandIndex === activePaletteIndex && "bg-kumo-tint text-kumo-strong",
@@ -2632,7 +2635,7 @@ function ChatThread({
                         {formatBytes(attachment.size)}
                       </AttachmentDescription>
                     </AttachmentContent>
-                    {!uploading && <AttachmentActions>
+                    {!composerDisabled && <AttachmentActions>
                       <AttachmentAction
                         aria-label={`Remove ${attachment.name}`}
                         icon={XIcon}
