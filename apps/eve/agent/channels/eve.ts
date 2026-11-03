@@ -7,7 +7,7 @@ import { eveChannel } from "eve/channels/eve";
 
 import { getAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
-import { authenticateWebPrincipal } from "../../lib/web-auth.ts";
+import { authenticateWebPrincipal, webAuthRequired } from "../../lib/web-auth.ts";
 import { capabilityPrincipal } from "../../lib/capability-control/runtime.ts";
 import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
@@ -137,6 +137,7 @@ export function ownerChannelSession():AuthFn<Request>{
   }catch{throw new ForbiddenError({code:"invalid_owner_channel_claim",message:"Owner channel execution authority unavailable."});}
  };
 }
+const localDevelopmentAuth = localDev();
 export const eveAuth = [
   ownerChannelSession(),
   routineSession(),
@@ -146,7 +147,7 @@ export const eveAuth = [
   vercelOidc(),
   // Open on localhost for `eve dev` and the REPL. Production requests arrive
   // on the deployment host and therefore do not match this strategy.
-  localDev(),
+  (request: Request) => webAuthRequired() ? Promise.resolve(null) : localDevelopmentAuth(request),
 ] satisfies readonly AuthFn<Request>[];
 
 export default eveChannel({

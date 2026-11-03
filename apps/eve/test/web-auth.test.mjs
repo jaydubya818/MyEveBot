@@ -25,6 +25,7 @@ const productionEnv = {
 
 const AUTH_ENV_KEYS = [
   "NODE_ENV",
+  "MYEVE_ENGINEERING_MODE",
   "MYEVE_ACCESS_PASSWORD",
   "MYEVE_OWNER_ID",
   "MYEVE_SESSION_SECRET",
@@ -133,4 +134,21 @@ test("the Eve session auth chain rejects anonymous production origins", async ()
   } finally {
     restoreAuthEnv(previous);
   }
+});
+
+test("the authenticated dogfood session chain rejects anonymous loopback requests", async () => {
+  const previous = captureAuthEnv();
+  Object.assign(process.env, { ...productionEnv, NODE_ENV: 'development', MYEVE_ENGINEERING_MODE: 'dogfood' });
+  try {
+    const anonymous = await routeAuth(new Request('http://localhost:3073/eve/v1/session'), eveAuth);
+    assert.ok(anonymous instanceof Response);
+    assert.equal(anonymous.status, 401);
+    const token = createWebSessionToken(process.env);
+    const authenticated = await routeAuth(new Request('http://localhost:3073/eve/v1/session', {
+      headers: { cookie: `${WEB_SESSION_COOKIE}=${token}` },
+    }), eveAuth);
+    assert.ok(!(authenticated instanceof Response));
+    assert.equal(authenticated.principalId, 'owner-jay');
+    assert.equal(authenticated.authenticator, 'myeve-web-session');
+  } finally { restoreAuthEnv(previous); }
 });

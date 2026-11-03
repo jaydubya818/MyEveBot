@@ -11,20 +11,22 @@ export function subscribeToThreadOwnerConflicts(listener: (id: string) => void):
   return () => listeners.delete(listener);
 }
 
-export async function saveThreadForCurrentOwner(id: string, body: unknown): Promise<void> {
-  if (threadHasOwnerConflict(id)) return;
+export async function saveThreadForCurrentOwner(id: string, body: unknown): Promise<boolean> {
+  if (threadHasOwnerConflict(id)) return false;
   try {
     const response = await fetch(`/api/threads/${id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (response.status !== 409) return;
+    if (response.ok) return true;
+    if (response.status !== 409) return false;
     const result = (await response.json().catch(() => null)) as { error?: { code?: string } } | null;
-    if (result?.error?.code !== "thread_owner_conflict" || blockedThreadIds.has(id)) return;
+    if (result?.error?.code !== "thread_owner_conflict" || blockedThreadIds.has(id)) return false;
     blockedThreadIds.add(id);
     for (const listener of listeners) listener(id);
   } catch {
     // A transient failure is handled by the next server reconciliation sweep.
   }
+  return false;
 }

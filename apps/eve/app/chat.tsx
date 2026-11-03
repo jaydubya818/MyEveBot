@@ -1188,6 +1188,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function deleteThread(id: string) {
     try {
       ownerLocalStorage.removeItem(chatKey(id));
+      ownerSessionStorage.removeItem(`${chatKey(id)}:draft`);
     } catch {
       // Ignore storage failures.
     }
@@ -1587,6 +1588,12 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           }
           onTitle={(title) => setThreadTitle(index.activeId, title)}
           onActivity={(title) => touchThread(index.activeId, title)}
+          onPrepareSend={async () => {
+            const meta = indexRef.current.threads.find((thread) => thread.id === index.activeId);
+            if (!meta || !await saveThreadForCurrentOwner(meta.id, threadMetaBody(meta))) {
+              throw new Error("Conversation save failed.");
+            }
+          }}
           onPersist={(chat) => persistChat(index.activeId, chat)}
           onBusyChange={(busy) => setThreadBusy(index.activeId, busy)}
           onOpenSidebar={() => setSidebarOpen(true)}
@@ -1802,6 +1809,7 @@ function ChatThread({
   initialDraft,
   onTitle,
   onActivity,
+  onPrepareSend,
   onPersist,
   onBusyChange,
   onOpenSidebar,
@@ -1829,6 +1837,7 @@ function ChatThread({
   initialDraft?: string;
   onTitle: (title: string) => void;
   onActivity: (title?: string) => void;
+  onPrepareSend: () => Promise<void>;
   onPersist: (chat: SavedChat) => void;
   onBusyChange: (busy: boolean) => void;
   onOpenSidebar: () => void;
@@ -1866,7 +1875,18 @@ function ChatThread({
     };
   }
   const activeLabel = roleName ?? agentName;
-  const [draft, setDraft] = useState(initialDraft ?? "");
+  const [draft, setDraft] = useState(() => {
+    try {
+      return ownerSessionStorage.getItem(`${chatKey(threadId)}:draft`) ?? initialDraft ?? "";
+    } catch {
+      return initialDraft ?? "";
+    }
+  });
+  useEffect(() => {
+    try {
+      ownerSessionStorage.setItem(`${chatKey(threadId)}:draft`, draft);
+    } catch { /* Drafts remain available in the current component. */ }
+  }, [draft, threadId]);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
   // sessions are append-only, so the fork starts a fresh session and this
@@ -1878,6 +1898,8 @@ function ChatThread({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const uploadInProgress = useRef(false);
+  const preparingSend = useRef(false);
+  const [savingConversation, setSavingConversation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   // dragenter/dragleave fire for every child; count to avoid overlay flicker.
@@ -2076,14 +2098,15 @@ function ChatThread({
   }, []);
 
   const isBusy = resuming || agent.status === "submitted" || agent.status === "streaming";
+  const composerDisabled = uploading || savingConversation || resuming;
 
   // Report turn activity up so the sidebar can dot busy threads. Deliberately
   // not cleared on unmount: a turn keeps running server-side when the user
   // switches threads, and revisiting the thread resolves the real status.
   useEffect(() => {
-    onBusyChange(isBusy);
+    onBusyChange(isBusy || savingConversation || uploading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBusy]);
+  }, [isBusy, savingConversation, uploading]);
 
   // Per-turn cost/token totals from step.completed events, keyed by turnId so
   // each assistant reply can show what it cost.
@@ -2130,7 +2153,10 @@ function ChatThread({
 
   async function addFiles(files: Iterable<File>) {
     if (ownerConflict) return;
-    if (uploadInProgress.current) return;
+    if (uploadInProgress.current || preparingSend.current || resuming) {
+      setUploadError("Wait until the current message is ready before adding files.");
+      return;
+    }
     setUploadError(null);
     const additions: PendingAttachment[] = [];
     for (const file of files) {
@@ -2158,6 +2184,7 @@ function ChatThread({
   }
 
   function removeAttachment(id: string) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setAttachments((prev) => prev.filter((attachment) => attachment.id !== id));
   }
 
@@ -2170,6 +2197,7 @@ function ChatThread({
   const activePaletteIndex = Math.min(paletteIndex, paletteCommands.length - 1);
 
   function applyCommand(command: SlashCommand) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setDraft(command.prompt);
     setPaletteIndex(0);
     composerRef.current?.focus();
@@ -2187,6 +2215,7 @@ function ChatThread({
     recognition.interimResults = false;
     recognition.lang = navigator.language || "en-US";
     recognition.onresult = (event) => {
+      if (preparingSend.current || uploadInProgress.current) return;
       let transcript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
@@ -2213,11 +2242,12 @@ function ChatThread({
   async function sendDraft() {
     if (ownerConflict) return;
     const text = draft.trim();
-    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
+    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current || preparingSend.current) return;
+    recognitionRef.current?.stop();
+    if (!await prepareConversation()) return;
     const staged = attachments;
     let message: UserContent = text;
     setUploadError(null);
-    recognitionRef.current?.stop();
     if (staged.length > 0) {
       uploadInProgress.current = true;
       setUploading(true);
@@ -2281,13 +2311,31 @@ function ChatThread({
   }
 
   function editMessage(text: string) {
+    if (preparingSend.current || uploadInProgress.current || resuming) return;
     setDraft(text);
     composerRef.current?.focus();
   }
 
-  function retryMessage(text: string) {
+  async function prepareConversation(): Promise<boolean> {
+    preparingSend.current = true;
+    setSavingConversation(true);
+    setUploadError(null);
+    try {
+      await onPrepareSend();
+      return true;
+    } catch {
+      setUploadError("Your conversation could not be saved. Your draft is still here; try again.");
+      return false;
+    } finally {
+      preparingSend.current = false;
+      setSavingConversation(false);
+    }
+  }
+
+  async function retryMessage(text: string) {
     if (ownerConflict) return;
-    if (isBusy || text.length === 0) return;
+    if (isBusy || text.length === 0 || preparingSend.current || uploadInProgress.current) return;
+    if (!await prepareConversation()) return;
     onActivity();
     void agent.send(text);
   }
@@ -2474,7 +2522,7 @@ function ChatThread({
                           ? usageByTurn.get(message.metadata.turnId)
                           : undefined
                       }
-                      busy={isBusy}
+                      busy={isBusy || savingConversation || uploading}
                       isLastUser={message.id === lastUserId}
                       isLastAssistant={message.id === lastAssistantId}
                       onEdit={editMessage}
@@ -2549,6 +2597,7 @@ function ChatThread({
                     type="button"
                     role="option"
                     aria-selected={commandIndex === activePaletteIndex}
+                    disabled={composerDisabled}
                     className={cn(
                       "flex w-full items-baseline gap-2 px-3 py-2 text-start text-sm",
                       commandIndex === activePaletteIndex && "bg-kumo-tint text-kumo-strong",
@@ -2576,6 +2625,8 @@ function ChatThread({
           >
             {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
             {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
+            {savingConversation && <p role="status" className="px-2 py-1 text-sm">Saving conversation…</p>}
+            {resuming && <p role="status" className="px-2 py-1 text-sm">Restoring conversation…</p>}
             {attachments.length > 0 && (
               <AttachmentGroup className="px-1 pb-2">
                 {attachments.map((attachment) => (
@@ -2596,7 +2647,7 @@ function ChatThread({
                         {formatBytes(attachment.size)}
                       </AttachmentDescription>
                     </AttachmentContent>
-                    {!uploading && <AttachmentActions>
+                    {!composerDisabled && <AttachmentActions>
                       <AttachmentAction
                         aria-label={`Remove ${attachment.name}`}
                         icon={XIcon}
@@ -2609,7 +2660,7 @@ function ChatThread({
             )}
             <InputArea
               ref={composerRef}
-              disabled={uploading}
+              disabled={composerDisabled}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
@@ -2674,7 +2725,7 @@ function ChatThread({
                 variant="ghost"
                 shape="square"
                 icon={PlusIcon}
-                disabled={uploading}
+                disabled={composerDisabled}
                 aria-label="Attach files"
                 title="Attach files"
                 className="text-kumo-subtle"
@@ -2692,6 +2743,7 @@ function ChatThread({
                       listening ? <MicrophoneIcon weight="fill" /> : <MicrophoneIcon />
                     }
                     aria-label={listening ? "Stop voice input" : "Start voice input"}
+                    disabled={composerDisabled}
                     title={listening ? "Stop voice input" : "Start voice input"}
                     className={cn(
                       "text-kumo-subtle",
@@ -2716,7 +2768,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
+                    disabled={composerDisabled || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>
