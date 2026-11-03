@@ -15,9 +15,9 @@ it("keeps a conflicting local thread and stops repeat uploads while new threads 
   const localChat = { events: [{ type: "message.received", data: { message: "Keep me" } }] };
   const body = { title: "Older", chat: localChat };
 
-  await saveThreadForCurrentOwner("older", body);
-  await saveThreadForCurrentOwner("older", body);
-  await saveThreadForCurrentOwner("new", { title: "New chat", chat: {} });
+  expect(await saveThreadForCurrentOwner("older", body)).toBe(false);
+  expect(await saveThreadForCurrentOwner("older", body)).toBe(false);
+  expect(await saveThreadForCurrentOwner("new", { title: "New chat", chat: {} })).toBe(true);
 
   expect(fetch.mock.calls.map(([url]) => url)).toEqual(["/api/threads/older", "/api/threads/new"]);
   expect(threadHasOwnerConflict("older")).toBe(true);
@@ -33,9 +33,16 @@ it("does not quarantine a thread after a transient server error", async () => {
   vi.stubGlobal("fetch", fetch);
   const { saveThreadForCurrentOwner, threadHasOwnerConflict } = await import("./thread-owner-conflict");
 
-  await saveThreadForCurrentOwner("retry", { title: "Retry" });
-  await saveThreadForCurrentOwner("retry", { title: "Retry" });
+  expect(await saveThreadForCurrentOwner("retry", { title: "Retry" })).toBe(false);
+  expect(await saveThreadForCurrentOwner("retry", { title: "Retry" })).toBe(false);
 
   expect(fetch).toHaveBeenCalledTimes(2);
   expect(threadHasOwnerConflict("retry")).toBe(false);
+});
+
+it("reports a failed network save without quarantining the thread", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Offline")));
+  const { saveThreadForCurrentOwner, threadHasOwnerConflict } = await import("./thread-owner-conflict");
+  expect(await saveThreadForCurrentOwner("offline", { title: "Draft" })).toBe(false);
+  expect(threadHasOwnerConflict("offline")).toBe(false);
 });

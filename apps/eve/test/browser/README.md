@@ -62,6 +62,19 @@ and a single durable cancellation followed by another message. Voice first-send,
 resume, and cancellation-during-creation are covered by `lib/voice/dispatch.test.ts`.
 Browser tests alone do not qualify a real microphone, phone call, or cloud Computer.
 
+### Authenticated conversation persistence
+
+In the isolated source copy above, launch `local-server.cjs` with
+`MYEVE_FIXTURE_ACCESS_PASSWORD` set to a synthetic password of at least 12
+characters. The server creates a temporary session secret and enables the real
+owner-login boundary. Use `http://localhost:3073` for this authenticated fixture.
+
+Run `conversation-persistence.spec.cjs` with `MYEVE_SESSION_FIXTURE=1` and the
+same `MYEVE_FIXTURE_ACCESS_PASSWORD`. It checks failed-save draft retention,
+first-send persistence, reload, and follow-up on the same durable session.
+The local database adapter accepts Neon's `application_name` metadata while
+still rejecting changes to the host, port, database, credentials, or other options.
+
 Use `localhost` (not a numeric host) in the fixture's database URL: Next wraps
 fetch and parses Neon's derived API hostname before the test adapter runs.
 Existing schema upgrade suites have their own explicit loopback database guards.

@@ -3,6 +3,7 @@
   "outputDirectory": null,
   "git": {
     "deploymentEnabled": {
+      "codex/ui-e2e-20261102": false,
       "main": false,
       "codex/peer-message-answers": false,
       "codex/federation-request-deadline": false,

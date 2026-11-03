@@ -3,6 +3,8 @@ const { Pool } = require('pg');
 const { Agent, Dispatcher, setGlobalDispatcher } = require('undici');
 const configured = new URL(process.env.MYEVE_TEST_DATABASE_URL || '');
 if (!['localhost', '127.0.0.1'].includes(configured.hostname) || !configured.port || configured.pathname !== '/blocker_fixes') throw new Error('Use the isolated local blocker_fixes database.');
+const databaseIdentity = new URL(configured);
+databaseIdentity.searchParams.delete('application_name');
 const pool = new Pool({connectionString: configured.href, max:8});
 const originalFetch = globalThis.fetch;
 const fixtureOrigin = 'http://127.0.0.1:3074';
@@ -23,7 +25,9 @@ globalThis.fetch = async (input, init) => {
   const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
   const connection = headers.get('Neon-Connection-String');
   if (connection) {
-    if (new URL(connection).href !== configured.href) throw new Error('Non-isolated database denied');
+    const requestedDatabase = new URL(connection);
+    requestedDatabase.searchParams.delete('application_name');
+    if (requestedDatabase.href !== databaseIdentity.href) throw new Error('Non-isolated database denied');
     const body = JSON.parse(init.body), client = await pool.connect();
     try {
       if (body.queries) await client.query('BEGIN');

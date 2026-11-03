@@ -2,6 +2,8 @@ const http = require('node:http');
 const { spawn } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
 const path = require('node:path');
+const fixturePassword = process.env.MYEVE_FIXTURE_ACCESS_PASSWORD;
+if (fixturePassword && fixturePassword.length < 12) throw new Error('Use a fixture password of at least 12 characters.');
 // In-memory provider fixture, while registration, ownership and inventory use
 // real application routes and isolated PostgreSQL. Never logs token/body data.
 const objects = new Map();
@@ -33,6 +35,7 @@ const fixture = http.createServer(async (req,res) => {
 });
 fixture.listen(3074,'127.0.0.1');
 const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,NODE_PATH:process.env.NODE_PATH,
+  ...(fixturePassword ? {MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_ACCESS_PASSWORD:fixturePassword,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex')} : {}),
   MYEVE_TEST_DATABASE_URL:process.env.MYEVE_TEST_DATABASE_URL,DATABASE_URL:process.env.MYEVE_TEST_DATABASE_URL,
   OWNER_NAME:'Sarah',NEXT_PUBLIC_OWNER_NAME:'Sarah',NEXT_PUBLIC_AGENT_NAME:'Ava',MYEVE_OWNER_ID:'acceptance-sarah',OWNER_TIMEZONE:'America/Los_Angeles',
   VERCEL_BLOB_API_URL:'http://127.0.0.1:3074',NEXT_PUBLIC_VERCEL_BLOB_API_URL:'http://127.0.0.1:3074',

@@ -63,9 +63,9 @@ describe("real AI SDK evaluation through a mocked Gateway transport", () => {
       });
       expect(fetch).toHaveBeenCalledTimes(1);
       const [url, init] = fetch.mock.calls[0]!;
-      expect(String(url)).toContain("/evaluation-model");
+      expect(new URL(String(url)).pathname).toBe("/v4/ai/decision-model");
       const body = JSON.parse(init!.body as string);
-      expect(body.state).toBe(request.state);
+      expect(body.stateParts).toEqual([{ type: "text", text: request.state }]);
       expect(body.questions.classification).toEqual({
         type: "choice",
         instructions: request.question,
