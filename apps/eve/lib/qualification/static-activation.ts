@@ -102,12 +102,23 @@ export class FileActivationPermits {
     return Number.isFinite(from) && Number.isFinite(to) && from <= now && now < to && to - from <= MAX_WINDOW_MS;
   }
 
-  private async decide(request: ActivationRequest): Promise<boolean> {
+  /** Non-consuming validation of the same approval `permit` would consume (signature, window, scope, installation, operation, digest, version, unconsumed). */
+  check = (request: ActivationRequest): Promise<boolean> => {
+    const run = this.chain.then(() => this.decide(request, false), () => this.decide(request, false));
+    this.chain = run.catch(() => undefined);
+    return run.catch(() => false);
+  };
+
+  private async decide(request: ActivationRequest, consume = true): Promise<boolean> {
     const now = this.c.now?.() ?? Date.now();
     if (request.operation !== "PUBLISH" && request.operation !== "ROLLBACK") return false;
     const consumed = join(this.c.dir, "consumed");
     for (const { payload } of this.candidates()) {
       if (!this.matches(payload, request, now)) continue;
+      if (!consume) {
+        if (!privateDirectory(this.c.dir)) return false;
+        try { lstatSync(join(consumed, createHash("sha256").update(canonical(payload)).digest("hex"))); continue; } catch { return true; }
+      }
       mkdirSync(consumed, { recursive: true, mode: 0o700 });
       if (!privateDirectory(consumed)) return false;
       // Single use: exclusive creation of the marker is the consumption. A crash after it wastes the approval (fail closed), never reuses it.
@@ -120,4 +131,4 @@ export class FileActivationPermits {
 }
 
 /** `StaticReleaseConfig.activation` for a profile that pins approver keys and an approvals directory. */
-export const fileActivation = (c: ConstructorParameters<typeof FileActivationPermits>[0]): NonNullable<StaticReleaseConfig["activation"]> => ({ permit: new FileActivationPermits(c).permit });
+export const fileActivation = (c: ConstructorParameters<typeof FileActivationPermits>[0]): NonNullable<StaticReleaseConfig["activation"]> => (() => { const permits = new FileActivationPermits(c); return { permit: permits.permit, check: permits.check }; })();

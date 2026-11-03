@@ -35,7 +35,8 @@ export type ActivationRequest = { operation: ActivationOperation; appId: string;
 export type StaticReleaseConfig = {
   /** Private directory (0700, this uid, not a symlink) holding releases/ and states/. */
   root: string; environment: "myeve-qdev-20261029"; appId: string; ownerId: string; projectSha256: string; installationId: string;
-  activation?: { permit(request: ActivationRequest): Promise<boolean> };
+  /** `permit` consumes a single-use approval. `check` (optional) validates the same approval WITHOUT consuming it; with it, an unauthorized request never reaches the claim. */
+  activation?: { permit(request: ActivationRequest): Promise<boolean>; check?(request: ActivationRequest): Promise<boolean> };
   now?: () => Date; maxVersions?: number;
 };
 type Version = { version: number; digest: string; publishedAt: string };
@@ -106,11 +107,10 @@ export class StaticReleaseController {
     return JSON.stringify({ schema: "myeve.qdev-static-release-identity/v1", appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
       environment: this.c.environment, installationId: this.c.installationId });
   }
-  private get pendingPath() { return join(this.c.root, "identity.pending"); }
-  /** Compares a claim file (identity.json or the provisional identity.pending) with this controller's identity. Absent file: returns false. */
-  private checkClaimFile(path: string): boolean {
-    try { lstatSync(path); } catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return false; throw e; }
-    const text = readNoFollow(path, 4096).toString("utf8");
+  /** Compares the root's claimed identity with this controller's. Absent file: nothing claimed yet (returns false). */
+  private checkIdentityFile(): boolean {
+    try { lstatSync(this.identityPath); } catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return false; throw e; }
+    const text = readNoFollow(this.identityPath, 4096).toString("utf8");
     if (text === this.identityRecord()) return true;
     let claimed: Record<string, unknown>;
     try { claimed = JSON.parse(text); } catch { throw new StaticPublishRefused("QDEV_PUBLISH_STATE_INVALID"); }
@@ -118,50 +118,22 @@ export class StaticReleaseController {
     if (claimed.appId !== this.c.appId || claimed.ownerId !== this.c.ownerId || claimed.projectSha256 !== this.c.projectSha256) throw new StaticPublishRefused("QDEV_PUBLISH_STATE_FOREIGN");
     throw new StaticPublishRefused("QDEV_PUBLISH_INSTALLATION_IDENTITY");
   }
-  private checkIdentityFile(): boolean { return this.checkClaimFile(this.identityPath); }
-  /** Exclusively links a fresh immutable copy of this installation's identity record at `path`. Returns false if `path` already exists. */
-  private linkIdentity(path: string): boolean {
+  /**
+   * Atomically claims this release root for exactly this installation (exclusive link(2) of an immutable identity file, like the state sequence). The first
+   * claimant wins; every other installation refuses QDEV_PUBLISH_INSTALLATION_IDENTITY. It is only reached by a request whose approval was already validated
+   * (non-consuming) and it happens BEFORE the approval is consumed, so a losing concurrent publisher consumes no approval and writes no release. There is no
+   * provisional claim: a refused, unauthorized or invalid request never reaches this point and so never claims. A crash after the claim leaves the root owned by
+   * the installation that proved a valid approval (fail closed for every other installation); a legacy identity.pending file is never read.
+   */
+  private claimInstallation() {
+    if (this.checkIdentityFile()) return;
     const tmp = join(this.c.root, ".tmp-identity-" + randomBytes(8).toString("hex"));
     const fd = openSync(tmp, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o444);
     try { writeSync(fd, this.identityRecord()); fsyncSync(fd); } finally { closeSync(fd); }
-    try { linkSync(tmp, path); }
-    catch (e) { if ((e as NodeJS.ErrnoException).code === "EEXIST") return false; throw e; }
+    try { linkSync(tmp, this.identityPath); }
+    catch (e) { if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e; this.checkIdentityFile(); return; }   // lost the race: compare with the winner
     finally { try { rmSync(tmp); } catch { /* already gone */ } }
     fsyncDir(this.c.root);
-    return true;
-  }
-  private dropPending() { try { unlinkSync(this.pendingPath); fsyncDir(this.c.root); } catch { /* already gone */ } }
-  /**
-   * Phase 1 of the installation claim, BEFORE the activation permit: reserve the root for this installation with the PROVISIONAL claim file
-   * identity.pending (exclusive link(2)). A concurrent request for another installation loses here and refuses
-   * QDEV_PUBLISH_INSTALLATION_IDENTITY, consuming no approval and writing no release. A provisional claim is not ownership: a refused request releases it
-   * (abortClaim) and never leaves identity.json, so an unauthorized request can never take the root from the installation that is approved.
-   * "claimed" = identity.json already is this installation's; "shared" = this installation's provisional claim is held by a concurrent request of its own.
-   */
-  private beginClaim(): "claimed" | "created" | "shared" {
-    for (let attempt = 0; attempt < 4; attempt++) {
-      if (this.checkIdentityFile()) return "claimed";
-      if (!this.linkIdentity(this.pendingPath)) { if (this.checkClaimFile(this.pendingPath)) return "shared"; continue; }   // foreign provisional claim throws; a vanished one retries
-      try { if (this.checkIdentityFile()) { this.dropPending(); return "claimed"; } }
-      catch (e) { this.dropPending(); throw e; }
-      return "created";
-    }
-    throw new StaticPublishRefused("QDEV_PUBLISH_STATE_CONFLICT");
-  }
-  /** The request was refused (not authorized, invalid target, host error): give the provisional claim back. */
-  private abortClaim(claim: "claimed" | "created" | "shared") { if (claim === "created") this.dropPending(); }
-  /** Phase 2, only after the activation permit succeeded: the permanent immutable identity.json (a lost race compares with the winner). */
-  private commitClaim(claim: "claimed" | "created" | "shared") {
-    if (claim === "claimed") return;
-    try { if (!this.linkIdentity(this.identityPath)) this.checkIdentityFile(); }
-    finally { if (claim === "created") this.dropPending(); }
-  }
-  /** Claim -> permit -> permanent claim. A refusal at any point leaves no identity.json behind. */
-  private async authorize(operation: ActivationOperation, hex: string, version?: number, claims = true) {
-    const claim = claims ? this.beginClaim() : "claimed";
-    try { await this.permit(operation, hex, version); }
-    catch (e) { this.abortClaim(claim); throw e; }
-    this.commitClaim(claim);
   }
   private releaseDir(hex: string) { return join(this.c.root, "releases", hex); }
   private now() { return (this.c.now?.() ?? new Date()).toISOString(); }
@@ -214,10 +186,24 @@ export class StaticReleaseController {
     this.chain = run.catch(() => undefined);
     return run;
   }
-  private async permit(operation: ActivationOperation, hex: string, version?: number) {
-    const ok = await this.c.activation?.permit({ operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
-      environment: this.c.environment, installationId: this.c.installationId, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) });
-    if (ok !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
+  private request(operation: ActivationOperation, hex: string, version?: number): ActivationRequest {
+    return { operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
+      environment: this.c.environment, installationId: this.c.installationId, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) };
+  }
+  /**
+   * validate the approval WITHOUT consuming it -> claim the root (single winner; a loser consumed nothing) -> consume the approval. A host whose activation has
+   * no non-consuming `check` can only consume first, then claim.
+   */
+  private async authorize(operation: ActivationOperation, hex: string, version?: number, claims = true) {
+    const request = this.request(operation, hex, version), activation = this.c.activation;
+    if (activation?.check) {
+      if ((await activation.check(request)) !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
+      if (claims) this.claimInstallation();
+      if ((await activation.permit(request)) !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
+      return;
+    }
+    if ((await activation?.permit(request)) !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
+    if (claims) this.claimInstallation();
   }
 
   /** Byte-exact verification of a stored release. Returns its manifest or throws QDEV_PUBLISH_RELEASE_TAMPERED. */
@@ -284,7 +270,7 @@ export class StaticReleaseController {
     const hex = artifact.artifactDigest.replace(/^sha256:/, "");
     if (!HEX.test(hex)) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_RETAINED");
     this.loadState();          // refuse a foreign (owner, project, installation) or invalid (incl. pre-v2) state BEFORE an approval is consumed or anything is written
-    await this.authorize("PUBLISH", hex);   // provisional claim (a concurrent other installation loses here, consuming no approval), permit, then the permanent claim
+    await this.authorize("PUBLISH", hex);   // non-consuming approval check, atomic claim (a concurrent other installation loses here, consuming no approval), then consume
     this.writeRelease(artifact, hex);
     return this.mutate(s => {
       const current = s.installed === null ? undefined : s.versions.find(v => v.version === s.installed);

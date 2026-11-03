@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,generateKeyPairSync} from 'node:crypto';
-import {mkdtempSync,mkdirSync,writeFileSync,chmodSync,readdirSync,existsSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,chmodSync,readdirSync,existsSync,rmSync,readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -189,20 +189,50 @@ test('DJR-02 round 3 #3: an invalid restore target is refused BEFORE the approva
   assert.equal(calls,0,'the permit is never asked for an invalid target');
 });
 
-test('DJR-02 round 3 #3: the provisional claim excludes a concurrent other installation (it consumes no approval) and is released when the first request is refused',async()=>{
+test('DJR-02 round 4: a crash or failure between the claim and the consumption leaves the root owned by the installation that proved a valid approval; other installations stay refused with 0 approvals consumed',async()=>{
   const root=mk(),artA=await art(F1,'1'),artB=await art({'dist/index.html':Buffer.from('<html>b</html>')},'2');
-  const dirB=approvalsDir();place(dirB,publishApproval(artB,B,'synthetic-provisional-claim-B-nonce'));
-  let release;const gate=new Promise(r=>{release=r;});let entered;const inside=new Promise(r=>{entered=r;});
-  const a=ctl(root,A,{activation:{permit:async()=>{entered();await gate;return false;}}}),b=ctl(root,B,{activation:permits(dirB,B)});
-  const pendingA=a.publish(artA);                                                    // A holds the provisional claim while its permit is pending
-  await inside;
-  assert.deepEqual(claimFiles(root),{identity:false,pending:true});
-  await assert.rejects(b.publish(artB),e=>e.code==='QDEV_PUBLISH_INSTALLATION_IDENTITY');assert.equal(consumed(dirB),0,'B lost the claim before consuming its approval');
-  assert.deepEqual(readdirSync(join(root,'releases')),[]);
-  release();await assert.rejects(pendingA,e=>e.code==='QDEV_PUBLISH_NOT_AUTHORIZED');
-  assert.deepEqual(claimFiles(root),noClaim,'A was refused: its provisional claim is gone');
-  assert.equal((await b.publish(artB)).version,1);assert.equal(consumed(dirB),1);    // B, authorized, now owns the root
-  assert.deepEqual(claimFiles(root),{identity:true,pending:false});
+  const dirA=approvalsDir(),dirB=approvalsDir();place(dirA,publishApproval(artA,A,'synthetic-crash-claim-A-nonce'));place(dirB,publishApproval(artB,B,'synthetic-crash-claim-B-nonce'));
+  const real=permits(dirA,A);
+  const crashing=ctl(root,A,{activation:{check:real.check,permit:async()=>{throw new Error('process died before consumption');}}});
+  await assert.rejects(crashing.publish(artA),/process died/);
+  assert.deepEqual(claimFiles(root),{identity:true,pending:false});assert.equal(consumed(dirA),0,'the approval was never consumed');
+  await assert.rejects(ctl(root,B,{activation:permits(dirB,B)}).publish(artB),e=>e.code==='QDEV_PUBLISH_INSTALLATION_IDENTITY');assert.equal(consumed(dirB),0);
+  assert.equal((await ctl(root,A,{activation:permits(dirA,A)}).publish(artA)).version,1);assert.equal(consumed(dirA),1);   // A is never locked out
+});
+
+test('DJR-02 round 4: A1/A2/B overlap over an empty root - exactly one installation owns it, the loser consumes nothing and writes no release, same-installation requests share the claim',async()=>{
+  const root=mk(),artA=await art(F1,'1'),artB=await art({'dist/index.html':Buffer.from('<html>b</html>')},'2');
+  const dirA=approvalsDir(),dirB=approvalsDir();
+  place(dirA,publishApproval(artA,A,'synthetic-overlap-A1-nonce'),'a1.json');place(dirA,publishApproval(artA,A,'synthetic-overlap-A2-nonce'),'a2.json');place(dirB,publishApproval(artB,B,'synthetic-overlap-B-nonce'));
+  const a1=ctl(root,A,{activation:permits(dirA,A)}),a2=ctl(root,A,{activation:permits(dirA,A)}),b=ctl(root,B,{activation:permits(dirB,B)});
+  const r=await Promise.allSettled([a1.publish(artA),a2.publish(artA),b.publish(artB)]);
+  const owner=JSON.parse(readFileSync(join(root,'identity.json'),'utf8')).installationId;
+  if(owner===A.installationId){
+    assert.equal(r[0].status,'fulfilled');assert.equal(r[1].status,'fulfilled');assert.equal(r[2].status,'rejected');assert.equal(r[2].reason.code,'QDEV_PUBLISH_INSTALLATION_IDENTITY');
+    assert.equal(consumed(dirB),0);assert.deepEqual(readdirSync(join(root,'releases')),[artA.artifactDigest.replace(/^sha256:/,'')]);
+  }else{
+    assert.equal(r[2].status,'fulfilled');assert.equal(r[0].status,'rejected');assert.equal(r[1].status,'rejected');
+    assert.equal(r[0].reason.code,'QDEV_PUBLISH_INSTALLATION_IDENTITY');assert.equal(consumed(dirA),0);assert.deepEqual(readdirSync(join(root,'releases')),[artB.artifactDigest.replace(/^sha256:/,'')]);
+  }
+  assert.equal(existsSync(join(root,'identity.pending')),false);
+});
+
+test('DJR-02 round 4: a legacy identity.pending file is never read and cannot block the approved installation; an unauthorized B never reaches the claim',async()=>{
+  const root=mk(),artA=await art(F1,'1');
+  writeFileSync(join(root,'identity.pending'),JSON.stringify({schema:'myeve.qdev-static-release-identity/v1',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,environment:ENV,installationId:'foreign-installation'}));
+  const dirA=approvalsDir(),dirB=approvalsDir();place(dirA,publishApproval(artA,A,'synthetic-legacy-pending-nonce'));
+  await assert.rejects(ctl(root,B,{activation:permits(dirB,B)}).publish(artA),e=>e.code==='QDEV_PUBLISH_NOT_AUTHORIZED');
+  assert.equal(existsSync(join(root,'identity.json')),false);
+  assert.equal((await ctl(root,A,{activation:permits(dirA,A)}).publish(artA)).version,1);
+});
+
+test('DJR-02 round 4: check validates an approval without consuming it',async()=>{
+  const plan=await absencePlan(A),dir=approvalsDir();place(dir,approvalFor(plan,A));
+  const request={operation:'ROLLBACK',appId:'app-1',ownerId:'owner-q1',projectSha256:PROJECT,environment:ENV,installationId:'inst-1',digest:'sha256:'+plan.absenceAuthenticationSha256};
+  const p=permits(dir,A);
+  assert.equal(await p.check(request),true);assert.equal(await p.check(request),true);assert.equal(consumed(dir),0);
+  assert.equal(await p.check({...request,installationId:'foreign-installation'}),false);
+  assert.equal(await p.permit(request),true);assert.equal(await p.check(request),false,'a consumed approval no longer checks');
 });
 
 test('DJR-02 round 2: a schema-v1 (pre-installation) release root is rejected before any approval is consumed or any release is written, for every installation',async()=>{
