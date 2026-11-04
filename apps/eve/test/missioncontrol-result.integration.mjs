@@ -154,7 +154,11 @@ export async function prepareCompletedResultConsumer(db) {
     const mission=await inspect(missionId);
     if(selected.includes('same-tenant-Mission-owner-change-denied')) {
       await fault(missionId,{ownerOperatorId:s.peerId});
-      try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext),gatewayBlocked));}
+      try{await check('same-tenant-Mission-owner-change-denied',async()=>{
+        await assert.rejects(()=>db.owner.action('sofieEnterprise:command',signedCommand(config,input)),/ENTERPRISE_ACCESS_DENIED|MISSION_UNAVAILABLE/);
+        await assert.rejects(()=>sendEnterpriseCommand(config,input),/ENTERPRISE_COMMAND_DENIED/);
+        await assert.rejects(()=>call(sameContext),gatewayBlocked);
+      });}
       finally{await fault(missionId,{ownerOperatorId:mission.ownerOperatorId});}
     }
     const plan=await inspect(connection.resultScope.planId);
@@ -167,7 +171,11 @@ export async function prepareCompletedResultConsumer(db) {
       try{await assert.rejects(()=>call(ctx),error=>error.status==='result_unknown');await available(()=>call(ctx),'lost-ack-readback');}finally{globalThis.fetch=original;}
     });
     if(selected.includes('revocation-denies-reconnect'))await mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,decision:'REVOKE'});
-    await check('revocation-denies-reconnect',()=>assert.rejects(()=>call(sameContext),gatewayBlocked));
+    await check('revocation-denies-reconnect',async()=>{
+      await assert.rejects(()=>db.owner.action('sofieEnterprise:command',signedCommand(config,input)),/ENTERPRISE_ACCESS_DENIED|MISSION_UNAVAILABLE/);
+      await assert.rejects(()=>sendEnterpriseCommand(config,input),/ENTERPRISE_COMMAND_DENIED/);
+      await assert.rejects(()=>call(sameContext),gatewayBlocked);
+    });
     await check('consumer-never-dispatches-or-settles',async()=>assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'}),beforeRuns));
     result.actions=(await pool.query('SELECT status,count(*)::int AS count FROM action_requests GROUP BY status ORDER BY status')).rows;
     result.status='PASS';return result;
