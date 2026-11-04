@@ -7,7 +7,7 @@ import {randomBytes,randomUUID} from 'node:crypto';
 import {Pool} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
-import {enterpriseConfig,signedCommand} from '../lib/missioncontrol/consumer.ts';
+import {enterpriseConfig,signedCommand,sendEnterpriseCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
 const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'6d601e7cfca5cadf5e9eb0c373b85686d66826d7';
 assert.match(expectedMissionControlSha,/^[a-f0-9]{40}$/,'An exact MissionControl source SHA is required');
@@ -79,7 +79,12 @@ try {
   let status;await check('actual-tool-status-and-honest-Result-unavailability',async()=>{status=await call(read);assert.equal(status.receipt.response.mission.state,'DRAFT');assert.equal(status.receipt.response.resultProof.status,'NOT_AVAILABLE');});
   await mutate('missions:savePlanDraft',{projectId:s.projectId,missionId,idempotencyKey:'sofie-consumer-plan',summary:'HR platform decomposition',rollbackApproach:'No execution.',estimatedCostUsd:0,assertions:[],workOrderBlueprints:proposal.workstreams.map((title,i)=>({id:'hr-'+i,title,desiredOutcome:title,sequence:i,role:'WORKER',isMutating:false,priority:3,riskLevel:'LOW',constraints:['Draft only'],requiredApprovals:[],dependsOnBlueprintIds:[],assertionIds:[]}))});
   await check('Plan-milestones-Needs-You-consumed',async()=>{status=await call(read);assert.equal(status.receipt.response.plan.milestones.length,4);assert.equal(status.receipt.response.plan.status,'DRAFT');assert.ok(status.receipt.response.needsYou);});
-  await check('stale-Plan-denied',()=>assert.rejects(()=>call({...read,expectedPlanDigest:'sha256:'+'0'.repeat(64)}),accessDenied));
+  await check('stale-Plan-denied',async()=>{
+    const stale={...read,expectedPlanDigest:'sha256:'+'0'.repeat(64)};
+    await assert.rejects(()=>sendEnterpriseCommand(config,stale),/ENTERPRISE_COMMAND_DENIED/);
+    // The gateway conservatively retains adapter failures as uncertain observations.
+    await assert.rejects(()=>call(stale),error=>error.status==='result_unknown');
+  });
   await check('restart-no-additional-Mission',async()=>{await db.restart();assert.equal((await call(submit)).receipt.response.missionId,missionId);});
   const sameContext=context();await call(read,sameContext);
   await check('duplicate-tool-delivery-durable-receipt',async()=>{const before=await pool.query('SELECT count(*)::int AS n FROM action_requests');await call(read,sameContext);assert.equal((await pool.query('SELECT count(*)::int AS n FROM action_requests')).rows[0].n,before.rows[0].n);});
