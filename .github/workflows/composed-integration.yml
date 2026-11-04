@@ -1,0 +1,57 @@
+name: Composed MyEve MissionControl integration
+on:
+  pull_request:
+    paths:
+      - apps/eve/**
+      - .github/workflows/composed-integration.yml
+  push:
+    branches: [codex/integration-reconcile-20261104]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-backends:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: jaydubya818/MissionControl
+          ref: c685f05b3461e43cc2cbd519cd26ddcd667eeaf0
+          path: .qualification/missioncontrol
+          persist-credentials: false
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+        with:
+          version: '9.0.0'
+          package_json_file: .qualification/missioncontrol/package.json
+      - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm run ci:prepare
+        working-directory: .qualification/missioncontrol
+      - name: Obtain exact local Convex test binary
+        shell: bash
+        run: |
+          curl --fail --location --proto '=https' --output "$RUNNER_TEMP/convex.zip" https://github.com/get-convex/convex-backend/releases/download/precompiled-2026-09-28-5c7cb5b/convex-local-backend-x86_64-unknown-linux-gnu.zip
+          echo "5b4adbe9fc2f9985c66eb12b19dadedf2700d8796c839ddba09802196099f241  $RUNNER_TEMP/convex.zip" | sha256sum --check
+          mkdir "$RUNNER_TEMP/convex"
+          unzip -q "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
+          chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
+      - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+      - name: Authenticated command, owner isolation, duplicate and recovery checks
+        env:
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MISSIONCONTROL_EXPECTED_SHA: c685f05b3461e43cc2cbd519cd26ddcd667eeaf0
+          MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/composed-integration"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: composed-integration-evidence
+          path: ${{ runner.temp }}/composed-integration
+          if-no-files-found: error

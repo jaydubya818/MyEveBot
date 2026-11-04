@@ -77,19 +77,6 @@ try {
   let status;await check('actual-tool-status-and-honest-Result-unavailability',async()=>{status=await call(read);assert.equal(status.receipt.response.mission.state,'DRAFT');assert.equal(status.receipt.response.resultProof.status,'NOT_AVAILABLE');});
   await mutate('missions:savePlanDraft',{projectId:s.projectId,missionId,idempotencyKey:'sofie-consumer-plan',summary:'HR platform decomposition',rollbackApproach:'No execution.',estimatedCostUsd:0,assertions:[],workOrderBlueprints:proposal.workstreams.map((title,i)=>({id:'hr-'+i,title,desiredOutcome:title,sequence:i,role:'WORKER',isMutating:false,priority:3,riskLevel:'LOW',constraints:['Draft only'],requiredApprovals:[],dependsOnBlueprintIds:[],assertionIds:[]}))});
   await check('Plan-milestones-Needs-You-consumed',async()=>{status=await call(read);assert.equal(status.receipt.response.plan.milestones.length,4);assert.equal(status.receipt.response.plan.status,'DRAFT');assert.ok(status.receipt.response.needsYou);});
-  await check('composed-Mission-owner-and-capability-admission-deny-before-Work',async()=>{
-    const before=await db.owner.query('missions:get',{missionId});
-    db.setEnvironment('MC_CAPABILITY_ENVIRONMENT','qualification');
-    db.setEnvironment('MC_CAPABILITY_INSTALLATION_ID','synthetic-integration-reconcile');
-    db.setEnvironment('MC_CAPABILITY_CONTROL_ENABLED','true');
-    try {
-      await assert.rejects(()=>mutate('missions:start',{missionId,idempotencyKey:'foreign-start'},db.peer),/MISSION_UNAVAILABLE|FORBIDDEN/);
-      await assert.rejects(()=>mutate('missions:start',{missionId,idempotencyKey:'owner-without-permits'}),/CAPABILITY_POLICY_REVALIDATION_UNAVAILABLE/);
-      assert.deepEqual(await db.owner.query('missions:get',{missionId}),before);
-      for(const table of ['workOrders','workflowRuns','inferenceReservations','factoryProviderReservations'])
-        assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);
-    } finally { db.setEnvironment('MC_CAPABILITY_CONTROL_ENABLED','false'); }
-  });
   await check('stale-Plan-denied',()=>assert.rejects(()=>call({...read,expectedPlanDigest:'sha256:'+'0'.repeat(64)})));
   await check('restart-no-additional-Mission',async()=>{await db.restart();assert.equal((await call(submit)).receipt.response.missionId,missionId);});
   const sameContext=context();await call(read,sameContext);
@@ -122,6 +109,26 @@ try {
   });
   await mutate('sofieEnterprise:decide',{...decision,decision:'REVOKE'});
   await check('revocation-denies-fresh-status-cached-replay-and-submit',async()=>{await assert.rejects(()=>call(read,sameContext));await assert.rejects(()=>call(read));await assert.rejects(()=>call(submit));});
+  await check('composed-Mission-owner-and-capability-admission-deny-before-Work',async()=>{
+    const scope=await mutate('nativeFixture:deliveryScope',{projectId:s.projectId});
+    const created=await mutate('missions:createDraft',{projectId:s.projectId,idempotencyKey:'explicit-owner-delivery-assignment',
+      title:proposal.title,objective:proposal.objective,stopCondition:proposal.stopCondition,budgetUsd:0,
+      ownerMemberId:s.memberId,owningTeamId:s.teamId,repositoryId:scope.repositoryId,codeScopeIds:[scope.codeScopeId]});
+    const missionId=created.mission._id;
+    const before=await db.owner.query('missions:get',{missionId});
+    assert.equal(before.mission.ownerMemberId,s.memberId);assert.equal(before.mission.owningTeamId,s.teamId);
+
+    db.setEnvironment('MC_CAPABILITY_ENVIRONMENT','qualification');
+    db.setEnvironment('MC_CAPABILITY_INSTALLATION_ID','synthetic-integration-reconcile');
+    db.setEnvironment('MC_CAPABILITY_CONTROL_ENABLED','true');
+    try {
+      await assert.rejects(()=>mutate('missions:start',{missionId,idempotencyKey:'foreign-start'},db.peer),/MISSION_UNAVAILABLE|FORBIDDEN/);
+      await assert.rejects(()=>mutate('missions:start',{missionId,idempotencyKey:'owner-without-permits'}),/CAPABILITY_POLICY_REVALIDATION_UNAVAILABLE/);
+      assert.deepEqual(await db.owner.query('missions:get',{missionId}),before);
+      for(const table of ['workOrders','workflowRuns','inferenceReservations','factoryProviderReservations'])
+        assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);
+    } finally { db.setEnvironment('MC_CAPABILITY_CONTROL_ENABLED','false'); }
+  });
   await check('no-execution-accounting-or-delegation-created',async()=>{for(const table of ['workflowRuns','workOrders','inferenceReservations','factoryProviderReservations','factoryDelegationTrials'])assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);});
   receipt.status='PASS';receipt.finalObservation=status.receipt;receipt.completedResultConsumption='NOT_EXERCISED_DRAFT_REGRESSION_ONLY';receipt.ownerDecisionSurface='Canonical MissionControl authenticated mutation; MyEve browser handoff remains unqualified';
   receipt.actions=(await pool.query('SELECT status,count(*)::int AS count FROM action_requests GROUP BY status ORDER BY status')).rows;
