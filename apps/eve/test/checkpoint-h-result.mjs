@@ -7,7 +7,7 @@ import {pathToFileURL} from 'node:url';
 const root=process.cwd(),output=resolve(process.argv[2]);await mkdir(output,{recursive:true});
 const mc=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
 const sha=path=>execFileSync('git',['rev-parse','HEAD'],{cwd:path,encoding:'utf8'}).trim();
-const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'61fd95be750ac68968775125d53a60857974369d';
+const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'65498cf3088d77263ba18cd8c96092ae5dbefc49';
 assert.match(expectedMissionControlSha,/^[a-f0-9]{40}$/);
 assert.equal(sha(mc),expectedMissionControlSha);
 const report={schema:'checkpoint-h-result-browser/v1',myEveSha:sha(root),missionControlSha:sha(mc),status:'IN_PROGRESS',releaseGate:'ADVISORY',fullJourney:'NOT_RUN',paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0};

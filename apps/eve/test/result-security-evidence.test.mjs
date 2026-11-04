@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {RESULT_SECURITY_CHECKS,validateResultSecurity} from './result-security-evidence.mjs';
+import {RESULT_SECURITY_CHECKS,validateResultSecurity,validateLinkedOwnerIntake} from './result-security-evidence.mjs';
 const sha='a'.repeat(40),mcSha='c'.repeat(40),mission='exact-mission';
 const fixture=()=>({schema:'sofie-completed-result-qualification/v1',status:'PASS',myeveSourceSha:sha,myeveDirty:false,cleanup:'VERIFIED',paidOperations:0,productionIntegration:'NOT_RUN',executableProductionGrants:0,checks:[...RESULT_SECURITY_CHECKS],completed:{receipt:{response:{missionId:mission}}},directObservations:{status:'PASS',missionId:mission,observations:[{kind:'transport',index:0},{kind:'tool',index:0},{kind:'tool',index:1},{kind:'tool',index:2}]}});
 test('complete named security controls bind the exact source and canonical hybrid Mission',()=>{
@@ -29,7 +29,7 @@ test('two fixed cohorts preserve every required control and repeat shared checks
   assert.ok(consumer.checks.includes('three-required-direct-tool-observations-of-one-exact-Result'));
   assert.ok(consumer.checks.includes('consumer-never-dispatches-or-settles'));
   for(const name of consumer.checks){const missing=structuredClone(x);missing.checks=missing.checks.filter(check=>check!==name);assert.throws(()=>validateResultSecurity(missing,sha,`mission-${index}`,cohort));}
-  return {consumer,proof:{missionId:`mission-${index}`,controllerSourceSha:mcSha}};
+  return {consumer,proof:{missionId:`mission-${index}`,controllerSourceSha:mcSha},intake:{status:'PASS',missionId:`mission-${index}`,transport:'MYEVE_ACTION_GATEWAY'}};
  });
  const report=validateResultSecurityCohorts(cohorts,sha,mcSha);assert.equal(report.checks.length,28);
  assert.throws(()=>validateResultSecurityCohorts(cohorts.slice(0,1),sha,mcSha));
@@ -43,8 +43,22 @@ test('two fixed cohorts preserve every required control and repeat shared checks
  const nonstringMission=structuredClone(cohorts);nonstringMission[1].consumer.missionId=nonstringMission[1].proof.missionId=123;assert.throws(()=>validateResultSecurityCohorts(nonstringMission,sha,mcSha));
  assert.equal(report.missionControlSha,mcSha);assert.equal(report.myEveSha,sha);
  assert.throws(()=>validateResultSecurityCohorts(cohorts,sha,undefined));assert.throws(()=>validateResultSecurityCohorts(cohorts,'bad',mcSha));
+ const missingIntake=structuredClone(cohorts);delete missingIntake[0].intake;assert.throws(()=>validateResultSecurityCohorts(missingIntake,sha,mcSha));
+ const directIntake=structuredClone(cohorts);directIntake[0].intake.transport='SIGNED_FIXTURE_ONLY';assert.throws(()=>validateResultSecurityCohorts(directIntake,sha,mcSha));
+ const wrongIntake=structuredClone(cohorts);wrongIntake[0].intake.missionId='other';assert.throws(()=>validateResultSecurityCohorts(wrongIntake,sha,mcSha));
  assert.throws(()=>resultSecurityChecks('unknown'));assert.throws(()=>resultSecurityChecks(''));assert.throws(()=>resultSecurityChecks('record-integrity',true));
  assert.deepEqual(resultSecurityChecks(undefined),RESULT_SECURITY_CHECKS);
+});
+test('application intake requires linked canonical owner checks and actual ActionGateway transport',()=>{
+ const report={status:'PASS',missionId:mission,proposalId:'proposal',intakeTransport:'MYEVE_ACTION_GATEWAY',authentication:'SYNTHETIC_API_FIXTURE',setup:{deliveryScopeBudgetAndEnvironment:'CANONICAL_OWNER_UPDATE_DRAFT'},checks:[
+  'anonymous-cross-owner-cross-tenant-and-wrong-digest-denied','service-cannot-self-authorize','concurrent-submissions-one-canonical-Mission','proposal-Mission-identity-bound','current-three-WorkOrder-Result-bound',
+  'wrong-owner-Mission-Plan-Result-denied','concurrent-owner-decision-one-audit','conflicting-replay-denied','Sofie-canonical-accepted-readback',
+ ]};
+ assert.equal(validateLinkedOwnerIntake(report,mission).status,'PASS');
+ for(const change of [x=>x.status='FAIL',x=>x.missionId='other',x=>delete x.proposalId,x=>x.intakeTransport='SIGNED_FIXTURE_ONLY',x=>delete x.setup,x=>x.checks.pop(),x=>x.checks.push(x.checks[0])]){
+  const invalid=structuredClone(report);change(invalid);assert.throws(()=>validateLinkedOwnerIntake(invalid,mission));
+ }
+ assert.throws(()=>validateLinkedOwnerIntake(undefined,mission));
 });
 test('unavailable readback diagnostics retain only fixed stages and safe scalar timing metadata',async()=>{
  const {safeUnavailableObservation}=await import('./result-security-evidence.mjs');

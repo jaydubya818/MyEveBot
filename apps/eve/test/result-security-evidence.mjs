@@ -31,14 +31,29 @@ export function safeUnavailableObservation(response,stage,startedAt,lastValidate
   return {schema:'result-security-readback-failure/v1',stage,status:['AVAILABLE','NOT_AVAILABLE'].find(value=>value===response?.status)??'UNKNOWN',
     startedAt:number(startedAt),failedAt:number(now),observedAt:number(response?.observedAt),freshUntil:number(response?.freshUntil),lastValidatedDeadline:number(lastValidatedDeadline)};
 }
+export function validateLinkedOwnerIntake(report,missionId) {
+  assert.equal(report?.status,'PASS','Actual application intake and owner review must pass');
+  assert.equal(report.missionId,missionId);
+  assert.equal(typeof report.proposalId,'string');assert.ok(report.proposalId.length>0);
+  assert.equal(report.intakeTransport,'MYEVE_ACTION_GATEWAY','Direct createDraft or signed fixture intake cannot qualify application integration');
+  assert.equal(report.authentication,'SYNTHETIC_API_FIXTURE');
+  assert.equal(report.setup?.deliveryScopeBudgetAndEnvironment,'CANONICAL_OWNER_UPDATE_DRAFT');
+  assert.deepEqual([...report.checks].sort(),[
+    'anonymous-cross-owner-cross-tenant-and-wrong-digest-denied','service-cannot-self-authorize',
+    'concurrent-submissions-one-canonical-Mission','proposal-Mission-identity-bound','current-three-WorkOrder-Result-bound',
+    'wrong-owner-Mission-Plan-Result-denied','concurrent-owner-decision-one-audit','conflicting-replay-denied','Sofie-canonical-accepted-readback',
+  ].sort());
+  return {status:'PASS',missionId,proposalId:report.proposalId,transport:report.intakeTransport};
+}
 export function validateResultSecurityCohorts(cohorts,expectedSourceSha,expectedMcSha) {
   assert.match(expectedSourceSha??'',/^[a-f0-9]{40}$/);assert.match(expectedMcSha??'',/^[a-f0-9]{40}$/);
   assert.deepEqual(cohorts.map(value=>value.consumer.cohort).sort(),Object.keys(RESULT_SECURITY_COHORTS).sort());
   assert.equal(new Set(cohorts.map(value=>value.proof.missionId)).size,2,'Cohorts require distinct fresh Missions');
   const union=new Set();
-  for(const {consumer,proof} of cohorts){
+  for(const {consumer,proof,intake} of cohorts){
     assert.equal(typeof proof.missionId,'string');assert.ok(proof.missionId.length>0);assert.equal(proof.controllerSourceSha,expectedMcSha);
     assert.equal(consumer.status,'PASS');assert.equal(consumer.myEveSha,expectedSourceSha);assert.equal(consumer.missionId,proof.missionId);
+    assert.equal(intake?.status,'PASS');assert.equal(intake.missionId,proof.missionId);assert.equal(intake.transport,'MYEVE_ACTION_GATEWAY');
     assert.deepEqual([...consumer.checks].sort(),[...resultSecurityChecks(consumer.cohort)].sort());
     for(const name of consumer.checks)union.add(name);
   }

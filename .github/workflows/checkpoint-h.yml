@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 61fd95be750ac68968775125d53a60857974369d
+          ref: 65498cf3088d77263ba18cd8c96092ae5dbefc49
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -71,12 +71,14 @@ jobs:
           node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
       - name: Complete Result consumer security with two fresh hybrid cohorts
         env:
+          MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 61fd95be750ac68968775125d53a60857974369d
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 65498cf3088d77263ba18cd8c96092ae5dbefc49
       - name: Composed authenticated Result with exact execution runtime
         if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
+          MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
         run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"

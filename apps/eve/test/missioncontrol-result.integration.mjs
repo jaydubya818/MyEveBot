@@ -10,6 +10,8 @@ import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,sendEnterpriseCommand,validateResponse,contentDigest,signedCommand} from '../lib/missioncontrol/consumer.ts';
 import {resultSecurityChecks,safeUnavailableObservation} from './result-security-evidence.mjs';
 import {qualifyResultObservations} from './result-observations.mjs';
+const ownerDenied=/ENTERPRISE_ACCESS_DENIED|MISSION_UNAVAILABLE|AUTHENTICATED_PRINCIPAL_REQUIRED|AUTH_REQUIRED|FORBIDDEN|PERMISSION/;
+const gatewayBlocked=error=>error.status==='denied'||error.status==='result_unknown';
 
 /** Called by the canonical native-successor hybrid runner while its actual evidence is current. */
 export async function prepareCompletedResultConsumer(db) {
@@ -63,7 +65,7 @@ export async function prepareCompletedResultConsumer(db) {
     const inspect=id=>db.owner.query('nativeFixture:inspectRecord',{id});
     const fault=(id,patch,unset=[])=>mutate('nativeFixture:fault',{id,patch,unset});
     const connectionArgs={projectId:s.projectId,ownerMemberId:s.memberId,owningTeamId:s.teamId,expiresAt:Date.now()+600000,missionId};
-    await check('owner-and-tenant-connection-isolation',async()=>{for(const client of [db.anonymous,db.peer,db.other])await assert.rejects(()=>mutate('sofieEnterprise:connect',connectionArgs,client));});
+    await check('owner-and-tenant-connection-isolation',async()=>{for(const client of [db.anonymous,db.peer,db.other])await assert.rejects(()=>mutate('sofieEnterprise:connect',connectionArgs,client),ownerDenied);});
     const connection=await mutate('sofieEnterprise:connect',connectionArgs);
     Object.assign(process.env,{EVE_ENABLED_FEATURES:'missioncontrol-readiness',MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
       MYEVE_MISSIONCONTROL_SECRET:secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,
@@ -112,9 +114,9 @@ export async function prepareCompletedResultConsumer(db) {
       try{await assert.rejects(()=>sendEnterpriseCommand(config,input),/REQUEST_MISMATCH/);}finally{globalThis.fetch=original;}
     });
     await check('foreign-session-and-Mission-denied',async()=>{
-      await assert.rejects(()=>call({...context(),session:{id:'foreign',auth:{current:{...principal,principalId:'foreign'},initiator:principal}}}));
-      await assert.rejects(()=>sendEnterpriseCommand(config,{...input,missionId:s.otherProjectId}));
-      await assert.rejects(()=>sendEnterpriseCommand(config,{...input,expectedPlanDigest:'sha256:'+'0'.repeat(64)}));
+      await assert.rejects(()=>call({...context(),session:{id:'foreign',auth:{current:{...principal,principalId:'foreign'},initiator:principal}}}),error=>error.status==='denied');
+      await assert.rejects(()=>sendEnterpriseCommand(config,{...input,missionId:s.otherProjectId}),/ENTERPRISE_COMMAND_DENIED/);
+      await assert.rejects(()=>sendEnterpriseCommand(config,{...input,expectedPlanDigest:'sha256:'+'0'.repeat(64)}),/ENTERPRISE_COMMAND_DENIED/);
     });
     const sameContext=context();
     await check('concurrent-reconnect-always-observes-current-Result',async()=>{
@@ -146,13 +148,13 @@ export async function prepareCompletedResultConsumer(db) {
     await changedRecord('missing-artifact-denied',handoff._id,{artifactIds:[]},{artifactIds:handoff.artifactIds},true);
     const trialEvidence=await inspect(delegated.evidenceIds[0]),trial=await inspect(trialEvidence.metadata.trialId);
     await changedRecord('revoked-delegation-denies-Result',trial._id,{cancelRequested:true},{cancelRequested:trial.cancelRequested??false});
-    await check('anonymous-delegation-admission-denied',()=>assert.rejects(()=>mutate('factory/enterpriseCompatibility:admitTrial',{projectId:s.projectId,missionId,factoryDefinitionId:trial.factoryDefinitionId,binding:trial.binding},db.anonymous)));
-    await check('anonymous-owner-gate-evaluation-denied',()=>assert.rejects(()=>mutate('factory/enterpriseQualification:evaluate',{workOrderId:delegated.workOrderId,idempotencyKey:'anonymous-result-no-execution'},db.anonymous)));
+    await check('anonymous-delegation-admission-denied',()=>assert.rejects(()=>mutate('factory/enterpriseCompatibility:admitTrial',{projectId:s.projectId,missionId,factoryDefinitionId:trial.factoryDefinitionId,binding:trial.binding},db.anonymous),ownerDenied));
+    await check('anonymous-owner-gate-evaluation-denied',()=>assert.rejects(()=>mutate('factory/enterpriseQualification:evaluate',{workOrderId:delegated.workOrderId,idempotencyKey:'anonymous-result-no-execution'},db.anonymous),ownerDenied));
     await changedRecord('production-environment-denied',s.environmentId,{type:'prod'},{type:'dev'},true);
     const mission=await inspect(missionId);
     if(selected.includes('same-tenant-Mission-owner-change-denied')) {
       await fault(missionId,{ownerOperatorId:s.peerId});
-      try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext)));}
+      try{await check('same-tenant-Mission-owner-change-denied',()=>assert.rejects(()=>call(sameContext),gatewayBlocked));}
       finally{await fault(missionId,{ownerOperatorId:mission.ownerOperatorId});}
     }
     const plan=await inspect(connection.resultScope.planId);
@@ -162,10 +164,10 @@ export async function prepareCompletedResultConsumer(db) {
     await check('lost-read-ack-reconciles-with-new-read-only-observation',async()=>{
       const original=globalThis.fetch,ctx=context();let lose=true;
       globalThis.fetch=async(url,options)=>{const reply=await original(url,options);if(lose&&String(url).endsWith('/api/action')){lose=false;await reply.arrayBuffer();throw Error('LOST_RESULT_ACK');}return reply;};
-      try{await assert.rejects(()=>call(ctx));await available(()=>call(ctx),'lost-ack-readback');}finally{globalThis.fetch=original;}
+      try{await assert.rejects(()=>call(ctx),error=>error.status==='result_unknown');await available(()=>call(ctx),'lost-ack-readback');}finally{globalThis.fetch=original;}
     });
     if(selected.includes('revocation-denies-reconnect'))await mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,decision:'REVOKE'});
-    await check('revocation-denies-reconnect',()=>assert.rejects(()=>call(sameContext)));
+    await check('revocation-denies-reconnect',()=>assert.rejects(()=>call(sameContext),gatewayBlocked));
     await check('consumer-never-dispatches-or-settles',async()=>assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'}),beforeRuns));
     result.actions=(await pool.query('SELECT status,count(*)::int AS count FROM action_requests GROUP BY status ORDER BY status')).rows;
     result.status='PASS';return result;
