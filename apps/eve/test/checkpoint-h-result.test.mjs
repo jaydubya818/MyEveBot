@@ -10,13 +10,12 @@ test('required Result runtime absence retains NOT_RUN evidence and fails the hos
   const root=await mkdtemp(join(tmpdir(),'checkpoint-result-missing-runtime-'));
   try {
     const script=fileURLToPath(new URL('./checkpoint-h-result.mjs',import.meta.url));
-    const source=await readFile(script,'utf8');
-    const expected=source.match(/assert\.equal\(sha\(mc\),'([a-f0-9]{40})'\)/)?.[1];assert.ok(expected);
+    const expected='1'.repeat(40);
     const mc=join(root,'mc'),output=join(root,'output'),preload=join(root,'source-identity-fixture.mjs');await mkdir(mc);
     // Only source metadata is stubbed. No runtime, backend, transport, or proof exists in this prerequisite test.
     await writeFile(preload,`import cp from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';
 cp.execFileSync=(command,args)=>{if(command==='git'&&JSON.stringify(args)===JSON.stringify(['status','--porcelain']))return '';if(command!=='git'||JSON.stringify(args)!==JSON.stringify(['rev-parse','HEAD']))throw Error('Unexpected command in missing-runtime test');return ${JSON.stringify(expected+'\n')};};syncBuiltinESMExports();`);
-    const env={...process.env,MISSIONCONTROL_SOURCE_ROOT:mc};delete env.MC_GOLDEN_RUNTIME_BUILD;
+    const env={...process.env,MISSIONCONTROL_SOURCE_ROOT:mc,MISSIONCONTROL_EXPECTED_SHA:expected};delete env.MC_GOLDEN_RUNTIME_BUILD;
     for(const [runner,destination,args] of [[script,output,[]],[fileURLToPath(new URL('./checkpoint-h-result-security.mjs',import.meta.url)),join(root,'security-output'),[expected]]]) {
       const result=spawnSync(process.execPath,['--import',preload,runner,destination,...args],{cwd:resolve(root),env,encoding:'utf8'});
       assert.equal(result.status,1,result.stderr);
