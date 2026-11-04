@@ -9,7 +9,7 @@ import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,signedCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
-const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'f7f57110722178bdb4a22f55b3b587f2379e3aba';
+const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'6d601e7cfca5cadf5e9eb0c373b85686d66826d7';
 assert.match(expectedMissionControlSha,/^[a-f0-9]{40}$/,'An exact MissionControl source SHA is required');
 assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),expectedMissionControlSha,'Use the exact pinned MC owner-review candidate');
 const mcDirty=!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim();
@@ -17,6 +17,8 @@ assert.equal(mcDirty,false,'Pinned MC source must be clean');
 const output=resolve(process.argv[2]??'/tmp/myeve-enterprise-'+randomUUID());await mkdir(output,{recursive:true});
 const checks=[],receipt={schema:'myeve-enterprise-consumer-qualification/v1',checks,missionControlSha:expectedMissionControlSha,
   missionControlDirty:mcDirty,myeveDirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),myeveSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',externalAlphaChanges:0,executableProductionGrants:0};
+const accessDenied=error=>error.status==='denied'||error.message==='ENTERPRISE_COMMAND_DENIED';
+const ownerDenied=/ENTERPRISE_ACCESS_DENIED|MISSION_UNAVAILABLE|AUTHENTICATED_PRINCIPAL_REQUIRED|AUTH_REQUIRED|FORBIDDEN|PERMISSION/;
 const check=async(name,fn)=>{await fn();checks.push(name);console.log('PASS '+name);};
 const pgName='mc-sofie-'+randomUUID(),port=55519;
 let db,pool,container=false;
@@ -68,16 +70,16 @@ try {
   const proposalId=prepared.receipt.response.proposalId,proposalDigest=prepared.receipt.response.digest;
   assert.equal(proposalDigest,enterpriseDigest({connectionId:connection.connectionId,tenantId:s.tenantId,projectId:s.projectId,ownerId:s.operatorId,intentKey:propose.intentKey,proposal}));
   const submit={operation:'enterprise.submit',proposalId,proposalDigest};
-  await check('application-cannot-self-authorize',async()=>{await assert.rejects(()=>call(submit));await assert.rejects(()=>mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,proposalId,expectedDigest:proposalDigest,decision:'AUTHORIZE_DRAFT'},db.anonymous));});
+  await check('application-cannot-self-authorize',async()=>{await assert.rejects(()=>call(submit),accessDenied);await assert.rejects(()=>mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,proposalId,expectedDigest:proposalDigest,decision:'AUTHORIZE_DRAFT'},db.anonymous),ownerDenied);});
   const decision={projectId:s.projectId,connectionId:connection.connectionId,proposalId,expectedDigest:proposalDigest,decision:'AUTHORIZE_DRAFT'};
-  await check('cross-owner-and-cross-tenant-decision-denial',async()=>{for(const client of [db.peer,db.other])await assert.rejects(()=>mutate('sofieEnterprise:decide',decision,client));});
+  await check('cross-owner-and-cross-tenant-decision-denial',async()=>{for(const client of [db.peer,db.other])await assert.rejects(()=>mutate('sofieEnterprise:decide',decision,client),ownerDenied);});
   await mutate('sofieEnterprise:decide',decision);
   let missionId;await check('concurrent-actual-tool-submissions-create-one-Mission',async()=>{const attempts=await Promise.allSettled(Array.from({length:4},()=>call(submit)));const results=attempts.filter(r=>r.status==='fulfilled').map(r=>r.value);assert.ok(results.length>=1);for(const r of attempts.filter(r=>r.status==='rejected'))assert.ok(['denied','result_unknown'].includes(r.reason.status));assert.equal(new Set(results.map(r=>r.receipt.response.missionId)).size,1);missionId=results[0].receipt.response.missionId;assert.equal((await db.owner.query('missions:list',{projectId:s.projectId})).length,1);});
   const read={operation:'enterprise.read',proposalId,missionId,expectedPlanDigest:null};
   let status;await check('actual-tool-status-and-honest-Result-unavailability',async()=>{status=await call(read);assert.equal(status.receipt.response.mission.state,'DRAFT');assert.equal(status.receipt.response.resultProof.status,'NOT_AVAILABLE');});
   await mutate('missions:savePlanDraft',{projectId:s.projectId,missionId,idempotencyKey:'sofie-consumer-plan',summary:'HR platform decomposition',rollbackApproach:'No execution.',estimatedCostUsd:0,assertions:[],workOrderBlueprints:proposal.workstreams.map((title,i)=>({id:'hr-'+i,title,desiredOutcome:title,sequence:i,role:'WORKER',isMutating:false,priority:3,riskLevel:'LOW',constraints:['Draft only'],requiredApprovals:[],dependsOnBlueprintIds:[],assertionIds:[]}))});
   await check('Plan-milestones-Needs-You-consumed',async()=>{status=await call(read);assert.equal(status.receipt.response.plan.milestones.length,4);assert.equal(status.receipt.response.plan.status,'DRAFT');assert.ok(status.receipt.response.needsYou);});
-  await check('stale-Plan-denied',()=>assert.rejects(()=>call({...read,expectedPlanDigest:'sha256:'+'0'.repeat(64)})));
+  await check('stale-Plan-denied',()=>assert.rejects(()=>call({...read,expectedPlanDigest:'sha256:'+'0'.repeat(64)}),accessDenied));
   await check('restart-no-additional-Mission',async()=>{await db.restart();assert.equal((await call(submit)).receipt.response.missionId,missionId);});
   const sameContext=context();await call(read,sameContext);
   await check('duplicate-tool-delivery-durable-receipt',async()=>{const before=await pool.query('SELECT count(*)::int AS n FROM action_requests');await call(read,sameContext);assert.equal((await pool.query('SELECT count(*)::int AS n FROM action_requests')).rows[0].n,before.rows[0].n);});
@@ -107,8 +109,16 @@ try {
     const observedMission=await call({operation:'enterprise.read',proposalId:p.proposalId,missionId:observation.receipt.response.proposal.missionId,expectedPlanDigest:null});
     assert.equal(observedMission.receipt.response.mission.state,'DRAFT');
   });
+  await check('connection-expiry-denies-read-and-restoration-recovers',async()=>{
+    await call(read);
+    const original=await db.owner.query('nativeFixture:inspectRecord',{id:connection.connectionId});
+    await mutate('nativeFixture:fault',{id:connection.connectionId,patch:{expiresAt:Date.now()-1}});
+    try {await assert.rejects(()=>call(read),accessDenied);}
+    finally {await mutate('nativeFixture:fault',{id:connection.connectionId,patch:{expiresAt:original.expiresAt}});}
+    assert.equal((await call(read)).receipt.response.mission.id,missionId);
+  });
   await mutate('sofieEnterprise:decide',{...decision,decision:'REVOKE'});
-  await check('revocation-denies-fresh-status-cached-replay-and-submit',async()=>{await assert.rejects(()=>call(read,sameContext));await assert.rejects(()=>call(read));await assert.rejects(()=>call(submit));});
+  await check('revocation-denies-fresh-status-cached-replay-and-submit',async()=>{await assert.rejects(()=>call(read,sameContext),accessDenied);await assert.rejects(()=>call(read),accessDenied);await assert.rejects(()=>call(submit),accessDenied);});
   await check('composed-Mission-owner-and-capability-admission-deny-before-Work',async()=>{
     const scope=await mutate('nativeFixture:deliveryScope',{projectId:s.projectId});
     const created=await mutate('missions:createDraft',{projectId:s.projectId,idempotencyKey:'explicit-owner-delivery-assignment',
@@ -128,6 +138,11 @@ try {
       for(const table of ['workOrders','workflowRuns','inferenceReservations','factoryProviderReservations'])
         assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);
     } finally { db.setEnvironment('MC_CAPABILITY_CONTROL_ENABLED','false'); }
+  });
+  await check('connection-revocation-denies-other-proposals',async()=>{
+    const probe=(await call({...propose,intentKey:'connection-revocation-probe'})).receipt.response;
+    await mutate('sofieEnterprise:decide',{projectId:s.projectId,connectionId:connection.connectionId,decision:'REVOKE'});
+    await assert.rejects(()=>call({operation:'enterprise.inspect',proposalId:probe.proposalId,intentKey:null}),accessDenied);
   });
   await check('no-execution-accounting-or-delegation-created',async()=>{for(const table of ['workflowRuns','workOrders','inferenceReservations','factoryProviderReservations','factoryDelegationTrials'])assert.deepEqual(await db.owner.query('nativeFixture:inspect',{table}),[]);});
   receipt.status='PASS';receipt.finalObservation=status.receipt;receipt.completedResultConsumption='NOT_EXERCISED_DRAFT_REGRESSION_ONLY';receipt.ownerDecisionSurface='Canonical MissionControl authenticated mutation; MyEve browser handoff remains unqualified';
