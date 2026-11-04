@@ -56,8 +56,12 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
           repository: jaydubya818/MyFactory
           ref: 18fda16843257a673ea040195ce0ca145a447e6c
           path: .qualification/myfactory
