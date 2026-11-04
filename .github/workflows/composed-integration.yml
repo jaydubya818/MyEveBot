@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: ce9f562bf58720d66a8b6c6e068685e09f576a2d
+          ref: f7f57110722178bdb4a22f55b3b587f2379e3aba
           path: .qualification/missioncontrol
           persist-credentials: false
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
@@ -51,7 +51,7 @@ jobs:
       - name: Signed command, synthetic owner isolation, duplicate and recovery checks
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
-          MISSIONCONTROL_EXPECTED_SHA: ce9f562bf58720d66a8b6c6e068685e09f576a2d
+          MISSIONCONTROL_EXPECTED_SHA: f7f57110722178bdb4a22f55b3b587f2379e3aba
           MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
         run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/composed-integration"
       - name: Project budget enforcement across private Missions
