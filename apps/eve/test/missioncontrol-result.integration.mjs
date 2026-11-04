@@ -50,7 +50,15 @@ export async function prepareCompletedResultConsumer(db) {
       const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
       await warmSofieBrowser({source:sourceRoot,owner});
     }
-    return { stop, qualify: async(missionId)=>{
+    return { stop, applicationSecret: secret, applicationKeyId: 'result-fixture-1',
+      applicationCommand: async(input,binding)=>{
+        assert.ok(['enterprise.propose','enterprise.submit'].includes(input.operation));
+        Object.assign(process.env,{MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
+          MYEVE_MISSIONCONTROL_SECRET:binding.secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,
+          MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:binding.connectionId});
+        const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
+        return (await executeEnterpriseTool(input,{callId:randomUUID(),session:{id:'linked-owner-intake',auth:{current:principal,initiator:principal}}})).receipt;
+      }, qualify: async(missionId)=>{
     const mutate=(name,args,client=db.owner)=>client.mutation(name,args,{skipQueue:true});
     const inspect=id=>db.owner.query('nativeFixture:inspectRecord',{id});
     const fault=(id,patch,unset=[])=>mutate('nativeFixture:fault',{id,patch,unset});

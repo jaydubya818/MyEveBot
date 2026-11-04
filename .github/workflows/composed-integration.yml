@@ -3,16 +3,21 @@ on:
   pull_request:
     paths:
       - apps/eve/**
+      - packages/**
+      - package.json
+      - package-lock.json
+      - scripts/security/**
       - .github/workflows/composed-integration.yml
   push:
     branches: [codex/integration-reconcile-20261104]
   workflow_dispatch:
 permissions:
   contents: read
+  packages: read
 jobs:
   actual-backends:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,7 +30,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: ab74328efdb42422c57a894330bfa3a589529ce9
+          ref: ce9f562bf58720d66a8b6c6e068685e09f576a2d
           path: .qualification/missioncontrol
           persist-credentials: false
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
@@ -43,12 +48,39 @@ jobs:
           unzip -q "$RUNNER_TEMP/convex.zip" -d "$RUNNER_TEMP/convex"
           chmod +x "$RUNNER_TEMP/convex/convex-local-backend"
       - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
-      - name: Authenticated command, owner isolation, duplicate and recovery checks
+      - name: Signed command, synthetic owner isolation, duplicate and recovery checks
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
-          MISSIONCONTROL_EXPECTED_SHA: ab74328efdb42422c57a894330bfa3a589529ce9
+          MISSIONCONTROL_EXPECTED_SHA: ce9f562bf58720d66a8b6c6e068685e09f576a2d
           MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
         run: node --import tsx apps/eve/test/missioncontrol-consumer.integration.mjs "$RUNNER_TEMP/composed-integration"
+      - name: Project budget enforcement across private Missions
+        env:
+          MC_COMPATIBILITY_CONVEX_BINARY: ${{ runner.temp }}/convex/convex-local-backend
+        working-directory: .qualification/missioncontrol
+        run: node --import tsx scripts/qualification/workflow-budget-isolation.mjs "$RUNNER_TEMP/composed-integration/workflow-budget"
+      - name: Resolve immutable isolated execution dependencies
+        env:
+          MC_GOLDEN_RUNTIME_FROM_REGISTRY: '1'
+        working-directory: .qualification/missioncontrol
+        run: node scripts/enterprise-golden-journey/prepare-hosted.mjs hybrid-mission
+      - name: Read existing pinned runtime package
+        env:
+          GHCR_READ_TOKEN: ${{ github.token }}
+        run: printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Verify exact runtime and fresh deterministic controls
+        working-directory: .qualification/missioncontrol
+        run: |
+          node scripts/enterprise-golden-journey/recover-ghcr-runtime.mjs "$RUNNER_TEMP/composed-runtime"
+          node -e 'if(JSON.parse(require("fs").readFileSync(process.argv[1])).status!=="PASS")process.exit(1)' "$RUNNER_TEMP/composed-runtime/recovery.json"
+          node --import tsx scripts/qualification/unpublished-verifier-controls.mts "$RUNNER_TEMP/composed-runtime/bundles" "$RUNNER_TEMP/composed-runtime/image.txt" "$RUNNER_TEMP/composed-runtime/registered-controls" "$MC_GOLDEN_DOCKER" "$RUNNER_TEMP/composed-runtime/artifact/image-binding.json" 3
+          sudo install -d -m 1777 /private/tmp
+      - name: Actual application intake to same-Mission Work and completed Result
+        env:
+          MC_SOFIE_RESULT_CONSUMER_ROOT: ${{ github.workspace }}
+          MC_OWNER_REVIEW_QUALIFICATION: '1'
+        working-directory: .qualification/missioncontrol
+        run: node --import tsx scripts/qualification/native-successor-journey.mts "$RUNNER_TEMP/composed-runtime" "$MC_GOLDEN_DOCKER" "$RUNNER_TEMP/composed-integration/linked-journey" hybrid
       - uses: actions/upload-artifact@v7
         if: always()
         with:
