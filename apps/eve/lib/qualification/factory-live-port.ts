@@ -54,6 +54,22 @@ export class FactoryLivePortRefused extends Error {
 const refuse = (code: string): never => { throw new FactoryLivePortRefused(code); };
 
 const TERMINAL = new Set(["COMPLETED", "FAILED", "CANCELLED", "NOT_DISPATCHED"]);
+/** Consecutive transport-level readback failures tolerated before the operation is left unsettled (the gate then fences). */
+export const MAX_TRANSIENT_READS = 5;
+/** Transport-level only: a timed-out/aborted request, a connection failure, or the adapter's non-OK 429/5xx. Never a validation failure. */
+export function isTransientReadFailure(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (error.name === "TimeoutError" || error.name === "AbortError") return true;
+  if (error instanceof TypeError && error.message === "fetch failed") return true;
+  return /^Factory control unavailable \((429|5\d\d)\); reconcile the same request$/.test(error.message);
+}
+/** Operator diagnostics (server log only): printable message chain, bounded. */
+export function errorSummary(error: unknown): string {
+  const parts: string[] = [];
+  for (let e: unknown = error, i = 0; e instanceof Error && i < 5; e = (e as Error & { cause?: unknown }).cause, i++) parts.push(`${e.name}: ${e.message}`);
+  return (parts.join(" <- ") || String(error)).replace(/[^\x20-\x7e]/g, " ").slice(0, 600);
+}
+const unsettled = (why: string): { known: false } => { console.error(`[qdev] factory readback left unsettled: ${why.replace(/[^\x20-\x7e]/g, " ").slice(0, 300)}`); return { known: false }; };
 type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentity; admitted: unknown; ceilingMicrousd: number };
 
 export class LiveFactoryPort implements FactoryPort {
@@ -144,26 +160,40 @@ export class LiveFactoryPort implements FactoryPort {
     // Any failure from here on is ambiguous exposure: the gate fences, it never resends. A ProviderNotSent
     // thrown by a nested layer (client, readback) must not tombstone an operation whose dispatch has begun.
     try { return await this.sendAndSettle(ready); }
-    catch (error) { throw new Error("QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS", { cause: error }); }
+    catch (error) {
+      console.error(`[qdev] factory dispatch ambiguous: ${errorSummary(error)}`);
+      throw new Error("QDEV_FACTORY_POST_DISPATCH_AMBIGUOUS", { cause: error });
+    }
   }
 
   private async sendAndSettle(ready: Ready): Promise<KnownOutcome<unknown> | UnknownOutcome<unknown>> {
     await this.c.live.dispatch(ready.identity);
     const now = this.c.now ?? Date.now, sleep = this.c.sleep ?? (ms => new Promise<void>(r => setTimeout(r, ms)));
     const deadline = now() + (this.c.settleTimeoutMs ?? 30 * 60_000);
+    let transient = 0;
     for (;;) {
-      const rb = await this.c.live.read(ready.identity);
+      // A readback is a pure GET of the exact identity: retrying a READ never resends the dispatch. Only transport-level failures
+      // (timeout, connection error, 429/5xx) are re-read, a bounded number of consecutive times and only before the settle deadline.
+      // Any binding/schema/identity failure, an UNKNOWN state, persistent transport failure or the deadline still leaves it unsettled.
+      let rb;
+      try { rb = await this.c.live.read(ready.identity); transient = 0; }
+      catch (error) {
+        if (!isTransientReadFailure(error) || ++transient > MAX_TRANSIENT_READS || now() >= deadline) throw error;
+        console.error(`[qdev] factory readback transient failure ${transient}/${MAX_TRANSIENT_READS}: ${errorSummary(error)}`);
+        await sleep(this.c.pollMs ?? 2000);
+        continue;
+      }
       if (rb.requestId !== ready.identity.requestId || rb.workOrderId !== ready.identity.workOrderId || rb.runId !== ready.identity.remoteRunId)
-        return { known: false };
-      if (rb.state === "UNKNOWN") return { known: false };
+        return unsettled("readback identity differs");
+      if (rb.state === "UNKNOWN") return unsettled("Factory state UNKNOWN");
       if (rb.quiescent === true && TERMINAL.has(rb.state) && rb.evidenceRef && rb.accounting && "metering" in rb.accounting) {
         // Operations-only route: settle on proven quiescence with no unresolved or in-flight operation, after durably recording the units.
         const u = rb.accounting;
         if (u.metering !== "SUBSCRIPTION_UNMETERED" || u.status !== "SUBSCRIPTION_UNMETERED" || u.unknownOperations !== 0 || u.inFlightOperations !== 0
-          || !u.accountingComplete || u.operationsUsed > u.maxOperations || !this.c.recordSubscriptionUsage) return { known: false };
+          || !u.accountingComplete || u.operationsUsed > u.maxOperations || !this.c.recordSubscriptionUsage) return unsettled(`subscription accounting not settled ${JSON.stringify(u)}`);
         const usage: SubscriptionUsage = { metering: "SUBSCRIPTION_UNMETERED", requestId: rb.requestId, workOrderId: rb.workOrderId, runId: rb.runId, state: rb.state,
           operationsUsed: u.operationsUsed, maxOperations: u.maxOperations, completionOperationsUsed: u.completionOperationsUsed, evidenceRef: rb.evidenceRef };
-        try { await this.c.recordSubscriptionUsage(usage); } catch { return { known: false }; }
+        try { await this.c.recordSubscriptionUsage(usage); } catch (error) { return unsettled(`usage record failed: ${errorSummary(error)}`); }
         this.subscription.push(usage);
         return { known: true, value: { state: rb.state, evidenceRef: rb.evidenceRef, metering: "SUBSCRIPTION_UNMETERED", operationsUsed: u.operationsUsed, settledMicrousd: null } };
       }
@@ -173,7 +203,7 @@ export class LiveFactoryPort implements FactoryPort {
         if (typeof a.settledMicrousd !== "number" || !Number.isSafeInteger(a.settledMicrousd) || a.settledMicrousd < 0 || a.settledMicrousd > ready.ceilingMicrousd) return { known: false };
         return { known: true, value: { state: rb.state, evidenceRef: rb.evidenceRef, settledMicrousd: a.settledMicrousd } };
       }
-      if (now() >= deadline) return { known: false };
+      if (now() >= deadline) return unsettled(`settle deadline reached in state ${rb.state}`);
       await sleep(this.c.pollMs ?? 2000);
     }
   }

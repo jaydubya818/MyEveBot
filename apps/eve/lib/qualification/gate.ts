@@ -59,6 +59,10 @@ export class QualificationGate {
         await this.accounting.cancelUnsent(a, allowanceId, operationKey);
         throw new QualificationGateRefused("QDEV_PROVIDER_NOT_SENT");
       }
+      // Operator diagnostics (server log only): the printable cause chain behind the fence.
+      const chain: string[] = [];
+      for (let e: unknown = error, i = 0; e instanceof Error && i < 5; e = (e as Error & { cause?: unknown }).cause, i++) chain.push(`${e.name}: ${e.message}`);
+      console.error(`[qdev] ${input.purpose} ${operationKey} exposure unknown: ${chain.join(" <- ").replace(/[^\x20-\x7e]/g, " ").slice(0, 600)}`);
       await this.accounting.fence(a);
       throw new QualificationGateRefused("QDEV_EXPOSURE_UNKNOWN");
     }
