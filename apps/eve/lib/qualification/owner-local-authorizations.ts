@@ -87,7 +87,9 @@ export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approve
     }
     const now = c.now?.() ?? Date.now();
     const approval: ActivationApproval = { schema: "myeve.qdev-activation-approval/v1", operation: "PUBLISH", appId: c.appId, ownerId: c.ctx.ownerId,
-      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId, digest: hex, keyId: c.keyId,
+      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId,
+      // The release controller names a release as "sha256:<hex>" in every ActivationRequest; the approval must name it identically.
+      digest: "sha256:" + hex, keyId: c.keyId,
       notBefore: new Date(now - 1000).toISOString(), notAfter: new Date(now + (c.windowMs ?? 10 * 60_000)).toISOString(), nonce: randomUUID() + randomUUID() };
     const file = signActivationApproval(approval, c.approverPem), approvals = join(c.dir, "approvals");
     mkdirSync(c.dir, { recursive: true, mode: 0o700 }); mkdirSync(approvals, { recursive: true, mode: 0o700 });

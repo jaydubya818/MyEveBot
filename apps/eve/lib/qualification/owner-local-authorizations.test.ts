@@ -40,12 +40,14 @@ describe("post-PASS owner publish approval", () => {
   const setup = () => { const d = dir(); return { d, approve: ownerLocalPublishApprover({ ctx: ctx(d), approverPem: pem, keyId: "owner-approver", dir: join(d, "activation"), appId: "app", projectSha256, installation }),
     permits: new FileActivationPermits({ dir: join(d, "activation"), keys: [{ keyId: "owner-approver", publicKeyPem: pub, activeFrom: "2026-01-01T00:00:00.000Z", notAfter: "2027-01-01T00:00:00.000Z" }],
       ownerId: OWNER, appId: "app", projectSha256, ...installation }) }; };
-  const request = (digestHex = hex) => ({ operation: "PUBLISH" as const, appId: "app", ownerId: OWNER, projectSha256, ...installation, digest: digestHex });
+  // Exactly the ActivationRequest shape StaticReleaseController builds: digest "sha256:<hex>".
+  const request = (digestHex = hex) => ({ operation: "PUBLISH" as const, appId: "app", ownerId: OWNER, projectSha256, ...installation, digest: "sha256:" + digestHex });
   it("approves exactly the verified PASS digest once; the controller consumes it once", async () => {
     const { d, approve, permits } = setup();
     await approve({ verdict: verdict(), candidate, digest: hex });
     expect(await permits.permit(request("c".repeat(64)))).toBe(false);
     expect(await permits.permit({ ...request(), operation: "ROLLBACK" } as never)).toBe(false);
+    expect(await permits.permit({ ...request(), digest: hex })).toBe(false);
     expect(await permits.permit(request())).toBe(true);
     expect(await permits.permit(request())).toBe(false);
     expect(audit(d).map(e => e.kind)).toEqual(["PUBLISH_APPROVED"]);
