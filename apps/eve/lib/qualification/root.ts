@@ -109,6 +109,8 @@ export class QualificationRoot {
           // Durable, owner-safe halt fact for read-only progress. Best effort: a journal failure never changes the halt itself.
           try {
             const code = /^QDEV_[A-Z_]+$/.test(error.code) ? error.code : "QDEV_HALTED", events = await config.journal.read();
+            // Operator diagnostics (server log only, never shown to the model): the exact refusal behind a generic QDEV_HALTED.
+            if (code === "QDEV_HALTED") console.error(`[qdev] stage ${error.stage} halted: ${String(error.code).replace(/[^\x20-\x7e]/g, " ").slice(0, 400)}`);
             // One fact per halt: a repeat of the same halt with no accepted or settled progress since is not appended again.
             const progress = events.findLastIndex(e => e.kind === "STAGE_ACCEPTED" || e.kind === "OP_SETTLED" || e.kind === "DELIVERY_ACCEPTED");
             if (!events.some((e, index) => index > progress && e.kind === "HALTED" && e.stage === error.stage && e.code === code)) await config.journal.append({ kind: "HALTED", stage: error.stage, code });
