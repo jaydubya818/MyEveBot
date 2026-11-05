@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 00c1f3edda915ab8157ae9b5bfbc0dc3c7d5f527
+          ref: f52788a584f71f7ce0347d98e8588d7c8f5602b1
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -74,7 +74,7 @@ jobs:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 00c1f3edda915ab8157ae9b5bfbc0dc3c7d5f527
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" f52788a584f71f7ce0347d98e8588d7c8f5602b1
       - name: Composed authenticated Result with exact execution runtime
         if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
