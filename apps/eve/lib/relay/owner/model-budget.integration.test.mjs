@@ -9,8 +9,9 @@ suite('durable owner model budget',()=>{
  const database={query};
  const input=(stepKey='turn:0')=>({ownerId:'owner',runId:'run',stepKey,requestHash:'sha256:fixture',modelId:'fixture/model',microUsd:60000,tokens:6000});
  beforeAll(async()=>{
-  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE DATABASE ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:schema,user:process.env.USER});
+  const user=process.env.MYEVE_OWNER_TEST_USER??process.env.USER;
+  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user});await admin.query(`CREATE DATABASE ${schema}`);
+  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:schema,user});
   const dir=new URL('../../../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','budget','Budget fixture','Qualification','Synthetic',true,'active',8,60,0.1)");
  });

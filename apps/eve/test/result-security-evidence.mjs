@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict';
+export const RESULT_SECURITY_CHECKS=Object.freeze([
+  'owner-and-tenant-connection-isolation','authenticated-transport-reads-real-Result',
+  'three-required-direct-tool-observations-of-one-exact-Result','required-observations-never-dispatch-or-settle',
+  'authenticated-response-tamper-denied','request-bound-response-replay-denied','foreign-session-and-Mission-denied',
+  'concurrent-reconnect-always-observes-current-Result','stale-revision-never-replays-cached-PASS','wrong-candidate-denied',
+  'expired-custody-denied','FactoryVersion-substitution-denied','wrong-executed-settlement-proof',
+  'not-dispatched-settlement-cannot-prove-execution','wrong-source-Attempt-artifact-denied','cross-tenant-artifact-denied',
+  'missing-artifact-denied','revoked-delegation-denies-Result','anonymous-delegation-admission-denied',
+  'anonymous-owner-gate-evaluation-denied','production-environment-denied','same-tenant-Mission-owner-change-denied',
+  'changed-approved-Plan-denied','changed-Quality-Contract-denied','restart-durable-readback-without-redispatch',
+  'lost-read-ack-reconciles-with-new-read-only-observation','revocation-denies-reconnect','consumer-never-dispatches-or-settles',
+]);
+const common=RESULT_SECURITY_CHECKS.slice(0,4).concat('consumer-never-dispatches-or-settles');
+const record=['stale-revision-never-replays-cached-PASS','wrong-candidate-denied','expired-custody-denied',
+  'FactoryVersion-substitution-denied','wrong-executed-settlement-proof','not-dispatched-settlement-cannot-prove-execution',
+  'wrong-source-Attempt-artifact-denied','cross-tenant-artifact-denied','missing-artifact-denied','changed-Quality-Contract-denied'];
+const recovery=['authenticated-response-tamper-denied','request-bound-response-replay-denied','foreign-session-and-Mission-denied',
+  'concurrent-reconnect-always-observes-current-Result','restart-durable-readback-without-redispatch','lost-read-ack-reconciles-with-new-read-only-observation'];
+// Each fresh Mission retains the same short signed custody lifetime. Keep fault
+// batches bounded rather than extending that lifetime on slower CI runners.
+export const RESULT_SECURITY_COHORTS=Object.freeze({
+  'record-integrity':Object.freeze([...common,...record.slice(0,4)]),
+  'settlement-integrity':Object.freeze([...common,...record.slice(4)]),
+  'authority-recovery':Object.freeze([...common,...recovery]),
+  'authority-boundaries':Object.freeze(RESULT_SECURITY_CHECKS.filter(name=>!record.includes(name)&&!recovery.includes(name))),
+});
+export function resultSecurityChecks(cohort,browser=false) {
+  if(cohort===undefined)return RESULT_SECURITY_CHECKS;
+  assert.ok(Object.hasOwn(RESULT_SECURITY_COHORTS,cohort),'Unknown Result security cohort');
+  assert.equal(browser,false,'Security cohorts cannot substitute for the browser journey');
+  return RESULT_SECURITY_COHORTS[cohort];
+}
+export function safeUnavailableObservation(response,stage,startedAt,lastValidatedDeadline,now=Date.now()) {
+  assert.ok(['concurrent-reconnect','fault-restoration','restart-readback','lost-ack-readback'].includes(stage));
+  const number=value=>Number.isSafeInteger(value)?value:null;
+  return {schema:'result-security-readback-failure/v1',stage,status:['AVAILABLE','NOT_AVAILABLE'].find(value=>value===response?.status)??'UNKNOWN',
+    startedAt:number(startedAt),failedAt:number(now),observedAt:number(response?.observedAt),freshUntil:number(response?.freshUntil),lastValidatedDeadline:number(lastValidatedDeadline)};
+}
+export function validateLinkedOwnerIntake(report,missionId) {
+  assert.equal(report?.status,'PASS','Actual application intake and owner review must pass');
+  assert.equal(report.missionId,missionId);
+  assert.equal(typeof report.proposalId,'string');assert.ok(report.proposalId.length>0);
+  assert.equal(report.intakeTransport,'MYEVE_ACTION_GATEWAY','Direct createDraft or signed fixture intake cannot qualify application integration');
+  assert.equal(report.authentication,'SYNTHETIC_API_FIXTURE');
+  assert.equal(report.setup?.deliveryScopeBudgetAndEnvironment,'CANONICAL_OWNER_UPDATE_DRAFT');
+  assert.deepEqual([...report.checks].sort(),[
+    'anonymous-cross-owner-cross-tenant-and-wrong-digest-denied','service-cannot-self-authorize',
+    'concurrent-submissions-one-canonical-Mission','proposal-Mission-identity-bound','current-three-WorkOrder-Result-bound',
+    'wrong-owner-Mission-Plan-Result-denied','concurrent-owner-decision-one-audit','conflicting-replay-denied','Sofie-canonical-accepted-readback',
+  ].sort());
+  return {status:'PASS',missionId,proposalId:report.proposalId,transport:report.intakeTransport};
+}
+export function validateResultSecurityCohorts(cohorts,expectedSourceSha,expectedMcSha) {
+  assert.match(expectedSourceSha??'',/^[a-f0-9]{40}$/);assert.match(expectedMcSha??'',/^[a-f0-9]{40}$/);
+  assert.deepEqual(cohorts.map(value=>value.consumer.cohort).sort(),Object.keys(RESULT_SECURITY_COHORTS).sort());
+  assert.equal(new Set(cohorts.map(value=>value.proof.missionId)).size,Object.keys(RESULT_SECURITY_COHORTS).length,'Cohorts require distinct fresh Missions');
+  const union=new Set();
+  for(const {consumer,proof,intake} of cohorts){
+    assert.equal(typeof proof.missionId,'string');assert.ok(proof.missionId.length>0);assert.equal(proof.controllerSourceSha,expectedMcSha);
+    assert.equal(consumer.status,'PASS');assert.equal(consumer.myEveSha,expectedSourceSha);assert.equal(consumer.missionId,proof.missionId);
+    assert.equal(intake?.status,'PASS');assert.equal(intake.missionId,proof.missionId);assert.equal(intake.transport,'MYEVE_ACTION_GATEWAY');
+    assert.deepEqual([...consumer.checks].sort(),[...resultSecurityChecks(consumer.cohort)].sort());
+    for(const name of consumer.checks)union.add(name);
+  }
+  assert.deepEqual([...union].sort(),[...RESULT_SECURITY_CHECKS].sort());
+  return {status:'PASS',myEveSha:expectedSourceSha,missionControlSha:expectedMcSha,checks:[...union],fullOwnerJourney:'NOT_RUN'};
+}
+export function validateResultSecurity(consumer,expectedSourceSha,missionId,cohort) {
+  assert.match(expectedSourceSha??'',/^[a-f0-9]{40}$/);assert.ok(missionId);
+  assert.equal(consumer?.schema,'sofie-completed-result-qualification/v1');assert.equal(consumer.status,'PASS');
+  assert.equal(consumer.myeveSourceSha,expectedSourceSha);assert.equal(consumer.myeveDirty,false);
+  assert.equal(consumer.cleanup,'VERIFIED');assert.equal(consumer.paidOperations,0);
+  assert.equal(consumer.productionIntegration,'NOT_RUN');assert.equal(consumer.executableProductionGrants,0);
+  assert.equal(consumer.browser,undefined,'Security qualification must exercise the complete non-browser path');
+  assert.equal(consumer.cohort,cohort);
+  assert.deepEqual([...consumer.checks].sort(),[...resultSecurityChecks(cohort)].sort());
+  assert.equal(consumer.completed?.receipt.response.missionId,missionId);
+  assert.equal(consumer.directObservations?.status,'PASS');assert.equal(consumer.directObservations.missionId,missionId);
+  assert.deepEqual(consumer.directObservations.observations.map(({kind,index})=>({kind,index})),[
+    {kind:'transport',index:0},{kind:'tool',index:0},{kind:'tool',index:1},{kind:'tool',index:2},
+  ]);
+  return {status:'PASS',cohort,myEveSha:expectedSourceSha,missionId,checks:[...consumer.checks],scope:'SEPARATE_COMPLETED_RESULT_SECURITY_FIXTURE',fullOwnerJourney:'NOT_RUN'};
+}
