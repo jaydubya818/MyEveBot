@@ -144,7 +144,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
     recordSubscriptionUsage: ownerLocal ? await subscriptionUsageRecorder(journalDb, journalId) : undefined,
     verifier: { origin: profile.verifier.origin, credentialName: profile.verifier.credentialEnv, timeoutMs: profile.verifier.timeoutMs, keys: profile.verifier.keys,
       producerKeyIds: profile.verifier.producerKeyIds ?? [], producerPublicKeysPem: profile.verifier.producerPublicKeysPem ?? [] },
-    myapps: { source, now: deps.now, delivery: { enabled: true, environment, servedOrigin: profile.servedOrigin, projectSha256: binding.projectSha256,
+    myapps: { source, now: deps.now, delivery: { enabled: true, environment, servedOrigin: profile.servedOrigin, ownerLocalLoopback: ownerLocal, projectSha256: binding.projectSha256,
       sourceSha256: binding.sourceSha256, priorRevision: unreachable, restorePointId: unreachable },
       publishing: { root: profile.publishing.root, appId: profile.build.appId, installationId: profile.publishing.installationId, ...(activation ? { activation } : {}),
         ...(confirmation && activation && profile.publishing.activation ? { ownerApproval: ownerLocalPublishApprover({ ctx: confirmation,
