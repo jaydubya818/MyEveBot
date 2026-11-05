@@ -90,11 +90,16 @@ describe("delivered stage Works land as completed", () => {
   const delivery = { verdictSha256: "a".repeat(64), deliverySha256: "b".repeat(64), assurance: "PRIVATE_BETA_LOCAL" };
   // In-memory engineering_work: an UPDATE matches only the exact active revision; the transaction is all-or-nothing.
   const fakeDb = (state: Record<string, { lifecycle: string; version: number; generation: number }>) => {
-    const events: unknown[][] = [];
+    const events: any[][] = [];
     return { events, state, atomic: async <T>(fn: (db: any) => Promise<T>) => {
-      const draft = structuredClone(state), ev: unknown[][] = [];
+      const draft = structuredClone(state), ev: any[][] = [];
       const db = { query: async (sql: string, p: any[]) => {
+        if (sql.startsWith("SELECT id,work_id,version,kind,actor_id FROM engineering_work_events")) return events.filter(e => p[1].includes(e[0])).map(e => ({ id: e[0], work_id: e[2], version: e[3], kind: e[4], actor_id: e[1] }));
         if (sql.startsWith("UPDATE engineering_work")) { const w = draft[p[1]];
+          expect(sql).toContain("business_assert_effect(scope_id,id,version,generation,$1,$5::jsonb)");
+          expect(sql).toContain("effect->>'status' IN ('PREPARED','UNKNOWN')");
+          expect(JSON.parse(p[4])).toEqual({ operation: "accept", expectedVersion: p[2] });
+          if ((w as any)?.unresolved || (w as any)?.businessDenied) return [];
           if (!w || p[0] !== OWNER || w.version !== p[2] || w.generation !== p[3] || w.lifecycle !== "active") return [];
           Object.assign(w, { lifecycle: "accepted", version: w.version + 1, generation: w.generation + 1 }); return [{ version: w.version }]; }
         ev.push(p); return []; } };
@@ -108,7 +113,24 @@ describe("delivered stage Works land as completed", () => {
     expect(reconciled).toEqual(["w1", "w2", "w3"]);
     expect(Object.values(db.state).map(w => [w.lifecycle, w.version, w.generation])).toEqual([["accepted", 3, 3], ["accepted", 3, 3], ["accepted", 3, 3]]);
     expect(db.events).toHaveLength(3);
+    expect(db.events.every(e => /^owner_local_delivery_accepted:[a-f0-9]{64}$/.test(e[4]))).toBe(true);
     expect(audit(d).map(e => e.kind)).toEqual(["WORKS_COMPLETED"]);
+  });
+  it("retains canonical business/effect fences and rolls back all three Works", async () => {
+    for (const denial of [{ unresolved: "PREPARED" }, { unresolved: "UNKNOWN" }, { businessDenied: true }]) {
+      const state = fresh(); Object.assign(state.w3, denial); const db = fakeDb(state);
+      await expect(completeDeliveredStageWorks({ db, ctx: ctx(dir()), works, delivery, reconcile: async () => undefined })).rejects.toThrow("OWNER_LOCAL_COMPLETION_STALE");
+      expect(Object.values(db.state).every(w => w.lifecycle === "active")).toBe(true);expect(db.events).toHaveLength(0);
+    }
+  });
+  it("commits provenance with completion and repairs secondary audit after failure without changing Work again", async () => {
+    const db = fakeDb(fresh()), d = dir();
+    const first = await completeDeliveredStageWorks({ db, ctx: ctx(d, { audit: () => { throw Error("disk full"); } }), works, delivery, reconcile: async () => undefined });
+    expect(first).toEqual({ completed: true, auditPending: true });expect(db.events).toHaveLength(3);
+    const again = await completeDeliveredStageWorks({ db, ctx: ctx(d), works, delivery, reconcile: async () => undefined });
+    expect(again).toEqual({ completed: true, auditPending: false });expect(db.events).toHaveLength(3);
+    expect(Object.values(db.state).every(w => w.version === 3)).toBe(true);expect(audit(d)[0].kind).toBe("WORKS_COMPLETED");
+    await expect(completeDeliveredStageWorks({ db, ctx: ctx(d), works, delivery: { ...delivery, deliverySha256: "c".repeat(64) }, reconcile: async () => undefined })).rejects.toThrow(/OWNER_LOCAL_COMPLETION_(CONFLICT|STALE)/);
   });
   it("completes nothing for a stale revision, foreign Works, missing evidence or another profile", async () => {
     const stale = fresh(); stale.w3.version = 3;
