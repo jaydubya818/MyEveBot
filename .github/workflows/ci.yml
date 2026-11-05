@@ -25,6 +25,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Apply and verify reviewed dependency source mitigation
         run: npm run postinstall && npm run security:patches
+      - name: Audit the exact locked dependency graph
+        run: npm audit --audit-level=low
 
       - run: node scripts/protocol-convergence/check-contract.mjs
 

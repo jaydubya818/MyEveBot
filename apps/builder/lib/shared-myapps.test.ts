@@ -74,6 +74,8 @@ test("unknown shared consumers and references fail closed", () => {
   assert.throws(() => relocateMyAppsReferences("lib/unexpected.ts", Buffer.from('import "../../../../packages/myapps/src/store.ts"')), /Unexpected/);
   assert.throws(() => relocateMyAppsReferences("lib/myapps/api.ts", Buffer.from('import "../../../../packages/myapps/test/secrets.ts"')), /Unowned/);
   assert.throws(() => relocateMyAppsReferences("lib/myapps/remote-admission.ts", Buffer.from('import "../../../../packages/myapps/src/alpha-tasks/remote-http.ts"')), /Unowned/);
+  assert.throws(() => relocateMyAppsReferences("lib/qualification/artifact-staging.ts", Buffer.from('import "../../../../packages/myapps/src/private-criteria.json"')), /Unowned/);
+  assert.throws(() => relocateCapabilityReferences("lib/qualification/custody-assembly.ts", Buffer.from('import "../../../../packages/capability-enforcement/test/private-keys.json"')), /Unowned/);
 });
 
 test("output collisions and noncanonical paths fail closed", () => {
@@ -174,8 +176,12 @@ test("AlphaTasks packaging preserves exact tracked adapter bytes and its runtime
     assert.equal(await packaged.localAlphaTasksAdapterDigest(), await original.localAlphaTasksAdapterDigest());
     const protocol = await import(pathToFileURL(path.join(out, "packages/myapps/src/alpha-tasks/remote-isolation.ts")).href);
     assert.equal(typeof protocol.RemoteAlphaTasksIsolation, "function", "protocol resolves its exported dependency closure without repository files");
+    const artifact = await import(pathToFileURL(path.join(out, "packages/myapps/src/static-artifact.ts")).href);
+    const claim = await import(pathToFileURL(path.join(out, "packages/myapps/src/static-build-claim.ts")).href);
+    assert.equal(typeof artifact.StaticArtifactCandidate.retain, "function", "static artifact validation resolves only the exported closure");
+    assert.equal(typeof claim.verifyStaticBuildClaim, "function", "static build signature validation resolves without repository files");
     assert.ok(!files.some(entry => /\/remote-(http\.ts|isolation\.sql)$/.test(entry.file)), "unregistered host transport and host database setup stay outside the application export");
-    for (const file of ["lib/myapps/local-bootstrap.ts", "lib/myapps/alpha-tasks-host.ts", "lib/myapps/local-configuration.ts", "lib/myapps/alpha-tasks.ts", "lib/myapps/remote-admission.ts", "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/permit-store.ts"]) {
+    for (const file of ["lib/myapps/local-bootstrap.ts", "lib/myapps/alpha-tasks-host.ts", "lib/myapps/local-configuration.ts", "lib/myapps/alpha-tasks.ts", "lib/myapps/remote-admission.ts", "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/permit-store.ts", "lib/qualification/artifact-staging.ts", "lib/qualification/custody-assembly.ts", "lib/qualification/delivery-observer.ts", "lib/qualification/owner-local-authorizations.ts", "lib/qualification/static-activation.ts", "lib/qualification/static-build-export.ts", "lib/qualification/static-build.ts", "lib/qualification/static-publish.ts"]) {
       const expected = (await readFile(path.join(root, file), "utf8")).replaceAll("../../../../packages/", "../../packages/");
       assert.equal(Buffer.from(files.find(entry => entry.file === file)!.data, "base64").toString(), expected, `only imports relocated; authority unchanged: ${file}`);
     }
