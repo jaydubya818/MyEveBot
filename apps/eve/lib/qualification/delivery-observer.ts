@@ -27,14 +27,18 @@ export type DeliveryObserverConfig = {
   projectSha256: string; sourceSha256: string;
   priorRevision(): Promise<DeliveryObservation["priorRevision"]>; restorePointId(): Promise<string>;
   fetcher?: typeof fetch; maxFileBytes?: number; now?: () => Date;
+  /** Owner-local private-beta profile only (set by the launcher from the pinned project, never from a request): the served origin may be
+   *  the exact IPv4 loopback preview `http://127.0.0.1:<port>`. Every other origin must be https. */
+  ownerLocalLoopback?: boolean;
 };
+const isLoopbackPreview = (u: URL) => u.protocol === "http:" && u.hostname === "127.0.0.1" && u.port !== "" && u.pathname === "/" && !u.search && !u.hash;
 /** The retained, claim-verified build this delivery must serve (trusted host state, never a model value). */
 export type RetainedBuild = { inventory: unknown; pins: StaticSourcePins; candidate: StaticArtifactCandidate };
 
 export async function observeServedDelivery(config: DeliveryObserverConfig, candidate: { commit: string; tree: string }, retained: RetainedBuild): Promise<DeliveryObservation> {
   if (!config.enabled) throw new DeliveryObservationError("QDEV_DELIVERY_OBSERVER_DISABLED");
   const origin = new URL(config.servedOrigin);
-  if (origin.protocol !== "https:" || origin.username || origin.password || origin.origin !== config.servedOrigin) throw new DeliveryObservationError("QDEV_DELIVERY_URL");
+  if ((origin.protocol !== "https:" && !(config.ownerLocalLoopback === true && isLoopbackPreview(origin))) || origin.username || origin.password || origin.origin !== config.servedOrigin) throw new DeliveryObservationError("QDEV_DELIVERY_URL");
   if (retained.pins.sourceCommit !== candidate.commit || retained.pins.sourceTree !== candidate.tree
     || retained.candidate.source.sourceCommit !== candidate.commit || retained.candidate.source.sourceTree !== candidate.tree)
     throw new DeliveryObservationError("QDEV_DELIVERY_CANDIDATE");
