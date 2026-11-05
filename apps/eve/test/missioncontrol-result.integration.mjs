@@ -19,7 +19,10 @@ export async function prepareCompletedResultConsumer(db) {
   const sourceRoot=fileURLToPath(new URL('../../../',import.meta.url));
   const checks=[],result={cohort,schema:'sofie-completed-result-qualification/v1',checks,
     myeveSourceSha:execFileSync('git',['rev-parse','HEAD'],{cwd:sourceRoot,encoding:'utf8'}).trim(),myeveDirty:!!execFileSync('git',['status','--porcelain'],{cwd:sourceRoot,encoding:'utf8'}).trim(),paidOperations:0,productionIntegration:'NOT_RUN',executableProductionGrants:0};
-  const check=async(name,fn)=>{if(!selected.includes(name))return;await fn();checks.push(name);console.log('PASS result '+name);};
+  const check=async(name,fn)=>{if(!selected.includes(name))return;const startedAt=Date.now();await fn();checks.push(name);
+    (result.checkTimings??=[]).push({name,startedAt,completedAt:Date.now()});
+    if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'security-check-timings.json'),JSON.stringify(result.checkTimings,null,2)+'\n');
+    console.log('PASS result '+name);};
   const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
   let pool,container=false;
   async function stop(){if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
@@ -103,13 +106,16 @@ export async function prepareCompletedResultConsumer(db) {
       result.boundary='Authenticated browser Result qualification; security fault controls retained in the separate completed consumer suite.';
       return result;
     }
-    // Required PENDING observations finish before the canonical owner decision;
-    // fault injection then runs without spending the owner's custody window.
+    // Keep PENDING observations before the canonical owner decision. Both the
+    // decision and the following fault batches enforce the same custody expiry.
     if(beforeSecurity)await beforeSecurity();
     await check('authenticated-response-tamper-denied',async()=>{
+      const validationTime=completed.receipt.observedAt+1;
+      assert.ok(Number.isSafeInteger(validationTime));
+      validateResponse(config,input,completed.receipt,validationTime);
       const changed=structuredClone(completed.receipt);changed.response.ownerAcceptance='ACCEPTED';changed.responseDigest=contentDigest(changed.response);
-      assert.throws(()=>validateResponse(config,input,changed),/AUTHENTICATION/);
-      assert.throws(()=>validateResponse({...config,secret:'x'.repeat(64)},input,completed.receipt),/AUTHENTICATION/);
+      assert.throws(()=>validateResponse(config,input,changed,validationTime),/AUTHENTICATION/);
+      assert.throws(()=>validateResponse({...config,secret:'x'.repeat(64)},input,completed.receipt,validationTime),/AUTHENTICATION/);
       assert.throws(()=>validateResponse(config,input,completed.receipt,completed.receipt.authentication.expiresAt+1));
     });
     await check('request-bound-response-replay-denied',async()=>{
