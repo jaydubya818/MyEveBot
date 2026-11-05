@@ -60,7 +60,7 @@ export async function prepareCompletedResultConsumer(db) {
           MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:binding.connectionId});
         const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
         return (await executeEnterpriseTool(input,{callId:randomUUID(),session:{id:'linked-owner-intake',auth:{current:principal,initiator:principal}}})).receipt;
-      }, qualify: async(missionId)=>{
+      }, qualify: async(missionId,{beforeSecurity}={})=>{
     const mutate=(name,args,client=db.owner)=>client.mutation(name,args,{skipQueue:true});
     const inspect=id=>db.owner.query('nativeFixture:inspectRecord',{id});
     const fault=(id,patch,unset=[])=>mutate('nativeFixture:fault',{id,patch,unset});
@@ -103,6 +103,9 @@ export async function prepareCompletedResultConsumer(db) {
       result.boundary='Authenticated browser Result qualification; security fault controls retained in the separate completed consumer suite.';
       return result;
     }
+    // Required PENDING observations finish before the canonical owner decision;
+    // fault injection then runs without spending the owner's custody window.
+    if(beforeSecurity)await beforeSecurity();
     await check('authenticated-response-tamper-denied',async()=>{
       const changed=structuredClone(completed.receipt);changed.response.ownerAcceptance='ACCEPTED';changed.responseDigest=contentDigest(changed.response);
       assert.throws(()=>validateResponse(config,input,changed),/AUTHENTICATION/);
