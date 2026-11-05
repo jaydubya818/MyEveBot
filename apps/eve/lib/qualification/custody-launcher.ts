@@ -21,7 +21,7 @@ import { factoryRelayLeaseEnrollmentDigest } from "../engineering/factory-relay-
 import { digest } from "../engineering/contract.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { confirmOwnerLocalRequest, ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
-import { auditAppender, issueConfirmedCohort, ownerLocalPublishApprover, type ConfirmationContext } from "./owner-local-authorizations.ts";
+import { auditAppender, completeDeliveredStageWorks, issueConfirmedCohort, ownerLocalPublishApprover, type ConfirmationContext } from "./owner-local-authorizations.ts";
 import type { StageStoreSourcesConfig } from "./factory-stage-store-sources.ts";
 type StageAdmission = NonNullable<StageStoreSourcesConfig["admission"]>;
 import type { QdevCustody } from "./runtime-ports.ts";
@@ -70,6 +70,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   // Owner-local: the transactional Work store (MissionControl bindings require it) without enabling capability control process-wide.
   const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, ownerLocal ? canonicalWorkDatabase() : undefined);
   let relay = profile.capability.relay, missionId = profile.capability.missionId, confirmation: ConfirmationContext | undefined;
+  let confirmedWorks: Array<{ id: string; version: number; generation: number }> | undefined;
   let workIds = profile.workIds, admission: StageAdmission | undefined, requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
   if (ownerLocal && profile.ownerLocalConfirmation) {
     // The owner's confirmed request (root-verified digest) creates its stage Works and obtains MissionControl's owner decisions via the bridge.
@@ -78,7 +79,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
     requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
     const confirmed = await confirmOwnerLocalRequest({ profile: PRIVATE_BETA_PROFILE, confirmation: profile.ownerLocalConfirmation, store,
       base: await (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, undefined as never), request, planSha256, credential: context.credential, now: deps.now });
-    workIds = confirmed.workIds; admission = confirmed.admission; missionId = confirmed.missionId;
+    workIds = confirmed.workIds; admission = confirmed.admission; missionId = confirmed.missionId; confirmedWorks = confirmed.works;
     // Jay's confirm authorizes the confirmed plan's accounting cohort and the post-PASS preview publication (owner-local-authorizations.ts).
     const auth = profile.ownerLocalConfirmation.authorizations;
     confirmation = { profile: PRIVATE_BETA_PROFILE, confirmationDigest: confirmed.confirmationDigest, ownerId, planSha256,
@@ -138,6 +139,16 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   }
   return assembleQdevCustody({
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,
+    ...(confirmation && confirmedWorks && store.database.atomic ? { delivered: (delivery: { verdictSha256: string; deliverySha256: string; assurance: string }) =>
+      completeDeliveredStageWorks({ db: store.database as never, ctx: confirmation!, works: confirmedWorks!, delivery, reconcile: async workId => {
+        const writers = new FactoryWriterStore(store), adapter = orderedAdapterFor(connection, capability, deps.factoryFetch, deps.capabilityFetch);
+        const runs = await store.database.query(`SELECT id FROM engineering_route_runs WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2
+          AND factory_request_id IS NOT NULL AND status NOT IN ('COMPLETED','FAILED','CANCELLED')`, [ownerId, workId]) as Array<{ id: string }>;
+        for (const { id } of runs) {
+          const terminal = await writers.reconcile(await writers.inspect(workId, id), adapter) as { status?: string };
+          if (terminal.status !== "COMPLETED") throw new Error("OWNER_LOCAL_COMPLETION_WRITER_NOT_COMPLETED");
+        }
+      } }) } : {}),
     sofie: profile.model ? { model: (deps.languageModel ?? ((id, apiKey) => createGateway({ apiKey })(id)))(profile.model.id, modelKey!), price: profile.model.price,
       system: profile.model.system, temperature: profile.model.temperature } : undefined,
     // Owner-local only: unmetered OWNER_SUBSCRIPTION_LOCAL runs settle only after their operation units are durably recorded (never $0).

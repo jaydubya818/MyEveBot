@@ -1,3 +1,4 @@
+import type { WiringConfig } from "./wiring.ts";
 import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { createPublicKey } from "node:crypto";
 import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
@@ -55,6 +56,7 @@ export type QdevCustody = {
   };
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   newAllowanceId(stage: number): string;
+  delivered?: WiringConfig["delivered"];
 };
 
 export class RuntimePortsRefused extends Error { constructor(readonly code: string) { super(code); } }
@@ -120,7 +122,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   }) : build;
   return { agent, factory, verifier, myapps, expectedFor: custody.expectedFor, resultKeys: custody.resultKeys, sourceDigest: custody.sourceDigest,
     verifierKeys: custody.verifier.keys, producerKeyIds, producerPublicKeysPem,
-    newAllowanceId: custody.newAllowanceId };
+    newAllowanceId: custody.newAllowanceId, ...(custody.delivered ? { delivered: custody.delivered } : {}) };
 }
 
 /** The `ports` provider for `runtimeHostSource`: composes from protected custody, or stays disabled (null) when it is absent or refused. */

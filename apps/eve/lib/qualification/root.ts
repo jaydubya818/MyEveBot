@@ -103,6 +103,11 @@ export class QualificationRoot {
       const env = wireJourneyEnvironment({ ...config.ports, project: config.project, relay: config.relay, journal: config.journal });
       try {
         const done = await new QualificationJourney(config.accounting, config.project, env).run(config.plan);
+        // Owner-local: the verified, accepted delivery completes the confirmed stage Works. Best effort: a failure leaves them active (never a false completion).
+        if (config.ports.delivered) {
+          try { await config.ports.delivered({ verdictSha256: done.verdictSha256, deliverySha256: done.deliverySha256, assurance: done.assurance }); }
+          catch (error) { console.error(`[qdev] stage Work completion refused: ${String(error instanceof Error ? error.message : error).replace(/[^\x20-\x7e]/g, " ").slice(0, 300)}`); }
+        }
         return presentJourney(done, config.ports.factory.subscriptionUsage?.() ?? null);
       } catch (error) {
         if (error instanceof JourneyHalted) {

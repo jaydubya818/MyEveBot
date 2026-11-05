@@ -109,6 +109,8 @@ async function bridge(origin: string, path: "/confirm" | "/approve-permits", bod
 }
 
 export type OwnerLocalConfirmed = { workIds: { stage1: string; stage2: string; stage3: string }; runtime: FactoryRuntime;
+  /** The exact confirmed stage Work revisions (as signed in the confirmation). */
+  works: Array<{ id: string; version: number; generation: number }>;
   /** The MissionControl connection and enrollment revision this confirmation installed (Relay lease enrollments bind to them). */
   connectionId: string; enrollmentRevision: number;
   /** The MissionControl Mission the owner approved; the Factory capability challenge must name exactly it. */
@@ -193,7 +195,8 @@ export async function confirmOwnerLocalRequest(c: {
     requestIds.set(work.id, prepared.requestId);
   }
   const approved = new Set<string>();
-  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest,
+  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime,
+    works: ([1, 2, 3] as const).map(stage => ({ id: works[stage].id, version: works[stage].version, generation: works[stage].generation })), connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest,
     admission: async (store, work, config) => {
       const requestId = requestIds.get(work.id) ?? refuse("OWNER_LOCAL_WORK_NOT_CONFIRMED");
       if (!approved.has(work.id)) { await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, tuples, requestIds: [requestId] }, c.send ?? fetch); approved.add(work.id); }
