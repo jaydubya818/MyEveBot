@@ -64,7 +64,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: profile.workIds.stage1, 2: profile.workIds.stage2, 3: profile.workIds.stage3 });
 
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
-    missionId: profile.capability.missionId, signer, send: deps.capabilityFetch,
+    missionId: profile.capability.missionId, signer, send: deps.capabilityFetch, ownerLocalRelayLoopback: isPrivateBetaProject(bundle.project),
     relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
 

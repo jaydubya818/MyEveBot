@@ -40,17 +40,29 @@ const noAdditionalObligations = z.custom(value => {
   const limits=(value as {limits:unknown}).limits;
   return Boolean(limits && typeof limits==='object' && !Array.isArray(limits) && Object.keys(limits).length===0);
 });
-export const factoryRelayLeaseEnrollmentDigest = (value:unknown) => hash(factoryRelayLeaseEnrollmentSchema.parse(value));
+/**
+ * Private-beta OWNER-LOCAL profile only (myeve.private-beta.owner/v1): a disposable Relay on the exact IPv4 loopback (`http://127.0.0.1:<port>`,
+ * no path/userinfo). Hosted, tester and every other profile keep the https-only schema above. Authentication, the signed permit check and the
+ * request shape are unchanged; only the transport origin differs.
+ */
+const ownerLocalLoopbackOrigin = z.string().url().refine(value => {
+  const url = new URL(value);
+  return url.origin === value && url.protocol === 'http:' && url.hostname === '127.0.0.1' && url.port !== '' && !url.username && !url.password;
+});
+export const ownerLocalRelayLeaseEnrollmentSchema = factoryRelayLeaseEnrollmentSchema.extend({ origin: ownerLocalLoopbackOrigin }).strict();
+export type RelayLeaseOriginPolicy = { ownerLocalLoopback?: boolean };
+const enrollmentSchemaFor = (policy: RelayLeaseOriginPolicy = {}) => policy.ownerLocalLoopback === true ? ownerLocalRelayLeaseEnrollmentSchema : factoryRelayLeaseEnrollmentSchema;
+export const factoryRelayLeaseEnrollmentDigest = (value:unknown, policy:RelayLeaseOriginPolicy={}) => hash(enrollmentSchemaFor(policy).parse(value));
 const secret = (value: string | undefined) => {
   if (!value || value.length > 16384 || value !== value.trim() || /[\u0000-\u0020\u007f]/.test(value))
     throw Error('FACTORY_RELAY_CREDENTIAL_UNAVAILABLE');
   return value;
 };
 
-export function factoryRelayLeaseConfig(value:unknown,expected:{ownerId:string;installationId:string;connectionId:string;revision:number;digest:string},credentials:{credential:string;workloadIdentityToken:string}) {
-  const config=factoryRelayLeaseEnrollmentSchema.parse(value);
+export function factoryRelayLeaseConfig(value:unknown,expected:{ownerId:string;installationId:string;connectionId:string;revision:number;digest:string},credentials:{credential:string;workloadIdentityToken:string},policy:RelayLeaseOriginPolicy={}) {
+  const config=enrollmentSchemaFor(policy).parse(value);
   if(config.ownerId!==expected.ownerId||config.installationId!==expected.installationId||config.connectionId!==expected.connectionId
-    ||config.enrollmentRevision!==expected.revision||factoryRelayLeaseEnrollmentDigest(config)!==expected.digest
+    ||config.enrollmentRevision!==expected.revision||factoryRelayLeaseEnrollmentDigest(config,policy)!==expected.digest
     ||config.activeFrom>Date.now()||config.expiresAt<=Date.now()||Object.hasOwn(config.parameters,'capabilityAdmissionDigest'))
     throw Error('FACTORY_RELAY_ENROLLMENT_CHANGED');
   return {enrollment:config,credential:secret(credentials.credential),workloadIdentityToken:secret(credentials.workloadIdentityToken)};

@@ -113,6 +113,8 @@ export type OwnerCapabilityConfig = {
   signer: PolicyKey;
   relay: { enrollment: unknown; enrollmentSha256: string; revision: number; credential: string; workloadIdentityToken: string };
   send?: typeof fetch;
+  /** True only for the private-beta owner-local profile: the disposable Relay may be the exact IPv4 loopback. Every other profile stays https-only. */
+  ownerLocalRelayLoopback?: boolean;
 };
 /**
  * FactoryCapabilityClientConfig from canonical authorities: the verification key, incarnation and enrollment version are read from the installed
@@ -134,7 +136,8 @@ export async function ownerFactoryCapabilityConfig(c: OwnerCapabilityConfig): Pr
   });
   if (!row.installation || !row.destination) return refuse("QDEV_ASSEMBLY_CAPABILITY_DESTINATION");
   const relay = factoryRelayLeaseConfig(c.relay.enrollment, { ownerId, installationId: enrollment.installationId, connectionId: enrollment.connectionId,
-    revision: c.relay.revision, digest: c.relay.enrollmentSha256 }, { credential: c.relay.credential, workloadIdentityToken: c.relay.workloadIdentityToken });
+    revision: c.relay.revision, digest: c.relay.enrollmentSha256 }, { credential: c.relay.credential, workloadIdentityToken: c.relay.workloadIdentityToken },
+    { ownerLocalLoopback: c.ownerLocalRelayLoopback === true });
   const relayClient = new FactoryRelayLeaseClient(relay, c.send ?? fetch);
   return {
     origin: connection.origin,
