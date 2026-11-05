@@ -97,7 +97,7 @@ test('publish writes an immutable verified release and serves exactly the retain
   const head=await get(hd,'/assets/app.js','HEAD');assert.equal(head.status,200);assert.equal(head.headers.get('content-length'),'14');assert.equal((await head.arrayBuffer()).byteLength,0);
   for(const p of ['/missing.js','/assets','/manifest.json','/state.json','/%2e%2e/state.json','/..%2fstate.json','/assets/%2e','/a b'])assert.equal((await get(hd,p)).status,404,p);
   assert.equal((await get(hd,'/','POST')).status,405);
-  assert.equal(statSync(join(root,'releases',hexOf(a1),'dist/index.html')).mode&0o777,0o444);
+  assert.equal(statSync(join(root,'releases',hexOf(a1),'dist/index.html')).mode&0o777,0o444 & ~process.umask());
   assert.equal(statSync(join(root,'releases',hexOf(a1),'dist')).mode&0o777,0o555);
 });
 
@@ -188,7 +188,7 @@ test('concurrent publishers on one root commit by exclusive-create CAS: no lost 
   assert.deepEqual((await c1.stateSource().read('app-1')).restorableVersions,[1,2]);
   const files=readdirSync(join(root,'states')).sort();assert.deepEqual(files,['0000000001.json','0000000002.json']);
   const last=JSON.parse(readFileSync(join(root,'states',files[1]),'utf8'));assert.deepEqual(last.events.map(e=>e.seq),[1,2]);
-  assert.equal(statSync(join(root,'states',files[0])).mode&0o777,0o444,'committed states are read-only');
+  assert.equal(statSync(join(root,'states',files[0])).mode&0o777,0o444 & ~process.umask(),'committed states are read-only under the process privacy mask');
 });
 
 test('many real OS processes racing on one root never lose or duplicate a committed publication',async()=>{
