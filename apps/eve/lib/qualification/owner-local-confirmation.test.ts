@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { generateKeyPairSync, sign, verify } from "node:crypto";
-import { confirmationSigningBytes, confirmOwnerLocalRequest, ownerLocalConfirmationSchema, ownerLocalRequestRuntime, ownerLocalSend, requestObjective } from "./owner-local-confirmation.ts";
+import { confirmationSigningBytes, confirmationTupleSigningBytes, confirmOwnerLocalRequest, ownerLocalConfirmationSchema, ownerLocalRequestRuntime, ownerLocalSend, requestObjective } from "./owner-local-confirmation.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 
@@ -60,6 +60,13 @@ describe("per-request runtime", () => {
     const binding = { b: 1, a: { d: 2, c: 3 } };
     const signature = sign(null, confirmationSigningBytes(binding), privateKey);
     expect(verify(null, Buffer.from('myeve-owner-confirmation/v1\n{"a":{"c":3,"d":2},"b":1}'), publicKey, signature)).toBe(true);
+  });
+  it("the Work-tuple attestation has its own signing domain (never interchangeable with the confirmation)", () => {
+    const { privateKey, publicKey } = generateKeyPairSync("ed25519");
+    const document = { works: [{ id: "w", tupleSha256: "a".repeat(64) }], confirmationDigest: "d".repeat(64) };
+    const signature = sign(null, confirmationTupleSigningBytes(document), privateKey);
+    expect(verify(null, Buffer.from(`myeve-owner-confirmation-tuples/v1\n{"confirmationDigest":"${"d".repeat(64)}","works":[{"id":"w","tupleSha256":"${"a".repeat(64)}"}]}`), publicKey, signature)).toBe(true);
+    expect(verify(null, confirmationSigningBytes(document), publicKey, signature)).toBe(false);
   });
 });
 

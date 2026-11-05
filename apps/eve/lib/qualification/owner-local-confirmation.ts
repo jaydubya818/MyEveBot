@@ -9,6 +9,7 @@ import { canonicalPermitJson, ownerEnrollmentSchema } from "../missioncontrol/ex
 import { relayLeaseEnrollmentDigest } from "../missioncontrol/relay-lease-client.ts";
 import { prepareMissionControlExecution } from "../missioncontrol/prepare-execution.ts";
 import { requestOwnerFactoryAdmission } from "../missioncontrol/admit-execution.ts";
+import { ownerFactoryWorkTuple } from "../missioncontrol/owner-factory-binding.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 
 /**
@@ -106,6 +107,7 @@ export async function ensureRequestStageWorks(store: WorkStore, runtime: Factory
 }
 
 export const confirmationSigningBytes = (binding: unknown) => Buffer.from("myeve-owner-confirmation/v1\n" + canonicalPermitJson(binding));
+export const confirmationTupleSigningBytes = (document: unknown) => Buffer.from("myeve-owner-confirmation-tuples/v1\n" + canonicalPermitJson(document));
 async function bridge(origin: string, path: "/confirm" | "/approve-permits", body: unknown, send: typeof fetch) {
   const response = await send(origin + path, { method: "POST", redirect: "error", signal: AbortSignal.timeout(120_000),
     headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -182,6 +184,14 @@ export async function confirmOwnerLocalRequest(c: {
   // first). MissionControl permits live five minutes, so each is approved just in time, right before that stage's admission, still bound to
   // this one confirmation and approved at most once per Work by the bridge.
   const workOrders = z.array(z.object({ stage: z.number().int().min(1).max(3), workOrderId: z.string().min(1), expectedWorkOrderRevisionId: z.string().min(1) }).strict()).length(3).parse(a.workOrders);
+  // The exact Work tuples (owner, installation, connection, Work revision, criteria, repository, limits, Factory pins) exist only once step A
+  // created the connection. They are signed under the SAME confirmation (its digest) and the bridge approves a permit only for a request whose
+  // Work tuple equals the signed one for that Work.
+  const confirmationDigest = sha256(canonicalPermitJson(binding));
+  const tupleDocument = { schema: "myeve-owner-confirmation-tuples/v1", confirmationDigest, connectionId: enrollment.connectionId, enrollmentRevision: revision,
+    works: ([1, 2, 3] as const).map(stage => ({ stage, id: works[stage].id, version: works[stage].version, generation: works[stage].generation,
+      tupleSha256: ownerFactoryWorkTuple(works[stage], enrollment) })) };
+  const tuples = { document: tupleDocument, signature: edSign(null, confirmationTupleSigningBytes(tupleDocument), createPrivateKey(secret(p.signerEnv))).toString("base64url") };
   const requestIds = new Map<string, string>();
   for (const stage of [1, 2, 3] as const) {
     const work = works[stage], wo = workOrders.find(x => x.stage === stage) ?? refuse("OWNER_LOCAL_WORKORDER");
@@ -191,10 +201,10 @@ export async function confirmOwnerLocalRequest(c: {
     requestIds.set(work.id, prepared.requestId);
   }
   const approved = new Set<string>();
-  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest: sha256(canonicalPermitJson(binding)),
+  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest,
     admission: async (store, work, config) => {
       const requestId = requestIds.get(work.id) ?? refuse("OWNER_LOCAL_WORK_NOT_CONFIRMED");
-      if (!approved.has(work.id)) { await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, requestIds: [requestId] }, c.send ?? fetch); approved.add(work.id); }
+      if (!approved.has(work.id)) { await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, tuples, requestIds: [requestId] }, c.send ?? fetch); approved.add(work.id); }
       return requestOwnerFactoryAdmission(store, work, config, env, send);
     } };
 }
