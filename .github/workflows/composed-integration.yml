@@ -76,7 +76,7 @@ jobs:
           node -e 'if(JSON.parse(require("fs").readFileSync(process.argv[1])).status!=="PASS")process.exit(1)' "$RUNNER_TEMP/composed-runtime/recovery.json"
           node --import tsx scripts/qualification/unpublished-verifier-controls.mts "$RUNNER_TEMP/composed-runtime/bundles" "$RUNNER_TEMP/composed-runtime/image.txt" "$RUNNER_TEMP/composed-runtime/registered-controls" "$MC_GOLDEN_DOCKER" "$RUNNER_TEMP/composed-runtime/artifact/image-binding.json" 3
           sudo install -d -m 1777 /private/tmp
-      - name: Fresh application intake, Work, Result and all security checks in two cohorts
+      - name: Fresh application intake, Work, Result and all security checks in four cohorts
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_GOLDEN_RUNTIME_BUILD: ${{ runner.temp }}/composed-runtime

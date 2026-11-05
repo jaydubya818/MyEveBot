@@ -15,9 +15,15 @@ const common=RESULT_SECURITY_CHECKS.slice(0,4).concat('consumer-never-dispatches
 const record=['stale-revision-never-replays-cached-PASS','wrong-candidate-denied','expired-custody-denied',
   'FactoryVersion-substitution-denied','wrong-executed-settlement-proof','not-dispatched-settlement-cannot-prove-execution',
   'wrong-source-Attempt-artifact-denied','cross-tenant-artifact-denied','missing-artifact-denied','changed-Quality-Contract-denied'];
+const recovery=['authenticated-response-tamper-denied','request-bound-response-replay-denied','foreign-session-and-Mission-denied',
+  'concurrent-reconnect-always-observes-current-Result','restart-durable-readback-without-redispatch','lost-read-ack-reconciles-with-new-read-only-observation'];
+// Each fresh Mission retains the same short signed custody lifetime. Keep fault
+// batches bounded rather than extending that lifetime on slower CI runners.
 export const RESULT_SECURITY_COHORTS=Object.freeze({
-  'record-integrity':Object.freeze([...common,...record]),
-  'authority-recovery':Object.freeze(RESULT_SECURITY_CHECKS.filter(name=>!record.includes(name))),
+  'record-integrity':Object.freeze([...common,...record.slice(0,4)]),
+  'settlement-integrity':Object.freeze([...common,...record.slice(4)]),
+  'authority-recovery':Object.freeze([...common,...recovery]),
+  'authority-boundaries':Object.freeze(RESULT_SECURITY_CHECKS.filter(name=>!record.includes(name)&&!recovery.includes(name))),
 });
 export function resultSecurityChecks(cohort,browser=false) {
   if(cohort===undefined)return RESULT_SECURITY_CHECKS;
@@ -48,7 +54,7 @@ export function validateLinkedOwnerIntake(report,missionId) {
 export function validateResultSecurityCohorts(cohorts,expectedSourceSha,expectedMcSha) {
   assert.match(expectedSourceSha??'',/^[a-f0-9]{40}$/);assert.match(expectedMcSha??'',/^[a-f0-9]{40}$/);
   assert.deepEqual(cohorts.map(value=>value.consumer.cohort).sort(),Object.keys(RESULT_SECURITY_COHORTS).sort());
-  assert.equal(new Set(cohorts.map(value=>value.proof.missionId)).size,2,'Cohorts require distinct fresh Missions');
+  assert.equal(new Set(cohorts.map(value=>value.proof.missionId)).size,Object.keys(RESULT_SECURITY_COHORTS).length,'Cohorts require distinct fresh Missions');
   const union=new Set();
   for(const {consumer,proof,intake} of cohorts){
     assert.equal(typeof proof.missionId,'string');assert.ok(proof.missionId.length>0);assert.equal(proof.controllerSourceSha,expectedMcSha);

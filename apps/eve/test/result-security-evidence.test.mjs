@@ -19,8 +19,9 @@ test('dirty/wrong source, browser early return, wrong Mission, incomplete observ
  assert.throws(()=>validateResultSecurity(fixture(),undefined,mission));assert.throws(()=>validateResultSecurity(fixture(),sha,''));
 });
 
-test('two fixed cohorts preserve every required control and repeat shared checks',async()=>{
+test('four fixed cohorts preserve every required control and repeat shared checks',async()=>{
  const {RESULT_SECURITY_COHORTS,resultSecurityChecks,validateResultSecurityCohorts}=await import('./result-security-evidence.mjs');
+ assert.deepEqual(Object.keys(RESULT_SECURITY_COHORTS),['record-integrity','settlement-integrity','authority-recovery','authority-boundaries']);
  const cohorts=Object.keys(RESULT_SECURITY_COHORTS).map((cohort,index)=>{
   const x=fixture();x.cohort=cohort;x.checks=[...resultSecurityChecks(cohort)];
   x.completed.receipt.response.missionId=x.directObservations.missionId=`mission-${index}`;

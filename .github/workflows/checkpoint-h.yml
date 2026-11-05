@@ -69,7 +69,7 @@ jobs:
         run: |
           node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
           node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
-      - name: Complete Result consumer security with two fresh hybrid cohorts
+      - name: Complete Result consumer security with four fresh hybrid cohorts
         env:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
