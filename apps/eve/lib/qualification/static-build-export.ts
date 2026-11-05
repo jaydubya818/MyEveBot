@@ -280,7 +280,11 @@ export function createBoundedDockerRunner(options: { docker?: string; timeoutMs?
     }
     if (result.timedOut) throw new StaticBuildExportRefused("QDEV_EXPORT_DOCKER_TIMEOUT");
     if (result.overflow) throw new StaticBuildExportRefused("QDEV_EXPORT_DOCKER_OUTPUT_LIMIT");
-    if (result.code !== 0) throw new StaticBuildExportRefused("QDEV_EXPORT_DOCKER_EXIT");
+    if (result.code !== 0) {
+      // Operator diagnostics (server log only): the bounded tail of the build's stderr.
+      console.error(`[qdev] static build exited ${result.code}: ${result.stderr.slice(-1500).replace(/[^\x20-\x7e\n]/g, " ")}`);
+      throw new StaticBuildExportRefused("QDEV_EXPORT_DOCKER_EXIT");
+    }
     return new Uint8Array(result.stdout);
   };
 }
