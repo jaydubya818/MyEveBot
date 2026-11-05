@@ -3,7 +3,7 @@ import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
-import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,validateSpendBinding,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
+import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,isSubscriptionSpend,subscriptionAccounting,validateSpendBinding,type SubscriptionAccounting,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
 import {boundedJson} from '../relay/client.ts';
 import {canonical,digest,type ExecutionSnapshot,type ResultKey} from './factory-producer-protocol.ts';
@@ -24,9 +24,8 @@ const localFactoryConnectionSchema=z.object({
  // OWNER_SUBSCRIPTION_LOCAL (private beta, owner-only loopback host): the Factory's own Codex route on the owner's subscription. It is a distinct
  // pinned mode, never LIVE: health matches it only when it is exactly the pinned mode, and its unmetered spend is refused below (never settled as $0).
  mode:z.enum(['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE','LIVE','OWNER_SUBSCRIPTION_LOCAL']),spendEnforced:z.boolean(),spendReview:factorySpendReviewSchema.optional()}).strict()}).strict();
-/** The Factory's subscription spend readback: operation units only, every *Microusd amount null. MyEve has no settlement kind for it yet. */
-const subscriptionSpendSchema=z.object({status:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN']),metering:z.literal('SUBSCRIPTION_UNMETERED'),costKnown:z.literal(false)}).passthrough();
-export class FactorySubscriptionSettlementUnsupported extends Error{constructor(){super('FACTORY_SUBSCRIPTION_SETTLEMENT_UNSUPPORTED: unmetered subscription usage has no MyEve settlement kind; it is never recorded as $0. The run stays unsettled and fenced.');}}
+/** An unmetered subscription readback outside the pinned OWNER_SUBSCRIPTION_LOCAL mode: refused, never settled as $0. */
+export class FactorySubscriptionSettlementUnsupported extends Error{constructor(){super('FACTORY_SUBSCRIPTION_SETTLEMENT_UNSUPPORTED: unmetered subscription usage is accepted only under the pinned OWNER_SUBSCRIPTION_LOCAL mode; it is never recorded as $0.');}}
 export const cloudFactoryConnectionSchema=localFactoryConnectionSchema.omit({repositoryPath:true,qualification:true}).extend({
  repairBinding:z.never().optional(),
  transport:z.literal('CLOUD'),protocol:z.literal('MYFACTORY_EXECUTION_V2'),projectId:z.literal('prj_IRXTY6HOzS2q9wRPdabsJnmddzl4'),
@@ -44,7 +43,7 @@ export const productionCanaryConnectionSchema=cloudFactoryConnectionSchema.exten
 export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema,productionFactoryConnectionSchema,productionCanaryConnectionSchema]);
 export type FactoryConnection=z.infer<typeof factoryConnectionSchema>;
 export interface FactoryPrepareRequest {repairWorkOrderId?:string;spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath?:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'|'container'}}
-export interface FactoryReadback {requestId:string;workOrderId:string;runId:string|null;snapshot:ExecutionSnapshot|null;identity:FactoryExecutionIdentity|null;state:string;quiescent:boolean;evidenceRef:string|null;spend:FactorySpend;accounting:FactorySpendSummary;blocker:string|null}
+export interface FactoryReadback {requestId:string;workOrderId:string;runId:string|null;snapshot:ExecutionSnapshot|null;identity:FactoryExecutionIdentity|null;state:string;quiescent:boolean;evidenceRef:string|null;spend:FactorySpend;accounting:FactorySpendSummary|SubscriptionAccounting;blocker:string|null}
 /** Host configuration only: findings and client requests cannot select a repair Work. */
 export function repairWorkOrderFor(config:FactoryConnection,work:{id:string;version:number;generation:number}) {
  const binding=config.repairBinding;if(!binding)return undefined;
@@ -80,8 +79,15 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
    throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
   }
   const raw=await boundedJson(response,128000) as Record<string,unknown>|null;
-  if(raw&&typeof raw==='object'&&subscriptionSpendSchema.safeParse(raw.spend).success)throw new FactorySubscriptionSettlementUnsupported();
+  if(raw&&typeof raw==='object'&&isSubscriptionSpend(raw.spend)){
+   if(this.config.qualification.mode!=='OWNER_SUBSCRIPTION_LOCAL'||this.config.spendContract?.version!=='WORK_LEDGER_V2'||this.config.spendContract.sourceDigest!==this.config.sourceDigest)
+    throw new FactorySubscriptionSettlementUnsupported();
+   const data=readbackSchema.parse(raw) as unknown as FactoryReadback;
+   if(!isSubscriptionSpend(data.spend))throw new FactorySubscriptionSettlementUnsupported();
+   return {...data,accounting:subscriptionAccounting(data.spend)};
+  }
   const data=readbackSchema.parse(raw) as unknown as FactoryReadback;
+  if(this.config.qualification.mode==='OWNER_SUBSCRIPTION_LOCAL')throw Error('OWNER_SUBSCRIPTION_LOCAL requires its operations-only readback');
   if(isWorkSpend(data.spend)){
    if(this.config.spendContract?.version!==(isWorkSpendV2(data.spend)?'WORK_LEDGER_V2':'WORK_LEDGER_V1')||this.config.spendContract.sourceDigest!==this.config.sourceDigest)throw Error('Unreviewed Factory spend contract');
   }else if(this.config.qualification.mode!=='LOCAL_FIXTURE')throw Error('Paid Factory requires complete Work ledger accounting');

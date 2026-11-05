@@ -21,6 +21,7 @@ const presentation = z.object({
   verdictSha256: sha.optional(), deliverySha256: sha.optional(), haltedAt: z.number().int().min(1).max(4).optional(),
   code: z.string().regex(/^QDEV_[A-Z_]+$/).max(100).optional(),
   assurance: z.enum(VERDICT_ASSURANCE).optional(),
+  usage: z.object({ metering: z.literal("SUBSCRIPTION_UNMETERED"), operations: z.number().int().min(0).max(1000), runs: z.number().int().min(1).max(3) }).strict().optional(),
 }).strict();
 
 export type QualificationConversationConfig = {
@@ -49,22 +50,27 @@ function result(content: Result["content"], toolCall = false): Result {
 }
 const textResult = (text: string) => result([{ type: "text", text }]);
 
-export type OwnerRequestDerivation = { request: string; requestSha256: string; planSha256: string; repository: string; environment: string; cohortId: string };
+export type OwnerRequestDerivation = { request: string; requestSha256: string; planSha256: string; repository: string; environment: string; cohortId: string;
+  /** True when the template's stage 1 has no SOFIE operation: planning happens inside the stage-1 MyFactory run (no MyEve model call). */
+  planningInFactory?: boolean };
 
 function present(value: unknown, deliveryUrl: string | undefined, assurance: VerdictAssurance, subject = "The approved journey"): string {
   const parsed = presentation.safeParse(value);
   if (!parsed.success) return unverified;
   const p = parsed.data;
   if (p.status === "HALTED" ? p.assurance !== undefined : p.assurance !== assurance) return unverified;
+  // Unmetered usage is reported in operations, never as a money amount or $0.
+  const usage = p.usage ? `Subscription usage: ${p.usage.operations} operation${p.usage.operations === 1 ? "" : "s"} across ${p.usage.runs} Factory run${p.usage.runs === 1 ? "" : "s"} (unmetered; no cost is recorded).` : null;
   if (p.stages.some((s, i) => s.stage !== i + 1)) return unverified;
   if (p.status === "HALTED") {
     if (!p.haltedAt || !p.code || p.stages.length > p.haltedAt || p.verdictSha256 || p.deliverySha256) return unverified;
-    return `${subject} stopped at stage ${p.haltedAt} (${p.code}). Completed stage records: ${p.stages.length}. Its history and accounting remain retained; no automatic retry was started.`;
+    return [`${subject} stopped at stage ${p.haltedAt} (${p.code}). Completed stage records: ${p.stages.length}. Its history and accounting remain retained; no automatic retry was started.`, ...(usage ? [usage] : [])].join("\n\n");
   }
   if (p.stages.length !== 4 || !p.verdictSha256 || !p.deliverySha256 || p.haltedAt !== undefined || p.code !== undefined) return unverified;
   return [`${subject} completed all four stages.`,
     assurance === "INDEPENDENT" ? `Independent verdict: ${p.verdictSha256}. Delivery evidence: ${p.deliverySha256}.`
       : `Local verifier verdict (assurance PRIVATE_BETA_LOCAL: an owner-local verifier on this machine, NOT independent custody): ${p.verdictSha256}. Delivery evidence: ${p.deliverySha256}.`,
+    ...(usage ? [usage] : []),
     ...(deliveryUrl ? [`[Open the delivered application](${deliveryUrl})`] : []),
     "Release readiness and tester activation still require their own authorization."].join("\n\n");
 }
@@ -85,7 +91,7 @@ export function qualificationConversation(config: QualificationConversationConfi
   if (typeof revalidate !== "function" || (config.approvedRequest === undefined) === (config.ownerRequest === undefined)) throw Error("QDEV_CONVERSATION_CONFIGURATION");
   if (config.ownerRequest) {
     if (typeof config.ownerRequest.derive !== "function" || config.retained || config.improvements) throw Error("QDEV_CONVERSATION_CONFIGURATION");
-    return ownerRequestConversation(ownerId, revalidate, config.ownerRequest.derive, deliveryUrlOf(config.deliveryUrl));
+    return ownerRequestConversation(ownerId, revalidate, config.ownerRequest.derive, deliveryUrlOf(config.deliveryUrl, true));
   }
   const approvedRequest = z.string().trim().min(1).max(4000).parse(config.approvedRequest);
   const deliveryUrl = deliveryUrlOf(config.deliveryUrl);
@@ -157,10 +163,12 @@ export function qualificationConversation(config: QualificationConversationConfi
   } };
 }
 
-function deliveryUrlOf(value: string | undefined): string | undefined {
+/** https only, except that the owner-local installation may link its own loopback preview (exact http://127.0.0.1:<port>). */
+function deliveryUrlOf(value: string | undefined, ownerLocal = false): string | undefined {
   if (value === undefined) return undefined;
   const url = new URL(value);
-  if (url.protocol !== "https:" || url.username || url.password || url.hash || /[\s()<>]/.test(url.href)) throw Error("QDEV_CONVERSATION_DELIVERY_URL");
+  const loopback = ownerLocal && url.protocol === "http:" && url.hostname === "127.0.0.1" && url.port !== "";
+  if ((url.protocol !== "https:" && !loopback) || url.username || url.password || url.hash || /[\s()<>]/.test(url.href)) throw Error("QDEV_CONVERSATION_DELIVERY_URL");
   return url.href;
 }
 
@@ -234,7 +242,7 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
   const proposalText = (d: OwnerRequestDerivation) => [
     "I can run this as a private-beta owner journey (owner-local installation). Nothing has started.",
     `Request digest: ${d.requestSha256}. Repository: ${d.repository}. Release environment: ${d.environment}. Derived cohort: ${d.cohortId}.`,
-    "Stages: 1 Sofie planning and coding, 2 coding, 3 Factory build and tests, 4 local verification and delivery. The verifier is owner-local (assurance PRIVATE_BETA_LOCAL), not independent custody; every stage is charged against the cohort ledger first and nothing is retried automatically.",
+    `Stages: 1 ${d.planningInFactory ? "planning and coding in one MyFactory run (no separate Sofie model call)" : "Sofie planning and coding"}, 2 coding, 3 Factory build and tests, 4 local verification and delivery. The verifier is owner-local (assurance PRIVATE_BETA_LOCAL), not independent custody; every stage is charged against the cohort ledger first and nothing is retried automatically.`,
     `[plan ${d.planSha256}]`,
     `To start exactly this plan, reply: confirm ${d.planSha256.slice(0, 12)}`,
   ].join("\n\n");

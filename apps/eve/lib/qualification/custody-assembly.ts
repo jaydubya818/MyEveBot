@@ -220,7 +220,9 @@ export type AssemblyInputs = {
   slot: "Q1" | "Q2"; project: JourneyProjectInput; approvedRequest: string;
   chain: QdevStageChain;
   connection: FactoryConnection; capability: FactoryCapabilityClientConfig;
-  sofie: { model: LanguageModel; price: ModelPrice; system: string; temperature?: number };
+  /** Absent only for the owner-local profile (planning inside the stage-1 Factory run): SOFIE operations are then a proven no-send. */
+  sofie?: { model: LanguageModel; price: ModelPrice; system: string; temperature?: number };
+  recordSubscriptionUsage?: QdevCustody["factory"]["recordSubscriptionUsage"];
   verifier: QdevCustody["verifier"];
   myapps: QdevCustody["myapps"];
   newAllowanceId?: (stage: number) => string;
@@ -229,11 +231,11 @@ export type AssemblyInputs = {
 export function assembleQdevCustody(i: AssemblyInputs): QdevCustody {
   const connection = i.connection;
   if (!("repositoryPath" in connection) || "transport" in connection) return refuse("QDEV_ASSEMBLY_LOCAL_CONNECTION");
-  const sofie = new SofiePlanningRuntime({ model: aiSdkMeteredModel(i.sofie.model, { temperature: i.sofie.temperature }), price: i.sofie.price,
-    request: i.approvedRequest, system: i.sofie.system });
+  const sofie = i.sofie ? new SofiePlanningRuntime({ model: aiSdkMeteredModel(i.sofie.model, { temperature: i.sofie.temperature }), price: i.sofie.price,
+    request: i.approvedRequest, system: i.sofie.system }) : undefined;
   return {
     agent: { slot: i.slot, factoryCoding: { sofie } },
-    factory: { connection, capability: i.capability, retained: i.chain.retained },
+    factory: { connection, capability: i.capability, retained: i.chain.retained, ...(i.recordSubscriptionUsage ? { recordSubscriptionUsage: i.recordSubscriptionUsage } : {}) },
     verifier: i.verifier, myapps: i.myapps,
     expectedFor: i.chain.expectedFor, resultKeys: connection.keys as ResultKey[], sourceDigest: connection.sourceDigest,
     newAllowanceId: i.newAllowanceId ?? (() => randomUUID()),

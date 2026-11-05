@@ -102,7 +102,8 @@ export class QualificationRoot {
       } else config = hostConfig;
       const env = wireJourneyEnvironment({ ...config.ports, project: config.project, relay: config.relay, journal: config.journal });
       try {
-        return presentJourney(await new QualificationJourney(config.accounting, config.project, env).run(config.plan));
+        const done = await new QualificationJourney(config.accounting, config.project, env).run(config.plan);
+        return presentJourney(done, config.ports.factory.subscriptionUsage?.() ?? null);
       } catch (error) {
         if (error instanceof JourneyHalted) {
           // Durable, owner-safe halt fact for read-only progress. Best effort: a journal failure never changes the halt itself.
@@ -112,7 +113,7 @@ export class QualificationRoot {
             const progress = events.findLastIndex(e => e.kind === "STAGE_ACCEPTED" || e.kind === "OP_SETTLED" || e.kind === "DELIVERY_ACCEPTED");
             if (!events.some((e, index) => index > progress && e.kind === "HALTED" && e.stage === error.stage && e.code === code)) await config.journal.append({ kind: "HALTED", stage: error.stage, code });
           } catch { /* retained evidence is unchanged */ }
-          return presentJourney(error);
+          return presentJourney(error, config.ports.factory.subscriptionUsage?.() ?? null);
         }
         throw error;
       }

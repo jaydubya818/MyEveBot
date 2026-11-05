@@ -34,7 +34,15 @@ export type FactoryLivePortConfig = {
   enabled?: boolean; live: FactoryLiveClient; retained(stage: 1 | 2 | 3): RetainedFactoryAdmission | Promise<RetainedFactoryAdmission>;
   /** Maximum wait for terminal quiescence + spend proof before the operation is left fenced. */
   settleTimeoutMs?: number; pollMs?: number; sleep?: (ms: number) => Promise<void>; now?: () => number;
+  /**
+   * Required to settle an OWNER_SUBSCRIPTION_LOCAL (operations-only, unmetered) run: durably records the operation units BEFORE the gate settles.
+   * Absent, or failing, an unmetered run is never settled (it is fenced): MyEve never converts unmetered usage into a money figure or $0.
+   */
+  recordSubscriptionUsage?: (usage: SubscriptionUsage) => Promise<void>;
 };
+/** One settled unmetered Factory run, as read back from the Factory's own operations-only ledger (MyFactory remains the spend authority). */
+export type SubscriptionUsage = { metering: "SUBSCRIPTION_UNMETERED"; requestId: string; workOrderId: string; runId: string | null; state: string;
+  operationsUsed: number; maxOperations: number; completionOperationsUsed: number; evidenceRef: string };
 /** A Result is not available yet (RUNNING/STOPPING/UNKNOWN). Recovery re-reads; it never redispatches. */
 export class FactoryResultPending extends Error {
   constructor(readonly state: string) { super("QDEV_FACTORY_RESULT_PENDING:" + state); }
@@ -50,6 +58,11 @@ type Ready = { binding: LocalFactoryBindingV4; identity: FactoryExecutionIdentit
 
 export class LiveFactoryPort implements FactoryPort {
   private readonly ready_ = new Map<1 | 2 | 3, Ready>();
+  private readonly subscription: SubscriptionUsage[] = [];
+  /** Unmetered usage settled by this port (operations only; null when no run was unmetered). Presentation only: it confers nothing. */
+  subscriptionUsage(): { metering: "SUBSCRIPTION_UNMETERED"; operations: number; runs: number } | null {
+    return this.subscription.length ? { metering: "SUBSCRIPTION_UNMETERED", operations: this.subscription.reduce((n, u) => n + u.operationsUsed, 0), runs: this.subscription.length } : null;
+  }
   constructor(private readonly c: FactoryLivePortConfig) {}
 
   /** Proves, before any gate claim, that Factory holds a prepared execution matching the retained admission. */
@@ -143,8 +156,19 @@ export class LiveFactoryPort implements FactoryPort {
       if (rb.requestId !== ready.identity.requestId || rb.workOrderId !== ready.identity.workOrderId || rb.runId !== ready.identity.remoteRunId)
         return { known: false };
       if (rb.state === "UNKNOWN") return { known: false };
+      if (rb.quiescent === true && TERMINAL.has(rb.state) && rb.evidenceRef && rb.accounting && "metering" in rb.accounting) {
+        // Operations-only route: settle on proven quiescence with no unresolved or in-flight operation, after durably recording the units.
+        const u = rb.accounting;
+        if (u.metering !== "SUBSCRIPTION_UNMETERED" || u.status !== "SUBSCRIPTION_UNMETERED" || u.unknownOperations !== 0 || u.inFlightOperations !== 0
+          || !u.accountingComplete || u.operationsUsed > u.maxOperations || !this.c.recordSubscriptionUsage) return { known: false };
+        const usage: SubscriptionUsage = { metering: "SUBSCRIPTION_UNMETERED", requestId: rb.requestId, workOrderId: rb.workOrderId, runId: rb.runId, state: rb.state,
+          operationsUsed: u.operationsUsed, maxOperations: u.maxOperations, completionOperationsUsed: u.completionOperationsUsed, evidenceRef: rb.evidenceRef };
+        try { await this.c.recordSubscriptionUsage(usage); } catch { return { known: false }; }
+        this.subscription.push(usage);
+        return { known: true, value: { state: rb.state, evidenceRef: rb.evidenceRef, metering: "SUBSCRIPTION_UNMETERED", operationsUsed: u.operationsUsed, settledMicrousd: null } };
+      }
       if (rb.quiescent === true && TERMINAL.has(rb.state) && rb.evidenceRef) {
-        const a = rb.accounting;
+        const a = rb.accounting as Extract<typeof rb.accounting, { safeAllowanceMicrousd: unknown }>;
         if (typeof a?.activeMicrousd !== "number" || typeof a?.unknownMicrousd !== "number" || a.activeMicrousd !== 0 || a.unknownMicrousd !== 0) return { known: false };
         if (typeof a.settledMicrousd !== "number" || !Number.isSafeInteger(a.settledMicrousd) || a.settledMicrousd < 0 || a.settledMicrousd > ready.ceilingMicrousd) return { known: false };
         return { known: true, value: { state: rb.state, evidenceRef: rb.evidenceRef, settledMicrousd: a.settledMicrousd } };

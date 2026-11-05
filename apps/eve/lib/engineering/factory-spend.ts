@@ -117,12 +117,57 @@ export const workSpendSchema=z.union([workSpendV2Schema,migratedLegacyWorkSpendS
 export type WorkSpend=z.infer<typeof workSpendSchema>;
 export type WorkSpendV2=z.infer<typeof workSpendV2Schema>;
 export const legacySpendSchema=z.object({status:z.enum(['KNOWN','UNKNOWN']),ceilingUsd:z.number().finite().nonnegative(),reason:z.string().optional()}).strict();
-export const factorySpendSchema=z.union([workSpendSchema,legacySpendSchema]);
+/**
+ * OWNER_SUBSCRIPTION_LOCAL readback (owner-local private beta only): an operations-only Work ledger. Usage is counted in OPERATIONS and is never
+ * priced: every money field is null and `metering` is SUBSCRIPTION_UNMETERED. It is a distinct kind, never a WorkSpend, so no reader can turn a
+ * null amount into $0. Consumers accept it only under the pinned OWNER_SUBSCRIPTION_LOCAL qualification mode.
+ */
+const nullMoney=z.null();
+export const subscriptionSpendSchema=z.object({
+ status:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN']),metering:z.literal('SUBSCRIPTION_UNMETERED'),costKnown:z.literal(false),currency:z.null(),unit:z.literal('OPERATION'),
+ workId:z.string().uuid(),workGeneration:z.number().int().positive(),requestId:z.string().uuid(),workOrderId:z.string().uuid(),deadline:z.string().min(1).max(64),
+ ceilingMicrousd:nullMoney,settledMicrousd:nullMoney,retainedMicrousd:nullMoney,availableMicrousd:nullMoney,unknownExposureMicrousd:nullMoney,
+ unknownOperations:count,inFlightOperations:count,operationsUsed:count,maxOperations:count.positive(),paidOperationsUsed:count,maxPaidOperations:count.positive(),
+ plannedProductiveOperations:count.positive(),plannedCompletionOperations:count.positive(),completionOperationsUsed:count,completionOperationSlotsRemaining:count,
+ contractVersion:z.literal('WORK_LEDGER_V2'),pricingRevision:text,pricingQualified:z.literal(false),routeQualified:z.boolean(),authorityState,accountingComplete:z.boolean(),phase,cancelled:z.boolean(),
+ operations:z.array(z.object({operationId:text,workId:text,workGeneration:z.number().int().positive(),requestId:text,workOrderId:text,runId:text.nullable().optional(),
+  reservedMicrousd:nullMoney,actualMicrousd:nullMoney,metering:z.literal('SUBSCRIPTION_UNMETERED'),spendStatus:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN','RELEASED']),
+  state:z.enum(['reserved','dispatched','unknown','settled','released'])}).passthrough()).max(2000),
+}).passthrough().superRefine((s,ctx)=>{
+ const bad=(message:string)=>ctx.addIssue({code:'custom',message});
+ const unknown=s.operations.filter(op=>op.state==='unknown').length,inFlight=s.operations.filter(op=>op.state==='reserved'||op.state==='dispatched').length;
+ if((s.status==='UNKNOWN')!==(unknown>0)||s.unknownOperations!==unknown||s.inFlightOperations!==inFlight)bad('Subscription UNKNOWN/in-flight mismatch');
+ if(s.operationsUsed!==s.operations.filter(op=>op.state!=='released').length||s.operationsUsed>s.maxOperations||s.paidOperationsUsed!==s.operations.length
+  ||s.paidOperationsUsed>s.maxPaidOperations||s.maxPaidOperations!==s.plannedProductiveOperations+s.plannedCompletionOperations)bad('Subscription operation limit mismatch');
+ if(s.accountingComplete!==s.operations.every(op=>['settled','released'].includes(op.state)))bad('Subscription accounting completeness mismatch');
+ for(const op of s.operations)if(op.workId!==s.workId||op.spendStatus!==(op.state==='settled'?'SUBSCRIPTION_UNMETERED':op.state==='released'?'RELEASED':'UNKNOWN'))bad('Subscription operation mismatch');
+});
+export type SubscriptionSpend=z.infer<typeof subscriptionSpendSchema>;
+export const factorySpendSchema=z.union([subscriptionSpendSchema,workSpendSchema,legacySpendSchema]);
 export type FactorySpend=z.infer<typeof factorySpendSchema>;
-export function isWorkSpend(value:FactorySpend):value is WorkSpend{return 'currency' in value;}
-export function isWorkSpendV2(value:FactorySpend):value is WorkSpendV2{return 'contractVersion' in value&&value.contractVersion==='WORK_LEDGER_V2';}
+export function isSubscriptionSpend(value:FactorySpend|unknown):value is SubscriptionSpend{return !!value&&typeof value==='object'&&(value as {metering?:unknown}).metering==='SUBSCRIPTION_UNMETERED';}
+export function isWorkSpend(value:FactorySpend):value is WorkSpend{return 'currency' in value&&!isSubscriptionSpend(value);}
+export function isWorkSpendV2(value:FactorySpend):value is WorkSpendV2{return 'contractVersion' in value&&value.contractVersion==='WORK_LEDGER_V2'&&!isSubscriptionSpend(value);}
+/** Operations-only accounting for an OWNER_SUBSCRIPTION_LOCAL readback. Every money figure is null by construction (never 0). */
+export function subscriptionAccounting(spend:SubscriptionSpend){
+ return {metering:'SUBSCRIPTION_UNMETERED' as const,status:spend.status,unit:'OPERATION' as const,operationsUsed:spend.operationsUsed,maxOperations:spend.maxOperations,
+  inFlightOperations:spend.inFlightOperations,unknownOperations:spend.unknownOperations,completionOperationsUsed:spend.completionOperationsUsed,accountingComplete:spend.accountingComplete,
+  settledMicrousd:null,activeMicrousd:null,unknownMicrousd:null,ceilingMicrousd:null};
+}
+export type SubscriptionAccounting=ReturnType<typeof subscriptionAccounting>;
 export type SpendBinding={workId:string;workGeneration:number;requestId:string;workOrderId:string;deadline:string;dispatchIdentity?:string;remoteRunId?:string;factoryVersion?:string};
 export function validateSpendBinding(spend:FactorySpend,expected:SpendBinding,ceilingUsd?:number,plan?:FactorySpendPlan){
+ if(isSubscriptionSpend(spend)){
+  // Operations-only: no ceiling amount exists to compare. The binding and the operation plan (the units the owner approved) still must match exactly.
+  if(spend.workId!==expected.workId||spend.workGeneration!==expected.workGeneration||spend.requestId!==expected.requestId||spend.workOrderId!==expected.workOrderId||spend.deadline!==expected.deadline)
+   throw Error('Factory spend binding mismatch');
+  if(plan&&(spend.pricingRevision!==plan.pricingRevision||spend.plannedProductiveOperations!==plan.plannedProductiveOperations
+   ||spend.plannedCompletionOperations!==plan.plannedCompletionOperations||spend.maxPaidOperations!==plan.maxPaidOperations))throw Error('Factory subscription plan differs from approved Work plan');
+  for(const op of spend.operations.filter(op=>op.workGeneration===expected.workGeneration))
+   if(op.requestId!==expected.requestId||op.workOrderId!==expected.workOrderId||(expected.remoteRunId!==undefined&&op.runId!=null&&op.runId!==expected.remoteRunId))
+    throw Error('Factory spend operation differs from exact attempt');
+  return;
+ }
  if(!isWorkSpend(spend))return;
  if(spend.workId!==expected.workId||spend.workGeneration!==expected.workGeneration||spend.requestId!==expected.requestId||spend.workOrderId!==expected.workOrderId||spend.deadline!==expected.deadline||
   (ceilingUsd!==undefined&&spend.ceilingMicrousd!==Math.floor(ceilingUsd*1_000_000)))throw Error('Factory spend binding or immutable Work ceiling mismatch');

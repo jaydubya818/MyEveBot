@@ -6,7 +6,7 @@ import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
 import { DeepAgentAdapter, type AgentExecutionPort } from "./agent-port.ts";
 import { RetainedExecutorAgentPort, type AgentRuntime } from "./agent-execution-port.ts";
 import { FactoryCodingRuntime } from "./factory-coding-runtime.ts";
-import { LiveFactoryPort, type RetainedFactoryAdmission } from "./factory-live-port.ts";
+import { LiveFactoryPort, type FactoryLivePortConfig, type RetainedFactoryAdmission } from "./factory-live-port.ts";
 import { HttpVerifierPort } from "./verifier-port.ts";
 import { StaticBuildMyAppsPort, type StaticBuildPortConfig } from "./static-build.ts";
 import { StaticPublishingMyAppsPort } from "./static-publish-port.ts";
@@ -42,6 +42,8 @@ export type QdevCustody = {
     connection: FactoryConnection; capability: FactoryCapabilityClientConfig;
     retained(stage: 1 | 2 | 3): RetainedFactoryAdmission | Promise<RetainedFactoryAdmission>;
     factoryFetch?: typeof fetch; capabilityFetch?: typeof fetch; settleTimeoutMs?: number; pollMs?: number;
+    /** Owner-local only: durable record of unmetered OWNER_SUBSCRIPTION_LOCAL operation units (see subscription-usage.ts). */
+    recordSubscriptionUsage?: FactoryLivePortConfig["recordSubscriptionUsage"];
   };
   verifier: { origin: string; credentialName: string; fetch?: typeof fetch; timeoutMs?: number; keys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[] };
   myapps: StaticBuildPortConfig & {
@@ -72,7 +74,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   assertIndependent();
   const { adapter } = buildOrderedFactoryClients({ connection: custody.factory.connection, capability: custody.factory.capability,
     factoryFetch: custody.factory.factoryFetch, capabilityFetch: custody.factory.capabilityFetch });
-  const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs,
+  const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs, recordSubscriptionUsage: custody.factory.recordSubscriptionUsage,
     live: { prepared: r => adapter.prepared(r), dispatch: i => adapter.dispatch(i), read: i => adapter.read(i), result: b => adapter.result(b) } });
   const agent = new DeepAgentAdapter({ enabled: true, ownerId: context.bundle.ownerId, slot: custody.agent.slot,
     projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,

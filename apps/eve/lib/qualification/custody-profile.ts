@@ -42,7 +42,9 @@ export const assemblyProfileSchema = z.object({
     /** Owner-attested price source. The runtime refuses a run whose cost could exceed the charged reservation at this price. */
     price: z.object({ inputMicrousdPerMillionTokens: microusd, outputMicrousdPerMillionTokens: microusd }).strict(),
     system: z.string().trim().min(1).max(4000), temperature: z.number().min(0).max(1).optional(),
-  }).strict(),
+  }).strict()
+    /** Optional only for the private-beta owner-local profile, whose planning runs inside the stage-1 Factory run (no MyEve model credential). */
+    .optional(),
   verifier: z.object({
     origin: z.string().url(), credentialEnv: envName, keys: z.array(verifierKey).min(1).max(4),
     producerKeyIds: z.array(reference).max(8).default([]), producerPublicKeysPem: z.array(z.string().min(1).max(4096)).max(8).default([]),

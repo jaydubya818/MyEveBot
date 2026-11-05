@@ -220,7 +220,8 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     const conversation = qualificationConversation({ ownerId: bundle.ownerId, deliveryUrl: bundle.conversation.deliveryUrl, revalidate,
       ownerRequest: { derive: text => {
         const d = deriveOwnerJourney({ ownerId: bundle.ownerId, template: bundle.template, request: text });
-        return { request: d.request, requestSha256: d.requestSha256, planSha256: d.planSha256, repository: installation.repository, environment: installation.environment, cohortId: d.policy.cohortId };
+        return { request: d.request, requestSha256: d.requestSha256, planSha256: d.planSha256, repository: installation.repository, environment: installation.environment, cohortId: d.policy.cohortId,
+          planningInFactory: !bundle.template.plan.stages[0]!.operations.some(op => op.purpose === "SOFIE") };
       } } });
     return { ownerId: bundle.ownerId, ownerRequest, conversation };
   }

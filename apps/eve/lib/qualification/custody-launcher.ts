@@ -15,6 +15,7 @@ import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
 import { approverFingerprints, fileActivation } from "./static-activation.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { PostgresJournal } from "./journal.ts";
+import { subscriptionUsageRecorder } from "./subscription-usage.ts";
 import type { QdevCustody } from "./runtime-ports.ts";
 import type { DockerRunner } from "./static-build-export.ts";
 
@@ -48,9 +49,12 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   if (isPrivateBetaProject(bundle.project) && (profile.baseline.commit !== bundle.project.inputCommit || profile.baseline.tree !== bundle.project.inputTree)) return null;
   const secret = (name: string) => { const value = context.credential(name); return value && value.length <= 16384 ? value : null; };
   const signerJson = secret(profile.capability.signerEnv), relayCredential = secret(profile.capability.relay.credentialEnv),
-    workloadToken = secret(profile.capability.relay.workloadTokenEnv), modelKey = secret(profile.model.apiKeyEnv),
+    workloadToken = secret(profile.capability.relay.workloadTokenEnv), modelKey = profile.model ? secret(profile.model.apiKeyEnv) : null,
     issuerPem = secret(profile.build.signerEnv), journalUrl = secret(bundle.credentials.journalDatabaseUrl);
-  if (!signerJson || !relayCredential || !workloadToken || !modelKey || !issuerPem || !journalUrl) return null;
+  if (!signerJson || !relayCredential || !workloadToken || !issuerPem || !journalUrl) return null;
+  // A Sofie model credential is required unless this is the owner-local profile, whose planning runs as part of the stage-1 Factory run.
+  const ownerLocal = isPrivateBetaProject(bundle.project);
+  if (profile.model ? !modelKey : !ownerLocal) return null;
   const ownerId = bundle.ownerId;
   if (profile.build.issuer.ownerId !== ownerId) return null;
   const signer = propagation.parse(JSON.parse(signerJson)).signer as { keyId: string; jwk: JsonWebKey };
@@ -97,8 +101,10 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   }
   return assembleQdevCustody({
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,
-    sofie: { model: (deps.languageModel ?? ((id, apiKey) => createGateway({ apiKey })(id)))(profile.model.id, modelKey), price: profile.model.price,
-      system: profile.model.system, temperature: profile.model.temperature },
+    sofie: profile.model ? { model: (deps.languageModel ?? ((id, apiKey) => createGateway({ apiKey })(id)))(profile.model.id, modelKey!), price: profile.model.price,
+      system: profile.model.system, temperature: profile.model.temperature } : undefined,
+    // Owner-local only: unmetered OWNER_SUBSCRIPTION_LOCAL runs settle only after their operation units are durably recorded (never $0).
+    recordSubscriptionUsage: ownerLocal ? await subscriptionUsageRecorder(journalDb, journalId) : undefined,
     verifier: { origin: profile.verifier.origin, credentialName: profile.verifier.credentialEnv, timeoutMs: profile.verifier.timeoutMs, keys: profile.verifier.keys,
       producerKeyIds: profile.verifier.producerKeyIds ?? [], producerPublicKeysPem: profile.verifier.producerPublicKeysPem ?? [] },
     myapps: { source, now: deps.now, delivery: { enabled: true, environment, servedOrigin: profile.servedOrigin, projectSha256: binding.projectSha256,

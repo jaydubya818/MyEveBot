@@ -29,7 +29,10 @@ export interface FactoryPort {
   preflight?(stage: 1 | 2 | 3, start: StageStart): Promise<void>;
   dispatch(binding: LocalFactoryBindingV4, reserveMicrousd: number): Promise<Outcome>;
   fetchResult(stage: 1 | 2 | 3): Promise<unknown>;
+  /** Unmetered OWNER_SUBSCRIPTION_LOCAL usage settled so far (operation units, never money); null when none. Presentation only. */
+  subscriptionUsage?(): SubscriptionUsageSummary | null;
 }
+export type SubscriptionUsageSummary = { metering: "SUBSCRIPTION_UNMETERED"; operations: number; runs: number };
 /** `submit` is the charged operation: it must run the whole evaluation under `reserveMicrousd` and settle only when it is final and quiescent. */
 export interface VerifierPort { submit(handoff: VerifierHandoff, reserveMicrousd: number): Promise<Outcome>; fetchVerdict(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<SignedVerdict>; }
 export interface MyAppsPort {
