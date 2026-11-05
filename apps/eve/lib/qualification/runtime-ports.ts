@@ -45,6 +45,7 @@ export type QdevCustody = {
     factoryFetch?: typeof fetch; capabilityFetch?: typeof fetch; settleTimeoutMs?: number; pollMs?: number;
     /** Owner-local only: durable record of unmetered OWNER_SUBSCRIPTION_LOCAL operation units (see subscription-usage.ts). */
     recordSubscriptionUsage?: FactoryLivePortConfig["recordSubscriptionUsage"];
+    retainResult?: FactoryLivePortConfig["retainResult"];
   };
   verifier: { origin: string; credentialName: string; fetch?: typeof fetch; timeoutMs?: number; keys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[] };
   myapps: StaticBuildPortConfig & {
@@ -79,7 +80,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   assertIndependent();
   const { adapter } = buildOrderedFactoryClients({ connection: custody.factory.connection, capability: custody.factory.capability,
     factoryFetch: custody.factory.factoryFetch, capabilityFetch: custody.factory.capabilityFetch });
-  const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs, recordSubscriptionUsage: custody.factory.recordSubscriptionUsage,
+  const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs, recordSubscriptionUsage: custody.factory.recordSubscriptionUsage, retainResult: custody.factory.retainResult,
     live: { prepared: r => adapter.prepared(r), dispatch: i => adapter.dispatch(i), read: i => adapter.read(i), result: b => adapter.result(b) } });
   const agent = new DeepAgentAdapter({ enabled: true, ownerId: context.bundle.ownerId, slot: custody.agent.slot,
     projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,

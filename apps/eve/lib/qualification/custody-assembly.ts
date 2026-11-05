@@ -224,6 +224,7 @@ export type AssemblyInputs = {
   /** Absent only for the owner-local profile (planning inside the stage-1 Factory run): SOFIE operations are then a proven no-send. */
   sofie?: { model: LanguageModel; price: ModelPrice; system: string; temperature?: number };
   recordSubscriptionUsage?: QdevCustody["factory"]["recordSubscriptionUsage"];
+  retainResult?: QdevCustody["factory"]["retainResult"];
   verifier: QdevCustody["verifier"];
   myapps: QdevCustody["myapps"];
   newAllowanceId?: (stage: number) => string;
@@ -236,7 +237,7 @@ export function assembleQdevCustody(i: AssemblyInputs): QdevCustody {
     request: i.approvedRequest, system: i.sofie.system }) : undefined;
   return {
     agent: { slot: i.slot, factoryCoding: { sofie } },
-    factory: { connection, capability: i.capability, retained: i.chain.retained, ...(i.recordSubscriptionUsage ? { recordSubscriptionUsage: i.recordSubscriptionUsage } : {}) },
+    factory: { connection, capability: i.capability, retained: i.chain.retained, ...(i.recordSubscriptionUsage ? { recordSubscriptionUsage: i.recordSubscriptionUsage } : {}), ...(i.retainResult ? { retainResult: i.retainResult } : {}) },
     verifier: i.verifier, myapps: i.myapps,
     expectedFor: i.chain.expectedFor, resultKeys: connection.keys as ResultKey[], sourceDigest: connection.sourceDigest,
     newAllowanceId: i.newAllowanceId ?? (() => randomUUID()),

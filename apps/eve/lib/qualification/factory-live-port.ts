@@ -39,6 +39,8 @@ export type FactoryLivePortConfig = {
    * Absent, or failing, an unmetered run is never settled (it is fenced): MyEve never converts unmetered usage into a money figure or $0.
    */
   recordSubscriptionUsage?: (usage: SubscriptionUsage) => Promise<void>;
+  /** Host-owned canonical receipt custody; validates/retains the original envelope without dispatching or creating a native Proof. */
+  retainResult?: (binding: LocalFactoryBindingV4, result: unknown) => Promise<void>;
 };
 /** One settled unmetered Factory run, as read back from the Factory's own operations-only ledger (MyFactory remains the spend authority). */
 export type SubscriptionUsage = { metering: "SUBSCRIPTION_UNMETERED"; requestId: string; workOrderId: string; runId: string | null; state: string;
@@ -224,6 +226,7 @@ export class LiveFactoryPort implements FactoryPort {
       return refuse("QDEV_FACTORY_RESULT_ENVELOPE");
     if (envelope.result === null) throw new FactoryResultPending(envelope.state);
     if (!["COMPLETED", "FAILED", "CANCELLED"].includes(envelope.state)) return refuse("QDEV_FACTORY_RESULT_ENVELOPE");
+    await this.c.retainResult?.(r.binding, envelope.result);
     return envelope.result;
   }
 }

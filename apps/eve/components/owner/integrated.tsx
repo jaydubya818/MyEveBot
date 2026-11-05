@@ -26,6 +26,8 @@ import { WorkInbox } from "./work-inbox";
 import { WorkSummary } from "./work-summary";
 import { ACTIVITY_PAGE_DESCRIPTION } from "./destinations";
 import { ProductShell } from "./product-shell";
+import { LocalFactoryResults } from './local-factory-results';
+import type { LocalFactoryResultView } from '@/lib/engineering/local-factory-results';
 
 type CanonicalWork = Awaited<
   ReturnType<
@@ -87,6 +89,7 @@ export function IntegratedExperience({
   const [today, setToday] = useState<Today | null>(null),
     [works, setWorks] = useState<Work[]>([]),
     [results, setResults] = useState<Result[]>([]),
+    [localFactoryResults, setLocalFactoryResults] = useState<LocalFactoryResultView[]>([]),
     [inbox, setInbox] = useState<AttentionView[]>([]),
     [brief, setBrief] = useState<Brief | null>(null),
     [facts, setFacts] = useState<EngineeringFact[]>([]),
@@ -140,6 +143,7 @@ export function IntegratedExperience({
             setWorks([]);
             setCanonical(null);
             setResults([]);
+            setLocalFactoryResults([]);
             setInbox([]);
             setFacts([]);
             setFamilies([]);
@@ -181,9 +185,9 @@ export function IntegratedExperience({
           setCanonical(d.canonical ?? null);
         },
       )]),
-      read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
-        setResults(d.results),
-      ),
+      read<{ results: Result[];localFactoryResults?:LocalFactoryResultView[] }>("/api/beta/results", "Results", (d) => {
+        setResults(d.results);setLocalFactoryResults(d.localFactoryResults??[]);
+      }),
       read<{ items: AttentionView[]; nextCursor: string | null }>(
         "/api/beta/inbox?limit=100",
         "Needs you",
@@ -483,7 +487,7 @@ export function IntegratedExperience({
           </Card>;
         })
     ) : (
-      <Empty title="No retained Results">
+      localFactoryResults.length ? null : <Empty title="No retained Results">
         Verified outputs and their evidence will appear here.
       </Empty>
     );
@@ -735,7 +739,7 @@ export function IntegratedExperience({
               </button>
             )}
             {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
-            {view === "results" && resultCards()}
+            {view === "results" && <>{resultCards()}<LocalFactoryResults results={localFactoryResults} selectedId={selectedId}/></>}
             {["brief", "activity"].includes(view) && (
               <ActivityCard changes={activity} />
             )}

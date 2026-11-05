@@ -159,6 +159,18 @@ jobs:
         # Separate test databases share cluster-wide roles; initialize those fixtures serially.
         # Concurrency and race assertions inside each test file still run unchanged.
         run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false --testTimeout=60000 lib/qualification/owner-local-completion-postgres.test.ts lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts
+      - name: Retained local V4 Results and canonical writer boundaries
+        timeout-minutes: 5
+        run: |
+          docker run --rm -d --name sofie-v4-receipt-postgres -e POSTGRES_USER=q37_admin -e POSTGRES_HOST_AUTH_METHOD=trust -p 127.0.0.1:55498:5432 postgres:17
+          trap 'docker rm -f sofie-v4-receipt-postgres >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec sofie-v4-receipt-postgres pg_isready -U q37_admin >/dev/null 2>&1; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          MYEVE_FACTORY_RECEIPT_TEST_PORT=55498 node --import tsx apps/eve/test/factory-writer-v4.integration.mjs
       - name: Durable owner budget concurrency and UNKNOWN recovery
         env:
           MYEVE_OWNER_CHANNEL_TESTS: '1'

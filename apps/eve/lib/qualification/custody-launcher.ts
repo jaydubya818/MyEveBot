@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import { isPrivateBetaProject, journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { FactoryReceiptStore } from "../engineering/factory-receipt-store.ts";
+import { retainLocalFactoryResult } from '../engineering/local-factory-results.ts';
 import { FactoryWriterStore } from "../engineering/factory-writer.ts";
 import { factoryConfigForWork, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
 import { WorkStore } from "../engineering/store.ts";
@@ -139,6 +140,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
       projectSha256: binding.projectSha256, environment, installationId: profile.publishing.installationId, now: deps.now });
   }
   return assembleQdevCustody({
+    ...(confirmation ? { retainResult: (binding, result) => retainLocalFactoryResult(store,binding,result,async()=>(await runtimeConfig()).connection.keys) } : {}),
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,
     ...(confirmation && confirmedWorks && store.database.atomic ? { delivered: async (delivery: { verdictSha256: string; deliverySha256: string; assurance: string }) => {
       const completed = await completeDeliveredStageWorks({ db: store.database as never, ctx: confirmation!, works: confirmedWorks!, delivery, reconcile: async workId => {
