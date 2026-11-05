@@ -31,7 +31,8 @@ import { absenceAuthenticationSha256, type RollbackPlan } from "./rollback.ts";
  */
 export class StaticPublishRefused extends Error { constructor(readonly code: string) { super(code); } }
 export type ActivationOperation = "PUBLISH" | "ROLLBACK";
-export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: StaticReleaseConfig["environment"]; installationId: string; digest: string; version?: number };
+export type ActivationRequest = { operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: StaticReleaseConfig["environment"]; installationId: string; digest: string; version?: number;
+  expectedPublication?: { seq: number; version: number; digest: string } };
 export type StaticReleaseConfig = {
   /** Private directory (0700, this uid, not a symlink) holding releases/ and states/. */
   root: string; environment: string; appId: string; ownerId: string; projectSha256: string; installationId: string;
@@ -186,16 +187,17 @@ export class StaticReleaseController {
     this.chain = run.catch(() => undefined);
     return run;
   }
-  private request(operation: ActivationOperation, hex: string, version?: number): ActivationRequest {
+  private request(operation: ActivationOperation, hex: string, version?: number, expectedPublication?: ActivationRequest["expectedPublication"]): ActivationRequest {
     return { operation, appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256,
-      environment: this.c.environment, installationId: this.c.installationId, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }) };
+      environment: this.c.environment, installationId: this.c.installationId, digest: "sha256:" + hex, ...(version === undefined ? {} : { version }),
+      ...(expectedPublication ? { expectedPublication } : {}) };
   }
   /**
    * validate the approval WITHOUT consuming it -> claim the root (single winner; a loser consumed nothing) -> consume the approval. A host whose activation has
    * no non-consuming `check` can only consume first, then claim.
    */
-  private async authorize(operation: ActivationOperation, hex: string, version?: number, claims = true) {
-    const request = this.request(operation, hex, version), activation = this.c.activation;
+  private async authorize(operation: ActivationOperation, hex: string, version?: number, claims = true, expectedPublication?: ActivationRequest["expectedPublication"]) {
+    const request = this.request(operation, hex, version, expectedPublication), activation = this.c.activation;
     if (activation?.check) {
       if ((await activation.check(request)) !== true) throw new StaticPublishRefused("QDEV_PUBLISH_NOT_AUTHORIZED");
       if (claims) this.claimInstallation();
@@ -311,7 +313,7 @@ export class StaticReleaseController {
       // The target is validated against the retained history BEFORE any claim or approval (versions are append-only, so it stays valid).
       const known = initial.versions.find(x => x.version === target);
       if (!known || known.digest !== plan.revisionSha256 || plan.restorePointId !== `myapps-restore:${this.c.appId}@${target}:${known.digest.slice(0, 16)}`) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
-      await this.authorize("ROLLBACK", plan.revisionSha256, target, claims);
+      await this.authorize("ROLLBACK", plan.revisionSha256, target, claims, expected);
       return this.mutate<{ installed: number | null; changed: boolean; seq: number }>(s => {
         superseded(s);
         const v = s.versions.find(x => x.version === target);
@@ -324,7 +326,7 @@ export class StaticReleaseController {
     }
     const auth = absenceAuthenticationSha256({ appId: this.c.appId, ownerId: this.c.ownerId, projectSha256: this.c.projectSha256, installation: { environment: this.c.environment, installationId: this.c.installationId } });
     if (plan.kind !== "REMOVE_INSTALLATION" || plan.absenceAuthenticationSha256 !== auth || plan.restorePointId !== "myapps-absent:" + auth.slice(0, 32)) throw new StaticPublishRefused("QDEV_PUBLISH_ROLLBACK_TARGET");
-    await this.authorize("ROLLBACK", auth, undefined, claims);
+    await this.authorize("ROLLBACK", auth, undefined, claims, expected);
     return this.mutate<{ installed: number | null; changed: boolean; seq: number }>(s => {
       superseded(s);
       if (s.installed === null) return { result: { installed: null, changed: false, seq: s.seq } };

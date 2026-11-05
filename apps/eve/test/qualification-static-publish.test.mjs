@@ -64,6 +64,8 @@ import {join} from 'node:path';
 import {StaticReleaseController,StaticPublishRefused,listenLoopback} from '../lib/qualification/static-publish.ts';
 import {StaticPublishingMyAppsPort} from '../lib/qualification/static-publish-port.ts';
 import {MyAppsRevisionReader} from '../lib/qualification/myapps-revisions.ts';
+import {fileActivation} from '../lib/qualification/static-activation.ts';
+import {ownerLocalPublishApprover} from '../lib/qualification/owner-local-authorizations.ts';
 import {planRollback} from '../lib/qualification/rollback.ts';
 
 const PROJECT=h('9'),ENV='myeve-qdev-20261029',INST={environment:ENV,installationId:'inst-1'};
@@ -229,16 +231,56 @@ test('the release root must be a private directory owned by this user',async()=>
   assert.throws(()=>ctl(mkroot(),{appId:'bad app'}),code('QDEV_PUBLISH_CONFIG'));
 });
 
-function deliveryFor(c,{ctlExtra={},tamper=false,gate}={}){
+function deliveryFor(c,{ctlExtra={},tamper=false,gate,approve}={}){
   const root=mkroot(),controller=ctl(root,{projectSha256:c.binding.projectSha256,...ctlExtra}),hd=controller.handler();
   const build=new StaticBuildMyAppsPort({now:()=>NOW,source:async()=>({inventory:c.inventory,claim:c.claimFor(),load:c.load,lockSha256:h('a'),binding:c.bind,issuer:c.issuer}),
     delivery:{enabled:true,environment:ENV,servedOrigin:'https://app.invalid',projectSha256:c.binding.projectSha256,sourceSha256:c.binding.sourceSha256,
       priorRevision:async()=>reader.priorRevision(),restorePointId:async()=>reader.restorePointId(),now:()=>new Date('2026-10-30T01:00:00Z'),
       fetcher:async url=>{const r=await hd(new Request(url));return tamper&&new URL(url).pathname==='/app.js'?new Response('tampered'):r;}}});
   const reader=new MyAppsRevisionReader({source:controller.stateSource(),appId:'app-1',ownerId:'owner-q1',projectSha256:c.binding.projectSha256,installation:INST});
-  const port=new StaticPublishingMyAppsPort({build,controller,reader,installation:INST,gate:gate??(async cand=>verdictFrom(c,cand.buildArtifactSha256))});
+  const port=new StaticPublishingMyAppsPort({build,controller,reader,installation:INST,gate:gate??(async cand=>verdictFrom(c,cand.buildArtifactSha256)),...(approve?{approve}:{})});
   return {controller,hd,port,reader,root};
 }
+
+test('owner-confirmed failed delivery compensates with real conditional file permits, for absence and a captured prior',async()=>{
+  for(const hadPrior of [false,true]){
+    const c=await compose(),dir=mkroot(),pair=generateKeyPairSync('ed25519'),audit=[];
+    const privateKey=pair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+    const permits=fileActivation({dir,keys:[{keyId:'owner-local',publicKeyPem:pair.publicKey.export({type:'spki',format:'pem'}).toString(),
+      activeFrom:'2020-01-01T00:00:00.000Z',notAfter:'2099-01-01T00:00:00.000Z'}],ownerId:'owner-q1',appId:'app-1',projectSha256:c.binding.projectSha256,...INST,now:()=>NOW});
+    const activation={permit:permits.permit,check:async request=>{
+      if(request.operation==='ROLLBACK'){
+        const expected=request.expectedPublication;
+        assert.ok(expected);
+        for(const variant of [undefined,{...expected,seq:expected.seq+1},{...expected,version:expected.version+1},{...expected,digest:'sha256:'+h('f')}])
+          assert.equal(await permits.permit({...request,expectedPublication:variant}),false,'an unconsumed conditional approval denies a missing or foreign publication');
+        assert.equal(await permits.check(request),true,'negative probes must leave the exact conditional approval unconsumed');
+      }
+      return permits.check(request);
+    }};
+    const approve=ownerLocalPublishApprover({ctx:{profile:'myeve.private-beta.owner/v1',confirmationDigest:h('c'),ownerId:'owner-q1',planSha256:h('d'),
+      repository:'local/dashboard',workIds:['w1','w2','w3'],audit:e=>audit.push(e)},approverPem:privateKey,keyId:'owner-local',dir,appId:'app-1',
+      projectSha256:c.binding.projectSha256,installation:INST,now:()=>NOW});
+    const d=deliveryFor(c,{ctlExtra:{activation},tamper:true,approve});
+    const prior=hadPrior?await art(F1,'6'):null;
+    if(prior){
+      const candidate={commit:prior.source.sourceCommit,tree:prior.source.sourceTree},hex=prior.artifactDigest.slice(7);
+      await approve({verdict:{outcome:'PASS',candidateCommit:candidate.commit,candidateTree:candidate.tree,projectSha256:c.binding.projectSha256,buildArtifactSha256:hex},candidate,digest:hex});
+      await d.controller.publish(prior);
+    }
+    await d.port.retainBuild(c.candidate);
+    await assert.rejects(d.port.observe(c.candidate),e=>e instanceof DeliveryObservationError);
+    const state=await d.controller.stateSource().read('app-1');
+    assert.equal(state.installedDigest,prior?.artifactDigest??null);
+    assert.equal((await get(d.hd,'/')).status,hadPrior?200:404);
+    const compensation=audit.find(e=>e.kind==='PUBLISH_COMPENSATION_APPROVED');
+    assert.ok(compensation);assert.equal(compensation.expectedPublication.digest,c.retained.artifactDigest);
+    const signed=JSON.parse(readFileSync(join(dir,'approvals',compensation.approvalFile),'utf8'));
+    assert.deepEqual(signed.payload.expectedPublication,compensation.expectedPublication);
+    assert.equal(await activation.permit({...signed.payload,expectedPublication:undefined}),false);
+    await assert.rejects(approve.compensate({plan:compensation.compensationPlan,expectedPublication:compensation.expectedPublication}),/OWNER_LOCAL_COMPENSATION_SCOPE/);
+  }
+});
 
 test('delivery: a re-verified PASS publishes the retained bytes, the served files are observed, and the plan restores absence',async()=>{
   const c=await compose(),d=deliveryFor(c);

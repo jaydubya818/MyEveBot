@@ -20,9 +20,9 @@ export async function subscriptionUsageRecorder(db: ExecutionDatabase, journeyId
       VALUES($1,$2,$3,$4,$5,'SUBSCRIPTION_UNMETERED',$6,$7,$8,$9) ON CONFLICT (journey_id,request_id) DO NOTHING`,
       [journeyId, usage.requestId, usage.workOrderId, usage.runId, usage.state, usage.operationsUsed, usage.maxOperations, usage.completionOperationsUsed, usage.evidenceRef]);
     // Idempotent only for the identical record: a different readback for the same run is a conflict, never an overwrite.
-    const [row] = await db.query("SELECT work_order_id::text w, run_id::text r, state, operations_used n, max_operations m, evidence_ref e FROM qdev_subscription_usage WHERE journey_id=$1 AND request_id=$2",
+    const [row] = await db.query("SELECT work_order_id::text w, run_id::text r, state, operations_used n, max_operations m, completion_operations_used c, evidence_ref e FROM qdev_subscription_usage WHERE journey_id=$1 AND request_id=$2",
       [journeyId, usage.requestId]) as Array<Record<string, unknown>>;
     if (!row || row.w !== usage.workOrderId || (row.r ?? null) !== usage.runId || row.state !== usage.state || Number(row.n) !== usage.operationsUsed
-      || Number(row.m) !== usage.maxOperations || row.e !== usage.evidenceRef) throw new SubscriptionUsageRefused("QDEV_SUBSCRIPTION_USAGE_CONFLICT");
+      || Number(row.m) !== usage.maxOperations || Number(row.c) !== usage.completionOperationsUsed || row.e !== usage.evidenceRef) throw new SubscriptionUsageRefused("QDEV_SUBSCRIPTION_USAGE_CONFLICT");
   };
 }

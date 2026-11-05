@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { generateKeyPairSync } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import { mkdtempSync, readdirSync, readFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { cohortCharter, issueConfirmedCohort, ownerLocalPublishApprover, auditAppender, type ConfirmationContext } from "./owner-local-authorizations.ts";
 import { FileActivationPermits } from "./static-activation.ts";
+import { StaticReleaseController } from "./static-publish.ts";
+import { StaticArtifactCandidate } from "../../../../packages/myapps/src/static-artifact.ts";
 import { digest } from "../engineering/contract.ts";
 
 const OWNER = "bd78f31f-b369-443a-a1d4-6d7d2ecc0118", P = "myeve.private-beta.owner/v1";
@@ -40,7 +42,7 @@ describe("post-PASS owner publish approval", () => {
   const setup = () => { const d = dir(); return { d, approve: ownerLocalPublishApprover({ ctx: ctx(d), approverPem: pem, keyId: "owner-approver", dir: join(d, "activation"), appId: "app", projectSha256, installation }),
     permits: new FileActivationPermits({ dir: join(d, "activation"), keys: [{ keyId: "owner-approver", publicKeyPem: pub, activeFrom: "2026-01-01T00:00:00.000Z", notAfter: "2027-01-01T00:00:00.000Z" }],
       ownerId: OWNER, appId: "app", projectSha256, ...installation }) }; };
-  const request = (digestHex = hex) => ({ operation: "PUBLISH" as const, appId: "app", ownerId: OWNER, projectSha256, ...installation, digest: digestHex });
+  const request = (digestHex = hex) => ({ operation: "PUBLISH" as const, appId: "app", ownerId: OWNER, projectSha256, ...installation, digest: `sha256:${digestHex}` });
   it("approves exactly the verified PASS digest once; the controller consumes it once", async () => {
     const { d, approve, permits } = setup();
     await approve({ verdict: verdict(), candidate, digest: hex });
@@ -58,6 +60,24 @@ describe("post-PASS owner publish approval", () => {
       expect(readdirSync(d).includes("activation")).toBe(false);
       expect(audit(d)[0].kind).toBe("PUBLISH_REFUSED");
     }
+  });
+  it("the real static controller consumes the exact post-PASS approval and publishes the retained bytes", async () => {
+    const d = dir(), body = Buffer.from("<html>Verified owner-local dashboard</html>");
+    const source = { sourceCommit: candidate.commit, sourceTree: candidate.tree, lockSha256: "e".repeat(64) };
+    const artifact = await StaticArtifactCandidate.retain({ schema: "myeve.dashboard.build-inventory/v1", scope: "BROWSER_BUILD_ONLY", ...source, node: "v24.18.1",
+      files: [{ path: "dist/index.html", bytes: body.length, sha256: createHash("sha256").update(body).digest("hex") }],
+      independentVerification: "NOT_ESTABLISHED", signedResult: false, releaseQualified: false }, source, async () => body);
+    const activation = new FileActivationPermits({ dir: join(d, "activation"), keys: [{ keyId: "owner-approver", publicKeyPem: pub,
+      activeFrom: "2026-01-01T00:00:00.000Z", notAfter: "2027-01-01T00:00:00.000Z" }], ownerId: OWNER, appId: "app", projectSha256, ...installation });
+    const approve = ownerLocalPublishApprover({ ctx: ctx(d), approverPem: pem, keyId: "owner-approver", dir: join(d, "activation"), appId: "app", projectSha256, installation });
+    const controller = new StaticReleaseController({ root: join(d, "release"), activation, ownerId: OWNER, appId: "app", projectSha256, ...installation });
+    await expect(controller.publish(artifact)).rejects.toThrow("QDEV_PUBLISH_NOT_AUTHORIZED");
+    const artifactHex = artifact.artifactDigest.replace(/^sha256:/, "");
+    await approve({ verdict: verdict({ buildArtifactSha256: artifactHex }), candidate, digest: artifactHex });
+    expect(await activation.check(request("f".repeat(64)))).toBe(false);
+    expect((await controller.publish(artifact)).digest).toBe(artifact.artifactDigest);
+    expect((await controller.stateSource().read("app")).installedDigest).toBe(artifact.artifactDigest);
+    expect(await activation.permit(request(artifactHex))).toBe(false);
   });
   it("is unavailable to any other profile", () => {
     const d = dir();

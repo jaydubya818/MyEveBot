@@ -45,17 +45,22 @@ export const ownerLocalConfirmationSchema = z.object({
     relay: z.object({ label, loopbackOrigin: loopback, template: z.record(z.string(), z.unknown()), credentialEnv: envName, workloadTokenEnv: envName }).strict(),
     executionContractSha256: z.string().regex(/^[a-f0-9]{64}$/),
   }).strict(),
-}).strict();
+}).strict().superRefine((profile, ctx) => {
+  if (profile.missionControl.relay.template.origin !== profile.missionControl.relay.label)
+    ctx.addIssue({ code: "custom", message: "Relay enrollment must use the pinned owner-local identity label" });
+});
 export type OwnerLocalConfirmationProfile = z.infer<typeof ownerLocalConfirmationSchema>;
 
 /** Owner-local transport: exact https identity label origin -> pinned loopback origin. Refuses for any other profile. */
 export function ownerLocalSend(profile: string, map: Record<string, string>, base: typeof fetch = fetch): typeof fetch {
   if (profile !== PRIVATE_BETA_PROFILE) return refuse("OWNER_LOCAL_TRANSPORT_PROFILE");
   for (const [from, to] of Object.entries(map)) if (!label.safeParse(from).success || !loopback.safeParse(to).success) refuse("OWNER_LOCAL_TRANSPORT_ORIGIN");
+  const pinned = Object.freeze({ ...map });
   return (input, init) => {
     const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
-    const target = map[url.origin];
-    return base(target ? target + url.pathname + url.search : url.href, init);
+    const target = pinned[url.origin];
+    if (!target || url.username || url.password || url.hash) return refuse("OWNER_LOCAL_TRANSPORT_ORIGIN");
+    return base(target + url.pathname + url.search, { ...init, redirect: "error" });
   };
 }
 
@@ -77,13 +82,16 @@ export function ownerLocalRequestRuntime(base: FactoryRuntime, input: { request:
 const uuidFrom = (hex: string) => { const b = hex.slice(0, 32).split(""); b[12] = "5"; b[16] = ((parseInt(b[16], 16) & 3) | 8).toString(16); const s = b.join("");
   return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`; };
 
-/** The three stage Works for this confirmed plan (idempotent), plus their common Work-ledger budget rows. */
+/** Claim the three stage Works once. An existing claim requires reconciliation; it never rotates enrollment or resumes Work on replay. */
 export async function ensureRequestStageWorks(store: WorkStore, runtime: FactoryRuntime, input: { planSha256: string; stage: OwnerLocalConfirmationProfile["stage"] }) {
   const works: Record<1 | 2 | 3, Work> = {} as never;
   for (const stage of [1, 2, 3] as const) {
-    const { work } = await store.create({ title: STAGE_TITLES[stage], objective: runtime.engineering.objective, repository: runtime.engineering.profile.repository,
+    const { work, created } = await store.create({ title: STAGE_TITLES[stage], objective: runtime.engineering.objective, repository: runtime.engineering.profile.repository,
       criteria: runtime.engineering.criteria, maxCostUsd: input.stage.maxCostUsd, maxDurationSeconds: input.stage.maxDurationSeconds,
       idempotencyKey: uuidFrom(sha256(`owner-local-stage-work/v1:${input.planSha256}:${stage}`)) });
+    // The canonical unique Work idempotency key arbitrates concurrent confirmations before either bridge mutation.
+    // This also covers a restart/lost response after a prior claim: never create a fresh enrollment for retained or UNKNOWN Work.
+    if (!created) return refuse("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");
     // New Work starts paused; the owner's confirmation hands exactly this Work to the agent (one canonical `resume` command).
     works[stage] = work.control === "agent" ? work : await store.change(work.id, { operation: "resume", expectedVersion: work.version });
   }

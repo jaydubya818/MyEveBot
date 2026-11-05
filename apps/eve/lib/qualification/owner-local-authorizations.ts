@@ -9,6 +9,7 @@ import type { QualificationPolicy } from "../external-alpha/qualification-accoun
 import { signActivationApproval, type ActivationApproval } from "./static-activation.ts";
 import type { Verdict } from "./verdict.ts";
 import type { InstallationIdentity } from "./rollback.ts";
+import type { OwnerPublishApproval } from "./static-publish-port.ts";
 
 /**
  * Private-beta OWNER-LOCAL profile only. Jay's authenticated `confirm <plan>` authorizes exactly two further actions for that journey:
@@ -72,13 +73,24 @@ export async function issueConfirmedCohort(c: { db: Db; ctx: ConfirmationContext
 /**
  * 2. Post-PASS publish approval. Called by the publishing port only after it verified the signed verdict; it re-checks independently and
  * refuses unless the verdict is PASS for exactly this candidate and release digest, then writes ONE owner-signed, short-lived, single-use
- * approval for exactly that digest. The release controller still verifies and consumes it; nothing else is approved (never ROLLBACK).
+ * approval for exactly that digest. Failed observation may compensate only to the captured prior, conditional on the exact publication CAS.
+ * There is no general rollback grant, and a later release can never be undone by this confirmation.
  */
 export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approverPem: string; keyId: string; dir: string; appId: string; projectSha256: string;
   installation: InstallationIdentity; windowMs?: number; now?: () => number }) {
   if (c.ctx.profile !== PRIVATE_BETA_PROFILE) return refuse("OWNER_LOCAL_PUBLISH_PROFILE");
   if (createPrivateKey(c.approverPem).asymmetricKeyType !== "ed25519") return refuse("OWNER_LOCAL_PUBLISH_KEY");
-  return async (input: { verdict: Verdict; candidate: { commit: string; tree: string }; digest: string }) => {
+  const compensationPlans = new Map<string, string>();
+  const recordApproval = (approval: ActivationApproval) => {
+    const file = signActivationApproval(approval, c.approverPem), approvals = join(c.dir, "approvals");
+    mkdirSync(c.dir, { recursive: true, mode: 0o700 }); mkdirSync(approvals, { recursive: true, mode: 0o700 });
+    if ((lstatSync(c.dir).mode & 0o077) !== 0 || (lstatSync(approvals).mode & 0o077) !== 0) return refuse("OWNER_LOCAL_PUBLISH_DIRECTORY");
+    const name = `owner-confirm-${sha256(canonical(approval)).slice(0, 32)}.json`;
+    const fd = openSync(join(approvals, name), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
+    try { writeSync(fd, file); } finally { closeSync(fd); }
+    return name;
+  };
+  const publish: OwnerPublishApproval = async input => {
     const v = input.verdict, hex = input.digest;
     if (!v || v.outcome !== "PASS" || !/^[a-f0-9]{64}$/.test(hex) || v.buildArtifactSha256 !== hex || v.candidateCommit !== input.candidate.commit
       || v.candidateTree !== input.candidate.tree || v.projectSha256 !== c.projectSha256) {
@@ -87,17 +99,32 @@ export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approve
     }
     const now = c.now?.() ?? Date.now();
     const approval: ActivationApproval = { schema: "myeve.qdev-activation-approval/v1", operation: "PUBLISH", appId: c.appId, ownerId: c.ctx.ownerId,
-      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId, digest: hex, keyId: c.keyId,
+      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId, digest: `sha256:${hex}`, keyId: c.keyId,
       notBefore: new Date(now - 1000).toISOString(), notAfter: new Date(now + (c.windowMs ?? 10 * 60_000)).toISOString(), nonce: randomUUID() + randomUUID() };
-    const file = signActivationApproval(approval, c.approverPem), approvals = join(c.dir, "approvals");
-    mkdirSync(c.dir, { recursive: true, mode: 0o700 }); mkdirSync(approvals, { recursive: true, mode: 0o700 });
-    if ((lstatSync(c.dir).mode & 0o077) !== 0 || (lstatSync(approvals).mode & 0o077) !== 0) return refuse("OWNER_LOCAL_PUBLISH_DIRECTORY");
-    const name = `owner-confirm-${sha256(canonical(approval)).slice(0, 32)}.json`;
-    const fd = openSync(join(approvals, name), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
-    try { writeSync(fd, file); } finally { closeSync(fd); }
+    const name = recordApproval(approval);
+    if (input.compensationPlan) compensationPlans.set(`sha256:${hex}`, canonical(input.compensationPlan));
     c.ctx.audit({ kind: "PUBLISH_APPROVED", authorizedBy: "OWNER_CONFIRM_AFTER_PASS", confirmationDigest: c.ctx.confirmationDigest, ownerId: c.ctx.ownerId,
       planSha256: c.ctx.planSha256, repository: c.ctx.repository, workIds: c.ctx.workIds, digest: hex, candidate: input.candidate,
       verdict: { outcome: v.outcome, assurance: v.assurance, verifierKeyId: v.verifierKeyId, issuedAt: v.issuedAt }, approvalFile: name, keyId: c.keyId, notAfter: approval.notAfter });
     return { approvalFile: name };
   };
+  publish.compensate = async ({ plan, expectedPublication }) => {
+    if (!Number.isSafeInteger(expectedPublication.seq) || expectedPublication.seq < 1 || !Number.isSafeInteger(expectedPublication.version) || expectedPublication.version < 1 ||
+      compensationPlans.get(expectedPublication.digest) !== canonical(plan) || plan.installation.environment !== c.installation.environment ||
+      plan.installation.installationId !== c.installation.installationId) return refuse("OWNER_LOCAL_COMPENSATION_SCOPE");
+    const revision = plan.kind === "RESTORE_REVISION" ? /^(.+)@([1-9][0-9]*)$/.exec(plan.revisionId) : null;
+    if (plan.kind === "RESTORE_REVISION" && (!revision || revision[1] !== c.appId)) return refuse("OWNER_LOCAL_COMPENSATION_SCOPE");
+    const now = c.now?.() ?? Date.now();
+    const approval: ActivationApproval = { schema: "myeve.qdev-activation-approval/v1", operation: "ROLLBACK", appId: c.appId, ownerId: c.ctx.ownerId,
+      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId,
+      digest: `sha256:${plan.kind === "RESTORE_REVISION" ? plan.revisionSha256 : plan.absenceAuthenticationSha256}`,
+      ...(revision ? { version: Number(revision[2]) } : {}), expectedPublication: { ...expectedPublication }, keyId: c.keyId,
+      notBefore: new Date(now - 1000).toISOString(), notAfter: new Date(now + (c.windowMs ?? 10 * 60_000)).toISOString(), nonce: randomUUID() + randomUUID() };
+    const name = recordApproval(approval);
+    compensationPlans.delete(expectedPublication.digest);
+    c.ctx.audit({ kind: "PUBLISH_COMPENSATION_APPROVED", authorizedBy: "OWNER_CONFIRM_EXACT_FAILED_DELIVERY", confirmationDigest: c.ctx.confirmationDigest,
+      ownerId: c.ctx.ownerId, planSha256: c.ctx.planSha256, expectedPublication, compensationPlan: plan, approvalFile: name });
+    return { approvalFile: name };
+  };
+  return publish;
 }

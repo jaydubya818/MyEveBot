@@ -68,7 +68,8 @@
       "codex/qdev-20261030-runtime-schema": false,
       "codex/qdev-20261030-infrastructure-plan": false,
       "codex/qdev-20261102-djr-reconcile": false,
-      "codex/private-beta-owner-work-20261103": false
+      "codex/private-beta-owner-work-20261103": false,
+      "codex/local-sofie-reviewed-20261105": false
     }
   },
   "functions": {
