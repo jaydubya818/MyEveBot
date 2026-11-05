@@ -16,6 +16,13 @@ import { approverFingerprints, fileActivation } from "./static-activation.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { PostgresJournal } from "./journal.ts";
 import { subscriptionUsageRecorder } from "./subscription-usage.ts";
+import { canonicalWorkDatabase } from "../capability-control/admission.ts";
+import { factoryRelayLeaseEnrollmentDigest } from "../engineering/factory-relay-lease-client.ts";
+import { digest } from "../engineering/contract.ts";
+import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
+import { confirmOwnerLocalRequest, ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
+import type { StageStoreSourcesConfig } from "./factory-stage-store-sources.ts";
+type StageAdmission = NonNullable<StageStoreSourcesConfig["admission"]>;
 import type { QdevCustody } from "./runtime-ports.ts";
 import type { DockerRunner } from "./static-build-export.ts";
 
@@ -59,17 +66,34 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   if (profile.build.issuer.ownerId !== ownerId) return null;
   const signer = propagation.parse(JSON.parse(signerJson)).signer as { keyId: string; jwk: JsonWebKey };
 
-  const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId });
-  const runtimeConfig = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, profile.workIds.stage1);
+  // Owner-local: the transactional Work store (MissionControl bindings require it) without enabling capability control process-wide.
+  const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, ownerLocal ? canonicalWorkDatabase() : undefined);
+  let relay = profile.capability.relay, missionId = profile.capability.missionId;
+  let workIds = profile.workIds, admission: StageAdmission | undefined, requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
+  if (ownerLocal && profile.ownerLocalConfirmation) {
+    // The owner's confirmed request (root-verified digest) creates its stage Works and obtains MissionControl's owner decisions via the bridge.
+    const request = bundle.conversation.approvedRequest, planSha256 = digest(bundle.plan);
+    if (!request) return null;
+    requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
+    const confirmed = await confirmOwnerLocalRequest({ profile: PRIVATE_BETA_PROFILE, confirmation: profile.ownerLocalConfirmation, store,
+      base: await (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, undefined as never), request, planSha256, credential: context.credential, now: deps.now });
+    workIds = confirmed.workIds; admission = confirmed.admission; missionId = confirmed.missionId;
+    // The Factory Relay lease enrollment binds to the MissionControl connection/revision this confirmation installed (re-pinned, never widened).
+    const bound = { ...profile.capability.relay.enrollment, connectionId: confirmed.connectionId, enrollmentRevision: confirmed.enrollmentRevision };
+    relay = { ...profile.capability.relay, enrollment: bound, revision: confirmed.enrollmentRevision,
+      enrollmentSha256: factoryRelayLeaseEnrollmentDigest(bound, { ownerLocalLoopback: true }) };
+  }
+  const readRuntime = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, workIds.stage1);
+  const runtimeConfig = requestRuntime ? async () => requestRuntime!(await readRuntime()) : readRuntime;
   const config = await runtimeConfig(), connection = config.connection;
   if (!("repositoryPath" in connection) || "transport" in connection) return null;
   // Unpaid preflight before anything can run: each stage Work budget must fit its approved operation reservation (else coding is refused only after Sofie has spent).
   let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
-  await checkStageWorkBudgets(store.database, ownerId, plan, { 1: profile.workIds.stage1, 2: profile.workIds.stage2, 3: profile.workIds.stage3 });
+  await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
 
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
-    missionId: profile.capability.missionId, signer, send: deps.capabilityFetch, ownerLocalRelayLoopback: isPrivateBetaProject(bundle.project),
-    relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
+    missionId, signer, send: deps.capabilityFetch, ownerLocalRelayLoopback: isPrivateBetaProject(bundle.project),
+    relay: { enrollment: relay.enrollment, enrollmentSha256: relay.enrollmentSha256, revision: relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
 
   const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);
@@ -79,7 +103,8 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
   const { chain } = storeBackedStageChain({ db: journalDb as never, journeyId: journalId, journal: new PostgresJournal(journalDb as never, journalId),
     sources: { enabled: true, store, authority: new FactoryRouteAuthority(store, runtimeConfig), receipts: new FactoryReceiptStore(store.principal, store.database),
       writers: new FactoryWriterStore(store), adapterFor: connection_ => orderedAdapterFor(connection_, capability, deps.factoryFetch, deps.capabilityFetch),
-      workIds: { 1: profile.workIds.stage1, 2: profile.workIds.stage2, 3: profile.workIds.stage3 }, baseline: profile.baseline } });
+      workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline,
+      ...(admission ? { admission, maxRequestSeconds: profile.ownerLocalConfirmation!.stage.requestDeadlineSeconds } : {}) } });
   await chain.warm();
 
   const source = candidateStaticBuildSource({ repositoryPath: connection.repositoryPath, ownerId, appId: profile.build.appId,

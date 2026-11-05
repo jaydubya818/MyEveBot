@@ -1,4 +1,4 @@
-import { factoryConfig } from '../engineering/factory-routing.ts';
+import { factoryConfig, type FactoryRuntime } from '../engineering/factory-routing.ts';
 import { prepareOwnerFactoryOrigin } from './owner-factory-binding.ts';
 import { z } from 'zod';
 import { id,digest,enterpriseInput } from './contracts.ts';
@@ -16,7 +16,7 @@ export type MissionControlToolInput=z.infer<typeof missionControlToolInput>;
 
 /** Prepares an inspectable approval request; it cannot reserve or execute Work. */
 export async function prepareMissionControlExecution(store:WorkStore,value:unknown,commandId:string,
-  env:NodeJS.ProcessEnv=process.env,send:typeof fetch=fetch) {
+  env:NodeJS.ProcessEnv=process.env,send:typeof fetch=fetch,config?:FactoryRuntime) {
   const input=prepareExecutionInput.parse(value),ownerId=store.principal.scopeId,policy=externalAlphaPolicy(env);
   if((policy&&policy.ownerId!==ownerId)||store.principal.scopeKind!=='personal'||store.principal.actorId!==ownerId)
     throw Error('MISSIONCONTROL_PREPARE_OWNER');
@@ -28,7 +28,8 @@ export async function prepareMissionControlExecution(store:WorkStore,value:unkno
   let tupleSha256=alphaTasksTupleSha256;
   if(policy)assertCanonicalAlphaWork(work,{ownerId,repository:policy.repository});
   else {
-    const origin=await prepareOwnerFactoryOrigin(store,work,await factoryConfig(),input);
+    // The owner-local private beta passes its per-request runtime (the confirmed objective), the same object its stage admission uses.
+    const origin=await prepareOwnerFactoryOrigin(store,work,config??await factoryConfig(),input);
     tupleSha256=origin.tupleSha256;
     if(origin.enrollment.revision!==enrollment.revision)throw Error('MISSIONCONTROL_PREPARE_ENROLLMENT_CHANGED');
   }

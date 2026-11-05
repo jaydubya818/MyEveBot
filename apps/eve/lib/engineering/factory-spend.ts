@@ -26,9 +26,27 @@ export type FactorySpendPlan=z.infer<typeof factorySpendPlanSchema>;
 export const factorySpendContractSchema=z.object({version:z.enum(['WORK_LEDGER_V1','WORK_LEDGER_V2']),sourceDigest:hash}).strict();
 export type FactorySpendProfile={sourceDigest:string;factoryVersion:string;spendContract?:z.infer<typeof factorySpendContractSchema>;
  spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'CLOUD_DETERMINISTIC'|'CLOUD_PRODUCTION_VALIDATION'|'LIVE'|'OWNER_SUBSCRIPTION_LOCAL';spendEnforced:boolean;spendReview?:FactorySpendReview}};
+/** The exact operations-only plan the OWNER_SUBSCRIPTION_LOCAL route accepts (MyFactory FACTORY-HOST.md): N=1|2 productive + 1 completion. */
+export const OWNER_SUBSCRIPTION_PRICING_REVISION='owner-subscription-local.operations-v1';
+/**
+ * Owner-local subscription route: there is no USD price to review, so no spend review is required. Admission instead requires the
+ * enforced V2 Work-ledger contract bound to this source and the exact operation plan of the route. Usage is recorded in operations
+ * (SUBSCRIPTION_UNMETERED, never $0) and the Factory still enforces its operation limits, single-use dispatch and UNKNOWN fencing.
+ */
+function ownerSubscriptionAdmission(profile:FactorySpendProfile){
+ const reasons:string[]=[],q=profile.qualification,plan=factorySpendPlanSchema.safeParse(profile.spendPlan);
+ if(!q.spendEnforced)reasons.push('Pre-call operation enforcement is not qualified');
+ if(profile.spendContract?.version!=='WORK_LEDGER_V2'||profile.spendContract.sourceDigest!==profile.sourceDigest)reasons.push('Work ledger V2 contract bound to this source is required');
+ if(q.spendReview)reasons.push('A USD spend review does not apply to the unmetered owner subscription route');
+ if(!plan.success||plan.data.pricingRevision!==OWNER_SUBSCRIPTION_PRICING_REVISION||plan.data.plannedCompletionOperations!==1||plan.data.completionReserveMicrousd!==1
+  ||![1,2].includes(plan.data.plannedProductiveOperations)||plan.data.maxPaidOperations!==plan.data.plannedProductiveOperations+1)
+  reasons.push('The exact owner-subscription operation plan is required');
+ return {allowed:reasons.length===0,reasons};
+}
 export function factorySpendAdmission(profile:FactorySpendProfile,now=Date.now()){
  const q=profile.qualification,r=q.spendReview,reasons:string[]=[];
  if(q.mode==='LOCAL_FIXTURE')return {allowed:true,reasons};
+ if(q.mode==='OWNER_SUBSCRIPTION_LOCAL')return ownerSubscriptionAdmission(profile);
  if(!q.spendEnforced)reasons.push('Pre-call spend enforcement is not qualified');
  if(profile.spendContract?.version!=='WORK_LEDGER_V2'||profile.spendContract.sourceDigest!==profile.sourceDigest)
   reasons.push('Reviewed Work ledger V2 contract is required for paid production');

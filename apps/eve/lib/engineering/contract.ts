@@ -9,13 +9,21 @@ export const pathSchema = z.string().min(1).max(240).refine(path =>
   !path.split("/").some(part => !part || part === "." || part === "..") &&
   !path.split("/").some(part => part.startsWith(".")) &&
   !/(^|\/)(node_modules|vendor|credentials|secrets)(\/|$)/i.test(path), "A bounded source path is required.");
+/**
+ * An allowed-path SCOPE: an exact bounded path, or a bounded directory followed by `/**` (MyFactory's directory scope, e.g. `src/**`).
+ * The prefix must itself satisfy `pathSchema`; no other wildcard is accepted. Consumers that match by exact path inclusion (local
+ * executors, GitHub publication) never match a `/**` entry, so a directory scope can only widen what MyFactory itself enforces.
+ */
+export const allowedPathScopeSchema = z.string().min(1).max(243).refine(path =>
+  path.endsWith("/**") ? pathSchema.safeParse(path.slice(0, -3)).success : pathSchema.safeParse(path).success,
+  "A bounded source path or directory scope is required.");
 export const profileSchema = z.object({
   id: z.string().min(1).max(100), version: z.number().int().positive(),
   repository: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
   privateQualification: z.literal(true),
   publicOutputContract: publicOutputBindingSchema.optional(),
   baseBranch: z.string().regex(/^[\w/-]+$/),
-  allowedPaths: z.array(pathSchema).min(1).max(30),
+  allowedPaths: z.array(allowedPathScopeSchema).min(1).max(30),
   // The trusted supervisor compares black-box output; candidate code cannot terminate its assertions.
   checks: z.array(z.object({ id: z.string().regex(/^[\w-]+$/), program: pathSchema,
     input: z.string().max(16000), expectedOutput: z.string().max(16000), expectedExitCode: z.number().int().min(0).max(255),

@@ -47,6 +47,8 @@ export type StageStoreSourcesConfig = {
   /** Defaults to the shared register + RouteAdmissionService.admit body. Tests may inject; production composition must not. */
   admitPrepared?: typeof productionRegisterAndAdmit;
   newRequestId?: () => string;
+  /** Owner-local: the Factory request deadline is capped at now + this many seconds (the subscription route's per-Work cap), never past the budget. */
+  maxRequestSeconds?: number;
 };
 
 type StageState = { work: Work; decisionId: string; config: FactoryRuntime; proof: MissionControlAdmissionProof | null; start?: StageStart };
@@ -103,8 +105,10 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     if ((decision.selected_route ?? decision.selectedRoute) !== "MYFACTORY") return refuse("QDEV_STAGE_ROUTE_CONFLICT");
     const [budget] = await this.c.store.database.query("SELECT deadline FROM engineering_work_model_budget WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3", this.scope(id));
     if (!budget || Date.parse(String(budget.deadline)) <= Date.now()) return refuse("QDEV_STAGE_BUDGET_DEADLINE");
+    const budgetDeadline = Date.parse(String(budget.deadline));
+    const deadline = this.c.maxRequestSeconds ? Math.min(budgetDeadline, Date.now() + this.c.maxRequestSeconds * 1000) : budgetDeadline;
     const request = buildFactoryPrepareRequest({ work, config, budgetUsd: snapshot.contract.budgetUsd, baseRef: start.commit,
-      deadline: new Date(budget.deadline as string).toISOString(), requestId: (this.c.newRequestId ?? randomUUID)() });
+      deadline: new Date(deadline).toISOString(), requestId: (this.c.newRequestId ?? randomUUID)() });
     const preparation = JSON.stringify({ request, configurationHash: factoryExecutionConfigurationHash(config), ...(snapshot.environment ? { environment: snapshot.environment } : {}) });
     const saved = await this.c.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
       WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING *`, [...this.scope(id), decision.id, preparation]);
