@@ -170,16 +170,23 @@ export async function confirmOwnerLocalRequest(c: {
     MYEVE_MISSIONCONTROL_CAPABILITY_BACKEND_ID: mc.capabilityBackendId, MYEVE_MISSIONCONTROL_CAPABILITY_AGENT_ID: runtime.engineering.agentId,
     MYEVE_CAPABILITY_PROPAGATION_JSON: secret(mc.propagationEnv), MYEVE_MISSIONCONTROL_RELAY_LEASE_JSON: JSON.stringify(relayLease),
     MYEVE_MISSIONCONTROL_RELAY_RUNTIME_CREDENTIAL: secret(mc.relay.credentialEnv), MYEVE_MISSIONCONTROL_RELAY_WORKLOAD_TOKEN: secret(mc.relay.workloadTokenEnv) };
-  // MyEve prepares exactly one permit request per confirmed Work (persists each owner Work origin first), then the bridge approves them.
-  const requestIds: string[] = [];
+  // One MissionControl WorkOrder per stage Work: MyEve prepares exactly one permit request per confirmed Work (persisting each owner Work origin
+  // first). MissionControl permits live five minutes, so each is approved just in time, right before that stage's admission, still bound to
+  // this one confirmation and approved at most once per Work by the bridge.
+  const workOrders = z.array(z.object({ stage: z.number().int().min(1).max(3), workOrderId: z.string().min(1), expectedWorkOrderRevisionId: z.string().min(1) }).strict()).length(3).parse(a.workOrders);
+  const requestIds = new Map<string, string>();
   for (const stage of [1, 2, 3] as const) {
-    const work = works[stage];
-    const prepared = await prepareMissionControlExecution(c.store, { operation: "enterprise.prepare_execution", proposalId: a.proposalId, workOrderId: a.workOrderId,
-      expectedWorkOrderRevisionId: a.expectedWorkOrderRevisionId, expectedPlanDigest: a.planDigest, idempotencyKey: `owner-local:${c.planSha256.slice(0, 16)}:stage-${stage}`,
+    const work = works[stage], wo = workOrders.find(x => x.stage === stage) ?? refuse("OWNER_LOCAL_WORKORDER");
+    const prepared = await prepareMissionControlExecution(c.store, { operation: "enterprise.prepare_execution", proposalId: a.proposalId, workOrderId: wo.workOrderId,
+      expectedWorkOrderRevisionId: wo.expectedWorkOrderRevisionId, expectedPlanDigest: a.planDigest, idempotencyKey: `owner-local:${c.planSha256.slice(0, 16)}:stage-${stage}`,
       workId: work.id, expectedWorkVersion: work.version, expectedWorkGeneration: work.generation }, randomUUID(), env, send, runtime);
-    requestIds.push(prepared.requestId);
+    requestIds.set(work.id, prepared.requestId);
   }
-  await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, requestIds }, c.send ?? fetch);
+  const approved = new Set<string>();
   return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest: sha256(canonicalPermitJson(binding)),
-    admission: (store, work, config) => requestOwnerFactoryAdmission(store, work, config, env, send) };
+    admission: async (store, work, config) => {
+      const requestId = requestIds.get(work.id) ?? refuse("OWNER_LOCAL_WORK_NOT_CONFIRMED");
+      if (!approved.has(work.id)) { await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, requestIds: [requestId] }, c.send ?? fetch); approved.add(work.id); }
+      return requestOwnerFactoryAdmission(store, work, config, env, send);
+    } };
 }
