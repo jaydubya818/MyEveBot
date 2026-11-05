@@ -26,6 +26,7 @@ describe("owner-local MissionControl/Relay transport", () => {
   });
   it("the confirmation profile only accepts loopback bridge/MissionControl and label identities", () => {
     const valid = { bridgeOrigin: "http://127.0.0.1:8798", signerEnv: "QDEV_OWNER_CONFIRMATION_SIGNER",
+      authorizations: { auditPath: "/tmp/audit.jsonl", accountingIssuerEnv: "QDEV_ACCOUNTING_ISSUER_DATABASE_URL", approverEnv: "QDEV_OWNER_APPROVER_PEM" },
       stage: { maxCostUsd: 0.65, maxDurationSeconds: 180, budgetMinutes: 90, requestDeadlineSeconds: 590 },
       missionControl: { issuer: MC, audience: "https://myeve.owner-local.invalid", loopbackOrigin: "http://127.0.0.1:8799", installationId: "i", secretEnv: "QDEV_MC_SECRET",
         capabilityBackendId: "mc", propagationEnv: "QDEV_MYEVE_SOURCE_SIGNER", executionContractSha256: "a".repeat(64),

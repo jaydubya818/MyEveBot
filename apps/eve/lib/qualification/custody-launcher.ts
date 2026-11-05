@@ -21,6 +21,7 @@ import { factoryRelayLeaseEnrollmentDigest } from "../engineering/factory-relay-
 import { digest } from "../engineering/contract.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { confirmOwnerLocalRequest, ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
+import { auditAppender, issueConfirmedCohort, ownerLocalPublishApprover, type ConfirmationContext } from "./owner-local-authorizations.ts";
 import type { StageStoreSourcesConfig } from "./factory-stage-store-sources.ts";
 type StageAdmission = NonNullable<StageStoreSourcesConfig["admission"]>;
 import type { QdevCustody } from "./runtime-ports.ts";
@@ -68,7 +69,7 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
 
   // Owner-local: the transactional Work store (MissionControl bindings require it) without enabling capability control process-wide.
   const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, ownerLocal ? canonicalWorkDatabase() : undefined);
-  let relay = profile.capability.relay, missionId = profile.capability.missionId;
+  let relay = profile.capability.relay, missionId = profile.capability.missionId, confirmation: ConfirmationContext | undefined;
   let workIds = profile.workIds, admission: StageAdmission | undefined, requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
   if (ownerLocal && profile.ownerLocalConfirmation) {
     // The owner's confirmed request (root-verified digest) creates its stage Works and obtains MissionControl's owner decisions via the bridge.
@@ -78,6 +79,17 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
     const confirmed = await confirmOwnerLocalRequest({ profile: PRIVATE_BETA_PROFILE, confirmation: profile.ownerLocalConfirmation, store,
       base: await (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, undefined as never), request, planSha256, credential: context.credential, now: deps.now });
     workIds = confirmed.workIds; admission = confirmed.admission; missionId = confirmed.missionId;
+    // Jay's confirm authorizes the confirmed plan's accounting cohort and the post-PASS preview publication (owner-local-authorizations.ts).
+    const auth = profile.ownerLocalConfirmation.authorizations;
+    confirmation = { profile: PRIVATE_BETA_PROFILE, confirmationDigest: confirmed.confirmationDigest, ownerId, planSha256,
+      repository: bundle.project.repository, workIds: [workIds.stage1, workIds.stage2, workIds.stage3], audit: auditAppender(auth.auditPath) };
+    const issuerUrl = context.credential(auth.accountingIssuerEnv), memberCredential = context.credential(bundle.credentials.accounting);
+    if (!issuerUrl || !memberCredential) return null;
+    const { default: pg } = await import("pg");
+    const issuer = new pg.Client({ connectionString: issuerUrl });
+    await issuer.connect();
+    try { await issueConfirmedCohort({ db: issuer, ctx: confirmation, policy: bundle.policy, project: bundle.project, plan: validateJourneyPlan(bundle.plan), memberCredential }); }
+    finally { await issuer.end(); }
     // The Factory Relay lease enrollment binds to the MissionControl connection/revision this confirmation installed (re-pinned, never widened).
     const bound = { ...profile.capability.relay.enrollment, connectionId: confirmed.connectionId, enrollmentRevision: confirmed.enrollmentRevision };
     relay = { ...profile.capability.relay, enrollment: bound, revision: confirmed.enrollmentRevision,
@@ -134,6 +146,10 @@ export async function assembleFromProfile(context: Context, deps: LauncherDeps):
       producerKeyIds: profile.verifier.producerKeyIds ?? [], producerPublicKeysPem: profile.verifier.producerPublicKeysPem ?? [] },
     myapps: { source, now: deps.now, delivery: { enabled: true, environment, servedOrigin: profile.servedOrigin, projectSha256: binding.projectSha256,
       sourceSha256: binding.sourceSha256, priorRevision: unreachable, restorePointId: unreachable },
-      publishing: { root: profile.publishing.root, appId: profile.build.appId, installationId: profile.publishing.installationId, ...(activation ? { activation } : {}) } },
+      publishing: { root: profile.publishing.root, appId: profile.build.appId, installationId: profile.publishing.installationId, ...(activation ? { activation } : {}),
+        ...(confirmation && activation && profile.publishing.activation ? { ownerApproval: ownerLocalPublishApprover({ ctx: confirmation,
+          approverPem: context.credential(profile.ownerLocalConfirmation!.authorizations.approverEnv) ?? "", keyId: profile.publishing.activation.approverKeys[0].keyId,
+          dir: profile.publishing.activation.dir, appId: profile.build.appId, projectSha256: binding.projectSha256,
+          installation: { environment, installationId: profile.publishing.installationId }, now: deps.now }) } : {}) } },
   });
 }

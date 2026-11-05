@@ -48,7 +48,10 @@ export type QdevCustody = {
   verifier: { origin: string; credentialName: string; fetch?: typeof fetch; timeoutMs?: number; keys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[] };
   myapps: StaticBuildPortConfig & {
     /** Explicit host configuration only. Without an activation permit publishing refuses; absence preserves the observation-only port. */
-    publishing?: Pick<StaticReleaseConfig, "root" | "appId" | "installationId" | "activation">;
+    publishing?: Pick<StaticReleaseConfig, "root" | "appId" | "installationId" | "activation"> & {
+      /** Owner-local only: the confirm-bound post-PASS owner approval for exactly the verified release digest. */
+      ownerApproval?: ConstructorParameters<typeof StaticPublishingMyAppsPort>[0]["approve"];
+    };
   };
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   newAllowanceId(stage: number): string;
@@ -107,6 +110,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
   } });
   const myapps = controller && reader && publishing ? new StaticPublishingMyAppsPort({ build, controller, reader,
     installation: { environment, installationId: publishing.installationId },
+    ...(publishing.ownerApproval ? { approve: publishing.ownerApproval } : {}),
     gate: async candidate => {
       assertIndependent();
       return verifyVerdict({ signed: await verifier.fetchVerdict(candidate), verifierKeys: custody.verifier.keys,

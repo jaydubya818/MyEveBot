@@ -20,6 +20,8 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     build: StaticBuildMyAppsPort; controller: StaticReleaseController; reader: MyAppsRevisionReader; installation: InstallationIdentity;
     /** Host-bound: fetch the signed verdict (a pure read) and verify it with verifyVerdict against the pinned keys and expectations. */
     gate(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<Verdict>;
+    /** Owner-local only: issues the owner's single-use approval for exactly this verified PASS release digest (it re-checks and may refuse). */
+    approve?(input: { verdict: Verdict; candidate: { commit: string; tree: string }; digest: string }): Promise<unknown>;
   }) {}
 
   retainBuild(candidate: { commit: string; tree: string }) { return this.c.build.retainBuild(candidate); }
@@ -29,6 +31,10 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     const verdict = await this.c.gate({ ...candidate, buildArtifactSha256: bare });
     if (verdict?.outcome !== "PASS" || verdict.candidateCommit !== candidate.commit || verdict.candidateTree !== candidate.tree || verdict.buildArtifactSha256 !== bare)
       throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED");
+    if (this.c.approve) {
+      try { await this.c.approve({ verdict, candidate: { commit: candidate.commit, tree: candidate.tree }, digest: bare }); }
+      catch { throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED"); }
+    }
     await this.c.reader.capture();
     // The prior is captured once; publication is a compare-and-swap on exactly that prior, so a release committed by anyone else in the
     // meantime refuses the delivery instead of becoming something a later compensation would overwrite.

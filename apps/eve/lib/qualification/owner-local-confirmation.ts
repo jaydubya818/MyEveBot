@@ -35,6 +35,8 @@ const envName = z.string().regex(/^[A-Z][A-Z0-9_]{2,63}$/);
 
 export const ownerLocalConfirmationSchema = z.object({
   bridgeOrigin: loopback, signerEnv: envName,
+  /** Jay's confirm also authorizes (1) issuing the confirmed plan's accounting cohort and (2) the post-PASS local preview publication. */
+  authorizations: z.object({ auditPath: z.string().startsWith("/").max(1024), accountingIssuerEnv: envName, approverEnv: envName }).strict(),
   stage: z.object({ maxCostUsd: z.number().positive().max(1.3), maxDurationSeconds: z.number().int().min(60).max(600), budgetMinutes: z.number().int().min(10).max(120),
     requestDeadlineSeconds: z.number().int().min(60).max(600) }).strict(),
   missionControl: z.object({
@@ -109,6 +111,8 @@ export type OwnerLocalConfirmed = { workIds: { stage1: string; stage2: string; s
   connectionId: string; enrollmentRevision: number;
   /** The MissionControl Mission the owner approved; the Factory capability challenge must name exactly it. */
   missionId: string;
+  /** sha256 of the canonical signed confirmation binding: every authorized action records it. */
+  confirmationDigest: string;
   admission: (store: WorkStore, work: Work, config: FactoryRuntime) => ReturnType<typeof requestOwnerFactoryAdmission> };
 
 export async function confirmOwnerLocalRequest(c: {
@@ -176,6 +180,6 @@ export async function confirmOwnerLocalRequest(c: {
     requestIds.push(prepared.requestId);
   }
   await bridge(p.bridgeOrigin, "/approve-permits", { binding, signature, requestIds }, c.send ?? fetch);
-  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId),
+  return { workIds: { stage1: works[1].id, stage2: works[2].id, stage3: works[3].id }, runtime, connectionId: enrollment.connectionId, enrollmentRevision: revision, missionId: String(a.missionId), confirmationDigest: sha256(canonicalPermitJson(binding)),
     admission: (store, work, config) => requestOwnerFactoryAdmission(store, work, config, env, send) };
 }
