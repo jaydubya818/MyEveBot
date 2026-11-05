@@ -128,3 +128,34 @@ export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approve
   };
   return publish;
 }
+
+/**
+ * 3. After the journey ACCEPTED its verified delivery (signed PASS verdict + observed served bytes), the confirmed stage Works land as completed
+ * (lifecycle `accepted`, control paused, generation advanced so no writer of the old generation can act). Only the exact confirmed revisions,
+ * only while still active, all three or none; recorded as a Work event and in the durable audit. It changes no spend, permit or publication state.
+ */
+export async function completeDeliveredStageWorks(c: { db: { atomic<T>(fn: (db: Db) => Promise<T>): Promise<T> }; ctx: ConfirmationContext;
+  works: Array<{ id: string; version: number; generation: number }>; delivery: { verdictSha256: string; deliverySha256: string; assurance: string };
+  /** Records each Work's Factory writer as terminal from the exact authenticated quiescence readback (MyEve's writer reconcile); refuses otherwise. */
+  reconcile(workId: string): Promise<void> }) {
+  const hex = /^[a-f0-9]{64}$/, d = c.delivery;
+  if (c.ctx.profile !== PRIVATE_BETA_PROFILE) return refuse("OWNER_LOCAL_COMPLETION_PROFILE");
+  if (!hex.test(d.verdictSha256) || !hex.test(d.deliverySha256) || d.assurance !== "PRIVATE_BETA_LOCAL") return refuse("OWNER_LOCAL_COMPLETION_EVIDENCE");
+  if (c.works.length !== 3 || c.works.some((w, i) => w.id !== c.ctx.workIds[i] || !Number.isSafeInteger(w.version) || !Number.isSafeInteger(w.generation)))
+    return refuse("OWNER_LOCAL_COMPLETION_WORKS");
+  const uuid = (seed: string) => { const h = sha256(seed); return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-${((parseInt(h[16], 16) & 3) | 8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`; };
+  // The Work guard refuses a lifecycle change while a Factory writer is not proven terminal: reconcile first (exact remote quiescence only).
+  for (const w of c.works) await c.reconcile(w.id);
+  await c.db.atomic(async db => {
+    for (const w of c.works) {
+      const done = await rows(db, `UPDATE engineering_work SET lifecycle='accepted',control='paused',version=version+1,generation=generation+1,updated_at=clock_timestamp()
+        WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 AND version=$3 AND generation=$4 AND lifecycle='active' RETURNING version`,
+        [c.ctx.ownerId, w.id, w.version, w.generation]);
+      if (done.length !== 1) return refuse("OWNER_LOCAL_COMPLETION_STALE");
+      await rows(db, `INSERT INTO engineering_work_events(id,scope_id,scope_kind,work_id,version,actor_id,kind) VALUES($1,$2,'personal',$3,$4,$2,'owner_local_delivery_accepted')`,
+        [uuid(`OWNER_LOCAL_DELIVERY_ACCEPTED_V1:${c.ctx.confirmationDigest}:${w.id}`), c.ctx.ownerId, w.id, Number(done[0].version)]);
+    }
+  });
+  c.ctx.audit({ kind: "WORKS_COMPLETED", authorizedBy: "OWNER_CONFIRM_DELIVERY_ACCEPTED", confirmationDigest: c.ctx.confirmationDigest, ownerId: c.ctx.ownerId,
+    planSha256: c.ctx.planSha256, works: c.works, verdictSha256: d.verdictSha256, deliverySha256: d.deliverySha256, assurance: d.assurance });
+}

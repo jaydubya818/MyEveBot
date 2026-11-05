@@ -217,6 +217,7 @@ export function ed25519Signer(privateKeyPem: string): (message: Uint8Array) => U
 }
 
 export type AssemblyInputs = {
+  delivered?: QdevCustody["delivered"];
   slot: "Q1" | "Q2"; project: JourneyProjectInput; approvedRequest: string;
   chain: QdevStageChain;
   connection: FactoryConnection; capability: FactoryCapabilityClientConfig;
@@ -239,6 +240,7 @@ export function assembleQdevCustody(i: AssemblyInputs): QdevCustody {
     verifier: i.verifier, myapps: i.myapps,
     expectedFor: i.chain.expectedFor, resultKeys: connection.keys as ResultKey[], sourceDigest: connection.sourceDigest,
     newAllowanceId: i.newAllowanceId ?? (() => randomUUID()),
+    ...(i.delivered ? { delivered: i.delivered } : {}),
   };
 }
 

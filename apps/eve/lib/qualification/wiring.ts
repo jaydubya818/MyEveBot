@@ -46,6 +46,8 @@ export type WiringConfig = {
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   verifierKeys: VerifierKey[]; producerKeyIds: string[]; producerPublicKeysPem: string[];
   newAllowanceId(stage: number): string; journal?: JourneyJournal; now?: () => number; baseline?: StageStart;
+  /** Owner-local only: runs once after the journey's verified delivery was accepted (the stage Works then land as completed). */
+  delivered?(evidence: { verdictSha256: string; deliverySha256: string; assurance: string }): Promise<void>;
 };
 
 /**

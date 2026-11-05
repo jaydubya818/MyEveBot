@@ -3,7 +3,7 @@ import { createHash, generateKeyPairSync } from "node:crypto";
 import { mkdtempSync, readdirSync, readFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { cohortCharter, issueConfirmedCohort, ownerLocalPublishApprover, auditAppender, type ConfirmationContext } from "./owner-local-authorizations.ts";
+import { cohortCharter, completeDeliveredStageWorks, issueConfirmedCohort, ownerLocalPublishApprover, auditAppender, type ConfirmationContext } from "./owner-local-authorizations.ts";
 import { FileActivationPermits } from "./static-activation.ts";
 import { StaticReleaseController } from "./static-publish.ts";
 import { StaticArtifactCandidate } from "../../../../packages/myapps/src/static-artifact.ts";
@@ -82,5 +82,53 @@ describe("post-PASS owner publish approval", () => {
   it("is unavailable to any other profile", () => {
     const d = dir();
     expect(() => ownerLocalPublishApprover({ ctx: ctx(d, { profile: "myeve.private-beta.tester/v1" }), approverPem: pem, keyId: "k", dir: d, appId: "app", projectSha256, installation })).toThrow("OWNER_LOCAL_PUBLISH_PROFILE");
+  });
+});
+
+describe("delivered stage Works land as completed", () => {
+  const works = [{ id: "w1", version: 2, generation: 2 }, { id: "w2", version: 2, generation: 2 }, { id: "w3", version: 2, generation: 2 }];
+  const delivery = { verdictSha256: "a".repeat(64), deliverySha256: "b".repeat(64), assurance: "PRIVATE_BETA_LOCAL" };
+  // In-memory engineering_work: an UPDATE matches only the exact active revision; the transaction is all-or-nothing.
+  const fakeDb = (state: Record<string, { lifecycle: string; version: number; generation: number }>) => {
+    const events: unknown[][] = [];
+    return { events, state, atomic: async <T>(fn: (db: any) => Promise<T>) => {
+      const draft = structuredClone(state), ev: unknown[][] = [];
+      const db = { query: async (sql: string, p: any[]) => {
+        if (sql.startsWith("UPDATE engineering_work")) { const w = draft[p[1]];
+          if (!w || p[0] !== OWNER || w.version !== p[2] || w.generation !== p[3] || w.lifecycle !== "active") return [];
+          Object.assign(w, { lifecycle: "accepted", version: w.version + 1, generation: w.generation + 1 }); return [{ version: w.version }]; }
+        ev.push(p); return []; } };
+      const out = await fn(db); Object.assign(state, draft); events.push(...ev); return out; } };
+  };
+  const fresh = () => Object.fromEntries(works.map(w => [w.id, { lifecycle: "active", version: 2, generation: 2 }]));
+  it("completes exactly the confirmed active revisions after an accepted PRIVATE_BETA_LOCAL delivery, audited", async () => {
+    const d = dir(), db = fakeDb(fresh());
+    const reconciled: string[] = [];
+    await completeDeliveredStageWorks({ db, ctx: ctx(d), works, delivery, reconcile: async id => { reconciled.push(id); } });
+    expect(reconciled).toEqual(["w1", "w2", "w3"]);
+    expect(Object.values(db.state).map(w => [w.lifecycle, w.version, w.generation])).toEqual([["accepted", 3, 3], ["accepted", 3, 3], ["accepted", 3, 3]]);
+    expect(db.events).toHaveLength(3);
+    expect(audit(d).map(e => e.kind)).toEqual(["WORKS_COMPLETED"]);
+  });
+  it("completes nothing for a stale revision, foreign Works, missing evidence or another profile", async () => {
+    const stale = fresh(); stale.w3.version = 3;
+    const cases: Array<[Parameters<typeof completeDeliveredStageWorks>[0] extends infer C ? Partial<C> : never, Record<string, any>, string]> = [
+      [{}, stale, "OWNER_LOCAL_COMPLETION_STALE"],
+      [{ works: [works[0], works[1], { id: "other", version: 2, generation: 2 }] }, fresh(), "OWNER_LOCAL_COMPLETION_WORKS"],
+      [{ delivery: { ...delivery, assurance: "INDEPENDENT" } }, fresh(), "OWNER_LOCAL_COMPLETION_EVIDENCE"],
+      [{ delivery: { ...delivery, deliverySha256: "" } }, fresh(), "OWNER_LOCAL_COMPLETION_EVIDENCE"],
+    ];
+    for (const [over, state, code] of cases) {
+      const d = dir(), db = fakeDb(state);
+      await expect(completeDeliveredStageWorks({ db, ctx: ctx(d), works, delivery, reconcile: async () => undefined, ...over } as never)).rejects.toThrow(code);
+      expect(Object.values(db.state).every(w => w.lifecycle === "active")).toBe(true);
+      expect(db.events).toHaveLength(0);
+    }
+    // A writer that cannot be proven terminal (no exact quiescence) completes nothing.
+    const db = fakeDb(fresh());
+    await expect(completeDeliveredStageWorks({ db, ctx: ctx(dir()), works, delivery, reconcile: async () => { throw Error("Exact trusted remote quiescence evidence required"); } })).rejects.toThrow("quiescence");
+    expect(Object.values(db.state).every(w => w.lifecycle === "active")).toBe(true);
+    const d = dir();
+    await expect(completeDeliveredStageWorks({ db: fakeDb(fresh()), ctx: ctx(d, { profile: "myeve.private-beta.tester/v1" }), works, delivery, reconcile: async () => undefined })).rejects.toThrow("OWNER_LOCAL_COMPLETION_PROFILE");
   });
 });
