@@ -9,7 +9,7 @@ import {neonConfig} from '@neondatabase/serverless';
 import {executeEnterpriseTool} from '../agent/lib/missioncontrol.ts';
 import {enterpriseConfig,signedCommand,sendEnterpriseCommand} from '../lib/missioncontrol/consumer.ts';
 const source=resolve(process.env.MISSIONCONTROL_SOURCE_ROOT??'');
-const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'6db6097f69148f35a5206e13de1b4097ef08172f';
+const expectedMissionControlSha=process.env.MISSIONCONTROL_EXPECTED_SHA??'eb6811be84571ae660ab1208394e8b384de209c5';
 assert.match(expectedMissionControlSha,/^[a-f0-9]{40}$/,'An exact MissionControl source SHA is required');
 assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim(),expectedMissionControlSha,'Use the exact pinned MC owner-review candidate');
 const mcDirty=!!execFileSync('git',['status','--porcelain'],{cwd:source,encoding:'utf8'}).trim();
