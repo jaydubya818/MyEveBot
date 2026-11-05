@@ -20,7 +20,8 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "pg": "^8.20.0",
-    "turbo": "^2.10.5"
+    "turbo": "^2.10.5",
+    "minimatch": "11.0.1"
   },
   "engines": {
     "node": "24.x"
@@ -43,6 +44,15 @@
     "smol-toml": "1.9.1",
     "dompurify": "3.4.17",
     "zod@>=4.0.0 <4.6.6": "4.6.6",
-    "katex": "0.18.2"
+    "katex": "0.18.2",
+    "@vercel/queue@0.7.0": {
+      "minimatch": "11.0.1"
+    },
+    "braintrust@3.32.0": {
+      "minimatch": "11.0.1"
+    },
+    "just-bash@3.4.2": {
+      "minimatch": "11.0.1"
+    }
   }
 }
