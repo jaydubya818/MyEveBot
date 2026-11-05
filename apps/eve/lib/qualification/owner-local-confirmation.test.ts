@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { generateKeyPairSync, verify } from "node:crypto";
+import { generateKeyPairSync, sign, verify } from "node:crypto";
 import { confirmationSigningBytes, ownerLocalConfirmationSchema, ownerLocalRequestRuntime, ownerLocalSend, requestObjective } from "./owner-local-confirmation.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
@@ -7,7 +7,7 @@ import { factoryExecutionConfigurationHash } from "../engineering/factory-config
 const MC = "https://missioncontrol.owner-local.invalid", RELAY = "https://relay.owner-local.invalid";
 describe("owner-local MissionControl/Relay transport", () => {
   it("maps only the pinned identity labels to their loopback ports, for the owner-local profile", async () => {
-    const base = vi.fn(async () => new Response("{}"));
+    const base = vi.fn(async (_input: unknown, _init?: unknown) => new Response("{}"));
     const send = ownerLocalSend(PRIVATE_BETA_PROFILE, { [MC]: "http://127.0.0.1:8799", [RELAY]: "http://127.0.0.1:8797" }, base as never);
     await send(MC + "/api/action", { method: "POST" });
     await send(RELAY + "/api/v2/runtime/capability-leases/prepare?x=1");
@@ -20,7 +20,7 @@ describe("owner-local MissionControl/Relay transport", () => {
       expect(() => ownerLocalSend(profile, { [MC]: "http://127.0.0.1:8799" })).toThrow("OWNER_LOCAL_TRANSPORT_PROFILE");
   });
   it("refuses non-loopback targets and non-label sources", () => {
-    for (const map of [{ [MC]: "http://10.0.0.5:8799" }, { [MC]: "https://127.0.0.1:8799" }, { [MC]: "http://localhost:8799" }, { "https://mc.example.com": "http://127.0.0.1:8799" },
+    for (const map of <Record<string, string>[]>[{ [MC]: "http://10.0.0.5:8799" }, { [MC]: "https://127.0.0.1:8799" }, { [MC]: "http://localhost:8799" }, { "https://mc.example.com": "http://127.0.0.1:8799" },
       { "http://missioncontrol.owner-local.invalid": "http://127.0.0.1:8799" }])
       expect(() => ownerLocalSend(PRIVATE_BETA_PROFILE, map)).toThrow("OWNER_LOCAL_TRANSPORT_ORIGIN");
   });
@@ -55,7 +55,6 @@ describe("per-request runtime", () => {
   it("confirmation signatures are domain-separated canonical JSON", () => {
     const { privateKey, publicKey } = generateKeyPairSync("ed25519");
     const binding = { b: 1, a: { d: 2, c: 3 } };
-    const { sign } = require("node:crypto");
     const signature = sign(null, confirmationSigningBytes(binding), privateKey);
     expect(verify(null, Buffer.from('myeve-owner-confirmation/v1\n{"a":{"c":3,"d":2},"b":1}'), publicKey, signature)).toBe(true);
   });
