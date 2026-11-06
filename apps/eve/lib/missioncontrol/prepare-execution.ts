@@ -13,6 +13,11 @@ export const prepareExecutionInput=z.object({operation:z.literal('enterprise.pre
   workId:z.string().uuid(),expectedWorkVersion:z.number().int().positive(),expectedWorkGeneration:z.number().int().positive()}).strict();
 export const missionControlToolInput=z.union([enterpriseInput,prepareExecutionInput]);
 export type MissionControlToolInput=z.infer<typeof missionControlToolInput>;
+// Model tool schemas must be one top-level object: offer every variant field once, then require exactly one variant.
+const variants=[...enterpriseInput.options,prepareExecutionInput];
+const fields=Object.fromEntries(variants.flatMap(v=>Object.entries(v.shape)).filter(([name])=>name!=='operation').map(([name,schema])=>[name,(schema as z.ZodType).optional()]));
+export const missionControlToolSchema=z.object({operation:z.enum(variants.map(v=>v.shape.operation.value) as [string,...string[]]),...fields}).strict()
+ .superRefine((value,ctx)=>{if(!missionControlToolInput.safeParse(value).success)ctx.addIssue({code:'custom',message:'Supply exactly the fields of one MissionControl operation.'});});
 
 /** Prepares an inspectable approval request; it cannot reserve or execute Work. */
 export async function prepareMissionControlExecution(store:WorkStore,value:unknown,commandId:string,
