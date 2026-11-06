@@ -1,9 +1,11 @@
-export const CURRENT_DATABASE_MIGRATION = "0109_external_alpha_chat_only.sql";
+export const CURRENT_DATABASE_MIGRATION = "0110_hosted_factory_mailbox.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.
 export function requiredDatabaseMigration(env: NodeJS.ProcessEnv = process.env): string {
-  if (env.MYEVE_EXTERNAL_ALPHA_POLICY && env.MYEVE_APPLICATION_PASSWORDS === "true") return CURRENT_DATABASE_MIGRATION;
+  // Hosted private beta (mailbox + private previews) only: its additive tables are required once the hosted profile is configured.
+  if (env.MYEVE_HOSTED_PROFILE) return CURRENT_DATABASE_MIGRATION;
+  if (env.MYEVE_EXTERNAL_ALPHA_POLICY && env.MYEVE_APPLICATION_PASSWORDS === "true") return "0109_external_alpha_chat_only.sql";
   if (env.MYEVE_APPLICATION_PASSWORDS === "true") return "0108_application_passwords.sql";
   if (env.MYEVE_MISSIONCONTROL_MODE === 'APPROVED_NONPRODUCTION') return "0107_factory_preparation_generation_guard.sql";
   if (env.MYEVE_EXTERNAL_ALPHA_POLICY) return "0092_private_result_acceptance.sql";

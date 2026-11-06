@@ -2,6 +2,7 @@ import type {MissionControlAdmissionProof} from '../missioncontrol/admit-executi
 import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
+import {isMailboxFetch,mailboxFetchOrigin} from './factory-mailbox.ts';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,isSubscriptionSpend,subscriptionAccounting,validateSpendBinding,type SubscriptionAccounting,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
@@ -62,6 +63,9 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   private readonly admission:{requireOrderedAdmission:boolean}={requireOrderedAdmission:false}){
   this.config=factoryConnectionSchema.parse(config);this.fetcher=fetcher;
   this.transport=factoryTransport(this.config);
+  // The hosted mailbox transport is metered-only: the owner's unmetered subscription route never runs behind a hosted installation.
+  if(isMailboxFetch(fetcher)&&(this.config.qualification.mode!=='LIVE'||'transport' in this.config||mailboxFetchOrigin(fetcher)!==this.transport.origin.origin))
+   throw Error('FACTORY_MAILBOX_REQUIRES_METERED_LOOPBACK_HOST');
   if(capability&&(capability.config.origin!==config.origin||capability.config.binding.factoryId!==config.factoryId
     ||capability.config.binding.factoryVersion!==config.factoryVersion||capability.config.binding.sourceDigest!==config.sourceDigest
     ||capability.config.binding.configurationDigest!==config.configurationDigest))throw Error('FACTORY_CAPABILITY_CONFIGURATION');

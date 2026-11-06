@@ -1,0 +1,106 @@
+import { z } from "zod";
+import { HOSTED_PROFILE, mailboxFetch, type MailboxBinding, type MailboxDb } from "../engineering/factory-mailbox.ts";
+import { factoryTransportFetch } from "../engineering/factory-transport.ts";
+import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
+import { QDEV_LIMITS, type QualificationPolicy } from "../external-alpha/qualification-accounting.ts";
+
+/**
+ * HOSTED private-beta profile (owner, then testers), separate from the owner-local `myeve.private-beta.owner/v1`.
+ *
+ * Hosted MyEve (Vercel) never runs code: MyFactory on the owner's Mac is the only execution engine, reached through the outbound-only
+ * mailbox. This profile pins what a hosted installation may use, and nothing here can be widened at runtime:
+ *  - Relay and MissionControl are https origins (never loopback, never a `.invalid` local issuer);
+ *  - the Factory and the local verifier are the Mac's exact loopback origins, reached ONLY through the `mailbox` transport;
+ *  - spend is metered: the Factory connection must be the metered LIVE route with enforced spend and a reviewed Work ledger contract.
+ *    OWNER_SUBSCRIPTION_LOCAL / SUBSCRIPTION_UNMETERED is refused (it stays owner-local only);
+ *  - verifier assurance is PRIVATE_BETA_LOCAL, always shown with its fixed label: automated checks on the owner's machine, not independent custody;
+ *  - limits: $1.30 per Work and 4 Works per person, with no automatic increase (equal to the frozen QDEV_LIMITS; any larger policy is refused).
+ * It is read from one non-secret JSON env value (MYEVE_HOSTED_PROFILE). Secrets (poller credential hash, Blob token) are not part of it.
+ */
+export { HOSTED_PROFILE };
+export const HOSTED_ASSURANCE = "PRIVATE_BETA_LOCAL" as const;
+export const HOSTED_ASSURANCE_LABEL = "automated checks on the owner's machine, not independent custody" as const;
+export const HOSTED_LIMITS = { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, journeyMicrousd: 5_200_000, automaticIncrease: false } as const;
+
+const id = z.string().regex(/^[A-Za-z0-9._:@|-]{1,160}$/);
+const timestamp = z.string().datetime();
+const httpsOrigin = z.string().url().refine(value => {
+  try { const u = new URL(value); return u.protocol === "https:" && u.origin === value && !u.port && !u.hostname.endsWith(".invalid")
+    && !/^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(u.hostname); } catch { return false; }
+}, "an https origin is required");
+const macLoopbackOrigin = z.string().refine(value => {
+  try { const u = new URL(value); return u.protocol === "http:" && u.hostname === "127.0.0.1" && !!u.port && u.origin === value; } catch { return false; }
+}, "the exact Mac loopback origin is required");
+const verifierKey = z.object({ keyId: id, publicKeyPem: z.string().min(1).max(4096), activeFrom: timestamp, notAfter: timestamp, revokedAt: timestamp.optional() }).strict();
+
+export const hostedProfileSchema = z.object({
+  profile: z.literal(HOSTED_PROFILE),
+  role: z.enum(["OWNER", "TESTER"]),
+  ownerId: id, installationId: id,
+  relayOrigin: httpsOrigin, missionControlOrigin: httpsOrigin,
+  factory: z.object({
+    transport: z.literal("MAILBOX"), factoryOrigin: macLoopbackOrigin, verifierOrigin: macLoopbackOrigin,
+    spend: z.literal("METERED"), qualificationMode: z.literal("LIVE"),
+  }).strict(),
+  verifier: z.object({
+    assurance: z.literal(HOSTED_ASSURANCE), label: z.literal(HOSTED_ASSURANCE_LABEL),
+    keys: z.array(verifierKey).min(1).max(4), producerKeyIds: z.array(id).max(8), producerPublicKeysPem: z.array(z.string().min(1).max(4096)).max(8),
+  }).strict(),
+  limits: z.object({
+    perWorkMicrousd: z.literal(HOSTED_LIMITS.perWorkMicrousd), maxWorksPerPerson: z.literal(HOSTED_LIMITS.maxWorksPerPerson),
+    automaticIncrease: z.literal(false),
+  }).strict(),
+}).strict().refine(p => p.factory.factoryOrigin !== p.factory.verifierOrigin, "Factory and verifier are separate hosts");
+export type HostedProfile = z.infer<typeof hostedProfileSchema>;
+
+export class HostedProfileRefused extends Error { constructor(readonly code: string) { super(code); } }
+const refuse = (code: string): never => { throw new HostedProfileRefused(code); };
+
+/** The configured hosted profile, or null when this deployment is not a hosted private-beta installation (every hosted route then 404s). */
+export function hostedProfileFromEnv(env: Readonly<Record<string, string | undefined>> = process.env): HostedProfile | null {
+  const raw = env.MYEVE_HOSTED_PROFILE;
+  if (!raw) return null;
+  try {
+    const profile = hostedProfileSchema.parse(JSON.parse(raw));
+    // The deployment owner is the profile owner; a profile for another owner keeps the installation disabled.
+    if (env.MYEVE_OWNER_ID && env.MYEVE_OWNER_ID !== profile.ownerId) return null;
+    return profile;
+  } catch { return null; }
+}
+export const hostedBinding = (profile: HostedProfile): MailboxBinding => ({ installationId: profile.installationId, ownerId: profile.ownerId });
+
+/** A hosted Factory connection must be the metered LIVE loopback route at the profile's Factory origin, with enforced spend and a Work ledger contract. */
+export function requireHostedFactoryConnection(profile: HostedProfile, connection: FactoryConnection): FactoryConnection {
+  if ("transport" in connection || !("repositoryPath" in connection)) return refuse("HOSTED_FACTORY_LOOPBACK_CONNECTION");
+  if (new URL(connection.origin).origin !== profile.factory.factoryOrigin) return refuse("HOSTED_FACTORY_ORIGIN");
+  if (connection.qualification.mode !== profile.factory.qualificationMode || connection.qualification.spendEnforced !== true) return refuse("HOSTED_FACTORY_METERED_ONLY");
+  if (!connection.spendContract || connection.spendContract.sourceDigest !== connection.sourceDigest) return refuse("HOSTED_FACTORY_SPEND_CONTRACT");
+  return connection;
+}
+
+/** Hosted accounting policy: never above $1.30 per Work, 4 Works per person or $5.20 in total; no automatic increase is representable. */
+export function requireHostedPolicy(profile: HostedProfile, policy: QualificationPolicy): QualificationPolicy {
+  const limits = (policy as { limits?: { perWorkMicrousd?: number; maxWorks?: number; journeyMicrousd?: number } }).limits;
+  if (!limits || policy.ownerId !== profile.ownerId) return refuse("HOSTED_POLICY_OWNER");
+  if (QDEV_LIMITS.perWorkMicrousd !== HOSTED_LIMITS.perWorkMicrousd || QDEV_LIMITS.maxWorks !== HOSTED_LIMITS.maxWorksPerPerson) return refuse("HOSTED_POLICY_LIMITS");
+  if (!Number.isSafeInteger(limits.perWorkMicrousd) || limits.perWorkMicrousd! > HOSTED_LIMITS.perWorkMicrousd
+    || !Number.isSafeInteger(limits.maxWorks) || limits.maxWorks! > HOSTED_LIMITS.maxWorksPerPerson
+    || !Number.isSafeInteger(limits.journeyMicrousd) || limits.journeyMicrousd! > HOSTED_LIMITS.journeyMicrousd) return refuse("HOSTED_POLICY_LIMITS");
+  return policy;
+}
+
+/**
+ * The hosted transports: Factory (and its ordered-admission receiver, same supervisor origin) and the local verifier through the mailbox.
+ * Owner-local installations never call this; their loopback transport is unchanged.
+ */
+export function hostedTransports(profile: HostedProfile, db: MailboxDb, connection: FactoryConnection) {
+  const factory = requireHostedFactoryConnection(profile, connection), binding = hostedBinding(profile);
+  const mailbox = (timeoutMs: number) => ({ kind: "mailbox" as const, profile: HOSTED_PROFILE, db, binding, target: "factory" as const, timeoutMs });
+  return {
+    factoryFetch: factoryTransportFetch(factory, mailbox(15_000)),
+    capabilityFetch: factoryTransportFetch(factory, mailbox(5_000)),
+    // The verifier keeps its own per-request credential header; the mailbox only carries it to the pinned verifier loopback origin.
+    verifierFetch: mailboxFetch(db, binding, "verifier", profile.factory.verifierOrigin, { timeoutMs: 60_000 }),
+    assurance: { assurance: HOSTED_ASSURANCE, label: HOSTED_ASSURANCE_LABEL },
+  };
+}

@@ -1,3 +1,4 @@
+import {HOSTED_PROFILE,mailboxFetch,type MailboxBinding,type MailboxDb,type MailboxTarget} from './factory-mailbox.ts';
 /** Destinations are reviewed backend configuration; response URLs never choose them. */
 export interface FactoryTransportConfiguration {
  origin:string;token:string;
@@ -15,4 +16,21 @@ export function factoryTransport(config:FactoryTransportConfiguration){
  }
  if(config.protocol||config.projectId||url.protocol!=='http:'||url.hostname!=='127.0.0.1')throw Error('Exact configured loopback producer required');
  return {origin:url,prefix:'/api/connect/v1',headers:{authorization:'Bearer '+config.token}};
+}
+
+/**
+ * How the request bytes reach the configured loopback Factory host. `loopback` (owner-local and every existing profile, unchanged) is a direct
+ * fetch. `mailbox` is the hosted private-beta transport: hosted MyEve cannot reach the Mac, so the same request is carried through the
+ * outbound-only mailbox (factory-mailbox.ts) to the Mac poller, which forwards it to this exact origin. It is selectable only for the hosted
+ * profile and only for a loopback connection (a CLOUD connection already has its own HTTPS transport); the origin, token and every
+ * end-to-end check of the Factory protocol are unchanged.
+ */
+export type FactoryTransportOption =
+ | {kind:'loopback'}
+ | {kind:'mailbox';profile:typeof HOSTED_PROFILE;db:MailboxDb;binding:MailboxBinding;target?:MailboxTarget;timeoutMs?:number};
+export function factoryTransportFetch(config:FactoryTransportConfiguration,option:FactoryTransportOption,direct:typeof fetch=fetch):typeof fetch{
+ const transport=factoryTransport(config);
+ if(option.kind==='loopback')return direct;
+ if(option.kind!=='mailbox'||option.profile!==HOSTED_PROFILE||config.transport)throw Error('FACTORY_MAILBOX_HOSTED_PROFILE_REQUIRED');
+ return mailboxFetch(option.db,option.binding,option.target??'factory',transport.origin.origin,{timeoutMs:option.timeoutMs});
 }

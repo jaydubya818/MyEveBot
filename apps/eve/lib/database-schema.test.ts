@@ -7,6 +7,10 @@ describe('explicit schema rollout', () => {
     expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true'})).toBe('0108_application_passwords.sql');
     expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0109_external_alpha_chat_only.sql');
   });
+  it('requires the hosted mailbox schema only for a configured hosted profile', () => {
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}'})).toBe('0110_hosted_factory_mailbox.sql');
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0110_hosted_factory_mailbox.sql');
+  });
   it('preserves existing personal installation requirements', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production'})).toBe('0082_factory_concrete_grant_binding.sql');
     expect(requiredDatabaseMigration({NODE_ENV: 'production', MYEVE_DURABLE_WEB_SESSIONS: 'true'})).toBe('0083_web_session_revocations.sql');
