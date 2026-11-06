@@ -11,11 +11,18 @@ function store(){
   async change(id:string,value:Record<string,unknown>){calls.push({op:'change',value});work={...work!,version:2,generation:2,control:'agent'};return work;}};
 }
 describe('owner app build request',()=>{
+ it('is one top-level object schema, as model tool input requires',async()=>{
+  const {z}=await import('zod');
+  expect((z.toJSONSchema(ownerAppBuildSchema) as {type?:string}).type).toBe('object');
+ });
  it('accepts 1-8 acceptance steps and a bounded request',()=>{
   expect(ownerAppBuildSchema.safeParse({operation:'build',title:'Counter',request:'Counter with reset',acceptance:[]}).success).toBe(false);
   expect(ownerAppBuildSchema.safeParse({operation:'build',title:'Counter',request:'Counter',acceptance:Array(9).fill('x')}).success).toBe(false);
   expect(ownerAppBuildSchema.safeParse({operation:'build',title:'Counter',request:'Counter',acceptance:['Shows 0']}).success).toBe(true);
   expect(ownerAppBuildSchema.safeParse({operation:'build',title:'Counter',request:'Counter',acceptance:['Shows 0'],repository:'other/repo'}).success).toBe(false);
+  expect(ownerAppBuildSchema.safeParse({operation:'status',workId:randomUUID()}).success).toBe(true);
+  expect(ownerAppBuildSchema.safeParse({operation:'status',workId:randomUUID(),title:'x'}).success).toBe(false);
+  expect(ownerAppBuildSchema.safeParse({operation:'build',title:'Counter',request:'Counter'}).success).toBe(false);
  });
  it('creates canonical Work on the bound repository and envelope, resumes it, then starts MyFactory once with its exact revision',async()=>{
   const s=store(),starts:unknown[]=[];

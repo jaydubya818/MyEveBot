@@ -39,7 +39,7 @@ export default defineDynamic({
             if (profile.ownerId !== ownerId || !agent?.isPrimary || agent.id !== profile.agentId)
               throw new WorkError("build_app_agent", "The owner's configured primary Agent is required.", 403);
             const status = async (workId: string) => ({ workId, currentTruth: currentTruthLines((await new EngineeringWorkerProjectionStore(store, agent.id).get(workId)).projection) });
-            if (input.operation === "status") return status(input.workId);
+            if (input.operation === "status") return status(input.workId!);
             const action = await toolActionRequest(toolCtx, { capabilityId: "tool.build_app", actionClass: "write", parameters: input });
             return new ActionGateway().execute(action, {
               async resolveTarget() {
@@ -48,7 +48,7 @@ export default defineDynamic({
               async execute(parameters, handle) {
                 await consumeActionAuthority(handle, parameters, action.capabilityId);
                 await consumeProviderAuthority(handle, parameters, action.capabilityId);
-                const { workId } = await startOwnerAppBuild(store, input, profile, toolCtx.callId, (s, id, command) => factoryAction(s, id, command));
+                const { workId } = await startOwnerAppBuild(store, { operation: "build", title: input.title!, request: input.request!, acceptance: input.acceptance! }, profile, toolCtx.callId, (s, id, command) => factoryAction(s, id, command));
                 return status(workId);
               },
               receipt(result) { return { ...result }; },
