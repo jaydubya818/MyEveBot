@@ -33,6 +33,8 @@ import { hostedConfirmationSchema, type HostedConfirmationProfile } from "./host
 export { hostedConfirmationSchema, type HostedConfirmationProfile };
 
 export const CONFIRMATION_SCHEMA = "myeve-hosted-confirmation/v1" as const;
+/** How long one confirmation authorizes its three stage Works' permits (MissionControl caps this at 45 minutes and at the enrollment expiry). */
+export const PERMITS_WINDOW_MS = 45 * 60_000;
 export const confirmationSigningBytes = (binding: unknown) => Buffer.from(`${CONFIRMATION_SCHEMA}\n${canonicalPermitJson(binding)}`);
 export const confirmationDigest = (binding: unknown) => sha256(confirmationSigningBytes(binding));
 export const planContentDigest = (plan: unknown) => sha256(`mc-sofie-confirmed-plan/v1\n${canonicalPermitJson(plan)}`);
@@ -63,7 +65,9 @@ export function hostedConfirmationBinding(input: { enrollment: OwnerEnrollment; 
     planContentSha256: planContentDigest(input.plan), plan: input.plan, repository: input.repository,
     works: input.works.map((w, i) => ({ stage: i + 1, id: w.id, version: w.version, generation: w.generation, tupleSha256: ownerFactoryWorkTuple(w, e) })),
     limits: { factoryVersion: e.factoryVersion, maxCostMicrousd: input.maxCostMicrousd, maxDurationSeconds: input.maxDurationSeconds },
-    issuedAt: input.now, expiresAt: input.now + 5 * 60_000, nonce: input.nonce ?? randomUUID() };
+    // Two SIGNED windows: the confirmation is accepted within 5 minutes; it authorizes exactly these Works' permits until permitsExpiresAt
+    // (<= 45 minutes, <= the enrollment). A stage that would start later fails closed; the person confirms again.
+    issuedAt: input.now, expiresAt: input.now + 5 * 60_000, permitsExpiresAt: Math.min(input.now + PERMITS_WINDOW_MS, e.expiresAt), nonce: input.nonce ?? randomUUID() };
 }
 
 export function signHostedConfirmation(binding: unknown, privateKeyPem: string, keyId: string) {
@@ -133,6 +137,7 @@ export async function confirmHostedRequest(c: {
   const plan = hostedPlanSpecification({ request: c.request, title, planSha256: c.planSha256, repository, workflowId: p.workflowId, workIds: works.map(w => w.id) });
   const binding = hostedConfirmationBinding({ enrollment, proposalId, proposalDigest, plan, planSha256: c.planSha256, repository, works,
     maxCostMicrousd: Math.round(p.stage.maxCostUsd * 1e6), maxDurationSeconds: p.stage.maxDurationSeconds, now: now() });
+  if (binding.permitsExpiresAt < binding.expiresAt) return refuse("HOSTED_CONFIRMATION_ENROLLMENT_EXPIRING");
   const confirmation = signHostedConfirmation(binding, signerPem, p.keyId), digest = confirmationDigest(binding);
   const submit = signedServiceCommand(mc, "enterprise.submit", { operation: "enterprise.submit", connectionId: mc.connectionId, proposalId, proposalDigest });
   const accepted = planResult.parse(await action(mc.endpoint, "sofieConfirmations:confirmPlan",
@@ -153,6 +158,8 @@ export async function confirmHostedRequest(c: {
     works: works.map(w => ({ id: w.id, version: w.version, generation: w.generation })),
     admission: async (store, work, config) => {
       const requestId = requestIds.get(work.id) ?? refuse("HOSTED_CONFIRMATION_WORK_NOT_CONFIRMED");
+      // Fail closed past the person's signed authorization; MissionControl refuses it too.
+      if (now() >= binding.permitsExpiresAt) return refuse("HOSTED_CONFIRMATION_EXPIRED");
       if (!approved.has(work.id)) {
         await action(mc.endpoint, "sofieConfirmations:approveConfirmedPermit", confirmationSubmission("sofie.approveConfirmedPermit",
           { installationId: enrollment.installationId, confirmation, requestId, workId: work.id }, mc.projectId, submitter), send, "HOSTED_CONFIRMATION_PERMIT");

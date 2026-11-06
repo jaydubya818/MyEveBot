@@ -32,6 +32,9 @@ describe("hosted Sofie confirmation (MyEve side)", () => {
     expect(binding).toMatchObject({ schema: "myeve-hosted-confirmation/v1", installationId: "inst-a", subject: "user_a", myeveOwnerId: "owner-a", connectionId: "conn-a",
       enrollmentRevision: 2, repository: "jay/app", limits: { factoryVersion: hex("factory"), maxCostMicrousd: 1_300_000, maxDurationSeconds: 180 } });
     expect(binding.expiresAt - binding.issuedAt).toBeLessThanOrEqual(600_000);
+    // The permit authorization is signed explicitly and never outlives the enrollment.
+    expect(binding.permitsExpiresAt).toBe(Math.min(binding.issuedAt + 45 * 60_000, enrollment.expiresAt));
+    expect(binding.works).toHaveLength(3);
     expect(binding.planContentSha256).toBe(planContentDigest(plan));
     expect(plan.metadata).toEqual({ myevePlanSha256: planSha256, works: ["work-1", "work-2", "work-3"] });
     expect(plan.workOrderBlueprints.map(b => b.id)).toEqual(["stage-1", "stage-2", "stage-3"]);
