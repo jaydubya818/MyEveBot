@@ -15,3 +15,10 @@ The canonical reconcile 667f91a1 refreshed the inventory for 17 of them. On 667f
 - Every new or changed hosted executor has an entry that says "Hosted private beta 20261105 … NOT independently reviewed", with the evidence tests named.
 - Result: `executor governance ok` (0 failures).
 - None of these entries is an independent review. Each reason says so.
+
+## Hosted confirmation bridge (codex/private-beta-hosted-confirm-20261105)
+
+`lib/qualification/hosted-confirmation.ts` and `hosted-confirmation-profile.ts` are inventoried as ENFORCED and the fingerprints of
+`custody-launcher.ts`, `custody-profile.ts` and `hosted-custody.ts` were refreshed for the `hostedConfirmation` wiring. As above, these entries
+record the self-review only; they are **not independently reviewed**. MyEve creates no approval: MissionControl verifies, consumes and applies the
+confirmation (MissionControl branch `codex/mc-hosted-confirm-bridge-20261105`). No deployment until independent review passes.

@@ -1,4 +1,5 @@
 import { ownerLocalConfirmationSchema } from "./owner-local-confirmation.ts";
+import { hostedConfirmationSchema } from "./hosted-confirmation-profile.ts";
 
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -69,6 +70,8 @@ export const assemblyProfileSchema = z.object({
   servedOrigin: z.string().url(),
   /** Private-beta owner-local profile only: the confirm -> stage Works -> MissionControl owner-confirmation bridge (owner-local-confirmation.ts). */
   ownerLocalConfirmation: ownerLocalConfirmationSchema.optional(),
+  /** Hosted private-beta profile only: the confirm -> stage Works -> MissionControl hosted confirmation bridge (hosted-confirmation.ts). */
+  hostedConfirmation: hostedConfirmationSchema.optional(),
 }).strict();
 export type AssemblyProfile = z.infer<typeof assemblyProfileSchema>;
 

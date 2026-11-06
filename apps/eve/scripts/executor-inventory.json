@@ -4838,7 +4838,7 @@
     },
     "lib/qualification/static-publish-port.ts": {
       "classification": "ENFORCED",
-      "reason": "CONTROL: require retained exact artifact and cryptographically re-verified matching PASS under the profile\u2019s required assurance; capture prior revision once; request owner-local exact-digest approval; publish with expected-prior CAS. Failed observation requests at most one compensation for that captured prior, signed conditional on exact publication seq/version/digest, then controller CAS prevents undoing a newer release. Existing non-owner activation remains required. Source review review_pr30; full static-publish tests with real file permits, missing/foreign unconsumed conditions and prior/absence compensation.",
+      "reason": "CONTROL: require retained exact artifact and cryptographically re-verified matching PASS under the profile’s required assurance; capture prior revision once; request owner-local exact-digest approval; publish with expected-prior CAS. Failed observation requests at most one compensation for that captured prior, signed conditional on exact publication seq/version/digest, then controller CAS prevents undoing a newer release. Existing non-owner activation remains required. Source review review_pr30; full static-publish tests with real file permits, missing/foreign unconsumed conditions and prior/absence compensation.",
       "sha256": "b82668dddc827c0442da1493b0fc3cada20907d7c19f8bd8d148d88ce6c277a0"
     },
     "lib/engineering/factory-admission-step.ts": {
@@ -4859,12 +4859,12 @@
     "lib/qualification/custody-profile.ts": {
       "classification": "ENFORCED",
       "reason": "Strict nonsecret host assembly profile: only ids, public keys, exact source/configuration pins and protected credential NAMES. Owner-local confirmation metadata is a separate strict schema with exact loopback targets and Relay identity binding. Parsing/hash validation creates no Work or approval; consequential actions are enforced by the separately inventoried launcher and owner-local control helpers. Source review review_pr30; custody/confirmation schema denial tests. Parsing is not runtime qualification.",
-      "sha256": "0ebec76e227c1be01a24691821a5cd69c1c89ee713fb0562901742fc951e9af1"
+      "sha256": "27141bbab315e7f105fab3bff30524bf93582975f425b57e90dcc2ad77ba535e"
     },
     "lib/qualification/custody-launcher.ts": {
       "classification": "ENFORCED",
       "reason": "CONTROL: protected host composition. Owner-local alone derives the confirmed plan, claims canonical stage Works, obtains MissionControl owner decisions, installs exact enrollment and issues the exact cohort. It reads an owner approver private key by protected credential name for post-PASS preview approval and narrowly conditional compensation; other profiles use explicit file activation. Exact Work/source/profile/predecessor, independent key separation, immutable accounting limits and ordered admission remain required. Missing inputs refuse. Source review review_pr30; owner-local confirmation/authorization, subscription and static-publication regressions. Connected owner journey and native containment remain unqualified. Reviewed container-journey successor: Owner-local exact authenticated Factory quiescence reconciles writers; canonical Work event prerequisites are checked read-only before confirmation. Completion preserves business/effect fences and atomic cryptographic provenance; secondary audit failure cannot undo committed Work or imply failed completion.",
-      "sha256": "795bb6d64296d633b4df3c5e74fc84eaa63ae6116231b6e555d05db27bedb145"
+      "sha256": "e99408bf55d705716a419adbf1950854a9ce3b7bd6e326cf293706d7b045f4fb"
     },
     "lib/qualification/static-activation.ts": {
       "classification": "ENFORCED",
@@ -4923,7 +4923,7 @@
     },
     "lib/qualification/owner-local-confirmation.ts": {
       "classification": "ENFORCED",
-      "reason": "CONTROL: owner-local profile only, authenticated personal owner store and root-rederived plan. Canonical unique Work claim refuses existing/replayed/concurrent-losing claims before resume, budget, enrollment or bridge mutations. Signed confirmation binds owner/request/plan/Work revisions/generations/repository/limits; canonical MissionControl preparation and owner decisions remain required. Transport snapshots exact identity-label\u2192IPv4-loopback map, rejects unmapped/userinfo/fragment origins and redirects, and binds Relay template origin to its label. Source review review_pr30; confirmation source/transport/replay DENY=0 regressions. Connected confirmation journey remains pending. Reviewed container-journey successor: Immutable allowlisted no-redirect origin mapping and created:false replay refusal retained. One exact stage WorkOrder per Work, signed domain-separated Work tuple attestation, durable bridge one-use approval immediately before each stage. No automatic execution replay or extra operation authority.",
+      "reason": "CONTROL: owner-local profile only, authenticated personal owner store and root-rederived plan. Canonical unique Work claim refuses existing/replayed/concurrent-losing claims before resume, budget, enrollment or bridge mutations. Signed confirmation binds owner/request/plan/Work revisions/generations/repository/limits; canonical MissionControl preparation and owner decisions remain required. Transport snapshots exact identity-label→IPv4-loopback map, rejects unmapped/userinfo/fragment origins and redirects, and binds Relay template origin to its label. Source review review_pr30; confirmation source/transport/replay DENY=0 regressions. Connected confirmation journey remains pending. Reviewed container-journey successor: Immutable allowlisted no-redirect origin mapping and created:false replay refusal retained. One exact stage WorkOrder per Work, signed domain-separated Work tuple attestation, durable bridge one-use approval immediately before each stage. No automatic execution replay or extra operation authority.",
       "sha256": "2da34f806a3e5e4b0e0b1868884f916e716a58ac59c4cb1ee426eaf101de1a49"
     },
     "lib/qualification/owner-local-authorizations.ts": {
@@ -4968,8 +4968,8 @@
     },
     "lib/qualification/hosted-custody.ts": {
       "classification": "ENFORCED",
-      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts).",
-      "sha256": "95e3ac66fe6c65313ec128b59eb16d6db6d67aeb1934ac069bd2e67918587706"
+      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts). With hostedConfirmation: stage Works, Mission and per-Work permit approvals come from the hosted confirmation bridge (hosted-confirmation.ts), never from MyEve itself.",
+      "sha256": "4a8a097a9d469c5b1a7dfb65d4993970ebdd87fa5a444634deaa3a40a63fab7b"
     },
     "app/api/factory-mailbox/v1/next/route.ts": {
       "classification": "ENFORCED",
@@ -5020,6 +5020,16 @@
       "classification": "ENFORCED",
       "reason": "Serves one file of a READY release with a valid owner-issued grant; re-verifies verdict, manifest and file sha256; sandboxed CSP, private no-store, no CORS.",
       "sha256": "1f7d5e055430a87e8b6c70d0d4f438e1723ad6b8ae7add080987773ed6cd4426"
+    },
+    "lib/qualification/hosted-confirmation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Hosted Sofie confirmation (MyEve side): hosted profile only; owner store; operator-installed MC enrollment must match the hosted installation/origin; signs ONE Ed25519 confirmation (subject, installation, connection, proposal, exact Plan spec + digest, repository, Work tuples, limits, <=10 min, nonce) with the enrolled key id; submits via the per-installation submitter credential to sofieConfirmations:confirmPlan / approveConfirmedPermit only; creates no approval itself. Evidence: hosted-confirmation.test.ts; MissionControl convex/__tests__/sofieConfirmationBridge.test.ts (not independently reviewed).",
+      "sha256": "6fe9854c0c9a65bbbe5233a499851918af6556a5fa04895884e70ca6116ba047"
+    },
+    "lib/qualification/hosted-confirmation-profile.ts": {
+      "classification": "ENFORCED",
+      "reason": "Non-secret hosted confirmation configuration schema (env var names, enrolled key id, workflow id, stage limits <= $1.30 / 600 s); strict. Evidence: hosted-confirmation.test.ts (not independently reviewed).",
+      "sha256": "ee2cb030d8f4f66c4b0e97a69135b138c6a0124518346377df9a239c1f501f50"
     }
   }
 }
