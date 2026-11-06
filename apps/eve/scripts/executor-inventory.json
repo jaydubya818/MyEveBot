@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Chat-only release requires additive0109 for installations already carrying external-alpha policy plus application passwords. Other rollout requirements remain unchanged;0109 is inert until separate operator enrollment. Reviewed against database-schema regressions and immutable prior migration lineage. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): additive 0110 (mailbox v1, Mac builds, private previews) is required only when MYEVE_HOSTED_PROFILE is configured; external-alpha + passwords stays exactly 0109. Evidence: database-schema.test.ts, factory-mailbox.test.ts additive-only check.",
-      "sha256": "cc3f143cd177b184a0bf6c7a5b648a3dc599a01d313bfa674aa82f03c03d944e"
+      "reason": "Chat-only release requires additive0109 for installations already carrying external-alpha policy plus application passwords. Other rollout requirements remain unchanged;0109 is inert until separate operator enrollment. Reviewed against database-schema regressions and immutable prior migration lineage. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): additive 0110 (mailbox v1, Mac builds, private previews) is required only when MYEVE_HOSTED_PROFILE is configured; external-alpha + passwords stays exactly 0109. Evidence: database-schema.test.ts, factory-mailbox.test.ts additive-only check. Tester access extension 20261106 (codex/private-beta-tester-extension-20261106, NOT independently reviewed): every MYEVE_EXTERNAL_ALPHA_POLICY installation now requires additive, default-off 0111 (extended_until); hosted-only stays 0110. Evidence: database-schema.test.ts, access-extension-postgres.test.ts.",
+      "sha256": "ec987c24e72ce38b37ab08db68cb02cf32466e9e33e0ae620b297b08758332f3"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -4101,8 +4101,8 @@
     },
     "lib/external-alpha/allowance.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it.",
-      "sha256": "9daa67a86c6219f4b0b28c5128e94a77bc24b4595440ca3afafd99e58056c55f"
+      "reason": "Reviewed accepted external-alpha remediation: exact owner/Work/authority/Result binding, single dispatch, full shared charge, prepared/no-send and durable settlement recovery; known RUNNING Work may coexist under approved two-slot ceilings. Evidence: allowance, accounting, shared-accounting, work-controller, model-recovery, signed Result/per-criterion PostgreSQL and paid-path suites. KNOWN LIMITATION: cross-database UNKNOWN partition fencing remains a release blocker; this source inventory update does not qualify or waive it. Tester access extension 20261106 (NOT independently reviewed): the 120-hour expiry predicate is replaced by external_alpha_access_until(activated_at,extended_until) from 0111; identical to activated_at+120h while extended_until is NULL (default), never later than +14 days, owner-approved and audited. Evidence: access-extension-postgres.test.ts.",
+      "sha256": "f9ef47f51c3230f9df83acc9603b027edc4558a20291acf6060a4ce8ff67962f"
     },
     "lib/external-alpha/model.ts": {
       "classification": "ENFORCED",
@@ -4221,8 +4221,8 @@
     },
     "lib/external-alpha/private-acceptance.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact authenticated owner private decision over consumed signed Result; canonical policy/Work locks, current version/generation, criteria, Proof/hash and stored attention/response binding, settlement/cleanup/UNKNOWN checks. CAS completion is idempotent; immutable Proof unchanged; no producer/model/publication authority. Evidence: private-acceptance PostgreSQL and production-mode E1/E2/E3.",
-      "sha256": "23c280fc910e77a46ffb67b4ab7dda037a569f4ef5f7bbbf46c738e0176fb059"
+      "reason": "Exact authenticated owner private decision over consumed signed Result; canonical policy/Work locks, current version/generation, criteria, Proof/hash and stored attention/response binding, settlement/cleanup/UNKNOWN checks. CAS completion is idempotent; immutable Proof unchanged; no producer/model/publication authority. Evidence: private-acceptance PostgreSQL and production-mode E1/E2/E3. Tester access extension 20261106 (NOT independently reviewed): the 120-hour expiry predicate is replaced by external_alpha_access_until(activated_at,extended_until) from 0111; identical to activated_at+120h while extended_until is NULL (default), never later than +14 days, owner-approved and audited. Evidence: access-extension-postgres.test.ts.",
+      "sha256": "27d1c193bed37d5111b63829986ced29be0dd4b5593918c02f061a077a71289d"
     },
     "lib/product/owner-work.ts": {
       "classification": "READ_ONLY",
@@ -4412,8 +4412,8 @@
     },
     "lib/myapps/alpha-tasks-result.ts": {
       "classification": "READ_ONLY",
-      "reason": "Validates retained canonical owner policy, signed Result/Proof, settled accounting and cleanup, criteria/source/Factory identity and MC enrollment/permit. Rejects UNKNOWN or stale/revoked bindings. Reads historical accepted Work without rewriting evidence. Exact accepted MissionControl permit/command IDs are carried through canonical admission and claim; 0100 retains immutable receiving custody. MyApps follows that exact dispatch receipt and denies missing historical binding or revoked actual permit.",
-      "sha256": "a8d591e4fb07a625eea3a460fd74fd927ba72c2909e20b2dd0bdef4755b440e4"
+      "reason": "Validates retained canonical owner policy, signed Result/Proof, settled accounting and cleanup, criteria/source/Factory identity and MC enrollment/permit. Rejects UNKNOWN or stale/revoked bindings. Reads historical accepted Work without rewriting evidence. Exact accepted MissionControl permit/command IDs are carried through canonical admission and claim; 0100 retains immutable receiving custody. MyApps follows that exact dispatch receipt and denies missing historical binding or revoked actual permit. Tester access extension 20261106 (NOT independently reviewed): the 120-hour expiry predicate is replaced by external_alpha_access_until(activated_at,extended_until) from 0111; identical to activated_at+120h while extended_until is NULL (default), never later than +14 days, owner-approved and audited. Evidence: access-extension-postgres.test.ts.",
+      "sha256": "8b4761511880407c118a9428da68db550595a7e5c0e97d8fd71d391f86651bc7"
     },
     "lib/myapps/alpha-tasks-api.ts": {
       "classification": "ENFORCED",
@@ -4537,8 +4537,8 @@
     },
     "lib/external-alpha/usage.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-authenticated read-only beta accounting projection; no paid dispatch, mutation, credential export or reconciliation. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
-      "sha256": "dab3f2244686ed5c4989d0aaf5d25ba5b414ea3ee0411f0ac0d7a82aa2bd8e6b"
+      "reason": "Owner-authenticated read-only beta accounting projection; no paid dispatch, mutation, credential export or reconciliation. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites. Tester access extension 20261106 (NOT independently reviewed): the 120-hour expiry predicate is replaced by external_alpha_access_until(activated_at,extended_until) from 0111; identical to activated_at+120h while extended_until is NULL (default), never later than +14 days, owner-approved and audited. Evidence: access-extension-postgres.test.ts.",
+      "sha256": "cf312ff21aa39288988d36b4899b8d9b598c1aaaad05684b0bd920526476ff7f"
     },
     "lib/external-alpha/usage-contract.ts": {
       "classification": "INTERNAL",

@@ -59,7 +59,7 @@ export async function retainedAlphaTasksOrigin(
       ownerId,
     ]);
     const [active] = await db.query(
-      "SELECT owner_id FROM external_alpha_policy WHERE owner_id=$1 AND policy_sha256=$2 AND activated_at IS NOT NULL AND revoked_at IS NULL AND clock_timestamp()<activated_at+interval '120 hours' FOR SHARE",
+      "SELECT owner_id FROM external_alpha_policy WHERE owner_id=$1 AND policy_sha256=$2 AND activated_at IS NOT NULL AND revoked_at IS NULL AND clock_timestamp()<external_alpha_access_until(activated_at,extended_until) FOR SHARE",
       [ownerId, resultDigest(policy)],
     );
     requireValue(active, "APP_CAPABILITY_DENIED");

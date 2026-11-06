@@ -50,7 +50,7 @@ export class ExternalAlphaAllowance {
     const [row] = await this.database.query(
       `SELECT a.id FROM external_alpha_allowance a JOIN external_alpha_policy p ON p.owner_id=a.owner_id
    WHERE a.id=$1 AND a.owner_id=$2 AND a.policy_sha256=$3 AND p.policy_sha256=$3 AND a.state='OPEN'
-   AND p.activated_at IS NOT NULL AND p.revoked_at IS NULL AND clock_timestamp()<p.activated_at+interval '120 hours' AND clock_timestamp()<a.deadline
+   AND p.activated_at IS NOT NULL AND p.revoked_at IS NULL AND clock_timestamp()<external_alpha_access_until(p.activated_at,p.extended_until) AND clock_timestamp()<a.deadline
    AND NOT EXISTS(SELECT 1 FROM external_alpha_allowance WHERE state='UNKNOWN')`,
       [allowanceId, this.policy.ownerId, digest(this.policy)],
     );

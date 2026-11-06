@@ -23,7 +23,7 @@ export class PrivateResultAcceptance {
 
   async current(owner: string, workId: string, db: Query = this.beta) {
     if (!this.policy || !this.config || this.policy.ownerId !== owner) throw denied();
-    const [policy] = await db.query("SELECT * FROM external_alpha_policy WHERE owner_id=$1 AND policy_sha256=$2 AND activated_at IS NOT NULL AND revoked_at IS NULL AND clock_timestamp()<activated_at+interval '120 hours'", [owner,digest(this.policy)]);
+    const [policy] = await db.query("SELECT * FROM external_alpha_policy WHERE owner_id=$1 AND policy_sha256=$2 AND activated_at IS NOT NULL AND revoked_at IS NULL AND clock_timestamp()<external_alpha_access_until(activated_at,extended_until)", [owner,digest(this.policy)]);
     if (!policy) throw denied();
     const work = await new WorkStore({scopeId:owner,scopeKind:"personal",actorId:owner},db).get(workId);
     const [row] = await db.query(`SELECT a.*,r.result_id,r.candidate_sha,r.verdict,r.envelope,r.manifest_digest,r.ingest_sha256,
@@ -109,7 +109,7 @@ export class PrivateResultAcceptance {
       const [eligible]=await db.query(`SELECT 1 FROM engineering_work w JOIN external_alpha_policy p ON p.owner_id=w.scope_id
         WHERE w.scope_id=$1 AND w.scope_kind='personal' AND w.id=$2 AND w.lifecycle='active' AND w.control='agent'
           AND w.version=$3 AND w.generation=$4 AND p.policy_sha256=$5 AND p.activated_at IS NOT NULL
-          AND p.revoked_at IS NULL AND clock_timestamp()<p.activated_at+interval '120 hours'`,
+          AND p.revoked_at IS NULL AND clock_timestamp()<external_alpha_access_until(p.activated_at,p.extended_until)`,
         [owner,input.workId,input.workVersion,input.workGeneration,binding.policySha256]);
       if(!eligible)return {status:"stale" as const,receipt:`private-result-stale:${input.responseId}`};
       const current=await this.current(owner,input.workId!,db);

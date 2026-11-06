@@ -7,7 +7,7 @@ import { alphaChatUsageSchema } from "./usage-contract.ts";
  * Neither a failed read nor low measured cost can restore paid authority. */
 export async function readAlphaChatUsage(database: AlphaAccountingDatabase, policy: ExternalAlphaPolicy) {
   const sha = digest(policy);
-  const [local] = await database.query(`SELECT p.activated_at,p.revoked_at FROM external_alpha_policy p
+  const [local] = await database.query(`SELECT p.activated_at,p.revoked_at,external_alpha_access_until(p.activated_at,p.extended_until) AS access_until FROM external_alpha_policy p
     JOIN external_alpha_chat_only n ON n.owner_id=p.owner_id AND n.policy_sha256=p.policy_sha256
     WHERE p.singleton AND n.singleton AND p.owner_id=$1 AND p.policy_sha256=$2`, [policy.ownerId, sha]);
   if (!local) throw Error("EXTERNAL_ALPHA_USAGE_BINDING_REQUIRED");
@@ -23,7 +23,8 @@ export async function readAlphaChatUsage(database: AlphaAccountingDatabase, poli
     SELECT 1 FROM external_alpha_tool_effect WHERE state IN('ACCEPTED','UNKNOWN')) AS paused`, [policy.ownerId, sha]);
   const now = Date.parse(central.checkedAt);
   const activation = local.activated_at ? new Date(local.activated_at as string).getTime() : NaN;
-  const localExpiry = activation + 120*3600000;
+  // activated_at+120h unless an owner-approved extension (migration 0111) moved it, capped at +14 days.
+  const localExpiry = local.access_until ? new Date(local.access_until as string).getTime() : NaN;
   const state = local.revoked_at || central.state === "revoked" ? "revoked"
     : !Number.isFinite(activation) || now<activation || central.state === "inactive" ? "inactive"
     : now>=localExpiry || central.state === "expired" ? "expired" : central.state;
