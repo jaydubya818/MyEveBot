@@ -111,6 +111,17 @@ describe.skipIf(!connection)("hosted Sofie confirm-and-submit (disposable Postgr
     await expect(confirmed.admission(store, { ...w1, id: randomUUID() } as any, base)).rejects.toThrow("HOSTED_CONFIRMATION_WORK_NOT_CONFIRMED");
   });
 
+  it("past the signed permit authorization, the next stage fails closed without contacting MissionControl", async () => {
+    let clock = Date.now();
+    const mc = fakeMissionControl(enrollment), confirmed = await run(sha("plan-expiry"), mc.send, { now: () => clock });
+    const binding = mc.calls[1].payload.confirmation.binding;
+    expect(binding.permitsExpiresAt - binding.issuedAt).toBe(45 * 60_000);
+    clock = binding.permitsExpiresAt;
+    const before = mc.calls.length;
+    await expect(confirmed.admission(store, await store.get(confirmed.workIds.stage1), base)).rejects.toThrow("HOSTED_CONFIRMATION_EXPIRED");
+    expect(mc.calls.length).toBe(before);
+  });
+
   it("a second confirmation of the same plan is a replay: refused before MissionControl is contacted", async () => {
     const mc = fakeMissionControl(enrollment);
     await expect(run(sha("plan-1"), mc.send)).rejects.toThrow("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");

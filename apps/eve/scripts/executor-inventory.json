@@ -5034,7 +5034,7 @@
     "lib/qualification/hosted-confirmation.ts": {
       "classification": "ENFORCED",
       "reason": "Hosted Sofie confirmation (MyEve side): hosted profile only; owner store; operator-installed MC enrollment must match the hosted installation/origin; signs ONE Ed25519 confirmation (subject, installation, connection, proposal, exact Plan spec + digest, repository, Work tuples, limits, <=10 min, nonce) with the enrolled key id; submits via the per-installation submitter credential to sofieConfirmations:confirmPlan / approveConfirmedPermit only; creates no approval itself. Evidence: hosted-confirmation.test.ts, hosted-confirmation.integration.test.ts (disposable PostgreSQL, fake MissionControl); MissionControl convex/__tests__/sofieConfirmationBridge.test.ts (not independently reviewed).",
-      "sha256": "74abd2f397c84087dbf3eee078131bd50dbce9b883b1ebefb444e5d369debc68"
+      "sha256": "3ef47224893dcfd740f826209dc77e5554d88b6d0b093cb9a9602fc53e7c1583"
     },
     "lib/qualification/hosted-confirmation-profile.ts": {
       "classification": "ENFORCED",
