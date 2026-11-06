@@ -3,6 +3,9 @@ import { externalAlphaWorkEnabled } from "../../lib/external-alpha/work-config.t
 import { externalAlphaCanonicalCreate } from "../../lib/external-alpha/work-action.ts";
 import { externalAlphaInstallation } from "../../lib/external-alpha/policy.ts";
 import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
+import { bindOwnerAppWork } from "../../lib/engineering/owner-app-build.ts";
+import { readOwnerAppProfile } from "../../lib/engineering/owner-app-profile.ts";
+import { localLiveFactoryEnabled } from "../../lib/engineering/owner-app-switch.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
@@ -169,7 +172,9 @@ export default defineDynamic({
                 return store.create(
                   externalAlphaInstallation()
                     ? externalAlphaCanonicalCreate(input.create, current.principalId)
-                    : input.create,
+                    : localLiveFactoryEnabled()
+                      ? bindOwnerAppWork(input.create!, await readOwnerAppProfile())
+                      : input.create,
                 );
               return {
                 work: await store.change(input.workId!, {

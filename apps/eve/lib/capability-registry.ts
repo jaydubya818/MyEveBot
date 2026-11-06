@@ -5,6 +5,11 @@ import { getCapabilityStatuses } from "./capabilities.ts";
 import { externalAlphaCapabilityAllowed, externalAlphaEnabledFeatures, externalAlphaMemoryApproved } from "./external-alpha/features.ts";
 import { externalAlphaInstallation } from "./external-alpha/policy.ts";
 import {localOwnerAppsConfigured} from './myapps/local-configuration.ts';
+import { localLiveFactoryEnabled } from "./engineering/owner-app-switch.ts";
+
+function ownerAppFactoryAvailable(env: NodeJS.ProcessEnv): boolean {
+  try { return localLiveFactoryEnabled(env); } catch { return false; }
+}
 
 export const BROWSER_TOOL_CAPABILITIES: Record<string, string> = {
   click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
@@ -453,6 +458,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
   tool("engineering_factory", { description: FACTORY_START_PROPOSAL_CONTRACT, permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG or MYEVE_FACTORY_WORKER_ENABLED"], keywords: ["engineering", "factory", "work", "recovery"] }),
   tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
+  tool("build_app", { description: "Turn an owner's app request into canonical Work and hand it to the local MyFactory, which codes, checks, repairs, signs verification and prepares a private preview within a $1.35 cap; no deploy, merge or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_FACTORY_LOCAL_LIVE", "MYEVE_FACTORY_OWNER_PROFILE"], keywords: ["build", "app", "website", "react", "prototype", "factory"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
   tool("get_routine_readiness", {description:"Inspect owner-scoped Routine readiness without changing authority or executing work.",permissions:["routines.read"],configuration:["DATABASE_URL"],keywords:["routine","readiness"]}),
   tool("list_goals", { description: "List owner goals and their progress.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "progress", "status"] }),
@@ -603,6 +609,9 @@ function availabilityFor(
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
       (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {
     return { status: "disabled", configured: false, reason: "Canonical engineering tools require an explicitly qualified deployment; native execution remains isolated." };
+  }
+  if (definition.id === "tool.build_app" && !ownerAppFactoryAvailable(env)) {
+    return { status: "disabled", configured: false, reason: "App building requires the local MyFactory switch MYEVE_FACTORY_LOCAL_LIVE=true and an absolute MYEVE_FACTORY_OWNER_PROFILE." };
   }
   if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};
