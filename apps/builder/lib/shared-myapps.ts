@@ -6,6 +6,8 @@ import path from "node:path";
 // packages/myapps; no server, test fixture, credential or package script ships.
 export const SHARED_MYAPPS_FILES = [
   "packages/myapps/src/contracts.ts",
+  "packages/myapps/src/static-artifact.ts",
+  "packages/myapps/src/static-build-claim.ts",
   "packages/myapps/src/crm.ts",
   "packages/myapps/src/intent.ts",
   "packages/myapps/src/preview.ts",
@@ -73,6 +75,10 @@ const RELOCATED_CONSUMERS = new Set([
   "lib/myapps/alpha-tasks-result.ts", "lib/myapps/owner-tasks-result.ts",
   "lib/myapps/local-bootstrap.ts", "lib/myapps/local-configuration.ts",
   "lib/myapps/alpha-tasks-host.ts", "lib/myapps/remote-admission.ts",
+  "lib/qualification/artifact-staging.ts", "lib/qualification/custody-assembly.ts",
+  "lib/qualification/delivery-observer.ts", "lib/qualification/owner-local-authorizations.ts",
+  "lib/qualification/static-activation.ts", "lib/qualification/static-build-export.ts",
+  "lib/qualification/static-build.ts", "lib/qualification/static-publish.ts",
 ]);
 const REPOSITORY_PREFIX = "../../../../packages/myapps/";
 
@@ -130,6 +136,7 @@ export function relocateCapabilityReferences(file: string, data: Buffer): Buffer
     "lib/missioncontrol/admit-execution.ts", "lib/missioncontrol/capability-source.ts",
     "lib/missioncontrol/installed-client.ts", "lib/missioncontrol/permit-store.ts",
     "lib/missioncontrol/relay-lease-client.ts", "lib/myapps/alpha-tasks-host.ts",
+    "lib/qualification/custody-assembly.ts",
     "lib/engineering/factory-capability-client.ts", "lib/engineering/factory-capability-source.ts",
     "lib/engineering/factory-preparation-terminal.ts", "lib/engineering/factory-relay-lease-client.ts"].includes(file)) {
     throw new Error(`Unexpected shared capability consumer: ${file}`);

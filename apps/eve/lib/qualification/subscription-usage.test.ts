@@ -49,7 +49,7 @@ it("the recorder refuses without the operator-applied table and refuses a confli
   const rows = new Map<string, Record<string, unknown>>();
   const db = { query: vi.fn(async (sql: string, p: unknown[] = []) => {
     if (sql.includes("to_regclass")) return [{ t: "qdev_subscription_usage" }];
-    if (sql.startsWith("INSERT")) { if (!rows.has(String(p[1]))) rows.set(String(p[1]), { w: p[2], r: p[3], state: p[4], n: p[5], m: p[6], e: p[8] }); return []; }
+    if (sql.startsWith("INSERT")) { if (!rows.has(String(p[1]))) rows.set(String(p[1]), { w: p[2], r: p[3], state: p[4], n: p[5], m: p[6], c: p[7], e: p[8] }); return []; }
     return [rows.get(String(p[1]))];
   }) };
   const record = await subscriptionUsageRecorder(db as never, "a".repeat(64));
@@ -57,6 +57,7 @@ it("the recorder refuses without the operator-applied table and refuses a confli
     operationsUsed: 2, maxOperations: 3, completionOperationsUsed: 0, evidenceRef: "ev" };
   await record(u); await record(u);
   await expect(record({ ...u, operationsUsed: 3 })).rejects.toThrow(/CONFLICT/);
+  await expect(record({ ...u, completionOperationsUsed: 1 })).rejects.toThrow(/CONFLICT/);
   await expect(record({ ...u, operationsUsed: 4 })).rejects.toThrow(/INVALID/);
   expect(db.query.mock.calls.some(([sql]) => /usd|amount/i.test(String(sql)))).toBe(false);
 });

@@ -9,6 +9,7 @@ import type { QualificationPolicy } from "../external-alpha/qualification-accoun
 import { signActivationApproval, type ActivationApproval } from "./static-activation.ts";
 import type { Verdict } from "./verdict.ts";
 import type { InstallationIdentity } from "./rollback.ts";
+import type { OwnerPublishApproval } from "./static-publish-port.ts";
 
 /**
  * Private-beta OWNER-LOCAL profile only. Jay's authenticated `confirm <plan>` authorizes exactly two further actions for that journey:
@@ -23,6 +24,15 @@ const refuse = (code: string): never => { throw new OwnerLocalAuthorizationRefus
 const sha256 = (v: string) => createHash("sha256").update(v).digest("hex");
 type Db = { query(sql: string, params?: unknown[]): Promise<Array<Record<string, unknown>> | { rows: Array<Record<string, unknown>> }> };
 const rows = async (db: Db, sql: string, params?: unknown[]) => { const r = await db.query(sql, params); return Array.isArray(r) ? r : r.rows; };
+
+/** Read-only prerequisite on the existing canonical Work event store; no schema or privilege changes. */
+export async function assertOwnerLocalCompletionStorage(db: Db) {
+  const [table] = await rows(db, "SELECT to_regclass('engineering_work_events') AS events");
+  if (!table?.events) return refuse('OWNER_LOCAL_COMPLETION_EVENTS_UNAVAILABLE');
+  const [ready] = await rows(db, `SELECT (has_table_privilege(current_user,'engineering_work_events','SELECT')
+    AND has_table_privilege(current_user,'engineering_work_events','INSERT')) AS allowed`);
+  if (ready?.allowed !== true) return refuse('OWNER_LOCAL_COMPLETION_EVENTS_UNQUALIFIED');
+}
 
 /** Append-only durable audit (0600, O_APPEND). Every record carries the confirmation digest it was authorized by. */
 export function auditAppender(path: string) {
@@ -72,13 +82,24 @@ export async function issueConfirmedCohort(c: { db: Db; ctx: ConfirmationContext
 /**
  * 2. Post-PASS publish approval. Called by the publishing port only after it verified the signed verdict; it re-checks independently and
  * refuses unless the verdict is PASS for exactly this candidate and release digest, then writes ONE owner-signed, short-lived, single-use
- * approval for exactly that digest. The release controller still verifies and consumes it; nothing else is approved (never ROLLBACK).
+ * approval for exactly that digest. Failed observation may compensate only to the captured prior, conditional on the exact publication CAS.
+ * There is no general rollback grant, and a later release can never be undone by this confirmation.
  */
 export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approverPem: string; keyId: string; dir: string; appId: string; projectSha256: string;
   installation: InstallationIdentity; windowMs?: number; now?: () => number }) {
   if (c.ctx.profile !== PRIVATE_BETA_PROFILE) return refuse("OWNER_LOCAL_PUBLISH_PROFILE");
   if (createPrivateKey(c.approverPem).asymmetricKeyType !== "ed25519") return refuse("OWNER_LOCAL_PUBLISH_KEY");
-  return async (input: { verdict: Verdict; candidate: { commit: string; tree: string }; digest: string }) => {
+  const compensationPlans = new Map<string, string>();
+  const recordApproval = (approval: ActivationApproval) => {
+    const file = signActivationApproval(approval, c.approverPem), approvals = join(c.dir, "approvals");
+    mkdirSync(c.dir, { recursive: true, mode: 0o700 }); mkdirSync(approvals, { recursive: true, mode: 0o700 });
+    if ((lstatSync(c.dir).mode & 0o077) !== 0 || (lstatSync(approvals).mode & 0o077) !== 0) return refuse("OWNER_LOCAL_PUBLISH_DIRECTORY");
+    const name = `owner-confirm-${sha256(canonical(approval)).slice(0, 32)}.json`;
+    const fd = openSync(join(approvals, name), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
+    try { writeSync(fd, file); } finally { closeSync(fd); }
+    return name;
+  };
+  const publish: OwnerPublishApproval = async input => {
     const v = input.verdict, hex = input.digest;
     if (!v || v.outcome !== "PASS" || !/^[a-f0-9]{64}$/.test(hex) || v.buildArtifactSha256 !== hex || v.candidateCommit !== input.candidate.commit
       || v.candidateTree !== input.candidate.tree || v.projectSha256 !== c.projectSha256) {
@@ -87,21 +108,34 @@ export function ownerLocalPublishApprover(c: { ctx: ConfirmationContext; approve
     }
     const now = c.now?.() ?? Date.now();
     const approval: ActivationApproval = { schema: "myeve.qdev-activation-approval/v1", operation: "PUBLISH", appId: c.appId, ownerId: c.ctx.ownerId,
-      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId,
-      // The release controller names a release as "sha256:<hex>" in every ActivationRequest; the approval must name it identically.
-      digest: "sha256:" + hex, keyId: c.keyId,
+      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId, digest: `sha256:${hex}`, keyId: c.keyId,
       notBefore: new Date(now - 1000).toISOString(), notAfter: new Date(now + (c.windowMs ?? 10 * 60_000)).toISOString(), nonce: randomUUID() + randomUUID() };
-    const file = signActivationApproval(approval, c.approverPem), approvals = join(c.dir, "approvals");
-    mkdirSync(c.dir, { recursive: true, mode: 0o700 }); mkdirSync(approvals, { recursive: true, mode: 0o700 });
-    if ((lstatSync(c.dir).mode & 0o077) !== 0 || (lstatSync(approvals).mode & 0o077) !== 0) return refuse("OWNER_LOCAL_PUBLISH_DIRECTORY");
-    const name = `owner-confirm-${sha256(canonical(approval)).slice(0, 32)}.json`;
-    const fd = openSync(join(approvals, name), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
-    try { writeSync(fd, file); } finally { closeSync(fd); }
+    const name = recordApproval(approval);
+    if (input.compensationPlan) compensationPlans.set(`sha256:${hex}`, canonical(input.compensationPlan));
     c.ctx.audit({ kind: "PUBLISH_APPROVED", authorizedBy: "OWNER_CONFIRM_AFTER_PASS", confirmationDigest: c.ctx.confirmationDigest, ownerId: c.ctx.ownerId,
       planSha256: c.ctx.planSha256, repository: c.ctx.repository, workIds: c.ctx.workIds, digest: hex, candidate: input.candidate,
       verdict: { outcome: v.outcome, assurance: v.assurance, verifierKeyId: v.verifierKeyId, issuedAt: v.issuedAt }, approvalFile: name, keyId: c.keyId, notAfter: approval.notAfter });
     return { approvalFile: name };
   };
+  publish.compensate = async ({ plan, expectedPublication }) => {
+    if (!Number.isSafeInteger(expectedPublication.seq) || expectedPublication.seq < 1 || !Number.isSafeInteger(expectedPublication.version) || expectedPublication.version < 1 ||
+      compensationPlans.get(expectedPublication.digest) !== canonical(plan) || plan.installation.environment !== c.installation.environment ||
+      plan.installation.installationId !== c.installation.installationId) return refuse("OWNER_LOCAL_COMPENSATION_SCOPE");
+    const revision = plan.kind === "RESTORE_REVISION" ? /^(.+)@([1-9][0-9]*)$/.exec(plan.revisionId) : null;
+    if (plan.kind === "RESTORE_REVISION" && (!revision || revision[1] !== c.appId)) return refuse("OWNER_LOCAL_COMPENSATION_SCOPE");
+    const now = c.now?.() ?? Date.now();
+    const approval: ActivationApproval = { schema: "myeve.qdev-activation-approval/v1", operation: "ROLLBACK", appId: c.appId, ownerId: c.ctx.ownerId,
+      projectSha256: c.projectSha256, environment: c.installation.environment, installationId: c.installation.installationId,
+      digest: `sha256:${plan.kind === "RESTORE_REVISION" ? plan.revisionSha256 : plan.absenceAuthenticationSha256}`,
+      ...(revision ? { version: Number(revision[2]) } : {}), expectedPublication: { ...expectedPublication }, keyId: c.keyId,
+      notBefore: new Date(now - 1000).toISOString(), notAfter: new Date(now + (c.windowMs ?? 10 * 60_000)).toISOString(), nonce: randomUUID() + randomUUID() };
+    const name = recordApproval(approval);
+    compensationPlans.delete(expectedPublication.digest);
+    c.ctx.audit({ kind: "PUBLISH_COMPENSATION_APPROVED", authorizedBy: "OWNER_CONFIRM_EXACT_FAILED_DELIVERY", confirmationDigest: c.ctx.confirmationDigest,
+      ownerId: c.ctx.ownerId, planSha256: c.ctx.planSha256, expectedPublication, compensationPlan: plan, approvalFile: name });
+    return { approvalFile: name };
+  };
+  return publish;
 }
 
 /**
@@ -119,18 +153,34 @@ export async function completeDeliveredStageWorks(c: { db: { atomic<T>(fn: (db: 
   if (c.works.length !== 3 || c.works.some((w, i) => w.id !== c.ctx.workIds[i] || !Number.isSafeInteger(w.version) || !Number.isSafeInteger(w.generation)))
     return refuse("OWNER_LOCAL_COMPLETION_WORKS");
   const uuid = (seed: string) => { const h = sha256(seed); return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-${((parseInt(h[16], 16) & 3) | 8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`; };
+  const receipt = { kind: "WORKS_COMPLETED", authorizedBy: "OWNER_CONFIRM_DELIVERY_ACCEPTED", confirmationDigest: c.ctx.confirmationDigest, ownerId: c.ctx.ownerId,
+    planSha256: c.ctx.planSha256, works: c.works, verdictSha256: d.verdictSha256, deliverySha256: d.deliverySha256, assurance: d.assurance };
+  const receiptSha256 = sha256(canonical(receipt));
+  const eventKind = `owner_local_delivery_accepted:${receiptSha256}`;
+  const eventId = (workId: string) => uuid(`OWNER_LOCAL_DELIVERY_ACCEPTED_V2:${receiptSha256}:${workId}`);
   // The Work guard refuses a lifecycle change while a Factory writer is not proven terminal: reconcile first (exact remote quiescence only).
   for (const w of c.works) await c.reconcile(w.id);
   await c.db.atomic(async db => {
+    const retained = await rows(db, "SELECT id,work_id,version,kind,actor_id FROM engineering_work_events WHERE scope_id=$1 AND scope_kind='personal' AND id=ANY($2::uuid[])", [c.ctx.ownerId, c.works.map(w => eventId(w.id))]);
+    if (retained.length) {
+      if (retained.length !== 3 || c.works.some(w => !retained.some(r => r.id === eventId(w.id) && r.work_id === w.id && Number(r.version) === w.version + 1 && r.kind === eventKind && r.actor_id === c.ctx.ownerId))) return refuse("OWNER_LOCAL_COMPLETION_CONFLICT");
+      return;
+    }
     for (const w of c.works) {
       const done = await rows(db, `UPDATE engineering_work SET lifecycle='accepted',control='paused',version=version+1,generation=generation+1,updated_at=clock_timestamp()
-        WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 AND version=$3 AND generation=$4 AND lifecycle='active' RETURNING version`,
-        [c.ctx.ownerId, w.id, w.version, w.generation]);
+        WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 AND version=$3 AND generation=$4 AND lifecycle='active' AND control<>'stopping'
+          AND business_assert_effect(scope_id,id,version,generation,$1,$5::jsonb)
+          AND NOT EXISTS(SELECT 1 FROM engineering_execution e WHERE e.scope_id=$1 AND e.scope_kind='personal' AND e.work_id=$2
+            AND EXISTS(SELECT 1 FROM jsonb_array_elements(e.state->'effects') effect WHERE effect->>'status' IN ('PREPARED','UNKNOWN')))
+        RETURNING version`,
+        [c.ctx.ownerId, w.id, w.version, w.generation, JSON.stringify({ operation: "accept", expectedVersion: w.version })]);
       if (done.length !== 1) return refuse("OWNER_LOCAL_COMPLETION_STALE");
-      await rows(db, `INSERT INTO engineering_work_events(id,scope_id,scope_kind,work_id,version,actor_id,kind) VALUES($1,$2,'personal',$3,$4,$2,'owner_local_delivery_accepted')`,
-        [uuid(`OWNER_LOCAL_DELIVERY_ACCEPTED_V1:${c.ctx.confirmationDigest}:${w.id}`), c.ctx.ownerId, w.id, Number(done[0].version)]);
+      await rows(db, `INSERT INTO engineering_work_events(id,scope_id,scope_kind,work_id,version,actor_id,kind) VALUES($1,$2,'personal',$3,$4,$2,$5)`,
+        [eventId(w.id), c.ctx.ownerId, w.id, Number(done[0].version), eventKind]);
     }
+    // Every existing Work event carries the full receipt digest; transitions and cryptographic provenance commit together.
+
   });
-  c.ctx.audit({ kind: "WORKS_COMPLETED", authorizedBy: "OWNER_CONFIRM_DELIVERY_ACCEPTED", confirmationDigest: c.ctx.confirmationDigest, ownerId: c.ctx.ownerId,
-    planSha256: c.ctx.planSha256, works: c.works, verdictSha256: d.verdictSha256, deliverySha256: d.deliverySha256, assurance: d.assurance });
+  try { c.ctx.audit(receipt); return { completed: true, auditPending: false }; }
+  catch { return { completed: true, auditPending: true }; } // Canonical Work events are authoritative; retry repairs only this secondary audit.
 }

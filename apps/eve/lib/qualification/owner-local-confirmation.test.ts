@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { generateKeyPairSync, sign, verify } from "node:crypto";
-import { confirmationSigningBytes, confirmationTupleSigningBytes, ownerLocalConfirmationSchema, ownerLocalRequestRuntime, ownerLocalSend, requestObjective } from "./owner-local-confirmation.ts";
+import { confirmationSigningBytes, confirmationTupleSigningBytes, confirmOwnerLocalRequest, ownerLocalConfirmationSchema, ownerLocalRequestRuntime, ownerLocalSend, requestObjective } from "./owner-local-confirmation.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 
@@ -11,9 +11,9 @@ describe("owner-local MissionControl/Relay transport", () => {
     const send = ownerLocalSend(PRIVATE_BETA_PROFILE, { [MC]: "http://127.0.0.1:8799", [RELAY]: "http://127.0.0.1:8797" }, base as never);
     await send(MC + "/api/action", { method: "POST" });
     await send(RELAY + "/api/v2/runtime/capability-leases/prepare?x=1");
-    await send("https://other.example.com/api/action");
-    expect(base.mock.calls.map(c => c[0])).toEqual(["http://127.0.0.1:8799/api/action", "http://127.0.0.1:8797/api/v2/runtime/capability-leases/prepare?x=1",
-      "https://other.example.com/api/action"]);
+    expect(() => send("https://other.example.com/api/action")).toThrow("OWNER_LOCAL_TRANSPORT_ORIGIN");
+    expect(base.mock.calls.map(c => c[0])).toEqual(["http://127.0.0.1:8799/api/action", "http://127.0.0.1:8797/api/v2/runtime/capability-leases/prepare?x=1"]);
+    expect(base.mock.calls.every(c => (c[1] as RequestInit).redirect === "error")).toBe(true);
   });
   it("hosted and tester profiles never get a loopback MissionControl or Relay", () => {
     for (const profile of ["myeve.qdev/v1", "myeve.private-beta.tester/v1", "hosted"])
@@ -30,10 +30,12 @@ describe("owner-local MissionControl/Relay transport", () => {
       stage: { maxCostUsd: 0.65, maxDurationSeconds: 180, budgetMinutes: 90, requestDeadlineSeconds: 590 },
       missionControl: { issuer: MC, audience: "https://myeve.owner-local.invalid", loopbackOrigin: "http://127.0.0.1:8799", installationId: "i", secretEnv: "QDEV_MC_SECRET",
         capabilityBackendId: "mc", propagationEnv: "QDEV_MYEVE_SOURCE_SIGNER", executionContractSha256: "a".repeat(64),
-        relay: { label: RELAY, loopbackOrigin: "http://127.0.0.1:8797", template: {}, credentialEnv: "QDEV_RELAY_LEASE_CREDENTIAL", workloadTokenEnv: "QDEV_RELAY_WORKLOAD_TOKEN" } } };
+        relay: { label: RELAY, loopbackOrigin: "http://127.0.0.1:8797", template: { origin: RELAY }, credentialEnv: "QDEV_RELAY_LEASE_CREDENTIAL", workloadTokenEnv: "QDEV_RELAY_WORKLOAD_TOKEN" } } };
     expect(ownerLocalConfirmationSchema.safeParse(valid).success).toBe(true);
     expect(ownerLocalConfirmationSchema.safeParse({ ...valid, bridgeOrigin: "https://bridge.example.com" }).success).toBe(false);
     expect(ownerLocalConfirmationSchema.safeParse({ ...valid, missionControl: { ...valid.missionControl, issuer: "https://mc.example.com" } }).success).toBe(false);
+    expect(ownerLocalConfirmationSchema.safeParse({ ...valid, missionControl: { ...valid.missionControl,
+      relay: { ...valid.missionControl.relay, template: { origin: "https://external.example.com" } } } }).success).toBe(false);
     expect(ownerLocalConfirmationSchema.safeParse({ ...valid, stage: { ...valid.stage, requestDeadlineSeconds: 900 } }).success).toBe(false);
   });
 });
@@ -66,4 +68,22 @@ describe("per-request runtime", () => {
     expect(verify(null, Buffer.from(`myeve-owner-confirmation-tuples/v1\n{"confirmationDigest":"${"d".repeat(64)}","works":[{"id":"w","tupleSha256":"${"a".repeat(64)}"}]}`), publicKey, signature)).toBe(true);
     expect(verify(null, confirmationSigningBytes(document), publicKey, signature)).toBe(false);
   });
+});
+
+it.each(["in-flight", "lost-response", "UNKNOWN", "completed"])("reconfirming %s Work refuses before owner authority or bridge mutation", async retained => {
+  const database = { atomic: vi.fn(), query: vi.fn() }, change = vi.fn(), send = vi.fn();
+  const store = { principal: { scopeKind: "personal", scopeId: "owner", actorId: "owner" }, database, change,
+    create: vi.fn(async () => ({ created: false, work: { id: "retained", control: "owner", lifecycle: retained } })) };
+  const base = { engineering: { ownerId: "owner", agentId: "agent", objective: "bounded", criteria: [{ id: "criterion", statement: "test", method: "test" }],
+    profile: { repository: "local/dashboard" } }, connection: {}, commands: ["npm test"] };
+  const confirmation = { bridgeOrigin: "http://127.0.0.1:8798", signerEnv: "QDEV_OWNER_CONFIRMATION_SIGNER",
+    authorizations: { auditPath: "/tmp/unused-owner-local-audit.jsonl", accountingIssuerEnv: "QDEV_ACCOUNTING_ISSUER_DATABASE_URL", approverEnv: "QDEV_OWNER_APPROVER_PEM" },
+    stage: { maxCostUsd: 0.65, maxDurationSeconds: 180, budgetMinutes: 90, requestDeadlineSeconds: 590 },
+    missionControl: { issuer: MC, audience: "https://myeve.owner-local.invalid", loopbackOrigin: "http://127.0.0.1:8799", installationId: "local", secretEnv: "QDEV_MC_SECRET",
+      capabilityBackendId: "mc", propagationEnv: "QDEV_MYEVE_SOURCE_SIGNER", executionContractSha256: "a".repeat(64),
+      relay: { label: RELAY, loopbackOrigin: "http://127.0.0.1:8797", template: { origin: RELAY }, credentialEnv: "QDEV_RELAY_LEASE_CREDENTIAL", workloadTokenEnv: "QDEV_RELAY_WORKLOAD_TOKEN" } } };
+  await expect(confirmOwnerLocalRequest({ profile: PRIVATE_BETA_PROFILE, confirmation, store: store as never, base: base as never,
+    request: "Build the dashboard", planSha256: "f".repeat(64), credential: vi.fn(), send: send as never })).rejects.toThrow("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");
+  expect(store.create).toHaveBeenCalledTimes(1);
+  expect(change).not.toHaveBeenCalled();expect(database.query).not.toHaveBeenCalled();expect(database.atomic).not.toHaveBeenCalled();expect(send).not.toHaveBeenCalled();
 });

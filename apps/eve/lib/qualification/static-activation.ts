@@ -23,6 +23,8 @@ const HEX64 = /^[a-f0-9]{64}$/;
 export type ActivationApproval = {
   schema: typeof SCHEMA; operation: ActivationOperation; appId: string; ownerId: string; projectSha256: string; environment: InstallationIdentity["environment"]; installationId: string;
   digest: string; version?: number;
+  /** Conditional compensation only: valid solely against the exact publication being undone. */
+  expectedPublication?: ActivationRequest["expectedPublication"];
   keyId: string; notBefore: string; notAfter: string; nonce: string;
 };
 export type ApproverKey = { keyId: string; publicKeyPem: string; activeFrom: string; notAfter: string; revokedAt?: string };
@@ -94,6 +96,12 @@ export class FileActivationPermits {
   }
 
   private matches(p: ActivationApproval, request: ActivationRequest, now: number): boolean {
+    if (p.expectedPublication !== undefined) {
+      const bound = p.expectedPublication, actual = request.expectedPublication;
+      if (p.operation !== "ROLLBACK" || !bound || !actual || !Number.isSafeInteger(bound.seq) || bound.seq < 1 ||
+        !Number.isSafeInteger(bound.version) || bound.version < 1 || !/^sha256:[a-f0-9]{64}$/.test(bound.digest) ||
+        bound.seq !== actual.seq || bound.version !== actual.version || bound.digest !== actual.digest) return false;
+    }
     if (p.schema !== SCHEMA || p.operation !== request.operation || p.appId !== request.appId || p.ownerId !== request.ownerId || p.projectSha256 !== request.projectSha256
       || p.environment !== request.environment || p.installationId !== request.installationId || p.digest !== request.digest || p.version !== request.version || typeof p.nonce !== "string" || p.nonce.length < 16 || p.nonce.length > 128) return false;
     if (p.appId !== this.scope.appId || p.ownerId !== this.scope.ownerId || p.projectSha256 !== this.scope.projectSha256

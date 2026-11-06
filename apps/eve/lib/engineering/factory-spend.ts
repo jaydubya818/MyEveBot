@@ -143,12 +143,13 @@ export const legacySpendSchema=z.object({status:z.enum(['KNOWN','UNKNOWN']),ceil
 const nullMoney=z.null();
 export const subscriptionSpendSchema=z.object({
  status:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN']),metering:z.literal('SUBSCRIPTION_UNMETERED'),costKnown:z.literal(false),currency:z.null(),unit:z.literal('OPERATION'),
- workId:z.string().uuid(),workGeneration:z.number().int().positive(),requestId:z.string().uuid(),workOrderId:z.string().uuid(),deadline:z.string().min(1).max(64),
+ workId:z.string().uuid(),workGeneration:z.number().int().positive(),requestId:z.string().uuid(),workOrderId:z.string().uuid(),deadline:z.string().datetime(),
  ceilingMicrousd:nullMoney,settledMicrousd:nullMoney,retainedMicrousd:nullMoney,availableMicrousd:nullMoney,unknownExposureMicrousd:nullMoney,
  unknownOperations:count,inFlightOperations:count,operationsUsed:count,maxOperations:count.positive(),paidOperationsUsed:count,maxPaidOperations:count.positive(),
  plannedProductiveOperations:count.positive(),plannedCompletionOperations:count.positive(),completionOperationsUsed:count,completionOperationSlotsRemaining:count,
  contractVersion:z.literal('WORK_LEDGER_V2'),pricingRevision:text,pricingQualified:z.literal(false),routeQualified:z.boolean(),authorityState,accountingComplete:z.boolean(),phase,cancelled:z.boolean(),
- operations:z.array(z.object({operationId:text,workId:text,workGeneration:z.number().int().positive(),requestId:text,workOrderId:text,runId:text.nullable().optional(),
+ operations:z.array(z.object({operationId:text,workId:text,workGeneration:z.number().int().positive(),requestId:text,workOrderId:text,runId:text,
+  dispatchIdentity:text,factoryVersion:hash,model:text,pricingRevision:text,phase,
   reservedMicrousd:nullMoney,actualMicrousd:nullMoney,metering:z.literal('SUBSCRIPTION_UNMETERED'),spendStatus:z.enum(['SUBSCRIPTION_UNMETERED','UNKNOWN','RELEASED']),
   state:z.enum(['reserved','dispatched','unknown','settled','released'])}).passthrough()).max(2000),
 }).passthrough().superRefine((s,ctx)=>{
@@ -158,7 +159,15 @@ export const subscriptionSpendSchema=z.object({
  if(s.operationsUsed!==s.operations.filter(op=>op.state!=='released').length||s.operationsUsed>s.maxOperations||s.paidOperationsUsed!==s.operations.length
   ||s.paidOperationsUsed>s.maxPaidOperations||s.maxPaidOperations!==s.plannedProductiveOperations+s.plannedCompletionOperations)bad('Subscription operation limit mismatch');
  if(s.accountingComplete!==s.operations.every(op=>['settled','released'].includes(op.state)))bad('Subscription accounting completeness mismatch');
- for(const op of s.operations)if(op.workId!==s.workId||op.spendStatus!==(op.state==='settled'?'SUBSCRIPTION_UNMETERED':op.state==='released'?'RELEASED':'UNKNOWN'))bad('Subscription operation mismatch');
+ const ids=new Set<string>(),completion=s.operations.filter(op=>op.phase==='completion').length;
+ if(s.maxOperations!==s.maxPaidOperations||s.completionOperationsUsed!==completion||completion>s.plannedCompletionOperations||
+  s.operations.length-completion>s.plannedProductiveOperations||s.completionOperationSlotsRemaining!==s.plannedCompletionOperations-completion)
+  bad('Subscription phase/operation plan mismatch');
+ for(const op of s.operations){
+  if(ids.has(op.operationId))bad('Duplicate subscription operation');ids.add(op.operationId);
+  if(op.workId!==s.workId||op.workGeneration>s.workGeneration||op.pricingRevision!==s.pricingRevision||
+   op.spendStatus!==(op.state==='settled'?'SUBSCRIPTION_UNMETERED':op.state==='released'?'RELEASED':'UNKNOWN'))bad('Subscription operation mismatch');
+ }
 });
 export type SubscriptionSpend=z.infer<typeof subscriptionSpendSchema>;
 export const factorySpendSchema=z.union([subscriptionSpendSchema,workSpendSchema,legacySpendSchema]);
@@ -182,7 +191,10 @@ export function validateSpendBinding(spend:FactorySpend,expected:SpendBinding,ce
   if(plan&&(spend.pricingRevision!==plan.pricingRevision||spend.plannedProductiveOperations!==plan.plannedProductiveOperations
    ||spend.plannedCompletionOperations!==plan.plannedCompletionOperations||spend.maxPaidOperations!==plan.maxPaidOperations))throw Error('Factory subscription plan differs from approved Work plan');
   for(const op of spend.operations.filter(op=>op.workGeneration===expected.workGeneration))
-   if(op.requestId!==expected.requestId||op.workOrderId!==expected.workOrderId||(expected.remoteRunId!==undefined&&op.runId!=null&&op.runId!==expected.remoteRunId))
+   if(op.requestId!==expected.requestId||op.workOrderId!==expected.workOrderId||
+    (expected.dispatchIdentity!==undefined&&op.dispatchIdentity!==expected.dispatchIdentity)||
+    (expected.factoryVersion!==undefined&&op.factoryVersion!==expected.factoryVersion)||
+    (expected.remoteRunId!==undefined&&op.runId!==expected.remoteRunId))
     throw Error('Factory spend operation differs from exact attempt');
   return;
  }

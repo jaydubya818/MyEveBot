@@ -71,3 +71,29 @@ it("binding and approved operation plan are still checked exactly for an unmeter
   expect(() => validateSpendBinding(spend, { ...binding, workId: randomUUID() }, 0.65, plan)).toThrow();
   expect(() => validateSpendBinding(spend, binding, 0.65, { ...plan, plannedProductiveOperations: 1, maxPaidOperations: 2 })).toThrow();
 });
+
+it("refuses future generations, duplicate operations, phase-count forgery and incomplete execution identity", () => {
+  const i = ids();
+  for (const mutate of [
+    (s: any) => { s.operations[0].workGeneration = 2; s.operations[0].requestId = randomUUID(); },
+    (s: any) => { s.operations[1].operationId = s.operations[0].operationId; },
+    (s: any) => { s.completionOperationsUsed = 1; },
+    (s: any) => { s.operations[0].phase = "completion"; },
+    (s: any) => { s.maxOperations = 4; },
+    (s: any) => { delete s.operations[0].dispatchIdentity; },
+    (s: any) => { delete s.operations[0].factoryVersion; },
+    (s: any) => { s.operations[0].runId = null; },
+  ]) {
+    const s = subscriptionSpend(i, ["settled", "settled"]);
+    mutate(s);
+    expect(subscriptionSpendSchema.safeParse(s).success).toBe(false);
+  }
+});
+
+it("checks current-generation dispatch identity, Factory version and run against the exact attempt", () => {
+  const i = ids(), spend = subscriptionSpendSchema.parse(subscriptionSpend(i, ["settled"]));
+  const binding = { ...i, workGeneration: 1, deadline: spend.deadline, dispatchIdentity: "d", factoryVersion: h("4"), remoteRunId: i.runId };
+  expect(() => validateSpendBinding(spend, binding)).not.toThrow();
+  for (const key of ["dispatchIdentity", "factoryVersion", "remoteRunId", "requestId", "workOrderId"] as const)
+    expect(() => validateSpendBinding(spend, { ...binding, [key]: key === "factoryVersion" ? h("5") : randomUUID() })).toThrow();
+});

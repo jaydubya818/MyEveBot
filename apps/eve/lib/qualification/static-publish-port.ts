@@ -1,6 +1,6 @@
 import { bareSha256 } from "./delivery-observer.ts";
 import type { MyAppsRevisionReader } from "./myapps-revisions.ts";
-import { planRollback, type InstallationIdentity } from "./rollback.ts";
+import { planRollback, type InstallationIdentity, type RollbackPlan } from "./rollback.ts";
 import type { StaticBuildMyAppsPort } from "./static-build.ts";
 import { StaticPublishRefused, type StaticReleaseController } from "./static-publish.ts";
 import type { Verdict } from "./verdict.ts";
@@ -21,7 +21,7 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     /** Host-bound: fetch the signed verdict (a pure read) and verify it with verifyVerdict against the pinned keys and expectations. */
     gate(candidate: { commit: string; tree: string; buildArtifactSha256: string }): Promise<Verdict>;
     /** Owner-local only: issues the owner's single-use approval for exactly this verified PASS release digest (it re-checks and may refuse). */
-    approve?(input: { verdict: Verdict; candidate: { commit: string; tree: string }; digest: string }): Promise<unknown>;
+    approve?: OwnerPublishApproval;
   }) {}
 
   retainBuild(candidate: { commit: string; tree: string }) { return this.c.build.retainBuild(candidate); }
@@ -31,15 +31,17 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     const verdict = await this.c.gate({ ...candidate, buildArtifactSha256: bare });
     if (verdict?.outcome !== "PASS" || verdict.candidateCommit !== candidate.commit || verdict.candidateTree !== candidate.tree || verdict.buildArtifactSha256 !== bare)
       throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED");
-    if (this.c.approve) {
-      try { await this.c.approve({ verdict, candidate: { commit: candidate.commit, tree: candidate.tree }, digest: bare }); }
-      catch { throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED"); }
-    }
     await this.c.reader.capture();
     // The prior is captured once; publication is a compare-and-swap on exactly that prior, so a release committed by anyone else in the
     // meantime refuses the delivery instead of becoming something a later compensation would overwrite.
     const prior = await this.c.reader.priorRevision(), id = prior.kind === "REVISION" ? /^(.+)@([1-9][0-9]*)$/.exec(prior.id) : null;
     if (prior.kind === "REVISION" && !id) throw new StaticPublishRefused("QDEV_PUBLISH_PRIOR_INVALID");
+    if (this.c.approve) {
+      const compensationPlan = planRollback({ environment: this.c.installation.environment, priorRevision: prior,
+        rollbackRestorePointId: await this.c.reader.restorePointId() }, this.c.installation);
+      try { await this.c.approve({ verdict, candidate: { commit: candidate.commit, tree: candidate.tree }, digest: bare, compensationPlan }); }
+      catch { throw new StaticPublishRefused("QDEV_PUBLISH_UNVERIFIED"); }
+    }
     const published = await this.c.controller.publish(artifact, { expectedPrior: prior.kind === "ABSENT" ? null : { version: Number(id![2]), digest: prior.sha256 } });
     try { return await this.c.build.observe(candidate); }
     catch (error) { await this.restorePrior({ seq: published.seq, version: published.version, digest: published.digest }); throw error; }
@@ -53,6 +55,7 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
   async restorePrior(expected: { seq: number; version: number; digest: string }): Promise<void> {
     try {
       const plan = planRollback({ environment: this.c.installation.environment, priorRevision: await this.c.reader.priorRevision(), rollbackRestorePointId: await this.c.reader.restorePointId() }, this.c.installation);
+      if (this.c.approve?.compensate) await this.c.approve.compensate({ plan, expectedPublication: expected });
       await this.c.controller.rollback(plan, expected);
     } catch (error) {
       if (error instanceof StaticPublishRefused && error.code === "QDEV_PUBLISH_COMPENSATION_SUPERSEDED") throw error;
@@ -60,3 +63,7 @@ export class StaticPublishingMyAppsPort implements MyAppsPort {
     }
   }
 }
+
+export type OwnerPublishApproval = ((input: { verdict: Verdict; candidate: { commit: string; tree: string }; digest: string; compensationPlan?: RollbackPlan }) => Promise<unknown>) & {
+  compensate?(input: { plan: RollbackPlan; expectedPublication: { seq: number; version: number; digest: string } }): Promise<unknown>;
+};

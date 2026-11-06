@@ -1,0 +1,35 @@
+{
+  "advisory": "GHSA-g3hv-75wg-m249",
+  "reviewedAt": "2026-11-05",
+  "affectedPackage": "minimatch",
+  "affectedRange": ">=7.0.0 <11.0.1",
+  "smallestPatchedVersion": "11.0.1",
+  "references": [
+    "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+    "https://github.com/isaacs/minimatch/blob/v11.0.1/changelog.md",
+    "https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#overrides"
+  ],
+  "paths": [
+    {
+      "parent": "@vercel/queue",
+      "version": "0.7.0",
+      "use": "Development vercel.json source-pattern mapping, two-argument minimatch; default optimization level1"
+    },
+    {
+      "parent": "braintrust",
+      "version": "3.32.0",
+      "use": "CLI include/exclude filtering, two-argument minimatch; not telemetry SDK matching; default optimization level1"
+    },
+    {
+      "parent": "just-bash",
+      "version": "3.4.2",
+      "use": "ls glob matching, two-argument minimatch; default optimization level1"
+    }
+  ],
+  "reachability": "Reviewed callers do not enable vulnerable optimizationLevel>=2. This is not a substitute for patching the installed package. Bundled just-bash standalone CLI/shell matcher copies remain unreachable at the vulnerable optimization level in reviewed callsites; no removal of embedded code is claimed.",
+  "change": "Only the three named parents use patched11.0.1. Parent versions, shell, HTTP, execution, authorization and installed beta profiles are preserved. Direct devDependency11.0.1 supports CJS/ESM compatibility and bounded-amplification regressions. No global matcher override.",
+  "compatibility": "v11 removes APIs and changes some matching semantics; current consumers use the retained two-argument function. A clean old/new CJS/ESM probe compared130cases without differences. Actual installed parent resolution, matching expectations, shell glob/printf regressions and bounded level2 amplification are tested; full suite/types/build/CI independently qualify the candidate.",
+  "retirement": "Review pins when any named parent upgrades its matcher requirement or changes matcher API/options; retain patched version and rerun consumer/security contracts.",
+  "rejectedExperiment": "just-bash3.6.0 broadened networking/runtime changes and introduced unpatched guarded-fetch/undici. It is not part of this minimal candidate.",
+  "qualification": "PENDING independent exact-source tests/build/audit/review. No runtime activation, pricing, tester, production deployment or containment authority."
+}
