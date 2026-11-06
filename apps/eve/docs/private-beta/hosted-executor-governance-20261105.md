@@ -23,3 +23,10 @@ The canonical reconcile 667f91a1 refreshed the inventory for 17 of them. On 667f
   - `hosted-mac-job-test-fixture.ts` (NOT_APPLICABLE). It is a synthetic test fixture.
 - The `hosted-mac-worker.ts` reason now describes the job authority and the claim gate.
 - These are still owner-authored entries, not an independent review.
+
+## Hosted confirmation bridge (codex/private-beta-hosted-confirm-20261105)
+
+`lib/qualification/hosted-confirmation.ts` and `hosted-confirmation-profile.ts` are inventoried as ENFORCED and the fingerprints of
+`custody-launcher.ts`, `custody-profile.ts` and `hosted-custody.ts` were refreshed for the `hostedConfirmation` wiring. As above, these entries
+record the self-review only; they are **not independently reviewed**. MyEve creates no approval: MissionControl verifies, consumes and applies the
+confirmation (MissionControl branch `codex/mc-hosted-confirm-bridge-20261105`). No deployment until independent review passes.

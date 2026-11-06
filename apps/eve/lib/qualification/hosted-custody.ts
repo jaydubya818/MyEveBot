@@ -18,6 +18,10 @@ import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
 import type { QdevCustody } from "./runtime-ports.ts";
 import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
+import { digest } from "../engineering/contract.ts";
+import { HOSTED_PROFILE } from "../engineering/factory-mailbox.ts";
+import { confirmHostedRequest, type HostedConfirmed } from "./hosted-confirmation.ts";
+import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
 
 /**
  * Hosted private-beta custody: hosted Sofie -> mailbox -> the owner's Mac (metered Factory route + local verifier). MyFactory on the Mac is the
@@ -27,8 +31,9 @@ import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
  *  - Factory, ordered-admission receiver and verifier are reached ONLY through the mailbox (hostedTransports); Relay is https (no loopback).
  *  - The Factory connection must be the metered LIVE route (no OWNER_SUBSCRIPTION_LOCAL, no subscription-usage recorder, never $0).
  *  - The accounting policy must fit $1.30/Work and 4 Works/person.
- *  - No owner-local confirmation bridge (that is a local MissionControl script): stage Works and the mission come from the pinned assembly
- *    profile and are approved in the real MissionControl UI.
+ *  - No owner-local confirmation bridge (that is a local MissionControl script). With `hostedConfirmation`, the person's Sofie confirmation is
+ *    signed by MyEve and verified, consumed once and applied by MissionControl itself (hosted-confirmation.ts); without it, stage Works and the
+ *    mission come from the pinned assembly profile and are approved in the real MissionControl UI.
  *  - No Docker, git or build signer here: the static build runs on the Mac and is re-verified by HostedMacMyAppsPort; the verifier receives
  *    the bytes from the Mac, not from this process; publication is the private preview (no release controller, no public origin).
  * Returns null (installation stays disabled) when anything is missing, malformed or refused.
@@ -39,6 +44,8 @@ export type HostedLauncherDeps = {
   store?(ownerId: string): WorkStore;
   runtimeConfig?(store: WorkStore, stage1WorkId: string): Promise<FactoryRuntime>;
   languageModel?(id: string, apiKey: string): import("ai").LanguageModel;
+  /** MissionControl (https) transport for the confirmation bridge; tests inject it. */
+  missionControlFetch?: typeof fetch;
   now?: () => number;
 };
 type Context = { bundle: QdevHostBundle; credential(name: string): string | undefined };
@@ -59,8 +66,21 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   try { requireHostedPolicy(hosted, bundle.policy); } catch { return null; }
   const ownerId = bundle.ownerId, signer = propagation.parse(JSON.parse(signerJson)).signer as { keyId: string; jwk: JsonWebKey };
   const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, canonicalWorkDatabase());
-  const workIds = profile.workIds;
-  const runtimeConfig = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, workIds.stage1);
+  let workIds = profile.workIds, missionId = profile.capability.missionId, admission: HostedConfirmed["admission"] | undefined;
+  let requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
+  if (profile.hostedConfirmation) {
+    // Sofie -> Plan -> Confirm: the person's confirmed request (root-verified plan digest) creates its stage Works and obtains MissionControl's
+    // owner decisions through the hosted confirmation bridge (one signed confirmation, verified and consumed once by MissionControl).
+    const request = bundle.conversation.approvedRequest, planSha256 = digest(bundle.plan);
+    if (!request) return null;
+    requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
+    const confirmed = await confirmHostedRequest({ profile: HOSTED_PROFILE, installationId: hosted.installationId, missionControlOrigin: hosted.missionControlOrigin,
+      confirmation: profile.hostedConfirmation, store, base: await (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, undefined as never),
+      request, planSha256, credential: context.credential, send: deps.missionControlFetch, now: deps.now });
+    workIds = confirmed.workIds; missionId = confirmed.missionId; admission = confirmed.admission;
+  }
+  const readRuntime = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, workIds.stage1);
+  const runtimeConfig = requestRuntime ? async () => requestRuntime!(await readRuntime()) : readRuntime;
   const config = await runtimeConfig();
   let transports;
   try { transports = hostedTransports(hosted, deps.mailboxDb, requireHostedFactoryConnection(hosted, config.connection)); } catch { return null; }
@@ -69,7 +89,7 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
   // Relay is https and reached directly (hosted never uses the owner-local loopback Relay exception).
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
-    missionId: profile.capability.missionId, signer, ownerLocalRelayLoopback: false,
+    missionId, signer, ownerLocalRelayLoopback: false,
     relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
   const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);
@@ -79,7 +99,8 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   const { chain } = storeBackedStageChain({ db: journalDb as never, journeyId: journalId, journal: new PostgresJournal(journalDb as never, journalId),
     // Routing qualifies the hosted per-person scope (myeve.hosted:<installation>:<owner>) and probes health through the mailbox only.
     sources: { enabled: true, store, authority: new FactoryRouteAuthority(store, runtimeConfig, { binding: hostedBinding(hosted), factoryFetch: transports.factoryFetch }), receipts: new FactoryReceiptStore(store.principal, store.database),
-      writers: new FactoryWriterStore(store), adapterFor, workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline } });
+      writers: new FactoryWriterStore(store), adapterFor, workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline,
+      ...(admission ? { admission, maxRequestSeconds: profile.hostedConfirmation!.stage.requestDeadlineSeconds } : {}) } });
   await chain.warm();
   const binding = journeyBinding(bundle.project), environment = journeyProfile(bundle.project).environment;
   const hostedMyApps = new HostedMacMyAppsPort({ db: deps.mailboxDb, profile: hosted, blob: deps.blob, retained: stage => chain.retained(stage),

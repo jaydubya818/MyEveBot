@@ -52,7 +52,8 @@ const propagation = z.object({ signer: z.object({ keyId: z.string().min(1), jwk:
 
 export async function assembleFromProfile(context: Context, deps: LauncherDeps): Promise<QdevCustody | null> {
   const { bundle } = context, profile = bundle.assembly;
-  if (!profile || bundle.custody) return null;
+  // The hosted confirmation bridge belongs to the hosted launcher (hosted-custody.ts) only.
+  if (!profile || bundle.custody || profile.hostedConfirmation) return null;
   // A private-beta project starts from its own installation baseline; the pinned Factory stage-1 baseline must be exactly that commit/tree.
   if (isPrivateBetaProject(bundle.project) && (profile.baseline.commit !== bundle.project.inputCommit || profile.baseline.tree !== bundle.project.inputTree)) return null;
   const secret = (name: string) => { const value = context.credential(name); return value && value.length <= 16384 ? value : null; };
