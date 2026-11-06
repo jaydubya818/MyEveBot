@@ -107,12 +107,14 @@ export async function confirmHostedRequest(c: {
   const p = hostedConfirmationSchema.parse(c.confirmation), now = c.now ?? Date.now, send = c.send ?? fetch, ownerId = c.store.principal.scopeId;
   if (c.store.principal.scopeKind !== "personal" || c.store.principal.actorId !== ownerId || !c.store.database.atomic) return refuse("HOSTED_CONFIRMATION_OWNER_STORE");
   const secret = (name: string) => c.credential(name) ?? refuse(`HOSTED_CONFIRMATION_CREDENTIAL:${name}`);
+  // Every credential is resolved before any Work is claimed, so a missing one can never leave claimed Works behind.
+  const signerPem = secret(p.signerEnv), submitter = secret(p.submitterEnv), connectionSecret = secret(p.connectionSecretEnv);
   // The person's own operator-installed MissionControl enrollment (never created here).
   const enrollment = await new MissionControlBindings(c.store.database, ownerId).enrollment() as OwnerEnrollment;
   if (enrollment.ownerId !== ownerId || enrollment.installationId !== c.installationId || enrollment.issuer !== c.missionControlOrigin) return refuse("HOSTED_CONFIRMATION_ENROLLMENT");
   const env: NodeJS.ProcessEnv = { ...(c.env ?? process.env), MYEVE_MISSIONCONTROL_MODE: "APPROVED_NONPRODUCTION", MYEVE_OWNER_ID: ownerId,
     MYEVE_MISSIONCONTROL_INSTALLATION_ID: enrollment.installationId, MYEVE_MISSIONCONTROL_CONNECTION_ID: enrollment.connectionId,
-    MYEVE_MISSIONCONTROL_URL: enrollment.issuer, MYEVE_MISSIONCONTROL_AUDIENCE: enrollment.audience, MYEVE_MISSIONCONTROL_SECRET: secret(p.connectionSecretEnv) };
+    MYEVE_MISSIONCONTROL_URL: enrollment.issuer, MYEVE_MISSIONCONTROL_AUDIENCE: enrollment.audience, MYEVE_MISSIONCONTROL_SECRET: connectionSecret };
   const mc = installedMissionControlConfig(enrollment, ownerId, env);
   const runtime = ownerLocalRequestRuntime(c.base, c.request && /^[a-f0-9]{64}$/.test(c.planSha256) ? { request: c.request, planSha256: c.planSha256 } : refuse("HOSTED_CONFIRMATION_REQUEST"));
   const repository = runtime.engineering.profile.repository;
@@ -131,9 +133,8 @@ export async function confirmHostedRequest(c: {
   const plan = hostedPlanSpecification({ request: c.request, title, planSha256: c.planSha256, repository, workflowId: p.workflowId, workIds: works.map(w => w.id) });
   const binding = hostedConfirmationBinding({ enrollment, proposalId, proposalDigest, plan, planSha256: c.planSha256, repository, works,
     maxCostMicrousd: Math.round(p.stage.maxCostUsd * 1e6), maxDurationSeconds: p.stage.maxDurationSeconds, now: now() });
-  const confirmation = signHostedConfirmation(binding, secret(p.signerEnv), p.keyId), digest = confirmationDigest(binding);
+  const confirmation = signHostedConfirmation(binding, signerPem, p.keyId), digest = confirmationDigest(binding);
   const submit = signedServiceCommand(mc, "enterprise.submit", { operation: "enterprise.submit", connectionId: mc.connectionId, proposalId, proposalDigest });
-  const submitter = secret(p.submitterEnv);
   const accepted = planResult.parse(await action(mc.endpoint, "sofieConfirmations:confirmPlan",
     confirmationSubmission("sofie.confirmPlan", { installationId: enrollment.installationId, confirmation, submit }, mc.projectId, submitter), send, "HOSTED_CONFIRMATION_PLAN"));
   if (accepted.confirmationDigest !== digest || accepted.connectionId !== mc.connectionId || accepted.proposalId !== proposalId || accepted.workOrders.length !== works.length
