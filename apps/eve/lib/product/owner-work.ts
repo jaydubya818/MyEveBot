@@ -1,4 +1,5 @@
 import type { EngineeringWorkerProjection } from '../engineering/worker-projection.ts';
+import { HOSTED_VERIFIER_LABEL } from '../qualification/hosted-label.ts';
 
 export type OwnerWorkStatus = 'Queued' | 'Working' | 'Verifying' | 'Needs You' | 'Completed' | 'Verified candidate' | 'Couldn’t complete' | 'Stopped' | 'Outcome unconfirmed' | 'Not admitted';
 export interface OwnerWorkPresentation {
@@ -12,7 +13,7 @@ export interface OwnerWorkPresentation {
 }
 /** Read-only presentation of already-bound evidence. A stale Result, a partial
  * outcome, or an admitted request is never promoted to successful execution. */
-export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerWorkPresentation {
+export function ownerWorkPresentation(work: EngineeringWorkerProjection, options: { hostedVerifier?: boolean } = {}): OwnerWorkPresentation {
   const result = work.nativeResult;
   const accepted = work.lifecycle==='accepted' && work.externalAlpha?.acceptance?.resultId===result?.id && work.externalAlpha?.acceptance?.completedVersion===work.workVersion && work.externalAlpha?.acceptance?.completedGeneration===work.workGeneration;
   const currentResult = result?.current === true && result.proof.workId === work.workId && (result.proof.workVersion === work.workVersion || accepted) && result.proof.criteriaVersion === work.criteriaVersion;
@@ -37,7 +38,7 @@ export function ownerWorkPresentation(work: EngineeringWorkerProjection): OwnerW
   if (work.lifecycle === 'accepted') return work.externalAlpha
     ? state('Outcome unconfirmed', 'warning', 'The saved completion does not match a current private acceptance. Review the retained evidence.')
     // Reached only by the owner-local journey's completion of its confirmed stage Works after an accepted, verified delivery.
-    : state('Completed', 'success', 'Completed after verified delivery.');
+    : state('Completed', 'success', options.hostedVerifier ? `Completed after verified delivery. ${HOSTED_VERIFIER_LABEL}.` : 'Completed after verified delivery.');
   if (verified) return state('Verified candidate', 'success', work.externalAlpha?.result?.current ? 'The change was verified and remains private. Nothing was published.' : 'The candidate passed its recorded checks. Review the result and any remaining limitations.');
   if (currentResult) return state('Needs You', 'attention', 'A result is available, with checks or limitations that need review.');
   if (work.control === 'paused') return state('Stopped', 'neutral', 'This Work is paused. Ask Sofie when you are ready to continue.');

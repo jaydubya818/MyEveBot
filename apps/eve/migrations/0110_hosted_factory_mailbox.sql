@@ -1,5 +1,5 @@
 -- Additive only: no existing table, column, index or row is changed.
--- Hosted private beta: the outbound-only Factory mailbox (hosted/MAILBOX-CONTRACT.md v0) and private verified previews.
+-- Hosted private beta: the outbound-only Factory mailbox (hosted/MAILBOX-CONTRACT.md v1), Mac-side static builds and private verified previews.
 
 -- One poller credential per installation. Only its sha256 is stored; the credential itself lives on the owner's Mac (0600).
 CREATE TABLE factory_mailbox_pollers (
@@ -19,21 +19,22 @@ CREATE TABLE factory_mailbox_requests (
   target text NOT NULL CHECK (target IN ('factory', 'verifier')),
   created_at timestamptz NOT NULL DEFAULT now(),
   deadline timestamptz NOT NULL,
-  method text NOT NULL CHECK (method IN ('GET', 'POST')),
+  method text NOT NULL CHECK (method IN ('GET', 'POST', 'PUT', 'PATCH', 'DELETE')),
   path text NOT NULL CHECK (length(path) BETWEEN 1 AND 2048 AND left(path, 1) = '/'),
   headers jsonb NOT NULL,
   body_sha256 text NOT NULL CHECK (body_sha256 ~ '^[a-f0-9]{64}$'),
   body_base64 text NOT NULL CHECK (length(body_base64) <= 1398104),
   state text NOT NULL CHECK (state IN ('QUEUED', 'LEASED', 'ANSWERED')),
   leased_at timestamptz,
+  lease_id text UNIQUE CHECK (lease_id ~ '^[A-Za-z0-9_-]{16,128}$'),
   lease_expires_at timestamptz,
   response_status integer CHECK (response_status BETWEEN 100 AND 599),
   response_headers jsonb,
   response_body_sha256 text CHECK (response_body_sha256 ~ '^[a-f0-9]{64}$'),
   response_body_base64 text CHECK (length(response_body_base64) <= 1398104),
   answered_at timestamptz,
-  CHECK (deadline > created_at AND deadline <= created_at + interval '120 seconds'),
-  CHECK ((state = 'QUEUED') = (leased_at IS NULL)),
+  CHECK (deadline > created_at AND deadline <= created_at + interval '1 hour'),
+  CHECK ((state = 'QUEUED') = (leased_at IS NULL AND lease_id IS NULL)),
   CHECK ((state = 'ANSWERED') = (answered_at IS NOT NULL AND response_status IS NOT NULL))
 );
 CREATE INDEX factory_mailbox_requests_queue ON factory_mailbox_requests (installation_id, state, created_at);
@@ -55,3 +56,23 @@ CREATE TABLE hosted_verified_previews (
   CHECK ((state = 'READY') = (ready_at IS NOT NULL))
 );
 CREATE INDEX hosted_verified_previews_owner ON hosted_verified_previews (owner_id, verdict_sha256);
+
+-- Mac-side static builds. Hosted MyEve never builds: it records the accepted stage-3 candidate and the EXPECTED build binding it derives
+-- from its own retained admission (REQUESTED); the Mac builds, signs the build claim with its Mac-only issuer key, stages the bytes to its
+-- local verifier and uploads inventory, claim and bytes (private Blob, content-addressed). Hosted re-retains the bytes and verifies the
+-- claim against the expected binding and the pinned issuer before the row becomes VERIFIED.
+CREATE TABLE hosted_mac_builds (
+  installation_id text NOT NULL REFERENCES factory_mailbox_pollers (installation_id),
+  owner_id text NOT NULL,
+  candidate_commit text NOT NULL CHECK (candidate_commit ~ '^[a-f0-9]{40}$'),
+  candidate_tree text NOT NULL CHECK (candidate_tree ~ '^[a-f0-9]{40}$'),
+  request jsonb NOT NULL,
+  state text NOT NULL CHECK (state IN ('REQUESTED', 'UPLOADING', 'VERIFIED')),
+  submission jsonb,
+  artifact_sha256 text CHECK (artifact_sha256 ~ '^[a-f0-9]{64}$'),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  verified_at timestamptz,
+  PRIMARY KEY (installation_id, candidate_commit, candidate_tree),
+  CHECK ((state = 'REQUESTED') = (submission IS NULL)),
+  CHECK ((state = 'VERIFIED') = (verified_at IS NOT NULL AND artifact_sha256 IS NOT NULL))
+);

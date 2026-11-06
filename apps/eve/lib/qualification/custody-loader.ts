@@ -6,6 +6,9 @@ import type { RuntimeHostDeps } from "./host-source.ts";
 import { assembleFromProfile, type LauncherDeps } from "./custody-launcher.ts";
 import { pgExecutionDatabase } from "./host-source.ts";
 import { composeRuntimePorts, type QdevCustody } from "./runtime-ports.ts";
+import { assembleHostedCustody, type HostedLauncherDeps } from "./hosted-custody.ts";
+import { hostedContext } from "./hosted-http.ts";
+import { vercelPrivatePreviewStore } from "./hosted-preview.ts";
 
 /**
  * Production startup binding for the protected-custody ports.
@@ -23,12 +26,23 @@ export type CustodyLoaderDeps = {
   load?(path: string, bytes: Uint8Array): Promise<unknown>;
   /** Launcher collaborators for a bundle `assembly` profile. Production defaults apply when absent. */
   launcher?: LauncherDeps;
+  /** Hosted private-beta launcher (null = none). Default: present only when MYEVE_HOSTED_PROFILE configures this deployment as a hosted installation. */
+  hosted?: HostedLauncherDeps | null;
 };
+function hostedLauncherFromEnv(): HostedLauncherDeps | null {
+  const context = hostedContext();
+  return context ? { hosted: context.profile, mailboxDb: context.db, blob: vercelPrivatePreviewStore(), database: pgExecutionDatabase } : null;
+}
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 export async function loadCustody(context: Parameters<NonNullable<RuntimeHostDeps["ports"]>>[0], deps: CustodyLoaderDeps = {}): Promise<QdevCustody | null> {
   // A non-secret assembly profile is launched from the existing qualified bodies; it is mutually exclusive with a pinned custody module (schema-enforced).
-  if (context.bundle.assembly) return assembleFromProfile(context, deps.launcher ?? { database: pgExecutionDatabase });
+  if (context.bundle.assembly) {
+    // A hosted installation never falls back to the owner-local launcher (loopback Factory, Docker, local release root).
+    const hosted = deps.hosted !== undefined ? deps.hosted : hostedLauncherFromEnv();
+    if (hosted) return assembleHostedCustody(context, hosted);
+    return assembleFromProfile(context, deps.launcher ?? { database: pgExecutionDatabase });
+  }
   const pin = (context.bundle as { custody?: { module: string; sha256: string } }).custody;
   if (!pin || !/^[a-f0-9]{64}$/.test(pin.sha256)) return null;
   if (!isAbsolute(pin.module) || normalize(pin.module) !== pin.module || !/\.m?js$/.test(pin.module) || /[\0?#]/.test(pin.module)) return null;

@@ -1,7 +1,7 @@
-import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 
 /**
- * Outbound-only Factory mailbox, hosted side (output/private-beta-20261103/hosted/MAILBOX-CONTRACT.md v0).
+ * Outbound-only Factory mailbox, hosted side (output/private-beta-20261103/hosted/MAILBOX-CONTRACT.md v1).
  *
  * Hosted MyEve cannot reach the owner's Mac. Instead of calling the loopback Factory host, the existing Factory clients send through a
  * `fetch`-compatible function that enqueues the exact request (method, path, allowlisted headers, body bytes and their sha256) in an
@@ -11,22 +11,36 @@ import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
  * The mailbox is untrusted transport. It authorizes nothing and verifies no Factory signature: every FENCE, PERMIT, challenge, prepare,
  * dispatch claim and Result is still verified end to end by the existing clients and the Factory host. Its own guarantees are transport ones:
  *  - single use: a request id is leased at most once and never returns to the queue, so nothing is resent; a second claim finds nothing;
- *  - a response binds to the request id and the request body sha256, and is accepted only while that one lease and the deadline are live;
- *  - the caller's existing deadline bounds the wait; on timeout the caller sees a transport failure (its existing UNKNOWN handling) and an
- *    unleased request is withdrawn so it can never run later;
- *  - limits: body <= 1 MiB each way, queue depth <= 16 per installation, lease 30 s, poll wait <= 25 s, deadline <= 120 s.
+ *  - each lease has a fresh `leaseId`; a response binds to id + leaseId + the request body sha256 and is accepted only while that lease and the
+ *    deadline are live (stale lease or digest mismatch is refused);
+ *  - bodies travel as canonical padded base64 (`bodyEncoding: "base64"`), `bodySha256` over the decoded bytes;
+ *  - method, path (per target) and request-header allowlists are exact: an unknown request header refuses the envelope; response headers are
+ *    filtered (set-cookie and everything else not listed is dropped);
+ *  - the caller's deadline bounds the wait (mailbox per-call timeout = max(existing, 40 s), <= 1 h); on timeout the caller sees a transport
+ *    failure (its existing UNKNOWN / readback-by-identity handling) and an unleased request is withdrawn so it can never run later;
+ *  - limits: body <= 1 MiB each way, queue depth <= 16 per installation, lease 30 s (+15 s respond grace), poll wait <= 25 s. No streaming.
  * Request headers and bodies are cleared from the row the moment the Mac leases them; answered rows are deleted when the caller reads them.
  */
 export const HOSTED_PROFILE = "myeve.private-beta.hosted/v1" as const;
-export const MAILBOX_LIMITS = { maxBodyBytes: 1 << 20, maxQueueDepth: 16, leaseMs: 30_000, maxWaitMs: 25_000, maxDeadlineMs: 120_000 } as const;
-export const MAILBOX_REQUEST_HEADERS = ["accept", "authorization", "content-type"] as const;
-export const MAILBOX_RESPONSE_HEADERS = ["content-type"] as const;
+export const MAILBOX_LIMITS = { maxBodyBytes: 1 << 20, maxQueueDepth: 16, leaseMs: 30_000, respondGraceMs: 15_000, maxWaitMs: 25_000,
+  maxDeadlineMs: 3_600_000, minCallMs: 40_000 } as const;
+export const MAILBOX_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
+export const MAILBOX_REQUEST_HEADERS = ["authorization", "content-type", "accept", "idempotency-key", "last-event-id", "x-request-id"] as const;
+export const MAILBOX_RESPONSE_HEADERS = ["content-type", "cache-control", "etag", "retry-after", "x-request-id"] as const;
+/** Per-target path allowlists (v1 P3 + MyEve addition (a)). The poller maps each target to ONE configured 127.0.0.1 origin. */
+export const MAILBOX_TARGET_PATHS: Record<"factory" | "verifier", RegExp> = {
+  factory: /^(\/api\/connect\/v1\/[^?]+|\/api\/capability-admission\/[^?]+|\/api\/health)(\?.*)?$/,
+  // Hosted sends only the digest-only calls; artifact bytes never cross the mailbox (the Mac worker stages them to its own verifier on loopback).
+  verifier: /^\/qdev\/v1\/(handoff|evaluate|verdict)$/,
+};
 export type MailboxTarget = "factory" | "verifier";
 export type MailboxDb = { query(sql: string, params?: unknown[]): Promise<Array<Record<string, unknown>>> };
 export type MailboxBinding = { installationId: string; ownerId: string };
-export type LeasedEnvelope = { id: string; target: MailboxTarget; method: "GET" | "POST"; path: string; headers: Record<string, string>;
-  bodySha256: string; body: string; deadline: string; leaseExpiresAt: string };
-export type MailboxResponse = { id: string; requestBodySha256: string; status: number; headers: Record<string, string>; bodySha256: string; body: string };
+export type MailboxMethod = typeof MAILBOX_METHODS[number];
+export type LeasedEnvelope = { id: string; leaseId: string; installationId: string; ownerId: string; target: MailboxTarget; createdAt: string; deadline: string;
+  leaseExpiresAt: string; method: MailboxMethod; path: string; headers: Record<string, string>; bodySha256: string; body: string; bodyEncoding: "base64" };
+export type MailboxResponse = { id: string; leaseId: string; requestBodySha256: string; status: number; headers: Record<string, string>; bodySha256: string;
+  body: string; bodyEncoding: "base64" };
 
 export class MailboxRefused extends Error { constructor(readonly code: string, readonly status = 409) { super(code); } }
 const refuse = (code: string, status?: number): never => { throw new MailboxRefused(code, status); };
@@ -50,19 +64,24 @@ function decodeBody(body: unknown, sha: unknown): Buffer {
   if (bytes.toString("base64") !== body || bytes.length > MAILBOX_LIMITS.maxBodyBytes || sha256Hex(bytes) !== sha) return refuse("MAILBOX_BODY", 400);
   return bytes;
 }
-function allowHeaders(input: Record<string, unknown> | undefined, allow: readonly string[]): Record<string, string> {
+function allowHeaders(input: Record<string, unknown> | undefined, allow: readonly string[], strict = false): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [name, value] of Object.entries(input ?? {})) {
     const key = name.toLowerCase();
-    if (!allow.includes(key)) continue;
+    if (!allow.includes(key)) { if (strict) return refuse("MAILBOX_HEADER_NOT_ALLOWED", 400); continue; }
     if (typeof value !== "string" || value.length > 16384 || /[\r\n\0]/.test(value)) return refuse("MAILBOX_HEADER", 400);
     out[key] = value;
   }
   return out;
 }
-function validPath(path: unknown): path is string {
-  return typeof path === "string" && path.length <= 2048 && PATH.test(path) && !path.includes("//")
-    && !path.split("?")[0].split("/").some(segment => segment === "." || segment === ".." || /%2e|%2f|%5c/i.test(segment));
+function validPath(path: unknown, target: MailboxTarget): path is string {
+  return typeof path === "string" && path.length <= 2048 && PATH.test(path) && !path.includes("//") && !/[\\#\0-\x1f]/.test(path)
+    && !path.split("?")[0].split("/").some(segment => segment === "." || segment === ".." || /%2e|%2f|%5c/i.test(segment))
+    && MAILBOX_TARGET_PATHS[target].test(path);
+}
+/** The mailbox per-call timeout (contract v1 addition (b)): max(existing, 40 s) for a mailbox fetcher; unchanged for every other transport. */
+export function transportTimeoutMs(fetcher: unknown, existingMs: number): number {
+  return isMailboxFetch(fetcher) ? Math.min(Math.max(existingMs, MAILBOX_LIMITS.minCallMs), MAILBOX_LIMITS.maxDeadlineMs) : existingMs;
 }
 
 /** Poller credentials are random 32+ byte base64url strings held only on the Mac; the hosted side stores and compares only their sha256. */
@@ -91,13 +110,13 @@ export async function enqueueMailboxRequest(db: MailboxDb, binding: MailboxBindi
   headers?: Record<string, unknown>; body?: Uint8Array; deadlineMs: number }): Promise<{ id: string }> {
   if (!validBinding(binding)) return refuse("MAILBOX_BINDING", 400);
   if (request.target !== "factory" && request.target !== "verifier") return refuse("MAILBOX_TARGET", 400);
-  if (request.method !== "GET" && request.method !== "POST") return refuse("MAILBOX_METHOD", 400);
-  if (!validPath(request.path)) return refuse("MAILBOX_PATH", 400);
+  if (!(MAILBOX_METHODS as readonly string[]).includes(request.method)) return refuse("MAILBOX_METHOD", 400);
+  if (!validPath(request.path, request.target)) return refuse("MAILBOX_PATH", 400);
   if (!Number.isSafeInteger(request.deadlineMs) || request.deadlineMs < 1000 || request.deadlineMs > MAILBOX_LIMITS.maxDeadlineMs) return refuse("MAILBOX_DEADLINE", 400);
   const body = Buffer.from(request.body ?? new Uint8Array());
   if (body.length > MAILBOX_LIMITS.maxBodyBytes) return refuse("MAILBOX_BODY_TOO_LARGE", 413);
-  if (request.method === "GET" && body.length) return refuse("MAILBOX_BODY", 400);
-  const headers = allowHeaders(request.headers, MAILBOX_REQUEST_HEADERS), id = randomUUID();
+  if ((request.method === "GET" || request.method === "DELETE") && body.length) return refuse("MAILBOX_BODY", 400);
+  const headers = allowHeaders(request.headers, MAILBOX_REQUEST_HEADERS, true), id = randomUUID();
   // Expired rows of this installation are removed first (bounded retention: an expired envelope is never delivered and never kept).
   await db.query("DELETE FROM factory_mailbox_requests WHERE installation_id=$1 AND deadline < now() - interval '5 minutes'", [binding.installationId]);
   let rows: Array<Record<string, unknown>>;
@@ -149,16 +168,18 @@ export async function leaseMailboxRequest(db: MailboxDb, binding: MailboxBinding
   for (;;) {
     // The sub-select reads the envelope as it was; the update clears headers and body in the same statement, so the Factory client token and
     // the request body leave the hosted store the moment they are handed to the poller. A leased row never returns to QUEUED.
-    const [row] = await db.query(`UPDATE factory_mailbox_requests r SET state='LEASED', leased_at=now(),
+    const [row] = await db.query(`UPDATE factory_mailbox_requests r SET state='LEASED', leased_at=now(), lease_id=$4,
         lease_expires_at=least(r.deadline, now() + ($3::int * interval '1 millisecond')), headers='{}'::jsonb, body_base64=''
       FROM (SELECT id, target, method, path, headers, body_sha256, body_base64 FROM factory_mailbox_requests
             WHERE installation_id=$1 AND owner_id=$2 AND state='QUEUED' AND deadline > now() ORDER BY created_at, id LIMIT 1 FOR UPDATE SKIP LOCKED) o
       WHERE r.id=o.id AND r.state='QUEUED'
-      RETURNING o.id, o.target, o.method, o.path, o.headers, o.body_sha256, o.body_base64, r.deadline, r.lease_expires_at`,
-      [binding.installationId, binding.ownerId, MAILBOX_LIMITS.leaseMs]);
-    if (row) return { id: String(row.id), target: row.target as MailboxTarget, method: row.method as "GET" | "POST", path: String(row.path),
+      RETURNING o.id, r.lease_id, o.target, o.method, o.path, o.headers, o.body_sha256, o.body_base64, r.created_at, r.deadline, r.lease_expires_at`,
+      [binding.installationId, binding.ownerId, MAILBOX_LIMITS.leaseMs + MAILBOX_LIMITS.respondGraceMs, randomBytes(24).toString("base64url")]);
+    if (row) return { id: String(row.id), leaseId: String(row.lease_id), installationId: binding.installationId, ownerId: binding.ownerId,
+      target: row.target as MailboxTarget, createdAt: new Date(row.created_at as string).toISOString(), deadline: new Date(row.deadline as string).toISOString(),
+      leaseExpiresAt: new Date(row.lease_expires_at as string).toISOString(), method: row.method as MailboxMethod, path: String(row.path),
       headers: allowHeaders(row.headers as Record<string, unknown>, MAILBOX_REQUEST_HEADERS), bodySha256: String(row.body_sha256), body: String(row.body_base64),
-      deadline: new Date(row.deadline as string).toISOString(), leaseExpiresAt: new Date(row.lease_expires_at as string).toISOString() };
+      bodyEncoding: "base64" };
     const left = until - Date.now();
     if (left <= 0 || options.signal?.aborted) return null;
     await sleep(Math.min(pollMs, left));
@@ -169,14 +190,16 @@ export async function leaseMailboxRequest(db: MailboxDb, binding: MailboxBinding
 export async function respondMailboxRequest(db: MailboxDb, binding: MailboxBinding, input: unknown): Promise<void> {
   if (!validBinding(binding)) return refuse("MAILBOX_BINDING", 400);
   const r = input as MailboxResponse;
-  if (!r || typeof r !== "object" || Object.keys(r).sort().join(",") !== "body,bodySha256,headers,id,requestBodySha256,status") return refuse("MAILBOX_RESPONSE_SHAPE", 400);
-  if (typeof r.id !== "string" || !UUID.test(r.id) || typeof r.requestBodySha256 !== "string" || !HEX.test(r.requestBodySha256)
+  if (!r || typeof r !== "object" || Object.keys(r).sort().join(",") !== "body,bodyEncoding,bodySha256,headers,id,leaseId,requestBodySha256,status"
+    || r.bodyEncoding !== "base64") return refuse("MAILBOX_RESPONSE_SHAPE", 400);
+  if (typeof r.id !== "string" || !UUID.test(r.id) || typeof r.leaseId !== "string" || !/^[A-Za-z0-9_-]{16,128}$/.test(r.leaseId)
+    || typeof r.requestBodySha256 !== "string" || !HEX.test(r.requestBodySha256)
     || !Number.isSafeInteger(r.status) || r.status < 200 || r.status > 599 || !r.headers || typeof r.headers !== "object" || Array.isArray(r.headers)) return refuse("MAILBOX_RESPONSE_SHAPE", 400);
   const body = decodeBody(r.body, r.bodySha256), headers = allowHeaders(r.headers, MAILBOX_RESPONSE_HEADERS);
   const rows = await db.query(`UPDATE factory_mailbox_requests SET state='ANSWERED', answered_at=now(), response_status=$5, response_headers=$6::jsonb,
       response_body_sha256=$7, response_body_base64=$8
-    WHERE id=$1 AND installation_id=$2 AND owner_id=$3 AND body_sha256=$4 AND state='LEASED' AND lease_expires_at > now() AND deadline > now() RETURNING id`,
-    [r.id, binding.installationId, binding.ownerId, r.requestBodySha256, r.status, JSON.stringify(headers), sha256Hex(body), body.toString("base64")]);
+    WHERE id=$1 AND installation_id=$2 AND owner_id=$3 AND body_sha256=$4 AND lease_id=$9 AND state='LEASED' AND lease_expires_at > now() AND deadline > now() RETURNING id`,
+    [r.id, binding.installationId, binding.ownerId, r.requestBodySha256, r.status, JSON.stringify(headers), sha256Hex(body), body.toString("base64"), r.leaseId]);
   if (rows.length !== 1) return refuse("MAILBOX_RESPONSE_REFUSED", 409);
 }
 
@@ -194,7 +217,7 @@ export function mailboxFetch(db: MailboxDb, binding: MailboxBinding, target: Mai
   const pinned = new URL(origin);
   if (pinned.protocol !== "http:" || pinned.hostname !== "127.0.0.1" || !pinned.port || pinned.origin !== origin) return refuse("MAILBOX_ORIGIN", 400);
   if (!validBinding(binding)) return refuse("MAILBOX_BINDING", 400);
-  const timeoutMs = Math.min(options.timeoutMs ?? 15_000, MAILBOX_LIMITS.maxDeadlineMs);
+  const timeoutMs = Math.min(Math.max(options.timeoutMs ?? MAILBOX_LIMITS.minCallMs, MAILBOX_LIMITS.minCallMs), MAILBOX_LIMITS.maxDeadlineMs);
   const send = async (input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> => {
     if (typeof input !== "string" && !(input instanceof URL)) return refuse("MAILBOX_REQUEST_OBJECT", 400);
     const url = new URL(String(input));

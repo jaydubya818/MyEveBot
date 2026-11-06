@@ -242,3 +242,28 @@ describe("navigation never links a denied surface", () => {
       expect(classifyExternalAlphaRoute(href, "GET", installation()).allowed, href).toBe(true);
   });
 });
+
+describe("hosted private-beta routes on a tester installation", () => {
+  const hostedRoutes: Array<[string, string]> = [
+    ["/api/factory-mailbox/v1/next", "GET"], ["/api/factory-mailbox/v1/respond", "POST"], ["/api/factory-mailbox/v1/builds", "GET"], ["/api/factory-mailbox/v1/builds", "POST"],
+    ["/api/factory-mailbox/v1/builds/" + "a".repeat(40) + "." + "b".repeat(40) + "/files/dist/assets/app.js", "PUT"],
+    ["/api/factory-mailbox/v1/builds/" + "a".repeat(40) + "." + "b".repeat(40) + "/complete", "POST"],
+    ["/api/factory-mailbox/v1/previews", "POST"], ["/api/factory-mailbox/v1/previews/" + "c".repeat(64) + "/files/dist/index.html", "PUT"],
+    ["/api/factory-mailbox/v1/previews/" + "c".repeat(64) + "/complete", "POST"], ["/api/previews/v1/latest", "GET"],
+    ["/api/previews/v1/" + "c".repeat(64) + "/g/1999999999.grant/index.html", "GET"], ["/api/previews/v1/" + "c".repeat(64) + "/g/1999999999.grant/assets/app.js", "HEAD"],
+  ];
+  it("stay unreachable by default (flag OFF), and without a hosted profile even with the flag", () => {
+    for (const [path, method] of hostedRoutes) {
+      expect(classifyExternalAlphaRoute(path, method, installation()).allowed, `${method} ${path}`).toBe(false);
+      expect(classifyExternalAlphaRoute(path, method, installation({ MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true" })).allowed, `${method} ${path}`).toBe(false);
+      expect(classifyExternalAlphaRoute(path, method, installation({ MYEVE_HOSTED_PROFILE: "{}", MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "false" })).allowed, `${method} ${path}`).toBe(false);
+    }
+  });
+  it("open with exactly their own methods once the per-installation flag is ON for a hosted installation", () => {
+    const on = installation({ MYEVE_HOSTED_PROFILE: "{}", MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true" });
+    for (const [path, method] of hostedRoutes) expect(classifyExternalAlphaRoute(path, method, on).allowed, `${method} ${path}`).toBe(true);
+    for (const [path, method] of [["/api/factory-mailbox/v1/next", "POST"], ["/api/factory-mailbox/v1/respond", "GET"], ["/api/previews/v1/latest", "POST"],
+      ["/api/factory-mailbox/v1/previews/" + "c".repeat(64) + "/files/a/../b", "PUT"], ["/api/factory-mailbox/v1/other", "GET"]])
+      expect(classifyExternalAlphaRoute(path, method, on).allowed, `${method} ${path}`).toBe(false);
+  });
+});

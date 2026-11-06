@@ -91,10 +91,10 @@ const userMsg = (text: string) => ({ role: "user", content: [{ type: "text", tex
 const assistantMsg = (text: string) => ({ role: "assistant", content: [{ type: "text", text }] });
 const opts = (prompt: unknown[]) => ({ prompt, tools }) as any;
 const textOf = (r: any) => r.content.map((p: any) => p.text ?? "").join("");
-function conversation() {
+function conversation(hosted = false) {
   const derivation = (text: string) => { const d = derive(text); return { request: d.request, requestSha256: d.requestSha256, planSha256: d.planSha256,
     repository: installation.repository, environment: installation.environment, cohortId: d.policy.cohortId }; };
-  return qualificationConversation({ ownerId: OWNER, revalidate: async () => true, ownerRequest: { derive: derivation }, deliveryUrl: "https://owner.example.test/app" })
+  return qualificationConversation({ ownerId: OWNER, revalidate: async () => true, ownerRequest: { derive: derivation }, deliveryUrl: "https://owner.example.test/app", ...(hosted ? { hosted } : {}) })
     .model({ sessionId: "s", stepKey: "s:0" });
 }
 afterEach(() => vi.unstubAllGlobals());
@@ -227,4 +227,19 @@ it("the serving launcher serves an owner-local bundle only for one named confirm
   expect(served.version).toBe(1);
   expect(journeyBinding(served.project)).toEqual(journeyBinding(d.project));
   expect(served.conversation.approvedRequest).toBe(d.request);
+});
+
+it("a hosted installation presents the verdict with the hosted private-beta verifier label and its private preview link", async () => {
+  const model = conversation(true), d = derive(REQUEST);
+  const proposed = textOf(await model.doGenerate(opts([userMsg(REQUEST)])));
+  expect(proposed).toContain("hosted installation");
+  const history = [userMsg(REQUEST), assistantMsg(proposed), userMsg(`confirm ${d.planSha256.slice(0, 12)}`)];
+  const started = await model.doGenerate(opts(history));
+  const call = { role: "assistant", content: [started.content[0]] };
+  const value = { status: "COMPLETED_UNCLAIMED", readiness: "NOT_CLAIMED", authority: "NONE", stages: [1, 2, 3, 4].map(stage => ({ stage })),
+    verdictSha256: h("a"), deliverySha256: h("b"), assurance: "PRIVATE_BETA_LOCAL" };
+  const done = textOf(await model.doGenerate(opts([...history, call, { role: "tool", content: [{ type: "tool-result", toolCallId: (started.content[0] as any).toolCallId,
+    toolName: "qualification_journey", output: { type: "json", value } }] }])));
+  expect(done).toContain(`Private-beta verifier (automated checks on the owner's machine, not independent custody): ${h("a")}.`);
+  expect(done).not.toContain("on this machine");
 });

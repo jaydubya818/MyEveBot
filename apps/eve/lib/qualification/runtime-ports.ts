@@ -1,4 +1,4 @@
-import type { WiringConfig } from "./wiring.ts";
+import type { MyAppsPort, WiringConfig } from "./wiring.ts";
 import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { createPublicKey } from "node:crypto";
 import { buildOrderedFactoryClients } from "./factory-ordered-clients.ts";
@@ -56,6 +56,9 @@ export type QdevCustody = {
   };
   expectedFor(stage: 1 | 2 | 3): StageExpected; resultKeys: ResultKey[]; sourceDigest: string;
   newAllowanceId(stage: number): string;
+  /** Hosted private-beta profile only (hosted-custody.ts): the Mac builds, stages to its local verifier and uploads; this port records and re-verifies.
+   *  When present it replaces the local build/publish ports and the verifier receives no staging from this process. */
+  hostedMyApps?: MyAppsPort;
   delivered?: WiringConfig["delivered"];
 };
 
@@ -89,7 +92,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
       : custody.agent.runtime }) });
   const verifier = new HttpVerifierPort({ enabled: true, origin: custody.verifier.origin, credential: () => context.credential(credentialName), fetch: custody.verifier.fetch, timeoutMs: custody.verifier.timeoutMs,
     // The retained exact bytes reach the independent host before the charged evaluation (uncharged, bounded, idempotent).
-    staging: candidate => build.stagingSource(candidate) });
+    ...(custody.hostedMyApps ? {} : { staging: (candidate: { commit: string; tree: string }) => build.stagingSource(candidate) }) });
   const publishing = custody.myapps.publishing;
   const controller = publishing ? new StaticReleaseController({
     root: publishing.root, appId: publishing.appId, installationId: publishing.installationId, activation: publishing.activation,
@@ -110,7 +113,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
       assertIndependent();
       return source;
   } });
-  const myapps = controller && reader && publishing ? new StaticPublishingMyAppsPort({ build, controller, reader,
+  const myapps = custody.hostedMyApps ?? (controller && reader && publishing ? new StaticPublishingMyAppsPort({ build, controller, reader,
     installation: { environment, installationId: publishing.installationId },
     ...(publishing.ownerApproval ? { approve: publishing.ownerApproval } : {}),
     gate: async candidate => {
@@ -119,7 +122,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
         producerKeyIds, producerPublicKeysPem, expected: { ...binding, assurance: profile.assurance, protectedSpecificationSha256: context.bundle.project.protectedSpecificationSha256,
           candidateCommit: candidate.commit, candidateTree: candidate.tree, buildArtifactSha256: candidate.buildArtifactSha256 } });
     },
-  }) : build;
+  }) : build);
   return { agent, factory, verifier, myapps, expectedFor: custody.expectedFor, resultKeys: custody.resultKeys, sourceDigest: custody.sourceDigest,
     verifierKeys: custody.verifier.keys, producerKeyIds, producerPublicKeysPem,
     newAllowanceId: custody.newAllowanceId, ...(custody.delivered ? { delivered: custody.delivered } : {}) };

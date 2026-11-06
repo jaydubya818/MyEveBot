@@ -20,9 +20,11 @@ import { QDEV_LIMITS, type QualificationPolicy } from "../external-alpha/qualifi
 export { HOSTED_PROFILE };
 export const HOSTED_ASSURANCE = "PRIVATE_BETA_LOCAL" as const;
 export const HOSTED_ASSURANCE_LABEL = "automated checks on the owner's machine, not independent custody" as const;
+export { HOSTED_VERIFIER_LABEL } from "./journey-profile.ts";
 export const HOSTED_LIMITS = { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, journeyMicrousd: 5_200_000, automaticIncrease: false } as const;
 
 const id = z.string().regex(/^[A-Za-z0-9._:@|-]{1,160}$/);
+const scopeId = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
 const timestamp = z.string().datetime();
 const httpsOrigin = z.string().url().refine(value => {
   try { const u = new URL(value); return u.protocol === "https:" && u.origin === value && !u.port && !u.hostname.endsWith(".invalid")
@@ -31,15 +33,26 @@ const httpsOrigin = z.string().url().refine(value => {
 const macLoopbackOrigin = z.string().refine(value => {
   try { const u = new URL(value); return u.protocol === "http:" && u.hostname === "127.0.0.1" && !!u.port && u.origin === value; } catch { return false; }
 }, "the exact Mac loopback origin is required");
+const hex = (n: number) => z.string().regex(new RegExp(`^[a-f0-9]{${n}}$`));
+const buildIssuer = z.object({
+  keyId: id, purpose: z.literal("STATIC_BUILD_PROVENANCE_V1"), ownerId: id, factoryId: id, factoryVersion: hex(64), buildProfileDigest: hex(64),
+  publicKeyPem: z.string().min(1).max(4096), spkiSha256: hex(64), notBefore: timestamp, notAfter: timestamp, revoked: z.literal(false),
+}).strict();
 const verifierKey = z.object({ keyId: id, publicKeyPem: z.string().min(1).max(4096), activeFrom: timestamp, notAfter: timestamp, revokedAt: timestamp.optional() }).strict();
 
 export const hostedProfileSchema = z.object({
   profile: z.literal(HOSTED_PROFILE),
   role: z.enum(["OWNER", "TESTER"]),
-  ownerId: id, installationId: id,
+  ownerId: scopeId, installationId: scopeId,
   relayOrigin: httpsOrigin, missionControlOrigin: httpsOrigin,
+  /** This hosted MyEve origin: the private preview is observed (re-verified, server-side) under it; nothing is public. */
+  servedOrigin: httpsOrigin,
+  /** Mac-side static build: the hosted side only pins the app id, the build pins it derives the expected binding from, and the PUBLIC issuer key. */
+  build: z.object({ appId: z.string().regex(/^[A-Za-z0-9._:-]{1,160}$/), lockSha256: hex(64), buildProfileDigest: hex(64), issuer: buildIssuer }).strict(),
   factory: z.object({
     transport: z.literal("MAILBOX"), factoryOrigin: macLoopbackOrigin, verifierOrigin: macLoopbackOrigin,
+    /** MyFactory counts the 4-Work limit per (client, ownerScope): one distinct, stable scope per person = per hosted installation. */
+    ownerScope: z.string().regex(/^[A-Za-z0-9._:-]{1,255}$/),
     spend: z.literal("METERED"), qualificationMode: z.literal("LIVE"),
   }).strict(),
   verifier: z.object({
@@ -50,8 +63,14 @@ export const hostedProfileSchema = z.object({
     perWorkMicrousd: z.literal(HOSTED_LIMITS.perWorkMicrousd), maxWorksPerPerson: z.literal(HOSTED_LIMITS.maxWorksPerPerson),
     automaticIncrease: z.literal(false),
   }).strict(),
-}).strict().refine(p => p.factory.factoryOrigin !== p.factory.verifierOrigin, "Factory and verifier are separate hosts");
+}).strict().refine(p => p.factory.factoryOrigin !== p.factory.verifierOrigin, "Factory and verifier are separate hosts")
+  .refine(p => p.factory.ownerScope === hostedOwnerScope(p), "ownerScope must be the installation's stable per-person scope")
+  .refine(p => p.build.issuer.ownerId === p.ownerId && p.build.issuer.buildProfileDigest === p.build.buildProfileDigest, "build issuer must be the owner's, for the pinned build profile");
 export type HostedProfile = z.infer<typeof hostedProfileSchema>;
+/** The stable per-person Factory ownerScope of a hosted installation (owner, Tester 1 and Tester 2 are separate installations). */
+export function hostedOwnerScope(p: { installationId: string; ownerId: string }): string {
+  return `myeve.hosted:${p.installationId}:${p.ownerId}`;
+}
 
 export class HostedProfileRefused extends Error { constructor(readonly code: string) { super(code); } }
 const refuse = (code: string): never => { throw new HostedProfileRefused(code); };
@@ -73,6 +92,8 @@ export const hostedBinding = (profile: HostedProfile): MailboxBinding => ({ inst
 export function requireHostedFactoryConnection(profile: HostedProfile, connection: FactoryConnection): FactoryConnection {
   if ("transport" in connection || !("repositoryPath" in connection)) return refuse("HOSTED_FACTORY_LOOPBACK_CONNECTION");
   if (new URL(connection.origin).origin !== profile.factory.factoryOrigin) return refuse("HOSTED_FACTORY_ORIGIN");
+  if (connection.qualification.scopeId !== profile.factory.ownerScope || (connection.evidence && connection.evidence.ownerScope !== profile.factory.ownerScope))
+    return refuse("HOSTED_FACTORY_OWNER_SCOPE");
   if (connection.qualification.mode !== profile.factory.qualificationMode || connection.qualification.spendEnforced !== true) return refuse("HOSTED_FACTORY_METERED_ONLY");
   if (!connection.spendContract || connection.spendContract.sourceDigest !== connection.sourceDigest) return refuse("HOSTED_FACTORY_SPEND_CONTRACT");
   return connection;

@@ -19,8 +19,11 @@ const verifierKey = generateKeyPairSync("ed25519"), producerKey = generateKeyPai
 const pem = (k: { publicKey: { export(o: object): string | Buffer } }) => String(k.publicKey.export({ type: "spki", format: "pem" }));
 const profileJson = {
   profile: HOSTED_PROFILE, role: "OWNER", ownerId: "jay", installationId: "prj_hosted_owner",
-  relayOrigin: "https://relay.example.com", missionControlOrigin: "https://mc.example.com",
-  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", spend: "METERED", qualificationMode: "LIVE" },
+  relayOrigin: "https://relay.example.com", missionControlOrigin: "https://mc.example.com", servedOrigin: "https://sofie.example.com",
+  build: { appId: "myeve-dashboard", lockSha256: "a".repeat(64), buildProfileDigest: "c".repeat(64), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
+    factoryId: "f", factoryVersion: "d".repeat(64), buildProfileDigest: "c".repeat(64), publicKeyPem: "pem", spkiSha256: "e".repeat(64), notBefore: "2026-01-01T00:00:00.000Z",
+    notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
+  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
     keys: [{ keyId: "verifier-1", publicKeyPem: pem(verifierKey), activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }],
     producerKeyIds: ["producer-1"], producerPublicKeysPem: [pem(producerKey)] },
@@ -94,7 +97,7 @@ describe.skipIf(!connection)("private verified previews against real PostgreSQL"
   afterAll(async () => { if (pool) { await pool.query("DROP SCHEMA preview_fixture CASCADE"); await pool.end(); } });
   beforeEach(async () => {
     blobs.clear();
-    await pool.query("TRUNCATE factory_mailbox_requests, hosted_verified_previews, factory_mailbox_pollers");
+    await pool.query("TRUNCATE factory_mailbox_requests, hosted_verified_previews, hosted_mac_builds, factory_mailbox_pollers");
     await pool.query("INSERT INTO factory_mailbox_pollers(installation_id,owner_id,credential_sha256) VALUES($1,$2,$3)", [profile.installationId, profile.ownerId, pollerCredentialSha256(CRED)]);
     vi.stubEnv("MYEVE_HOSTED_PROFILE", JSON.stringify(profileJson)); vi.stubEnv("MYEVE_OWNER_ID", "jay");
     vi.stubEnv("DATABASE_URL", connection!); vi.stubEnv("MYEVE_SESSION_SECRET", SECRET);
@@ -138,7 +141,8 @@ describe.skipIf(!connection)("private verified previews against real PostgreSQL"
     const revoked = hostedProfileSchema.parse({ ...profileJson, verifier: { ...profileJson.verifier, keys: [{ ...profileJson.verifier.keys[0], revokedAt: new Date(Date.now() - 1000).toISOString() }] } });
     expect((await servePreviewFile(db, revoked, store, hex, "")).status).toBe(409);
     // Another owner/installation sees nothing.
-    const other = hostedProfileSchema.parse({ ...profileJson, ownerId: "tester", installationId: "prj_other" });
+    const other = hostedProfileSchema.parse({ ...profileJson, ownerId: "tester", installationId: "prj_other", factory: { ...profileJson.factory, ownerScope: "myeve.hosted:prj_other:tester" },
+      build: { ...profileJson.build, issuer: { ...profileJson.build.issuer, ownerId: "tester" } } });
     expect((await servePreviewFile(db, other, store, hex, "")).status).toBe(404);
   });
 

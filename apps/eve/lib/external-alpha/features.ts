@@ -42,7 +42,9 @@ export const DENIED_FAMILIES = [
 ] as const;
 export type AllowedFamily = (typeof ALLOWED_FAMILIES)[number];
 export type DeniedFamily = (typeof DENIED_FAMILIES)[number];
-export const INSTALLED_FAMILIES=['MISSION_CONTROL','BETA_FEEDBACK'] as const;
+export const INSTALLED_FAMILIES=['MISSION_CONTROL','BETA_FEEDBACK','HOSTED_PRIVATE_BETA'] as const;
+/** Per-installation flag (default OFF): a tester installation exposes the hosted private-beta mailbox and preview routes only once Jay approves. */
+export const EXTERNAL_ALPHA_HOSTED_BETA_ENV = 'MYEVE_EXTERNAL_ALPHA_HOSTED_BETA';
 export type Family = AllowedFamily | DeniedFamily | (typeof INSTALLED_FAMILIES)[number];
 const allowedSet: ReadonlySet<string> = new Set(ALLOWED_FAMILIES);
 
@@ -55,6 +57,7 @@ export function externalAlphaMemoryApproved(_env: NodeJS.ProcessEnv = process.en
 }
 export function externalAlphaFamilyAllowed(family: Family, env: NodeJS.ProcessEnv = process.env): boolean {
   if(family==='MISSION_CONTROL'||family==='BETA_FEEDBACK')return env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION';
+  if(family==='HOSTED_PRIVATE_BETA')return env[EXTERNAL_ALPHA_HOSTED_BETA_ENV]==='true'&&!!env.MYEVE_HOSTED_PROFILE;
   if (!allowedSet.has(family)) return false;
   if (family === "MEMORY") return externalAlphaMemoryApproved(env);
   return true;
@@ -142,6 +145,14 @@ add("ADMIN", ["/api/capability-control"]);
 add('MISSION_CONTROL',['/api/missioncontrol/result','/api/missioncontrol/control'],['POST']);
 add('BETA_FEEDBACK',['/api/beta/issues'],['GET','POST']);
 add('BETA_FEEDBACK',['/feedback'],READ);
+// Hosted private beta (flag-gated, default OFF). The routes keep their own authentication: poller credential (Mac) or owner session + grant.
+add('HOSTED_PRIVATE_BETA',['/api/factory-mailbox/v1/next'],['GET']);
+add('HOSTED_PRIVATE_BETA',['/api/factory-mailbox/v1/respond','/api/factory-mailbox/v1/previews','/api/factory-mailbox/v1/previews/[artifact]/complete',
+  '/api/factory-mailbox/v1/builds/[candidate]/complete'],['POST']);
+add('HOSTED_PRIVATE_BETA',['/api/factory-mailbox/v1/builds'],['GET','POST']);
+add('HOSTED_PRIVATE_BETA',['/api/factory-mailbox/v1/previews/[artifact]/files/[...path]','/api/factory-mailbox/v1/builds/[candidate]/files/[...path]'],['PUT']);
+add('HOSTED_PRIVATE_BETA',['/api/previews/v1/[artifact]'],['GET']);
+add('HOSTED_PRIVATE_BETA',['/api/previews/v1/[artifact]/g/[grant]/[[...path]]'],['GET','HEAD']);
 
 // ---- Pages (app/**/page.tsx) ----------------------------------------------
 add("CORE", ["/", "/login", "/forgot-password", "/reset-password", "/privacy", "/welcome", "/settings"]);
@@ -195,8 +206,10 @@ const compiled = [...externalAlphaRouteRules]
         ? "/"
         : rule.pattern
             .split("/")
-            .map((segment) => (segment.startsWith("[") ? "[^/]+" : segment.replace(/[.*+?^${}()|\\]/g, "\\$&")))
-            .join("/")) +
+            .slice(1)
+            .map((segment) => segment.startsWith("[[...") ? "(?:/[^/]+)*" : "/" + (segment.startsWith("[...") ? "[^/]+(?:/[^/]+)*"
+              : segment.startsWith("[") ? "[^/]+" : segment.replace(/[.*+?^${}()|\\]/g, "\\$&")))
+            .join("")) +
       "$",
   ),
 }));

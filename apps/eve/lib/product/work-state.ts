@@ -7,7 +7,7 @@ type Publication = Awaited<ReturnType<OwnerPublication['view']>>;
 /** Presentation only. Settlement never changes Work lifecycle or archives chat.
  * A retained Result or online environment alone is not completion evidence. */
 export function workState(work: EngineeringWorkerProjection, publication: Publication | null = null): {lane: WorkLane; detail: string} {
-  const display = ownerWorkPresentation(work);
+  const display = ownerWorkPresentation(work, { hostedVerifier: !!process.env.MYEVE_HOSTED_PROFILE });
   if (display.status === 'Outcome unconfirmed') return {lane:'Needs You', detail:display.summary};
   if (display.status === 'Stopped') return {lane:'Stopped',detail:display.summary};
   if (display.status === 'Couldn’t complete' || display.status === 'Needs You' || display.status === 'Not admitted') return {lane:'Needs You',detail:display.summary};

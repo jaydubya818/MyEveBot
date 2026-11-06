@@ -5,7 +5,7 @@ import type { QdevConversation } from "./root.ts";
 import type { JournalEvent } from "./journal.ts";
 import { ImprovementRefused, type ImprovementRecorder } from "./improvement.ts";
 import { describeProgress, projectProgress } from "./progress.ts";
-import { VERDICT_ASSURANCE, type VerdictAssurance } from "./journey-profile.ts";
+import { HOSTED_VERIFIER_LABEL, VERDICT_ASSURANCE, type VerdictAssurance } from "./journey-profile.ts";
 
 type Model = ReturnType<typeof gateway>;
 type Options = Parameters<Model["doGenerate"]>[0];
@@ -33,6 +33,8 @@ export type QualificationConversationConfig = {
    * digest, and runs only after the owner replies `confirm <first 12 hex of the plan digest>` to that exact proposal. Exclusive with `approvedRequest`.
    */
   ownerRequest?: { derive(text: string): OwnerRequestDerivation | null };
+  /** Hosted private-beta installation (myeve.private-beta.hosted/v1): Results carry the hosted verifier label and the private preview link. */
+  hosted?: boolean;
   /** Must equal the pinned MyApps observer URL. Used only after a complete verified delivery presentation. */
   deliveryUrl?: string;
   /** Read-only current owner/enrollment/expiry/revocation check. It must never invoke a provider. */
@@ -54,7 +56,7 @@ export type OwnerRequestDerivation = { request: string; requestSha256: string; p
   /** True when the template's stage 1 has no SOFIE operation: planning happens inside the stage-1 MyFactory run (no MyEve model call). */
   planningInFactory?: boolean };
 
-function present(value: unknown, deliveryUrl: string | undefined, assurance: VerdictAssurance, subject = "The approved journey"): string {
+function present(value: unknown, deliveryUrl: string | undefined, assurance: VerdictAssurance, subject = "The approved journey", hosted = false): string {
   const parsed = presentation.safeParse(value);
   if (!parsed.success) return unverified;
   const p = parsed.data;
@@ -69,6 +71,7 @@ function present(value: unknown, deliveryUrl: string | undefined, assurance: Ver
   if (p.stages.length !== 4 || !p.verdictSha256 || !p.deliverySha256 || p.haltedAt !== undefined || p.code !== undefined) return unverified;
   return [`${subject} completed all four stages.`,
     assurance === "INDEPENDENT" ? `Independent verdict: ${p.verdictSha256}. Delivery evidence: ${p.deliverySha256}.`
+      : hosted ? `${HOSTED_VERIFIER_LABEL}: ${p.verdictSha256}. Delivery evidence: ${p.deliverySha256}.`
       : `Local verifier verdict (assurance PRIVATE_BETA_LOCAL: an owner-local verifier on this machine, NOT independent custody): ${p.verdictSha256}. Delivery evidence: ${p.deliverySha256}.`,
     ...(usage ? [usage] : []),
     ...(deliveryUrl ? [`[Open the delivered application](${deliveryUrl})`] : []),
@@ -91,7 +94,7 @@ export function qualificationConversation(config: QualificationConversationConfi
   if (typeof revalidate !== "function" || (config.approvedRequest === undefined) === (config.ownerRequest === undefined)) throw Error("QDEV_CONVERSATION_CONFIGURATION");
   if (config.ownerRequest) {
     if (typeof config.ownerRequest.derive !== "function" || config.retained || config.improvements) throw Error("QDEV_CONVERSATION_CONFIGURATION");
-    return ownerRequestConversation(ownerId, revalidate, config.ownerRequest.derive, deliveryUrlOf(config.deliveryUrl, true));
+    return ownerRequestConversation(ownerId, revalidate, config.ownerRequest.derive, deliveryUrlOf(config.deliveryUrl, !config.hosted), config.hosted === true);
   }
   const approvedRequest = z.string().trim().min(1).max(4000).parse(config.approvedRequest);
   const deliveryUrl = deliveryUrlOf(config.deliveryUrl);
@@ -222,7 +225,7 @@ const confirmMismatch = "That confirmation does not match the plan proposed imme
  * the root re-derives again and compares the digest before anything is constructed. Still no SDK provider, fallback or paid model in this path.
  */
 function ownerRequestConversation(ownerId: string, revalidate: QualificationConversationConfig["revalidate"], derive: (text: string) => OwnerRequestDerivation | null,
-  deliveryUrl: string | undefined): QdevConversation {
+  deliveryUrl: string | undefined, hosted = false): QdevConversation {
   const safeDerive = (text: string | undefined) => { if (text === undefined) return null; try { return derive(text); } catch { return null; } };
   /** The derivation the owner confirmed with the user message at `index`, or null. */
   function confirmed(prompt: Prompt, index: number): { code: string; derivation: OwnerRequestDerivation | null } | null {
@@ -240,7 +243,8 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
     return { code: match[1].toLowerCase(), derivation: ok ? derivation : null };
   }
   const proposalText = (d: OwnerRequestDerivation) => [
-    "I can run this as a private-beta owner journey (owner-local installation). Nothing has started.",
+    hosted ? "I can run this as a private-beta journey on your Mac's MyFactory (hosted installation). Nothing has started."
+      : "I can run this as a private-beta owner journey (owner-local installation). Nothing has started.",
     `Request digest: ${d.requestSha256}. Repository: ${d.repository}. Release environment: ${d.environment}. Derived cohort: ${d.cohortId}.`,
     `Stages: 1 ${d.planningInFactory ? "planning and coding in one MyFactory run (no separate Sofie model call)" : "Sofie planning and coding"}, 2 coding, 3 Factory build and tests, 4 local verification and delivery. The verifier is owner-local (assurance PRIVATE_BETA_LOCAL), not independent custody; every stage is charged against the cohort ledger first and nothing is retried automatically.`,
     `[plan ${d.planSha256}]`,
@@ -284,7 +288,7 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
         const output = outputs[0];
         const json = z.object({ type: z.literal("json"), value: z.unknown() }).passthrough().safeParse(output.output);
         if (output.index <= call.index || output.toolCallId !== call.toolCallId || !json.success) return textResult(unverified);
-        return textResult(present(json.data.value, deliveryUrl, "PRIVATE_BETA_LOCAL", "The confirmed request"));
+        return textResult(present(json.data.value, deliveryUrl, "PRIVATE_BETA_LOCAL", "The confirmed request", hosted));
       }
       // A tool response without the expected call is never an invitation to rerun the journey.
       if (turn.some(m => m.role === "tool")) return textResult(unverified);

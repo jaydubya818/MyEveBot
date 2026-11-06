@@ -12,6 +12,7 @@ import { QDEV_BASELINE, QDEV_PROPOSAL_ID, qualificationBinding, qualificationPro
  */
 export const PRIVATE_BETA_PROFILE = "myeve.private-beta.owner/v1" as const;
 export const VERDICT_ASSURANCE = ["INDEPENDENT", "PRIVATE_BETA_LOCAL"] as const;
+export { HOSTED_VERIFIER_LABEL } from "./hosted-label.ts";
 export type VerdictAssurance = typeof VERDICT_ASSURANCE[number];
 /** The frozen qualification release environment. Only the qdev profile resolves to it. */
 const QDEV_ENVIRONMENT = "myeve-qdev-20261029";

@@ -1,3 +1,4 @@
+import {transportTimeoutMs} from './factory-mailbox.ts';
 import type {MissionControlAdmissionProof} from '../missioncontrol/admit-execution.ts';
 import {admissionActionDigest,verifyPolicyMessage,type PolicyKey,type SignedPolicyMessage} from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import {verifyFactoryPreparationTerminal,type TerminalBinding} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
@@ -22,7 +23,7 @@ export class FactoryCapabilityClient{
  }
  private async request(path:string,body:unknown){
   const response=await this.send(new URL('/api/capability-admission/'+path,this.config.origin),{method:'POST',redirect:'error',
-   signal:AbortSignal.timeout(5000),headers:{...await this.config.headers(),'content-type':'application/json'},body:JSON.stringify(body)});
+   signal:AbortSignal.timeout(transportTimeoutMs(this.send,5000)),headers:{...await this.config.headers(),'content-type':'application/json'},body:JSON.stringify(body)});
   if(!response.ok){if(path==='readback'&&response.status===404)return null;throw Error('FACTORY_CAPABILITY_UNAVAILABLE');}
   return boundedJson(response,65536);
  }

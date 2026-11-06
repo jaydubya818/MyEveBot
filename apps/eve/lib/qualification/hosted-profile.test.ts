@@ -1,24 +1,27 @@
 import { expect, it } from "vitest";
 import { digest } from "../engineering/contract.ts";
 import { isMailboxFetch } from "../engineering/factory-mailbox.ts";
-import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedProfileFromEnv, hostedProfileSchema, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
+import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 
 export const hostedProfileFixture = (over: Record<string, unknown> = {}) => ({
   profile: HOSTED_PROFILE, role: "OWNER", ownerId: "jay", installationId: "prj_hosted_owner",
-  relayOrigin: "https://relay.example.com", missionControlOrigin: "https://mc.example.com",
-  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", spend: "METERED", qualificationMode: "LIVE" },
+  relayOrigin: "https://relay.example.com", missionControlOrigin: "https://mc.example.com", servedOrigin: "https://sofie.example.com",
+  build: { appId: "myeve-dashboard", lockSha256: "a".repeat(64), buildProfileDigest: "c".repeat(64), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
+    factoryId: "f", factoryVersion: "d".repeat(64), buildProfileDigest: "c".repeat(64), publicKeyPem: "pem", spkiSha256: "e".repeat(64), notBefore: "2026-01-01T00:00:00.000Z",
+    notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
+  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
     keys: [{ keyId: "verifier-1", publicKeyPem: "pem", activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }], producerKeyIds: ["producer-1"], producerPublicKeysPem: [] },
   limits: { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, automaticIncrease: false },
   ...over,
 });
 const h = (c: string) => c.repeat(64), sourceDigest = h("1"), configurationDigest = h("2");
-const connection = (over: Record<string, unknown> = {}, mode = "LIVE") => ({ origin: "http://127.0.0.1:8792", token: h("a"), factoryId: "f", sourceDigest, configurationDigest,
+const connection = (over: Record<string, unknown> = {}, mode = "LIVE", scopeId = "myeve.hosted:prj_hosted_owner:jay") => ({ origin: "http://127.0.0.1:8792", token: h("a"), factoryId: "f", sourceDigest, configurationDigest,
   factoryVersion: digest({ sourceDigest, configurationDigest }), repositoryPath: "/Users/owner/repo",
   keys: [{ factoryId: "f", keyId: "k", publicKey: "pem", activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }],
   spendContract: { version: "WORK_LEDGER_V2", sourceDigest },
-  qualification: { scopeId: "owner", profileHash: h("3"), evidenceRef: "ev", qualifiedAt: "2026-01-01T00:00:00Z", expiresAt: "2099-01-01T00:00:00Z", mode, spendEnforced: true }, ...over } as never);
+  qualification: { scopeId, profileHash: h("3"), evidenceRef: "ev", qualifiedAt: "2026-01-01T00:00:00Z", expiresAt: "2099-01-01T00:00:00Z", mode, spendEnforced: true }, ...over } as never);
 
 it("is a profile of its own, distinct from the owner-local private-beta profile", () => {
   expect(HOSTED_PROFILE).not.toBe(PRIVATE_BETA_PROFILE);
@@ -70,4 +73,20 @@ it("refuses any accounting policy above $1.30 per Work, 4 Works per person or $5
   expect(() => requireHostedPolicy(profile, policy({}))).not.toThrow();
   for (const limits of [{ perWorkMicrousd: 1_300_001 }, { maxWorks: 5 }, { journeyMicrousd: 5_200_001 }] as Array<Partial<Record<string, number>>>) expect(() => requireHostedPolicy(profile, policy(limits))).toThrow("HOSTED_POLICY_LIMITS");
   expect(() => requireHostedPolicy(profile, { ...(policy({}) as object), ownerId: "other" } as never)).toThrow("HOSTED_POLICY_OWNER");
+});
+
+it("gives each person (owner, Tester 1, Tester 2) a distinct, stable Factory ownerScope and refuses any other scope", () => {
+  const people = [["jay", "prj_hosted_owner"], ["tester-1", "prj_hosted_tester_1"], ["tester-2", "prj_hosted_tester_2"]];
+  const scopes = people.map(([ownerId, installationId]) => hostedOwnerScope({ ownerId, installationId }));
+  expect(new Set(scopes).size).toBe(3);
+  expect(hostedOwnerScope({ ownerId: "jay", installationId: "prj_hosted_owner" })).toBe(scopes[0]);
+  for (const [i, [ownerId, installationId]] of people.entries()) {
+    const fixture = hostedProfileFixture({ ownerId, installationId, factory: { ...hostedProfileFixture().factory, ownerScope: scopes[i] } });
+    fixture.build = { ...fixture.build, issuer: { ...fixture.build.issuer, ownerId } };
+    expect(hostedProfileSchema.safeParse(fixture).success, ownerId).toBe(true);
+    expect(hostedProfileSchema.safeParse({ ...fixture, factory: { ...fixture.factory, ownerScope: scopes[(i + 1) % 3] } }).success).toBe(false);
+  }
+  const profile = hostedProfileSchema.parse(hostedProfileFixture());
+  expect(() => requireHostedFactoryConnection(profile, connection({}, "LIVE", scopes[1]))).toThrow("HOSTED_FACTORY_OWNER_SCOPE");
+  expect(() => requireHostedFactoryConnection(profile, connection({ evidence: { ownerScope: scopes[2], token: h("b"), expiresAt: "2099-01-01T00:00:00Z" } }))).toThrow("HOSTED_FACTORY_OWNER_SCOPE");
 });

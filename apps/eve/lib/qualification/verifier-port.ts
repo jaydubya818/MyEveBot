@@ -1,3 +1,4 @@
+import { transportTimeoutMs } from "../engineering/factory-mailbox.ts";
 import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import { ProviderNotSent, type KnownOutcome, type UnknownOutcome } from "./gate.ts";
 import { verdictSchema, type SignedVerdict } from "./verdict.ts";
@@ -48,7 +49,7 @@ export class HttpVerifierPort implements VerifierPort {
   }
   private async call(path: string, body: unknown, authorization: string, timeoutMs = this.c.timeoutMs ?? 30_000): Promise<unknown> {
     const response = await (this.c.fetch ?? fetch)(this.c.origin + path, {
-      method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
+      method: "POST", redirect: "error", signal: AbortSignal.timeout(transportTimeoutMs(this.c.fetch, timeoutMs)),
       headers: { authorization, "content-type": "application/json" }, body: JSON.stringify(body),
     });
     if (response.status !== 200) throw new Error("QDEV_VERIFIER_STATUS_" + response.status);

@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Chat-only release requires additive0109 for installations already carrying external-alpha policy plus application passwords. Other rollout requirements remain unchanged;0109 is inert until separate operator enrollment. Reviewed against database-schema regressions and immutable prior migration lineage.",
-      "sha256": "8bd87cb4561b901d8bb34a4ca505647b2f5dc39cba6185de8dcb5713f1b9a40c"
+      "reason": "Chat-only release requires additive0109 for installations already carrying external-alpha policy plus application passwords. Other rollout requirements remain unchanged;0109 is inert until separate operator enrollment. Reviewed against database-schema regressions and immutable prior migration lineage. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): additive 0110 (mailbox v1, Mac builds, private previews) is required only when MYEVE_HOSTED_PROFILE is configured; external-alpha + passwords stays exactly 0109. Evidence: database-schema.test.ts, factory-mailbox.test.ts additive-only check.",
+      "sha256": "cc3f143cd177b184a0bf6c7a5b648a3dc599a01d313bfa674aa82f03c03d944e"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3394,8 +3394,8 @@
     },
     "lib/engineering/factory-result-channel.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Consolidated boundary: Existing signed Result channel uses per-request cloud OIDC and application bearer; bounded bytes and redirect denial preserved. Readback cannot dispatch Work. Consolidated boundary: Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect.",
-      "sha256": "0d2e18fd4ec411806f28027c296acb084d45bf1aebd5b745291e97ea4a0cb462"
+      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Consolidated boundary: Existing signed Result channel uses per-request cloud OIDC and application bearer; bounded bytes and redirect denial preserved. Readback cannot dispatch Work. Consolidated boundary: Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): request timeout = transportTimeoutMs (mailbox: 40 s); unchanged otherwise.",
+      "sha256": "10a8f364254cb0a9efe3b112146fdd8851bd8c34593a44171fe250a4fa54f4a8"
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
@@ -3615,8 +3615,8 @@
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): unsigned legacy prepare path excluded for a receiver-enrolled Factory; capability client mandatory (M3 closure). Private beta 20261103 (owner-local, NOT independently reviewed): explicit pinned mode OWNER_SUBSCRIPTION_LOCAL (health matches only that exact pin, never LIVE); an unmetered subscription spend readback is refused as FACTORY_SUBSCRIPTION_SETTLEMENT_UNSUPPORTED and is never parsed or settled as $0. Evidence: factory-live-adapter.subscription.test.ts. Private beta 20261104 (owner-local, NOT independently reviewed): OWNER_SUBSCRIPTION_LOCAL operations-only readback accepted only under the pinned mode (never a WorkSpend, null money, never $0); LiveFactoryPort settles an unmetered run only after recording its operation units in the separately pinned owner-local subscription-usage.sql table (fences otherwise); Sofie reports usage in operations; owner-local planning may run inside the stage-1 Factory run (no MyEve model credential); owner-local delivery link may be the loopback preview. Evidence: factory-live-adapter.subscription.test.ts, subscription-usage.test.ts.",
-      "sha256": "acb51670ee8b1a4a8301082ee6d654f7c064be2ad2a6bceade495e2f46a5321f"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): unsigned legacy prepare path excluded for a receiver-enrolled Factory; capability client mandatory (M3 closure). Private beta 20261103 (owner-local, NOT independently reviewed): explicit pinned mode OWNER_SUBSCRIPTION_LOCAL (health matches only that exact pin, never LIVE); an unmetered subscription spend readback is refused as FACTORY_SUBSCRIPTION_SETTLEMENT_UNSUPPORTED and is never parsed or settled as $0. Evidence: factory-live-adapter.subscription.test.ts. Private beta 20261104 (owner-local, NOT independently reviewed): OWNER_SUBSCRIPTION_LOCAL operations-only readback accepted only under the pinned mode (never a WorkSpend, null money, never $0); LiveFactoryPort settles an unmetered run only after recording its operation units in the separately pinned owner-local subscription-usage.sql table (fences otherwise); Sofie reports usage in operations; owner-local planning may run inside the stage-1 Factory run (no MyEve model credential); owner-local delivery link may be the loopback preview. Evidence: factory-live-adapter.subscription.test.ts, subscription-usage.test.ts. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): a mailbox fetcher is accepted only for the metered LIVE loopback connection at the exact pinned origin; mailbox per-call timeout max(existing, 40 s). Evidence: factory-mailbox.test.ts.",
+      "sha256": "ad7dc96b1ab7f99d2ba099761fd41ad4db8ff57a815b673b29a5ef4efa4e0035"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3821,8 +3821,8 @@
     },
     "lib/engineering/factory-transport.ts": {
       "classification": "ENFORCED",
-      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
-      "sha256": "bcfea14ec3827821f93acda75eab89108f72a520f68e5ade8ec858123928aee7"
+      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): factoryTransportFetch: loopback (unchanged direct fetch) or the hosted mailbox transport, selectable only with the hosted profile id and a loopback (non-CLOUD) configuration. Evidence: factory-mailbox.test.ts.",
+      "sha256": "f1a40afbb633ba53e523d0d6055103eedd0d7f3deb461cbfe7985a596ac5af1b"
     },
     "lib/engineering/factory-cloud-custody.ts": {
       "classification": "INTERNAL",
@@ -3946,13 +3946,13 @@
     },
     "lib/product/work-state.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal state surfaced read-only across versions; no transition authority added.",
-      "sha256": "3406631ef50a1e965571a076f64c8b2f45ed5371ec88c17edc6221b0a908185d"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal state surfaced read-only across versions; no transition authority added. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): passes hostedVerifier (MYEVE_HOSTED_PROFILE present) to the presentation; presentation only.",
+      "sha256": "fcfcf2cd177abe7517d0db2b77d9f7f47141c2cb8b1b08660da4b8fbb0abe62c"
     },
     "lib/product/work-inbox.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "c3c3b69d32b34af46dd158ebe1c574e90ac2e9b9225c585dbec1138d4a14926c"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): passes hostedVerifier (MYEVE_HOSTED_PROFILE present) to the presentation; presentation only.",
+      "sha256": "59bfddfe5bf7e1270a46479991fdc6e2a3afe6f30dd21277632e95166f9ef682"
     },
     "app/api/work-inbox/route.ts": {
       "classification": "READ_ONLY",
@@ -4126,8 +4126,8 @@
     },
     "lib/external-alpha/features.ts": {
       "classification": "ENFORCED",
-      "reason": "Reviewed chat-only feature narrowing: owner CLOUD Work creation and engineering Work/Factory capabilities are denied for external-alpha, while existing authenticated chat and password routes remain. Default-deny traversal/method/capability coverage retained; no env flag can widen this release. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites.",
-      "sha256": "9746f05ad90886627d9f9e30d12800062792a72a50a94acf1e3985b0e9c224f8"
+      "reason": "Reviewed chat-only feature narrowing: owner CLOUD Work creation and engineering Work/Factory capabilities are denied for external-alpha, while existing authenticated chat and password routes remain. Default-deny traversal/method/capability coverage retained; no env flag can widen this release. Beta feedback review: exact owner/policy central status with no writes or foreign usage; local settled usage kept distinct from permanent reservations. Read-only, isolation, expired/fenced and transport failure regressions in chat-only-postgres and usage-route suites. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): installed family HOSTED_PRIVATE_BETA (mailbox, Mac build and private preview routes) allowed only when MYEVE_EXTERNAL_ALPHA_HOSTED_BETA=true AND MYEVE_HOSTED_PROFILE is set (default OFF); catch-all [...x]/[[...x]] patterns now match multiple segments (only these routes use them). Evidence: features.test.ts.",
+      "sha256": "c8f199efee03b67d0bf9855b9248fd890a915c54ae324858bff4fc4a340ee570"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4226,8 +4226,8 @@
     },
     "lib/product/owner-work.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal HOLD/decline/UNKNOWN readback presentation only; no release or dispatch authority added.",
-      "sha256": "f1116f39aa2f0f4a2b616b6c7cf915e3cc226da16302d381ef823b39e18820b0"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): terminal HOLD/decline/UNKNOWN readback presentation only; no release or dispatch authority added. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): presentation only. Fingerprint refresh also covers the base change 1aa3edbe/255ddb1c (\"Completed after verified delivery.\" for owner-local completed stage Works), which was the single pre-existing governance failure at 667f91a1. Hosted installations append the hosted verifier label. Evidence: work-state-owner-local.test.ts.",
+      "sha256": "d458eee994768733448cb404f89df85891418757426d787a2d14e6a4e1400ca9"
     },
     "agent/tools/installed_apps.ts": {
       "classification": "ENFORCED",
@@ -4487,8 +4487,8 @@
     },
     "lib/engineering/factory-capability-client.ts": {
       "classification": "INTERNAL",
-      "reason": "Owned Factory capability transport: signed MissionControl-derived challenge and Factory PERMIT exchange for one retained preparation; strict signed terminal readback before any challenge; a sealed or readback terminal aborts before any permit. No publication, release, settlement or paid authority. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13).",
-      "sha256": "bd0694952359efa669e7481167552fd0eaf6b12cfa7d0695f55645f491f89fb7"
+      "reason": "Owned Factory capability transport: signed MissionControl-derived challenge and Factory PERMIT exchange for one retained preparation; strict signed terminal readback before any challenge; a sealed or readback terminal aborts before any permit. No publication, release, settlement or paid authority. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13). Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): request timeout = transportTimeoutMs (mailbox: max(5 s, 40 s)); unchanged for every other transport.",
+      "sha256": "397b8da64ec2eb6472c12735d145f13f48ed00280a90623a83cd9555a4c16366"
     },
     "lib/engineering/factory-capability-source.ts": {
       "classification": "ENFORCED",
@@ -4768,18 +4768,18 @@
     },
     "lib/qualification/conversation-model.ts": {
       "classification": "INTERNAL",
-      "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests. Optional read-only retained-journal and improvement-recorder dependencies add owner status replies and, only after a confirmed delivery, record one inert unfunded improvement proposal bound to the accepted candidate; the approved request remains the only text that can select the journey tool, and without the dependencies behavior is unchanged. Evidence: post-delivery.test.ts. Private beta 20261103 (owner-local, NOT independently reviewed): adds the exclusive owner-request mode: request -> deterministic proposal with the full plan digest, `confirm <12 hex>` directly after that proposal -> one tool call carrying {request, planSha256}; presentation requires the profile's assurance and labels PRIVATE_BETA_LOCAL as not independent. Still zero provider. Owner-local UI fix 20261103: the web channel's well-formed `Client context:` user marker is skipped as metadata (like system) for proposal/confirmation adjacency and is never proposed as a request; malformed or mixed markers still refuse. Evidence: owner-request.test.ts client-context case. Private beta 20261104 (owner-local, NOT independently reviewed): OWNER_SUBSCRIPTION_LOCAL operations-only readback accepted only under the pinned mode (never a WorkSpend, null money, never $0); LiveFactoryPort settles an unmetered run only after recording its operation units in the separately pinned owner-local subscription-usage.sql table (fences otherwise); Sofie reports usage in operations; owner-local planning may run inside the stage-1 Factory run (no MyEve model credential); owner-local delivery link may be the loopback preview. Evidence: factory-live-adapter.subscription.test.ts, subscription-usage.test.ts.",
-      "sha256": "f77c65a056322a2178c1890a9d8f48035c3a0bb7671b5d981ac41c97f49db525"
+      "reason": "Deterministic zero-provider outer QDEV conversation. Current read-only host admission is checked each generation/stream; only an explicit host-approved request can propose the no-argument authenticated journey tool. Linked call/result history is validated, absent acknowledgments never cause implicit retry, and only a strict owner-safe presentation is shown. No provider import/call, original-ledger access, execution or readiness authority. Charged Sofie planning remains inside the separately governed journey gate. Evidence: actual-model proposal/continuation/stream/revocation/history-abuse tests. Optional read-only retained-journal and improvement-recorder dependencies add owner status replies and, only after a confirmed delivery, record one inert unfunded improvement proposal bound to the accepted candidate; the approved request remains the only text that can select the journey tool, and without the dependencies behavior is unchanged. Evidence: post-delivery.test.ts. Private beta 20261103 (owner-local, NOT independently reviewed): adds the exclusive owner-request mode: request -> deterministic proposal with the full plan digest, `confirm <12 hex>` directly after that proposal -> one tool call carrying {request, planSha256}; presentation requires the profile's assurance and labels PRIVATE_BETA_LOCAL as not independent. Still zero provider. Owner-local UI fix 20261103: the web channel's well-formed `Client context:` user marker is skipped as metadata (like system) for proposal/confirmation adjacency and is never proposed as a request; malformed or mixed markers still refuse. Evidence: owner-request.test.ts client-context case. Private beta 20261104 (owner-local, NOT independently reviewed): OWNER_SUBSCRIPTION_LOCAL operations-only readback accepted only under the pinned mode (never a WorkSpend, null money, never $0); LiveFactoryPort settles an unmetered run only after recording its operation units in the separately pinned owner-local subscription-usage.sql table (fences otherwise); Sofie reports usage in operations; owner-local planning may run inside the stage-1 Factory run (no MyEve model credential); owner-local delivery link may be the loopback preview. Evidence: factory-live-adapter.subscription.test.ts, subscription-usage.test.ts. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): optional hosted flag: a hosted PRIVATE_BETA_LOCAL Result is labelled \"Private-beta verifier (automated checks on the owner's machine, not independent custody)\" and the proposal names the hosted installation; owner-local and frozen texts unchanged. Evidence: owner-request.test.ts.",
+      "sha256": "f03c73faa119440981bb6e6e7a90e3fff2103189eb345565e82329fceac466ff"
     },
     "lib/qualification/verifier-port.ts": {
       "classification": "ENFORCED",
-      "reason": "Disabled-by-default transport to the independently administered verifier: carries the digest-only handoff out, runs the charged /evaluate with the journey reservation and a bounded timeout, and reads back a pure schema-valid signed verdict. Usage is settled (known) only on an exact FINAL, quiescent response within 0..reserve; any other answer, or any failure after sending, is unknown and fenced. Origin is https or exact loopback only, redirects refused, credential supplied by the runtime accessor and checked pre-send; every refusal before the request is a proven no-send. Holds no specification or verifier key and cannot mint a verdict: the journey verifies the signature against the disjoint verifier key set. No enrollment, payment, spend or deployment authority. Optional staging source: uploads the retained exact bytes (uncharged, bounded, idempotent) before the digest-only handoff; any staging failure is a pre-handoff ProviderNotSent so no evaluation can have started.",
-      "sha256": "59174aac4a6df74a1fc6fd6d6467390c7ab5228cdae151015fd6d5e095557629"
+      "reason": "Disabled-by-default transport to the independently administered verifier: carries the digest-only handoff out, runs the charged /evaluate with the journey reservation and a bounded timeout, and reads back a pure schema-valid signed verdict. Usage is settled (known) only on an exact FINAL, quiescent response within 0..reserve; any other answer, or any failure after sending, is unknown and fenced. Origin is https or exact loopback only, redirects refused, credential supplied by the runtime accessor and checked pre-send; every refusal before the request is a proven no-send. Holds no specification or verifier key and cannot mint a verdict: the journey verifies the signature against the disjoint verifier key set. No enrollment, payment, spend or deployment authority. Optional staging source: uploads the retained exact bytes (uncharged, bounded, idempotent) before the digest-only handoff; any staging failure is a pre-handoff ProviderNotSent so no evaluation can have started. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): request timeout = transportTimeoutMs(fetch, existing): max(existing, 40 s) only for the mailbox transport (contract v1 (b)); unchanged otherwise.",
+      "sha256": "3030f1bc370ce8fe64558d6957dc62010becbfeb44845a9e4d07398abc78db05"
     },
     "lib/qualification/runtime-ports.ts": {
       "classification": "ENFORCED",
-      "reason": "CONTROL: compose host-supplied stage execution, ordered Factory/Relay permits, exact Result chain, separate verifier and retained static publication. Owner-local post-PASS approval carries a captured prior plan; failed delivery can compensate only under a signed exact-publication condition plus unchanged controller CAS. No unverified verdict, missing activation, foreign Work/source/profile or unknown accounting becomes success. Source review review_pr30; runtime, subscription and static-publication regressions. Native execution qualification is not inherited. Reviewed owner-local successor: exact final delivery completion and bounded readback integration; existing identity/authorization/UNKNOWN boundaries retained.",
-      "sha256": "ead08941cd82ee8601f52d5ffb5de73cb3ba6d49ea6c920c6d6e7e5b04956422"
+      "reason": "CONTROL: compose host-supplied stage execution, ordered Factory/Relay permits, exact Result chain, separate verifier and retained static publication. Owner-local post-PASS approval carries a captured prior plan; failed delivery can compensate only under a signed exact-publication condition plus unchanged controller CAS. No unverified verdict, missing activation, foreign Work/source/profile or unknown accounting becomes success. Source review review_pr30; runtime, subscription and static-publication regressions. Native execution qualification is not inherited. Reviewed owner-local successor: exact final delivery completion and bounded readback integration; existing identity/authorization/UNKNOWN boundaries retained. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): optional custody.hostedMyApps replaces the local build/publish ports and suppresses in-process verifier staging (the Mac stages its own bytes); absent = unchanged. Evidence: hosted-journey.integration.test.ts.",
+      "sha256": "418e67cc42190943da9210d664dbf48103c5a825d860135b0b8a0bc16502c62c"
     },
     "lib/qualification/agent-execution-port.ts": {
       "classification": "ENFORCED",
@@ -4803,8 +4803,8 @@
     },
     "lib/qualification/custody-loader.ts": {
       "classification": "ENFORCED",
-      "reason": "Production startup binding for the protected-custody ports. The host bundle may pin one operator-installed custody module by absolute normalized path and SHA-256; the loader reads it, requires the bytes to match the pin, imports exactly those verified bytes, and composes the runtime ports from the custody it returns. Any absence, mismatch, throw or refusal returns null so the installation stays disabled. It reads no credential value, opens no transport, reserves and dispatches nothing, and grants no authority; composeRuntimePorts keeps every adapter's own refusals.",
-      "sha256": "3f96d7681487d7eaa6bb7c45689e53aefe543811aac222d6780de4c362bfac3d"
+      "reason": "Production startup binding for the protected-custody ports. The host bundle may pin one operator-installed custody module by absolute normalized path and SHA-256; the loader reads it, requires the bytes to match the pin, imports exactly those verified bytes, and composes the runtime ports from the custody it returns. Any absence, mismatch, throw or refusal returns null so the installation stays disabled. It reads no credential value, opens no transport, reserves and dispatches nothing, and grants no authority; composeRuntimePorts keeps every adapter's own refusals. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): a bundle assembly on a deployment with MYEVE_HOSTED_PROFILE is launched only by assembleHostedCustody (never falls back to the owner-local launcher). Evidence: hosted-journey.integration.test.ts, hosted-custody path.",
+      "sha256": "a145e1c383e000748586909c1edcd10472e02c099f52ed1ab35daa68e538e3f8"
     },
     "lib/qualification/factory-coding-runtime.ts": {
       "classification": "ENFORCED",
@@ -4913,8 +4913,8 @@
     },
     "lib/qualification/journey-profile.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure journey profiles (frozen qdev vs owner-local private beta): project schema union, binding formulas (qdev formula delegates to qualificationBinding), stage binding ids, baseline, release environment and required verdict assurance. No I/O, provider call or dispatch. Private beta 20261103; not independently reviewed.",
-      "sha256": "007ccb740ec4e630f7066cd9172db18c73f895a13d047905b2a5351464731c9b"
+      "reason": "Pure journey profiles (frozen qdev vs owner-local private beta): project schema union, binding formulas (qdev formula delegates to qualificationBinding), stage binding ids, baseline, release environment and required verdict assurance. No I/O, provider call or dispatch. Private beta 20261103; not independently reviewed. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): re-exports the dependency-free HOSTED_VERIFIER_LABEL; no binding or profile change.",
+      "sha256": "d1f7ac4ce2abfa570d4e4926cdf755be2edc4d6f9a022af1233cffbf18b17563"
     },
     "lib/qualification/owner-request.ts": {
       "classification": "INTERNAL",
@@ -4930,6 +4930,96 @@
       "classification": "ENFORCED",
       "reason": "CONTROL: authenticated confirmed owner-local plan only. Issues an exactly matching accounting cohort under frozen SQL limits; private owner approver signs single-use exact-digest PUBLISH only after signed-verdict-gated matching PASS. Optional failed-delivery compensation is limited to the captured prior plan and authorized publication digest, signed with exact publication seq/version/digest and still checked by controller CAS. No general rollback, foreign profile or failed artifact authority. Source review review_pr30; real file-permit/controller, scope, replay and compensation regressions. Reviewed container-journey successor: Owner-local confirmed exact delivery completion preserves canonical business-effect and PREPARED/UNKNOWN fences; all three Work transitions plus receipt-SHA256-bound existing Work events commit atomically. Exact retained events support secondary audit repair without replay. No new database schema, runtime privileges, execution or publication authority.",
       "sha256": "c043a85f40dca04a3b1e6371432ae90c1d6197f3202ac25a8e5ace8ea5368957"
+    },
+    "lib/engineering/factory-mailbox.ts": {
+      "classification": "ENFORCED",
+      "reason": "Outbound-only Factory mailbox, contract v1: untrusted transport that authorizes nothing; owner/installation-scoped rows; poller credential compared by sha256 only; base64 bodies with bodySha256 over decoded bytes; fresh leaseId per lease, response bound to id + leaseId + request body sha256 within the live lease/deadline; single use (never re-queued or resent); exact method/per-target path/request-header allowlists (unknown header refuses the envelope), response headers filtered; verifier target limited to handoff/evaluate/verdict (artifact bytes stay on the Mac); deadline <= 1 h, mailbox per-call timeout max(existing, 40 s); caller deadline/abort withdraws unleased requests (UNKNOWN preserved); envelope headers/body cleared at lease. Evidence: factory-mailbox.test.ts (real PostgreSQL).",
+      "sha256": "d1bea413c605091b8ee2bad8c212650d69335670cd275f19b00511a254a294d2"
+    },
+    "lib/qualification/hosted-profile.ts": {
+      "classification": "ENFORCED",
+      "reason": "Hosted profile myeve.private-beta.hosted/v1: https Relay/MissionControl/served origin, Factory and verifier only through the mailbox, metered LIVE spend only, distinct stable per-person Factory ownerScope (myeve.hosted:<installation>:<owner>) required on the connection, PRIVATE_BETA_LOCAL with its fixed label, pinned public build issuer, $1.30/Work and 4 Works/person with no automatic increase. Evidence: hosted-profile.test.ts.",
+      "sha256": "bb1e3dc3050928e7c19d31eec375af87e74658612ae6c4f6896668d2dba00e03"
+    },
+    "lib/qualification/hosted-preview.ts": {
+      "classification": "ENFORCED",
+      "reason": "Private verified previews: poller-credential upload; signed PASS PRIVATE_BETA_LOCAL verdict must bind the manifest digest; per-file checks; private Blob only; READY after read-back re-hash; every response re-verifies verdict, manifest and file sha256; CSP sandbox, private no-store, no CORS; 10-minute owner/installation/release-bound grants. Evidence: hosted-preview.test.ts.",
+      "sha256": "b6d160667c9a09a2086bc845539e2573be8cc5c5498dd3953692f48605a1250c"
+    },
+    "lib/qualification/hosted-http.ts": {
+      "classification": "INTERNAL",
+      "reason": "Route plumbing: 404 unless hosted profile + database; poller auth refuses browser requests; bounded bodies; no-store. Evidence: hosted-preview.test.ts.",
+      "sha256": "914bbbf75643168ec5789c6fb2c600c3aed1153fb256005460ec127d7b38c9f9"
+    },
+    "lib/qualification/hosted-label.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Dependency-free label constant for the hosted verifier; no behaviour.",
+      "sha256": "055745d1c70504cc6906f182f0c2daedf811e0a9269a735efb0a24b78bd20a9e"
+    },
+    "lib/qualification/hosted-mac-build.ts": {
+      "classification": "ENFORCED",
+      "reason": "Hosted MyApps port: hosted never builds; records the expected build binding derived from its own retained stage-3 admission, accepts the Mac upload only for that request (lock pin, inventory limits, per-file sha256), re-retains the bytes from the private store and verifies the Mac-signed claim against the expected binding and the PINNED public issuer before VERIFIED and again in retainBuild; observe re-derives the artifact from the hosted private preview handler and checks the verdict binds this candidate/project/source. Evidence: hosted-journey.integration.test.ts.",
+      "sha256": "79cab334079bb54cd648382b0b77d1a4096091286f465643ef5bdb2ff25b71d0"
+    },
+    "lib/qualification/hosted-mac-worker.ts": {
+      "classification": "INTERNAL",
+      "reason": "MAC SIDE ONLY (scripts/private-beta/hosted-mac-worker.ts): builds with the Mac pins, stages bytes to the Mac loopback verifier, uploads with the poller credential, uploads the preview only after a PASS read from the local verifier; never evaluates or signs a verdict. Evidence: hosted-journey.integration.test.ts.",
+      "sha256": "7da3ea337a6fef6dad63243eca3e8972a022d7264124910f125dfb00ea25b78e"
+    },
+    "lib/qualification/hosted-custody.ts": {
+      "classification": "ENFORCED",
+      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts).",
+      "sha256": "95e3ac66fe6c65313ec128b59eb16d6db6d67aeb1934ac069bd2e67918587706"
+    },
+    "app/api/factory-mailbox/v1/next/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac long-poll (poller credential): one v1 leased envelope or 204 within <=25 s; no-store.",
+      "sha256": "3e3feff2d1c0f04bc59b1836f617e7c1ea084611d8b00d7fa1f203e7c03bedf1"
+    },
+    "app/api/factory-mailbox/v1/respond/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac reply (poller credential), bounded, bound to id + leaseId + request body sha256.",
+      "sha256": "52ab2c614641548aae2116c117111ce3d407a1cdc2c3b7a7fde622a72814b54f"
+    },
+    "app/api/factory-mailbox/v1/previews/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac registers a verified release (poller credential); verdict/manifest verified before any row is written.",
+      "sha256": "44ea8bb2959bd4744a021ea814062951a15796d8df82c1c9f1b8af23a0b34847"
+    },
+    "app/api/factory-mailbox/v1/previews/[artifact]/files/[...path]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac uploads one manifest file (poller credential); length/sha256 checked; private Blob only.",
+      "sha256": "142c95f98d79d9270646444b29027c10217db4eaaeda4ac37c921f2e01daa9ec"
+    },
+    "app/api/factory-mailbox/v1/previews/[artifact]/complete/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac completes a release (poller credential); read-back re-hash before READY.",
+      "sha256": "6a999d2b881b31ecc347b9ce8b58e581c4dfe93a08b4228dff220873c79c71fc"
+    },
+    "app/api/factory-mailbox/v1/builds/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac lists pending builds / registers a build upload (poller credential); only for a hosted REQUESTED candidate.",
+      "sha256": "3aa231fc5fe3d8609b8e1112e2e8038bb85d876ef938bd3d70736493817bf6a3"
+    },
+    "app/api/factory-mailbox/v1/builds/[candidate]/files/[...path]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac uploads one inventoried build file (poller credential); length/sha256 checked; private Blob only.",
+      "sha256": "06ff8acd5213b852444eda59380597a5220962181b00551b7180a3d6efdb350b"
+    },
+    "app/api/factory-mailbox/v1/builds/[candidate]/complete/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Mac completes a build (poller credential); hosted re-retains and verifies the claim against its expected binding and pinned issuer.",
+      "sha256": "12741af66ab94b7608fdf7a5a59e6a60a21c7721d34fdb3622a45653cdd356a4"
+    },
+    "app/api/previews/v1/[artifact]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Result link: owner session only; READY release of this owner/installation; redirects to a 10-minute bound grant path.",
+      "sha256": "f41d1b9c73f2cbff179632b2c723763f5b2ce8795fab72ee2e226ae06fe9c99e"
+    },
+    "app/api/previews/v1/[artifact]/g/[grant]/[[...path]]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Serves one file of a READY release with a valid owner-issued grant; re-verifies verdict, manifest and file sha256; sandboxed CSP, private no-store, no CORS.",
+      "sha256": "1f7d5e055430a87e8b6c70d0d4f438e1723ad6b8ae7add080987773ed6cd4426"
     }
   }
 }

@@ -20,7 +20,7 @@ export async function readWorkInbox(beta: BetaIntegration, owner: string, offset
       JOIN web_chat_threads t ON t.owner_id=c.owner_id AND t.id=c.thread_id
       WHERE c.owner_id=$1 AND c.source_refs @> jsonb_build_array($2::text)
       ORDER BY c.created_at DESC,c.id DESC LIMIT 1`,[owner,'engineering-work:'+projection.workId]);
-    return {id:projection.workId,title:projection.title,...workState(projection,publication),display:ownerWorkPresentation(projection),
+    return {id:projection.workId,title:projection.title,...workState(projection,publication),display:ownerWorkPresentation(projection,{hostedVerifier:!!process.env.MYEVE_HOSTED_PROFILE}),
       result:projection.latestResult?.summary??null,resultId:projection.latestResult?.id??projection.nativeResult?.id??null,
       version:projection.workVersion,generation:projection.workGeneration,
       agentName:thread?.agent_name ? String(thread.agent_name) : null,

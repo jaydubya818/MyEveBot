@@ -68,8 +68,8 @@ export function verifyPreviewRelease(profile: HostedProfile, signed: unknown, ma
 }
 
 const parseJson = <T>(value: unknown): T => (typeof value === "string" ? JSON.parse(value) : value) as T;
-type PreviewRow = { verdict: SignedVerdict; manifest: PreviewManifest; state: "UPLOADING" | "READY"; verdictSha256: string };
-async function readRow(db: MailboxDb, binding: MailboxBinding, artifactSha256: string): Promise<PreviewRow | null> {
+export type PreviewRow = { verdict: SignedVerdict; manifest: PreviewManifest; state: "UPLOADING" | "READY"; verdictSha256: string };
+export async function readPreview(db: MailboxDb, binding: MailboxBinding, artifactSha256: string): Promise<PreviewRow | null> {
   if (!HEX.test(artifactSha256)) return null;
   const [row] = await db.query("SELECT verdict, manifest, state, verdict_sha256 FROM hosted_verified_previews WHERE installation_id=$1 AND owner_id=$2 AND artifact_sha256=$3",
     [binding.installationId, binding.ownerId, artifactSha256]);
@@ -84,7 +84,7 @@ export async function beginPreviewUpload(db: MailboxDb, profile: HostedProfile, 
   await db.query(`INSERT INTO hosted_verified_previews(installation_id,owner_id,artifact_sha256,verdict,verdict_sha256,manifest,state)
     VALUES($1,$2,$3,$4::jsonb,$5,$6::jsonb,'UPLOADING') ON CONFLICT (installation_id, artifact_sha256) DO NOTHING`,
     [binding.installationId, binding.ownerId, release.artifactSha256, JSON.stringify(body.verdict), release.verdictSha256, JSON.stringify(release.manifest)]);
-  const row = await readRow(db, binding, release.artifactSha256);
+  const row = await readPreview(db, binding, release.artifactSha256);
   if (!row || row.verdictSha256 !== release.verdictSha256) return refuse("PREVIEW_RELEASE_CONFLICT", 409);
   const missing: string[] = [];
   if (row.state !== "READY") for (const f of release.manifest.files) if (!await blob.get(previewBlobKey(binding, release.artifactSha256, f.sha256))) missing.push(f.path);
@@ -93,7 +93,7 @@ export async function beginPreviewUpload(db: MailboxDb, profile: HostedProfile, 
 
 /** Step 2 (Mac): one file of a registered release, accepted only when its length and sha256 match the manifest entry. */
 export async function putPreviewFile(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, path: string, bytes: Uint8Array) {
-  const binding = hostedBinding(profile), row = await readRow(db, binding, artifactSha256);
+  const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
   if (!row) return refuse("PREVIEW_NOT_FOUND", 404);
   const entry = row.manifest.files.find(f => f.path === path);
   if (!entry) return refuse("PREVIEW_PATH", 404);
@@ -104,7 +104,7 @@ export async function putPreviewFile(db: MailboxDb, profile: HostedProfile, blob
 
 /** Step 3 (Mac): every file is read back from the private store and re-hashed; only then the release is READY. */
 export async function completePreviewUpload(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, now?: number) {
-  const binding = hostedBinding(profile), row = await readRow(db, binding, artifactSha256);
+  const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
   if (!row) return refuse("PREVIEW_NOT_FOUND", 404);
   verifyPreviewRelease(profile, row.verdict, row.manifest, now);
   for (const f of row.manifest.files) {
@@ -165,7 +165,7 @@ export async function servePreviewFile(db: MailboxDb, profile: HostedProfile, bl
   if (method !== "GET" && method !== "HEAD") return fail(405, "PREVIEW_METHOD");
   const relative = path === "" ? "index.html" : path;
   if (!SERVE_PATH.test(relative)) return fail(404, "PREVIEW_NOT_FOUND");
-  const binding = hostedBinding(profile), row = await readRow(db, binding, artifactSha256);
+  const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
   if (!row || row.state !== "READY") return fail(404, "PREVIEW_NOT_FOUND");
   try { verifyPreviewRelease(profile, row.verdict, row.manifest, now); } catch { return fail(409, "PREVIEW_VERDICT_NOT_VALID"); }
   const entry = row.manifest.files.find(f => f.path === "dist/" + relative);

@@ -2,7 +2,7 @@ import type {MissionControlAdmissionProof} from '../missioncontrol/admit-executi
 import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
-import {isMailboxFetch,mailboxFetchOrigin} from './factory-mailbox.ts';
+import {isMailboxFetch,mailboxFetchOrigin,transportTimeoutMs} from './factory-mailbox.ts';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,isSubscriptionSpend,subscriptionAccounting,validateSpendBinding,type SubscriptionAccounting,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
@@ -73,7 +73,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
    throw Error('Exact configured loopback producer and FactoryVersion are required');
  }
  private async request(path:string,body?:unknown):Promise<FactoryReadback>{
-  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches'+path,this.transport.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(15000),
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches'+path,this.transport.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(transportTimeoutMs(this.fetcher,15000)),
    headers:{...await factoryRequestHeaders(this.config),'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
   if(!response.ok){
    if('releaseValidation' in this.config&&this.config.releaseValidation&&path===''&&body&&response.status===403){
@@ -98,7 +98,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   return {...data,accounting:factorySpendSummary(data.spend,this.config)};
  }
  async healthy(){
-  try{const response=await this.fetcher(new URL(this.transport.prefix+'/actions',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(5000)});
+  try{const response=await this.fetcher(new URL(this.transport.prefix+'/actions',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(transportTimeoutMs(this.fetcher,5000))});
    if(!response.ok)return false;const data=await boundedJson(response,32000) as {controls?:string[];execution?:{mode:string;spendEnforced:boolean}};return data.execution?.mode===this.config.qualification.mode&&data.execution.spendEnforced===true&& ['factory.prepare','factory.dispatch','factory.observe','factory.stop'].every(action=>data.controls?.includes(action));
   }catch{return false;}
  }
@@ -170,7 +170,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  async custody(identity:FactoryExecutionIdentity){
   const config=this.config;
   if(!('source' in config)||identity.factoryId!==config.factoryId||identity.factoryVersion!==config.factoryVersion||identity.repository!==config.source.repository||identity.baseSha!==config.source.commit||!z.string().uuid().safeParse(identity.requestId).success)throw Error('Cloud custody requires the admitted Factory identity');
-  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+identity.requestId+'/custody',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(15000)});
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+identity.requestId+'/custody',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(transportTimeoutMs(this.fetcher,15000))});
   if(!response.ok)throw Error('Cloud custody unavailable; reconcile the same candidate');
   return cloudCustodyProjection(await boundedJson(response,1100000),config.source);
  }
