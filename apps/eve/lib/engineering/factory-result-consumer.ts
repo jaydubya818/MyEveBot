@@ -99,8 +99,8 @@ export async function resumeFactoryResult(store: FactoryReceiptStore,requestId: 
 export async function admitFactoryResult(store: FactoryReceiptStore,requestId: string,result: unknown,options: ConsumerOptions) {
  return admit(store,requestId,result,options,legacyMode);
 }
-/** Explicit local V4 custody API, including the confirmed owner-local journey's receipt retention.
- * No Work dispatch, protected verification, native Proof or MyApps acceptance is added. */
+/** Inactive explicit local V4 custody API. No route, service/default selection,
+ * Work dispatch, protected verification or owner MyApps acceptance is added. */
 export async function resumeLocalFactoryResultV4(store: FactoryReceiptStore<LocalResultManifestV4,LocalFactoryBindingV4>,requestId: string,receiptId: string,options: ConsumerOptions) {
  return resume(store,requestId,receiptId,options,localV4Mode);
 }

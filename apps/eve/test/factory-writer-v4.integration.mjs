@@ -12,7 +12,6 @@ import {WorkStore} from '../lib/engineering/store.ts';
 import {FactoryWriterStore} from '../lib/engineering/factory-writer.ts';
 import {FactoryReceiptStore} from '../lib/engineering/factory-receipt-store.ts';
 import {prepareAuthenticatedLocalFactoryInputV4} from '../lib/engineering/factory-authenticated-result.ts';
-import {retainLocalFactoryResult,readLocalFactoryResults} from '../lib/engineering/local-factory-results.ts';
 import {admitLocalFactoryResultV4} from '../lib/engineering/factory-result-consumer.ts';
 import * as codec from '../lib/engineering/factory-producer-protocol.ts';
 import {digest} from '../lib/engineering/contract.ts';
@@ -63,7 +62,7 @@ try{
  await runMigrations({query,transaction:async statements=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT')}catch(error){await c.query('ROLLBACK');throw error}finally{c.release()}}},migrations,()=>{});
  assert.equal((await pool.query('SELECT count(*)::int n FROM sofie_schema_migrations')).rows[0].n,migrations.length);pass('full current canonical migration chain including0099and0104');
  for(const migration of ['migration','enforcement','decisions','ordering','lifecycle'])await pool.query(await readFile(new URL('../../../docs/capability-control/'+migration+'.sql',import.meta.url),'utf8'));
- async function scenario({admitResult=true}={}){
+ async function scenario(){
  const env={name,owner:randomUUID(),agentId:'fixture-agent-'+randomUUID(),pool,policy:{factoryVersion:'a'.repeat(64)},db:{query}};
  env.store=new WorkStore({scopeId:env.owner,scopeKind:'personal',actorId:env.owner},env.db);
  env.seedWork=async()=>{
@@ -174,33 +173,12 @@ try{
  assert.ok(run.missioncontrol_binding);
  const receipts=new FactoryReceiptStore(env.store.principal,env.db);
  const result=codec.signLocalResultV4(x.v.manifest,x.v.artifacts,x.v.privateKey),options={keys:async()=>x.v.options.keys};
- const admitted=admitResult?await admitLocalFactoryResultV4(receipts,x.requestId,result,options):null;if(admitted){assert.equal(admitted.status,'ADMITTED');assert.equal(admitted.independentVerification,'NOT_RUN');assert.equal(admitted.readiness,'NOT_READY')}
+ const admitted=await admitLocalFactoryResultV4(receipts,x.requestId,result,options);assert.equal(admitted.status,'ADMITTED');assert.equal(admitted.independentVerification,'NOT_RUN');assert.equal(admitted.readiness,'NOT_READY');
  const terminal=async(state='COMPLETED')=>writers.reconcile(run,{observe:async()=>({...await writers.identity(run),state,quiescent:true,evidenceRef:'public-controlled-no-productive-process'})});
  const take=(receiptId=admitted.receiptId,writer=run)=>writers.takeLocalCustodyV4(writer,receiptId,x.source,x.profile,options);
  const empty=async()=>assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_direct_workspaces WHERE work_id=$1',[x.work.id])).rows[0].n,0);
  return {...x,env,writers,run,receipts,result,options,admitted,terminal,take,empty,store,fixture};
  }
- const retained=await scenario({admitResult:false});
- assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_receipts WHERE request_id=$1',[retained.requestId])).rows[0].n,0);
- assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_admissions WHERE request_id=$1',[retained.requestId])).rows[0].n,0);
- await retainLocalFactoryResult(retained.env.store,retained.binding,retained.result,async()=>retained.v.options.keys);
- await retainLocalFactoryResult(retained.env.store,retained.binding,retained.result,async()=>retained.v.options.keys);
- const visible=await readLocalFactoryResults(retained.env.store,async()=>retained.v.options.keys);
- assert.equal(visible.length,1);assert.equal(visible[0].manifestDigest,retained.result.manifestDigest);assert.equal(visible[0].candidateCommit,retained.v.manifest.candidate.commit);
- assert.equal(visible[0].independentVerification,'NOT_RUN');assert.equal(visible[0].readiness,'NOT_READY');
- const foreign=new WorkStore({scopeId:randomUUID(),scopeKind:'personal',actorId:randomUUID()},retained.env.db);
- assert.deepEqual(await readLocalFactoryResults(foreign,async()=>{throw Error('Foreign keys must not be loaded')}),[]);
- await assert.rejects(retainLocalFactoryResult(foreign,retained.binding,retained.result,async()=>retained.v.options.keys),/REQUEST_MISMATCH/);
- await retained.terminal();await retained.writers.advance(retained.run,1,'AGENT');
- assert.equal((await readLocalFactoryResults(retained.env.store,async()=>retained.v.options.keys))[0].historical,true);
- assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_receipts WHERE request_id=$1',[retained.requestId])).rows[0].n,1);
- assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_admissions WHERE request_id=$1',[retained.requestId])).rows[0].n,1);
- const foreignActor=new WorkStore({...retained.env.store.principal,actorId:randomUUID()},retained.env.db);
- assert.deepEqual(await readLocalFactoryResults(foreignActor,async()=>{throw Error('Foreign actor keys must not be loaded')}),[]);
- const revokedBeforeAdmission=await scenario({admitResult:false});let keyReads=0;
- await assert.rejects(retainLocalFactoryResult(revokedBeforeAdmission.env.store,revokedBeforeAdmission.binding,revokedBeforeAdmission.result,async()=>{keyReads++;return revokedBeforeAdmission.v.options.keys.map(k=>keyReads===1?k:{...k,revokedAt:new Date().toISOString()})}),/NOT_ADMITTED/);
- assert.ok(keyReads>=2);assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_factory_admissions WHERE request_id=$1',[revokedBeforeAdmission.requestId])).rows[0].n,0);
- pass('canonical V4 Results are retained once, owner-scoped, and historically visible without native Proof or dispatch');
  const a=await scenario();await a.terminal();const custody=await a.take();
  assert.equal(custody.factory_candidate.receiptId,a.admitted.receiptId);
  const candidate=custody.factory_candidate.candidates[0];assert.equal(candidate.sha,a.v.manifest.candidate.commit);assert.equal(candidate.tree,a.v.manifest.candidate.tree);
