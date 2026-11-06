@@ -2012,8 +2012,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing capability discovery and deployment/agent controls retained. Installed apps become discoverable only with a strict digest-bound local owner registration, exact owner/installation/database matching and existing local capability gates. External Alpha, Vercel and production remain denied; preferences or a local flag alone are insufficient. Availability does not authorize an effect.",
-      "sha256": "9e2e3c140ef298cf5d00d3e712f60c64b23c272f0e44779ca7381a3a815cc967"
+      "reason": "Existing capability discovery and deployment/agent controls retained. Installed apps become discoverable only with a strict digest-bound local owner registration, exact owner/installation/database matching and existing local capability gates. External Alpha, Vercel and production remain denied; preferences or a local flag alone are insufficient. Availability does not authorize an effect. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): adds tool.build_app, available only under the owner-app switch.",
+      "sha256": "66d529a934c5fc219f07371b831edd95dd78abcbb9b9a9ce1e709e7a040a90cf"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3199,8 +3199,8 @@
     },
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Consolidated boundary: Explicit factory-cloud profile identifies cloud execution without claiming a local harness. Existing profile/criterion limits and immutable hashes retained. Consolidated boundary: Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "41fe9dd50fc511f7918ef56a14b81bddbd349aacf66a83a246acc2d90d280e29"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Consolidated boundary: Explicit factory-cloud profile identifies cloud execution without claiming a local harness. Existing profile/criterion limits and immutable hashes retained. Consolidated boundary: Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): profile checks: black-box or MyFactory command check; image may be an immutable local image ID; blackBoxChecks guard.",
+      "sha256": "6c1f5f3eee2f910517e42675ed1c1200a396f59e57b15965ae284b1ec4b24933"
     },
     "lib/engineering/types.ts": {
       "classification": "INTERNAL",
@@ -3304,8 +3304,8 @@
     },
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: enabled only when externalAlphaWorkEnabled(); create is normalised to the one canonical first-project Work or refused. No change for other deployments.",
-      "sha256": "238845bcbff220a7e3f5091c660241e22f31140dce65aca895b921f3781a76c7"
+      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: enabled only when externalAlphaWorkEnabled(); create is normalised to the one canonical first-project Work or refused. No change for other deployments. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): create binds repository and clamps cost/duration to the LIVE envelope under the owner-app switch only.",
+      "sha256": "61e90b0db4af75e905108a9cb29b4193a82734b23a1d3349cbbfc3981b9900f3"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3314,8 +3314,8 @@
     },
     "lib/engineering/base-preflight.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Pure reviewed-base manifest/profile validation; no provider request, write, or grant.",
-      "sha256": "2f851f14135a54dc6bfb35ee8758995228d02b73507da2ae3933c3be0c3143cf"
+      "reason": "Pure reviewed-base manifest/profile validation; no provider request, write, or grant. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): public output contract validation accepts only black-box checks (blackBoxChecks).",
+      "sha256": "aa56b08c5dbbfe6164022cfbde6875817c2beab3e1c2dabb9bd3f80c12fc2677"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
@@ -3334,8 +3334,8 @@
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. External-alpha truth separately reports historical consumed authority, producer outcome, verifier verdict, retained Result and fixed local ledger exposure. It never projects native admission or Ready from external-alpha custody.",
-      "sha256": "7a8c1405ff18ef9fa15b3f570ae28ac94e4e908738c4dcdf55d46b612ec367f5"
+      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. External-alpha truth separately reports historical consumed authority, producer outcome, verifier verdict, retained Result and fixed local ledger exposure. It never projects native admission or Ready from external-alpha custody. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): adds the private preview Result line; read-only.",
+      "sha256": "4c7950b49045ad9f88529ffe35ef780e8a50266b6fff9ad917a879694ca1a4b3"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3349,8 +3349,8 @@
     },
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
-      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows. Consolidated boundary: Cloud profiles rejected before any local Docker producer/verifier resource effect. Existing local behavior retained. Consolidated boundary: Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
-      "sha256": "65bdefce41c057f6fc7d7924f301cfa83975bb9ca30c3eaf2aaa726cd1bc717b"
+      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows. Consolidated boundary: Cloud profiles rejected before any local Docker producer/verifier resource effect. Existing local behavior retained. Consolidated boundary: Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): DockerProtectedVerifier refuses MyFactory command checks; no other change.",
+      "sha256": "be77c2d859238b5b2287dab3b1b4e513fac9f3cac3810136f1d3799495423d5c"
     },
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
@@ -3454,8 +3454,8 @@
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
-      "sha256": "2cfa356d50a7608322e92d797e6f78c15a8645ad0aa79adb4b76d758eae4a539"
+      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): type widened for the check union; native paths unchanged.",
+      "sha256": "8754d33476f9acf6665583d408eb9f936881aacaf3620a4304a896b2a1f235d7"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3464,8 +3464,8 @@
     },
     "lib/engineering/native-repair-context.ts": {
       "classification": "READ_ONLY",
-      "reason": "Pure deterministic repair-context projection. Exact candidate/diagnostic bindings, explicit UTF-8 truncation and pre-reservation byte enforcement; no I/O, model call, writer grant, ledger mutation or phase transition. Exact-live and adversarial authenticated tests cover oversized-dispatch denial.",
-      "sha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652"
+      "reason": "Pure deterministic repair-context projection. Exact candidate/diagnostic bindings, explicit UTF-8 truncation and pre-reservation byte enforcement; no I/O, model call, writer grant, ledger mutation or phase transition. Exact-live and adversarial authenticated tests cover oversized-dispatch denial. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): uses only black-box checks for expected output context.",
+      "sha256": "309aee70aa7452897ca7764deca67bdea03146dd002010e4923fa93ec575f176"
     },
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
@@ -3499,18 +3499,18 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "c6bd79beea2c066b90c05c9e8a74a4c1aa54d03451c813bafac4d52f04431fac"
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): adds owner-app-factory mode that forbids MyEve executors, model, qualifications and publisher.",
+      "sha256": "5fe85ba20e89424b318bc17032576bdaf09252a96f795f1e07d221922936b7f2"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): projection surfaces the most recent terminal for the current generation across work_version (M1 closure); read-only.",
-      "sha256": "f1e0398f1b9adcc6b5e531915263cd1a404cb342204d263c77c84cb49d2ea87d"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): projection surfaces the most recent terminal for the current generation across work_version (M1 closure); read-only. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): observation type carries verification and preview; read-only.",
+      "sha256": "14246efcdb18acc088365ef88014ffc16d4e3c563f2d8b07965ad678463f8d56"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
-      "reason": "Durable lease/generation fencing, current Agent/repository checks, exact candidate identity and protected evidence precede bounded GitHub publication; no blind retry.",
-      "sha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318"
+      "reason": "Durable lease/generation fencing, current Agent/repository checks, exact candidate identity and protected evidence precede bounded GitHub publication; no blind retry. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): review feedback check schema references blackBoxCheckSchema; unchanged semantics.",
+      "sha256": "f195b1cc2007edf7093e42d2ca206fc9ee0b01340c865bd1450c2f8f113ab208"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3544,8 +3544,8 @@
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
-      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: for an external-alpha installation start/reconcile/stop go to lib/external-alpha/work-action.ts (single-use authority, independent Factory validation) instead of the canary queue; ActionGateway wrapper retained. Canary and other deployments take the existing branches.",
-      "sha256": "3645108c42849ff5c846bbb8f81408497d7dcf56d53ea68e43a40090e5300539",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: for an external-alpha installation start/reconcile/stop go to lib/external-alpha/work-action.ts (single-use authority, independent Factory validation) instead of the canary queue; ActionGateway wrapper retained. Canary and other deployments take the existing branches. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): LIVE refusal lifted only via liveFactoryAuthorized (MYEVE_FACTORY_LOCAL_LIVE, loopback LIVE Factory, factory spend admission); config derived from the selected Work; gateway unchanged.",
+      "sha256": "74bbd55663e9d9d6b64dbec6781d20b733928d2c7c076f85c5e040703ccfb453",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -3610,13 +3610,13 @@
     },
     "lib/engineering/factory-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): owner constructor wires FactoryCapabilityClient with sourcePermit/relayPermit callbacks; no paid dispatch enabled.",
-      "sha256": "66d2fb6b66bd736c53f7e918a88a8913ea9930c75fb6d7f7470de8cf0267e48f"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): owner constructor wires FactoryCapabilityClient with sourcePermit/relayPermit callbacks; no paid dispatch enabled. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): Work-scoped config re-read on every authority check; local path no longer runs MyEve Docker verification and requires command checks.",
+      "sha256": "9a5ce051041298a43b1025dc53b20279232e0414319ed3627d9bb5670f76e024"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): unsigned legacy prepare path excluded for a receiver-enrolled Factory; capability client mandatory (M3 closure).",
-      "sha256": "05cd58d74a70e68d898c51551b624e646f418d4019483bf44b16525f1e820c3b"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): unsigned legacy prepare path excluded for a receiver-enrolled Factory; capability client mandatory (M3 closure). Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): adds preview(): POST to the configured loopback origin only, response bound to request and candidate.",
+      "sha256": "5d34ae8cc9ec70a9af55751fe6b0e276929911daf3543a7132b2f3e9d992c83c"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3630,13 +3630,13 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): sealed terminal is Work/generation-scoped; a version bump cannot reopen preparation (M1 closure); ADMISSION_UNCERTAIN requires an explicit new generation.",
-      "sha256": "b2ffe3790f79400192065e90ce89eec734eebb653faa56ac4e5148d0e6e2deb0"
+      "reason": "Owner Mission admissions retain exact verified permit/receipt through canonical route admission and existing writer/accounting fences. Delayed revocation targets the original run ID and retries unresolved historical acknowledgments without stopping a successor writer. Owner0099 independent review and 127 affected tests, including 48 PostgreSQL cases, pass. Reviewed at MyEve d36b27ab (Claude exact-source review 04590578a880291acb8aebea32f7b41be932cbf80eadcb0ce2b5cdb56518c34f; hosted executor-governance refresh 2026-10-13): sealed terminal is Work/generation-scoped; a version bump cannot reopen preparation (M1 closure); ADMISSION_UNCERTAIN requires an explicit new generation. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): MyFactory signed-check verifier for command-check profiles; preview requested after a PARTIAL Result, failure recorded without changing the Result.",
+      "sha256": "7377da78ee6c370f202f77bc0ade79822e2a95d040c88798dc07834d95ec3f64"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "01149d4a175414131617a34d0feffe20f65d5a2960ddaa36c8fc52323cdc93f3"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): passes the Work id to factoryRuntime.",
+      "sha256": "30bbe1fa7ca69a7673ca0f997d89b4666e41c1a0b0deb4e01d782bde8665ad01"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3650,8 +3650,8 @@
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "a68ddbd42c1262bd401ea1b58b2f54b382de2eb03c8613f61069092aa4bdef1a"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): factoryConfig(work) uses the owner-app profile under its switch; existing branches unchanged.",
+      "sha256": "95c3f2034047fa02ef03d4616620db02a58f0904aa56fc5427b4d35bed7198ef"
     },
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
@@ -3735,8 +3735,8 @@
     },
     "lib/engineering/factory-worker-approval.ts": {
       "classification": "INTERNAL",
-      "reason": "Local LIVE worker requires direct owner authorization bound to exact Work ID, version and generation before canonical dispatch; activation alone grants nothing.",
-      "sha256": "a4daf031954ab3870ce2cfccb1ba6d6f979feead1f68ea02baa6065e87e1124d"
+      "reason": "Local LIVE worker requires direct owner authorization bound to exact Work ID, version and generation before canonical dispatch; activation alone grants nothing. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): operator env pin replaced by owner-started Work only under MYEVE_FACTORY_LOCAL_LIVE (tested).",
+      "sha256": "bc962691ac679da5302ad2835b7e1c23741b8bec1fb20e0a1b527592a1c95c76"
     },
     "lib/engineering/alpha-conversation-policy.ts": {
       "classification": "INTERNAL",
@@ -3861,8 +3861,8 @@
     },
     "lib/engineering/cloud-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "47fa5c6c5b03d79ec8cdcb54a36b87a9e31a21f1d2f90dca0a6bf2496ad4ca3c"
+      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): factoryRuntime now receives the Work id; behavior unchanged for cloud.",
+      "sha256": "696ecfe648bb553e756d44a9e9be3ca2abf8aa6be6c5806112fe3328e44dc2cc"
     },
     "lib/engineering/cloud-conversation-model.ts": {
       "classification": "ENFORCED",
@@ -4307,8 +4307,8 @@
     },
     "agent/tools/mission_control.ts": {
       "classification": "ENFORCED",
-      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation. Owner-only, unavailable to subagents; strict installed preparation input delegates to the separately reviewed canonical gateway adapter. Owner approval remains in MissionControl; no tool can approve its own request.",
-      "sha256": "0c239cd8068b818c161aeb9a7be6475f858f8d3b3e1b2f8b881a7a272f6789b2"
+      "reason": "Thin ownerOnly tool delegates to executeEnterpriseTool; unavailable to subagents. Adapter enforces configured exact owner web session, current initiator, primary Agent, ActionGateway and both authority handles. Owner proposal authorization and Result acceptance stay in canonical MissionControl. Eight missioncontrol-consumer denial/signature tests and hosted 15-check consumer qualification cover this isolated draft/read boundary; no production activation. Owner-only, unavailable to subagents; strict installed preparation input delegates to the separately reviewed canonical gateway adapter. Owner approval remains in MissionControl; no tool can approve its own request. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): input schema is one top-level object refined to exactly one existing variant; execution still parses the original union. No authority change.",
+      "sha256": "fd44a7d6efa3e468a5a6d3b6fb40c2558a21de8ca3770656dd9dc6ae9f855954"
     },
     "lib/missioncontrol/consumer.ts": {
       "classification": "ENFORCED",
@@ -4367,8 +4367,8 @@
     },
     "lib/missioncontrol/prepare-execution.ts": {
       "classification": "ENFORCED",
-      "reason": "Explicit owner Factory configuration binds canonical current Work and persists origin before Mission approval; External Alpha preparation retained. Does not reserve money or dispatch; current owner, Work version/generation and operator-enrolled Factory/profile are mandatory. Owner0099 reviewed and PostgreSQL-qualified.",
-      "sha256": "bb51a26a5e110678853c6e0158de4da407d0edda91494e5e7472706f9193bd69"
+      "reason": "Explicit owner Factory configuration binds canonical current Work and persists origin before Mission approval; External Alpha preparation retained. Does not reserve money or dispatch; current owner, Work version/generation and operator-enrolled Factory/profile are mandatory. Owner0099 reviewed and PostgreSQL-qualified. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): adds missionControlToolSchema (object form of the existing union).",
+      "sha256": "68c1545146ed835142efd417e1c9682ff93e30b72ba2d28221b7dad18e79d797"
     },
     "lib/missioncontrol/result-protocol.ts": {
       "classification": "INTERNAL",
@@ -4447,8 +4447,8 @@
     },
     "lib/missioncontrol/owner-reconciliation.ts": {
       "classification": "ENFORCED",
-      "reason": "Deny-only callback and bounded fair scheduled recovery reuse current authenticated owner enrollment and existing hosted guard. Exact Work version/generation/tuple chooses owner versus Alpha history. Signed fence is retained before lazy runtime construction; revoked idle/terminal permits remain recoverable. No new Work, dispatch, paid retry or verification authority.",
-      "sha256": "09b7bf15b55f00d52f557781eaa78114a39a4ac3c3efeab4aa500160bf22eeea"
+      "reason": "Deny-only callback and bounded fair scheduled recovery reuse current authenticated owner enrollment and existing hosted guard. Exact Work version/generation/tuple chooses owner versus Alpha history. Signed fence is retained before lazy runtime construction; revoked idle/terminal permits remain recoverable. No new Work, dispatch, paid retry or verification authority. Reviewed 2026-11-05 owner-app MyFactory integration (codex/private-beta-myfactory-integration-20261104): passes the Work id to factoryRuntime.",
+      "sha256": "9e1380890af21cc345579aaf3b052e97d63ed8111515d6e89b2a5548bad970c8"
     },
     "lib/myapps/owner-tasks-result.ts": {
       "classification": "READ_ONLY",
@@ -4534,6 +4534,32 @@
       "classification": "INTERNAL",
       "reason": "Same-origin recovery requires an installation-scoped, expiring, single-use bearer token; replay, collisions and excess attempts denied. Independently re-reviewed 2026-10-22; exact deployed auth source 7e191bdd; prior independent PostgreSQL security suite 18/18 passed; see docs/verification/2026-10-22-auth-security-review.md.",
       "sha256": "e01472fbe118162e024eb66c502cfe16b90aaaf31990291005848bf005c7ef96"
+    },
+    "agent/tools/build_app.ts": {
+      "classification": "ENFORCED",
+      "disposition": "gateway",
+      "reason": "Owner-only, switch-gated thin entry: creates canonical Work bound to the owner app repository and LIVE envelope, resumes it and calls the existing factoryAction start through ActionGateway target/effect/provider authority. No coding, checks, repair, spend or publication in MyEve.",
+      "sha256": "3711b91be637040978c78c4ef23bea14ed59cace35ae17eeb0cad8762ca631a2"
+    },
+    "lib/engineering/factory-signed-check-verifier.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Rechecks current Gate C receipt and Factory signing keys and projects MyFactory signed check outcomes onto profile command checks; runs no candidate code, Docker, model or publication.",
+      "sha256": "c41baa2c5dffb627f383e1cbbd46526cec52620858645ccc339b6322a563bf16"
+    },
+    "lib/engineering/owner-app-profile.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reads the host owner-app profile and derives the Work-scoped engineering profile; requires loopback LIVE MyFactory bound to owner and repository and the $1.35/600 s envelope. Grants no execution.",
+      "sha256": "88d875dc2f88b4fa917085868fa205ea42cbfb7cca5413e49e76e88b94f640d0"
+    },
+    "lib/engineering/owner-app-switch.ts": {
+      "classification": "INTERNAL",
+      "reason": "Named host switch MYEVE_FACTORY_LOCAL_LIVE; false in production and on Vercel.",
+      "sha256": "afba08e38e18b1a8ad0c3b35947ad1dc71eec1a0f425ba0d68251e52cdf67368"
+    },
+    "lib/engineering/owner-app-build.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes canonical Work create, resume and the injected existing Factory start; idempotency key per owner and tool call.",
+      "sha256": "00670adc00a985bb8b111d80fa666decf7b03081fc57dd67bc36159c609cef68"
     }
   }
 }
