@@ -9,6 +9,16 @@ export const pathSchema = z.string().min(1).max(240).refine(path =>
   !path.split("/").some(part => !part || part === "." || part === "..") &&
   !path.split("/").some(part => part.startsWith(".")) &&
   !/(^|\/)(node_modules|vendor|credentials|secrets)(\/|$)/i.test(path), "A bounded source path is required.");
+// The trusted supervisor compares black-box output; candidate code cannot terminate its assertions.
+export const blackBoxCheckSchema = z.object({ id: z.string().regex(/^[\w-]+$/), program: pathSchema,
+  input: z.string().max(16000), expectedOutput: z.string().max(16000), expectedExitCode: z.number().int().min(0).max(255),
+  criterionIds: z.array(z.string().uuid()).min(1) }).strict();
+// MyFactory runs this exact configured command in its offline verifier and signs the outcome; MyEve only consumes it.
+export const factoryCommandCheckSchema = z.object({ id: z.string().regex(/^[\w-]+$/), command: z.string().min(1).max(2000),
+  criterionIds: z.array(z.string().uuid()).min(1) }).strict();
+export type BlackBoxCheck = z.infer<typeof blackBoxCheckSchema>;
+export type FactoryCommandCheck = z.infer<typeof factoryCommandCheckSchema>;
+export const isFactoryCommandCheck = (check: BlackBoxCheck | FactoryCommandCheck): check is FactoryCommandCheck => "command" in check;
 export const profileSchema = z.object({
   id: z.string().min(1).max(100), version: z.number().int().positive(),
   repository: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
@@ -16,21 +26,25 @@ export const profileSchema = z.object({
   publicOutputContract: publicOutputBindingSchema.optional(),
   baseBranch: z.string().regex(/^[\w/-]+$/),
   allowedPaths: z.array(pathSchema).min(1).max(30),
-  // The trusted supervisor compares black-box output; candidate code cannot terminate its assertions.
-  checks: z.array(z.object({ id: z.string().regex(/^[\w-]+$/), program: pathSchema,
-    input: z.string().max(16000), expectedOutput: z.string().max(16000), expectedExitCode: z.number().int().min(0).max(255),
-    criterionIds: z.array(z.string().uuid()).min(1) }).strict()).min(1).max(20),
+  checks: z.array(z.union([blackBoxCheckSchema, factoryCommandCheckSchema])).min(1).max(20),
   requiredCI: z.array(z.string().min(1).max(100)).min(1).max(10),
   reviewerLogins: z.array(z.string().regex(/^[\w-]+$/)).min(1).max(10),
   policyVersion: z.number().int().positive(),
   executor: z.enum(["claude-code","factory-cloud"]),
-  image: z.string().regex(/^[\w./:-]+@sha256:[a-f0-9]{64}$/),
+  // A repository digest, or an immutable local image ID for a host-pinned MyFactory verification image.
+  image: z.string().regex(/^(?:[\w./:-]+@)?sha256:[a-f0-9]{64}$/),
   maxRuns: z.number().int().min(1).max(8),
   maxModelRequests: z.number().int().min(1).max(30),
   maxOutputTokens: z.number().int().min(256).max(8192),
   qualificationFirstRunFault: z.literal("parse-int-fraction").optional(),
 }).strict();
 export type RepositoryProfile = z.infer<typeof profileSchema>;
+/** Paths that execute or compare candidate output inside MyEve accept only black-box checks. */
+export function blackBoxChecks(profile: Pick<RepositoryProfile, "checks">): BlackBoxCheck[] {
+  if (profile.checks.some(isFactoryCommandCheck))
+    throw new WorkError("verification_profile", "Factory command checks are verified only from MyFactory signed evidence.", 409);
+  return profile.checks as BlackBoxCheck[];
+}
 export interface WorkContract {
   workId: string; scope: WorkPrincipal; humanOwner: string; coordinatingAgent: string;
   repository: string; issue: number; issueUrl: string; issueBody: string; objective: string;

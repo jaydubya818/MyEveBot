@@ -1,13 +1,12 @@
 import type { gateway } from "ai";
 import type { NativeExecutionCapsule } from "./native-execution-controller.ts";
 import type { nativeCompletionState } from "./native-completion.ts";
-import { digest } from "./contract.ts";
+import { digest, isFactoryCommandCheck, type BlackBoxCheck, type FactoryCommandCheck } from "./contract.ts";
 import { WorkError } from "./types.ts";
 
 type Options = Parameters<ReturnType<typeof gateway>["doGenerate"]>[0];
 type State = Awaited<ReturnType<typeof nativeCompletionState>>;
-type Check = { id:string; input:string; expectedOutput:string; expectedExitCode:number; criterionIds:string[] };
-type Config = { objective?:string; criteria?:unknown; nativeMode?:string; profile:{ checks?:Check[] } };
+type Config = { objective?:string; criteria?:unknown; nativeMode?:string; profile:{ checks?:readonly (BlackBoxCheck|FactoryCommandCheck)[] } };
 const bytes = (value:unknown) => Buffer.byteLength(JSON.stringify(value));
 export const repairContextBytes = (options:Options) => bytes({prompt:options.prompt,tools:options.tools}) + 4096;
 
@@ -48,7 +47,7 @@ export function repairModelOptions(options:Options,config:Config,state:State,con
     // Actual content and the retained hash must agree; never relabel different logs.
     if(digest(artifact)!==e.artifactHash)throw new WorkError("repair_context_evidence","Protected diagnostic digest mismatch.");
     diagnostics[ref]=excerpt(artifact,Buffer.byteLength(artifact),ref);
-    const check=config.profile.checks?.find(c=>c.id===e.check);
+    const check=config.profile.checks?.find((c):c is BlackBoxCheck=>c.id===e.check&&!isFactoryCommandCheck(c));
     return {check:e.check,result:e.result,verifier,diagnostic:Object.keys(diagnostics).indexOf(ref),...(check?{expected:{input:check.input,output:check.expectedOutput,exitCode:check.expectedExitCode}}:{})};
   });
   const plan=controller.known.plan;

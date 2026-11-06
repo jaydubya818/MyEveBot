@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { digest, type WorkContract } from "./contract.ts";
+import { blackBoxChecks, digest, type WorkContract } from "./contract.ts";
 import { createCandidate, type RepositorySnapshot } from "./github.ts";
 import { nowIso, type Candidate, type EngineeringRun, type Evidence } from "./execution.ts";
 import type { Executor, ProtectedVerifier } from "./executor.ts";
@@ -213,7 +213,7 @@ export class DockerProtectedVerifier implements ProtectedVerifier {
         throw new Error("A prior verifier volume needs reconciliation.");
       initializedVolume=true;
       await volume(image,name,candidate.files);
-      for(const check of contract.profile.checks) {
+      for(const check of blackBoxChecks(contract.profile)) {
         const container=`${name}-${check.id}`;
         let result:Evidence["result"]="UNKNOWN", artifact="";
         try {

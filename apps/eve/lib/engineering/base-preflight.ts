@@ -1,7 +1,7 @@
 import { validatePublicOutputContract } from "./public-output-contract.ts";
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { shaSchema, type RepositoryProfile } from "./contract.ts";
+import { blackBoxChecks, shaSchema, type RepositoryProfile } from "./contract.ts";
 import type { RepositorySnapshot } from "./github.ts";
 import { WorkError } from "./types.ts";
 
@@ -40,7 +40,7 @@ export function manifestForSnapshot(snapshot: RepositorySnapshot): ApprovedBase 
 /** Admission uses a separately pinned, reviewed manifest; it never learns its approval from the current GitHub response. */
 export function preflightApprovedBase(profile: RepositoryProfile, approved: ApprovedBase, observed: RepositorySnapshot, issueNumber: number) {
   const expected = approvedBaseSchema.parse(approved);
-  if(profile.publicOutputContract)validatePublicOutputContract(profile.publicOutputContract,observed.files,profile.checks);
+  if(profile.publicOutputContract)validatePublicOutputContract(profile.publicOutputContract,observed.files,blackBoxChecks(profile));
   if (profile.repository === GOLDEN_QUALIFICATION_REPOSITORY) {
     const safeIntegerBase = expected.sha === GOLDEN_SAFE_INTEGER_BASE_SHA;
     const publicContractBase = safeIntegerBase || expected.sha === GOLDEN_PUBLIC_CONTRACT_BASE_SHA;

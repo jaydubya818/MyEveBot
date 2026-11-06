@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { digest, profileSchema, shaSchema } from "./contract.ts";
+import { blackBoxCheckSchema, digest, shaSchema } from "./contract.ts";
 import { invalidateEvidence, latestCandidate, nowIso, queueRun, readiness, type Execution, type GitHubTruth } from "./execution.ts";
 import { assertCandidateIdentity, workBranch, type EngineeringGitHub, type RepositorySnapshot } from "./github.ts";
 import type { Executor, ProtectedVerifier } from "./executor.ts";
@@ -8,7 +8,7 @@ import type { ExecutionStore } from "./execution-store.ts";
 import { WorkError } from "./types.ts";
 
 const feedbackSchema=z.object({scope:z.literal("within-existing-criteria"),criterionId:z.string().uuid(),instruction:z.string().min(1).max(2000),
-  check:profileSchema.shape.checks.element.omit({id:true,criterionIds:true})}).strict();
+  check:blackBoxCheckSchema.omit({id:true,criterionIds:true})}).strict();
 export function boundedReview(state:Execution,review:NonNullable<Execution["truth"]>["reviews"][number]) {
   if (!state.contract.profile.reviewerLogins.includes(review.author)) throw new WorkError("review_authority","Review requires an authorized reviewer decision.");
   let value:unknown;try {value=JSON.parse(review.body);}catch{throw new WorkError("review_ambiguity","Review is not an explicit in-scope verification request. Human judgment is required.");}

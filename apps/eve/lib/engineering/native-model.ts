@@ -39,7 +39,7 @@ export function nativeModelOptions(options: Options, maxOutputTokens: number): O
 /** Replace accumulated native tool history with the exact current durable state.
  * Raw conversation and evidence remain retained; no model summary or cost estimate
  * substitutes for authoritative state. Oversized current intent/state fails closed. */
-export function completionModelOptions(options:Options,config:{objective?:string;criteria?:unknown;nativeMode?:string;profile:{maxOutputTokens:number;checks?:{id:string;input:string;expectedOutput:string;expectedExitCode:number;criterionIds:string[]}[]}},
+export function completionModelOptions(options:Options,config:{objective?:string;criteria?:unknown;nativeMode?:string;profile:{maxOutputTokens:number;checks?:readonly (import("./contract.ts").BlackBoxCheck|import("./contract.ts").FactoryCommandCheck)[]}},
   state:Awaited<ReturnType<typeof nativeCompletionState>>, truth: string[] = [], metadata?: {workId:string;expectedWorkVersion:number;expectedWorkGeneration:number;nativeExecution?: import("./worker-projection.ts").EngineeringWorkerProjection["nativeExecution"];executionController?:NativeExecutionCapsule|null}):Options {
   const latest=options.prompt.findLast(message=>message.role==="user");
   const intent=latest?.role==="user" ? latest.content.filter(part=>part.type==="text").map(part=>part.text).join("\n") : "";
