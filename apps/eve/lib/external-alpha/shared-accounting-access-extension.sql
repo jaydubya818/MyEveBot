@@ -6,17 +6,17 @@
 -- records an append-only audit row (who, when, reason) in the same transaction.
 -- activated_at stays immutable; admission/dispatch history and every daily and
 -- lifetime cap ($1/$5 per owner, $2/$10 per cohort) are untouched.
--- Effective expiry = GREATEST(activated_at+120h, COALESCE(extended_until, activated_at+120h)),
--- extended_until capped at activated_at+120h+14 days.
+-- Effective expiry = GREATEST(activated_at+120h, COALESCE(extended_until, activated_at+120h)).
+-- Cap: extended_until <= first recorded approval time (server clock) + 14 days.
 -- Withdraw an extension: set external_alpha_cohort.revoked_at (immediate, permanent).
 -- Schema rollback: re-apply the hash-pinned shared-accounting-chat-only.sql, which restores
 -- the fixed 120-hour external_alpha_cohort_call; the column, audit rows and stricter guard
 -- remain and are inert.
 -- Re-applying this exact file is a no-op (no row is changed; recorded extensions are kept).
 ALTER TABLE external_alpha_cohort ADD COLUMN IF NOT EXISTS extended_until timestamptz DEFAULT NULL;
-ALTER TABLE external_alpha_cohort DROP CONSTRAINT IF EXISTS external_alpha_cohort_extension_cap;
-ALTER TABLE external_alpha_cohort ADD CONSTRAINT external_alpha_cohort_extension_cap CHECK(extended_until IS NULL OR (activated_at IS NOT NULL
- AND extended_until>activated_at+interval '120 hours' AND extended_until<=activated_at+interval '120 hours'+interval '14 days'));
+ALTER TABLE external_alpha_cohort DROP CONSTRAINT IF EXISTS external_alpha_cohort_extension_after_expiry;
+ALTER TABLE external_alpha_cohort ADD CONSTRAINT external_alpha_cohort_extension_after_expiry CHECK(extended_until IS NULL OR (activated_at IS NOT NULL
+ AND extended_until>activated_at+interval '120 hours'));
 CREATE OR REPLACE FUNCTION external_alpha_cohort_access_until(activated timestamptz, extended timestamptz) RETURNS timestamptz LANGUAGE sql STABLE SET search_path=pg_catalog,pg_temp AS $$
  SELECT GREATEST(activated+interval '120 hours',COALESCE(extended,activated+interval '120 hours'))
 $$;
@@ -25,13 +25,24 @@ CREATE TABLE IF NOT EXISTS external_alpha_cohort_access_extension (
  cohort_id uuid NOT NULL REFERENCES external_alpha_cohort(id),
  activated_at timestamptz NOT NULL,
  previous_extended_until timestamptz,
- extended_until timestamptz NOT NULL CHECK(extended_until>activated_at+interval '120 hours' AND extended_until<=activated_at+interval '120 hours'+interval '14 days'),
+ extended_until timestamptz NOT NULL CHECK(extended_until>activated_at+interval '120 hours'),
  approved_by text NOT NULL CHECK(length(btrim(approved_by)) BETWEEN 1 AND 200),
  reason text NOT NULL CHECK(length(btrim(reason)) BETWEEN 10 AND 2000),
  approved_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ window_started_at timestamptz NOT NULL,
  approval_txid bigint NOT NULL DEFAULT txid_current(),
+ CHECK(window_started_at<=approved_at AND extended_until>approved_at AND extended_until<=window_started_at+interval '14 days'),
  CHECK(previous_extended_until IS NULL OR previous_extended_until<extended_until)
 );
+-- Server-stamped approval time, txid and window start (first approval for the cohort).
+CREATE OR REPLACE FUNCTION external_alpha_cohort_access_extension_stamp() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
+BEGIN
+ NEW.approved_at=clock_timestamp(); NEW.approval_txid=txid_current();
+ NEW.window_started_at=COALESCE((SELECT min(approved_at) FROM external_alpha_cohort_access_extension WHERE cohort_id=NEW.cohort_id),NEW.approved_at);
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS external_alpha_cohort_access_extension_stamp ON external_alpha_cohort_access_extension;
+CREATE TRIGGER external_alpha_cohort_access_extension_stamp BEFORE INSERT ON external_alpha_cohort_access_extension FOR EACH ROW EXECUTE FUNCTION external_alpha_cohort_access_extension_stamp();
 CREATE OR REPLACE FUNCTION external_alpha_cohort_access_extension_immutable() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 BEGIN
  RAISE EXCEPTION 'EXTERNAL_ALPHA_ACCESS_EXTENSION_IMMUTABLE';
@@ -67,7 +78,7 @@ BEGIN
 END $$;
 -- The only supported way to set extended_until. Operator-run (no PUBLIC grant).
 CREATE OR REPLACE FUNCTION external_alpha_cohort_approve_access_extension(p jsonb) RETURNS jsonb LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
-DECLARE c external_alpha_cohort%ROWTYPE; prior external_alpha_cohort_access_extension%ROWTYPE; until timestamptz;
+DECLARE c external_alpha_cohort%ROWTYPE; prior external_alpha_cohort_access_extension%ROWTYPE; until timestamptz; n timestamptz; window_start timestamptz;
 BEGIN
  SELECT * INTO STRICT c FROM external_alpha_cohort WHERE id=(p->>'cohortId')::uuid FOR UPDATE;
  until=(p->>'extendedUntil')::timestamptz;
@@ -79,8 +90,10 @@ BEGIN
   RETURN to_jsonb(prior)||jsonb_build_object('replayed',true,'accessUntil',external_alpha_cohort_access_until(c.activated_at,c.extended_until));
  END IF;
  IF c.activated_at IS NULL OR c.revoked_at IS NOT NULL THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_EXTENSION_NOT_ACTIVE'; END IF;
- IF until IS NULL OR until<=c.activated_at+interval '120 hours' OR until>c.activated_at+interval '120 hours'+interval '14 days'
-  OR until<=clock_timestamp() OR (c.extended_until IS NOT NULL AND until<=c.extended_until)
+ n=clock_timestamp();
+ window_start=COALESCE((SELECT min(approved_at) FROM external_alpha_cohort_access_extension WHERE cohort_id=c.id),n);
+ IF until IS NULL OR until<=c.activated_at+interval '120 hours' OR until<=n OR until>window_start+interval '14 days'
+  OR (c.extended_until IS NOT NULL AND until<=c.extended_until)
  THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_EXTENSION_OUT_OF_BOUNDS'; END IF;
  INSERT INTO external_alpha_cohort_access_extension(id,cohort_id,activated_at,previous_extended_until,extended_until,approved_by,reason)
  VALUES((p->>'approvalId')::uuid,c.id,c.activated_at,c.extended_until,until,p->>'approvedBy',p->>'reason') RETURNING * INTO prior;
@@ -88,7 +101,7 @@ BEGIN
  RETURN to_jsonb(prior)||jsonb_build_object('replayed',false,'accessUntil',external_alpha_cohort_access_until(c.activated_at,until));
 END $$;
 REVOKE ALL ON external_alpha_cohort_access_extension FROM PUBLIC;
-REVOKE ALL ON FUNCTION external_alpha_cohort_approve_access_extension(jsonb),external_alpha_cohort_access_extension_immutable(),external_alpha_cohort_access_until(timestamptz,timestamptz) FROM PUBLIC;
+REVOKE ALL ON FUNCTION external_alpha_cohort_approve_access_extension(jsonb),external_alpha_cohort_access_extension_immutable(),external_alpha_cohort_access_extension_stamp(),external_alpha_cohort_access_until(timestamptz,timestamptz) FROM PUBLIC;
 -- Body from shared-accounting-chat-only.sql; only the 120-hour expiry expression is replaced.
 CREATE OR REPLACE FUNCTION external_alpha_cohort_call(p jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE c external_alpha_cohort%ROWTYPE; m external_alpha_cohort_member%ROWTYPE; prior external_alpha_cohort_admission%ROWTYPE;

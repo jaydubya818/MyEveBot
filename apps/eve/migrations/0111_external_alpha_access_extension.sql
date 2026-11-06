@@ -3,12 +3,13 @@
 -- external_alpha_approve_access_extension(), which records an append-only audit
 -- row (who, when, reason) in the same transaction. activated_at stays immutable;
 -- allowance/operation/effect rows and every daily/lifetime charge are untouched.
--- Effective expiry = GREATEST(activated_at+120h, COALESCE(extended_until, activated_at+120h)),
--- and extended_until is capped at activated_at+120h+14 days.
+-- Effective expiry = GREATEST(activated_at+120h, COALESCE(extended_until, activated_at+120h)).
+-- Cap: extended_until <= first recorded approval time (server clock) + 14 days, so a tester
+-- who expired long ago gets at most 14 days of access from Jay's approval, never more in total.
 ALTER TABLE external_alpha_policy ADD COLUMN extended_until timestamptz DEFAULT NULL;
 -- statement-breakpoint
-ALTER TABLE external_alpha_policy ADD CONSTRAINT external_alpha_policy_extension_cap CHECK(extended_until IS NULL OR (activated_at IS NOT NULL
- AND extended_until>activated_at+interval '120 hours' AND extended_until<=activated_at+interval '120 hours'+interval '14 days'));
+ALTER TABLE external_alpha_policy ADD CONSTRAINT external_alpha_policy_extension_after_expiry CHECK(extended_until IS NULL OR (activated_at IS NOT NULL
+ AND extended_until>activated_at+interval '120 hours'));
 -- statement-breakpoint
 CREATE FUNCTION external_alpha_access_until(activated timestamptz, extended timestamptz) RETURNS timestamptz LANGUAGE sql STABLE SET search_path=pg_catalog,pg_temp AS $$
  SELECT GREATEST(activated+interval '120 hours',COALESCE(extended,activated+interval '120 hours'))
@@ -20,13 +21,26 @@ CREATE TABLE external_alpha_access_extension (
  policy_sha256 text NOT NULL CHECK(policy_sha256 ~ '^[a-f0-9]{64}$'),
  activated_at timestamptz NOT NULL,
  previous_extended_until timestamptz,
- extended_until timestamptz NOT NULL CHECK(extended_until>activated_at+interval '120 hours' AND extended_until<=activated_at+interval '120 hours'+interval '14 days'),
+ extended_until timestamptz NOT NULL CHECK(extended_until>activated_at+interval '120 hours'),
  approved_by text NOT NULL CHECK(length(btrim(approved_by)) BETWEEN 1 AND 200),
  reason text NOT NULL CHECK(length(btrim(reason)) BETWEEN 10 AND 2000),
  approved_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ window_started_at timestamptz NOT NULL,
  approval_txid bigint NOT NULL DEFAULT txid_current(),
+ CHECK(window_started_at<=approved_at AND extended_until>approved_at AND extended_until<=window_started_at+interval '14 days'),
  CHECK(previous_extended_until IS NULL OR previous_extended_until<extended_until)
 );
+-- statement-breakpoint
+-- Server-stamped: callers cannot supply approval time, txid or window start. The window
+-- starts at the first approval for this owner/policy and never moves.
+CREATE FUNCTION external_alpha_access_extension_stamp() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
+BEGIN
+ NEW.approved_at=clock_timestamp(); NEW.approval_txid=txid_current();
+ NEW.window_started_at=COALESCE((SELECT min(approved_at) FROM external_alpha_access_extension WHERE owner_id=NEW.owner_id AND policy_sha256=NEW.policy_sha256),NEW.approved_at);
+ RETURN NEW;
+END $$;
+-- statement-breakpoint
+CREATE TRIGGER external_alpha_access_extension_stamp BEFORE INSERT ON external_alpha_access_extension FOR EACH ROW EXECUTE FUNCTION external_alpha_access_extension_stamp();
 -- statement-breakpoint
 CREATE FUNCTION external_alpha_access_extension_immutable() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 BEGIN
@@ -56,7 +70,7 @@ END $$;
 -- The only supported way to set extended_until. Operator-run (no PUBLIC grant).
 -- Exact replay of the same approvalId is a no-op that returns the recorded row.
 CREATE FUNCTION external_alpha_approve_access_extension(p jsonb) RETURNS jsonb LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
-DECLARE policy external_alpha_policy%ROWTYPE; prior external_alpha_access_extension%ROWTYPE; until timestamptz;
+DECLARE policy external_alpha_policy%ROWTYPE; prior external_alpha_access_extension%ROWTYPE; until timestamptz; n timestamptz; window_start timestamptz;
 BEGIN
  SELECT * INTO STRICT policy FROM external_alpha_policy WHERE singleton FOR UPDATE;
  until=(p->>'extendedUntil')::timestamptz;
@@ -70,8 +84,10 @@ BEGIN
  IF p->>'ownerId' IS DISTINCT FROM policy.owner_id OR p->>'policySha256' IS DISTINCT FROM policy.policy_sha256
  THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_EXTENSION_WRONG_OWNER'; END IF;
  IF policy.activated_at IS NULL OR policy.revoked_at IS NOT NULL THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_EXTENSION_NOT_ACTIVE'; END IF;
- IF until IS NULL OR until<=policy.activated_at+interval '120 hours' OR until>policy.activated_at+interval '120 hours'+interval '14 days'
-  OR until<=clock_timestamp() OR (policy.extended_until IS NOT NULL AND until<=policy.extended_until)
+ n=clock_timestamp();
+ window_start=COALESCE((SELECT min(approved_at) FROM external_alpha_access_extension WHERE owner_id=policy.owner_id AND policy_sha256=policy.policy_sha256),n);
+ IF until IS NULL OR until<=policy.activated_at+interval '120 hours' OR until<=n OR until>window_start+interval '14 days'
+  OR (policy.extended_until IS NOT NULL AND until<=policy.extended_until)
  THEN RAISE EXCEPTION 'EXTERNAL_ALPHA_EXTENSION_OUT_OF_BOUNDS'; END IF;
  INSERT INTO external_alpha_access_extension(id,owner_id,policy_sha256,activated_at,previous_extended_until,extended_until,approved_by,reason)
  VALUES((p->>'approvalId')::uuid,policy.owner_id,policy.policy_sha256,policy.activated_at,policy.extended_until,until,p->>'approvedBy',p->>'reason') RETURNING * INTO prior;
@@ -81,7 +97,7 @@ END $$;
 -- statement-breakpoint
 REVOKE ALL ON external_alpha_access_extension FROM PUBLIC;
 -- statement-breakpoint
-REVOKE ALL ON FUNCTION external_alpha_approve_access_extension(jsonb),external_alpha_access_extension_immutable() FROM PUBLIC;
+REVOKE ALL ON FUNCTION external_alpha_approve_access_extension(jsonb),external_alpha_access_extension_immutable(),external_alpha_access_extension_stamp() FROM PUBLIC;
 -- statement-breakpoint
 -- Every function that enforced activated_at+120h now uses external_alpha_access_until().
 -- Body copied verbatim from 0091_external_alpha_chat_recovery.sql; only the 120-hour expiry expression is replaced.

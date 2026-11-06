@@ -9,7 +9,7 @@ import { readAlphaChatUsage } from "./usage.ts";
 import { connection, Env } from "./work-test-fixture.ts";
 
 // Pin for the NEW shared-accounting file only. The earlier shared-accounting*.sql files stay byte-identical.
-export const SHARED_ACCESS_EXTENSION_SHA256 = "f10452663849d83106f259a5f5c78b087a4b646d5a8197755428da79140e53bf";
+export const SHARED_ACCESS_EXTENSION_SHA256 = "e41013ed05f6ab1b1e9b0b30200a10cdd6631088bfe400e04890be505ba86380";
 const sharedFiles = ["shared-accounting.sql", "shared-accounting-recovery.sql", "shared-accounting-zero-gap.sql", "shared-accounting-chat-only.sql"];
 const extensionFile = "shared-accounting-access-extension.sql";
 const sql = (file: string) => readFile(new URL(file, import.meta.url), "utf8");
@@ -22,7 +22,7 @@ describe("pinned shared-accounting access extension", () => {
   });
 });
 
-describe.skipIf(!connection)("owner-approved external alpha access extension (default off, +14 days cap)", () => {
+describe.skipIf(!connection)("owner-approved external alpha access extension (default off, approval time + 14 days cap)", () => {
   const envs: Env[] = [];
   afterEach(async () => { await Promise.all(envs.splice(0).map(e => e.close())); }, 60000);
   async function fixtureChange(e: Env, text: string) {
@@ -47,13 +47,14 @@ describe.skipIf(!connection)("owner-approved external alpha access extension (de
     await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp()");
     const chat = (e: Env, id: string = randomUUID()) => new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
     // Testers activated more than 120 hours ago (the T-1 situation). Fixture-only clock change.
-    const expire = async () => {
-      for (const e of [a, b]) await fixtureChange(e, "UPDATE external_alpha_policy SET created_at=clock_timestamp()-interval '130 hours',activated_at=clock_timestamp()-interval '121 hours'");
-      await fixtureChange(central, "UPDATE external_alpha_cohort SET activated_at=clock_timestamp()-interval '121 hours'");
+    const expire = async (age = "121 hours") => {
+      for (const e of [a, b]) await fixtureChange(e, `UPDATE external_alpha_policy SET created_at=clock_timestamp()-interval '${age}'-interval '9 hours',activated_at=clock_timestamp()-interval '${age}'`);
+      await fixtureChange(central, `UPDATE external_alpha_cohort SET activated_at=clock_timestamp()-interval '${age}'`);
     };
-    // Bounds computed in SQL so microsecond precision is exact.
-    const at = async (e: Env, offset: string) => (await e.pool.query(`SELECT (activated_at+interval '120 hours'+interval '${offset}')::text AS t FROM external_alpha_policy`)).rows[0].t as string;
-    const atCentral = async (offset: string) => (await central.pool.query(`SELECT (activated_at+interval '120 hours'+interval '${offset}')::text AS t FROM external_alpha_cohort`)).rows[0].t as string;
+    // Bounds computed in SQL (server clock) so microsecond precision is exact.
+    const at = async (e: Env, offset: string) => (await e.pool.query(`SELECT (clock_timestamp()+interval '${offset}')::text AS t`)).rows[0].t as string;
+    const atCentral = (offset: string) => at(central, offset);
+    const fromActivation = async (e: Env, table: string, offset: string) => (await e.pool.query(`SELECT (activated_at+interval '120 hours'+interval '${offset}')::text AS t FROM ${table}`)).rows[0].t as string;
     const approve = async (e: Env, extendedUntil: string, over: Record<string, unknown> = {}) => (await e.pool.query("SELECT external_alpha_approve_access_extension($1::jsonb) AS r",
       [JSON.stringify({ approvalId: randomUUID(), ownerId: e.owner, policySha256: digest(e.policy), extendedUntil, approvedBy: "jay", reason: REASON, ...over })])).rows[0].r;
     const approveCentral = async (extendedUntil: string, over: Record<string, unknown> = {}) => (await central.pool.query("SELECT external_alpha_cohort_approve_access_extension($1::jsonb) AS r",
@@ -61,7 +62,7 @@ describe.skipIf(!connection)("owner-approved external alpha access extension (de
     const rows = async (e: Env, table: string) => (await e.pool.query(`SELECT row_to_json(t)::text AS r FROM ${table} t ORDER BY 1`)).rows.map((r: any) => r.r);
     const usageRows = async () => ({ allowance: await rows(a, "external_alpha_allowance"), operation: await rows(a, "external_alpha_operation"),
       admission: await rows(central, "external_alpha_cohort_admission"), dispatch: await rows(central, "external_alpha_cohort_dispatch") });
-    return { central, cohortId, a, b, chat, expire, at, atCentral, approve, approveCentral, usageRows };
+    return { central, cohortId, a, b, chat, expire, at, atCentral, fromActivation, approve, approveCentral, usageRows };
   }
 
   it("is off by default: NULL extension, unchanged 120-hour deadline, expiry and refusal", async () => {
@@ -85,7 +86,7 @@ describe.skipIf(!connection)("owner-approved external alpha access extension (de
 
   it("honors an approved extension per tester only when both the app DB and the shared cohort are extended", async () => {
     const { a, b, chat, expire, at, atCentral, approve, approveCentral } = await make();
-    await expire();
+    await expire("10 days");
     await expect(chat(a)).rejects.toThrow();
     const untilA = await at(a, "7 days"), untilC = await atCentral("10 days");
     const approved = await approve(a, untilA);
@@ -100,27 +101,40 @@ describe.skipIf(!connection)("owner-approved external alpha access extension (de
     await expect(chat(b)).rejects.toThrow(); // Tester 2's app DB was not extended.
   });
 
-  it("enforces the +14 day cap, forward-only moves and recorded owner approval on both databases", async () => {
-    const { central, a, expire, at, atCentral, approve, approveCentral } = await make();
-    await expire();
-    await expect(a.pool.query("UPDATE external_alpha_policy SET extended_until=activated_at+interval '121 hours'")).rejects.toThrow("REQUIRES_OWNER_APPROVAL");
-    await expect(central.pool.query("UPDATE external_alpha_cohort SET extended_until=activated_at+interval '121 hours'")).rejects.toThrow("REQUIRES_OWNER_APPROVAL");
-    for (const offset of ["14 days 0.000001 seconds", "0 seconds", "30 minutes"]) {
+  it("caps at approval time + 14 days: a tester expired long ago gets at most 14 days from the first approval", async () => {
+    const { central, a, expire, at, atCentral, fromActivation, approve, approveCentral } = await make();
+    await expire("30 days");
+    await expect(a.pool.query("UPDATE external_alpha_policy SET extended_until=clock_timestamp()+interval '1 day'")).rejects.toThrow("REQUIRES_OWNER_APPROVAL");
+    await expect(central.pool.query("UPDATE external_alpha_cohort SET extended_until=clock_timestamp()+interval '1 day'")).rejects.toThrow("REQUIRES_OWNER_APPROVAL");
+    // The old activation-relative cap is in the past for this tester: refused, as are >14 days and past times.
+    await expect(approve(a, await fromActivation(a, "external_alpha_policy", "14 days"))).rejects.toThrow("OUT_OF_BOUNDS");
+    await expect(approveCentral(await fromActivation(central, "external_alpha_cohort", "14 days"))).rejects.toThrow("OUT_OF_BOUNDS");
+    for (const offset of ["14 days 1 second", "-1 minute"]) {
       await expect(approve(a, await at(a, offset))).rejects.toThrow("OUT_OF_BOUNDS");
       await expect(approveCentral(await atCentral(offset))).rejects.toThrow("OUT_OF_BOUNDS");
     }
     await expect(approve(a, await at(a, "7 days"), { ownerId: randomUUID() })).rejects.toThrow("WRONG_OWNER");
     await expect(approve(a, await at(a, "7 days"), { reason: "short" })).rejects.toThrow("check constraint");
-    expect((await approve(a, await at(a, "7 days"))).replayed).toBe(false);
-    expect((await approve(a, await at(a, "14 days"))).previous_extended_until).not.toBeNull();
-    expect((await approveCentral(await atCentral("14 days"))).replayed).toBe(false);
-    await expect(approve(a, await at(a, "10 days"))).rejects.toThrow("OUT_OF_BOUNDS");
+    const first = await approve(a, await at(a, "7 days")), firstC = await approveCentral(await atCentral("14 days"));
+    expect(first.window_started_at).toBe(first.approved_at);
+    expect(new Date(firstC.extended_until).getTime() - new Date(firstC.approved_at).getTime()).toBeLessThanOrEqual(14 * 86400000);
+    // Exactly the window end is allowed; one microsecond past it is not; re-approval never restarts the window.
+    const windowEnd = (await a.pool.query("SELECT (window_started_at+interval '14 days')::text AS t FROM external_alpha_access_extension")).rows[0].t;
+    const pastWindow = (await a.pool.query("SELECT (window_started_at+interval '14 days 0.000001 seconds')::text AS t FROM external_alpha_access_extension")).rows[0].t;
+    await expect(approve(a, pastWindow)).rejects.toThrow("OUT_OF_BOUNDS");
+    const second = await approve(a, windowEnd);
+    expect(second).toMatchObject({ window_started_at: first.window_started_at, previous_extended_until: first.extended_until });
+    const [p] = (await a.pool.query("SELECT extended_until<=(SELECT min(approved_at) FROM external_alpha_access_extension)+interval '14 days' AS ok, extended_until-clock_timestamp()<=interval '14 days' AS from_now FROM external_alpha_policy")).rows;
+    expect(p).toEqual({ ok: true, from_now: true });
+    await expect(approve(a, await at(a, "10 days"))).rejects.toThrow("OUT_OF_BOUNDS"); // forward-only
     await expect(a.pool.query("UPDATE external_alpha_policy SET extended_until=NULL")).rejects.toThrow("REQUIRES_OWNER_APPROVAL");
-    // Even with triggers bypassed, the CHECK constraint caps the column.
-    await expect(fixtureChange(a, "UPDATE external_alpha_policy SET extended_until=activated_at+interval '120 hours'+interval '14 days 1 second'")).rejects.toThrow("external_alpha_policy_extension_cap");
-    await expect(fixtureChange(central, "UPDATE external_alpha_cohort SET extended_until=activated_at+interval '120 hours'+interval '14 days 1 second'")).rejects.toThrow("external_alpha_cohort_extension_cap");
+    // Approval time is server-stamped: a forged future approved_at cannot widen the window.
+    await expect(a.pool.query("INSERT INTO external_alpha_access_extension(id,owner_id,policy_sha256,activated_at,previous_extended_until,extended_until,approved_by,reason,approved_at,window_started_at) SELECT $1,owner_id,policy_sha256,activated_at,extended_until,clock_timestamp()+interval '30 days','jay',$2,'2030-01-01','2030-01-01' FROM external_alpha_policy",
+      [randomUUID(), REASON])).rejects.toThrow("check constraint");
+    await expect(fixtureChange(a, "UPDATE external_alpha_policy SET extended_until=activated_at+interval '120 hours'")).rejects.toThrow("external_alpha_policy_extension_after_expiry");
+    await expect(fixtureChange(central, "UPDATE external_alpha_cohort SET extended_until=activated_at+interval '120 hours'")).rejects.toThrow("external_alpha_cohort_extension_after_expiry");
     await a.pool.query("UPDATE external_alpha_policy SET revoked_at=clock_timestamp()");
-    await expect(approve(a, await at(a, "14 days"))).rejects.toThrow("NOT_ACTIVE");
+    await expect(approve(a, await at(a, "8 days"))).rejects.toThrow("NOT_ACTIVE");
   });
 
   it("never changes activated_at and keeps the approval audit append-only", async () => {
