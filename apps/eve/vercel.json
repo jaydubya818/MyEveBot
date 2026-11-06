@@ -74,7 +74,8 @@
       "codex/sofie-container-journey-20261105": false,
       "codex/private-beta-hosted-20261105": false,
       "codex/private-beta-hosted-confirm-20261105": false,
-      "codex/private-beta-release-20261106": false
+      "codex/private-beta-release-20261106": false,
+      "codex/private-beta-tester-extension-20261106": false
     }
   },
   "functions": {
