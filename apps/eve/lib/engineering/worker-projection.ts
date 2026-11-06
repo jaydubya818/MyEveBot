@@ -25,7 +25,7 @@ export interface EngineeringWorkerProjection {
   factoryReservationHolds?: {requestId:string;generation:number;state:string;accounting:'HOLD'}[];
   factoryReservationHistoryIncomplete?:boolean;
   factoryUnresolvedPreparations?: {requestId:string;generation:number;state:'UNRESOLVED';accounting:'UNRESOLVED'}[];
-  factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary}};
+  factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary;verification?:string;preview?:{url:string;candidateCommit:string}|{error:string}}};
   workId: string;
   title: string;
   objective: string;

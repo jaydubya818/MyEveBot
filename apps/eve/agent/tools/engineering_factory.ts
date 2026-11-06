@@ -18,6 +18,7 @@ import {
   factoryActionSchema,
 } from "../../lib/engineering/factory-api.ts";
 import { factoryConfig } from "../../lib/engineering/factory-routing.ts";
+import { liveFactoryAuthorized, localLiveFactoryEnabled } from "../../lib/engineering/owner-app-profile.ts";
 import { WorkStore } from "../../lib/engineering/store.ts";
 import { WorkError } from "../../lib/engineering/types.ts";
 import { EngineeringWorkerProjectionStore } from "../../lib/engineering/worker-projection.ts";
@@ -110,7 +111,7 @@ export default defineDynamic({
               );
               const hosted = hostedFactoryQueue(),
                 external = externalAlphaInstallation(),
-                config = hosted || external ? null : await factoryConfig(),
+                config = hosted || external ? null : await factoryConfig(localLiveFactoryEnabled() ? await new WorkStore({ scopeKind: "personal", scopeId: principal.principalId, actorId: principal.principalId }).get(selected) : undefined),
                 agent = await resolveSessionAgent({
                   ownerId: principal.principalId,
                   sessionId: toolCtx.session.id,
@@ -131,7 +132,8 @@ export default defineDynamic({
                 !selectedAlphaWork(selected) &&
                 !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
                   config.connection.qualification.mode,
-                )
+                ) &&
+                !liveFactoryAuthorized(config.connection)
               )
                 throw new WorkError(
                   "factory_live_not_authorized",

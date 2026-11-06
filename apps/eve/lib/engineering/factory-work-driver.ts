@@ -7,6 +7,7 @@ import {FactoryValidationLifecycle,saveValidationPreparation} from './factory-va
 import { FactoryEvidenceStore } from "./factory-evidence-store.ts";
 import { FactoryEvidenceClient, EvidenceWaiting } from "./factory-evidence.ts";
 import {FactoryCloudProtectedVerifier} from './factory-cloud-verifier.ts';
+import {FactorySignedCheckVerifier,protectedVerifierKind} from './factory-signed-check-verifier.ts';
 import {assertFactorySpendCanStart,assertSpendContinuation,workSpendSchema} from './factory-spend.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {randomUUID} from 'node:crypto';
@@ -211,7 +212,9 @@ export class FactoryWorkDriver {
    await assertActive();await writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
    const ws=(await direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
-   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
+   const verifierKind=protectedVerifierKind(config.connection,config.engineering.profile);
+   const protectedVerifier=verifierKind==='CLOUD'?new FactoryCloudProtectedVerifier(receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):
+    verifierKind==='FACTORY_SIGNED_CHECKS'?new FactorySignedCheckVerifier(receipts,request.id,()=>adapter.keys(),{factoryVersion:config.connection.factoryVersion}):this.verifier;
    const verification=new DirectVerificationDriver(direct,protectedVerifier);
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
@@ -219,14 +222,21 @@ export class FactoryWorkDriver {
     if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_VERIFICATION_INTERRUPTED');
     // CLOUD only reprojects an already destroyed verifier's signed receipt. No
     // provider execution is repeated and no local Docker fallback is permitted.
-    const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
+    // Signed CLOUD and Factory-check verifiers own no MyEve resources; re-projection is the recovery.
+    const inspector=verifierKind!=='INJECTED'?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
     await verification.retryAfterResourceCheck(id,candidate.sha,inspector);
    }
    const [retainedProof] = await store.database.query('SELECT id FROM engineering_native_results WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND candidate_sha=$4',[...this.scope(id),candidate.sha]);
    await assertActive();if(!retainedProof)await new FactoryEvidenceStore(store).ingest(id,request.id,receiptId,this.evidenceFor(config.connection));
    await assertActive();await verification.run(id);await assertActive();
    const result=await new NativeResultStore(direct).retain(id);
-   await observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
+   // A preview is a convenience read of the verified candidate; its failure never changes the Result.
+   let preview:{url:string;candidateCommit:string}|{error:string}|undefined;
+   if(verifierKind==='FACTORY_SIGNED_CHECKS'&&result.proof.outcome==='PARTIAL'){
+    try{preview=await adapter.preview(request.binding.requestId,candidate.sha);}
+    catch(error){preview={error:error instanceof Error?error.message.slice(0,300):'Preview unavailable'};}
+   }
+   await observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0,...(preview?{preview}:{})});
    return {state:result.proof.outcome,result};
   }catch(error){
    if(error instanceof FactoryPreparationTerminalReceived){

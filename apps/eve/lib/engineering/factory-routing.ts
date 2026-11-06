@@ -10,12 +10,17 @@ import {NativeRouteAuthority} from './native-routing.ts';
 import {digest} from './contract.ts';
 import {factoryConnectionSchema,LiveFactoryAdapter,type FactoryPrepareRequest} from './factory-live-adapter.ts';
 import {WorkStore} from './store.ts';
+import {localLiveFactoryEnabled,ownerAppFactoryConfig,readOwnerAppProfile} from './owner-app-profile.ts';
 import {WorkError,type Work} from './types.ts';
 
 export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
 const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualified:z.boolean().default(false)}).strict();
 export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
-export async function factoryConfig(){
+export async function factoryConfig(work?:Work){
+ if(localLiveFactoryEnabled()){
+  if(!work)throw new WorkError('factory_work_required','The owner app Factory profile is derived from a specific Work.',503);
+  return ownerAppFactoryConfig(work,await readOwnerAppProfile());
+ }
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
  if(productionCloudEnabled()){
   const production=productionCloudConfiguration(),raw=production.factory,installed=productionInstallation(),validation=production.mode==='OPERATOR_DETERMINISTIC_VALIDATION';

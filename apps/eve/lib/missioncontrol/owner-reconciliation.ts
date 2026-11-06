@@ -14,7 +14,7 @@ type Client=Pick<InstalledMissionControlClient,'readControl'|'acknowledgeControl
 function recoveryDriver(store:WorkStore):Driver {
   return {store,stopRun:async(id,run,reason)=>{
     const {factoryRuntime}=await import('../engineering/factory-runtime.ts');
-    return (await factoryRuntime(store)).stopRun(id,run,reason);
+    return (await factoryRuntime(store,id)).stopRun(id,run,reason);
   }};
 }
 

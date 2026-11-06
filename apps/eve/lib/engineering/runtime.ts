@@ -19,7 +19,7 @@ import { getAgent } from "../agents.ts";
 import { approvedBaseSchema, preflightApprovedBase } from "./base-preflight.ts";
 
 export const runtimeSchema=z.object({
-  mode:z.enum(["isolated-dogfood","production-cloud"]), ownerId:z.string().min(1),agentId:z.string().min(1),
+  mode:z.enum(["isolated-dogfood","production-cloud","owner-app-factory"]), ownerId:z.string().min(1),agentId:z.string().min(1),
   objective:z.string().min(1).max(4000),criteria:criteriaSchema,profile:profileSchema,
   approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535).optional(),model:z.string().regex(/^(?:claude-[\w.-]+|openai\/gpt-5\.4-mini|none)$/),
@@ -31,6 +31,8 @@ export const runtimeSchema=z.object({
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict().superRefine((config,ctx)=>{
   if(config.mode==='isolated-dogfood'&&(!config.brokerPort||!config.model.startsWith('claude-')))ctx.addIssue({code:'custom',message:'Dogfood broker/model required'});
+  // MyFactory executes owner app Work; this mode carries no MyEve executor, model, qualification or publisher.
+  if(config.mode==='owner-app-factory'&&(config.brokerPort||config.model!=='none'||config.nativeQualification||config.conversationQualification||config.githubApp))ctx.addIssue({code:'custom',message:'Owner app Factory mode cannot configure MyEve executors'});
   if(config.mode==='production-cloud'&&(config.brokerPort||config.nativeQualification||(config.conversationQualification&&config.conversationQualification.mode!=='THREE_OWNER_CONVERSATION_V1')||config.githubApp||config.profile.executor!=='factory-cloud'))ctx.addIssue({code:'custom',message:'Production Cloud cannot configure local executors, qualification conversations or publication'});
   const binding=config.profile.publicOutputContract;
   if(binding&&!config.approvedBase.files.some(f=>f.path===binding.path&&f.sha256===binding.sha256))ctx.addIssue({code:'custom',message:'Public output contract must be pinned in the approved base manifest'});

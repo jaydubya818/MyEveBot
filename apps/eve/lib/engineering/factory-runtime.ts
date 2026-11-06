@@ -7,16 +7,19 @@ import {promisify} from 'node:util';
 import {factoryConfig,FactoryRouteAuthority} from './factory-routing.ts';
 import {FactoryWorkDriver} from './factory-work-driver.ts';
 import {DirectDevelopmentStore} from './direct-development.ts';
-import {DockerProtectedVerifier} from './docker-executor.ts';
 import {WorkStore} from './store.ts';
+import {WorkError} from './types.ts';
+import {usesFactoryCommandChecks} from './factory-signed-check-verifier.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {hasMissionControlEnrollment} from '../missioncontrol/owner-factory-binding.ts';
 import {LiveFactoryAdapter} from './factory-live-adapter.ts';
 import type {FactoryCapabilityClient} from './factory-capability-client.ts';
 const exec=promisify(execFile);
 /** Only reviewed exact Git objects; no ambient credentials or mutable checkout. */
-export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabilityClient){
- const config=await factoryConfig(),c=config.engineering;
+export async function factoryRuntime(store:WorkStore,workId?:string,capability?:FactoryCapabilityClient){
+ // Owner app profiles derive objective and criteria from the Work, so every authority check re-reads it.
+ const readConfig=async()=>factoryConfig(workId?await store.get(workId):undefined);
+ const config=await readConfig(),c=config.engineering,authority=new FactoryRouteAuthority(store,readConfig);
  const requireOrderedAdmission=await hasMissionControlEnrollment(store.database,store.principal.scopeId);
  if(capability&&(capability.config.binding.ownerId!==store.principal.scopeId||capability.config.binding.agentId!==c.agentId))throw Error('FACTORY_CAPABILITY_CONFIGURATION');
  const adapterFor=(connection:typeof config.connection)=>new LiveFactoryAdapter(connection,fetch,capability,{requireOrderedAdmission});
@@ -28,7 +31,7 @@ export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabili
   // FactoryWorkDriver consumes the separately signed protected cloud evidence.
   // This sentinel makes any accidental local-verifier route fail closed.
   const verifier={verify:async()=>{throw Error('LOCAL_VERIFIER_FORBIDDEN_IN_CLOUD');}};
-  return new FactoryWorkDriver(store,new FactoryRouteAuthority(store),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,async()=>structuredClone(snapshot),adapterFor);
+  return new FactoryWorkDriver(store,authority,new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,async()=>structuredClone(snapshot),adapterFor);
  }
  const repositoryPath=config.connection.repositoryPath;
  const source=async()=>{
@@ -39,5 +42,8 @@ export async function factoryRuntime(store:WorkStore,capability?:FactoryCapabili
   }
   const snapshot={sha:c.approvedBase.sha,files};preflightApprovedBase(c.profile,c.approvedBase,snapshot,1);return snapshot;
  };
- return new FactoryWorkDriver(store,new FactoryRouteAuthority(store),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),new DockerProtectedVerifier(),source,adapterFor);
+ // MyFactory verifies local candidates and signs the outcome; MyEve never runs candidate checks itself.
+ if(!usesFactoryCommandChecks(c.profile))throw new WorkError('factory_verification_profile','Local Factory Work requires MyFactory command checks.',503);
+ const verifier={verify:async()=>{throw Error('LOCAL_VERIFIER_FORBIDDEN_FOR_FACTORY');}};
+ return new FactoryWorkDriver(store,authority,new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,source,adapterFor);
 }

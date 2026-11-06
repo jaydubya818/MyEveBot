@@ -1,11 +1,14 @@
 import {z} from 'zod';
 import {WorkError} from './types.ts';
 import type {FactoryCommand} from './factory-commands.ts';
+import {localLiveFactoryEnabled} from './owner-app-switch.ts';
 const approvalSchema=z.object({workId:z.string().uuid(),version:z.coerce.number().int().positive(),generation:z.coerce.number().int().positive()}).strict();
 export type FactoryWorkerApproval=z.infer<typeof approvalSchema>;
 /** Activation is not authority to execute arbitrary queued Work. One owner-approved revision only. */
 export function factoryWorkerApproval(mode:string,env:NodeJS.ProcessEnv=process.env):FactoryWorkerApproval|null {
  if(mode!=='LIVE')return null;
+ // Under the owner app switch, each Work is started only by the owner's own build request in Sofie.
+ if(localLiveFactoryEnabled(env))return null;
  const parsed=approvalSchema.safeParse({workId:env.MYEVE_FACTORY_APPROVED_WORK_ID,version:env.MYEVE_FACTORY_APPROVED_WORK_VERSION,generation:env.MYEVE_FACTORY_APPROVED_WORK_GENERATION});
  if(env.MYEVE_FACTORY_REAL_EXECUTION_APPROVED!=='true'||!parsed.success)throw new WorkError('factory_owner_approval','The first real model operation requires explicit approval of one exact Work revision.',403);
  return parsed.data;

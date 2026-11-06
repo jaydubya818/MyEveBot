@@ -10,6 +10,14 @@ export function currentWorkMetadata(projection: EngineeringWorkerProjection) {
   return { workId, expectedWorkVersion: workVersion, expectedWorkGeneration: workGeneration };
 }
 
+type PreviewObservation={verification?:string;preview?:{url:string;candidateCommit:string}|{error:string}}|undefined;
+export function factoryPreviewLines(observation:PreviewObservation):string[]{
+  const preview=observation?.preview;
+  if(!preview)return [];
+  return ['error' in preview?`Private preview: unavailable (${preview.error}). The verified Result is unchanged.`:
+    `Private preview: ${preview.url} (candidate ${preview.candidateCommit}; owner-only on this machine; built by MyFactory from the verified candidate).`];
+}
+
 const money=(value:number|null)=>value===null?"unavailable":`$${(value/1_000_000).toFixed(6)}`;
 
 /** The same read-only facts are rendered in Work and selected-Work model context. */
@@ -50,6 +58,7 @@ export function currentTruthLines(projection: EngineeringWorkerProjection, optio
     `Completion state: ${projection.completionStatus}.`,
     `Protected verification: ${projection.verification.status}; candidate ${projection.verification.candidateSha??"none"}; job ${projection.verification.jobStatus??"none"}; ${projection.verification.evidenceCount} bound evidence records.`,
     projection.latestResult?`Result: ${projection.latestResult.id}; candidate ${projection.latestResult.candidate}; ${projection.latestResult.summary}`:"Result: none retained.",
+    ...factoryPreviewLines(projection.factoryWriter?.observation),
     projection.conversationRuntime?`Budget: $${projection.conversationRuntime.spentUsd.toFixed(6)} spent; $${projection.conversationRuntime.reservedUsd.toFixed(6)} reserved; ${projection.conversationRuntime.status}; unknown usage ${projection.conversationRuntime.usageUnknown}.`:"Budget: no common ledger grant observed.",
     `Completion budget: $${projection.completionBudget.ceilingUsd.toFixed(6)} ceiling; ${projection.completionBudget.heldUsd===null?"held capacity unavailable":`$${projection.completionBudget.heldUsd.toFixed(6)} held`}; ${projection.completionBudget.remainingUsd===null?"available allowance not established":`$${projection.completionBudget.remainingUsd.toFixed(6)} uncommitted`}. This observation is not spend authority.`,
     `Readiness: ${projection.readiness.ready?"Ready for Review":projection.readiness.reasons.join("; ")}`,

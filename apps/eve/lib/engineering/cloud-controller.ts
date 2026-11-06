@@ -40,7 +40,7 @@ export async function runCloudController(message:ControllerMessage){
    ORDER BY d.created_at LIMIT 8`,[owner,production?.work.id??null,production?.work.generation??null]);
   for(const row of rows){
    if(production&&row.work_id!==production.work.id)continue;
-   const driver=await factoryRuntime(store);
+   const driver=await factoryRuntime(store,row.work_id);
    if(row.validation_state==='COMPLETED')continue;
    if(row.validation_state==='HALTED'){try{await driver.stop(row.work_id,'cancel');}catch{}continue;}
    const stops=await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]);

@@ -13,3 +13,9 @@ it('permits only the explicitly approved Work and revision and preserves fixture
  expect(()=>assertFactoryWorkerApproval(approval,id,{...input,operation:'stop',expectedWorkVersion:3})).not.toThrow();
  expect(factoryWorkerApproval('LOCAL_FIXTURE',{NODE_ENV:'test'})).toBeNull();
 });
+it('the owner app LIVE switch replaces the operator env pin with the owner-started Work only under its named switch',()=>{
+ const live={NODE_ENV:'test',MYEVE_FACTORY_LOCAL_LIVE:'true',MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_FACTORY_OWNER_PROFILE:'/abs/profile.json'} as NodeJS.ProcessEnv;
+ expect(factoryWorkerApproval('LIVE',live)).toBeNull();
+ expect(()=>factoryWorkerApproval('LIVE',{...live,MYEVE_FACTORY_LOCAL_LIVE:'false'})).toThrow(/exact Work revision/);
+ expect(()=>factoryWorkerApproval('LIVE',{...live,VERCEL_ENV:'production'})).toThrow(/exact Work revision/);
+});

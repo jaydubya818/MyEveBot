@@ -5,6 +5,7 @@ import {factoryRuntime} from '../lib/engineering/factory-runtime.ts';
 import {factoryAction} from '../lib/engineering/factory-api.ts';
 import {consumeFactoryCommands} from '../lib/engineering/factory-commands.ts';
 import {WorkStore} from '../lib/engineering/store.ts';
+import {localLiveFactoryEnabled,readOwnerAppProfile} from '../lib/engineering/owner-app-profile.ts';
 // Existing local executor composition. Hosted processes never run this worker.
 const alpha=process.env.MYEVE_BETA_MODE==='private-alpha';
 const url=new URL(process.env.MYEVE_FACTORY_DATABASE_URL??'invalid:');
@@ -12,9 +13,11 @@ const local=url.hostname==='127.0.0.1'&&url.port==='55479'&&/^\/factory_beta_[a-
 if(process.env.MYEVE_ENGINEERING_MODE!=='dogfood'||process.env.VERCEL_ENV==='production'||
  !['postgres:','postgresql:'].includes(url.protocol)||(!local&&!(alpha&&process.env.MYEVE_FACTORY_LOCAL_WORKER==='true'&&url.href===new URL(process.env.DATABASE_URL??'invalid:').href)))
  throw Error('Factory worker requires its explicit database and local execution configuration.');
-const config=await factoryConfig(),owner=config.engineering.ownerId;
+// Owner app profiles bind per Work, so the worker reads only the owner and mode from the host profile.
+const ownerApp=localLiveFactoryEnabled()?await readOwnerAppProfile():null;
+const config=ownerApp?null:await factoryConfig(),owner=ownerApp?.ownerId??config!.engineering.ownerId;
 if(alpha&&owner!==process.env.MYEVE_OWNER_ID)throw Error('Private-alpha worker owner mismatch.');
-const approval=factoryWorkerApproval(config.connection.qualification.mode);
+const approval=factoryWorkerApproval(ownerApp?'LIVE':config!.connection.qualification.mode);
 const {Client}=createRequire(import.meta.url)('pg');const client=new Client({connectionString:url.href});
 await client.connect();
 let stopping=false;process.on('SIGTERM',()=>{stopping=true;});process.on('SIGINT',()=>{stopping=true;});
@@ -31,7 +34,7 @@ try {
    if(stopping)break;
    if(approval&&(row.work_id!==approval.workId||Number(row.version)!==approval.version||Number(row.generation)!==approval.generation))continue;
    try {
-    const driver=await factoryRuntime(store);
+    const driver=await factoryRuntime(store,row.work_id);
     const stops=alpha?await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]):[];
     if(stops.length)await driver.stop(row.work_id,stops[0].operation==='takeover'?'takeover':'cancel');else await driver.step(row.work_id);
     if(alpha)await store.database.query(`UPDATE beta_goal_work_bindings b SET binding=jsonb_set(jsonb_set(binding,'{workGeneration}',to_jsonb(w.generation)),'{state}','"ADMITTED"'::jsonb) FROM engineering_work w,engineering_routing_decisions d WHERE b.owner_id=$1 AND b.work_id=$2 AND w.scope_id=b.owner_id AND w.scope_kind='personal' AND w.id=b.work_id AND d.scope_id=w.scope_id AND d.scope_kind=w.scope_kind AND d.work_id=w.id AND d.work_version=w.version AND d.selected_route='MYFACTORY' AND d.status='ADMITTED'`,[owner,row.work_id]);

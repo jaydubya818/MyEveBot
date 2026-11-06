@@ -157,5 +157,16 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   if(!response.ok)throw Error('Cloud custody unavailable; reconcile the same candidate');
   return cloudCustodyProjection(await boundedJson(response,1100000),config.source);
  }
+ /** Private loopback preview of the exact verified candidate; the response cannot choose another origin. */
+ async preview(requestId:string,candidateCommit:string){
+  if('source' in this.config||!z.string().uuid().safeParse(requestId).success)throw Error('FACTORY_PREVIEW_BINDING');
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+requestId+'/preview',this.transport.origin),{method:'POST',redirect:'error',
+   signal:AbortSignal.timeout(180000),headers:{...await factoryRequestHeaders(this.config),'content-type':'application/json'},body:'{}'});
+  if(!response.ok)throw Error('Factory preview unavailable ('+response.status+')');
+  const data=z.object({state:z.literal('READY'),requestId:z.string(),candidateCommit:z.string(),path:z.string().regex(/^\/preview\/[a-f0-9]{64}\/$/)}).passthrough()
+   .safeParse(await boundedJson(response,4000));
+  if(!data.success||data.data.requestId!==requestId||data.data.candidateCommit!==candidateCommit)throw Error('FACTORY_PREVIEW_BINDING');
+  return {url:new URL(data.data.path,this.transport.origin).href,candidateCommit};
+ }
  async keys():Promise<ResultKey[]>{return this.config.keys;}
 }
