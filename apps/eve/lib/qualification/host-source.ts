@@ -7,6 +7,7 @@ import { deriveOwnerJourney, ownerRequestTemplateSchema } from "./owner-request.
 import { CANONICAL_RELAY_CONTRACT } from "./relay-tool-contract.ts";
 import type { QualificationRootConfig } from "./root.ts";
 import { qualificationConversation } from "./conversation-model.ts";
+import { hostedMarkerPresent } from "../engineering/factory-mailbox.ts";
 import { createImprovementRecorder, type ImprovementFrontdoor } from "./improvement.ts";
 import { assemblyProfileSchema, qdevJourneyId } from "./custody-profile.ts";
 import { PostgresJournal } from "./journal.ts";
@@ -166,8 +167,9 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       if (sha(env.MYEVE_QDEV_HOST_BUNDLE) !== bundleSha || Date.parse(bundle.notAfter) <= now()) return false;
       return (await accounting.status()).state === "active";
     };
+    // The hosted verifier label is decided by the deployment itself (any hosted marker), never by the bundle or a caller flag.
     const conversation = qualificationConversation({ ownerId: bundle.ownerId, approvedRequest: bundle.conversation.approvedRequest,
-      deliveryUrl: bundle.conversation.deliveryUrl, revalidate, retained: () => journal.read(),
+      deliveryUrl: bundle.conversation.deliveryUrl, revalidate, retained: () => journal.read(), hosted: hostedMarkerPresent(env),
       improvements: deps.improvementFrontdoor ? createImprovementRecorder({ ownerId: bundle.ownerId, frontdoor: deps.improvementFrontdoor(bundle.ownerId) }) : undefined });
     return { ownerId: bundle.ownerId, project: bundle.project, plan, accounting, journal, relay, ports, conversation };
   }
@@ -217,7 +219,7 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     // Read-only admission: bundle presence/digest/expiry and the runtime inputs. There is no cohort before a request is confirmed, so the ledger is
     // consulted by the journey's own gate (which refuses an unissued, inactive, paused or revoked derived cohort before any provider call).
     const revalidate = async (input: { ownerId: string; sessionId: string; stepKey: string }) => input.ownerId === bundle.ownerId && live();
-    const conversation = qualificationConversation({ ownerId: bundle.ownerId, deliveryUrl: bundle.conversation.deliveryUrl, revalidate,
+    const conversation = qualificationConversation({ ownerId: bundle.ownerId, deliveryUrl: bundle.conversation.deliveryUrl, revalidate, hosted: hostedMarkerPresent(env),
       ownerRequest: { derive: text => {
         const d = deriveOwnerJourney({ ownerId: bundle.ownerId, template: bundle.template, request: text });
         return { request: d.request, requestSha256: d.requestSha256, planSha256: d.planSha256, repository: installation.repository, environment: installation.environment, cohortId: d.policy.cohortId,

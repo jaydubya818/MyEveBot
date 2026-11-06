@@ -12,7 +12,7 @@ import { qdevJourneyId } from "./custody-profile.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { HostedMacMyAppsPort } from "./hosted-mac-build.ts";
 import type { PreviewBlobStore } from "./hosted-preview.ts";
-import { hostedTransports, requireHostedFactoryConnection, requireHostedPolicy, type HostedProfile } from "./hosted-profile.ts";
+import { hostedBinding, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy, sameVerifierTrust, type HostedProfile } from "./hosted-profile.ts";
 import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
@@ -48,8 +48,9 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   const { bundle } = context, profile = bundle.assembly, hosted = deps.hosted;
   if (!profile || bundle.custody || profile.ownerLocalConfirmation || bundle.ownerId !== hosted.ownerId) return null;
   if (profile.publishing.installationId !== hosted.installationId || profile.build.appId !== hosted.build.appId) return null;
-  // The verifier trust set is one: the journey and the private preview accept exactly the same verifier keys.
-  if (JSON.stringify(profile.verifier.keys.map(k => k.keyId).sort()) !== JSON.stringify(hosted.verifier.keys.map(k => k.keyId).sort())) return null;
+  // The verifier trust set is one: the journey and the private preview accept exactly the same verifier keys — the complete normalized records
+  // (id, public key bytes, validity window, revocation), not just the ids.
+  if (!sameVerifierTrust(profile.verifier.keys, hosted.verifier.keys)) return null;
   const secret = (name: string) => { const value = context.credential(name); return value && value.length <= 16384 ? value : null; };
   const signerJson = secret(profile.capability.signerEnv), relayCredential = secret(profile.capability.relay.credentialEnv),
     workloadToken = secret(profile.capability.relay.workloadTokenEnv), modelKey = profile.model ? secret(profile.model.apiKeyEnv) : null,
@@ -76,12 +77,14 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   if (!tables?.journal || !tables.claim || !tables.retained) return null;
   const adapterFor = (c: typeof connection) => orderedAdapterFor(c, capability, transports.factoryFetch, transports.capabilityFetch);
   const { chain } = storeBackedStageChain({ db: journalDb as never, journeyId: journalId, journal: new PostgresJournal(journalDb as never, journalId),
-    sources: { enabled: true, store, authority: new FactoryRouteAuthority(store, runtimeConfig), receipts: new FactoryReceiptStore(store.principal, store.database),
+    // Routing qualifies the hosted per-person scope (myeve.hosted:<installation>:<owner>) and probes health through the mailbox only.
+    sources: { enabled: true, store, authority: new FactoryRouteAuthority(store, runtimeConfig, { binding: hostedBinding(hosted), factoryFetch: transports.factoryFetch }), receipts: new FactoryReceiptStore(store.principal, store.database),
       writers: new FactoryWriterStore(store), adapterFor, workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline } });
   await chain.warm();
   const binding = journeyBinding(bundle.project), environment = journeyProfile(bundle.project).environment;
   const hostedMyApps = new HostedMacMyAppsPort({ db: deps.mailboxDb, profile: hosted, blob: deps.blob, retained: stage => chain.retained(stage),
-    project: { projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, environment }, now: deps.now });
+    project: { projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256, protectedSpecificationSha256: bundle.project.protectedSpecificationSha256, environment },
+    now: deps.now });
   const noLocalBuild = async (): Promise<never> => { throw new Error("QDEV_HOSTED_NO_LOCAL_BUILD"); };
   const custody = assembleQdevCustody({
     slot: profile.slot, project: bundle.project, approvedRequest: bundle.conversation.approvedRequest, chain, connection, capability,

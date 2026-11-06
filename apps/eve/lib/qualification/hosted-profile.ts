@@ -1,5 +1,6 @@
+import { createPublicKey } from "node:crypto";
 import { z } from "zod";
-import { HOSTED_PROFILE, mailboxFetch, type MailboxBinding, type MailboxDb } from "../engineering/factory-mailbox.ts";
+import { HOSTED_PROFILE, hostedMarkerPresent, hostedOwnerScope, mailboxFetch, type MailboxBinding, type MailboxDb } from "../engineering/factory-mailbox.ts";
 import { factoryTransportFetch } from "../engineering/factory-transport.ts";
 import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
 import { QDEV_LIMITS, type QualificationPolicy } from "../external-alpha/qualification-accounting.ts";
@@ -67,9 +68,28 @@ export const hostedProfileSchema = z.object({
   .refine(p => p.factory.ownerScope === hostedOwnerScope(p), "ownerScope must be the installation's stable per-person scope")
   .refine(p => p.build.issuer.ownerId === p.ownerId && p.build.issuer.buildProfileDigest === p.build.buildProfileDigest, "build issuer must be the owner's, for the pinned build profile");
 export type HostedProfile = z.infer<typeof hostedProfileSchema>;
-/** The stable per-person Factory ownerScope of a hosted installation (owner, Tester 1 and Tester 2 are separate installations). */
-export function hostedOwnerScope(p: { installationId: string; ownerId: string }): string {
-  return `myeve.hosted:${p.installationId}:${p.ownerId}`;
+export { hostedOwnerScope, hostedMarkerPresent };
+
+type TrustKey = { keyId: string; publicKeyPem: string; activeFrom: string; notAfter: string; revokedAt?: string };
+/**
+ * One verifier trust set, normalized for comparison: key id, the public key's SPKI DER (so PEM formatting cannot differ), and the validity
+ * window and revocation as instants. Two sets are the same trust only if every normalized record is identical (ids alone are not enough).
+ * Throws on an unparsable key or instant (callers treat that as a refusal).
+ */
+export function normalizedVerifierTrust(keys: readonly TrustKey[]): string {
+  const instant = (value: string | undefined) => {
+    if (value === undefined) return null;
+    const ms = Date.parse(value);
+    if (!Number.isFinite(ms)) throw new HostedProfileRefused("HOSTED_VERIFIER_TRUST_INSTANT");
+    return new Date(ms).toISOString();
+  };
+  const records = keys.map(k => ({ keyId: k.keyId, spki: createPublicKey(k.publicKeyPem).export({ type: "spki", format: "der" }).toString("base64"),
+    activeFrom: instant(k.activeFrom), notAfter: instant(k.notAfter), revokedAt: instant(k.revokedAt) }));
+  if (new Set(records.map(r => r.keyId)).size !== records.length) throw new HostedProfileRefused("HOSTED_VERIFIER_TRUST_DUPLICATE");
+  return JSON.stringify(records.sort((a, b) => a.keyId < b.keyId ? -1 : a.keyId > b.keyId ? 1 : 0));
+}
+export function sameVerifierTrust(a: readonly TrustKey[], b: readonly TrustKey[]): boolean {
+  try { return normalizedVerifierTrust(a) === normalizedVerifierTrust(b); } catch { return false; }
 }
 
 export class HostedProfileRefused extends Error { constructor(readonly code: string) { super(code); } }

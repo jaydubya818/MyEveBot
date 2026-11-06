@@ -23,6 +23,8 @@ import { ArtifactStagingStore } from "./artifact-staging.ts";
 import { acceptDelivery } from "./delivery.ts";
 import { HostedMacMyAppsPort } from "./hosted-mac-build.ts";
 import { macWorker } from "./hosted-mac-worker.ts";
+import { memoryMacJobClaims } from "./hosted-mac-job.ts";
+import { stage3ResultFixture } from "./hosted-mac-job-test-fixture.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedProfileSchema } from "./hosted-profile.ts";
 import { attestStaticBuild } from "./static-build-export.ts";
 import { verifyVerdict } from "./verdict.ts";
@@ -45,12 +47,14 @@ const POLLER = "m".repeat(43), VERIFIER_CREDENTIAL = "verifier-credential-synthe
 const FACTORY_ORIGIN = "http://127.0.0.1:8792", VERIFIER_ORIGIN = "http://127.0.0.1:8795", HOSTED = "https://sofie.example.com";
 const sourceDigest = h("1"), configurationDigest = h("2"), factoryVersion = sha(myappsCanonical({ sourceDigest, configurationDigest }));
 const project = { projectSha256: h("5"), sourceSha256: h("6"), protectedSpecificationSha256: h("7"), environment: "myeve-hosted-owner" };
-const candidate = { commit: "c".repeat(40), tree: "d".repeat(40) };
+// The stage-3 Factory Result (signed with a throwaway Factory result key the Mac pins) and the expected build binding derived from it.
+const stage3 = stage3ResultFixture();
+const candidate = stage3.candidate;
 const profileJson = {
   profile: HOSTED_PROFILE, role: "OWNER", ownerId: "jay", installationId: "prj_hosted_owner",
   relayOrigin: "https://relay.example.com", missionControlOrigin: "https://mc.example.com", servedOrigin: HOSTED,
   build: { appId: "myeve-dashboard", lockSha256: h("a"), buildProfileDigest: h("b"), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
-    factoryId: "myfactory-local-v4", factoryVersion, buildProfileDigest: h("b"), publicKeyPem: pem(issuerKey),
+    factoryId: "myfactory-local-v4", factoryVersion: stage3.binding.factoryVersion, buildProfileDigest: h("b"), publicKeyPem: pem(issuerKey),
     spkiSha256: sha(issuerKey.publicKey.export({ type: "spki", format: "der" })), notBefore: "2026-01-01T00:00:00.000Z", notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
   factory: { transport: "MAILBOX", factoryOrigin: FACTORY_ORIGIN, verifierOrigin: VERIFIER_ORIGIN, ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
@@ -58,9 +62,7 @@ const profileJson = {
   limits: { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, automaticIncrease: false },
 };
 const profile = hostedProfileSchema.parse(profileJson);
-const binding = { ownerId: "jay", agentId: "sofie", appId: "myeve-dashboard", workId: "work-3", workVersion: 1, workGeneration: 1, requestId: "request-3", runId: "run-3",
-  factoryId: "myfactory-local-v4", factoryVersion, sourceDigest, configurationDigest, inputCommit: "e".repeat(40), inputTree: "f".repeat(40),
-  candidateCommit: candidate.commit, candidateTree: candidate.tree, lockSha256: h("a"), buildProfileDigest: h("b"), deadline: "2099-01-01T00:00:00.000Z" };
+const binding = stage3.binding;
 const files: Record<string, Buffer> = { "dist/index.html": Buffer.from('<!doctype html><script src="/assets/app.js"></script>'), "dist/assets/app.js": Buffer.from("document.body.textContent='small dashboard'") };
 const inventory = { schema: "myeve.dashboard.build-inventory/v1", scope: "BROWSER_BUILD_ONLY", sourceCommit: candidate.commit, sourceTree: candidate.tree, lockSha256: h("a"),
   node: "v24.0.0", files: Object.entries(files).map(([path, b]) => ({ path, bytes: b.length, sha256: sha(b) })), independentVerification: "NOT_ESTABLISHED", signedResult: false, releaseQualified: false };
@@ -123,12 +125,14 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
 
     // 2. Hosted retainBuild: nothing built yet -> pending (the journey halts before acceptance and resumes later).
     const port = new HostedMacMyAppsPort({ db, profile, blob: { put: async (k, b) => { blobs.set(k, Buffer.from(b)); }, get: async k => blobs.get(k) ?? null },
-      retained: async () => { throw new Error("unused: synthetic binding"); }, bindingFor: async () => binding, project });
+      retained: async () => { throw new Error("unused: synthetic binding"); }, bindingFor: async () => binding, project, stageResult: async () => stage3.signed });
     await expect(port.retainBuild(candidate)).rejects.toMatchObject({ code: "QDEV_HOSTED_BUILD_PENDING" });
 
     // 3. Mac worker: build (synthetic output, real claim signed with the Mac-only issuer key), stage to the local verifier, upload to hosted routes.
     const routes = await hostedRoutes();
+    const claims = memoryMacJobClaims();
     const worker = macWorker({
+      trust: { installationId: profile.installationId, ownerId: profile.ownerId, resultKeys: [stage3.resultKey], lockSha256: h("a"), buildProfileDigest: h("b") }, claims,
       hosted: { origin: HOSTED, credential: POLLER, fetch: routes }, verifier: { origin: VERIFIER_ORIGIN, credential: VERIFIER_CREDENTIAL, fetch: (async (input, init) => verifier(new Request(String(input), init))) as typeof fetch },
       build: async request => {
         const pins = { sourceCommit: request.candidate.commit, sourceTree: request.candidate.tree, lockSha256: h("a") };

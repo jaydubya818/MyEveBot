@@ -10,6 +10,7 @@ import { PREVIEW_LIMITS, PreviewRefused, previewBlobKey, readPreview, servePrevi
 import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { absenceAuthenticationSha256 } from "./rollback.ts";
 import { StaticBuildRefused } from "./static-build.ts";
+import { macBuildAuthority, type MacBuildAuthority } from "./hosted-mac-job.ts";
 import type { MyAppsPort } from "./wiring.ts";
 
 /**
@@ -28,8 +29,9 @@ import type { MyAppsPort } from "./wiring.ts";
  */
 type Candidate = { commit: string; tree: string };
 type InventoryFile = { path: string; bytes: number; sha256: string };
-export type MacBuildRequest = { schema: "myeve.hosted-mac-build-request/v1"; candidate: Candidate; binding: StaticBuildBinding;
-  projectSha256: string; sourceSha256: string; appId: string };
+/** v2: carries the Factory authority the Mac verifies before it runs anything (hosted-mac-job.ts) and the protected specification the preview binds. */
+export type MacBuildRequest = { schema: "myeve.hosted-mac-build-request/v2"; candidate: Candidate; binding: StaticBuildBinding;
+  projectSha256: string; sourceSha256: string; protectedSpecificationSha256: string; appId: string; authority: MacBuildAuthority };
 export type MacBuildSubmission = { schema: "myeve.hosted-mac-build-upload/v1"; candidate: Candidate; inventory: { files: InventoryFile[] } & Record<string, unknown>;
   lockSha256: string; claim: string };
 export type MacBuildRow = { request: MacBuildRequest; state: "REQUESTED" | "UPLOADING" | "VERIFIED"; submission: MacBuildSubmission | null; artifactSha256: string | null };
@@ -165,18 +167,29 @@ export type HostedMacMyAppsConfig = {
   retained(stage: 3): Promise<RetainedFactoryAdmission>;
   /** Test seam only (labelled synthetic tests): supplies the expected binding instead of deriving it from a retained V4 admission. */
   bindingFor?(candidate: Candidate): Promise<StaticBuildBinding>;
-  project: { projectSha256: string; sourceSha256: string; environment: string };
+  project: { projectSha256: string; sourceSha256: string; protectedSpecificationSha256: string; environment: string };
+  /** The accepted stage-3 signed Factory Result (a readback; the journey has already authenticated it). Its manifest and signature (no artifact
+   *  bytes) travel with the job so the Mac verifies the Factory authority itself. Absent: bound later by composeRuntimePorts (bindStageResult). */
+  stageResult?(): Promise<unknown>;
   now?: () => number;
 };
 /** MyApps port for the hosted profile (see the module comment). It owns no build, no signer and no publication authority. */
 export class HostedMacMyAppsPort implements MyAppsPort {
   private retainedBuild: (RetainedBuild & Candidate) | null = null;
-  constructor(private readonly c: HostedMacMyAppsConfig) {}
+  private stageResult: (() => Promise<unknown>) | null;
+  constructor(private readonly c: HostedMacMyAppsConfig) { this.stageResult = c.stageResult ?? null; }
+  /** The Mac build issuer: a producer key that the verifier key set must be disjoint from (runtime-ports adds it to the exclusions). */
+  get issuer(): { keyId: string; publicKeyPem: string } { return { keyId: this.c.profile.build.issuer.keyId, publicKeyPem: this.c.profile.build.issuer.publicKeyPem }; }
+  bindStageResult(read: () => Promise<unknown>): void { if (!this.stageResult) this.stageResult = read; }
 
   async retainBuild(candidate: Candidate): Promise<{ buildArtifactSha256: string }> {
     const binding = this.c.bindingFor ? await this.c.bindingFor(candidate) : hostedBuildBinding(this.c.profile, await this.c.retained(3), candidate);
-    const row = await requestMacBuild(this.c.db, this.c.profile, { schema: "myeve.hosted-mac-build-request/v1", candidate: { commit: candidate.commit, tree: candidate.tree },
-      binding, projectSha256: this.c.project.projectSha256, sourceSha256: this.c.project.sourceSha256, appId: this.c.profile.build.appId });
+    if (!this.stageResult) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_AUTHORITY");
+    let authority: MacBuildAuthority;
+    try { authority = macBuildAuthority(this.c.profile, await this.stageResult()); } catch { throw new StaticBuildRefused("QDEV_HOSTED_BUILD_AUTHORITY"); }
+    const row = await requestMacBuild(this.c.db, this.c.profile, { schema: "myeve.hosted-mac-build-request/v2", candidate: { commit: candidate.commit, tree: candidate.tree },
+      binding, projectSha256: this.c.project.projectSha256, sourceSha256: this.c.project.sourceSha256,
+      protectedSpecificationSha256: this.c.project.protectedSpecificationSha256, appId: this.c.profile.build.appId, authority });
     if (row.state !== "VERIFIED") throw new StaticBuildRefused("QDEV_HOSTED_BUILD_PENDING");
     const retained = await retainSubmitted(this.c.profile, this.c.blob, row, this.c.now?.());
     if (bareSha256(retained.candidate.artifactDigest) !== row.artifactSha256) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_CHANGED");
@@ -191,7 +204,8 @@ export class HostedMacMyAppsPort implements MyAppsPort {
     const preview = await readPreview(db, binding, hex);
     if (!preview || preview.state !== "READY") throw new DeliveryObservationError("QDEV_HOSTED_PREVIEW_PENDING");
     const v = preview.verdict.verdict;
-    if (v.candidateCommit !== candidate.commit || v.candidateTree !== candidate.tree || v.projectSha256 !== project.projectSha256 || v.sourceSha256 !== project.sourceSha256)
+    if (v.candidateCommit !== candidate.commit || v.candidateTree !== candidate.tree || v.projectSha256 !== project.projectSha256 || v.sourceSha256 !== project.sourceSha256
+      || v.protectedSpecificationSha256 !== project.protectedSpecificationSha256)
       throw new DeliveryObservationError("QDEV_HOSTED_PREVIEW_BINDING");
     const [prior] = await db.query(`SELECT artifact_sha256 FROM hosted_verified_previews WHERE installation_id=$1 AND owner_id=$2 AND state='READY' AND artifact_sha256<>$3
       AND ready_at <= (SELECT ready_at FROM hosted_verified_previews WHERE installation_id=$1 AND artifact_sha256=$3) ORDER BY ready_at DESC LIMIT 1`, [binding.installationId, binding.ownerId, hex]);

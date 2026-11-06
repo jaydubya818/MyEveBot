@@ -1,4 +1,4 @@
-import {transportTimeoutMs} from './factory-mailbox.ts';
+import {assertHostedTransport,transportTimeoutMs} from './factory-mailbox.ts';
 import type {MissionControlAdmissionProof} from '../missioncontrol/admit-execution.ts';
 import {admissionActionDigest,verifyPolicyMessage,type PolicyKey,type SignedPolicyMessage} from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import {verifyFactoryPreparationTerminal,type TerminalBinding} from '../../../../packages/capability-enforcement/src/factory-preparation-terminal.ts';
@@ -22,6 +22,7 @@ export class FactoryCapabilityClient{
     ||!config.binding.missionId||!config.key||typeof config.sourcePermit!=='function'||typeof config.relayPermit!=='function')throw Error('FACTORY_CAPABILITY_CONFIGURATION');
  }
  private async request(path:string,body:unknown){
+  assertHostedTransport(this.send,this.config.origin);
   const response=await this.send(new URL('/api/capability-admission/'+path,this.config.origin),{method:'POST',redirect:'error',
    signal:AbortSignal.timeout(transportTimeoutMs(this.send,5000)),headers:{...await this.config.headers(),'content-type':'application/json'},body:JSON.stringify(body)});
   if(!response.ok){if(path==='readback'&&response.status===404)return null;throw Error('FACTORY_CAPABILITY_UNAVAILABLE');}

@@ -15,3 +15,11 @@ The canonical reconcile 667f91a1 refreshed the inventory for 17 of them. On 667f
 - Every new or changed hosted executor has an entry that says "Hosted private beta 20261105 … NOT independently reviewed", with the evidence tests named.
 - Result: `executor governance ok` (0 failures).
 - None of these entries is an independent review. Each reason says so.
+
+## Review EVE-REVIEW-1 fixes
+- Fingerprints were refreshed for the 17 executors these fixes changed: the mailbox, routing, Factory clients, verifier port, hosted profile/custody/preview/Mac build and worker, custody loader, host source, conversation model, runtime ports and the preview grant route.
+- Two new entries were added:
+  - `hosted-mac-job.ts` (INTERNAL, Mac side only). It verifies jobs and takes a durable single-use claim before Docker or signing.
+  - `hosted-mac-job-test-fixture.ts` (NOT_APPLICABLE). It is a synthetic test fixture.
+- The `hosted-mac-worker.ts` reason now describes the job authority and the claim gate.
+- These are still owner-authored entries, not an independent review.

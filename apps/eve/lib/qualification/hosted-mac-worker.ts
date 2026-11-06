@@ -2,6 +2,7 @@ import { StaticArtifactCandidate } from "../../../../packages/myapps/src/static-
 import { stageArtifact } from "./artifact-staging.ts";
 import { bareSha256 } from "./delivery-observer.ts";
 import { candidateKey, type MacBuildRequest } from "./hosted-mac-build.ts";
+import { MacJobRefused, verifyMacBuildJob, type MacJobClaims, type MacJobTrust } from "./hosted-mac-job.ts";
 
 /**
  * MAC SIDE ONLY (run by scripts/private-beta/hosted-mac-worker.ts on the owner's Mac; never imported by a hosted route).
@@ -17,10 +18,15 @@ export type MacBuildOutput = { inventory: unknown; lockSha256: string; claim: st
 export type MacWorkerDeps = {
   hosted: { origin: string; credential: string; fetch?: typeof fetch };
   verifier: { origin: string; credential: string; fetch?: typeof fetch };
+  /** The Mac's OWN trust (installation, owner, pinned Factory result keys, build pins): every job is verified against it before anything runs. */
+  trust: MacJobTrust;
+  /** Durable single-use job claims on the Mac (fileMacJobClaims in production). */
+  claims: MacJobClaims;
   build(request: MacBuildRequest): Promise<MacBuildOutput>;
+  now?: () => number;
 };
 type Built = { artifact: StaticArtifactCandidate; output: MacBuildOutput; request: MacBuildRequest };
-export type MacWorkerStep = { candidate: string; step: "BUILT_AND_STAGED" | "WAITING_FOR_VERDICT" | "VERDICT_NOT_PASS" | "PREVIEW_READY" };
+export type MacWorkerStep = { candidate: string; step: "BUILT_AND_STAGED" | "WAITING_FOR_VERDICT" | "VERDICT_NOT_PASS" | "PREVIEW_READY" | "REFUSED"; code?: string };
 
 export function macWorker(deps: MacWorkerDeps) {
   const built = new Map<string, Built>();
@@ -33,11 +39,27 @@ export function macWorker(deps: MacWorkerDeps) {
     if (!response.ok) throw new Error(`${method} ${path} -> ${response.status} ${text.slice(0, 200)}`);
     return text ? JSON.parse(text) : null;
   };
-  const build = async (request: MacBuildRequest): Promise<Built> => {
-    const key = candidateKey(request.candidate), cached = built.get(key);
+  /**
+   * The verified, claimed build of one job. Order is fixed and fail-closed: verify the job (Factory-signed authority, ownership, pins, deadline)
+   * -> reuse this job's own recorded output if it was already built -> otherwise (never for a job hosted already reports VERIFIED) take the
+   * durable single-use claim -> only then Docker/signing (deps.build) -> record the output durably -> stage the exact bytes to the local verifier.
+   */
+  const prepare = async (request: MacBuildRequest, hostedState: string): Promise<Built> => {
+    const { claimKey } = verifyMacBuildJob(request, deps.trust, deps.now?.());
+    const cached = built.get(claimKey);
     if (cached) return cached;
-    if (request.binding.candidateCommit !== request.candidate.commit || request.binding.candidateTree !== request.candidate.tree) throw new Error("MAC_BUILD_REQUEST_BINDING");
-    const output = await deps.build(request);
+    let output: MacBuildOutput | null = await deps.claims.loadBuilt(claimKey);
+    if (!output) {
+      if (hostedState === "VERIFIED") throw new MacJobRefused("MAC_JOB_NOT_RETAINED");
+      if (await deps.claims.claim(claimKey, { candidate: request.candidate, requestId: request.binding.requestId, runId: request.binding.runId }) !== "CLAIMED")
+        throw new MacJobRefused("MAC_JOB_ALREADY_CLAIMED");
+      const fresh = await deps.build(request);
+      const inventoryFiles = ((fresh.inventory as { files?: Array<{ path: string }> })?.files ?? []);
+      const files: Array<{ path: string; bytes: Uint8Array }> = [];
+      for (const f of inventoryFiles) files.push({ path: f.path, bytes: await fresh.load(f.path) });
+      await deps.claims.saveBuilt(claimKey, { inventory: fresh.inventory, lockSha256: fresh.lockSha256, claim: fresh.claim, files });
+      output = fresh;
+    }
     const pins = { sourceCommit: request.candidate.commit, sourceTree: request.candidate.tree, lockSha256: output.lockSha256 };
     const artifact = await StaticArtifactCandidate.retain(output.inventory, pins, output.load);
     // The exact bytes reach the Mac's own verifier directly (loopback), before hosted can hand off the evaluation.
@@ -46,7 +68,7 @@ export function macWorker(deps: MacWorkerDeps) {
       candidate: { ...request.candidate, buildArtifactSha256: bareSha256(artifact.artifactDigest) },
       binding: { projectSha256: request.projectSha256, sourceSha256: request.sourceSha256 } });
     const value = { artifact, output, request };
-    built.set(key, value);
+    built.set(claimKey, value);
     return value;
   };
   return {
@@ -54,9 +76,16 @@ export function macWorker(deps: MacWorkerDeps) {
       const steps: MacWorkerStep[] = [];
       const { builds } = await hostedCall("GET", "/api/factory-mailbox/v1/builds") as { builds: Array<{ request: MacBuildRequest; state: string; artifactSha256: string | null; previewReady: boolean }> };
       for (const item of builds) {
-        const key = candidateKey(item.request.candidate);
+        const key = candidateKey(item.request?.candidate ?? { commit: "?", tree: "?" });
+        if (item.state === "VERIFIED" && item.previewReady) continue;
+        try { await prepare(item.request, item.state); }
+        catch (error) {
+          // A fabricated, replayed, foreign or expired job is refused before any Docker or signing; it never blocks the other jobs.
+          if (error instanceof MacJobRefused) { steps.push({ candidate: key, step: "REFUSED", code: error.code }); continue; }
+          throw error;
+        }
         if (item.state !== "VERIFIED") {
-          const b = await build(item.request);
+          const b = await prepare(item.request, item.state);
           const begun = await hostedCall("POST", "/api/factory-mailbox/v1/builds", JSON.stringify({ schema: "myeve.hosted-mac-build-upload/v1", candidate: item.request.candidate,
             inventory: b.output.inventory, lockSha256: b.output.lockSha256, claim: b.output.claim })) as { missing: string[] };
           for (const path of begun.missing)
@@ -66,7 +95,7 @@ export function macWorker(deps: MacWorkerDeps) {
           continue;
         }
         if (item.previewReady) continue;
-        const b = await build(item.request), buildArtifactSha256 = bareSha256(b.artifact.artifactDigest);
+        const b = await prepare(item.request, item.state), buildArtifactSha256 = bareSha256(b.artifact.artifactDigest);
         if (buildArtifactSha256 !== item.artifactSha256) throw new Error("MAC_BUILD_NOT_REPRODUCED");
         const response = await (deps.verifier.fetch ?? fetch)(deps.verifier.origin + "/qdev/v1/verdict", { method: "POST", redirect: "error", signal: AbortSignal.timeout(30_000),
           headers: { authorization: `Bearer ${deps.verifier.credential}`, "content-type": "application/json" },

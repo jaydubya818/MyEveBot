@@ -58,18 +58,37 @@ export type QdevCustody = {
   newAllowanceId(stage: number): string;
   /** Hosted private-beta profile only (hosted-custody.ts): the Mac builds, stages to its local verifier and uploads; this port records and re-verifies.
    *  When present it replaces the local build/publish ports and the verifier receives no staging from this process. */
-  hostedMyApps?: MyAppsPort;
+  hostedMyApps?: HostedMyAppsPort;
   delivered?: WiringConfig["delivered"];
 };
 
+/** The hosted Mac-build MyApps port: its build issuer is producer authority (always excluded from the verifier set) and it may take the stage-3
+ *  Result reader from the composed Factory port. */
+export type HostedMyAppsPort = MyAppsPort & { readonly issuer: { keyId: string; publicKeyPem: string }; bindStageResult?(read: () => Promise<unknown>): void };
+
 export class RuntimePortsRefused extends Error { constructor(readonly code: string) { super(code); } }
 
-export function composeRuntimePorts(context: { bundle: QdevHostBundle; credential(name: string): string | undefined }, custody: QdevCustody): RuntimePorts {
-  const binding = journeyBinding(context.bundle.project), profile = journeyProfile(context.bundle.project), environment = profile.environment;
-  // The runtime already knows both producer trust sets. Redundant exclusion lists cannot omit those keys or rename their bytes.
+/**
+ * Every producer key the verifier set must be disjoint from, derived from what the runtime actually uses (redundant manual lists cannot omit
+ * them): Factory result keys, Factory connection keys and, for the hosted profile, the Mac build issuer. The hosted port replaces the local
+ * build port (whose `source` callback adds its issuer at retention), so its issuer joins here automatically and up front.
+ */
+export function producerExclusions(custody: Pick<QdevCustody, "resultKeys" | "factory" | "verifier" | "hostedMyApps">): { producerKeyIds: string[]; producerPublicKeysPem: string[] } {
   const actualProducerKeys = [...custody.resultKeys, ...custody.factory.connection.keys];
   const producerKeyIds = [...new Set([...custody.verifier.producerKeyIds, ...actualProducerKeys.map(key => key.keyId)])];
   const producerPublicKeysPem = [...new Set([...custody.verifier.producerPublicKeysPem, ...actualProducerKeys.map(key => key.publicKey)])];
+  if (custody.hostedMyApps) {
+    const issuer = custody.hostedMyApps.issuer;
+    if (!issuer || typeof issuer.keyId !== "string" || !issuer.keyId || typeof issuer.publicKeyPem !== "string") throw new RuntimePortsRefused("QDEV_PORTS_HOSTED_BUILD_ISSUER");
+    if (!producerKeyIds.includes(issuer.keyId)) producerKeyIds.push(issuer.keyId);
+    if (!producerPublicKeysPem.includes(issuer.publicKeyPem)) producerPublicKeysPem.push(issuer.publicKeyPem);
+  }
+  return { producerKeyIds, producerPublicKeysPem };
+}
+
+export function composeRuntimePorts(context: { bundle: QdevHostBundle; credential(name: string): string | undefined }, custody: QdevCustody): RuntimePorts {
+  const binding = journeyBinding(context.bundle.project), profile = journeyProfile(context.bundle.project), environment = profile.environment;
+  const { producerKeyIds, producerPublicKeysPem } = producerExclusions(custody);
   const fingerprint = (pem: string) => createPublicKey(pem).export({ type: "spki", format: "der" }).toString("base64");
   const producerFingerprints = new Set(producerPublicKeysPem.map(fingerprint));
   const credentialName = custody.verifier.credentialName;
@@ -84,6 +103,7 @@ export function composeRuntimePorts(context: { bundle: QdevHostBundle; credentia
     factoryFetch: custody.factory.factoryFetch, capabilityFetch: custody.factory.capabilityFetch });
   const factory = new LiveFactoryPort({ enabled: true, retained: custody.factory.retained, settleTimeoutMs: custody.factory.settleTimeoutMs, pollMs: custody.factory.pollMs, recordSubscriptionUsage: custody.factory.recordSubscriptionUsage,
     live: { prepared: r => adapter.prepared(r), dispatch: i => adapter.dispatch(i), read: i => adapter.read(i), result: b => adapter.result(b) } });
+  custody.hostedMyApps?.bindStageResult?.(() => factory.fetchResult(3));
   const agent = new DeepAgentAdapter({ enabled: true, ownerId: context.bundle.ownerId, slot: custody.agent.slot,
     projectSha256: binding.projectSha256, sourceSha256: binding.sourceSha256,
     port: custody.agent.port ?? new RetainedExecutorAgentPort({ retained: custody.factory.retained, runtime: custody.agent.factoryCoding

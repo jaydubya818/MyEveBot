@@ -33,12 +33,15 @@ CREATE TABLE factory_mailbox_requests (
   response_body_sha256 text CHECK (response_body_sha256 ~ '^[a-f0-9]{64}$'),
   response_body_base64 text CHECK (length(response_body_base64) <= 1398104),
   answered_at timestamptz,
+  -- Queue admission slot (0..15): the unique (installation, slot) index serializes concurrent enqueues, so depth can never exceed 16.
+  queue_slot smallint NOT NULL CHECK (queue_slot BETWEEN 0 AND 15),
   CHECK (deadline > created_at AND deadline <= created_at + interval '1 hour'),
   CHECK ((state = 'QUEUED') = (leased_at IS NULL AND lease_id IS NULL)),
   CHECK ((state = 'ANSWERED') = (answered_at IS NOT NULL AND response_status IS NOT NULL))
 );
 CREATE INDEX factory_mailbox_requests_queue ON factory_mailbox_requests (installation_id, state, created_at);
 CREATE INDEX factory_mailbox_requests_deadline ON factory_mailbox_requests (deadline);
+CREATE UNIQUE INDEX factory_mailbox_requests_queue_slot ON factory_mailbox_requests (installation_id, queue_slot);
 
 -- Private verified previews: the signed PASS verdict and the release manifest it binds. File bytes live in a PRIVATE Blob store,
 -- content-addressed by sha256; serving re-verifies the verdict, the manifest digest and each file's sha256 on every response.

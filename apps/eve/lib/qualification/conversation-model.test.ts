@@ -135,3 +135,14 @@ it("abort, oversized history and invalid delivery addresses fail closed", async 
   for (const deliveryUrl of ["http://example.test", "https://secret@example.test", "https://example.test/#fragment"])
     expect(() => qualificationConversation({ ...source, deliveryUrl })).toThrow("QDEV_CONVERSATION_DELIVERY_URL");
 });
+
+it("hosted approved journey: the PRIVATE_BETA_LOCAL verdict carries the hosted verifier label and is never presented as independent", async () => {
+  const model = qualificationConversation({ ownerId: "owner:Q1", approvedRequest: request, revalidate: async () => true, deliveryUrl: "https://dashboard.example.test/app", hosted: true })
+    .model({ sessionId: "session", stepKey: "session:0" });
+  const local = text(await model.doGenerate(options([user, call(), output({ ...completed, assurance: "PRIVATE_BETA_LOCAL" })])));
+  expect(local).toContain(`Private-beta verifier (automated checks on the owner's machine, not independent custody): ${"a".repeat(64)}.`);
+  expect(local).not.toContain("Independent verdict");
+  // An INDEPENDENT presentation cannot appear in a hosted installation.
+  expect(text(await model.doGenerate(options([user, call(), output(completed)])))).not.toContain("completed all four stages");
+});
+

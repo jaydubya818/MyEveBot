@@ -243,3 +243,23 @@ it("a hosted installation presents the verdict with the hosted private-beta veri
   expect(done).toContain(`Private-beta verifier (automated checks on the owner's machine, not independent custody): ${h("a")}.`);
   expect(done).not.toContain("on this machine");
 });
+
+it("production wiring (review P2): the host source labels a hosted deployment from its own environment, never from a caller flag", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { createRuntimeHostSource } = await import("./host-source.ts");
+  const t = JSON.parse(readFileSync(new URL("../../scripts/private-beta/owner-local.host-bundle.template.json", import.meta.url), "utf8"));
+  const filled = { ...t, ownerId: OWNER, notAfter: "2099-01-01T00:00:00.000Z", template: { ...t.template, installation: { ...installation } },
+    relay: { origin: "https://relay.example.test", grant: { ...t.relay.grant, connectionId: "c", repository: installation.repository, baseCommit: installation.inputCommit, outputBranch: installation.outputBranch } } };
+  delete filled.assembly;
+  const c = filled.credentials as Record<string, string>, raw = JSON.stringify(filled);
+  const env = { MYEVE_QDEV_ENABLED: "true", MYEVE_QDEV_HOST_BUNDLE: raw, [c.accounting]: "a".repeat(64), [c.relay]: "relay-credential-synthetic",
+    [c.accountingDatabaseUrl]: "postgres://127.0.0.1/accounting", [c.journalDatabaseUrl]: "postgres://127.0.0.1/journal" };
+  for (const [extra, expected, absent] of [[{}, "owner-local installation", "hosted installation"],
+    [{ MYEVE_HOSTED_PROFILE: "{}" }, "hosted installation", "owner-local installation"]] as const) {
+    const source = createRuntimeHostSource({ env: { ...env, ...extra } as unknown as NodeJS.ProcessEnv, database: () => ({ query: async () => [] }) as never });
+    const material = await source.material(OWNER);
+    const proposed = textOf(await material!.conversation.model({ sessionId: "s", stepKey: "s:0" }).doGenerate(opts([userMsg(REQUEST)])));
+    expect(proposed).toContain(expected);
+    expect(proposed).not.toContain(absent);
+  }
+});

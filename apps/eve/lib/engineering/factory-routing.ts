@@ -11,6 +11,7 @@ import {digest} from './contract.ts';
 import {factoryConnectionSchema,LiveFactoryAdapter,type FactoryPrepareRequest} from './factory-live-adapter.ts';
 import {WorkStore} from './store.ts';
 import {WorkError,type Work} from './types.ts';
+import {hostedMarkerPresent,hostedOwnerScope,isMailboxFetch} from './factory-mailbox.ts';
 
 export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
 const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualified:z.boolean().default(false)}).strict();
@@ -45,8 +46,26 @@ export async function factoryConfig(work?:Work){
 export type FactoryRuntime=Awaited<ReturnType<typeof factoryConfig>>;
 /** Reuses canonical owner/agent/Work/budget context. Factory qualification comes
  * only from reviewed server configuration plus current authenticated health. */
+/** Hosted private-beta routing (myeve.private-beta.hosted/v1): the installation binding and its mailbox Factory transport. */
+export type HostedFactoryRouting={binding:{installationId:string;ownerId:string};factoryFetch:typeof fetch};
 export class FactoryRouteAuthority {
- constructor(readonly store:WorkStore,readonly readConfig:()=>Promise<FactoryRuntime>=factoryConfig){}
+ /** `hosted` is required in a hosted installation: without it (or with a non-mailbox transport) a hosted process never qualifies a Factory route
+  * and never contacts a loopback host directly. Owner-local and every existing profile pass nothing and keep their exact checks. */
+ constructor(readonly store:WorkStore,readonly readConfig:()=>Promise<FactoryRuntime>=factoryConfig,readonly hosted?:HostedFactoryRouting){}
+ /** The one Factory qualification scope this Work may run under. Hosted: exactly `myeve.hosted:<installation>:<owner>` for the installation's
+  * own owner (the per-person MyFactory limit scope); the plain owner scope is NOT accepted there. Otherwise: the Work's own owner scope. */
+ private qualificationScope(work:Work):string|null{
+  if(!this.hosted)return hostedMarkerPresent()?null:work.scopeId;
+  const b=this.hosted.binding;
+  if(!isMailboxFetch(this.hosted.factoryFetch)||b.ownerId!==work.scopeId||!b.installationId)return null;
+  return hostedOwnerScope({installationId:b.installationId,ownerId:work.scopeId});
+ }
+ private async factoryHealthy(connection:FactoryRuntime['connection']):Promise<boolean>{
+  const hostedMode=!!this.hosted||hostedMarkerPresent();
+  if(hostedMode&&(!this.hosted||!isMailboxFetch(this.hosted.factoryFetch)))return false; // fail closed: never a direct loopback health probe
+  if(!hostedMode)return new LiveFactoryAdapter(connection).healthy();
+  try{return await new LiveFactoryAdapter(connection,this.hosted!.factoryFetch).healthy();}catch{return false;}
+ }
  async read(work:Work,requestId?:string,prepared?:FactoryPrepareRequest){
   const {selection,...snapshot}=await this.assess(work,requestId,prepared);
   return snapshot;
@@ -64,9 +83,9 @@ export class FactoryRouteAuthority {
    const spend=factorySpendAdmission(connection);
    if(!spend.allowed)throw new WorkError('factory_spend_unqualified',spend.reasons.join('; '),503);
   }
-  const healthy=policy.intent==='PRODUCE'?await new LiveFactoryAdapter(connection).healthy():false;
-  const now=Date.now();
-  const qualified=q.scopeId===work.scopeId&&q.profileHash===digest(config.engineering.profile)&&Date.parse(q.qualifiedAt)<=now&&Date.parse(q.expiresAt)>now&&
+  const healthy=policy.intent==='PRODUCE'?await this.factoryHealthy(connection):false;
+  const now=Date.now(),scope=this.qualificationScope(work);
+  const qualified=scope!==null&&q.scopeId===scope&&q.profileHash===digest(config.engineering.profile)&&Date.parse(q.qualifiedAt)<=now&&Date.parse(q.expiresAt)>now&&
     (q.mode==='LOCAL_FIXTURE'||q.spendEnforced);
   const selection=betaRoute(policy.intent,{factoryQualified:qualified,factoryAvailable:healthy,
    writerFree:native.facts.writerState==='NONE',scopeAllowed:native.facts.workActive&&native.facts.authority==='ALLOW',

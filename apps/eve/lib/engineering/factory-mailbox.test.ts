@@ -3,8 +3,8 @@ import pg from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { digest } from "./contract.ts";
 import {
-  authenticatePoller, awaitMailboxResponse, enqueueMailboxRequest, transportTimeoutMs, HOSTED_PROFILE, isMailboxFetch, leaseMailboxRequest, MAILBOX_LIMITS, mailboxFetch, MailboxRefused,
-  pollerCredentialSha256, respondMailboxRequest, sha256Hex, type MailboxDb,
+  assertHostedTransport, authenticatePoller, awaitMailboxResponse, enqueueMailboxRequest, hostedMarkerPresent, hostedOwnerScope, transportTimeoutMs, HOSTED_PROFILE, isMailboxFetch,
+  leaseMailboxRequest, MAILBOX_LIMITS, mailboxFetch, MailboxRefused, pollerCredentialSha256, respondMailboxRequest, sha256Hex, sweepExpiredMailbox, type MailboxDb,
 } from "./factory-mailbox.ts";
 import { factoryTransportFetch } from "./factory-transport.ts";
 import { LiveFactoryAdapter } from "./factory-live-adapter.ts";
@@ -18,7 +18,7 @@ it("0110 is additive only: it creates new tables and indexes and never alters, d
   const sql = (await readFile(migration, "utf8")).replace(/--.*$/gm, "");
   const statements = sql.split(";").map(s => s.trim()).filter(Boolean);
   expect(statements.length).toBeGreaterThan(0);
-  for (const s of statements) expect(s).toMatch(/^CREATE (TABLE|INDEX) (factory_mailbox_|hosted_verified_previews|hosted_mac_builds)/);
+  for (const s of statements) expect(s).toMatch(/^CREATE (UNIQUE )?(TABLE|INDEX) (factory_mailbox_|hosted_verified_previews|hosted_mac_builds)/);
   expect(sql.replace(/'[^']*'/g, "''")).not.toMatch(/\b(ALTER|DROP|UPDATE|DELETE|INSERT|TRUNCATE|GRANT)\b/i);
 });
 
@@ -166,8 +166,11 @@ describe.skipIf(!connection)("hosted Factory mailbox v1 against real PostgreSQL"
     await enqueueMailboxRequest(db, B, { target: "factory", method: "GET", path: "/api/health?x=1", deadlineMs: 10_000 });
     expect(await lease(A)).toBeNull();
     expect((await lease(B))?.path).toBe("/api/health?x=1");
-    for (const [target, path] of [["factory", "/api/capability-admission/prepare"], ["verifier", "/qdev/v1/verdict"], ["verifier", "/qdev/v1/evaluate"]] as const)
+    for (const [target, path] of [["factory", "/api/capability-admission/prepare"], ["verifier", "/qdev/v1/verdict"]] as const)
       await expect(enqueueMailboxRequest(db, B, { target, method: "POST", path, deadlineMs: 10_000 })).resolves.toBeTruthy();
+    // P7: an evaluation envelope shorter than 12 minutes would be cut off by its own deadline (refused); at 12 minutes it is accepted.
+    await expect(enqueueMailboxRequest(db, B, { target: "verifier", method: "POST", path: "/qdev/v1/evaluate", deadlineMs: 10_000 })).rejects.toMatchObject({ code: "MAILBOX_EVALUATE_DEADLINE" });
+    await expect(enqueueMailboxRequest(db, B, { target: "verifier", method: "POST", path: "/qdev/v1/evaluate", deadlineMs: MAILBOX_LIMITS.evaluateDeadlineMs })).resolves.toBeTruthy();
     for (const [target, path] of [["factory", "/qdev/v1/verdict"], ["verifier", "/api/connect/v1/x"], ["verifier", "/qdev/v1/artifact/file"], ["verifier", "/qdev/v1/artifact/commit"], ["factory", "/api/other"], ["factory", "/api/connect/v1/a/../b"],
       ["factory", "//api/connect/v1/x"], ["factory", "/api/connect/v1/%2e%2e/b"], ["factory", "/api/connect/v1/x#f"], ["factory", "/api/connect/v1/a\\b"], ["factory", "relative"]] as const)
       await expect(enqueueMailboxRequest(db, B, { target, method: "GET", path, deadlineMs: 10_000 }), path).rejects.toMatchObject({ code: "MAILBOX_PATH" });
@@ -183,4 +186,69 @@ describe.skipIf(!connection)("hosted Factory mailbox v1 against real PostgreSQL"
       .rejects.toMatchObject({ code: "MAILBOX_NOT_ENROLLED" });
     await expect(mailboxFetch(db, A, "factory", ORIGIN)("http://127.0.0.1:9999" + P("x"))).rejects.toMatchObject({ code: "MAILBOX_ORIGIN" });
   });
+
+  it("P2 regression: concurrent enqueues are serialized per installation; depth never exceeds 16", async () => {
+    const results = await Promise.allSettled(Array.from({ length: 40 }, (_, i) =>
+      enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("race" + i), deadlineMs: 10_000 })));
+    expect(results.filter(r => r.status === "fulfilled")).toHaveLength(MAILBOX_LIMITS.maxQueueDepth);
+    expect(results.filter(r => r.status === "rejected").every(r => (r as PromiseRejectedResult).reason?.code === "MAILBOX_QUEUE_FULL")).toBe(true);
+    expect((await pool.query("SELECT count(*)::int AS n FROM factory_mailbox_requests WHERE installation_id=$1", [A.installationId])).rows[0].n).toBe(16);
+    // Another installation has its own queue.
+    await expect(enqueueMailboxRequest(db, B, { target: "factory", method: "GET", path: P("b"), deadlineMs: 10_000 })).resolves.toBeTruthy();
+    // A slot frees when its request is answered and read (or expires): admission resumes at exactly one more.
+    const envelope = (await lease(A))!;
+    await respondMailboxRequest(db, A, reply(envelope));
+    await awaitMailboxResponse(db, A, envelope.id, { pollMs: 10 });
+    const again = await Promise.allSettled([0, 1, 2].map(i => enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("again" + i), deadlineMs: 10_000 })));
+    expect(again.filter(r => r.status === "fulfilled")).toHaveLength(1);
+  });
+
+  it("P2 regression: abandoned queued rows (credentials) are wiped by an independent sweep, without any further enqueue", async () => {
+    const { id } = await enqueueMailboxRequest(db, A, { target: "factory", method: "POST", path: P("dispatches"), headers: { authorization: "Bearer factory-token" },
+      body: Buffer.from("{}"), deadlineMs: 10_000 });
+    // The waiter was killed (no withdraw ran). The deadline passes; no enqueue of this installation ever happens again.
+    await pool.query("UPDATE factory_mailbox_requests SET created_at=now() - interval '20 seconds', deadline=now() - interval '1 second' WHERE id=$1", [id]);
+    expect((await pool.query("SELECT headers FROM factory_mailbox_requests WHERE id=$1", [id])).rows[0].headers).toEqual({ authorization: "Bearer factory-token" });
+    await sweepExpiredMailbox(db);
+    expect((await pool.query("SELECT count(*)::int AS n FROM factory_mailbox_requests")).rows[0].n).toBe(0);
+    // The poller of ANY installation sweeps on every poll.
+    const other = await enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("x"), deadlineMs: 10_000 });
+    await pool.query("UPDATE factory_mailbox_requests SET created_at=now() - interval '20 seconds', deadline=now() - interval '1 second' WHERE id=$1", [other.id]);
+    expect(await lease(B)).toBeNull();
+    expect((await pool.query("SELECT count(*)::int AS n FROM factory_mailbox_requests")).rows[0].n).toBe(0);
+  });
+
+  it("P3 regression: the lease is exactly 30 s; P7: an evaluation lease stays valid until its >= 12 min deadline", async () => {
+    await enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("short"), deadlineMs: 10 * 60_000 });
+    const short = (await lease(A))!;
+    const leaseMs = Date.parse(short.leaseExpiresAt) - Date.now();
+    expect(leaseMs).toBeLessThanOrEqual(MAILBOX_LIMITS.leaseMs + 1000);
+    expect(leaseMs).toBeGreaterThan(MAILBOX_LIMITS.leaseMs - 5000);
+    const send = mailboxFetch(db, A, "verifier", "http://127.0.0.1:8795", { pollMs: 20 });
+    const pending = send("http://127.0.0.1:8795/qdev/v1/evaluate", { method: "POST", body: "{}", headers: { "content-type": "application/json" } });
+    const evaluation = (await lease(A, 5000))!;
+    expect(evaluation.path).toBe("/qdev/v1/evaluate");
+    expect(Date.parse(evaluation.deadline) - Date.parse(evaluation.createdAt)).toBeGreaterThanOrEqual(MAILBOX_LIMITS.evaluateDeadlineMs - 1000);
+    expect(evaluation.leaseExpiresAt).toBe(evaluation.deadline);
+    // An answer after 30 s (simulated: 10 minutes into the lease) is still accepted for the evaluation lease.
+    await pool.query("UPDATE factory_mailbox_requests SET leased_at=now() - interval '10 minutes' WHERE id=$1", [evaluation.id]);
+    await respondMailboxRequest(db, A, reply(evaluation, 200, Buffer.from('{"state":"FINAL"}')));
+    expect(await (await pending).text()).toBe('{"state":"FINAL"}');
+    // A non-evaluation answer after its 30 s lease is refused.
+    await pool.query("UPDATE factory_mailbox_requests SET lease_expires_at=now() - interval '1 second' WHERE id=$1", [short.id]);
+    await expect(respondMailboxRequest(db, A, reply(short))).rejects.toMatchObject({ code: "MAILBOX_RESPONSE_REFUSED" });
+  });
+});
+
+it("P1 regression: a hosted marker forbids every direct loopback Factory/verifier transport (health included)", () => {
+  const direct = (async () => new Response()) as typeof fetch, db = { query: async () => [] } as MailboxDb;
+  expect(hostedMarkerPresent({})).toBe(false);
+  for (const env of [{ MYEVE_HOSTED_PROFILE: "{}" }, { MYEVE_HOSTED_PROFILE: "not json" }, { MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true" }, { MYEVE_HOSTED_ANYTHING: "1" }]) {
+    expect(hostedMarkerPresent(env)).toBe(true);
+    expect(() => assertHostedTransport(direct, ORIGIN, env)).toThrow("HOSTED_DIRECT_LOOPBACK_REFUSED");
+    expect(() => assertHostedTransport(mailboxFetch(db, A, "factory", ORIGIN), ORIGIN, env)).not.toThrow();
+  }
+  expect(() => assertHostedTransport(direct, ORIGIN, {})).not.toThrow();
+  expect(() => assertHostedTransport(direct, "https://relay.example.com", { MYEVE_HOSTED_PROFILE: "{}" })).not.toThrow();
+  expect(hostedOwnerScope({ installationId: "prj_hosted_owner", ownerId: "jay" })).toBe("myeve.hosted:prj_hosted_owner:jay");
 });

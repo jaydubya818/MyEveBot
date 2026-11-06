@@ -9,6 +9,7 @@ import { composeRuntimePorts, type QdevCustody } from "./runtime-ports.ts";
 import { assembleHostedCustody, type HostedLauncherDeps } from "./hosted-custody.ts";
 import { hostedContext } from "./hosted-http.ts";
 import { vercelPrivatePreviewStore } from "./hosted-preview.ts";
+import { hostedMarkerPresent } from "../engineering/factory-mailbox.ts";
 
 /**
  * Production startup binding for the protected-custody ports.
@@ -28,21 +29,29 @@ export type CustodyLoaderDeps = {
   launcher?: LauncherDeps;
   /** Hosted private-beta launcher (null = none). Default: present only when MYEVE_HOSTED_PROFILE configures this deployment as a hosted installation. */
   hosted?: HostedLauncherDeps | null;
+  /** Environment consulted for hosted markers (default process.env). */
+  env?: Readonly<Record<string, string | undefined>>;
 };
-function hostedLauncherFromEnv(): HostedLauncherDeps | null {
-  const context = hostedContext();
+function hostedLauncherFromEnv(env: Readonly<Record<string, string | undefined>>): HostedLauncherDeps | null {
+  const context = hostedContext(env);
   return context ? { hosted: context.profile, mailboxDb: context.db, blob: vercelPrivatePreviewStore(), database: pgExecutionDatabase } : null;
 }
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 export async function loadCustody(context: Parameters<NonNullable<RuntimeHostDeps["ports"]>>[0], deps: CustodyLoaderDeps = {}): Promise<QdevCustody | null> {
-  // A non-secret assembly profile is launched from the existing qualified bodies; it is mutually exclusive with a pinned custody module (schema-enforced).
-  if (context.bundle.assembly) {
-    // A hosted installation never falls back to the owner-local launcher (loopback Factory, Docker, local release root).
-    const hosted = deps.hosted !== undefined ? deps.hosted : hostedLauncherFromEnv();
-    if (hosted) return assembleHostedCustody(context, hosted);
-    return assembleFromProfile(context, deps.launcher ?? { database: pgExecutionDatabase });
+  // Hosted mode is decided BEFORE any launcher or custody-module selection, and it fails closed: any hosted marker in the environment (even a
+  // malformed or foreign MYEVE_HOSTED_PROFILE), or an injected hosted launcher, means only the hosted launcher may run. If it cannot be built
+  // (invalid profile, foreign owner, missing database) the installation stays disabled; it never falls through to the owner-local launcher
+  // (loopback Factory, Docker, local release root) or to a pinned custody module.
+  const env = deps.env ?? process.env;
+  const marked = hostedMarkerPresent(env);
+  const hosted = deps.hosted !== undefined ? deps.hosted : (marked ? hostedLauncherFromEnv(env) : null);
+  if (marked || hosted) {
+    if (!hosted || !context.bundle.assembly) return null;
+    return assembleHostedCustody(context, hosted);
   }
+  // A non-secret assembly profile is launched from the existing qualified bodies; it is mutually exclusive with a pinned custody module (schema-enforced).
+  if (context.bundle.assembly) return assembleFromProfile(context, deps.launcher ?? { database: pgExecutionDatabase });
   const pin = (context.bundle as { custody?: { module: string; sha256: string } }).custody;
   if (!pin || !/^[a-f0-9]{64}$/.test(pin.sha256)) return null;
   if (!isAbsolute(pin.module) || normalize(pin.module) !== pin.module || !/\.m?js$/.test(pin.module) || /[\0?#]/.test(pin.module)) return null;

@@ -36,20 +36,50 @@ const safeManifestPath = (p: unknown): p is string => typeof p === "string" && p
 export const previewBlobKey = (binding: MailboxBinding, artifactSha256: string, fileSha256: string) =>
   `hosted-previews/${createHash("sha256").update(binding.installationId).digest("hex").slice(0, 32)}/${artifactSha256}/${fileSha256}`;
 
-/** Verifies a signed PASS verdict and the release manifest it binds. Returns the release identity; throws PreviewRefused otherwise. */
-export function verifyPreviewRelease(profile: HostedProfile, signed: unknown, manifest: unknown, now?: number): { artifactSha256: string; verdictSha256: string; verdict: Verdict; manifest: PreviewManifest } {
+/**
+ * What a preview may be published for: the installation's own VERIFIED Mac build (hosted re-verified its signed build claim against the expected
+ * binding hosted derived from its retained stage-3 admission) and that build's independently retained project/source/specification binding.
+ * Nothing here comes from the submitted verdict.
+ */
+export type PreviewExpectation = { candidateCommit: string; candidateTree: string; buildArtifactSha256: string; projectSha256: string; sourceSha256: string;
+  protectedSpecificationSha256: string; verifiedAtMs: number };
+/** Verdicts may be issued on the Mac a little before the hosted clock records the build as VERIFIED; anything older is a replay. */
+export const PREVIEW_VERDICT_SKEW_MS = 5 * 60_000;
+export async function verifiedBuildExpectation(db: MailboxDb, binding: MailboxBinding, artifactSha256: string): Promise<PreviewExpectation | null> {
+  if (!HEX.test(artifactSha256)) return null;
+  const rows = await db.query(`SELECT request, candidate_commit, candidate_tree, artifact_sha256, verified_at FROM hosted_mac_builds
+    WHERE installation_id=$1 AND owner_id=$2 AND artifact_sha256=$3 AND state='VERIFIED'`, [binding.installationId, binding.ownerId, artifactSha256]);
+  if (rows.length !== 1) return null;
+  const row = rows[0], request = parseJson<{ candidate?: { commit?: unknown; tree?: unknown }; projectSha256?: unknown; sourceSha256?: unknown;
+    protectedSpecificationSha256?: unknown; binding?: { candidateCommit?: unknown; candidateTree?: unknown } }>(row.request);
+  const verifiedAtMs = Date.parse(new Date(row.verified_at as string).toISOString());
+  const e = { candidateCommit: String(row.candidate_commit), candidateTree: String(row.candidate_tree), buildArtifactSha256: String(row.artifact_sha256),
+    projectSha256: String(request?.projectSha256), sourceSha256: String(request?.sourceSha256), protectedSpecificationSha256: String(request?.protectedSpecificationSha256), verifiedAtMs };
+  if (request?.candidate?.commit !== e.candidateCommit || request?.candidate?.tree !== e.candidateTree || request?.binding?.candidateCommit !== e.candidateCommit
+    || request?.binding?.candidateTree !== e.candidateTree || ![e.projectSha256, e.sourceSha256, e.protectedSpecificationSha256].every(v => HEX.test(v)) || !Number.isFinite(verifiedAtMs)) return null;
+  return e;
+}
+const manifestArtifact = (manifest: unknown) => String((manifest as PreviewManifest)?.artifactDigest ?? "").replace(/^sha256:/, "");
+
+/**
+ * Verifies a signed PASS verdict and the release manifest it binds against the expectation of the installation's VERIFIED build (never against
+ * fields of the verdict itself): exact candidate, artifact, project, source and protected specification, hosted assurance, verifier trust,
+ * separation from every producer key (including the Mac build issuer), and issuance not before that build was verified. Throws PreviewRefused.
+ */
+export function verifyPreviewRelease(profile: HostedProfile, signed: unknown, manifest: unknown, expected: PreviewExpectation | null, now?: number): { artifactSha256: string; verdictSha256: string; verdict: Verdict; manifest: PreviewManifest } {
   const s = signed as SignedVerdict, v = s?.verdict as Verdict | undefined;
   if (!s || typeof s !== "object" || Object.keys(s).sort().join(",") !== "signatureBase64,verdict" || !v || typeof v !== "object") return refuse("PREVIEW_VERDICT_SHAPE", 400);
+  if (!expected || expected.buildArtifactSha256 !== manifestArtifact(manifest)) return refuse("PREVIEW_BUILD_NOT_VERIFIED", 409);
   let verdict: Verdict;
   try {
-    // The verdict's own binding fields are the expectation except the two that matter here: its assurance must be the hosted one, and its
-    // build artifact must be exactly this manifest. Signature, key window, separation from producer keys and PASS are verified in full.
-    verdict = verifyVerdict({ signed: s, verifierKeys: profile.verifier.keys, producerKeyIds: profile.verifier.producerKeyIds,
-      producerPublicKeysPem: profile.verifier.producerPublicKeysPem, now,
-      expected: { assurance: HOSTED_ASSURANCE, projectSha256: v.projectSha256, sourceSha256: v.sourceSha256, protectedSpecificationSha256: v.protectedSpecificationSha256,
-        candidateCommit: v.candidateCommit, candidateTree: v.candidateTree,
-        buildArtifactSha256: String((manifest as PreviewManifest)?.artifactDigest ?? "").replace(/^sha256:/, "") } });
+    verdict = verifyVerdict({ signed: s, verifierKeys: profile.verifier.keys,
+      producerKeyIds: [...profile.verifier.producerKeyIds, profile.build.issuer.keyId],
+      producerPublicKeysPem: [...profile.verifier.producerPublicKeysPem, profile.build.issuer.publicKeyPem], now,
+      expected: { assurance: HOSTED_ASSURANCE, projectSha256: expected.projectSha256, sourceSha256: expected.sourceSha256,
+        protectedSpecificationSha256: expected.protectedSpecificationSha256, candidateCommit: expected.candidateCommit, candidateTree: expected.candidateTree,
+        buildArtifactSha256: expected.buildArtifactSha256 } });
   } catch (error) { return refuse("PREVIEW_VERDICT:" + (error instanceof Error ? error.message : "rejected").slice(0, 80), 422); }
+  if (Date.parse(verdict.issuedAt) < expected.verifiedAtMs - PREVIEW_VERDICT_SKEW_MS) return refuse("PREVIEW_VERDICT_PREDATES_BUILD", 422);
   const m = manifest as PreviewManifest;
   if (!m || typeof m !== "object" || Object.keys(m).sort().join(",") !== "artifactDigest,files,inventoryDigest,schema,source"
     || m.schema !== "myeve.qdev-static-release/v1" || m.artifactDigest !== "sha256:" + verdict.buildArtifactSha256 || !Array.isArray(m.files)) return refuse("PREVIEW_MANIFEST", 422);
@@ -64,6 +94,9 @@ export function verifyPreviewRelease(profile: HostedProfile, signed: unknown, ma
   let computed: string;
   try { computed = myappsDigest({ source: m.source, files: m.files }); } catch { return refuse("PREVIEW_MANIFEST_DIGEST", 422); }
   if (computed !== m.artifactDigest) return refuse("PREVIEW_MANIFEST_DIGEST", 422);
+  // The release must be the build's own source pins (the verified build's candidate), not merely any release with a matching digest.
+  const source = m.source as { sourceCommit?: unknown; sourceTree?: unknown } | null;
+  if (source?.sourceCommit !== expected.candidateCommit || source?.sourceTree !== expected.candidateTree) return refuse("PREVIEW_MANIFEST_SOURCE", 422);
   return { artifactSha256: verdict.buildArtifactSha256, verdictSha256: sha(canonical(s)), verdict, manifest: m };
 }
 
@@ -80,7 +113,8 @@ export async function readPreview(db: MailboxDb, binding: MailboxBinding, artifa
 export async function beginPreviewUpload(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, input: unknown, now?: number) {
   const body = input as { schema?: unknown; verdict?: unknown; manifest?: unknown };
   if (!body || typeof body !== "object" || Object.keys(body).sort().join(",") !== "manifest,schema,verdict" || body.schema !== "myeve.hosted-preview-upload/v1") return refuse("PREVIEW_UPLOAD_SHAPE", 400);
-  const release = verifyPreviewRelease(profile, body.verdict, body.manifest, now), binding = hostedBinding(profile);
+  const binding = hostedBinding(profile);
+  const release = verifyPreviewRelease(profile, body.verdict, body.manifest, await verifiedBuildExpectation(db, binding, manifestArtifact(body.manifest)), now);
   await db.query(`INSERT INTO hosted_verified_previews(installation_id,owner_id,artifact_sha256,verdict,verdict_sha256,manifest,state)
     VALUES($1,$2,$3,$4::jsonb,$5,$6::jsonb,'UPLOADING') ON CONFLICT (installation_id, artifact_sha256) DO NOTHING`,
     [binding.installationId, binding.ownerId, release.artifactSha256, JSON.stringify(body.verdict), release.verdictSha256, JSON.stringify(release.manifest)]);
@@ -94,7 +128,7 @@ export async function beginPreviewUpload(db: MailboxDb, profile: HostedProfile, 
 /** Step 2 (Mac): one file of a registered release, accepted only when its length and sha256 match the manifest entry. */
 export async function putPreviewFile(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, path: string, bytes: Uint8Array) {
   const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
-  if (!row) return refuse("PREVIEW_NOT_FOUND", 404);
+  if (!row || !await verifiedBuildExpectation(db, binding, artifactSha256)) return refuse("PREVIEW_NOT_FOUND", 404);
   const entry = row.manifest.files.find(f => f.path === path);
   if (!entry) return refuse("PREVIEW_PATH", 404);
   if (bytes.length !== entry.bytes || sha(bytes) !== entry.sha256) return refuse("PREVIEW_FILE_INTEGRITY", 422);
@@ -106,7 +140,7 @@ export async function putPreviewFile(db: MailboxDb, profile: HostedProfile, blob
 export async function completePreviewUpload(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, now?: number) {
   const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
   if (!row) return refuse("PREVIEW_NOT_FOUND", 404);
-  verifyPreviewRelease(profile, row.verdict, row.manifest, now);
+  verifyPreviewRelease(profile, row.verdict, row.manifest, await verifiedBuildExpectation(db, binding, artifactSha256), now);
   for (const f of row.manifest.files) {
     const bytes = await blob.get(previewBlobKey(binding, artifactSha256, f.sha256));
     if (!bytes || bytes.length !== f.bytes || sha(bytes) !== f.sha256) return refuse("PREVIEW_INCOMPLETE:" + f.path.slice(0, 200), 409);
@@ -159,22 +193,73 @@ export const PREVIEW_HEADERS = {
   "cross-origin-resource-policy": "same-origin", "x-robots-tag": "noindex, nofollow",
 } as const;
 
+/**
+ * Browser serving context of a grant path. Present only on the grant route (never on the server-side delivery observation, which must see the
+ * exact verified bytes).
+ *
+ * Why the preview stays an OPAQUE-origin sandbox and how real builds run in it:
+ *  - A same-origin (allow-same-origin) preview would run the built application's scripts as MyEve's own origin: they could read MyEve storage
+ *    and drive MyEve's authenticated APIs with the owner's cookies. We keep the opaque sandbox and do not take that trade.
+ *  - Root-relative references (`/assets/app.js`, `url(/assets/x.png)`, `import "/assets/chunk.js"`) would escape the grant path and hit MyEve's
+ *    root. In HTML, CSS and JavaScript of the release they are rewritten to the grant path, but ONLY for references whose first segment is a
+ *    top-level entry of the verified manifest (nothing else is touched). Served bytes then differ from the release by exactly that deterministic
+ *    rewrite; the verdict/manifest/sha256 checks run on the stored bytes before it, and the delivery observation reads the unrewritten bytes.
+ *  - From an opaque origin every module script (and `crossorigin` asset) is a CORS request with `Origin: null`. Grant responses therefore answer
+ *    such a request with `Access-Control-Allow-Origin: null` (never `*`, never credentials, `Vary: Origin`) and a cross-origin resource policy.
+ *    This grants nothing beyond the URL itself: the grant path is the bearer capability (owner-issued, 10 minutes, one release), no cookie is
+ *    honoured or needed, and the bytes are already readable by whoever holds the URL. MyEve's own responses keep no CORS.
+ *  - The CSP is path-scoped to the grant (`<servedOrigin>/api/previews/v1/<release>/g/<grant>/`) instead of the whole MyEve origin.
+ */
+export type PreviewBrowserContext = { grantBase: string; requestOrigin: string | null };
+const GRANT_BASE = /^\/api\/previews\/v1\/[a-f0-9]{64}\/g\/[0-9]{10}\.[A-Za-z0-9_-]{43}\/$/;
+export const previewGrantBase = (artifactSha256: string, grant: string) => `/api/previews/v1/${artifactSha256}/g/${grant}/`;
+const REWRITTEN = new Set(["html", "htm", "css", "js", "mjs"]);
+/** Rewrites root-relative references to the verified release's own top-level entries into grant-relative ones (see PreviewBrowserContext). */
+export function rewriteRootRelative(text: string, roots: readonly string[], grantBase: string): string {
+  const safe = roots.filter(r => /^[A-Za-z0-9._~@+-]+$/.test(r) && r !== "." && r !== "..");
+  if (!safe.length || !GRANT_BASE.test(grantBase)) return text;
+  const alternatives = safe.map(r => r.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).sort((a, b) => b.length - a.length).join("|");
+  const pattern = new RegExp(`(^|[\\s"'\`(=,])\\/(?!\\/)(${alternatives})(?=[\\/"'\`)\\s?#,>;]|$)`, "g");
+  return text.replace(pattern, (_m, lead: string, root: string) => `${lead}${grantBase}${root}`);
+}
+export function previewBrowserHeaders(profile: HostedProfile, browser: PreviewBrowserContext): Record<string, string> {
+  if (!GRANT_BASE.test(browser.grantBase)) throw new PreviewRefused("PREVIEW_GRANT_BASE", 404);
+  const scope = profile.servedOrigin + browser.grantBase;
+  return {
+    "content-security-policy": `sandbox allow-scripts allow-forms allow-popups; default-src ${scope}; script-src ${scope} 'unsafe-inline'; style-src ${scope} 'unsafe-inline'; img-src ${scope} data: blob:; font-src ${scope} data:; connect-src ${scope}; worker-src 'none'; frame-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'`,
+    "cache-control": "private, no-store", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer",
+    "cross-origin-resource-policy": "cross-origin", "x-robots-tag": "noindex, nofollow", vary: "Origin",
+    ...(browser.requestOrigin === "null" ? { "access-control-allow-origin": "null" } : {}),
+  };
+}
+
 /** Serves one file of a READY release after re-verifying the signed verdict, the manifest it binds and this file's sha256. Fails closed. */
-export async function servePreviewFile(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, path: string, method = "GET", now?: number): Promise<Response> {
+export async function servePreviewFile(db: MailboxDb, profile: HostedProfile, blob: PreviewBlobStore, artifactSha256: string, path: string, method = "GET", now?: number,
+  browser?: PreviewBrowserContext): Promise<Response> {
   const fail = (status: number, code: string) => Response.json({ error: code }, { status, headers: { "cache-control": "private, no-store", "x-content-type-options": "nosniff" } });
   if (method !== "GET" && method !== "HEAD") return fail(405, "PREVIEW_METHOD");
   const relative = path === "" ? "index.html" : path;
   if (!SERVE_PATH.test(relative)) return fail(404, "PREVIEW_NOT_FOUND");
   const binding = hostedBinding(profile), row = await readPreview(db, binding, artifactSha256);
   if (!row || row.state !== "READY") return fail(404, "PREVIEW_NOT_FOUND");
-  try { verifyPreviewRelease(profile, row.verdict, row.manifest, now); } catch { return fail(409, "PREVIEW_VERDICT_NOT_VALID"); }
+  try { verifyPreviewRelease(profile, row.verdict, row.manifest, await verifiedBuildExpectation(db, binding, artifactSha256), now); }
+  catch { return fail(409, "PREVIEW_VERDICT_NOT_VALID"); }
   const entry = row.manifest.files.find(f => f.path === "dist/" + relative);
   if (!entry) return fail(404, "PREVIEW_NOT_FOUND");
   const bytes = await blob.get(previewBlobKey(binding, artifactSha256, entry.sha256));
   if (!bytes || bytes.length !== entry.bytes || sha(bytes) !== entry.sha256) return fail(500, "PREVIEW_SERVE_INTEGRITY");
-  const ext = relative.slice(relative.lastIndexOf(".") + 1).toLowerCase();
-  return new Response(method === "HEAD" ? null : new Uint8Array(bytes), { status: 200, headers: { ...PREVIEW_HEADERS,
-    "content-type": TYPES[ext] ?? "application/octet-stream", "content-length": String(bytes.length), etag: `"sha256-${entry.sha256}"` } });
+  const ext = relative.slice(relative.lastIndexOf(".") + 1).toLowerCase(), type = TYPES[ext] ?? "application/octet-stream";
+  if (!browser) return new Response(method === "HEAD" ? null : new Uint8Array(bytes), { status: 200, headers: { ...PREVIEW_HEADERS,
+    "content-type": type, "content-length": String(bytes.length), etag: `"sha256-${entry.sha256}"` } });
+  let headers: Record<string, string>;
+  try { headers = previewBrowserHeaders(profile, browser); } catch { return fail(404, "PREVIEW_NOT_FOUND"); }
+  let out: Uint8Array = bytes;
+  if (REWRITTEN.has(ext)) {
+    const roots = [...new Set(row.manifest.files.map(f => f.path.slice("dist/".length).split("/")[0]))];
+    out = Buffer.from(rewriteRootRelative(Buffer.from(bytes).toString("utf8"), roots, browser.grantBase), "utf8");
+  }
+  return new Response(method === "HEAD" ? null : new Uint8Array(out), { status: 200, headers: { ...headers,
+    "content-type": type, "content-length": String(out.length), etag: `"sha256-${sha(out)}"` } });
 }
 
 /** Private Vercel Blob store (server-side only; the read/write token is the deployment's own BLOB_READ_WRITE_TOKEN and never leaves Vercel). */

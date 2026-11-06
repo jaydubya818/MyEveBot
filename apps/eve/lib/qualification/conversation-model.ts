@@ -154,7 +154,8 @@ export function qualificationConversation(config: QualificationConversationConfi
         const output = outputs[0];
         const json = z.object({ type: z.literal("json"), value: z.unknown() }).passthrough().safeParse(output.output);
         if (output.index <= call.index || output.toolCallId !== call.toolCallId || !json.success) return textResult(unverified);
-        return textResult(present(json.data.value, deliveryUrl, "INDEPENDENT"));
+        // A hosted installation's verdict is the private-beta (owner's machine) verifier: it is presented with the hosted label, never as independent.
+        return textResult(present(json.data.value, deliveryUrl, config.hosted ? "PRIVATE_BETA_LOCAL" : "INDEPENDENT", undefined, config.hosted === true));
       }
       // A tool response without the expected call is never an invitation to rerun the journey.
       if (turn.some(m => m.role === "tool")) return textResult(unverified);
@@ -246,7 +247,7 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
     hosted ? "I can run this as a private-beta journey on your Mac's MyFactory (hosted installation). Nothing has started."
       : "I can run this as a private-beta owner journey (owner-local installation). Nothing has started.",
     `Request digest: ${d.requestSha256}. Repository: ${d.repository}. Release environment: ${d.environment}. Derived cohort: ${d.cohortId}.`,
-    `Stages: 1 ${d.planningInFactory ? "planning and coding in one MyFactory run (no separate Sofie model call)" : "Sofie planning and coding"}, 2 coding, 3 Factory build and tests, 4 local verification and delivery. The verifier is owner-local (assurance PRIVATE_BETA_LOCAL), not independent custody; every stage is charged against the cohort ledger first and nothing is retried automatically.`,
+    `Stages: 1 ${d.planningInFactory ? "planning and coding in one MyFactory run (no separate Sofie model call)" : "Sofie planning and coding"}, 2 coding, 3 Factory build and tests, 4 local verification and delivery. ${hosted ? `The verifier is the ${HOSTED_VERIFIER_LABEL}` : "The verifier is owner-local (assurance PRIVATE_BETA_LOCAL), not independent custody"}; every stage is charged against the cohort ledger first and nothing is retried automatically.`,
     `[plan ${d.planSha256}]`,
     `To start exactly this plan, reply: confirm ${d.planSha256.slice(0, 12)}`,
   ].join("\n\n");
