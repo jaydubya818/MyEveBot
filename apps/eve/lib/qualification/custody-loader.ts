@@ -68,6 +68,15 @@ export async function loadCustody(context: Parameters<NonNullable<RuntimeHostDep
 export const productionRuntimePorts: NonNullable<RuntimeHostDeps["ports"]> = async context => {
   try {
     const custody = await loadCustody(context);
+    if (!custody && hostedMarkerPresent(process.env)) throw Object.assign(new Error("HOSTED_CUSTODY_UNAVAILABLE"), { code: "HOSTED_CUSTODY_UNAVAILABLE" });
     return custody ? composeRuntimePorts(context, custody) : null;
-  } catch { return null; }
+  } catch (error) {
+    // A configured hosted installation fails LOUDLY: its configuration error is reported (code only, never values) and rethrown, so a broken
+    // hosted deployment is visible instead of silently disabled. Non-hosted installations keep the fail-closed null.
+    if (hostedMarkerPresent(process.env)) {
+      console.error("[hosted] custody unavailable:", (error as { code?: string })?.code ?? (error as Error)?.name ?? "ERROR");
+      throw error;
+    }
+    return null;
+  }
 };

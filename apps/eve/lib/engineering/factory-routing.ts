@@ -16,7 +16,36 @@ import {hostedMarkerPresent,hostedOwnerScope,isMailboxFetch} from './factory-mai
 export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
 const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualified:z.boolean().default(false)}).strict();
 export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
+/**
+ * Hosted private beta (MYEVE_HOSTED_PROFILE): Vercel has no reviewed local config files, and the isolated-dogfood file path is refused in production.
+ * The Factory runtime is one NON-secret JSON value (engineering profile + Factory connection without its token) plus the Factory client token in its
+ * own secret env value. Both are validated by the same schemas, then the connection must pass requireHostedFactoryConnection (metered LIVE route at
+ * the profile's Mac loopback origin, the per-person owner scope, a spend contract) and the qualification must bind this exact engineering profile.
+ * A hosted deployment never falls back to the dogfood/cloud paths: missing or invalid configuration throws (HostedProfileRefused), it is not disabled silently.
+ */
+export const HOSTED_FACTORY_RUNTIME_ENV='MYEVE_HOSTED_FACTORY_RUNTIME',HOSTED_FACTORY_TOKEN_ENV='MYEVE_HOSTED_FACTORY_TOKEN';
+const hostedRuntimeInputSchema=z.object({engineering:z.unknown(),factory:z.object({connection:z.record(z.string(),z.unknown())}).loose()}).strict();
+export async function hostedFactoryRuntime(env:Readonly<Record<string,string|undefined>>=process.env){
+ if(!hostedMarkerPresent(env))return null;
+ const {hostedProfileFromEnv,requireHostedFactoryConnection,HostedProfileRefused}=await import('../qualification/hosted-profile.ts');
+ const refuse=(code:string):never=>{throw new HostedProfileRefused(code);};
+ const profile=hostedProfileFromEnv(env)??refuse('HOSTED_PROFILE_INVALID');
+ const raw=env[HOSTED_FACTORY_RUNTIME_ENV],token=env[HOSTED_FACTORY_TOKEN_ENV];
+ if(!raw)return refuse('HOSTED_FACTORY_RUNTIME_MISSING');
+ if(!token||token.length>4096)return refuse('HOSTED_FACTORY_TOKEN_MISSING');
+ let input;try{input=hostedRuntimeInputSchema.parse(JSON.parse(raw));}catch{return refuse('HOSTED_FACTORY_RUNTIME_INVALID');}
+ if('token' in input.factory.connection)return refuse('HOSTED_FACTORY_TOKEN_IN_PUBLIC_CONFIG');
+ const engineering=runtimeSchema.safeParse(input.engineering);if(!engineering.success)return refuse('HOSTED_ENGINEERING_INVALID');
+ if(engineering.data.ownerId!==profile.ownerId)return refuse('HOSTED_ENGINEERING_OWNER');
+ const factory=factoryRuntimeSchema.safeParse({...input.factory,connection:{...input.factory.connection,token}});
+ if(!factory.success)return refuse('HOSTED_FACTORY_CONNECTION_INVALID');
+ const connection=requireHostedFactoryConnection(profile,factory.data.connection);
+ if(!('qualification' in connection)||connection.qualification.profileHash!==digest(engineering.data.profile))return refuse('HOSTED_FACTORY_PROFILE_BINDING');
+ return {engineering:engineering.data,...factory.data};
+}
 export async function factoryConfig(work?:Work){
+ const hosted=await hostedFactoryRuntime();
+ if(hosted)return hosted;
  const catalogFile=process.env.MYEVE_FACTORY_WORK_PROFILES;
  if(catalogFile&&work){
   if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production"||cloudRuntimeEnabled()||productionCloudEnabled()||!catalogFile.startsWith('/'))
