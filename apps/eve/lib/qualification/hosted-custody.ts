@@ -24,6 +24,7 @@ import { digest } from "../engineering/contract.ts";
 import { HOSTED_PROFILE, mailboxFetch } from "../engineering/factory-mailbox.ts";
 import { confirmHostedRequest, type HostedConfirmed } from "./hosted-confirmation.ts";
 import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
+import { refusalCode } from "./refusal-code.ts";
 
 /**
  * Hosted private-beta custody: hosted Sofie -> mailbox -> the owner's Mac (metered Factory route + local verifier). MyFactory on the Mac is the
@@ -38,7 +39,7 @@ import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
  *    mission come from the pinned assembly profile and are approved in the real MissionControl UI.
  *  - No Docker, git or build signer here: the static build runs on the Mac and is re-verified by HostedMacMyAppsPort; the verifier receives
  *    the bytes from the Mac, not from this process; publication is the private preview (no release controller, no public origin).
- * Returns null (installation stays disabled) when anything is missing, malformed or refused.
+ * Throws a coded refusal (installation stays disabled for this request) when anything is missing, malformed or refused.
  */
 export type HostedLauncherDeps = {
   hosted: HostedProfile; mailboxDb: MailboxDb; blob: PreviewBlobStore;
@@ -53,19 +54,21 @@ export type HostedLauncherDeps = {
 type Context = { bundle: QdevHostBundle; credential(name: string): string | undefined };
 const propagation = z.object({ signer: z.object({ keyId: z.string().min(1), jwk: z.record(z.string(), z.unknown()) }) }).loose();
 
+/** Hosted custody never fails silently: every refusal carries its own code (codes only, never values) up to the root and the owner's chat. */
+const unavailable = (code: string): never => { throw Object.assign(new Error(code), { code }); };
 export async function assembleHostedCustody(context: Context, deps: HostedLauncherDeps): Promise<QdevCustody | null> {
   const { bundle } = context, profile = bundle.assembly, hosted = deps.hosted;
-  if (!profile || bundle.custody || profile.ownerLocalConfirmation || bundle.ownerId !== hosted.ownerId) return null;
-  if (profile.publishing.installationId !== hosted.installationId || profile.build.appId !== hosted.build.appId) return null;
+  if (!profile || bundle.custody || profile.ownerLocalConfirmation || bundle.ownerId !== hosted.ownerId) return unavailable("HOSTED_CUSTODY_PROFILE");
+  if (profile.publishing.installationId !== hosted.installationId || profile.build.appId !== hosted.build.appId) return unavailable("HOSTED_CUSTODY_INSTALLATION");
   // The verifier trust set is one: the journey and the private preview accept exactly the same verifier keys — the complete normalized records
   // (id, public key bytes, validity window, revocation), not just the ids.
-  if (!sameVerifierTrust(profile.verifier.keys, hosted.verifier.keys)) return null;
+  if (!sameVerifierTrust(profile.verifier.keys, hosted.verifier.keys)) return unavailable("HOSTED_CUSTODY_VERIFIER_TRUST");
   const secret = (name: string) => { const value = context.credential(name); return value && value.length <= 16384 ? value : null; };
   const signerJson = secret(profile.capability.signerEnv), relayCredential = secret(profile.capability.relay.credentialEnv),
     workloadToken = secret(profile.capability.relay.workloadTokenEnv), modelKey = profile.model ? secret(profile.model.apiKeyEnv) : null,
     journalUrl = secret(bundle.credentials.journalDatabaseUrl);
-  if (!signerJson || !relayCredential || !workloadToken || !journalUrl || (profile.model && !modelKey)) return null;
-  try { requireHostedPolicy(hosted, bundle.policy); } catch { return null; }
+  if (!signerJson || !relayCredential || !workloadToken || !journalUrl || (profile.model && !modelKey)) return unavailable("HOSTED_CUSTODY_CREDENTIALS");
+  try { requireHostedPolicy(hosted, bundle.policy); } catch (error) { return unavailable(refusalCode(error, "HOSTED_POLICY")); }
   const ownerId = bundle.ownerId, signer = propagation.parse(JSON.parse(signerJson)).signer as { keyId: string; jwk: JsonWebKey };
   const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, canonicalWorkDatabase());
   const readRuntime = (workId?: string) => deps.runtimeConfig
@@ -73,12 +76,12 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
     : Promise.resolve(readHostedFactoryRuntime(context.credential("MYEVE_HOSTED_FACTORY_RUNTIME"), hosted));
   let workIds = profile.workIds, missionId = profile.capability.missionId, admission: HostedConfirmed["admission"] | undefined;
   let requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
-  let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
+  let plan; try { plan = validateJourneyPlan(bundle.plan); } catch (error) { return unavailable(refusalCode(error, "QDEV_PLAN_INVALID")); }
   if (profile.hostedConfirmation) {
     // Sofie -> Plan -> Confirm: the person's confirmed request (root-verified plan digest) creates its stage Works and obtains MissionControl's
     // owner decisions through the hosted confirmation bridge (one signed confirmation, verified and consumed once by MissionControl).
     const request = bundle.conversation.approvedRequest, planSha256 = digest(bundle.plan);
-    if (!request) return null;
+    if (!request) return unavailable("HOSTED_CUSTODY_REQUEST");
     requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
     // The stage Works this confirmation creates must fit the plan's operation reservations AND MyFactory's paid plan. Checked BEFORE any Work is
     // claimed or the MissionControl confirmation is consumed (checkStageWorkBudgets below re-checks the created Works).
@@ -96,7 +99,7 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   };
   const config = await runtimeConfig();
   let transports;
-  try { transports = hostedTransports(hosted, deps.mailboxDb, requireHostedFactoryConnection(hosted, config.connection)); } catch { return null; }
+  try { transports = hostedTransports(hosted, deps.mailboxDb, requireHostedFactoryConnection(hosted, config.connection)); } catch (error) { return unavailable(refusalCode(error, "HOSTED_FACTORY_CONNECTION")); }
   const connection = config.connection;
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
   // Relay is the Mac-local qualification Relay at the profile's loopback origin, reached ONLY through the mailbox `relay` target.
@@ -108,7 +111,7 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
       credential: relayCredential, workloadIdentityToken: workloadToken } });
   const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);
   const [tables] = await journalDb.query("SELECT to_regclass('qjourney_event') AS journal, to_regclass('qdev_admission_claim') AS claim, to_regclass('qdev_retained_admission') AS retained");
-  if (!tables?.journal || !tables.claim || !tables.retained) return null;
+  if (!tables?.journal || !tables.claim || !tables.retained) return unavailable("HOSTED_CUSTODY_JOURNAL_SCHEMA");
   const adapterFor = (c: typeof connection) => orderedAdapterFor(c, capability, transports.factoryFetch, transports.capabilityFetch);
   const { chain } = storeBackedStageChain({ db: journalDb as never, journeyId: journalId, journal: new PostgresJournal(journalDb as never, journalId),
     // Routing qualifies the hosted per-person scope (myeve.hosted:<installation>:<owner>) and probes health through the mailbox only.

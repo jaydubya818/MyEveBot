@@ -137,7 +137,7 @@ export async function confirmHostedRequest(c: {
   const mc = installedMissionControlConfig(enrollment, ownerId, env);
   const runtime = ownerLocalRequestRuntime(c.base, c.request && /^[a-f0-9]{64}$/.test(c.planSha256) ? { request: c.request, planSha256: c.planSha256 } : refuse("HOSTED_CONFIRMATION_REQUEST"));
   const repository = runtime.engineering.profile.repository;
-  const claimed = await ensureRequestStageWorks(c.store, runtime, { planSha256: c.planSha256, stage: p.stage });
+  const claimed = await ensureRequestStageWorks(c.store, runtime, { planSha256: c.planSha256, stage: p.stage, reusePristine: true });
   const works = [claimed[1], claimed[2], claimed[3]];
   // Sofie application proposes the Mission draft over the person's own connection (no authority; the owner decision is MissionControl's, below).
   const title = c.request.slice(0, 160);

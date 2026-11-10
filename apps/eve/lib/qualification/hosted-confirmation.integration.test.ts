@@ -31,7 +31,7 @@ const hmac = (secret: string, e: any) => "sha256=" + createHmac("sha256", secret
   e.commandId, String(e.issuedAt), String(e.expiresAt), e.payloadDigest].join("\n")).digest("hex");
 
 /** Fake MissionControl: the same checks the real actions make on the submitter envelope, the signature and the binding. */
-function fakeMissionControl(enrollment: any, opts: { refusePlan?: string } = {}) {
+function fakeMissionControl(enrollment: any, opts: { refusePlan?: string; failPropose?: boolean } = {}) {
   const calls: Array<{ path: string; payload: any }> = [];
   const send = (async (url: string, init: RequestInit) => {
     expect(url).toBe(MC + "/api/action"); expect(init.redirect).toBe("error");
@@ -40,6 +40,7 @@ function fakeMissionControl(enrollment: any, opts: { refusePlan?: string } = {})
     const fail = (m: string) => new Response(JSON.stringify({ status: "error", errorMessage: m }), { status: 200 });
     if (e.payloadDigest !== "sha256=" + sha(packet.payloadJson)) return fail("DIGEST");
     if (path === "sofieEnterprise:command") {
+      if (opts.failPropose) return fail("[Request ID: 4cc4864492c05e60] Server Error");
       if (e.serviceId !== "myeve-sofie-readiness-v1" || e.signature !== hmac(CONNECTION_SECRET, e) || e.repositoryId !== `connection:${enrollment.connectionId}`) return fail("ENTERPRISE_ACCESS_DENIED");
       const digest = contentDigest({ connectionId: enrollment.connectionId, tenantId: enrollment.tenantId, projectId: enrollment.projectId, ownerId: enrollment.missionControlOwnerId,
         intentKey: payload.intentKey, proposal: payload.proposal });
@@ -123,9 +124,23 @@ describe.skipIf(!connection)("hosted Sofie confirm-and-submit (disposable Postgr
   });
 
   it("a second confirmation of the same plan is a replay: refused before MissionControl is contacted", async () => {
+    // Permit preparation is a spy here; the real one persists durable per-Work state. Any row naming a Work outside its own claim makes it bound.
+    const ids = (await e.pool.query("SELECT work_id FROM engineering_work_model_budget b JOIN engineering_work w ON w.id=b.work_id WHERE w.scope_id=$1 ORDER BY w.created_at LIMIT 3", [e.owner])).rows.map((r: any) => r.work_id);
+    await e.pool.query("INSERT INTO beta_work_contexts(owner_id,work_id,context_ref,document) VALUES($1,$2,'synthetic-binding',$3)", [e.owner, ids[0], { synthetic: true }]);
     const mc = fakeMissionControl(enrollment);
     await expect(run(sha("plan-1"), mc.send)).rejects.toThrow("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");
     expect(mc.calls).toHaveLength(0);
+  });
+
+  it("a MissionControl failure before anything is bound leaves the claimed Works pristine: the same plan can be confirmed again, reusing exactly them", async () => {
+    const planSha256 = sha("plan-propose-failed"), failing = fakeMissionControl(enrollment, { failPropose: true }), before = prepared.length;
+    await expect(run(planSha256, failing.send)).rejects.toThrow("HOSTED_CONFIRMATION_PROPOSE");
+    expect(prepared.length).toBe(before);
+    const claimed = (await e.pool.query("SELECT id FROM engineering_work WHERE scope_id=$1 ORDER BY created_at DESC LIMIT 3", [e.owner])).rows.map((r: any) => r.id).reverse();
+    const mc = fakeMissionControl(enrollment), confirmed = await run(planSha256, mc.send);
+    expect([confirmed.workIds.stage1, confirmed.workIds.stage2, confirmed.workIds.stage3]).toEqual(claimed);
+    expect(mc.calls.map(c => c.path)).toEqual(["sofieEnterprise:command", "sofieConfirmations:confirmPlan"]);
+    expect((await e.pool.query("SELECT count(*)::int AS n FROM engineering_work_model_budget WHERE work_id = ANY($1)", [claimed])).rows[0].n).toBe(3);
   });
 
   it("a MissionControl refusal stops the flow: no permit request is prepared", async () => {

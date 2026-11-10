@@ -20,7 +20,8 @@ import type { RelayDeveloperTools } from "./relay-tools.ts";
  *  - the journey's own gate (qdev_* ledger) remains the only spend authority: this adds none.
  */
 export class QualificationRootRefused extends Error {
-  constructor(readonly code: string) { super(code); }
+  /** `detail` is an owner-safe refusal code of the underlying cause (see refusal-code.ts); `code` stays the stable root code. */
+  constructor(readonly code: string, readonly detail?: string) { super(detail ? `${code}:${detail}` : code); }
 }
 export type QualificationPrincipal = {
   ownerId: string; kind: "human" | string; guest?: boolean; delegatedRole?: boolean; subagent?: boolean;
@@ -44,7 +45,7 @@ export type QualificationRootConfig = {
 export type OwnerRequestRootConfig = {
   ownerId: string;
   /** `expectedPlanSha256` is the confirmed digest: on a mismatch the host returns the actual digest with `config: null` and builds nothing. */
-  ownerRequest: { derive(request: string, expectedPlanSha256: string): Promise<{ planSha256: string; config: QualificationRootConfig | null } | null> };
+  ownerRequest: { derive(request: string, expectedPlanSha256: string): Promise<{ planSha256: string; config: QualificationRootConfig | null; refusal?: string } | null> };
 };
 /** The confirmed request presented to the tool: the exact request text and the full plan digest the owner confirmed. */
 export type QualificationRequest = { request: string; planSha256: string };
@@ -96,7 +97,11 @@ export class QualificationRoot {
         const derived = await hostConfig.ownerRequest.derive(request!.request, request!.planSha256);
         if (!derived) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
         if (derived.planSha256 !== request!.planSha256) throw new QualificationRootRefused("QDEV_ROOT_REQUEST_MISMATCH");
-        if (!derived.config) throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED");
+        if (!derived.config) {
+          const detail = derived.refusal && /^[A-Z][A-Z0-9_]{2,80}(?::[0-9]{1,2})?$/.test(derived.refusal) ? derived.refusal : undefined;
+          console.error(`[qdev] root unconfigured: ${detail ?? "NO_CONFIGURATION"}`);
+          throw new QualificationRootRefused("QDEV_ROOT_UNCONFIGURED", detail);
+        }
         if (derived.config.ownerId !== principal.ownerId) throw new QualificationRootRefused("QDEV_ROOT_OWNER");
         config = derived.config;
       } else config = hostConfig;

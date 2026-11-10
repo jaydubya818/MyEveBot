@@ -84,7 +84,36 @@ const uuidFrom = (hex: string) => { const b = hex.slice(0, 32).split(""); b[12] 
   return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`; };
 
 /** Claim the three stage Works once. An existing claim requires reconciliation; it never rotates enrollment or resumes Work on replay. */
-export async function ensureRequestStageWorks(store: WorkStore, runtime: FactoryRuntime, input: { planSha256: string; stage: OwnerLocalConfirmationProfile["stage"] }) {
+/** Work tables a claim itself writes (history, immutable criteria, the model budget row). Any OTHER row naming the Work means something bound it. */
+const CLAIM_TABLES = new Set(["engineering_work_events", "engineering_work_criteria", "engineering_work_model_budget"]);
+/**
+ * True only for a stage Work that an earlier confirmation of the SAME plan claimed and nothing ever used: still active, history exactly
+ * `created` (paused, v1) or `created,resume` (agent, v2), and no row in any other table carrying its `work_id` (no MissionControl origin, binding or
+ * permit, no Factory request/admission/result, no model call, no budget use). Such a Work may be confirmed again; anything else stays refused.
+ */
+export async function pristineClaimedWork(store: WorkStore, work: Work): Promise<boolean> {
+  if (work.lifecycle !== "active") return false;
+  const events = await store.database.query("SELECT kind, version FROM engineering_work_events WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 ORDER BY version",
+    [store.principal.scopeId, store.principal.scopeKind, work.id]);
+  const history = events.map(e => `${e.kind}@${e.version}`).join(",");
+  if (!((history === "created@1" && work.control === "paused" && work.version === 1) || (history === "created@1,resume@2" && work.control === "agent" && work.version === 2))) return false;
+  // Row-level security could hide a binding row from this role: without BYPASSRLS on an RLS-protected table, the Work is never treated as pristine.
+  const tables = await store.database.query(`SELECT col.table_name, (cls.relrowsecurity AND NOT (SELECT rolbypassrls FROM pg_roles WHERE rolname=current_user)) AS hidden
+    FROM information_schema.columns col JOIN pg_class cls ON cls.relname=col.table_name JOIN pg_namespace ns ON ns.oid=cls.relnamespace AND ns.nspname=col.table_schema
+    WHERE col.table_schema='public' AND col.column_name='work_id' AND col.table_name <> 'engineering_work'`);
+  if (!tables.length || tables.some(t => t.hidden === true)) return false;
+  for (const { table_name } of tables) {
+    const table = String(table_name);
+    if (CLAIM_TABLES.has(table)) continue;
+    if (!/^[a-z_][a-z0-9_]{0,62}$/.test(table)) return false;
+    if ((await store.database.query(`SELECT 1 FROM "${table}" WHERE work_id::text=$1 LIMIT 1`, [work.id])).length) return false;
+  }
+  return true;
+}
+
+export async function ensureRequestStageWorks(store: WorkStore, runtime: FactoryRuntime, input: { planSha256: string; stage: OwnerLocalConfirmationProfile["stage"];
+  /** Hosted only: a stage Work of this plan that a failed earlier confirmation claimed but nothing bound (`pristineClaimedWork`) is confirmed again. */
+  reusePristine?: boolean }) {
   const works: Record<1 | 2 | 3, Work> = {} as never;
   for (const stage of [1, 2, 3] as const) {
     const { work, created } = await store.create({ title: STAGE_TITLES[stage], objective: runtime.engineering.objective, repository: runtime.engineering.profile.repository,
@@ -92,7 +121,8 @@ export async function ensureRequestStageWorks(store: WorkStore, runtime: Factory
       idempotencyKey: uuidFrom(sha256(`owner-local-stage-work/v1:${input.planSha256}:${stage}`)) });
     // The canonical unique Work idempotency key arbitrates concurrent confirmations before either bridge mutation.
     // This also covers a restart/lost response after a prior claim: never create a fresh enrollment for retained or UNKNOWN Work.
-    if (!created) return refuse("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");
+    // The single exception (hosted, opt-in): the earlier claim never got past it, so the Work is exactly as claimed and unbound.
+    if (!created && !(input.reusePristine && await pristineClaimedWork(store, work))) return refuse("OWNER_LOCAL_CONFIRMATION_ALREADY_CLAIMED_RECONCILE");
     // New Work starts paused; the owner's confirmation hands exactly this Work to the agent (one canonical `resume` command).
     works[stage] = work.control === "agent" ? work : await store.change(work.id, { operation: "resume", expectedVersion: work.version });
   }

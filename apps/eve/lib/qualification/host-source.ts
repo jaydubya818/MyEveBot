@@ -17,6 +17,7 @@ import { validateJourneyPlan } from "./plan.ts";
 import { RelayMcpTransport } from "./relay-mcp-transport.ts";
 import { relayToolMap } from "./relay-tool-contract.ts";
 import { RelayDeveloperTools } from "./relay-tools.ts";
+import { refusalCode } from "./refusal-code.ts";
 import type { QdevHostMaterial, QdevHostSource } from "./host-bootstrap.ts";
 import type { WiringConfig } from "./wiring.ts";
 
@@ -202,7 +203,7 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
     const relay = new RelayDeveloperTools(bundle.relay.grant, transport, CANONICAL_RELAY_CONTRACT,
       { repository: installation.repository, outputBranch: installation.outputBranch, inputCommit: installation.inputCommit });
     const accountingDb = guarded(deps.database(accountingUrl)), journalDb = guarded(deps.database(journalUrl));
-    const derivedCache = new Map<string, Promise<{ planSha256: string; config: QualificationRootConfig } | null>>();
+    const derivedCache = new Map<string, Promise<{ planSha256: string; config: QualificationRootConfig } | { refused: string } | null>>();
     async function deriveConfig(request: string): Promise<{ planSha256: string; config: QualificationRootConfig } | null> {
       if (!live()) return null;
       const derived = derivedRequestBundle(bundle, request), b = derived.bundle;
@@ -221,10 +222,15 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       let entry = derivedCache.get(key);
       if (!entry) {
         if (derivedCache.size >= 16) derivedCache.delete(derivedCache.keys().next().value!);
-        entry = deriveConfig(request).catch(() => null);
+        // A refused build keeps its owner-safe code (never a message or value) so the root can surface it instead of a bare UNCONFIGURED.
+        entry = deriveConfig(request).catch(error => ({ refused: refusalCode(error) }));
         derivedCache.set(key, entry);
       }
-      return entry.then(value => { if (!value) derivedCache.delete(key); return value; });
+      return entry.then(value => {
+        if (value && !("refused" in value)) return value;
+        derivedCache.delete(key);
+        return value ? { planSha256: key, config: null, refusal: value.refused } : null;
+      });
     } };
     // Read-only admission: bundle presence/digest/expiry and the runtime inputs. There is no cohort before a request is confirmed, so the ledger is
     // consulted by the journey's own gate (which refuses an unissued, inactive, paused or revoked derived cohort before any provider call).

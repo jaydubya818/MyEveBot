@@ -263,3 +263,26 @@ it("production wiring (review P2): the host source labels a hosted deployment fr
     expect(proposed).not.toContain(absent);
   }
 });
+
+it("a refused per-request build surfaces its owner-safe code through the root (never a bare UNCONFIGURED), and is not cached", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { createRuntimeHostSource, derivedRequestBundle, ownerLocalBundleSchema } = await import("./host-source.ts");
+  const { assembleQualificationHost } = await import("./host-bootstrap.ts");
+  const t = JSON.parse(readFileSync(new URL("../../scripts/private-beta/owner-local.host-bundle.template.json", import.meta.url), "utf8"));
+  const filled = { ...t, ownerId: OWNER, notAfter: "2099-01-01T00:00:00.000Z", template: { ...t.template, installation: { ...installation } },
+    relay: { origin: "https://relay.example.test", grant: { ...t.relay.grant, connectionId: "c", repository: installation.repository, baseCommit: installation.inputCommit, outputBranch: installation.outputBranch } } };
+  delete filled.assembly;
+  const c = filled.credentials as Record<string, string>;
+  const env = { MYEVE_QDEV_ENABLED: "true", MYEVE_QDEV_HOST_BUNDLE: JSON.stringify(filled), [c.accounting]: "a".repeat(64), [c.relay]: "relay-credential-synthetic",
+    [c.accountingDatabaseUrl]: "postgres://127.0.0.1/accounting", [c.journalDatabaseUrl]: "postgres://127.0.0.1/journal" };
+  const ports = vi.fn(async () => { throw Object.assign(new Error("x"), { code: "HOSTED_CONFIRMATION_PROPOSE:[Request ID: 1] Server Error" }); });
+  const host = assembleQualificationHost(createRuntimeHostSource({ env: env as unknown as NodeJS.ProcessEnv, database: () => ({ query: async () => [] }) as never, ports }));
+  const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  const d = derivedRequestBundle(ownerLocalBundleSchema.parse(filled), REQUEST), run = () => new QualificationRoot(host).run({ ownerId: OWNER, kind: "human" }, { request: REQUEST, planSha256: d.planSha256 }).catch(e => e);
+  for (const attempt of [1, 2]) {
+    const refused = await run();
+    expect([refused.code, refused.message], String(attempt)).toEqual(["QDEV_ROOT_UNCONFIGURED", "QDEV_ROOT_UNCONFIGURED:HOSTED_CONFIRMATION_PROPOSE"]);
+  }
+  expect(ports).toHaveBeenCalledTimes(2);
+  error.mockRestore();
+});
