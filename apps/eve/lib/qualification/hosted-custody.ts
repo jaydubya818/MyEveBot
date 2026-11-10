@@ -4,7 +4,8 @@ import type { ExecutionDatabase } from "../execution-types.ts";
 import type { MailboxDb } from "../engineering/factory-mailbox.ts";
 import { FactoryReceiptStore } from "../engineering/factory-receipt-store.ts";
 import { FactoryWriterStore } from "../engineering/factory-writer.ts";
-import { factoryConfigForWork, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
+import { factoryRuntimeSchema, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
+import { runtimeSchema } from "../engineering/runtime.ts";
 import { WorkStore } from "../engineering/store.ts";
 import { canonicalWorkDatabase } from "../capability-control/admission.ts";
 import { assembleQdevCustody, orderedAdapterFor, ownerFactoryCapabilityConfig, storeBackedStageChain } from "./custody-assembly.ts";
@@ -42,7 +43,7 @@ export type HostedLauncherDeps = {
   hosted: HostedProfile; mailboxDb: MailboxDb; blob: PreviewBlobStore;
   database(url: string): ExecutionDatabase;
   store?(ownerId: string): WorkStore;
-  runtimeConfig?(store: WorkStore, stage1WorkId: string): Promise<FactoryRuntime>;
+  runtimeConfig?(store: WorkStore, stage1WorkId?: string): Promise<FactoryRuntime>;
   languageModel?(id: string, apiKey: string): import("ai").LanguageModel;
   /** MissionControl (https) transport for the confirmation bridge; tests inject it. */
   missionControlFetch?: typeof fetch;
@@ -50,6 +51,18 @@ export type HostedLauncherDeps = {
 };
 type Context = { bundle: QdevHostBundle; credential(name: string): string | undefined };
 const propagation = z.object({ signer: z.object({ keyId: z.string().min(1), jwk: z.record(z.string(), z.unknown()) }) }).loose();
+
+const hostedFactoryRuntimeSchema = factoryRuntimeSchema.extend({ engineering: runtimeSchema });
+
+/** The hosted process receives its reviewed runtime as server-only configuration. */
+export function readHostedFactoryRuntime(raw: string | undefined, hosted: HostedProfile): FactoryRuntime {
+  if (!raw) throw new Error("HOSTED_FACTORY_RUNTIME_REQUIRED");
+  const runtime = hostedFactoryRuntimeSchema.parse(JSON.parse(raw));
+  if (runtime.engineering.mode !== "production-cloud" || runtime.engineering.ownerId !== hosted.ownerId || runtime.routing.intent !== "PRODUCE")
+    throw new Error("HOSTED_FACTORY_RUNTIME_BINDING");
+  requireHostedFactoryConnection(hosted, runtime.connection);
+  return runtime;
+}
 
 export async function assembleHostedCustody(context: Context, deps: HostedLauncherDeps): Promise<QdevCustody | null> {
   const { bundle } = context, profile = bundle.assembly, hosted = deps.hosted;
@@ -66,6 +79,9 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   try { requireHostedPolicy(hosted, bundle.policy); } catch { return null; }
   const ownerId = bundle.ownerId, signer = propagation.parse(JSON.parse(signerJson)).signer as { keyId: string; jwk: JsonWebKey };
   const store = deps.store?.(ownerId) ?? new WorkStore({ scopeId: ownerId, scopeKind: "personal", actorId: ownerId }, canonicalWorkDatabase());
+  const readRuntime = (workId?: string) => deps.runtimeConfig
+    ? deps.runtimeConfig(store, workId)
+    : Promise.resolve(readHostedFactoryRuntime(context.credential("MYEVE_HOSTED_FACTORY_RUNTIME"), hosted));
   let workIds = profile.workIds, missionId = profile.capability.missionId, admission: HostedConfirmed["admission"] | undefined;
   let requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
   if (profile.hostedConfirmation) {
@@ -75,12 +91,14 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
     if (!request) return null;
     requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
     const confirmed = await confirmHostedRequest({ profile: HOSTED_PROFILE, installationId: hosted.installationId, missionControlOrigin: hosted.missionControlOrigin,
-      confirmation: profile.hostedConfirmation, store, base: await (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, undefined as never),
+      confirmation: profile.hostedConfirmation, store, base: await readRuntime(),
       request, planSha256, credential: context.credential, send: deps.missionControlFetch, now: deps.now });
     workIds = confirmed.workIds; missionId = confirmed.missionId; admission = confirmed.admission;
   }
-  const readRuntime = () => (deps.runtimeConfig ?? ((s, id) => factoryConfigForWork(s, id)))(store, workIds.stage1);
-  const runtimeConfig = requestRuntime ? async () => requestRuntime!(await readRuntime()) : readRuntime;
+  const runtimeConfig = async () => {
+    const base = await readRuntime(workIds.stage1);
+    return requestRuntime ? requestRuntime(base) : base;
+  };
   const config = await runtimeConfig();
   let transports;
   try { transports = hostedTransports(hosted, deps.mailboxDb, requireHostedFactoryConnection(hosted, config.connection)); } catch { return null; }
