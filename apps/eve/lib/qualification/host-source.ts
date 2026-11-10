@@ -65,7 +65,8 @@ export const ownerLocalBundleSchema = z.object({
   version: z.literal(2),
   profile: z.literal(PRIVATE_BETA_PROFILE),
   installation: z.literal("owner-local"),
-  ownerId: z.string().uuid(),
+  /** The MyEve owner id (a UUID owner-locally; the hosted owner may be any stable id). Accounting uses qdevAccountingOwnerId(ownerId). */
+  ownerId: z.string().regex(/^[A-Za-z0-9._-]{1,100}$/),
   notAfter: z.string().datetime(),
   template: ownerRequestTemplateSchema,
   credentials: z.object({ accounting: envName, relay: envName, accountingDatabaseUrl: envName, journalDatabaseUrl: envName }).strict(),

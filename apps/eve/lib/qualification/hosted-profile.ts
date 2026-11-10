@@ -4,6 +4,7 @@ import { HOSTED_PROFILE, hostedMarkerPresent, hostedOwnerScope, mailboxFetch, ty
 import { factoryTransportFetch } from "../engineering/factory-transport.ts";
 import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
 import { QDEV_LIMITS, type QualificationPolicy } from "../external-alpha/qualification-accounting.ts";
+import { qdevAccountingOwnerId } from "./qdev-owner.ts";
 
 /**
  * HOSTED private-beta profile (owner, then testers), separate from the owner-local `myeve.private-beta.owner/v1`.
@@ -124,7 +125,7 @@ export function requireHostedFactoryConnection(profile: HostedProfile, connectio
 /** Hosted accounting policy: never above $1.30 per Work, 4 Works per person or $5.20 in total; no automatic increase is representable. */
 export function requireHostedPolicy(profile: HostedProfile, policy: QualificationPolicy): QualificationPolicy {
   const limits = (policy as { limits?: { perWorkMicrousd?: number; maxWorks?: number; journeyMicrousd?: number } }).limits;
-  if (!limits || policy.ownerId !== profile.ownerId) return refuse("HOSTED_POLICY_OWNER");
+  if (!limits || (policy.ownerId !== profile.ownerId && policy.ownerId !== qdevAccountingOwnerId(profile.ownerId))) return refuse("HOSTED_POLICY_OWNER");
   if (QDEV_LIMITS.perWorkMicrousd !== HOSTED_LIMITS.perWorkMicrousd || QDEV_LIMITS.maxWorks !== HOSTED_LIMITS.maxWorksPerPerson) return refuse("HOSTED_POLICY_LIMITS");
   if (!Number.isSafeInteger(limits.perWorkMicrousd) || limits.perWorkMicrousd! > HOSTED_LIMITS.perWorkMicrousd
     || !Number.isSafeInteger(limits.maxWorks) || limits.maxWorks! > HOSTED_LIMITS.maxWorksPerPerson

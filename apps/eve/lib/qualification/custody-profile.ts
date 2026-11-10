@@ -1,5 +1,6 @@
 import { ownerLocalConfirmationSchema } from "./owner-local-confirmation.ts";
 import { hostedConfirmationSchema } from "./hosted-confirmation-profile.ts";
+import { qdevAccountingOwnerId } from "./qdev-owner.ts";
 
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -82,6 +83,6 @@ export type AssemblyProfile = z.infer<typeof assemblyProfileSchema>;
  */
 export function qdevJourneyId(ownerId: string, project: JourneyProjectInput, policy: QualificationPolicy, plan: JourneyPlan): string {
   const binding = journeyBinding(project), parsed = qualificationPolicySchema.parse(policy);
-  if (parsed.ownerId !== ownerId) throw new Error("QDEV_JOURNEY_POLICY_OWNER");
+  if (parsed.ownerId !== ownerId && parsed.ownerId !== qdevAccountingOwnerId(ownerId)) throw new Error("QDEV_JOURNEY_POLICY_OWNER");
   return createHash("sha256").update(JSON.stringify(["qdev.journey/v2", ownerId, binding.projectSha256, binding.sourceSha256, digest(parsed), digest(plan)])).digest("hex");
 }

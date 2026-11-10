@@ -1,3 +1,4 @@
+import { qdevAccountingOwnerId } from "./qdev-owner.ts";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { digest } from "../engineering/contract.ts";
@@ -63,6 +64,7 @@ export type DerivedOwnerJourney = {
 
 export class OwnerRequestRefused extends Error { constructor(readonly code: string) { super(code); } }
 
+export { qdevAccountingOwnerId };
 export function deriveOwnerJourney(input: { ownerId: string; template: OwnerRequestTemplate; request: unknown }): DerivedOwnerJourney {
   const request = normalizeOwnerRequest(input.request);
   if (!request) throw new OwnerRequestRefused("QDEV_OWNER_REQUEST_INVALID");
@@ -73,7 +75,7 @@ export function deriveOwnerJourney(input: { ownerId: string; template: OwnerRequ
   const plan = validateJourneyPlan({ ...structuredClone(template.plan), binds });
   const project = privateBetaProjectSchema.parse({ ...i, protectedSpecificationSha256: requestSpecificationSha256(binds) });
   const planSha256 = digest(plan);
-  const policy = qualificationPolicySchema.parse({ cohortId: uuidFromDigest(digest(["myeve.private-beta.cohort/v1", input.ownerId, planSha256])), ownerId: input.ownerId, slot: "Q1" });
+  const policy = qualificationPolicySchema.parse({ cohortId: uuidFromDigest(digest(["myeve.private-beta.cohort/v1", input.ownerId, planSha256])), ownerId: qdevAccountingOwnerId(input.ownerId), slot: "Q1" });
   assertPlanBindsProject(plan, project);
   return { request, requestSha256, project, plan, planSha256, policy, binding: journeyBinding(project) };
 }
