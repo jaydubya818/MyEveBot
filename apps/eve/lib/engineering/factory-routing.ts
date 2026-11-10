@@ -52,7 +52,10 @@ export function readHostedFactoryRuntime(raw: string | undefined, hosted: Hosted
   const runtime = hostedFactoryRuntimeSchema.parse(JSON.parse(raw));
   if (runtime.engineering.mode !== "production-cloud" || runtime.engineering.ownerId !== hosted.ownerId || runtime.routing.intent !== "PRODUCE")
     throw new Error("HOSTED_FACTORY_RUNTIME_BINDING");
-  requireHostedFactoryConnection(hosted, runtime.connection);
+  const connection = requireHostedFactoryConnection(hosted, runtime.connection);
+  // The installed qualification must bind this exact engineering profile (otherwise the pinned profileHash and the route disagree).
+  if (!("qualification" in connection) || connection.qualification.profileHash !== digest(runtime.engineering.profile))
+    throw new Error("HOSTED_FACTORY_PROFILE_BINDING");
   return runtime;
 }
 

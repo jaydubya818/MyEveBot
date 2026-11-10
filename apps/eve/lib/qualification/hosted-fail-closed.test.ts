@@ -67,3 +67,19 @@ describe("P2: verifier trust and producer separation", () => {
     expect(() => producerExclusions({ ...(custody as object), hostedMyApps: { retainBuild: vi.fn(), observe: vi.fn() } } as never)).toThrow(RuntimePortsRefused);
   });
 });
+
+describe("production ports: a configured hosted installation fails loudly", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  it("hosted marker + no custody -> throws HOSTED_CUSTODY_UNAVAILABLE (not a silent null)", async () => {
+    const { productionRuntimePorts } = await import("./custody-loader.ts");
+    vi.stubEnv("MYEVE_HOSTED_PROFILE", "{not json");
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(productionRuntimePorts(assemblyContext)).rejects.toThrow("HOSTED_CUSTODY_UNAVAILABLE");
+    expect(error).toHaveBeenCalled(); error.mockRestore();
+  });
+  it("without a hosted marker it stays fail-closed (null)", async () => {
+    const { productionRuntimePorts } = await import("./custody-loader.ts");
+    vi.stubEnv("MYEVE_HOSTED_PROFILE", ""); vi.stubEnv("MYEVE_EXTERNAL_ALPHA_HOSTED_BETA", "");
+    expect(await productionRuntimePorts(moduleContext)).toBeNull();
+  });
+});
