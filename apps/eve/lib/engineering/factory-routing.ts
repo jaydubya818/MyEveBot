@@ -11,6 +11,7 @@ import {digest} from './contract.ts';
 import {factoryConnectionSchema,LiveFactoryAdapter,type FactoryPrepareRequest} from './factory-live-adapter.ts';
 import {WorkStore} from './store.ts';
 import {WorkError,type Work} from './types.ts';
+import {requireHostedFactoryConnection, type HostedProfile} from '../qualification/hosted-profile.ts';
 import {hostedMarkerPresent,hostedOwnerScope,isMailboxFetch} from './factory-mailbox.ts';
 
 export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
@@ -43,6 +44,18 @@ export async function factoryConfig(work?:Work){
  const factory=factoryRuntimeSchema.parse(JSON.parse(await readFile(file,'utf8')));
  return {engineering,...factory};
 }
+const hostedFactoryRuntimeSchema = factoryRuntimeSchema.extend({ engineering: runtimeSchema });
+
+/** The hosted process receives its reviewed runtime as server-only configuration. */
+export function readHostedFactoryRuntime(raw: string | undefined, hosted: HostedProfile): FactoryRuntime {
+  if (!raw) throw new Error("HOSTED_FACTORY_RUNTIME_REQUIRED");
+  const runtime = hostedFactoryRuntimeSchema.parse(JSON.parse(raw));
+  if (runtime.engineering.mode !== "production-cloud" || runtime.engineering.ownerId !== hosted.ownerId || runtime.routing.intent !== "PRODUCE")
+    throw new Error("HOSTED_FACTORY_RUNTIME_BINDING");
+  requireHostedFactoryConnection(hosted, runtime.connection);
+  return runtime;
+}
+
 export type FactoryRuntime=Awaited<ReturnType<typeof factoryConfig>>;
 /** Reuses canonical owner/agent/Work/budget context. Factory qualification comes
  * only from reviewed server configuration plus current authenticated health. */

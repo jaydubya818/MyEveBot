@@ -4,8 +4,7 @@ import type { ExecutionDatabase } from "../execution-types.ts";
 import type { MailboxDb } from "../engineering/factory-mailbox.ts";
 import { FactoryReceiptStore } from "../engineering/factory-receipt-store.ts";
 import { FactoryWriterStore } from "../engineering/factory-writer.ts";
-import { factoryRuntimeSchema, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
-import { runtimeSchema } from "../engineering/runtime.ts";
+import { readHostedFactoryRuntime, FactoryRouteAuthority, type FactoryRuntime } from "../engineering/factory-routing.ts";
 import { WorkStore } from "../engineering/store.ts";
 import { canonicalWorkDatabase } from "../capability-control/admission.ts";
 import { assembleQdevCustody, orderedAdapterFor, ownerFactoryCapabilityConfig, storeBackedStageChain } from "./custody-assembly.ts";
@@ -51,18 +50,6 @@ export type HostedLauncherDeps = {
 };
 type Context = { bundle: QdevHostBundle; credential(name: string): string | undefined };
 const propagation = z.object({ signer: z.object({ keyId: z.string().min(1), jwk: z.record(z.string(), z.unknown()) }) }).loose();
-
-const hostedFactoryRuntimeSchema = factoryRuntimeSchema.extend({ engineering: runtimeSchema });
-
-/** The hosted process receives its reviewed runtime as server-only configuration. */
-export function readHostedFactoryRuntime(raw: string | undefined, hosted: HostedProfile): FactoryRuntime {
-  if (!raw) throw new Error("HOSTED_FACTORY_RUNTIME_REQUIRED");
-  const runtime = hostedFactoryRuntimeSchema.parse(JSON.parse(raw));
-  if (runtime.engineering.mode !== "production-cloud" || runtime.engineering.ownerId !== hosted.ownerId || runtime.routing.intent !== "PRODUCE")
-    throw new Error("HOSTED_FACTORY_RUNTIME_BINDING");
-  requireHostedFactoryConnection(hosted, runtime.connection);
-  return runtime;
-}
 
 export async function assembleHostedCustody(context: Context, deps: HostedLauncherDeps): Promise<QdevCustody | null> {
   const { bundle } = context, profile = bundle.assembly, hosted = deps.hosted;
