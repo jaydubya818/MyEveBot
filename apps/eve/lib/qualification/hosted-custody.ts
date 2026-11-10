@@ -28,7 +28,7 @@ import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
  * only execution engine; this process records Work, progress and Results, and serves the private preview.
  *
  * Differences from the owner-local launcher (custody-launcher.ts), all fail-closed:
- *  - Factory, ordered-admission receiver and verifier are reached ONLY through the mailbox (hostedTransports); Relay is https (no loopback).
+ *  - Factory, ordered-admission receiver, verifier and the Mac-local Relay are reached ONLY through the mailbox (hostedTransports).
  *  - The Factory connection must be the metered LIVE route (no OWNER_SUBSCRIPTION_LOCAL, no subscription-usage recorder, never $0).
  *  - The accounting policy must fit $1.30/Work and 4 Works/person.
  *  - No owner-local confirmation bridge (that is a local MissionControl script). With `hostedConfirmation`, the person's Sofie confirmation is
@@ -87,9 +87,9 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   const connection = config.connection;
   let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
-  // Relay is https and reached directly (hosted never uses the owner-local loopback Relay exception).
+  // Relay is the Mac-local qualification Relay at the profile's loopback origin, reached ONLY through the mailbox `relay` target.
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
-    missionId, signer, ownerLocalRelayLoopback: false,
+    missionId, signer, ownerLocalRelayLoopback: true, send: transports.relayFetch,
     relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
   const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);

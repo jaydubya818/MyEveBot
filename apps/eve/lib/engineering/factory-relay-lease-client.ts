@@ -1,3 +1,4 @@
+import {transportTimeoutMs} from './factory-mailbox.ts';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { WorkError } from './types.ts';
@@ -74,7 +75,7 @@ export class FactoryRelayLeaseClient {
   private async post(path:''|'/prepare',body:string) {
     const c=this.config.enrollment;
     const response = await this.send(c.origin+'/api/v2/runtime/capability-leases'+path, {method:'POST',redirect:'error',
-      signal:AbortSignal.timeout(5000),headers:{'content-type':'application/json',authorization:'Bearer '+this.config.credential,
+      signal:AbortSignal.timeout(transportTimeoutMs(this.send,5000)),headers:{'content-type':'application/json',authorization:'Bearer '+this.config.credential,
         'x-relay-account-id':c.accountId},body});
     if (!response.ok || !response.body) throw Error('FACTORY_RELAY_LEASE_DENIED');
     const reader=response.body.getReader(),chunks:Uint8Array[]=[];let bytes=0;
