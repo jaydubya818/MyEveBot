@@ -1,4 +1,6 @@
 import {retainedFactoryCheckpoint,assertFencedFactoryAccounting} from "../engineering/factory-checkpoint.ts";
+import { hostedProfileFromEnv } from "../qualification/hosted-profile.ts";
+import { listHostedPreviewResults } from "../qualification/hosted-preview.ts";
 import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import { PrivateResultAcceptance } from "../external-alpha/private-acceptance.ts";
 import { readExternalAlphaProofEvidence } from "../external-alpha/work-readback.ts";
@@ -575,9 +577,11 @@ export async function betaRequest(
           },
           { headers },
         );
-      if (resource === "results")
+      if (resource === "results") {
+        const hosted = hostedProfileFromEnv();
         return Response.json(
           {
+            ...(hosted?.ownerId === owner ? { hostedPreviews: await listHostedPreviewResults(beta, hosted) } : {}),
             results: await Promise.all((await beta.query(
               `SELECT r.id,r.work_id,r.work_version,r.work_generation,w.version AS current_work_version,w.generation AS current_work_generation,r.proof,r.content_hash,r.created_at,r.candidate_sha,pub.state AS publication_state,pub.remote AS publication_remote,COALESCE(p.source,'CANONICAL') AS source,CASE rd.selected_route WHEN 'DEEP_AGENT' THEN 'DIRECT_SOFIE' WHEN 'MYFACTORY' THEN 'MYFACTORY' WHEN 'HUMAN' THEN 'HUMAN' ELSE NULL END AS route, CASE WHEN p.source='LOCAL_FIXTURE' OR EXISTS(SELECT FROM jsonb_array_elements(COALESCE(ws.evidence,'[]'::jsonb)) e WHERE e#>>'{artifact,qualification}'='CONTROLLED_LOCAL_FIXTURE_NOT_LIVE') THEN 'CONTROLLED_LOCAL_FIXTURE' ELSE 'NOT_LIVE_QUALIFIED' END AS verification_mode FROM engineering_native_results r
         LEFT JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id
@@ -590,6 +594,7 @@ export async function betaRequest(
           },
           { headers },
         );
+      }
       if (resource === "memory")
         return Response.json(
           {

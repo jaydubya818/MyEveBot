@@ -159,6 +159,24 @@ export async function latestPreview(db: MailboxDb, profile: HostedProfile): Prom
 }
 export const previewResultPath = (artifactSha256: string | "latest") => `/api/previews/v1/${artifactSha256}`;
 
+export type HostedPreviewResult = { id: string; workId: string; title: string; verifiedAt: string; previewPath: string };
+
+/** Only READY previews of this installation's verified builds and personal Work. The preview route still re-verifies access and bytes. */
+export async function listHostedPreviewResults(db: MailboxDb, profile: HostedProfile): Promise<HostedPreviewResult[]> {
+  const binding = hostedBinding(profile);
+  const rows = await db.query(`SELECT p.artifact_sha256, p.ready_at, w.id AS work_id, w.title
+    FROM hosted_verified_previews p
+    JOIN hosted_mac_builds b ON b.installation_id=p.installation_id AND b.owner_id=p.owner_id AND b.artifact_sha256=p.artifact_sha256
+    JOIN engineering_work w ON w.scope_id=b.owner_id AND w.scope_kind='personal' AND w.id::text=b.request#>>'{binding,workId}'
+    WHERE p.installation_id=$1 AND p.owner_id=$2 AND p.state='READY' AND b.state='VERIFIED'
+    ORDER BY p.ready_at DESC, p.artifact_sha256 LIMIT 20`, [binding.installationId, binding.ownerId]);
+  return rows.map(row => ({
+    id: String(row.artifact_sha256), workId: String(row.work_id), title: String(row.title),
+    verifiedAt: new Date(String(row.ready_at)).toISOString(), previewPath: previewResultPath(String(row.artifact_sha256)),
+  }));
+}
+
+
 /** Grant subkey derived from the session secret; it signs only owner/installation/release-bound, 10-minute preview grants. */
 export function previewGrantKey(sessionSecret: string | undefined): Buffer {
   if (!sessionSecret || sessionSecret.length < 32) return refuse("PREVIEW_GRANT_KEY", 503);
