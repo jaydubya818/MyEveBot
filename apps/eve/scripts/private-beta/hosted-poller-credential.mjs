@@ -18,7 +18,8 @@ export function enrollmentSql(installationId, ownerId, hash) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = Object.fromEntries(process.argv.slice(2).reduce((pairs, value, i, all) => (i % 2 ? pairs : [...pairs, [all[i].replace(/^--/, ""), all[i + 1]]]), []));
   if (!args.installation || !args.owner || !args.out) { console.error("usage: --installation <id> --owner <ownerId> --out <path>"); process.exit(2); }
-  const credential = randomBytes(32).toString("base64url");
+  // MyFactory scripts/mailbox-poller.mjs requires the mfpoll_ prefix (POLLER_CREDENTIAL); MyEve accepts the same value.
+  const credential = "mfpoll_" + randomBytes(32).toString("base64url");
   const fd = openSync(args.out, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
   try { writeSync(fd, credential + "\n"); } finally { closeSync(fd); }
   const hash = credentialSha256(credential);
