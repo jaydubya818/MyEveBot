@@ -12,6 +12,8 @@ import { journeyCostText, type JourneyAccounting } from "@/lib/digital-worker/mo
 import { ownerRequest, OwnerRequestError } from "./data";
 import { Card, Empty, State, date } from "./primitives";
 import type { GoalWorkQueries } from "@/lib/goal-work/projections";
+import type { HostedPreviewResult } from "@/lib/qualification/hosted-preview";
+import { HOSTED_VERIFIER_LABEL } from "@/lib/qualification/hosted-label";
 import type { Work } from "@/lib/engineering/types";
 import type { EngineeringFact } from "@/lib/engineering/knowledge";
 import type { ProofOfWork } from "@/lib/digital-worker/contracts";
@@ -87,6 +89,7 @@ export function IntegratedExperience({
   const [today, setToday] = useState<Today | null>(null),
     [works, setWorks] = useState<Work[]>([]),
     [results, setResults] = useState<Result[]>([]),
+    [hostedPreviews, setHostedPreviews] = useState<HostedPreviewResult[]>([]),
     [inbox, setInbox] = useState<AttentionView[]>([]),
     [brief, setBrief] = useState<Brief | null>(null),
     [facts, setFacts] = useState<EngineeringFact[]>([]),
@@ -181,9 +184,10 @@ export function IntegratedExperience({
           setCanonical(d.canonical ?? null);
         },
       )]),
-      read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
-        setResults(d.results),
-      ),
+      read<{ results: Result[]; hostedPreviews?: HostedPreviewResult[] }>("/api/beta/results", "Results", (d) => {
+        setResults(d.results);
+        setHostedPreviews(d.hostedPreviews ?? []);
+      }),
       read<{ items: AttentionView[]; nextCursor: string | null }>(
         "/api/beta/inbox?limit=100",
         "Needs you",
@@ -735,7 +739,19 @@ export function IntegratedExperience({
               </button>
             )}
             {advancedAvailable && view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && canReviewRetainedResult(r, errors.length ? undefined : works.find(w => w.id === r.work_id))).map(r => <Card key={r.id} title="Review retained candidate"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${encodeURIComponent(r.work_id)}/decision`}>Review owner decision</Link></Card>)}
-            {view === "results" && resultCards()}
+            {view === "results" && <>
+              {hostedPreviews.filter(r => !selectedId || r.id === selectedId || r.workId === selectedId).map(r => (
+                <Card key={r.id} title={r.title}>
+                  <p>Verified private preview</p>
+                  <p className="owner-muted">{HOSTED_VERIFIER_LABEL} · {date(r.verifiedAt)}</p>
+                  <div className="owner-actions">
+                    <a href={r.previewPath} target="_blank" rel="noreferrer">Open preview</a>
+                    <Link href={`/work?kind=work&id=${r.workId}`}>Open Work</Link>
+                  </div>
+                </Card>
+              ))}
+              {(results.length > 0 || hostedPreviews.length === 0) && resultCards()}
+            </>}
             {["brief", "activity"].includes(view) && (
               <ActivityCard changes={activity} />
             )}

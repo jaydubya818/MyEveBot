@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
 import { StaticArtifactCandidate, type StaticSourcePins } from "../../../../packages/myapps/src/static-artifact.ts";
 import { verifyStaticBuildClaim, type StaticBuildBinding } from "../../../../packages/myapps/src/static-build-claim.ts";
 import { prepareAuthenticatedLocalFactoryInputV4 } from "../engineering/factory-authenticated-result.ts";
@@ -17,8 +18,7 @@ import type { MyAppsPort } from "./wiring.ts";
  * Hosted MyApps port: hosted MyEve NEVER builds (no Docker, no git, no build signer on Vercel). The static build runs on the owner's Mac.
  *
  *  1. retainBuild(candidate) records the accepted stage-3 candidate and the EXPECTED build binding hosted derives from its own retained,
- *     authenticated stage-3 admission (REQUESTED). Until the Mac has delivered a verified build it refuses with QDEV_HOSTED_BUILD_PENDING (the
- *     journey halts before anything is accepted and resumes on the next run; nothing is charged or resent).
+ *     authenticated stage-3 admission (REQUESTED). The current journey waits a bounded interval for the verified build, without a second dispatch.
  *  2. The Mac (scripts/private-beta/hosted-mac-worker.ts, poller credential) lists pending builds, builds in its pinned container, signs the
  *     build claim with its Mac-only issuer key, stages the exact bytes to its local verifier, and uploads inventory + claim + bytes.
  *  3. Hosted re-retains the bytes from its private store and verifies the claim against the expected binding and the PINNED public issuer
@@ -172,6 +172,7 @@ export type HostedMacMyAppsConfig = {
    *  bytes) travel with the job so the Mac verifies the Factory authority itself. Absent: bound later by composeRuntimePorts (bindStageResult). */
   stageResult?(): Promise<unknown>;
   now?: () => number;
+  pollIntervalMs?: number;
 };
 /** MyApps port for the hosted profile (see the module comment). It owns no build, no signer and no publication authority. */
 export class HostedMacMyAppsPort implements MyAppsPort {
@@ -182,15 +183,30 @@ export class HostedMacMyAppsPort implements MyAppsPort {
   get issuer(): { keyId: string; publicKeyPem: string } { return { keyId: this.c.profile.build.issuer.keyId, publicKeyPem: this.c.profile.build.issuer.publicKeyPem }; }
   bindStageResult(read: () => Promise<unknown>): void { if (!this.stageResult) this.stageResult = read; }
 
+  private async waitFor<T>(readReady: () => Promise<T | null>, deadline: number): Promise<T | null> {
+    for (;;) {
+      const ready = await readReady();
+      if (ready) return ready;
+      const remaining = deadline - Date.now();
+      if (!(remaining > 0)) return null;
+      await delay(Math.min(this.c.pollIntervalMs ?? 1_000, remaining));
+    }
+  }
+
   async retainBuild(candidate: Candidate): Promise<{ buildArtifactSha256: string }> {
     const binding = this.c.bindingFor ? await this.c.bindingFor(candidate) : hostedBuildBinding(this.c.profile, await this.c.retained(3), candidate);
     if (!this.stageResult) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_AUTHORITY");
     let authority: MacBuildAuthority;
     try { authority = macBuildAuthority(this.c.profile, await this.stageResult()); } catch { throw new StaticBuildRefused("QDEV_HOSTED_BUILD_AUTHORITY"); }
-    const row = await requestMacBuild(this.c.db, this.c.profile, { schema: "myeve.hosted-mac-build-request/v2", candidate: { commit: candidate.commit, tree: candidate.tree },
+    const requested = await requestMacBuild(this.c.db, this.c.profile, { schema: "myeve.hosted-mac-build-request/v2", candidate: { commit: candidate.commit, tree: candidate.tree },
       binding, projectSha256: this.c.project.projectSha256, sourceSha256: this.c.project.sourceSha256,
       protectedSpecificationSha256: this.c.project.protectedSpecificationSha256, appId: this.c.profile.build.appId, authority });
-    if (row.state !== "VERIFIED") throw new StaticBuildRefused("QDEV_HOSTED_BUILD_PENDING");
+    const row = requested.state === "VERIFIED" ? requested : await this.waitFor(async () => {
+      const current = await readMacBuild(this.c.db, this.c.profile, candidate);
+      return current?.state === "VERIFIED" ? current : null;
+    }, Math.min(Date.now() + 120_000, Date.parse(binding.deadline)));
+    if (!row) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_PENDING");
+    if (canonical(row.request) !== canonical(requested.request)) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_CHANGED");
     const retained = await retainSubmitted(this.c.profile, this.c.blob, row, this.c.now?.());
     if (bareSha256(retained.candidate.artifactDigest) !== row.artifactSha256) throw new StaticBuildRefused("QDEV_HOSTED_BUILD_CHANGED");
     this.retainedBuild = { ...retained, commit: candidate.commit, tree: candidate.tree };
@@ -201,8 +217,11 @@ export class HostedMacMyAppsPort implements MyAppsPort {
     const r = this.retainedBuild;
     if (!r || r.commit !== candidate.commit || r.tree !== candidate.tree) throw new StaticBuildRefused("QDEV_BUILD_NOT_RETAINED");
     const { db, profile, blob, project } = this.c, binding = hostedBinding(profile), hex = bareSha256(r.candidate.artifactDigest);
-    const preview = await readPreview(db, binding, hex);
-    if (!preview || preview.state !== "READY") throw new DeliveryObservationError("QDEV_HOSTED_PREVIEW_PENDING");
+    const preview = await this.waitFor(async () => {
+      const current = await readPreview(db, binding, hex);
+      return current?.state === "READY" ? current : null;
+    }, Date.now() + 120_000);
+    if (!preview) throw new DeliveryObservationError("QDEV_HOSTED_PREVIEW_PENDING");
     const v = preview.verdict.verdict;
     if (v.candidateCommit !== candidate.commit || v.candidateTree !== candidate.tree || v.projectSha256 !== project.projectSha256 || v.sourceSha256 !== project.sourceSha256
       || v.protectedSpecificationSha256 !== project.protectedSpecificationSha256)

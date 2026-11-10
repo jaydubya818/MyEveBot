@@ -21,10 +21,11 @@ import { leaseMailboxRequest, mailboxFetch, pollerCredentialSha256, respondMailb
 import { LiveFactoryAdapter } from "../engineering/factory-live-adapter.ts";
 import { ArtifactStagingStore } from "./artifact-staging.ts";
 import { acceptDelivery } from "./delivery.ts";
-import { HostedMacMyAppsPort } from "./hosted-mac-build.ts";
+import { HostedMacMyAppsPort, readMacBuild } from "./hosted-mac-build.ts";
 import { macWorker } from "./hosted-mac-worker.ts";
 import { memoryMacJobClaims } from "./hosted-mac-job.ts";
 import { stage3ResultFixture } from "./hosted-mac-job-test-fixture.ts";
+import { listHostedPreviewResults } from "./hosted-preview.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedProfileSchema } from "./hosted-profile.ts";
 import { attestStaticBuild } from "./static-build-export.ts";
 import { verifyVerdict } from "./verdict.ts";
@@ -62,7 +63,7 @@ const profileJson = {
   limits: { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, automaticIncrease: false },
 };
 const profile = hostedProfileSchema.parse(profileJson);
-const binding = stage3.binding;
+const binding = { ...stage3.binding, workId: "33333333-3333-4333-8333-333333333333" };
 const files: Record<string, Buffer> = { "dist/index.html": Buffer.from('<!doctype html><script src="/assets/app.js"></script>'), "dist/assets/app.js": Buffer.from("document.body.textContent='small dashboard'") };
 const inventory = { schema: "myeve.dashboard.build-inventory/v1", scope: "BROWSER_BUILD_ONLY", sourceCommit: candidate.commit, sourceTree: candidate.tree, lockSha256: h("a"),
   node: "v24.0.0", files: Object.entries(files).map(([path, b]) => ({ path, bytes: b.length, sha256: sha(b) })), independentVerification: "NOT_ESTABLISHED", signedResult: false, releaseQualified: false };
@@ -78,6 +79,8 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
     await pool.query("DROP SCHEMA IF EXISTS hosted_e2e_fixture CASCADE; CREATE SCHEMA hosted_e2e_fixture");
     await pool.query(await readFile(new URL("../../migrations/0110_hosted_factory_mailbox.sql", import.meta.url), "utf8"));
     await pool.query("INSERT INTO factory_mailbox_pollers(installation_id,owner_id,credential_sha256) VALUES($1,$2,$3)", [profile.installationId, profile.ownerId, pollerCredentialSha256(POLLER)]);
+    await pool.query("CREATE TABLE engineering_work(id uuid, scope_id text, scope_kind text, title text)");
+    await pool.query("INSERT INTO engineering_work(id,scope_id,scope_kind,title) VALUES($1,$2,'personal','Verified dashboard')", [binding.workId, profile.ownerId]);
     query.mockImplementation(async (sql: string, params: unknown[]) => (await pool.query(sql, params)).rows);
     vi.stubEnv("MYEVE_HOSTED_PROFILE", JSON.stringify(profileJson)); vi.stubEnv("MYEVE_OWNER_ID", "jay"); vi.stubEnv("DATABASE_URL", connection!);
     vi.stubEnv("MYEVE_SESSION_SECRET", "synthetic fixture session secret at least 32 chars");
@@ -123,10 +126,11 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
       qualification: { scopeId: profile.factory.ownerScope, profileHash: h1("3"), evidenceRef: "ev", qualifiedAt: "2026-01-01T00:00:00Z", expiresAt: "2099-01-01T00:00:00Z", mode: "LIVE", spendEnforced: true } } as never;
     expect(await new LiveFactoryAdapter(factoryConnection, mailboxFetch(db, binding_, "factory", FACTORY_ORIGIN, { pollMs: 10 })).healthy()).toBe(true);
 
-    // 2. Hosted retainBuild: nothing built yet -> pending (the journey halts before acceptance and resumes later).
+    // 2. Keep the original confirmation waiting while the Mac job is still pending.
     const port = new HostedMacMyAppsPort({ db, profile, blob: { put: async (k, b) => { blobs.set(k, Buffer.from(b)); }, get: async k => blobs.get(k) ?? null },
-      retained: async () => { throw new Error("unused: synthetic binding"); }, bindingFor: async () => binding, project, stageResult: async () => stage3.signed });
-    await expect(port.retainBuild(candidate)).rejects.toMatchObject({ code: "QDEV_HOSTED_BUILD_PENDING" });
+      retained: async () => { throw new Error("unused: synthetic binding"); }, bindingFor: async () => binding, project, stageResult: async () => stage3.signed, pollIntervalMs: 10 });
+    const retaining = port.retainBuild(candidate).catch(error => ({ error: error.code }));
+    await vi.waitFor(async () => expect(await readMacBuild(db, profile, candidate)).toMatchObject({ state: "REQUESTED" }));
 
     // 3. Mac worker: build (synthetic output, real claim signed with the Mac-only issuer key), stage to the local verifier, upload to hosted routes.
     const routes = await hostedRoutes();
@@ -142,7 +146,9 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
         return { inventory, lockSha256: h("a"), claim, load };
       } });
     expect(await worker.once()).toEqual([{ candidate: `${candidate.commit}.${candidate.tree}`, step: "BUILT_AND_STAGED" }]);
-    const { buildArtifactSha256 } = await port.retainBuild(candidate);
+    const retained = await retaining;
+    expect(retained).toMatchObject({ buildArtifactSha256: expect.stringMatching(/^[a-f0-9]{64}$/) });
+    const { buildArtifactSha256 } = retained as { buildArtifactSha256: string };
     expect(buildArtifactSha256).toMatch(/^[a-f0-9]{64}$/);
 
     // 4. Hosted -> mailbox -> Mac verifier: handoff + evaluation + verdict (only digest-only calls cross the mailbox; bytes stayed on the Mac).
@@ -156,11 +162,18 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
     expect(forwarded.filter(f => f.startsWith("verifier")).map(f => f.split(" ")[2])).toEqual(["/qdev/v1/handoff", "/qdev/v1/evaluate", "/qdev/v1/verdict"]);
 
     // 5. Mac worker: PASS -> private preview upload (bytes already in the private store). 6. Hosted observes the served private preview.
-    await expect(port.observe(candidate)).rejects.toMatchObject({ code: "QDEV_HOSTED_PREVIEW_PENDING" });
+    expect(await listHostedPreviewResults(db, profile)).toEqual([]);
+    const observing = port.observe(candidate).catch(error => ({ error: error.code }));
     expect(await worker.once()).toEqual([{ candidate: `${candidate.commit}.${candidate.tree}`, step: "PREVIEW_READY" }]);
-    const delivery = acceptDelivery({ observation: await port.observe(candidate), verdict, projectSha256: project.projectSha256, sourceSha256: project.sourceSha256,
+    const delivery = acceptDelivery({ observation: await observing, verdict, projectSha256: project.projectSha256, sourceSha256: project.sourceSha256,
       environment: project.environment, baselineCommit: binding.inputCommit });
     expect(delivery.delivery).toMatchObject({ servedBytesSha256: buildArtifactSha256, priorRevision: { kind: "ABSENT" } });
+    expect(await listHostedPreviewResults(db, profile)).toEqual([{
+      id: buildArtifactSha256, workId: binding.workId, title: "Verified dashboard",
+      verifiedAt: expect.any(String), previewPath: `/api/previews/v1/${buildArtifactSha256}`,
+    }]);
+    expect(await listHostedPreviewResults(db, { ...profile, ownerId: "another-owner" })).toEqual([]);
+    expect(await listHostedPreviewResults(db, { ...profile, installationId: "another-installation" })).toEqual([]);
     expect(await worker.once()).toEqual([]);
     expect(forwarded.every(f => !f.includes("/artifact/"))).toBe(true);
   });
