@@ -284,6 +284,7 @@ export const externalAlphaMemoryCapabilities: ReadonlySet<string> = new Set([
 ]);
 export function externalAlphaCapabilityAllowed(id: string, env: NodeJS.ProcessEnv = process.env): boolean {
   if (externalAlphaCapabilityAllowlist.has(id)) return true;
+  if (id === "tool.qualification_journey") return env.MYEVE_QDEV_ENABLED === "true" && externalAlphaFamilyAllowed("HOSTED_PRIVATE_BETA", env);
   if(id==='tool.mission_control'&&env.MYEVE_MISSIONCONTROL_MODE==='APPROVED_NONPRODUCTION')return true;
   return externalAlphaMemoryCapabilities.has(id) && externalAlphaMemoryApproved(env);
 }

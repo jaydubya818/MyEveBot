@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
+import { externalAlphaInstallation, externalAlphaPolicy } from "../external-alpha/policy.ts";
+import { hostedTesterProfile } from "./hosted-profile.ts";
 import { QualificationAccounting, qualificationPolicySchema } from "../external-alpha/qualification-accounting.ts";
 import { isPrivateBetaProject, journeyBinding, journeyProjectSchema, PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 import { deriveOwnerJourney, ownerRequestTemplateSchema } from "./owner-request.ts";
@@ -59,7 +61,7 @@ export type QdevHostBundle = z.infer<typeof hostBundleSchema>;
  * Private-beta OWNER-LOCAL bundle (version 2). Instead of a frozen project, plan and approved request it carries the installation template (repository,
  * baseline, output branch, release environment, frozen sources, four-stage reservation template). Each owner-confirmed request is derived into a complete
  * version-1-shaped bundle (owner-request.ts) and built through exactly the same path, so the accounting, journal, binding and ports guarantees are the
- * frozen ones. It is owner-only by construction: there is no tester, member or guest field, and the ingress keeps refusing mixed installations.
+ * frozen ones. Only the authenticated installation owner may use it. The hosted tester path additionally requires that tester's enrolled repository and confirmation bridge.
  */
 export const ownerLocalBundleSchema = z.object({
   version: z.literal(2),
@@ -131,6 +133,13 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       parsed = json?.version === 2 ? ownerLocalBundleSchema.parse(json) : hostBundleSchema.parse(json);
     } catch { return null; }
     if (parsed.ownerId !== ownerId) return null;
+    if (externalAlphaInstallation(env)) {
+      try {
+        const policy = externalAlphaPolicy(env);
+        if (hostedTesterProfile(env)?.ownerId !== ownerId || policy?.ownerId !== ownerId || parsed.version !== 2
+          || !parsed.assembly?.hostedConfirmation || parsed.template.installation.repository !== policy.repository) return null;
+      } catch { return null; }
+    }
     // A frozen (v1) bundle carries only a frozen qdev project; private-beta projects exist only as derivations of an owner-local (v2) bundle.
     if (parsed.version === 1 && (parsed.policy.ownerId !== ownerId || isPrivateBetaProject(parsed.project))) return null;
     if (parsed.version === 2 && (parsed.relay.grant.repository !== parsed.template.installation.repository || parsed.relay.grant.baseCommit !== parsed.template.installation.inputCommit

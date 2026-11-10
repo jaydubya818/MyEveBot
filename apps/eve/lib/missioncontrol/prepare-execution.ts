@@ -3,6 +3,7 @@ import { prepareOwnerFactoryOrigin } from './owner-factory-binding.ts';
 import { z } from 'zod';
 import { id,digest,enterpriseInput } from './contracts.ts';
 import type { WorkStore } from '../engineering/store.ts';
+import { hostedTesterProfile } from '../qualification/hosted-profile.ts';
 import { externalAlphaPolicy } from '../external-alpha/policy.ts';
 import { assertCanonicalAlphaWork,alphaTasksTupleSha256 } from '../external-alpha/work-tuple.ts';
 import { MissionControlBindings } from './permit-store.ts';
@@ -26,14 +27,17 @@ export async function prepareMissionControlExecution(store:WorkStore,value:unkno
   if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)
     throw Error('MISSIONCONTROL_PREPARE_WORK_CHANGED');
   let tupleSha256=alphaTasksTupleSha256;
-  if(policy)assertCanonicalAlphaWork(work,{ownerId,repository:policy.repository});
+  const hosted = config && hostedTesterProfile(env);
+  const hostedTesterWork = policy && config && hosted?.ownerId === ownerId && config.connection.qualification.scopeId === hosted.factory.ownerScope;
+  if(policy && !hostedTesterWork)assertCanonicalAlphaWork(work,{ownerId,repository:policy.repository});
   else {
+    if (policy && work.repository !== policy.repository) throw Error('MISSIONCONTROL_PREPARE_WORK_CHANGED');
     // The owner-local private beta passes its per-request runtime (the confirmed objective), the same object its stage admission uses.
     const origin=await prepareOwnerFactoryOrigin(store,work,config??await factoryConfig(),input);
     tupleSha256=origin.tupleSha256;
     if(origin.enrollment.revision!==enrollment.revision)throw Error('MISSIONCONTROL_PREPARE_ENROLLMENT_CHANGED');
   }
-  if(policy&&enrollment.factoryVersion!==policy.factoryVersion)
+  if(policy&&!hostedTesterWork&&enrollment.factoryVersion!==policy.factoryVersion)
     throw Error('MISSIONCONTROL_PREPARE_WORK_CHANGED');
   return client.prepare({proposalId:input.proposalId,workOrderId:input.workOrderId,expectedWorkOrderRevisionId:input.expectedWorkOrderRevisionId,
     expectedPlanDigest:input.expectedPlanDigest,idempotencyKey:input.idempotencyKey,

@@ -1,10 +1,21 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 // Actual agent module + actual ingress/bootstrap/root. Providers are fake endpoints; legacy installation modules are call-counting mocks.
-const probe = vi.hoisted(() => ({ gateway: 0, legacy: 0, qdev: [] as string[] }));
+const probe = vi.hoisted(() => ({ gateway: 0, legacy: 0, qdev: [] as string[], admit: vi.fn(), active: vi.fn() }));
 const legacy = () => { probe.legacy++; throw Error('legacy path must not run in a QDEV installation'); };
 vi.mock('eve', () => ({ defineAgent: (value: unknown) => value, defineDynamic: (value: unknown) => value }));
 vi.mock('ai', () => ({ gateway: () => ({ doGenerate: async () => { probe.gateway++; return { content: [], usage: {} }; }, doStream: async () => { probe.gateway++; return {}; } }), wrapLanguageModel: (x: any) => x.model }));
-vi.mock('../lib/external-alpha/policy.ts', () => ({ externalAlphaInstallation: () => process.env.TEST_ALPHA === 'true' }));
+vi.mock('../lib/external-alpha/policy.ts', () => ({ externalAlphaInstallation: () => process.env.TEST_ALPHA === 'true', externalAlphaPolicy: () => ({ ownerId: 'owner' }) }));
+vi.mock('../lib/qualification/hosted-profile.ts', async (original) => ({
+  ...await original<typeof import('../lib/qualification/hosted-profile.ts')>(),
+  hostedTesterProfile: () => process.env.MYEVE_EXTERNAL_ALPHA_HOSTED_BETA === 'true' ? { ownerId: 'owner' } : null,
+}));
+vi.mock('../lib/external-alpha/allowance.ts', () => ({
+  ExternalAlphaAllowance: class {
+    admit = probe.admit;
+    assertActive = probe.active;
+  },
+}));
+vi.mock('./lib/receipts-db.ts', () => ({ db: () => ({}) }));
 vi.mock('../lib/external-alpha/model.ts', () => ({ externalAlphaModel: legacy }));
 vi.mock('../lib/engineering/alpha-selected-work.ts', () => ({ selectedAlphaWork: legacy }));
 vi.mock('./lib/retained-work-summary.ts', () => ({ retainedSummaryBinding: legacy, retainedWorkSummaryModel: legacy }));
@@ -17,7 +28,7 @@ vi.mock('../lib/business-scopes.ts', () => ({ BusinessScopes: class { constructo
 vi.mock('../lib/engineering/conversation-model.ts', () => ({ engineeringConversationModel: legacy }));
 vi.mock('../lib/engineering/store.ts', () => ({ WorkStore: class { constructor() { legacy(); } } }));
 vi.mock('../lib/relay/owner/runtime.ts', () => ({ ownerRuntimeFromAuth: () => { probe.legacy++; return null; } }));
-vi.mock('../lib/relay/owner/model.ts', () => ({ ownerBudgetedModel: legacy, ownerModelStepKey: () => 'turn:0' }));
+vi.mock('../lib/relay/owner/model.ts', () => ({ ownerBudgetedModel: legacy, ownerModelStepKey: (event: { step?: string }) => event.step ?? 'turn:0' }));
 vi.mock('./lib/session-settings.ts', () => ({ clientTurnSettings: () => { probe.legacy++; return {}; }, rememberedChatSettings: (x: unknown) => x, primaryChatSettings: () => ({ model: 'generic', reasoning: 'default' }),
   resolveSessionAgent: async () => { probe.legacy++; return { id: 'a', ownerId: 'owner', isPrimary: true, status: 'active' }; } }));
 const prompt = (text: string) => ({ prompt: [{ role: 'user', content: [{ type: 'text', text }] }] });
@@ -38,14 +49,17 @@ async function load(real: boolean) {
   vi.resetModules();
   const [{ default: agent }, bootstrap, root] = await Promise.all([import('./agent.ts'), import('../lib/qualification/host-bootstrap.ts'), import('../lib/qualification/root.ts')]);
   if (real) root.registerQualificationHost(bootstrap.assembleQualificationHost(source as never));
-  const dispatch = async (ctx: any, options: any = prompt('Build the approved dashboard'), stream = false) => {
-    const selected = (agent as any).model.events['step.started']({}, ctx);
+  const dispatch = async (ctx: any, options: any = prompt('Build the approved dashboard'), stream = false, step?: string) => {
+    const selected = (agent as any).model.events['step.started']({ step }, ctx);
     try { await (stream ? selected.model.doStream(options) : selected.model.doGenerate(options)); return 'CALLED'; } catch (e) { return (e as Error).message; }
   };
   return { dispatch, bootstrap, root };
 }
 beforeEach(() => {
   probe.gateway = 0; probe.legacy = 0; probe.qdev = []; Object.assign(state, { live: true, configured: 'owner', owner: 'owner', provider: 'myeve-qdev' });
+  probe.admit.mockReset().mockResolvedValue({ id: 'allowance' });
+  probe.active.mockReset().mockResolvedValue(undefined);
+  vi.stubEnv('MYEVE_EXTERNAL_ALPHA_HOSTED_BETA', '');
   vi.stubEnv('MYEVE_QDEV_ENABLED', 'true'); vi.stubEnv('MYEVE_ALPHA_OWNER_BINDING', ''); vi.stubEnv('TEST_ALPHA', '');
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -105,4 +119,23 @@ it('a host that returns a non-QDEV model is refused: the generic Gateway can nev
   const { dispatch } = await load(true);
   expect(await dispatch(context())).toBe('QDEV_INGRESS_MODEL');
   expect(probe.qdev).toEqual([]); quiet();
+});
+
+it('an opted-in hosted tester reaches the QDEV model and preserves chat admission', async () => {
+  vi.stubEnv('TEST_ALPHA', 'true');
+  vi.stubEnv('EVE_PROJECT_NAME', 'myeve-alpha-tester-1');
+  vi.stubEnv('MYEVE_EXTERNAL_ALPHA_HOSTED_BETA', 'true');
+  vi.stubEnv('MYEVE_HOSTED_PROFILE', JSON.stringify({ role: 'TESTER', ownerId: 'owner', installationId: 'tester-1' }));
+  const { dispatch } = await load(true);
+  expect(await dispatch(context())).toBe('CALLED');
+  expect(probe.qdev).toEqual(['generate:session-1:turn:0']);
+  expect(probe.admit).toHaveBeenCalledWith({ kind: 'CHAT', bindingId: 'session-1:turn', requestSha256: expect.stringMatching(/^[a-f0-9]{64}$/) });
+  expect(probe.active).toHaveBeenCalledWith('allowance');
+  probe.admit.mockRejectedValueOnce(Error('EXTERNAL_ALPHA_SHARED_EXHAUSTED'));
+  expect(await dispatch(context())).toBe('EXTERNAL_ALPHA_SHARED_EXHAUSTED');
+  expect(await dispatch(context(principal('foreign')))).toBe('QDEV_INGRESS_PRINCIPAL');
+  expect(probe.qdev).toHaveLength(1);
+  expect(await dispatch(context(), toolContinuation, false, 'turn:1')).toBe('CALLED');
+  expect(probe.admit).toHaveBeenCalledTimes(2);
+  quiet();
 });

@@ -1,22 +1,39 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 
-const calls = vi.hoisted(() => ({run: vi.fn(async () => ({status: 'HALTED', readiness: 'NOT_CLAIMED', authority: 'NONE'}))}));
+const calls = vi.hoisted(() => ({run: vi.fn(async () => ({status: 'HALTED', readiness: 'NOT_CLAIMED', authority: 'NONE'})), admit: vi.fn(), active: vi.fn()}));
 vi.mock('../../lib/capability-registry.ts', () => ({checkCapabilityAvailability: () => ({status: 'available'})}));
 vi.mock('../../lib/qualification/host-bootstrap.ts', () => ({ensureQualificationHost: () => undefined}));
 vi.mock('../../lib/qualification/root.ts', () => ({
   QualificationRootRefused: class extends Error {constructor(code: string) {super(code);}},
   qualificationRoot: () => ({run: calls.run}),
 }));
-vi.mock('../../lib/external-alpha/policy.ts', () => ({externalAlphaInstallation: () => process.env.TEST_QDEV_MIXED_ALPHA === 'true'}));
+vi.mock('../../lib/external-alpha/policy.ts', () => ({
+  externalAlphaInstallation: () => process.env.TEST_QDEV_MIXED_ALPHA === 'true',
+  externalAlphaPolicy: () => ({ ownerId: 'owner' }),
+}));
+vi.mock('../../lib/qualification/hosted-profile.ts', async original => ({
+  ...await original<typeof import('../../lib/qualification/hosted-profile.ts')>(),
+  hostedTesterProfile: () => process.env.MYEVE_EXTERNAL_ALPHA_HOSTED_BETA === 'true' ? { ownerId: 'owner' } : null,
+}));
+vi.mock('../../lib/external-alpha/allowance.ts', () => ({
+  ExternalAlphaAllowance: class {
+    admit = calls.admit;
+    assertActive = calls.active;
+  },
+}));
+vi.mock('../lib/receipts-db.ts', () => ({ db: () => ({}) }));
 vi.mock('../../lib/engineering/cloud-access-qualification.ts', () => ({cloudQualificationProject: () => process.env.TEST_QDEV_MIXED_CLOUD === 'true'}));
 import definition from './qualification_journey.ts';
 
 const human = (id = 'owner') => ({principalId: id, principalType: 'user', authenticator: 'myeve-web-session', attributes: {owner: 'true'} as Record<string, unknown>});
-const context = () => ({session: {auth: {current: human(), initiator: human()}}});
+const context = () => ({session: {id: 'session', auth: {current: human(), initiator: human()}}});
 type Context = ReturnType<typeof context>;
-const discover = (ctx: Context) => definition.events['step.started']!({}, ctx as never) as Promise<any>;
+const discover = (ctx: Context) => definition.events['step.started']!({ data: { turnId: 'confirm-turn', stepIndex: 0 } }, ctx as never) as Promise<any>;
 beforeEach(() => {
   calls.run.mockClear();
+  calls.admit.mockReset().mockResolvedValue({ id: 'allowance' });
+  calls.active.mockReset().mockResolvedValue(undefined);
+  vi.stubEnv('MYEVE_EXTERNAL_ALPHA_HOSTED_BETA', '');
   for (const key of ['MYEVE_ALPHA_OWNER_BINDING', 'TEST_QDEV_MIXED_ALPHA', 'TEST_QDEV_MIXED_CLOUD']) vi.stubEnv(key, '');
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -48,4 +65,21 @@ it('the matched web owner can still discover and execute the direct tool (contro
   const ctx = context(), tool = await discover(ctx);
   await tool.execute({}, ctx);
   expect(calls.run).toHaveBeenCalledExactlyOnceWith({ownerId: 'owner', kind: 'human'}, {});
+});
+
+it('rechecks the tester allowance and session before a confirmed journey can execute', async () => {
+  vi.stubEnv('TEST_QDEV_MIXED_ALPHA', 'true');
+  vi.stubEnv('MYEVE_EXTERNAL_ALPHA_HOSTED_BETA', 'true');
+  const ctx = context(), tool = await discover(ctx);
+  const foreignSession = { session: { ...ctx.session, id: 'different-session' } };
+  await expect(tool.execute({}, foreignSession)).rejects.toThrow('QDEV_ROOT_PRINCIPAL');
+  expect(calls.admit).not.toHaveBeenCalled();
+  calls.active.mockRejectedValueOnce(Error('EXTERNAL_ALPHA_AUTHORITY_REVOKED'));
+  await expect(tool.execute({}, ctx)).rejects.toThrow('EXTERNAL_ALPHA_AUTHORITY_REVOKED');
+  expect(calls.run).not.toHaveBeenCalled();
+  await tool.execute({}, ctx);
+  expect(calls.admit).toHaveBeenLastCalledWith({
+    kind: 'CHAT', bindingId: 'session:confirm-turn', requestSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+  });
+  expect(calls.run).toHaveBeenCalledTimes(1);
 });

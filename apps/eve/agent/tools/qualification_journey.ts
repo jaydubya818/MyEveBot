@@ -3,7 +3,8 @@ import { z } from "zod";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { ensureQualificationHost } from "../../lib/qualification/host-bootstrap.ts";
 import { qualificationRoot, QualificationRootRefused } from "../../lib/qualification/root.ts";
-import { qdevRequestOwner } from "../../lib/qualification/ingress.ts";
+import { ownerModelStepKey } from "../../lib/relay/owner/model.ts";
+import { authorizeHostedTesterTurn, qdevRequestOwner } from "../../lib/qualification/ingress.ts";
 
 /**
  * Owner-authenticated entrypoint to the qdev journey. A frozen installation takes NO parameters: the plan, project,
@@ -18,7 +19,7 @@ const owner = (ctx: { session: { auth: { current?: any }; parent?: unknown } }) 
 };
 export default defineDynamic({
   events: {
-    "step.started": async (_event, ctx) => {
+    "step.started": async (event, ctx) => {
       if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !owner(ctx as never)) return null;
       const ownerId = owner(ctx as never)!.ownerId;
       return defineTool({
@@ -28,8 +29,9 @@ export default defineDynamic({
           z.object({ request: z.string().min(1).max(4000), planSha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict()]),
         async execute(input, toolCtx) {
           const principal = owner(toolCtx as never);
-          if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !principal || principal.ownerId !== ownerId)
+          if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !principal || principal.ownerId !== ownerId || toolCtx.session.id !== ctx.session.id)
             throw new QualificationRootRefused("QDEV_ROOT_PRINCIPAL");
+          await authorizeHostedTesterTurn(principal.ownerId, toolCtx.session.id, ownerModelStepKey(event));
           ensureQualificationHost();
           return qualificationRoot().run(principal, input);
         },

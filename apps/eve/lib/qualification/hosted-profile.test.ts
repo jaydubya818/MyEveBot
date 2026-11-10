@@ -1,5 +1,10 @@
+import { generateKeyPairSync } from "node:crypto";
 import { expect, it, vi } from "vitest";
 import { fixture } from "../../test/engineering-fixtures.ts";
+import { WorkStore } from "../engineering/store.ts";
+import { externalAlphaCapabilityAllowed } from "../external-alpha/features.ts";
+import { Env, connection as testDatabase } from "../external-alpha/work-test-fixture.ts";
+import { prepareMissionControlExecution } from "../missioncontrol/prepare-execution.ts";
 import { engineeringConfig } from "../engineering/runtime.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 import { assertOwnerFactoryConfiguration, ownerFactoryWorkTuple } from "../missioncontrol/owner-factory-binding.ts";
@@ -8,7 +13,7 @@ import { permitFixture } from "../missioncontrol/permit-test-fixture.ts";
 import { readHostedFactoryRuntime } from "../engineering/factory-routing.ts";
 import { digest } from "../engineering/contract.ts";
 import { isMailboxFetch } from "../engineering/factory-mailbox.ts";
-import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
+import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTesterProfile, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 
 export const hostedProfileFixture = (over: Record<string, unknown> = {}) => ({
@@ -148,3 +153,85 @@ it("loads the hosted Factory runtime in production and requires the installation
     vi.unstubAllEnvs();
   }
 });
+
+it("requires the hosted tester's opt-in, role, owner and exact installation slot", () => {
+  const example = hostedProfileFixture();
+  const profile = { ...example, role: "TESTER", installationId: "tester-1",
+    factory: { ...example.factory, ownerScope: "myeve.hosted:tester-1:jay" } };
+  const env = { NODE_ENV: "test" as const, EVE_PROJECT_NAME: "myeve-alpha-tester-1", MYEVE_OWNER_ID: "jay", MYEVE_QDEV_ENABLED: "true",
+    MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true", MYEVE_HOSTED_PROFILE: JSON.stringify(profile) };
+  expect(hostedTesterProfile(env)?.ownerId).toBe("jay");
+  expect(externalAlphaCapabilityAllowed("tool.qualification_journey", env)).toBe(true);
+  expect(externalAlphaCapabilityAllowed("tool.qualification_journey", { ...env, MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "" })).toBe(false);
+  expect(externalAlphaCapabilityAllowed("tool.engineering_factory", env)).toBe(false);
+  for (const override of [{ MYEVE_QDEV_ENABLED: "" }, { MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "" },
+    { EVE_PROJECT_NAME: "myeve-alpha-tester-2" }, { MYEVE_OWNER_ID: "foreign" },
+    { MYEVE_HOSTED_PROFILE: JSON.stringify({ ...profile, role: "OWNER" }) }])
+    expect(hostedTesterProfile({ ...env, ...override })).toBeNull();
+});
+
+it.skipIf(!testDatabase)("prepares a tester's confirmed hosted Work through the real scoped permit origin", async () => {
+  const e = await Env.create();
+  try {
+    const example = fixture();
+    const profile = { ...example.profile, executor: "factory-cloud", repository: e.policy.repository };
+    const hostedFixture = hostedProfileFixture();
+    const hosted = hostedProfileSchema.parse({ ...hostedFixture, role: "TESTER", ownerId: e.owner, installationId: "tester-1",
+      build: { ...hostedFixture.build, issuer: { ...hostedFixture.build.issuer, ownerId: e.owner } },
+      factory: { ...hostedFixture.factory, ownerScope: `myeve.hosted:tester-1:${e.owner}` } });
+    const raw = { engineering: { mode: "production-cloud", ownerId: e.owner, agentId: "sofie", model: "none",
+      objective: "Installed baseline", criteria: example.work.criteria, profile,
+      approvedBase: { sha: h("a").slice(0, 40), files: [{ path: "package.json", sha256: h("b") }] } },
+      connection: connection({ qualification: { ...hostedQualification(), scopeId: hosted.factory.ownerScope, profileHash: digest(profile) } }),
+      routing: { intent: "PRODUCE" }, commands: ["npm run build"] };
+    const baseline = readHostedFactoryRuntime(JSON.stringify(raw), hosted);
+    const config = ownerLocalRequestRuntime(baseline, { request: "Build a sample KPI dashboard", planSha256: h("f") });
+    const work = await e.seedWork({ title: "Hosted stage 1", objective: config.engineering.objective, criteria: config.engineering.criteria });
+    const { enrollment: testEnrollment } = permitFixture({ ownerId: e.owner, workId: work.id, workVersion: work.version,
+      workGeneration: work.generation, tupleSha256: h("a"), maxCostMicrousd: 1_300_000, maxDurationSeconds: 180 });
+    const enrollment = { ...testEnrollment, installationId: hosted.installationId, factoryVersion: baseline.connection.factoryVersion,
+      ownerFactoryAdapter: { repository: work.repository, agentId: baseline.engineering.agentId, factoryId: baseline.connection.factoryId,
+        sourceDigest, configurationDigest, configurationHash: factoryExecutionConfigurationHash(baseline), profileHash: digest(profile) } };
+    await e.pool.query("INSERT INTO missioncontrol_owner_enrollments(owner_id,installation_id,revision,document) VALUES($1,$2,$3,$4)",
+      [e.owner, hosted.installationId, 1, enrollment]);
+    const store = new WorkStore(e.store.principal, { ...e.db, atomic: async action => {
+      const client = await e.pool.connect();
+      try {
+        await client.query("BEGIN");
+        const value = await action({ query: async (sql, params) => (await client.query(sql, params)).rows });
+        await client.query("COMMIT");
+        return value;
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally { client.release(); }
+    } });
+    const env: NodeJS.ProcessEnv = { NODE_ENV: "test", VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId,
+      EVE_PROJECT_NAME: "myeve-alpha-tester-1", MYEVE_OWNER_ID: e.owner, MYEVE_QDEV_ENABLED: "true", MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true",
+      MYEVE_HOSTED_PROFILE: JSON.stringify(hosted), MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy),
+      MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
+      MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
+      MYEVE_MISSIONCONTROL_MODE: "APPROVED_NONPRODUCTION", MYEVE_MISSIONCONTROL_INSTALLATION_ID: enrollment.installationId,
+      MYEVE_MISSIONCONTROL_CONNECTION_ID: enrollment.connectionId, MYEVE_MISSIONCONTROL_URL: enrollment.issuer,
+      MYEVE_MISSIONCONTROL_AUDIENCE: enrollment.audience, MYEVE_MISSIONCONTROL_SECRET: "s".repeat(48) };
+    vi.stubEnv("MYEVE_HOSTED_PROFILE", env.MYEVE_HOSTED_PROFILE);
+    vi.stubEnv("MYEVE_HOSTED_FACTORY_RUNTIME", JSON.stringify(raw));
+    const expectedTuple = ownerFactoryWorkTuple(work, enrollment);
+    const send = vi.fn<typeof fetch>(async (_url, init) => {
+      const packet = JSON.parse(String(init?.body));
+      expect(packet.path).toBe("sofieExecutionPermits:preparePermit");
+      expect(JSON.parse(packet.args[0].payloadJson).work.tupleSha256).toBe(expectedTuple);
+      return Response.json({ status: "success", value: { requestId: "permit-request", status: "OWNER_APPROVAL_REQUIRED" } });
+    });
+    const input = { operation: "enterprise.prepare_execution", proposalId: "proposal", workOrderId: "order",
+      expectedWorkOrderRevisionId: "revision", expectedPlanDigest: "sha256:" + h("d"), idempotencyKey: "hosted:tester-1",
+      workId: work.id, expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
+    await expect(prepareMissionControlExecution(store, input, "command", env, send)).rejects.toThrow("EXTERNAL_ALPHA_TUPLE_MISMATCH");
+    await expect(prepareMissionControlExecution(store, input, "command", env, send, config)).resolves.toMatchObject({ requestId: "permit-request" });
+    expect(send).toHaveBeenCalledTimes(1);
+    expect((await e.pool.query("SELECT document FROM missioncontrol_owner_work_origins WHERE work_id=$1", [work.id])).rows[0].document.tupleSha256).toBe(expectedTuple);
+  } finally {
+    vi.unstubAllEnvs();
+    await e.close();
+  }
+}, 60_000);

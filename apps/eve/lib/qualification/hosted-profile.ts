@@ -3,6 +3,8 @@ import { z } from "zod";
 import { HOSTED_PROFILE, hostedMarkerPresent, hostedOwnerScope, mailboxFetch, type MailboxBinding, type MailboxDb } from "../engineering/factory-mailbox.ts";
 import { factoryTransportFetch } from "../engineering/factory-transport.ts";
 import type { FactoryConnection } from "../engineering/factory-live-adapter.ts";
+import { externalAlphaFamilyAllowed } from "../external-alpha/features.ts";
+import { externalAlphaProjectSlot } from "../external-alpha/policy.ts";
 import { QDEV_LIMITS, type QualificationPolicy } from "../external-alpha/qualification-accounting.ts";
 
 /**
@@ -106,6 +108,13 @@ export function hostedProfileFromEnv(env: Readonly<Record<string, string | undef
     return profile;
   } catch { return null; }
 }
+/** Only the explicitly enrolled tester installation can run the hosted journey. */
+export function hostedTesterProfile(env: NodeJS.ProcessEnv = process.env): HostedProfile | null {
+  if (env.MYEVE_QDEV_ENABLED !== "true" || !externalAlphaFamilyAllowed("HOSTED_PRIVATE_BETA", env)) return null;
+  const slot = externalAlphaProjectSlot(env), profile = hostedProfileFromEnv(env);
+  return slot && profile?.role === "TESTER" && profile.installationId === `tester-${slot}` ? profile : null;
+}
+
 export const hostedBinding = (profile: HostedProfile): MailboxBinding => ({ installationId: profile.installationId, ownerId: profile.ownerId });
 
 /** A hosted Factory connection must be the metered LIVE loopback route at the profile's Factory origin, with enforced spend and a Work ledger contract. */
