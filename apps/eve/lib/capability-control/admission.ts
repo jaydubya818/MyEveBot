@@ -3,6 +3,7 @@ import { CapabilityAdmissionError, withCapabilityAdmission } from '@myeve/capabi
 import type { WorkDatabase, WorkStore } from '../engineering/store.ts';
 import { WorkError, type Work } from '../engineering/types.ts';
 import { capabilityConfiguration } from './runtime.ts';
+import { capabilityOwnerId } from './owner-scope.ts';
 
 let pool: pg.Pool | undefined;
 let poolUrl:string|undefined;
@@ -61,8 +62,9 @@ export async function admitCapabilityWork<T>(store: WorkStore, work: Work,
     const [installation] = await database.query('SELECT organization_id FROM capability_control.installations WHERE id=$1', [config.id]);
     if (!installation) throw new WorkError('capability_installation_missing', 'Capability installation is unavailable.', 503);
     const connection = { query: async (sql: string, values?: unknown[]) => ({ rows: await database.query(sql, values) }) };
+    // Capability identity (hosted: the per-person scope); the Work and primary-agent checks below stay on the owner id.
     return withCapabilityAdmission(connection, {
-      ownerId: principal.scopeId, installationId: config.id, environment: config.environment,
+      ownerId: capabilityOwnerId(principal.scopeId), installationId: config.id, environment: config.environment,
       organizationId: installation.organization_id, agentId,
     }, { capabilityId, workId: work.id, workGeneration: work.generation, budgetMicros: Math.ceil(budgetUsd * 1_000_000) }, async evidence => {
       const agents = await database.query("SELECT id FROM agents WHERE owner_id=$1 AND id=$2 AND status='active' AND is_primary=true FOR SHARE", [principal.scopeId, agentId]);

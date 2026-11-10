@@ -115,6 +115,11 @@ export type OwnerCapabilityConfig = {
   send?: typeof fetch;
   /** True only for the private-beta owner-local profile: the disposable Relay may be the exact IPv4 loopback. Every other profile stays https-only. */
   ownerLocalRelayLoopback?: boolean;
+  /**
+   * Hosted only: the capability identity presented to MyFactory and Relay (capability_control rows, source permits, Relay enrollment, client
+   * binding) — `hostedOwnerScope(profile)`. Absent: the plain owner id (owner-local, unchanged). Work and MissionControl enrollment stay on the owner id.
+   */
+  capabilityOwnerId?: string;
 };
 /**
  * FactoryCapabilityClientConfig from canonical authorities: the verification key, incarnation and enrollment version are read from the installed
@@ -124,31 +129,33 @@ export type OwnerCapabilityConfig = {
 export async function ownerFactoryCapabilityConfig(c: OwnerCapabilityConfig): Promise<FactoryCapabilityClientConfig> {
   const ownerId = c.store.principal.scopeId;
   if (c.store.principal.scopeKind !== "personal" || c.store.principal.actorId !== ownerId || !c.store.database.atomic) return refuse("QDEV_ASSEMBLY_OWNER_STORE");
+  const capabilityOwner = c.capabilityOwnerId ?? ownerId;
+  if (!capabilityOwner || capabilityOwner.length > 255) return refuse("QDEV_ASSEMBLY_CAPABILITY_OWNER");
   const enrollment = await new MissionControlBindings(c.store.database, ownerId).enrollment();
   const config = await c.runtimeConfig(), connection = config.connection;
   if (!("repositoryPath" in connection) || "transport" in connection) return refuse("QDEV_ASSEMBLY_LOCAL_CONNECTION");
   const row = await c.store.database.atomic(async database => {
-    await database.query("SELECT set_config('myeve.capability_owner',$1,true),set_config('myeve.capability_installation',$2,true)", [ownerId, enrollment.installationId]);
+    await database.query("SELECT set_config('myeve.capability_owner',$1,true),set_config('myeve.capability_installation',$2,true)", [capabilityOwner, enrollment.installationId]);
     const [installation] = await database.query("SELECT organization_id FROM capability_control.installations WHERE id=$1 AND active", [enrollment.installationId]);
     const [destination] = await database.query("SELECT key_id,public_jwk,incarnation,enrollment_version FROM capability_control.policy_destinations WHERE installation_id=$1 AND owner_id=$2 AND backend_id=$3",
-      [enrollment.installationId, ownerId, c.backendId]);
+      [enrollment.installationId, capabilityOwner, c.backendId]);
     return { installation, destination };
   });
   if (!row.installation || !row.destination) return refuse("QDEV_ASSEMBLY_CAPABILITY_DESTINATION");
-  const relay = factoryRelayLeaseConfig(c.relay.enrollment, { ownerId, installationId: enrollment.installationId, connectionId: enrollment.connectionId,
+  const relay = factoryRelayLeaseConfig(c.relay.enrollment, { ownerId: capabilityOwner, installationId: enrollment.installationId, connectionId: enrollment.connectionId,
     revision: c.relay.revision, digest: c.relay.enrollmentSha256 }, { credential: c.relay.credential, workloadIdentityToken: c.relay.workloadIdentityToken },
     { ownerLocalLoopback: c.ownerLocalRelayLoopback === true });
   const relayClient = new FactoryRelayLeaseClient(relay, c.send ?? fetch);
   return {
     origin: connection.origin,
-    binding: { ownerId, organizationId: String(row.installation.organization_id), installationId: enrollment.installationId, agentId: config.engineering.agentId,
+    binding: { ownerId: capabilityOwner, organizationId: String(row.installation.organization_id), installationId: enrollment.installationId, agentId: config.engineering.agentId,
       clientId: c.clientId, backendId: c.backendId, incarnation: String(row.destination.incarnation), enrollmentVersion: Number(row.destination.enrollment_version),
       missionId: c.missionId, factoryId: connection.factoryId, factoryVersion: connection.factoryVersion, sourceDigest: connection.sourceDigest,
       configurationDigest: connection.configurationDigest } as FactoryCapabilityClientConfig["binding"],
     key: { keyId: String(row.destination.key_id), jwk: row.destination.public_jwk as JsonWebKey },
     headers: () => factoryRequestHeaders(connection),
     sourcePermit: async (challenge: SignedPolicyMessage, request: Record<string, any>, proof) =>
-      issueFactorySourcePermit(c.store, await c.runtimeConfig(), enrollment, c.backendId, c.signer, challenge, request, proof),
+      issueFactorySourcePermit(c.store, await c.runtimeConfig(), enrollment, c.backendId, c.signer, challenge, request, proof, capabilityOwner),
     relayPermit: source => relayClient.issue(source),
   };
 }

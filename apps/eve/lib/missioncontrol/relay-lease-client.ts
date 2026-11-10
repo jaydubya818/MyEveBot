@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { WorkError } from '../engineering/types.ts';
 import { canonicalPermitJson, type OwnerEnrollment } from './execution-permit.ts';
 import { capabilityPairSchema } from './installed-client.ts';
+import { capabilityOwnerId } from '../capability-control/owner-scope.ts';
 import { parsePolicyMessage, policyMessageHash, verifyPolicyMessage,
   type SignedPolicyMessage } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 
@@ -52,7 +53,8 @@ export function installedRelayLeaseConfig(enrollment: OwnerEnrollment, env: Node
   if (!value || value.length > 32768 || env.MYEVE_MISSIONCONTROL_MODE !== 'APPROVED_NONPRODUCTION'
     || env.MYEVE_OWNER_ID !== enrollment.ownerId) throw Error('MISSIONCONTROL_RELAY_UNAVAILABLE');
   const config = relayLeaseEnrollmentSchema.parse(JSON.parse(value));
-  if (config.ownerId !== enrollment.ownerId || config.installationId !== enrollment.installationId
+  // The Relay lease enrollment names the capability identity (hosted: the per-person scope), which signs the source permit it checks.
+  if (config.ownerId !== capabilityOwnerId(enrollment.ownerId, env) || config.installationId !== enrollment.installationId
     || config.connectionId !== enrollment.connectionId || config.enrollmentRevision !== enrollment.revision
     || enrollment.relayLeaseEnrollmentSha256 !== relayLeaseEnrollmentDigest(config)
     || config.activeFrom > Date.now() || config.expiresAt <= Date.now()

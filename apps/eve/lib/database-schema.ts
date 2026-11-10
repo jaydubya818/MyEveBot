@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0112_hosted_mailbox_relay_target.sql";
+export const CURRENT_DATABASE_MIGRATION = "0113_hosted_capability_owner_scope.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.
@@ -6,6 +6,7 @@ export function requiredDatabaseMigration(env: NodeJS.ProcessEnv = process.env):
   // Every external-alpha installation reads external_alpha_policy.extended_until (0111, additive,
   // default off), so it requires 0111. 0111 sorts after 0110, so hosted testers also get the mailbox.
   // Hosted private beta: the mailbox relay target (0112) sorts after 0111, so a hosted installation requires both.
+  // Hosted private beta: the capability fence resolves the hosted per-person capability scope (0113, function body only).
   if (env.MYEVE_HOSTED_PROFILE) return CURRENT_DATABASE_MIGRATION;
   if (env.MYEVE_EXTERNAL_ALPHA_POLICY) return "0111_external_alpha_access_extension.sql";
   // Hosted private beta (mailbox + private previews) only: its additive tables are required once the hosted profile is configured.

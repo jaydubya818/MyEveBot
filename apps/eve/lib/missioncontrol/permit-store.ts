@@ -9,12 +9,17 @@ import { assertCapabilityAdmission } from '../../../../packages/capability-enfor
 import { capabilityPairDigest, capabilityPairSchema, type CapabilityPair } from './installed-client.ts';
 import { ownerFactoryOrigin,ownerFactoryWorkTuple } from './owner-factory-binding.ts';
 import type { WorkAuthorityRecord } from '../external-alpha/work-authority.ts';
+import { capabilityOwnerId as capabilityOwnerFor } from '../capability-control/owner-scope.ts';
 
 const denied = (): never => { throw Error('MISSIONCONTROL_BINDING_DENIED'); };
 const sha256 = (value: unknown) => createHash('sha256').update(canonicalPermitJson(value)).digest('hex');
 
 export class MissionControlBindings {
-  constructor(readonly database: WorkDatabase, readonly ownerId: string) {
+  /**
+   * `capabilityOwnerId` is the capability identity used against capability_control (source permit owner, admission scope, policy fence):
+   * hosted, the per-person `hostedOwnerScope(profile)`; otherwise the owner id. MissionControl enrollment, permits, receipts and Work stay on `ownerId`.
+   */
+  constructor(readonly database: WorkDatabase, readonly ownerId: string, readonly capabilityOwnerId: string = capabilityOwnerFor(ownerId)) {
     if (!ownerId.trim() || ownerId.length > 200 || !database.atomic) throw Error('MISSIONCONTROL_TRANSACTION_REQUIRED');
   }
   private async atomic<T>(body: (database: WorkDatabase) => Promise<T>): Promise<T> {
@@ -43,14 +48,14 @@ export class MissionControlBindings {
       const enrollment = ownerEnrollmentSchema.parse(row?.document), pair = capabilityPairSchema.parse(pairValue);
       const source = parsePolicyMessage(JSON.parse(pair.myeve.message));
       const relay = parsePolicyMessage(JSON.parse(pair.relay.message));
-      if (source.kind !== 'PERMIT' || source.authority !== 'myeve' || source.ownerId !== this.ownerId
+      if (source.kind !== 'PERMIT' || source.authority !== 'myeve' || source.ownerId !== this.capabilityOwnerId
         || source.installationId !== enrollment.installationId || source.capabilityId !== 'enterprise.fleet'
         || source.workId !== workId || source.expiresAt <= now || source.issuedAt > now
         || relay.kind !== 'PERMIT' || relay.authority !== 'relay' || relay.expiresAt <= now || relay.issuedAt > now) return denied();
       // Same policy locks are held through receipt retention. Dispatch later compares
       // every locked policy input, preventing reuse after a preference or evidence change.
       const policyConnection = { query: async (sql: string, values?: unknown[]) => ({rows:await database.query(sql,values)}) };
-      const scope = { ownerId: this.ownerId, installationId: enrollment.installationId,
+      const scope = { ownerId: this.capabilityOwnerId, installationId: enrollment.installationId,
         organizationId: source.organizationId, agentId: source.agentId, environment: 'qualification' as const };
       const capabilityRequest = {capabilityId:source.capabilityId,workId,workGeneration:source.workGeneration,
         budgetMicros:source.budgetMicros,expectedRevision:source.version};
@@ -75,7 +80,7 @@ export class MissionControlBindings {
       if (source.missionId !== document.missionId || source.workGeneration !== work.generation
         || source.budgetMicros < document.admission.maxCostMicrousd) return denied();
       const [fence] = await database.query('SELECT * FROM missioncontrol_capability_snapshot($1,$2,$3,$4)',
-        [this.ownerId,enrollment.installationId,source.agentId,source.backendId]);
+        [this.capabilityOwnerId,enrollment.installationId,source.agentId,source.backendId]);
       if (!fence?.snapshot_sha256 || fence.backend_incarnation !== source.incarnation
         || fence.backend_enrollment_version !== source.enrollmentVersion || fence.policy_id !== source.policyId) return denied();
       const { schema: _schema, permitId: _permitId, issuedAt: _issuedAt, expiresAt: _expiresAt,
