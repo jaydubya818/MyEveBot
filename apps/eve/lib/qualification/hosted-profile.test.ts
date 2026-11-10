@@ -3,8 +3,9 @@ import { fixture } from "../../test/engineering-fixtures.ts";
 import { engineeringConfig } from "../engineering/runtime.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 import { assertOwnerFactoryConfiguration, ownerFactoryWorkTuple } from "../missioncontrol/owner-factory-binding.ts";
+import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
 import { permitFixture } from "../missioncontrol/permit-test-fixture.ts";
-import { readHostedFactoryRuntime } from "./hosted-custody.ts";
+import { readHostedFactoryRuntime } from "../engineering/factory-routing.ts";
 import { digest } from "../engineering/contract.ts";
 import { isMailboxFetch } from "../engineering/factory-mailbox.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
@@ -119,6 +120,7 @@ it("loads the hosted Factory runtime in production and requires the installation
 
   vi.stubEnv("VERCEL_ENV", "production");
   vi.stubEnv("MYEVE_HOSTED_PROFILE", JSON.stringify(hosted));
+  vi.stubEnv("MYEVE_HOSTED_FACTORY_RUNTIME", JSON.stringify(raw));
   try {
     await expect(engineeringConfig()).rejects.toMatchObject({ code: "engineering_disabled" });
     const config = readHostedFactoryRuntime(JSON.stringify(raw), hosted);
@@ -129,12 +131,18 @@ it("loads the hosted Factory runtime in production and requires the installation
     });
     const enrollment = enrollmentFor(config);
     expect(assertOwnerFactoryConfiguration(work, enrollment, config, now)).toBe(ownerFactoryWorkTuple(work, enrollment));
+    const request = ownerLocalRequestRuntime(config, { request: "Build a sample KPI dashboard", planSha256: h("f") });
+    const confirmed = { ...work, objective: request.engineering.objective, criteria: request.engineering.criteria };
+    expect(assertOwnerFactoryConfiguration(confirmed, enrollment, request, now)).toBe(ownerFactoryWorkTuple(confirmed, enrollment));
+    expect(() => assertOwnerFactoryConfiguration(work, enrollment, request, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
+    expect(() => assertOwnerFactoryConfiguration(confirmed, enrollment, { ...request, commands: ["changed"] }, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
     expect(() => assertOwnerFactoryConfiguration(work, { ...enrollment, installationId: "foreign" }, config, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
     const local = { ...config, connection: { ...config.connection, qualification: { ...config.connection.qualification, scopeId: work.scopeId } } } as typeof config;
     expect(() => assertOwnerFactoryConfiguration(work, enrollmentFor(local), local, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
     expect(() => readHostedFactoryRuntime(JSON.stringify({ ...raw, engineering: { ...engineering, ownerId: "foreign" } }), hosted)).toThrow("HOSTED_FACTORY_RUNTIME_BINDING");
     expect(() => readHostedFactoryRuntime(undefined, hosted)).toThrow("HOSTED_FACTORY_RUNTIME_REQUIRED");
     vi.stubEnv("MYEVE_HOSTED_PROFILE", "");
+    vi.stubEnv("MYEVE_HOSTED_FACTORY_RUNTIME", "");
     expect(assertOwnerFactoryConfiguration(work, enrollmentFor(local), local, now)).toBeTruthy();
   } finally {
     vi.unstubAllEnvs();
