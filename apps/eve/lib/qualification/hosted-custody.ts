@@ -12,7 +12,7 @@ import { qdevJourneyId } from "./custody-profile.ts";
 import type { QdevHostBundle } from "./host-source.ts";
 import { HostedMacMyAppsPort } from "./hosted-mac-build.ts";
 import type { PreviewBlobStore } from "./hosted-preview.ts";
-import { hostedBinding, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy, sameVerifierTrust, type HostedProfile } from "./hosted-profile.ts";
+import { hostedBinding, hostedOwnerScope, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy, sameVerifierTrust, type HostedProfile } from "./hosted-profile.ts";
 import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
@@ -88,8 +88,10 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
   // Relay is the Mac-local qualification Relay at the profile's loopback origin, reached ONLY through the mailbox `relay` target.
+  // MyFactory admits only its enrollment owner = the client ownerScope, so the capability identity (capability rows, source permits, Relay
+  // enrollment, client binding) is the hosted per-person scope. Work, agents and user data stay on the owner id.
   const capability = await ownerFactoryCapabilityConfig({ store, runtimeConfig, clientId: profile.capability.clientId, backendId: profile.capability.backendId,
-    missionId, signer, ownerLocalRelayLoopback: true, send: transports.relayFetch,
+    missionId, signer, ownerLocalRelayLoopback: true, send: transports.relayFetch, capabilityOwnerId: hostedOwnerScope(hosted),
     relay: { enrollment: profile.capability.relay.enrollment, enrollmentSha256: profile.capability.relay.enrollmentSha256, revision: profile.capability.relay.revision,
       credential: relayCredential, workloadIdentityToken: workloadToken } });
   const journalId = qdevJourneyId(ownerId, bundle.project, bundle.policy, plan), journalDb = deps.database(journalUrl);

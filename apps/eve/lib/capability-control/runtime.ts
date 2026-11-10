@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
 import { CapabilityError, type CapabilityActor } from './contracts.ts';
 import { CapabilityStore } from './store.ts';
+import { capabilityOwnerId } from './owner-scope.ts';
 import { configuredRecoveryWitness, isPostgresRecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
 
 const configuration = z.object({
@@ -45,8 +46,10 @@ export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
   return result.data;
 }
 
-export function capabilityStore(actor: CapabilityActor): CapabilityStore {
+export function capabilityStore(signedIn: CapabilityActor): CapabilityStore {
   const config = capabilityConfiguration();
+  // Capability rows, commands and policy propagation are keyed on the capability identity (hosted: the per-person scope).
+  const actor: CapabilityActor = { ...signedIn, ownerId: capabilityOwnerId(signedIn.ownerId) };
   if (!pool) {
     pool = new pg.Pool({ connectionString: config.databaseUrl, max: 4, connectionTimeoutMillis: 5000,
       statement_timeout: 5000, idle_in_transaction_session_timeout: 5000 });
