@@ -15,6 +15,8 @@ import { digest } from "../engineering/contract.ts";
 import { isMailboxFetch, mailboxFetchOrigin } from "../engineering/factory-mailbox.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTesterProfile, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
+import { QDEV_LIMITS, qualificationPolicySchema } from "../external-alpha/qualification-accounting.ts";
+import { qdevAccountingOwnerId } from "./qdev-owner.ts";
 
 export const hostedProfileFixture = (over: Record<string, unknown> = {}) => ({
   profile: HOSTED_PROFILE, role: "OWNER", ownerId: "jay", installationId: "prj_hosted_owner",
@@ -91,6 +93,15 @@ it("refuses any accounting policy above $1.30 per Work, 4 Works per person or $5
   expect(() => requireHostedPolicy(profile, policy({}))).not.toThrow();
   for (const limits of [{ perWorkMicrousd: 1_300_001 }, { maxWorks: 5 }, { journeyMicrousd: 5_200_001 }] as Array<Partial<Record<string, number>>>) expect(() => requireHostedPolicy(profile, policy(limits))).toThrow("HOSTED_POLICY_LIMITS");
   expect(() => requireHostedPolicy(profile, { ...(policy({}) as object), ownerId: "other" } as never)).toThrow("HOSTED_POLICY_OWNER");
+});
+
+it("accepts the real (strict, limit-free) accounting policy of the hosted owner; its limits are the frozen QDEV_LIMITS", () => {
+  const profile = hostedProfileSchema.parse(hostedProfileFixture());
+  const real = qualificationPolicySchema.parse({ cohortId: "5ca77767-2722-557e-a158-7ea31d386bb2", ownerId: qdevAccountingOwnerId("jay"), slot: "Q1" });
+  expect(requireHostedPolicy(profile, real)).toBe(real);
+  expect(() => requireHostedPolicy(profile, { ...real, ownerId: qdevAccountingOwnerId("someone-else") })).toThrow("HOSTED_POLICY_OWNER");
+  expect(() => requireHostedPolicy(profile, { ...real, limits: null } as never)).toThrow("HOSTED_POLICY_LIMITS");
+  expect(QDEV_LIMITS.perWorkMicrousd <= 1_300_000 && QDEV_LIMITS.maxWorks <= 4 && QDEV_LIMITS.journeyMicrousd <= 5_200_000).toBe(true);
 });
 
 it("gives each person (owner, Tester 1, Tester 2) a distinct, stable Factory ownerScope and refuses any other scope", () => {
