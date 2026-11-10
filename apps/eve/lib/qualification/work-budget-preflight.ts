@@ -1,5 +1,6 @@
 import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import type { JourneyPlan } from "./plan.ts";
+import type { FactorySpendPlan } from "../engineering/factory-spend.ts";
 
 /**
  * Unpaid configuration preflight. The Factory-backed operation of stages 1-3 (CODING in stages 1-2, FACTORY in stage 3) sends the canonical
@@ -43,4 +44,27 @@ export async function checkStageWorkBudgets(db: Reader, ownerId: string, plan: J
   for (const row of rows) costs[String(row.id)] = Number(row.max_cost_usd);
   if (ids.some(id => !(id in costs))) throw new WorkBudgetRefused("QDEV_WORK_BUDGET_WORK_MISSING");
   return evaluateStageWorkBudgets(plan, workIds, costs);
+}
+
+/**
+ * The smallest Work ceiling (microUSD) MyFactory's `validateBudget` admits for a WORK_LEDGER_V2 paid plan: the protected completion reserve plus every
+ * productive slot at the largest per-call bound that reserve admits (`plannedCompletionOperations * perOp <= completionReserveMicrousd`).
+ */
+export function factoryMinimumCeilingMicrousd(plan: FactorySpendPlan): number {
+  return plan.completionReserveMicrousd + plan.plannedProductiveOperations * Math.floor(plan.completionReserveMicrousd / plan.plannedCompletionOperations);
+}
+
+/**
+ * Configuration preflight BEFORE any stage Work exists (hosted confirmation): every stage Work gets `maxCostUsd`, which must fit both the plan's
+ * qdev operation reservation (the charged-parent guard; same rule as `evaluateStageWorkBudgets`) and, when a paid Factory plan is configured,
+ * MyFactory's minimum ceiling for it. Either mismatch would otherwise surface only after Works are claimed and the confirmation is consumed.
+ */
+export function requireStageBudgetConfiguration(plan: JourneyPlan, maxCostUsd: number, spendPlan?: FactorySpendPlan): StageWorkBudget[] {
+  const ids = { 1: "stage-1", 2: "stage-2", 3: "stage-3" } as const;
+  const budgets = evaluateStageWorkBudgets(plan, ids, { "stage-1": maxCostUsd, "stage-2": maxCostUsd, "stage-3": maxCostUsd });
+  if (spendPlan) {
+    const minimum = factoryMinimumCeilingMicrousd(spendPlan);
+    for (const budget of budgets) if (budget.nativeCeilingMicrousd < minimum) throw new WorkBudgetRefused(`QDEV_WORK_BUDGET_BELOW_FACTORY_PLAN:${budget.stage}`);
+  }
+  return budgets;
 }

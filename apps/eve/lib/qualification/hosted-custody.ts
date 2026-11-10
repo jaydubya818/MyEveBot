@@ -17,7 +17,8 @@ import { journeyBinding, journeyProfile } from "./journey-profile.ts";
 import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
 import type { QdevCustody } from "./runtime-ports.ts";
-import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
+import { checkStageWorkBudgets, requireStageBudgetConfiguration } from "./work-budget-preflight.ts";
+import type { FactorySpendPlan } from "../engineering/factory-spend.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 import { digest } from "../engineering/contract.ts";
 import { HOSTED_PROFILE, mailboxFetch } from "../engineering/factory-mailbox.ts";
@@ -72,14 +73,19 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
     : Promise.resolve(readHostedFactoryRuntime(context.credential("MYEVE_HOSTED_FACTORY_RUNTIME"), hosted));
   let workIds = profile.workIds, missionId = profile.capability.missionId, admission: HostedConfirmed["admission"] | undefined;
   let requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
+  let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
   if (profile.hostedConfirmation) {
     // Sofie -> Plan -> Confirm: the person's confirmed request (root-verified plan digest) creates its stage Works and obtains MissionControl's
     // owner decisions through the hosted confirmation bridge (one signed confirmation, verified and consumed once by MissionControl).
     const request = bundle.conversation.approvedRequest, planSha256 = digest(bundle.plan);
     if (!request) return null;
     requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
+    // The stage Works this confirmation creates must fit the plan's operation reservations AND MyFactory's paid plan. Checked BEFORE any Work is
+    // claimed or the MissionControl confirmation is consumed (checkStageWorkBudgets below re-checks the created Works).
+    const base = await readRuntime();
+    requireStageBudgetConfiguration(plan, profile.hostedConfirmation.stage.maxCostUsd, (base.connection as { spendPlan?: FactorySpendPlan }).spendPlan);
     const confirmed = await confirmHostedRequest({ profile: HOSTED_PROFILE, installationId: hosted.installationId, missionControlOrigin: hosted.missionControlOrigin,
-      confirmation: profile.hostedConfirmation, store, base: await readRuntime(),
+      confirmation: profile.hostedConfirmation, store, base,
       request, planSha256, credential: context.credential, send: deps.missionControlFetch, now: deps.now,
       relay: { send: mailboxFetch(deps.mailboxDb, hostedBinding(hosted), "relay", hosted.factory.relayOrigin, { timeoutMs: 15_000 }), origin: hosted.factory.relayOrigin } });
     workIds = confirmed.workIds; missionId = confirmed.missionId; admission = confirmed.admission;
@@ -92,7 +98,6 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   let transports;
   try { transports = hostedTransports(hosted, deps.mailboxDb, requireHostedFactoryConnection(hosted, config.connection)); } catch { return null; }
   const connection = config.connection;
-  let plan; try { plan = validateJourneyPlan(bundle.plan); } catch { return null; }
   await checkStageWorkBudgets(store.database, ownerId, plan, { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 });
   // Relay is the Mac-local qualification Relay at the profile's loopback origin, reached ONLY through the mailbox `relay` target.
   // MyFactory admits only its enrollment owner = the client ownerScope, so the capability identity (capability rows, source permits, Relay

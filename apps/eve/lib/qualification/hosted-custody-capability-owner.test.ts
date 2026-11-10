@@ -9,7 +9,7 @@ vi.mock("./hosted-profile.ts", async original => ({ ...(await original<object>()
   requireHostedFactoryConnection: (_p: unknown, c: unknown) => c,
   hostedTransports: () => ({ factoryFetch: vi.fn(), capabilityFetch: vi.fn(), verifierFetch: vi.fn(), relayFetch: vi.fn() }) }));
 vi.mock("./plan.ts", () => ({ validateJourneyPlan: (p: unknown) => p }));
-vi.mock("./work-budget-preflight.ts", () => ({ checkStageWorkBudgets: async () => undefined }));
+vi.mock("./work-budget-preflight.ts", () => ({ checkStageWorkBudgets: async () => undefined, requireStageBudgetConfiguration: () => [] }));
 const { assembleHostedCustody } = await import("./hosted-custody.ts");
 
 it("hosted custody passes hostedOwnerScope(profile) as the capability owner; the Work store principal stays the owner id", async () => {
