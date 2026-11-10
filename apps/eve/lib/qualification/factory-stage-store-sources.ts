@@ -47,6 +47,8 @@ export type StageStoreSourcesConfig = {
   /** Defaults to the shared register + RouteAdmissionService.admit body. Tests may inject; production composition must not. */
   admitPrepared?: typeof productionRegisterAndAdmit;
   newRequestId?: () => string;
+  /** Hosted confirmations retain the enrollment's stable installation hash. */
+  configurationHash?(config: FactoryRuntime): Promise<string> | string;
   /** Owner-local: the Factory request deadline is capped at now + this many seconds (the subscription route's per-Work cap), never past the budget. */
   maxRequestSeconds?: number;
 };
@@ -83,12 +85,13 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     const st = this.state.get(stage);
     if (!st) return refuse("QDEV_STAGE_WORK_UNPINNED");
     const { work, config } = st, id = work.id;
+    const configurationHash = await (this.c.configurationHash?.(config) ?? factoryExecutionConfigurationHash(config));
     let decision = await this.latestDecision(id);
     if (decision?.work_version === work.version && decision.factory_preparation) {
       const kept = decision.factory_preparation as { request: FactoryPrepareRequest; configurationHash: string; terminal?: unknown };
       if (kept.terminal) return refuse("QDEV_STAGE_PREPARATION_TERMINAL");
       if (kept.request.workGeneration !== work.generation || kept.request.input.baseRef !== start.commit) return refuse("QDEV_STAGE_PREPARATION_BASE");
-      if (kept.configurationHash !== factoryExecutionConfigurationHash(config)) return refuse("QDEV_STAGE_CONFIGURATION_CHANGED");
+      if (kept.configurationHash !== configurationHash) return refuse("QDEV_STAGE_CONFIGURATION_CHANGED");
       st.decisionId = decision.id; st.start = start;
       return kept.request;
     }
@@ -109,7 +112,7 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     const deadline = this.c.maxRequestSeconds ? Math.min(budgetDeadline, Date.now() + this.c.maxRequestSeconds * 1000) : budgetDeadline;
     const request = buildFactoryPrepareRequest({ work, config, budgetUsd: snapshot.contract.budgetUsd, baseRef: start.commit,
       deadline: new Date(deadline).toISOString(), requestId: (this.c.newRequestId ?? randomUUID)() });
-    const preparation = JSON.stringify({ request, configurationHash: factoryExecutionConfigurationHash(config), ...(snapshot.environment ? { environment: snapshot.environment } : {}) });
+    const preparation = JSON.stringify({ request, configurationHash, ...(snapshot.environment ? { environment: snapshot.environment } : {}) });
     const saved = await this.c.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
       WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING *`, [...this.scope(id), decision.id, preparation]);
     if (!saved[0]) return refuse("QDEV_STAGE_PREPARATION_CHANGED");

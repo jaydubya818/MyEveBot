@@ -14,6 +14,7 @@ import {FactoryStageAdmitter,FactoryStageAdmissionRefused} from '../lib/qualific
 import {syntheticFactory} from './qualification-synthetic.mjs';
 import {FactoryReceiptStore} from '../lib/engineering/factory-receipt-store.ts';
 import {FactoryWriterStore} from '../lib/engineering/factory-writer.ts';
+import {factoryExecutionConfigurationHash} from '../lib/engineering/factory-configuration-hash.ts';
 import {FactoryRouteAuthority} from '../lib/engineering/factory-routing.ts';
 import {NativeRouteAuthority} from '../lib/engineering/native-routing.ts';
 import {LiveFactoryAdapter} from '../lib/engineering/factory-live-adapter.ts';
@@ -62,7 +63,7 @@ function sources(workIds,over={}){
   const config=over.config??baseConfig();
   return new StoreBackedStageSources({enabled:true,store,authority:authorityFor(config,over),receipts:{},writers:over.writers??{},adapterFor:()=>over.adapter??{prepare:async()=>{throw new Error('unexpected prepare');}},
     workIds,baseline,predecessor:over.predecessor??(()=>null),admission:over.admission??(async()=>({synthetic:'proof'})),eligibility:over.eligibility??(()=>({admitted:true,reasons:[]})),
-    admitPrepared:over.admitPrepared??(async c=>({decisionId:c.decisionId,runId:randomUUID()})),newRequestId:over.newRequestId,...(over.enabled===false?{enabled:false}:{})});
+    admitPrepared:over.admitPrepared??(async c=>({decisionId:c.decisionId,runId:randomUUID()})),newRequestId:over.newRequestId,configurationHash:over.configurationHash,...(over.enabled===false?{enabled:false}:{})});
 }
 const code=c=>e=>(e instanceof StageSourcesRefused||e instanceof FactoryStageAdmissionRefused)&&e.code===c;
 const prep=async id=>(await query('SELECT factory_preparation,status FROM engineering_routing_decisions WHERE work_id=$1',[id]))[0];
@@ -91,6 +92,27 @@ test('request(): the preparation is persisted once at the required base and a re
   const changed=baseConfig();changed.commands=['npm run something-else'];
   const d=sources(ids,{config:changed});await d.work(1);
   await assert.rejects(d.request(1,start),code('QDEV_STAGE_CONFIGURATION_CHANGED'));
+});
+
+test('hosted stage preparations retain the installed configuration pin required by the writer', async () => {
+  const id = await seedWork(), ids = { 1: id, 2: '', 3: '' };
+  const installed = baseConfig();
+  installed.engineering.objective = 'Installation baseline';
+  installed.engineering.criteria = [];
+  const work = await store.get(id);
+  const config = { ...installed, engineering: { ...installed.engineering, objective: work.objective, criteria: work.criteria } };
+  const configurationHash = current => factoryExecutionConfigurationHash(current, installed.engineering);
+  const first = sources(ids, { config, configurationHash });
+  await first.work(1);
+  const request = await first.request(1, baseline);
+  assert.equal((await prep(id)).factory_preparation.configurationHash, factoryExecutionConfigurationHash(installed));
+  assert.equal(request.input.description, work.objective);
+  const retry = sources(ids, { config, configurationHash });
+  await retry.work(1);
+  assert.deepEqual(await retry.request(1, baseline), request);
+  const changed = sources(ids, { config: { ...config, commands: ['changed'] }, configurationHash });
+  await changed.work(1);
+  await assert.rejects(changed.request(1, baseline), code('QDEV_STAGE_CONFIGURATION_CHANGED'));
 });
 
 test('stages 2 and 3 start only at the accepted predecessor candidate; none accepted means no start',async()=>{

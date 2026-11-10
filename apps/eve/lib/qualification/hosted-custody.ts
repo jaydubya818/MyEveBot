@@ -18,6 +18,7 @@ import { PostgresJournal } from "./journal.ts";
 import { validateJourneyPlan } from "./plan.ts";
 import type { QdevCustody } from "./runtime-ports.ts";
 import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
+import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 import { digest } from "../engineering/contract.ts";
 import { HOSTED_PROFILE } from "../engineering/factory-mailbox.ts";
 import { confirmHostedRequest, type HostedConfirmed } from "./hosted-confirmation.ts";
@@ -104,7 +105,9 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   const { chain } = storeBackedStageChain({ db: journalDb as never, journeyId: journalId, journal: new PostgresJournal(journalDb as never, journalId),
     // Routing qualifies the hosted per-person scope (myeve.hosted:<installation>:<owner>) and probes health through the mailbox only.
     sources: { enabled: true, store, authority: new FactoryRouteAuthority(store, runtimeConfig, { binding: hostedBinding(hosted), factoryFetch: transports.factoryFetch }), receipts: new FactoryReceiptStore(store.principal, store.database),
-      writers: new FactoryWriterStore(store), adapterFor, workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline,
+      writers: new FactoryWriterStore(store), adapterFor,
+      configurationHash: async config => factoryExecutionConfigurationHash(config, (await readRuntime()).engineering),
+      workIds: { 1: workIds.stage1, 2: workIds.stage2, 3: workIds.stage3 }, baseline: profile.baseline,
       ...(admission ? { admission, maxRequestSeconds: profile.hostedConfirmation!.stage.requestDeadlineSeconds } : {}) } });
   await chain.warm();
   const binding = journeyBinding(bundle.project), environment = journeyProfile(bundle.project).environment;

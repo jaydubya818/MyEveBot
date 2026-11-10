@@ -4422,8 +4422,8 @@
     },
     "lib/engineering/factory-configuration-hash.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical immutable execution configuration digest shared by Factory driver and owner Mission binding; excludes renewable read credentials and creates no execution authority.",
-      "sha256": "5d1bf45070f57c6cf16b1fa10089c6a762d65f327d1305831e15d098b1929f15"
+      "reason": "Canonical immutable execution configuration digest shared by Factory driver and owner Mission binding; excludes renewable read credentials and creates no execution authority. Hosted confirmations substitute the reviewed installation objective and criteria when comparing the stable pin; the signed Work tuple pins the actual request.",
+      "sha256": "6bc6943ba68baf4816a9c8e62015100d763e9bac76802870d471dca75aee2ded"
     },
     "lib/missioncontrol/owner-control-runtime.ts": {
       "classification": "ENFORCED",
@@ -4433,7 +4433,7 @@
     "lib/missioncontrol/owner-factory-binding.ts": {
       "classification": "ENFORCED",
       "reason": "Validates current operator owner enrollment, qualified Factory profile/configuration, repository, budget and duration. Immutable origin persists under canonical Work lock before approval. Same-query explicit owner context and security-definer enrollment lookup distinguish truly unenrolled legacy stores from missing atomic support. No credential, ledger or authority issuance. Hosted permit checks require the configured installation and its exact per-person Factory scope. The hosted profile must parse and belong to the same Work owner and enrollment. The local Work scope is still required when hosted mode is absent. For hosted Work the exact confirmed objective and criteria must match the Work. The remaining runtime fields are compared against the original installation pin.",
-      "sha256": "05c7ac5773639943139ed3cfac1d758c06836cd6e281f57a566815b2365ee03c"
+      "sha256": "c7320602535b36903b587f7d2b445e03ee6f50aa29c23e75274c5940df16b062"
     },
     "lib/missioncontrol/owner-result-readback.ts": {
       "classification": "READ_ONLY",
@@ -4848,8 +4848,8 @@
     },
     "lib/qualification/factory-stage-store-sources.ts": {
       "classification": "ENFORCED",
-      "reason": "CONTROL: canonical scoped Work, current revision/generation, host-provided per-request runtime and accepted predecessor determine preparation. Retained preparation is reused only for identical source/base/configuration; terminal or foreign bindings refuse. MissionControl admission, ordered Factory preparation, writer identity and Work budget remain authoritative. No model-selected runtime, direct model call or second spend path. Source review review_pr30; store-backed stage and admission regressions; installed owner journey remains separately gated.",
-      "sha256": "1e482395a77b30145468790e089efbe7c09947e934cbbccf2f1e7c617f28f338"
+      "reason": "CONTROL: canonical scoped Work, current revision/generation, host-provided per-request runtime and accepted predecessor determine preparation. Retained preparation is reused only for identical source/base/configuration; terminal or foreign bindings refuse. MissionControl admission, ordered Factory preparation, writer identity and Work budget remain authoritative. No model-selected runtime, direct model call or second spend path. Source review review_pr30; store-backed stage and admission regressions; installed owner journey remains separately gated. Hosted stage preparation and replay retain the enrollment configuration hash required by the existing writer SQL guard.",
+      "sha256": "3ff93019c440cd59ded94824d9ae7f99f51146c4c0edcfa59821f8e2d577007b"
     },
     "lib/qualification/custody-assembly.ts": {
       "classification": "ENFORCED",
@@ -4968,8 +4968,8 @@
     },
     "lib/qualification/hosted-custody.ts": {
       "classification": "ENFORCED",
-      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts). With hostedConfirmation: stage Works, Mission and per-Work permit approvals come from the hosted confirmation bridge (hosted-confirmation.ts), never from MyEve itself. Hosted custody reads the reviewed production-cloud runtime from a server-side value, validates the exact owner and live metered Factory connection before constructing ports, and keeps transport behind the mailbox.",
-      "sha256": "83e161b46400d654a869b4b6b4305f58f84691a322adc609ffa6ce1a9b94a1e6"
+      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts). With hostedConfirmation: stage Works, Mission and per-Work permit approvals come from the hosted confirmation bridge (hosted-confirmation.ts), never from MyEve itself. Hosted custody reads the reviewed production-cloud runtime from a server-side value, validates the exact owner and live metered Factory connection before constructing ports, and keeps transport behind the mailbox. Stage preparations use the same stable runtime pin as MissionControl permit preparation.",
+      "sha256": "07eda148d4c5443c67866d6ed06ed99a67cf3f6b08564d72808f232c4426557f"
     },
     "app/api/factory-mailbox/v1/next/route.ts": {
       "classification": "ENFORCED",
