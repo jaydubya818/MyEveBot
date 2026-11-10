@@ -197,7 +197,12 @@ describe.skipIf(!connection)('published 0099 lineage recovery',()=>{
     const snapshot=async()=>Promise.all(tables.map(async t=>(await pool.query('SELECT to_jsonb(t) AS record FROM '+t+' t')).rows));
     const before=await snapshot(),ledger=(await pool.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
     await runMigrations(db,all,()=>{});await runMigrations(db,all,()=>{});
-    expect(await snapshot()).toEqual(before);
+    // Later additive migrations may add nullable columns (0111 external_alpha_policy.extended_until). Existing values must be unchanged
+    // and every added column must be NULL on historical rows.
+    const upgraded=await snapshot();
+    const added=upgraded.flatMap((rows,i)=>rows.flatMap((row:any,j:number)=>Object.keys(row.record).filter(k=>!(k in before[i][j].record)).map(k=>row.record[k])));
+    expect(added.every(v=>v===null)).toBe(true);
+    expect(upgraded.map((rows,i)=>rows.map((row:any,j:number)=>({record:Object.fromEntries(Object.entries(row.record).filter(([k])=>k in before[i][j].record))})))).toEqual(before);
     const after=(await pool.query('SELECT * FROM sofie_schema_migrations ORDER BY name')).rows;
     expect(after.slice(0,ledger.length)).toEqual(ledger);expect(after.at(-1)?.name).toBe(all.at(-1)?.name);
     expect(after.slice(ledger.length).map(({name,checksum}:any)=>({name,checksum})))
