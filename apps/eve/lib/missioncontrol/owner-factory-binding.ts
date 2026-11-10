@@ -4,6 +4,7 @@ import type { FactoryRuntime } from '../engineering/factory-routing.ts';
 import { WorkStore, type WorkDatabase } from '../engineering/store.ts';
 import type { Work } from '../engineering/types.ts';
 import { ownerEnrollmentSchema, type OwnerEnrollment } from './execution-permit.ts';
+import { capabilityOwnerId } from '../capability-control/owner-scope.ts';
 
 const denied = (): never => { throw Error('MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED'); };
 export function ownerFactoryWorkMaterial(work: Work, enrollment: OwnerEnrollment) {
@@ -19,7 +20,9 @@ export function ownerFactoryWorkMaterial(work: Work, enrollment: OwnerEnrollment
 
 export const ownerFactoryWorkTuple=(work:Work,enrollment:OwnerEnrollment)=>digest(ownerFactoryWorkMaterial(work,enrollment));
 
-/** Checks existing operator configuration. Does not create a profile, account, grant or alpha slot. */
+/** Checks existing operator configuration. Does not create a profile, account, grant or alpha slot.
+ * The Factory qualification scope is the CAPABILITY owner (capabilityOwnerId): the plain owner id everywhere except a hosted private-beta
+ * installation, whose metered Factory route is qualified for the per-person scope myeve.hosted:<installation>:<owner> (requireHostedFactoryConnection). */
 export function assertOwnerFactoryConfiguration(work: Work, enrollment: OwnerEnrollment, config: FactoryRuntime, now=Date.now()) {
   const pins=enrollment.ownerFactoryAdapter,c=config.connection,q=c.qualification;
   if(!pins || enrollment.revokedAt!==null || enrollment.activeFrom>now || enrollment.expiresAt<=now
@@ -28,7 +31,7 @@ export function assertOwnerFactoryConfiguration(work: Work, enrollment: OwnerEnr
     || pins.factoryId!==c.factoryId || pins.sourceDigest!==c.sourceDigest || pins.configurationDigest!==c.configurationDigest
     || enrollment.factoryVersion!==c.factoryVersion || c.factoryVersion!==digest({sourceDigest:c.sourceDigest,configurationDigest:c.configurationDigest})
     || pins.configurationHash!==factoryExecutionConfigurationHash(config) || pins.profileHash!==digest(config.engineering.profile)
-    || q.profileHash!==pins.profileHash || q.scopeId!==work.scopeId || Date.parse(q.qualifiedAt)>now || Date.parse(q.expiresAt)<=now
+    || q.profileHash!==pins.profileHash || q.scopeId!==capabilityOwnerId(work.scopeId) || Date.parse(q.qualifiedAt)>now || Date.parse(q.expiresAt)<=now
     || !Number.isSafeInteger(work.maxCostUsd*1e6) || work.maxCostUsd*1e6>enrollment.maxCostMicrousd
     || work.maxDurationSeconds>enrollment.maxDurationSeconds) return denied();
   return ownerFactoryWorkTuple(work,enrollment);
