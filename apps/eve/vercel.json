@@ -77,7 +77,8 @@
       "codex/sofie-hosted-owner-blockers-20261109": false,
       "codex/sofie-hosted-tester-blockers-20261109": false,
       "codex/private-beta-release-20261106": false,
-      "codex/private-beta-tester-extension-20261106": false
+      "codex/private-beta-tester-extension-20261106": false,
+      "claude/sofie-hosted-integrated-20261110": false
     }
   },
   "functions": {
