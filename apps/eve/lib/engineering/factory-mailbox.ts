@@ -53,15 +53,17 @@ export function assertHostedTransport(fetcher: unknown, origin: string | URL, en
   if (host === "" || host === "127.0.0.1" || host === "localhost" || host === "[::1]") throw new MailboxRefused("HOSTED_DIRECT_LOOPBACK_REFUSED", 503);
 }
 export const MAILBOX_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
-export const MAILBOX_REQUEST_HEADERS = ["authorization", "content-type", "accept", "idempotency-key", "last-event-id", "x-request-id"] as const;
+export const MAILBOX_REQUEST_HEADERS = ["authorization", "content-type", "accept", "idempotency-key", "last-event-id", "x-request-id", "x-relay-account-id"] as const;
 export const MAILBOX_RESPONSE_HEADERS = ["content-type", "cache-control", "etag", "retry-after", "x-request-id"] as const;
 /** Per-target path allowlists (v1 P3 + MyEve addition (a)). The poller maps each target to ONE configured 127.0.0.1 origin. */
-export const MAILBOX_TARGET_PATHS: Record<"factory" | "verifier", RegExp> = {
+export const MAILBOX_TARGET_PATHS: Record<"factory" | "verifier" | "relay", RegExp> = {
   factory: /^(\/api\/connect\/v1\/[^?]+|\/api\/capability-admission\/[^?]+|\/api\/health)(\?.*)?$/,
   // Hosted sends only the digest-only calls; artifact bytes never cross the mailbox (the Mac worker stages them to its own verifier on loopback).
   verifier: /^\/qdev\/v1\/(handoff|evaluate|verdict)$/,
+  // Hosted private beta: the Mac-local qualification Relay, only its two remote capability-lease routes (FactoryRelayLeaseClient).
+  relay: /^\/api\/v2\/runtime\/capability-leases(\/prepare)?$/,
 };
-export type MailboxTarget = "factory" | "verifier";
+export type MailboxTarget = "factory" | "verifier" | "relay";
 export type MailboxDb = { query(sql: string, params?: unknown[]): Promise<Array<Record<string, unknown>>> };
 export type MailboxBinding = { installationId: string; ownerId: string };
 export type MailboxMethod = typeof MAILBOX_METHODS[number];
@@ -148,7 +150,7 @@ export async function sweepExpiredMailbox(db: MailboxDb): Promise<void> {
 export async function enqueueMailboxRequest(db: MailboxDb, binding: MailboxBinding, request: { target: MailboxTarget; method: string; path: string;
   headers?: Record<string, unknown>; body?: Uint8Array; deadlineMs: number }): Promise<{ id: string }> {
   if (!validBinding(binding)) return refuse("MAILBOX_BINDING", 400);
-  if (request.target !== "factory" && request.target !== "verifier") return refuse("MAILBOX_TARGET", 400);
+  if (request.target !== "factory" && request.target !== "verifier" && request.target !== "relay") return refuse("MAILBOX_TARGET", 400);
   if (!(MAILBOX_METHODS as readonly string[]).includes(request.method)) return refuse("MAILBOX_METHOD", 400);
   if (!validPath(request.path, request.target)) return refuse("MAILBOX_PATH", 400);
   if (!Number.isSafeInteger(request.deadlineMs) || request.deadlineMs < 1000 || request.deadlineMs > MAILBOX_LIMITS.maxDeadlineMs) return refuse("MAILBOX_DEADLINE", 400);

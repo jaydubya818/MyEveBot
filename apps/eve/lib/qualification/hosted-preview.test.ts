@@ -23,7 +23,7 @@ const profileJson = {
   build: { appId: "myeve-dashboard", lockSha256: "a".repeat(64), buildProfileDigest: "c".repeat(64), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
     factoryId: "f", factoryVersion: "d".repeat(64), buildProfileDigest: "c".repeat(64), publicKeyPem: pem(issuerKey), spkiSha256: "e".repeat(64), notBefore: "2026-01-01T00:00:00.000Z",
     notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
-  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
+  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", relayOrigin: "http://127.0.0.1:8797", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
     keys: [{ keyId: "verifier-1", publicKeyPem: pem(verifierKey), activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }],
     producerKeyIds: ["producer-1"], producerPublicKeysPem: [pem(producerKey)] },

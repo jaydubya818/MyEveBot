@@ -12,7 +12,7 @@ import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
 import { permitFixture } from "../missioncontrol/permit-test-fixture.ts";
 import { readHostedFactoryRuntime } from "../engineering/factory-routing.ts";
 import { digest } from "../engineering/contract.ts";
-import { isMailboxFetch } from "../engineering/factory-mailbox.ts";
+import { isMailboxFetch, mailboxFetchOrigin } from "../engineering/factory-mailbox.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTesterProfile, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
 import { PRIVATE_BETA_PROFILE } from "./journey-profile.ts";
 
@@ -22,7 +22,7 @@ export const hostedProfileFixture = (over: Record<string, unknown> = {}) => ({
   build: { appId: "myeve-dashboard", lockSha256: "a".repeat(64), buildProfileDigest: "c".repeat(64), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
     factoryId: "f", factoryVersion: "d".repeat(64), buildProfileDigest: "c".repeat(64), publicKeyPem: "pem", spkiSha256: "e".repeat(64), notBefore: "2026-01-01T00:00:00.000Z",
     notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
-  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
+  factory: { transport: "MAILBOX", factoryOrigin: "http://127.0.0.1:8792", verifierOrigin: "http://127.0.0.1:8795", relayOrigin: "http://127.0.0.1:8797", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
     keys: [{ keyId: "verifier-1", publicKeyPem: "pem", activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }], producerKeyIds: ["producer-1"], producerPublicKeysPem: [] },
   limits: { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, automaticIncrease: false },
@@ -55,7 +55,8 @@ it("requires https Relay and MissionControl (never loopback or a local .invalid 
 it("requires the mailbox transport, metered spend, the labelled local assurance and the fixed limits (no automatic increase)", () => {
   const f = hostedProfileFixture().factory, v = hostedProfileFixture().verifier;
   for (const factory of [{ ...f, transport: "LOOPBACK" }, { ...f, spend: "SUBSCRIPTION_UNMETERED" }, { ...f, qualificationMode: "OWNER_SUBSCRIPTION_LOCAL" },
-    { ...f, factoryOrigin: "https://factory.example.com" }, { ...f, verifierOrigin: f.factoryOrigin }])
+    { ...f, factoryOrigin: "https://factory.example.com" }, { ...f, verifierOrigin: f.factoryOrigin },
+    { ...f, relayOrigin: "https://relay.example.com" }, { ...f, relayOrigin: f.factoryOrigin }, { ...f, relayOrigin: f.verifierOrigin }, { ...f, relayOrigin: undefined }])
     expect(hostedProfileSchema.safeParse(hostedProfileFixture({ factory })).success, JSON.stringify(factory)).toBe(false);
   for (const verifier of [{ ...v, assurance: "INDEPENDENT" }, { ...v, label: "independent custody" }])
     expect(hostedProfileSchema.safeParse(hostedProfileFixture({ verifier })).success).toBe(false);
@@ -79,7 +80,8 @@ it("accepts only the metered LIVE loopback Factory connection at the profile ori
   expect(() => requireHostedFactoryConnection(profile, connection({ origin: "http://127.0.0.1:9000" }))).toThrow("HOSTED_FACTORY_ORIGIN");
   expect(() => requireHostedFactoryConnection(profile, connection({ spendContract: undefined }))).toThrow("HOSTED_FACTORY_SPEND_CONTRACT");
   const transports = hostedTransports(profile, { query: async () => [] }, connection());
-  expect([transports.factoryFetch, transports.capabilityFetch, transports.verifierFetch].every(isMailboxFetch)).toBe(true);
+  expect([transports.factoryFetch, transports.capabilityFetch, transports.verifierFetch, transports.relayFetch].every(isMailboxFetch)).toBe(true);
+  expect(mailboxFetchOrigin(transports.relayFetch)).toBe(profile.factory.relayOrigin);
   expect(transports.assurance).toEqual({ assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL });
 });
 

@@ -8,8 +8,8 @@ describe('explicit schema rollout', () => {
     expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0111_external_alpha_access_extension.sql');
   });
   it('requires the hosted mailbox schema only for a configured hosted profile', () => {
-    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}'})).toBe('0110_hosted_factory_mailbox.sql');
-    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0111_external_alpha_access_extension.sql');
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}'})).toBe('0112_hosted_mailbox_relay_target.sql');
+    expect(requiredDatabaseMigration({NODE_ENV:'production',MYEVE_HOSTED_PROFILE:'{}',MYEVE_APPLICATION_PASSWORDS:'true',MYEVE_EXTERNAL_ALPHA_POLICY:'{}'})).toBe('0112_hosted_mailbox_relay_target.sql');
   });
   it('preserves existing personal installation requirements', () => {
     expect(requiredDatabaseMigration({NODE_ENV: 'production'})).toBe('0082_factory_concrete_grant_binding.sql');

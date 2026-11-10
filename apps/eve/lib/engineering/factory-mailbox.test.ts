@@ -73,6 +73,7 @@ describe.skipIf(!connection)("hosted Factory mailbox v1 against real PostgreSQL"
     pool = new pg.Pool({ connectionString: connection, options: "-c search_path=mailbox_fixture", max: 8 });
     await pool.query("DROP SCHEMA IF EXISTS mailbox_fixture CASCADE; CREATE SCHEMA mailbox_fixture");
     await pool.query(await readFile(migration, "utf8"));
+    await pool.query(await readFile(new URL("../../migrations/0112_hosted_mailbox_relay_target.sql", import.meta.url), "utf8"));
   });
   afterAll(async () => { if (pool) { await pool.query("DROP SCHEMA mailbox_fixture CASCADE"); await pool.end(); } });
   beforeEach(async () => {
@@ -166,12 +167,14 @@ describe.skipIf(!connection)("hosted Factory mailbox v1 against real PostgreSQL"
     await enqueueMailboxRequest(db, B, { target: "factory", method: "GET", path: "/api/health?x=1", deadlineMs: 10_000 });
     expect(await lease(A)).toBeNull();
     expect((await lease(B))?.path).toBe("/api/health?x=1");
-    for (const [target, path] of [["factory", "/api/capability-admission/prepare"], ["verifier", "/qdev/v1/verdict"]] as const)
+    for (const [target, path] of [["factory", "/api/capability-admission/prepare"], ["verifier", "/qdev/v1/verdict"],
+      ["relay", "/api/v2/runtime/capability-leases/prepare"], ["relay", "/api/v2/runtime/capability-leases"]] as const)
       await expect(enqueueMailboxRequest(db, B, { target, method: "POST", path, deadlineMs: 10_000 })).resolves.toBeTruthy();
     // P7: an evaluation envelope shorter than 12 minutes would be cut off by its own deadline (refused); at 12 minutes it is accepted.
     await expect(enqueueMailboxRequest(db, B, { target: "verifier", method: "POST", path: "/qdev/v1/evaluate", deadlineMs: 10_000 })).rejects.toMatchObject({ code: "MAILBOX_EVALUATE_DEADLINE" });
     await expect(enqueueMailboxRequest(db, B, { target: "verifier", method: "POST", path: "/qdev/v1/evaluate", deadlineMs: MAILBOX_LIMITS.evaluateDeadlineMs })).resolves.toBeTruthy();
-    for (const [target, path] of [["factory", "/qdev/v1/verdict"], ["verifier", "/api/connect/v1/x"], ["verifier", "/qdev/v1/artifact/file"], ["verifier", "/qdev/v1/artifact/commit"], ["factory", "/api/other"], ["factory", "/api/connect/v1/a/../b"],
+    for (const [target, path] of [["factory", "/qdev/v1/verdict"], ["verifier", "/api/connect/v1/x"], ["relay", "/api/v2/runtime/actions"], ["relay", "/api/v2/runtime/capability-leases/x"],
+      ["relay", "/api/v2/control/capability-fences"], ["relay", "/qdev/v1/verdict"], ["factory", "/api/v2/runtime/capability-leases"], ["verifier", "/qdev/v1/artifact/file"], ["verifier", "/qdev/v1/artifact/commit"], ["factory", "/api/other"], ["factory", "/api/connect/v1/a/../b"],
       ["factory", "//api/connect/v1/x"], ["factory", "/api/connect/v1/%2e%2e/b"], ["factory", "/api/connect/v1/x#f"], ["factory", "/api/connect/v1/a\\b"], ["factory", "relative"]] as const)
       await expect(enqueueMailboxRequest(db, B, { target, method: "GET", path, deadlineMs: 10_000 }), path).rejects.toMatchObject({ code: "MAILBOX_PATH" });
     await expect(enqueueMailboxRequest(db, B, { target: "factory", method: "HEAD", path: P("x"), deadlineMs: 10_000 })).rejects.toMatchObject({ code: "MAILBOX_METHOD" });

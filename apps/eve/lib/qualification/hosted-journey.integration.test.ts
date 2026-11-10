@@ -57,7 +57,7 @@ const profileJson = {
   build: { appId: "myeve-dashboard", lockSha256: h("a"), buildProfileDigest: h("b"), issuer: { keyId: "build-1", purpose: "STATIC_BUILD_PROVENANCE_V1", ownerId: "jay",
     factoryId: "myfactory-local-v4", factoryVersion: stage3.binding.factoryVersion, buildProfileDigest: h("b"), publicKeyPem: pem(issuerKey),
     spkiSha256: sha(issuerKey.publicKey.export({ type: "spki", format: "der" })), notBefore: "2026-01-01T00:00:00.000Z", notAfter: "2099-01-01T00:00:00.000Z", revoked: false } },
-  factory: { transport: "MAILBOX", factoryOrigin: FACTORY_ORIGIN, verifierOrigin: VERIFIER_ORIGIN, ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
+  factory: { transport: "MAILBOX", factoryOrigin: FACTORY_ORIGIN, verifierOrigin: VERIFIER_ORIGIN, relayOrigin: "http://127.0.0.1:8797", ownerScope: "myeve.hosted:prj_hosted_owner:jay", spend: "METERED", qualificationMode: "LIVE" },
   verifier: { assurance: "PRIVATE_BETA_LOCAL", label: HOSTED_ASSURANCE_LABEL,
     keys: [{ keyId: "verifier-1", publicKeyPem: pem(verifierKey), activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }], producerKeyIds: ["producer-1"], producerPublicKeysPem: [pem(producerKey)] },
   limits: { perWorkMicrousd: 1_300_000, maxWorksPerPerson: 4, automaticIncrease: false },

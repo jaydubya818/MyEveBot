@@ -54,6 +54,8 @@ export const hostedProfileSchema = z.object({
   build: z.object({ appId: z.string().regex(/^[A-Za-z0-9._:-]{1,160}$/), lockSha256: hex(64), buildProfileDigest: hex(64), issuer: buildIssuer }).strict(),
   factory: z.object({
     transport: z.literal("MAILBOX"), factoryOrigin: macLoopbackOrigin, verifierOrigin: macLoopbackOrigin,
+    /** The Mac-local qualification Relay (remote capability leases), reached only through the mailbox `relay` target. */
+    relayOrigin: macLoopbackOrigin,
     /** MyFactory counts the 4-Work limit per (client, ownerScope): one distinct, stable scope per person = per hosted installation. */
     ownerScope: z.string().regex(/^[A-Za-z0-9._:-]{1,255}$/),
     spend: z.literal("METERED"), qualificationMode: z.literal("LIVE"),
@@ -66,7 +68,7 @@ export const hostedProfileSchema = z.object({
     perWorkMicrousd: z.literal(HOSTED_LIMITS.perWorkMicrousd), maxWorksPerPerson: z.literal(HOSTED_LIMITS.maxWorksPerPerson),
     automaticIncrease: z.literal(false),
   }).strict(),
-}).strict().refine(p => p.factory.factoryOrigin !== p.factory.verifierOrigin, "Factory and verifier are separate hosts")
+}).strict().refine(p => new Set([p.factory.factoryOrigin, p.factory.verifierOrigin, p.factory.relayOrigin]).size === 3, "Factory, verifier and Relay are separate hosts")
   .refine(p => p.factory.ownerScope === hostedOwnerScope(p), "ownerScope must be the installation's stable per-person scope")
   .refine(p => p.build.issuer.ownerId === p.ownerId && p.build.issuer.buildProfileDigest === p.build.buildProfileDigest, "build issuer must be the owner's, for the pinned build profile");
 export type HostedProfile = z.infer<typeof hostedProfileSchema>;
@@ -151,6 +153,8 @@ export function hostedTransports(profile: HostedProfile, db: MailboxDb, connecti
     capabilityFetch: factoryTransportFetch(factory, mailbox(5_000)),
     // The verifier keeps its own per-request credential header; the mailbox only carries it to the pinned verifier loopback origin.
     verifierFetch: mailboxFetch(db, binding, "verifier", profile.factory.verifierOrigin, { timeoutMs: 60_000 }),
+    // Relay lease/admission calls go to the Mac-local Relay through the same mailbox (no inbound path to the Mac, no hosted Relay coordination).
+    relayFetch: mailboxFetch(db, binding, "relay", profile.factory.relayOrigin, { timeoutMs: 15_000 }),
     assurance: { assurance: HOSTED_ASSURANCE, label: HOSTED_ASSURANCE_LABEL },
   };
 }
