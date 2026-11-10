@@ -20,7 +20,7 @@ import type { QdevCustody } from "./runtime-ports.ts";
 import { checkStageWorkBudgets } from "./work-budget-preflight.ts";
 import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
 import { digest } from "../engineering/contract.ts";
-import { HOSTED_PROFILE } from "../engineering/factory-mailbox.ts";
+import { HOSTED_PROFILE, mailboxFetch } from "../engineering/factory-mailbox.ts";
 import { confirmHostedRequest, type HostedConfirmed } from "./hosted-confirmation.ts";
 import { ownerLocalRequestRuntime } from "./owner-local-confirmation.ts";
 
@@ -80,7 +80,8 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
     requestRuntime = base => ownerLocalRequestRuntime(base, { request, planSha256 });
     const confirmed = await confirmHostedRequest({ profile: HOSTED_PROFILE, installationId: hosted.installationId, missionControlOrigin: hosted.missionControlOrigin,
       confirmation: profile.hostedConfirmation, store, base: await readRuntime(),
-      request, planSha256, credential: context.credential, send: deps.missionControlFetch, now: deps.now });
+      request, planSha256, credential: context.credential, send: deps.missionControlFetch, now: deps.now,
+      relay: { send: mailboxFetch(deps.mailboxDb, hostedBinding(hosted), "relay", hosted.factory.relayOrigin, { timeoutMs: 15_000 }), origin: hosted.factory.relayOrigin } });
     workIds = confirmed.workIds; missionId = confirmed.missionId; admission = confirmed.admission;
   }
   const runtimeConfig = async () => {

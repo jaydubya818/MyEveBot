@@ -26,6 +26,18 @@ import { ensureRequestStageWorks, ownerLocalRequestRuntime } from "./owner-local
  *  5. before each stage, MyEve prepares that Work's permit request and asks MissionControl to approve exactly it under the same confirmation.
  * No user password, owner token or stored session is used; MyEve itself creates no approval. Progress and Results are unchanged.
  */
+/** The hosted Relay identity label (never resolvable); requests to it go to the Mac-local Relay through the mailbox, everything else to `send`. */
+export const hostedRelayLabel = (installationId: string) => `https://relay.hosted-${installationId}.invalid`;
+export function hostedRelaySend(installationId: string, send: typeof fetch, relay?: { send: typeof fetch; origin: string }): typeof fetch {
+  if (!relay) return send;
+  const label = hostedRelayLabel(installationId);
+  return ((input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url);
+    if (url.origin !== label) return send(input, init);
+    if (url.username || url.password || url.hash) return Promise.reject(new HostedConfirmationRefused("HOSTED_RELAY_LABEL"));
+    return relay.send(relay.origin + url.pathname + url.search, init);
+  }) as typeof fetch;
+}
 export class HostedConfirmationRefused extends Error { constructor(readonly code: string) { super(code); } }
 const refuse = (code: string): never => { throw new HostedConfirmationRefused(code); };
 const sha256 = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
@@ -106,9 +118,12 @@ export type HostedConfirmed = { workIds: { stage1: string; stage2: string; stage
 export async function confirmHostedRequest(c: {
   profile: string; installationId: string; missionControlOrigin: string; confirmation: HostedConfirmationProfile; store: WorkStore; base: FactoryRuntime;
   request: string; planSha256: string; credential(name: string): string | undefined; env?: NodeJS.ProcessEnv; send?: typeof fetch; now?: () => number;
+  /** Mac-local Relay (mailbox `relay` target). MissionControl admission Relay leases use the pinned label origin `https://relay.hosted-<installation>.invalid`. */
+  relay?: { send: typeof fetch; origin: string };
 }): Promise<HostedConfirmed> {
   if (c.profile !== HOSTED_PROFILE) return refuse("HOSTED_CONFIRMATION_PROFILE");
-  const p = hostedConfirmationSchema.parse(c.confirmation), now = c.now ?? Date.now, send = c.send ?? fetch, ownerId = c.store.principal.scopeId;
+  const p = hostedConfirmationSchema.parse(c.confirmation), now = c.now ?? Date.now, ownerId = c.store.principal.scopeId;
+  const send = hostedRelaySend(c.installationId, c.send ?? fetch, c.relay);
   if (c.store.principal.scopeKind !== "personal" || c.store.principal.actorId !== ownerId || !c.store.database.atomic) return refuse("HOSTED_CONFIRMATION_OWNER_STORE");
   const secret = (name: string) => c.credential(name) ?? refuse(`HOSTED_CONFIRMATION_CREDENTIAL:${name}`);
   // Every credential is resolved before any Work is claimed, so a missing one can never leave claimed Works behind.

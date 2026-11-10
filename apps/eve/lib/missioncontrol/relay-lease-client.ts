@@ -22,7 +22,7 @@ export const relayLeaseEnrollmentSchema = z.object({
   schema: z.literal('mc-relay-lease-enrollment/v1'), ownerId: text, installationId: text, connectionId: text,
   enrollmentRevision: z.number().int().positive(), origin,
   activeFrom: z.number().int().nonnegative(), expiresAt: z.number().int().positive(),
-  accountId: id('acct'), agentId: id('agt'), runtimeClientId: id('rtc'), taskId: id('tsk'), workloadId: id('wkl'), audience: text,
+  accountId: id('acct'), agentId: z.string().regex(/^(?:agt_[a-zA-Z0-9]{8,}|agent_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/).max(200), runtimeClientId: id('rtc'), taskId: id('tsk'), workloadId: id('wkl'), audience: text,
   capability: z.object({ name: z.string().regex(/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+$/), version: z.string().regex(/^\d+\.\d+$/) }).strict(),
   resource, parameters: z.record(z.string(), z.unknown()),
   approvalRequestId: text.optional(), budgetReservationId: text.optional(),
