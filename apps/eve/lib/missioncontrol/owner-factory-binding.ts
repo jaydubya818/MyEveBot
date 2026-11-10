@@ -1,5 +1,7 @@
 import { digest } from '../engineering/contract.ts';
 import { factoryExecutionConfigurationHash } from '../engineering/factory-configuration-hash.ts';
+import { hostedMarkerPresent } from '../engineering/factory-mailbox.ts';
+import { hostedProfileFromEnv } from '../qualification/hosted-profile.ts';
 import type { FactoryRuntime } from '../engineering/factory-routing.ts';
 import { WorkStore, type WorkDatabase } from '../engineering/store.ts';
 import type { Work } from '../engineering/types.ts';
@@ -22,13 +24,19 @@ export const ownerFactoryWorkTuple=(work:Work,enrollment:OwnerEnrollment)=>diges
 /** Checks existing operator configuration. Does not create a profile, account, grant or alpha slot. */
 export function assertOwnerFactoryConfiguration(work: Work, enrollment: OwnerEnrollment, config: FactoryRuntime, now=Date.now()) {
   const pins=enrollment.ownerFactoryAdapter,c=config.connection,q=c.qualification;
+  let qualificationScope = work.scopeId;
+  if (hostedMarkerPresent()) {
+    const hosted = hostedProfileFromEnv();
+    if (!hosted || hosted.ownerId !== work.scopeId || hosted.installationId !== enrollment.installationId) return denied();
+    qualificationScope = hosted.factory.ownerScope;
+  }
   if(!pins || enrollment.revokedAt!==null || enrollment.activeFrom>now || enrollment.expiresAt<=now
     || config.engineering.ownerId!==enrollment.ownerId || config.engineering.agentId!==pins.agentId
     || pins.repository!==work.repository || config.engineering.profile.repository!==work.repository
     || pins.factoryId!==c.factoryId || pins.sourceDigest!==c.sourceDigest || pins.configurationDigest!==c.configurationDigest
     || enrollment.factoryVersion!==c.factoryVersion || c.factoryVersion!==digest({sourceDigest:c.sourceDigest,configurationDigest:c.configurationDigest})
     || pins.configurationHash!==factoryExecutionConfigurationHash(config) || pins.profileHash!==digest(config.engineering.profile)
-    || q.profileHash!==pins.profileHash || q.scopeId!==work.scopeId || Date.parse(q.qualifiedAt)>now || Date.parse(q.expiresAt)<=now
+    || q.profileHash!==pins.profileHash || q.scopeId!==qualificationScope || Date.parse(q.qualifiedAt)>now || Date.parse(q.expiresAt)<=now
     || !Number.isSafeInteger(work.maxCostUsd*1e6) || work.maxCostUsd*1e6>enrollment.maxCostMicrousd
     || work.maxDurationSeconds>enrollment.maxDurationSeconds) return denied();
   return ownerFactoryWorkTuple(work,enrollment);

@@ -4432,8 +4432,8 @@
     },
     "lib/missioncontrol/owner-factory-binding.ts": {
       "classification": "ENFORCED",
-      "reason": "Validates current operator owner enrollment, qualified Factory profile/configuration, repository, budget and duration. Immutable origin persists under canonical Work lock before approval. Same-query explicit owner context and security-definer enrollment lookup distinguish truly unenrolled legacy stores from missing atomic support. No credential, ledger or authority issuance.",
-      "sha256": "6890f76db21fede18e8f422810e937e003642142880bf243982e34f42d8dc59f"
+      "reason": "Validates current operator owner enrollment, qualified Factory profile/configuration, repository, budget and duration. Immutable origin persists under canonical Work lock before approval. Same-query explicit owner context and security-definer enrollment lookup distinguish truly unenrolled legacy stores from missing atomic support. No credential, ledger or authority issuance. Hosted permit checks require the configured installation and its exact per-person Factory scope. The hosted profile must parse and belong to the same Work owner and enrollment. The local Work scope is still required when hosted mode is absent.",
+      "sha256": "702153ddb17e5b35f1f5ea983cbc518b3a1971bb5169652d554fe75a256fc42d"
     },
     "lib/missioncontrol/owner-result-readback.ts": {
       "classification": "READ_ONLY",
@@ -4968,8 +4968,8 @@
     },
     "lib/qualification/hosted-custody.ts": {
       "classification": "ENFORCED",
-      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts). With hostedConfirmation: stage Works, Mission and per-Work permit approvals come from the hosted confirmation bridge (hosted-confirmation.ts), never from MyEve itself.",
-      "sha256": "c7655b58c459c9cea4282693d414190775896d616c4bae7a1989c320b301eeb2"
+      "reason": "Hosted custody: Factory/receiver/verifier only through the mailbox, Relay https, metered connection + hosted policy limits required, no owner-local bridge, no Docker/git/build signer, hostedMyApps port; returns null on any refusal. Evidence: hosted-journey.integration.test.ts (composition parts). With hostedConfirmation: stage Works, Mission and per-Work permit approvals come from the hosted confirmation bridge (hosted-confirmation.ts), never from MyEve itself. Hosted custody reads the reviewed production-cloud runtime from a server-side value, validates the exact owner and live metered Factory connection before constructing ports, and keeps transport behind the mailbox.",
+      "sha256": "403dbf5cf405c4ab2a03e4c59f31598e89fa7ac4353178770a68df12645bce61"
     },
     "app/api/factory-mailbox/v1/next/route.ts": {
       "classification": "ENFORCED",

@@ -1,4 +1,10 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+import { fixture } from "../../test/engineering-fixtures.ts";
+import { engineeringConfig } from "../engineering/runtime.ts";
+import { factoryExecutionConfigurationHash } from "../engineering/factory-configuration-hash.ts";
+import { assertOwnerFactoryConfiguration, ownerFactoryWorkTuple } from "../missioncontrol/owner-factory-binding.ts";
+import { permitFixture } from "../missioncontrol/permit-test-fixture.ts";
+import { readHostedFactoryRuntime } from "./hosted-custody.ts";
 import { digest } from "../engineering/contract.ts";
 import { isMailboxFetch } from "../engineering/factory-mailbox.ts";
 import { HOSTED_ASSURANCE_LABEL, HOSTED_PROFILE, hostedOwnerScope, hostedProfileFromEnv, hostedProfileSchema, hostedTransports, requireHostedFactoryConnection, requireHostedPolicy } from "./hosted-profile.ts";
@@ -17,6 +23,10 @@ export const hostedProfileFixture = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 const h = (c: string) => c.repeat(64), sourceDigest = h("1"), configurationDigest = h("2");
+const hostedQualification = () => ({
+  scopeId: "myeve.hosted:prj_hosted_owner:jay", profileHash: h("3"), evidenceRef: "ev",
+  qualifiedAt: "2026-01-01T00:00:00Z", expiresAt: "2099-01-01T00:00:00Z", mode: "LIVE", spendEnforced: true,
+});
 const connection = (over: Record<string, unknown> = {}, mode = "LIVE", scopeId = "myeve.hosted:prj_hosted_owner:jay") => ({ origin: "http://127.0.0.1:8792", token: h("a"), factoryId: "f", sourceDigest, configurationDigest,
   factoryVersion: digest({ sourceDigest, configurationDigest }), repositoryPath: "/Users/owner/repo",
   keys: [{ factoryId: "f", keyId: "k", publicKey: "pem", activeFrom: "2026-01-01T00:00:00Z", notAfter: "2099-01-01T00:00:00Z" }],
@@ -89,4 +99,44 @@ it("gives each person (owner, Tester 1, Tester 2) a distinct, stable Factory own
   const profile = hostedProfileSchema.parse(hostedProfileFixture());
   expect(() => requireHostedFactoryConnection(profile, connection({}, "LIVE", scopes[1]))).toThrow("HOSTED_FACTORY_OWNER_SCOPE");
   expect(() => requireHostedFactoryConnection(profile, connection({ evidence: { ownerScope: scopes[2], token: h("b"), expiresAt: "2099-01-01T00:00:00Z" } }))).toThrow("HOSTED_FACTORY_OWNER_SCOPE");
+});
+
+it("loads the hosted Factory runtime in production and requires the installation scope at permit preparation", async () => {
+  const hosted = hostedProfileSchema.parse(hostedProfileFixture());
+  const example = fixture();
+  const work = { ...example.work, scopeId: hosted.ownerId, maxCostUsd: 1.3, maxDurationSeconds: 180 };
+  const profile = { ...example.profile, executor: "factory-cloud" };
+  const profileHash = digest(profile);
+  const engineering = { mode: "production-cloud", ownerId: work.scopeId, agentId: "sofie", model: "none",
+    objective: work.objective, criteria: work.criteria, profile,
+    approvedBase: { sha: "a".repeat(40), files: [{ path: "package.json", sha256: "b".repeat(64) }] } };
+  const raw = { engineering, connection: connection({ qualification: { ...hostedQualification(), profileHash } }),
+    routing: { intent: "PRODUCE" }, commands: ["npm run build"] };
+  const { enrollment: fixtureEnrollment, now } = permitFixture({
+    ownerId: work.scopeId, workId: work.id, workVersion: work.version, workGeneration: work.generation,
+    tupleSha256: "a".repeat(64), maxCostMicrousd: 1_300_000, maxDurationSeconds: 180,
+  });
+
+  vi.stubEnv("VERCEL_ENV", "production");
+  vi.stubEnv("MYEVE_HOSTED_PROFILE", JSON.stringify(hosted));
+  try {
+    await expect(engineeringConfig()).rejects.toMatchObject({ code: "engineering_disabled" });
+    const config = readHostedFactoryRuntime(JSON.stringify(raw), hosted);
+    const enrollmentFor = (runtime: typeof config) => ({
+      ...fixtureEnrollment, installationId: hosted.installationId, factoryVersion: runtime.connection.factoryVersion,
+      ownerFactoryAdapter: { repository: work.repository, agentId: config.engineering.agentId, factoryId: runtime.connection.factoryId,
+        sourceDigest, configurationDigest, configurationHash: factoryExecutionConfigurationHash(runtime), profileHash },
+    });
+    const enrollment = enrollmentFor(config);
+    expect(assertOwnerFactoryConfiguration(work, enrollment, config, now)).toBe(ownerFactoryWorkTuple(work, enrollment));
+    expect(() => assertOwnerFactoryConfiguration(work, { ...enrollment, installationId: "foreign" }, config, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
+    const local = { ...config, connection: { ...config.connection, qualification: { ...config.connection.qualification, scopeId: work.scopeId } } } as typeof config;
+    expect(() => assertOwnerFactoryConfiguration(work, enrollmentFor(local), local, now)).toThrow("MISSIONCONTROL_OWNER_FACTORY_BINDING_DENIED");
+    expect(() => readHostedFactoryRuntime(JSON.stringify({ ...raw, engineering: { ...engineering, ownerId: "foreign" } }), hosted)).toThrow("HOSTED_FACTORY_RUNTIME_BINDING");
+    expect(() => readHostedFactoryRuntime(undefined, hosted)).toThrow("HOSTED_FACTORY_RUNTIME_REQUIRED");
+    vi.stubEnv("MYEVE_HOSTED_PROFILE", "");
+    expect(assertOwnerFactoryConfiguration(work, enrollmentFor(local), local, now)).toBeTruthy();
+  } finally {
+    vi.unstubAllEnvs();
+  }
 });
