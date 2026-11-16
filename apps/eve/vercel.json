@@ -3,7 +3,9 @@
   "outputDirectory": null,
   "git": {
     "deploymentEnabled": {
+      "codex/sofie-beta-acceptance-20261116": false,
       "main": false,
+      "codex/sofie-mailbox-response-poll-20261116": false,
       "codex/chat-unqualified-label-20261021": false,
       "codex/checkpoint-h-authenticated-enterprise": false,
       "codex/missioncontrol-enterprise-consumer": false,
@@ -78,7 +80,8 @@
       "codex/sofie-hosted-tester-blockers-20261109": false,
       "codex/private-beta-release-20261106": false,
       "codex/private-beta-tester-extension-20261106": false,
-      "claude/sofie-hosted-integrated-20261110": false
+      "claude/sofie-hosted-integrated-20261110": false,
+      "claude/sofie-owner-integrated-20261116": false
     }
   },
   "functions": {

@@ -77,6 +77,8 @@ const RELOCATED_CONSUMERS = new Set([
   "lib/myapps/alpha-tasks-host.ts", "lib/myapps/remote-admission.ts",
   "lib/qualification/artifact-staging.ts", "lib/qualification/custody-assembly.ts",
   "lib/qualification/delivery-observer.ts", "lib/qualification/owner-local-authorizations.ts",
+  "lib/qualification/hosted-mac-build.ts", "lib/qualification/hosted-mac-worker.ts",
+  "lib/qualification/hosted-preview.ts", "scripts/private-beta/hosted-mac-worker.ts",
   "lib/qualification/static-activation.ts", "lib/qualification/static-build-export.ts",
   "lib/qualification/static-build.ts", "lib/qualification/static-publish.ts",
 ]);

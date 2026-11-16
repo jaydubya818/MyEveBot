@@ -199,15 +199,21 @@ export async function awaitMailboxResponse(db: MailboxDb, binding: MailboxBindin
     [id, binding.installationId, binding.ownerId]).catch(() => undefined);
   for (;;) {
     if (signal?.aborted) { await withdraw(); throw signal.reason ?? new MailboxRefused("MAILBOX_ABORTED"); }
-    const [row] = await db.query(`DELETE FROM factory_mailbox_requests WHERE id=$1 AND installation_id=$2 AND owner_id=$3 AND state='ANSWERED'
-      RETURNING response_status, response_headers, response_body_sha256, response_body_base64`, [id, binding.installationId, binding.ownerId]);
-    if (row) {
+    // Consume an answer once and report a live pending request in the same round trip.
+    const [row] = await db.query(`WITH answer AS (
+      DELETE FROM factory_mailbox_requests WHERE id=$1 AND installation_id=$2 AND owner_id=$3 AND state='ANSWERED'
+      RETURNING response_status, response_headers, response_body_sha256, response_body_base64
+    )
+    SELECT false AS pending, response_status, response_headers, response_body_sha256, response_body_base64 FROM answer
+    UNION ALL
+    SELECT true, NULL, NULL, NULL, NULL FROM factory_mailbox_requests
+    WHERE id=$1 AND installation_id=$2 AND owner_id=$3 AND deadline > now() AND NOT EXISTS (SELECT 1 FROM answer)`,
+    [id, binding.installationId, binding.ownerId]);
+    if (row?.pending === false) {
       const body = decodeBody(row.response_body_base64, row.response_body_sha256);
       return { status: Number(row.response_status), headers: allowHeaders(row.response_headers as Record<string, unknown>, MAILBOX_RESPONSE_HEADERS), body };
     }
-    const [live] = await db.query("SELECT (deadline > now()) AS live FROM factory_mailbox_requests WHERE id=$1 AND installation_id=$2 AND owner_id=$3",
-      [id, binding.installationId, binding.ownerId]);
-    if (!live?.live) { await withdraw(); throw new MailboxRefused("MAILBOX_DEADLINE", 504); }
+    if (row?.pending !== true) { await withdraw(); throw new MailboxRefused("MAILBOX_DEADLINE", 504); }
     try { await sleep(pollMs, signal); } catch (reason) { await withdraw(); throw reason; }
   }
 }

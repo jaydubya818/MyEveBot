@@ -27,3 +27,21 @@ it("hosted custody passes hostedOwnerScope(profile) as the capability owner; the
   expect(m.ownerFactoryCapabilityConfig).toHaveBeenCalledTimes(1);
   expect(m.ownerFactoryCapabilityConfig.mock.calls[0][0]).toMatchObject({ capabilityOwnerId: "myeve.hosted:prj_hosted_owner:owner", ownerLocalRelayLoopback: true });
 });
+
+it("rejects the production-style privileged Work role before any hosted confirmation side effect", async () => {
+  const hosted = { ownerId: "owner", installationId: "jay", build: { appId: "app" }, verifier: { keys: [] } } as never;
+  const bundle = { ownerId: "owner", credentials: { journalDatabaseUrl: "JOURNAL" }, policy: {}, plan: {}, assembly: {
+    publishing: { installationId: "jay" }, build: { appId: "app" }, verifier: { keys: [] }, hostedConfirmation: {},
+    capability: { signerEnv: "SIGNER", relay: { credentialEnv: "RELAY_CRED", workloadTokenEnv: "RELAY_TOKEN" } },
+  } } as never;
+  const credential = (name: string) => name === "SIGNER" ? JSON.stringify({ signer: { keyId: "synthetic", jwk: {} } }) : "fixture";
+  const query = vi.fn(async () => [{ unsafe: true }]);
+  const runtimeConfig = vi.fn(), missionControlFetch = vi.fn();
+  await expect(assembleHostedCustody({ bundle, credential }, {
+    hosted, mailboxDb: {} as never, blob: {} as never, database: vi.fn(),
+    store: () => ({ database: { query } }) as never, runtimeConfig, missionControlFetch,
+  })).rejects.toThrow("RUNTIME_ROLE_UNQUALIFIED");
+  expect(query).toHaveBeenCalledExactlyOnceWith(expect.stringContaining("rolbypassrls"), undefined);
+  expect(runtimeConfig).not.toHaveBeenCalled();
+  expect(missionControlFetch).not.toHaveBeenCalled();
+});

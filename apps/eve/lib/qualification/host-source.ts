@@ -209,6 +209,10 @@ export function createRuntimeHostSource(deps: RuntimeHostDeps): QdevHostSource {
       const derived = derivedRequestBundle(bundle, request), b = derived.bundle;
       const plan = validateJourneyPlan(b.plan);
       const accounting = new QualificationAccounting(accountingDb, accountingCredential!, b.policy, journeyBinding(b.project));
+      // The hosted launcher writes Work and submits the confirmation while constructing its ports.
+      // Reject an unavailable accounting cohort before any of those effects.
+      if (hostedMarkerPresent(env) && (await accounting.status()).state !== "active")
+        throw Error("QDEV_ACCOUNTING_INACTIVE");
       const journal = new PostgresJournal(journalDb, qdevJourneyId(b.ownerId, b.project, b.policy, plan));
       const ports = deps.ports ? await deps.ports({ bundle: b, relay, credential: secret }) : null;
       if (!ports) return null;
