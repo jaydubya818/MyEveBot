@@ -24,3 +24,21 @@ it("the root surfaces the underlying refusal code of an unbuildable confirmed re
   expect(error).toHaveBeenCalledWith("[qdev] root unconfigured: HOSTED_CONFIRMATION_PROPOSE");
   error.mockRestore();
 });
+
+it("surfaces the underlying UPPER_SNAKE code of a non-QDEV halt (owner-safe; QDEV codes unchanged)", async () => {
+  const { haltCode, HALT_CODE } = await import("./refusal-code.ts");
+  const { presentJourney } = await import("./presentation.ts");
+  const { JourneyHalted } = await import("./journey.ts");
+  const { projectProgress } = await import("./progress.ts");
+  expect(haltCode("Capability admission denied: RUNTIME_ROLE_UNQUALIFIED")).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
+  expect(haltCode("QDEV_RETAINED_ADMISSION_PENDING")).toBe("QDEV_RETAINED_ADMISSION_PENDING");
+  expect(haltCode("connect ECONNREFUSED postgres://user:secret@host/db")).toBe("QDEV_HALTED");
+  expect(haltCode("FACTORY_RELAY_CREDENTIAL_UNAVAILABLE at /x/y?token=ABC")).toBe("QDEV_HALTED:FACTORY_RELAY_CREDENTIAL_UNAVAILABLE");
+  expect(haltCode("plain words only")).toBe("QDEV_HALTED");
+  expect(haltCode(undefined)).toBe("QDEV_HALTED");
+  for (const c of ["QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED", "QDEV_HALTED", "QDEV_X"]) expect(HALT_CODE.test(c)).toBe(true);
+  expect(HALT_CODE.test("QDEV_HALTED:secret value")).toBe(false);
+  const halted = new JourneyHalted(1, "Capability admission denied: RUNTIME_ROLE_UNQUALIFIED", [] as never);
+  expect(presentJourney(halted).code).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
+  expect(projectProgress([{ kind: "HALTED", stage: 1, code: "QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED" }] as never).code).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
+});

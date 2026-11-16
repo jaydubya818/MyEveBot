@@ -19,7 +19,7 @@ const presentation = z.object({
   status: z.enum(["COMPLETED_UNCLAIMED", "HALTED"]), readiness: z.literal("NOT_CLAIMED"), authority: z.literal("NONE"),
   stages: z.array(z.object({ stage: z.number().int().min(1).max(4), candidate: z.string().regex(/^[a-f0-9]{12}$/).optional() }).strict()).max(4),
   verdictSha256: sha.optional(), deliverySha256: sha.optional(), haltedAt: z.number().int().min(1).max(4).optional(),
-  code: z.string().regex(/^QDEV_[A-Z_]+$/).max(100).optional(),
+  code: z.string().regex(/^QDEV_[A-Z_]+(?::[A-Z][A-Z0-9_]{5,80})?$/).max(100).optional(),
   assurance: z.enum(VERDICT_ASSURANCE).optional(),
   usage: z.object({ metering: z.literal("SUBSCRIPTION_UNMETERED"), operations: z.number().int().min(0).max(1000), runs: z.number().int().min(1).max(3) }).strict().optional(),
 }).strict();

@@ -1,4 +1,5 @@
 import type { JournalEvent } from "./journal.ts";
+import { HALT_CODE } from "./refusal-code.ts";
 
 /**
  * Read-only projection of the durable journey journal for the owner. It reads retained facts only: no provider, ledger, Factory, verifier or
@@ -41,7 +42,7 @@ export function projectProgress(events: JournalEvent[]): ProgressView {
     return { state: "DELIVERED", stages, baseline: { commit: build.candidate.commit, tree: build.candidate.tree, buildArtifactSha256: build.buildArtifactSha256,
       verdictSha256: delivery.verdictSha256, deliverySha256: delivery.digest } };
   if (accepted.has(4) && !halted) return { state: "VERIFIED_NOT_DELIVERED", stages };
-  if (halted) return { state: "HALTED", stages, haltedAt: halted.stage, code: /^QDEV_[A-Z_]+$/.test(halted.code) ? halted.code : "QDEV_HALTED" };
+  if (halted) return { state: "HALTED", stages, haltedAt: halted.stage, code: HALT_CODE.test(halted.code) ? halted.code : "QDEV_HALTED" };
   return { state: events.length === 0 ? "NOT_STARTED" : "IN_PROGRESS", stages };
 }
 
