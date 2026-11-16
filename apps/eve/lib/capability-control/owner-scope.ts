@@ -14,3 +14,14 @@ export function capabilityOwnerId(ownerId: string, env: Readonly<Record<string, 
   const profile = hostedProfileFromEnv(env);
   return profile && profile.ownerId === ownerId ? hostedOwnerScope(profile) : ownerId;
 }
+
+const ownerConfirmationKeyId: string = "bf039c134f2ab76cab2fde4ae0c4959e5e29a25cdd0b393c4811f0737fd005dd";
+
+// The limited owner witness exemption is bound to the installed confirmation signer.
+export const WITNESS_EXEMPT_OWNER = Object.freeze({
+  installationId: "jay",
+  vercelProjectId: "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+  ownerId: "owner",
+  origin: "https://sofie-personal-agent.vercel.app",
+  confirmationKeyId: ownerConfirmationKeyId,
+});

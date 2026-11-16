@@ -4274,10 +4274,15 @@
       "reason": "Strict owner-preference command and receipt schemas, including PENDING_PROPAGATION; no executable effects.",
       "sha256": "c3bf0c2c4797aa1cb064f8948706ffd67cbce86298f0d71a27e1d5d3de33a802"
     },
+    "lib/capability-control/owner-scope.ts": {
+      "classification": "INTERNAL",
+      "reason": "Derives the hosted capability owner scope from a validated profile and holds the exact temporary owner witness exemption pins. The runtime validates the installed private signer and deployment tuple before granting the exemption.",
+      "sha256": "35ef142b384e488a415b378413bdf28b17bf53c2bc913aae1e330b3f5d027dee"
+    },
     "lib/capability-control/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical installation configuration and signed owner/same-origin boundary. The explicitly authorized hosted source exception requires unchanged external-alpha policy, HTTPS qualification origin and independently enrolled PostgreSQL witness configuration with deterministic owner/project/source/FactoryVersion/policy/mode digest. Actual Store/admission checks remain uncached and fail closed; configuration creates no enrollment, execution authority or installed qualification. Runtime negative tests and independent PostgreSQL restore/CAS tests cover this source.",
-      "sha256": "6fd944511c00b04be90a42d93f848df10cc3291f51fc605d5c732b16f0f48c0f"
+      "reason": "Hosted configuration preserves the external-alpha policy and independent PostgreSQL witness checks. The temporary owner-only exemption requires the canonical production project, owner, installation and HTTPS origin, a validated hosted profile and possession of the installed Sofie confirmation signer. Configuration grants no enrollment or execution authority. Witness exemption regression tests cover the identity and key checks.",
+      "sha256": "b0c925abc381ca8da1123b47c79b2505fe34ad3de4d3201b693eb9fef551ab69"
     },
     "lib/capability-control/sofie.ts": {
       "classification": "ENFORCED",

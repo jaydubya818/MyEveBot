@@ -1,16 +1,17 @@
+import { createHash, createPrivateKey, createPublicKey } from 'node:crypto';
 import { propagateCapabilityPolicy } from '../../../../packages/capability-enforcement/src/ordering-transport.ts';
 import { reconcileBackendControls } from '../../../../packages/capability-enforcement/src/lifecycle-transport.ts';
 import type { PolicyKey } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import pg from 'pg';
 import {externalAlphaPolicy,externalAlphaInstallation} from '../external-alpha/policy.ts';
 import { hostedProfileFromEnv, type HostedProfile } from '../qualification/hosted-profile.ts';
-import { hostedOwnerScope } from '../engineering/factory-mailbox.ts';
+import { hostedMarkerPresent, hostedOwnerScope } from '../engineering/factory-mailbox.ts';
 import {digest} from '../engineering/contract.ts';
 import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
 import { CapabilityError, type CapabilityActor } from './contracts.ts';
 import { CapabilityStore } from './store.ts';
-import { capabilityOwnerId } from './owner-scope.ts';
+import { capabilityOwnerId, WITNESS_EXEMPT_OWNER } from './owner-scope.ts';
 import { configuredRecoveryWitness, isPostgresRecoveryWitness } from '../../../../packages/capability-enforcement/src/recovery-witness.ts';
 
 const configuration = z.object({
@@ -28,21 +29,28 @@ let pool: pg.Pool | undefined;
 /**
  * Owner-only recovery-witness exemption (Jay, 2026-11-16 11:55 PT, option A).
  * TODO(https://github.com/jaydubya818/MyEveBot/issues/120): remove once the owner installation has a Postgres recovery witness.
- * Matched ONLY on constants of this code (installation `jay`, the sofie-personal-agent Vercel project) and the parsed, validated hosted
- * profile (role OWNER, its stable owner scope): no flag or env var a tester installation could set turns it on. Any external-alpha installation
- * (tester projects, MYEVE_EXTERNAL_ALPHA_POLICY) never qualifies and keeps the full policy + witness requirement.
+ * The existing owner confirmation signing key authenticates the approved owner installation
+ * even when its project and hosted profile settings come from the process environment.
  */
-export const WITNESS_EXEMPT_OWNER = Object.freeze({ installationId: 'jay', vercelProjectId: 'prj_L6faw25wnFGUZtrLKBIccg8gIDLR' });
 export function witnessExemptOwner(env: NodeJS.ProcessEnv, config: { id: string; environment: string; origin: string }): HostedProfile | null {
   try {
-    if (externalAlphaInstallation(env) || env.MYEVE_EXTERNAL_ALPHA_POLICY) return null;
-    if (env.VERCEL_PROJECT_ID !== WITNESS_EXEMPT_OWNER.vercelProjectId || config.id !== WITNESS_EXEMPT_OWNER.installationId) return null;
+    const owner = WITNESS_EXEMPT_OWNER;
+    if (externalAlphaInstallation(env) || env.MYEVE_EXTERNAL_ALPHA_HOSTED_BETA === 'true') return null;
+    if (env.VERCEL !== '1' || env.VERCEL_ENV !== 'production'
+      || (env.VERCEL_TARGET_ENV && env.VERCEL_TARGET_ENV !== 'production')
+      || env.VERCEL_PROJECT_ID !== owner.vercelProjectId || config.id !== owner.installationId
+      || env.MYEVE_OWNER_ID !== owner.ownerId
+      || env.MYEVE_MISSIONCONTROL_MODE !== 'APPROVED_NONPRODUCTION'
+      || config.environment !== 'qualification' || config.origin !== owner.origin) return null;
     const profile = hostedProfileFromEnv(env);
-    if (!profile || profile.role !== 'OWNER' || profile.installationId !== WITNESS_EXEMPT_OWNER.installationId) return null;
-    if (profile.factory.ownerScope !== hostedOwnerScope(profile) || capabilityOwnerId(profile.ownerId, env) !== hostedOwnerScope(profile)) return null;
-    if (env.MYEVE_MISSIONCONTROL_MODE !== 'APPROVED_NONPRODUCTION' || config.environment !== 'qualification'
-      || new URL(config.origin).protocol !== 'https:' || new URL(config.origin).origin !== new URL(profile.servedOrigin).origin) return null;
-    return profile;
+    if (!profile || profile.role !== 'OWNER' || profile.installationId !== owner.installationId
+      || profile.ownerId !== owner.ownerId || profile.servedOrigin !== owner.origin) return null;
+    const pem = env.MYEVE_SOFIE_CONFIRM_KEY;
+    if (!pem || pem.length > 4096) return null;
+    const key = createPrivateKey(pem.trim().replaceAll('\\n', '\n'));
+    if (key.asymmetricKeyType !== 'ed25519') return null;
+    const spki = createPublicKey(key).export({ type: 'spki', format: 'der' });
+    return createHash('sha256').update(spki).digest('hex') === owner.confirmationKeyId ? profile : null;
   } catch { return null; }
 }
 
@@ -53,9 +61,11 @@ export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
     environment: env.MYEVE_CAPABILITY_ENVIRONMENT, databaseUrl: env.MYEVE_CAPABILITY_DATABASE_URL,
     origin: env.MYEVE_CAPABILITY_ORIGIN });
   if (!result.success) throw new CapabilityError('capabilities_setup_required', 'Capability controls have not been configured for this installation.', 503);
-  const exempt = (env.VERCEL || env.VERCEL_ENV === 'production') ? witnessExemptOwner(env, result.data) : null;
+  const hosted = Boolean(env.VERCEL || env.VERCEL_ENV === 'production' || externalAlphaInstallation(env)
+    || (env.NODE_ENV === 'production' && hostedMarkerPresent(env)));
+  const exempt = hosted ? witnessExemptOwner(env, result.data) : null;
   if (exempt) console.warn(`[capability] CAPABILITY_WITNESS_EXEMPT_OWNER installation=${exempt.installationId} scope=${hostedOwnerScope(exempt)}: admitted without external-alpha policy or recovery witness (owner-only exemption; remove per MyEveBot#120)`);
-  else if (env.VERCEL || env.VERCEL_ENV === 'production') {
+  else if (hosted) {
     // A missing or malformed policy (e.g. EXTERNAL_ALPHA_POLICY_REQUIRED on a tester install) is the same refusal: capabilities_unavailable.
     let policy:ReturnType<typeof externalAlphaPolicy>=null;try{policy=externalAlphaPolicy(env);}catch{policy=null;}
     const witness=configuredRecoveryWitness(env);
