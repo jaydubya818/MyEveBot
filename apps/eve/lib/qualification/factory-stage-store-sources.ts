@@ -154,6 +154,17 @@ export class StoreBackedStageSources implements FactoryStageAdmissionSources {
     // the authenticated predecessor start the admitter already verified (never a model- or Factory-supplied value). Stage 1 keeps the unmodified production
     // authority, so its approved-base cross-check is untouched, and the production approved-base preflight is neither called nor relaxed here.
     const authority = stage === 1 ? this.c.authority : this.authorityAtPredecessor(st);
+    // MissionControl admission receipts live at most 10 s (MC admissionReceipt caps now+10000; verifyAdmissionReceipt enforces it). The hosted
+    // Factory prepare runs through the mailbox (Relay lease + prepare + readback hops), which outlasts that window, so the receipt obtained before
+    // prepare is already expired when the route admission retains it (retry #6: MISSIONCONTROL_ADMISSION_DENIED). Re-acquire the full, fresh
+    // MissionControl admission (same approved permit; new challenge, capability pair and receipt) immediately before the receiving transaction.
+    // Nothing is relaxed: the receipt is still verified against the permit, pair, challenge and 10 s window inside acceptInTransaction.
+    // (Only when a MissionControl proof was used for the prepare; a proof-less path stays proof-less and the receiving transaction decides.)
+    if (st.proof) {
+      const fresh = await (this.c.admission ?? requestOwnerFactoryAdmission)(this.c.store, st.work, st.config);
+      if (!fresh || fresh.tupleSha256 !== st.proof.tupleSha256) return refuse("QDEV_STAGE_ADMISSION_REQUIRED");
+      st.proof = fresh;
+    }
     const receipt = await (this.c.admitPrepared ?? productionRegisterAndAdmit)({ store: this.c.store, receipts: this.c.receipts, authority, work: st.work, decisionId: st.decisionId,
       request, response: readback, missionControl: st.proof, config: st.config });
     if (receipt?.decisionId !== st.decisionId || typeof receipt.runId !== "string" || !receipt.runId) return refuse("QDEV_STAGE_RUN_MISSING");

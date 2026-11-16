@@ -151,9 +151,10 @@ test('FactoryStageAdmitter over the store sources: MissionControl, then prepare,
     admitPrepared:async c=>{order.push('admit');assert.deepEqual(c.missionControl,{synthetic:'proof'});return {decisionId:c.decisionId,runId:randomUUID()};}});
   const admitter=new FactoryStageAdmitter(src);
   const retained=await admitter.retained(1);
-  assert.deepEqual(order,['proof','prepare','admit','inspect']);
+  // The MissionControl admission is re-acquired after the (mailbox-latency) prepare: its receipt lives at most 10 s.
+  assert.deepEqual(order,['proof','prepare','proof','admit','inspect']);
   assert.equal(retained.binding.workId,id);assert.equal(retained.binding.inputCommit,baseline.commit);assert.equal(retained.request.input.baseRef,baseline.commit);
-  await admitter.retained(1);assert.equal(order.length,4,'a second call never re-prepares');
+  await admitter.retained(1);assert.equal(order.length,5,'a second call never re-prepares');
 });
 
 test('identity refuses a writer that is not PREPARED, and the admitter refuses when the sources are disabled or MissionControl yields no proof',async()=>{
