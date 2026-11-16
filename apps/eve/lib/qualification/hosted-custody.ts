@@ -1,3 +1,4 @@
+import { CapabilityAdmissionError, assertQualifiedCapabilityRuntimeRole } from "@myeve/capability-enforcement";
 import { createGateway } from "ai";
 import { z } from "zod";
 import type { ExecutionDatabase } from "../execution-types.ts";
@@ -78,6 +79,15 @@ export async function assembleHostedCustody(context: Context, deps: HostedLaunch
   let requestRuntime: ((base: FactoryRuntime) => FactoryRuntime) | undefined;
   let plan; try { plan = validateJourneyPlan(bundle.plan); } catch (error) { return unavailable(refusalCode(error, "QDEV_PLAN_INVALID")); }
   if (profile.hostedConfirmation) {
+    // Check the canonical Work role before creating stage Works or consuming a signed confirmation.
+    try {
+      await assertQualifiedCapabilityRuntimeRole({
+        query: async (sql, params) => ({ rows: await store.database.query(sql, params) }),
+      });
+    } catch (error) {
+      if (error instanceof CapabilityAdmissionError) return unavailable(error.reason);
+      throw error;
+    }
     // Sofie -> Plan -> Confirm: the person's confirmed request (root-verified plan digest) creates its stage Works and obtains MissionControl's
     // owner decisions through the hosted confirmation bridge (one signed confirmation, verified and consumed once by MissionControl).
     const request = bundle.conversation.approvedRequest, planSha256 = digest(bundle.plan);

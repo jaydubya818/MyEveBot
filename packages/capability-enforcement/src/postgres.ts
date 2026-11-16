@@ -21,11 +21,8 @@ const factsSchema = z.record(z.string(),z.object({supported:z.boolean(),deployed
 const finiteTime = (value: unknown) => new Date(String(value)).getTime();
 function deny(reason:string):never { throw new CapabilityAdmissionError(reason); }
 
-/** Requires the caller's pinned admission transaction. The result is audit metadata, never a portable grant. */
-export async function assertCapabilityAdmission(connection:PolicyConnection, rawScope:AdmissionScope, rawRequest:AdmissionRequest) {
-  const scope=scopeSchema.parse(rawScope),request=requestSchema.parse(rawRequest);
-  if (!capabilityRegistry.capabilities.some(item=>item.id===request.capabilityId)) deny('UNKNOWN_CAPABILITY');
-  const [{transaction_id:transactionId}] = (await connection.query('SELECT txid_current()::text AS transaction_id')).rows;
+/** Read-only preflight for the same role used by the canonical Work transaction. */
+export async function assertQualifiedCapabilityRuntimeRole(connection: PolicyConnection): Promise<void> {
   const [role]=(await connection.query(`SELECT r.rolsuper OR r.rolbypassrls OR r.rolcreaterole
     OR has_schema_privilege(current_user,'capability_control','CREATE')
     OR has_table_privilege(current_user,'capability_control.installations','INSERT,UPDATE,DELETE,TRUNCATE')
@@ -34,6 +31,14 @@ export async function assertCapabilityAdmission(connection:PolicyConnection, raw
     OR has_table_privilege(current_user,'capability_control.relay_agent_evidence','INSERT,UPDATE,DELETE,TRUNCATE') AS unsafe
     FROM pg_roles r WHERE r.rolname=current_user`)).rows;
   if(!role || role.unsafe!==false)deny('RUNTIME_ROLE_UNQUALIFIED');
+}
+
+/** Requires the caller's pinned admission transaction. The result is audit metadata, never a portable grant. */
+export async function assertCapabilityAdmission(connection:PolicyConnection, rawScope:AdmissionScope, rawRequest:AdmissionRequest) {
+  const scope=scopeSchema.parse(rawScope),request=requestSchema.parse(rawRequest);
+  if (!capabilityRegistry.capabilities.some(item=>item.id===request.capabilityId)) deny('UNKNOWN_CAPABILITY');
+  const [{transaction_id:transactionId}] = (await connection.query('SELECT txid_current()::text AS transaction_id')).rows;
+  await assertQualifiedCapabilityRuntimeRole(connection);
   await connection.query("SELECT set_config('myeve.capability_owner',$1,true),set_config('myeve.capability_installation',$2,true)",[scope.ownerId,scope.installationId]);
   await connection.query('SELECT capability_control.lock_admission_policy($1,$2,$3)',[scope.installationId,scope.ownerId,scope.agentId]);
   const witness = configuredRecoveryWitness();

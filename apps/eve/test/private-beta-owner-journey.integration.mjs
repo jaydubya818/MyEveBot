@@ -198,7 +198,7 @@ async function harness(w,{verdictMode='valid'}={}){
 }
 
 /** Version-2 owner-local bundle + real loader. The ports provider builds custody PER derived request bundle: Sofie plans from the confirmed request text. */
-function runtime(w,hn,{sofieCalls=[]}={}){
+function runtime(w,hn,{sofieCalls=[],hosted=false}={}){
  const bundle={version:2,profile:'myeve.private-beta.owner/v1',installation:'owner-local',ownerId:w.owner,notAfter:new Date(Date.now()+3600e3).toISOString(),template:w.template,
   credentials:{accounting:'QDEV_ACCOUNTING_CREDENTIAL',relay:'QDEV_RELAY_CREDENTIAL',accountingDatabaseUrl:'QDEV_ACCOUNTING_DATABASE_URL',journalDatabaseUrl:'QDEV_JOURNAL_DATABASE_URL'},
   relay:{origin:'https://relay.example.test',grant:{connectionId:'synthetic-connection',repository:w.installation.repository,baseCommit:w.installation.inputCommit,outputBranch:w.installation.outputBranch,
@@ -206,6 +206,7 @@ function runtime(w,hn,{sofieCalls=[]}={}){
   conversation:{deliveryUrl:'https://owner.example.test/app'}};
  const env={MYEVE_QDEV_ENABLED:'true',MYEVE_QDEV_HOST_BUNDLE:JSON.stringify(bundle),QDEV_ACCOUNTING_CREDENTIAL:w.t1,QDEV_RELAY_CREDENTIAL:'relay-secret-'+randomBytes(8).toString('hex'),
   QDEV_ACCOUNTING_DATABASE_URL:'postgres://accounting.invalid/a',QDEV_JOURNAL_DATABASE_URL:'postgres://journal.invalid/j',QDEV_VERIFIER_CREDENTIAL:CRED};
+ if(hosted)env.MYEVE_HOSTED_PROFILE='{}';
  const fetcher=async(url,init)=>{const body=JSON.parse(init.body);
   const result=body.method==='initialize'?{protocolVersion:'2024-11-05'}:{tools:[{name:'relay_github_repo_get'},{name:'relay_github_deploy_prod'}]};
   return new Response(JSON.stringify({jsonrpc:'2.0',id:body.id,result}),{status:200});};
@@ -302,6 +303,19 @@ try{
    const out=await new QualificationRoot(r.host).run({ownerId:w.owner,kind:'human'},{request:REQUEST,planSha256:deriveOwnerJourney({ownerId:w.owner,template:w.template,request:REQUEST}).planSha256});
    assert.equal(out.status,'HALTED');assert.equal(out.haltedAt,1);
    assert.equal(await count(w,'qdev_work'),0);assert.equal(hn.log.factory.length,0);assert.equal(hn.log.verifier.length,0);assert.equal(r.sofieCalls.length,0);
+  }finally{await hn.stop();}
+ });
+
+ await test('a hosted confirmation with no issued accounting cohort fails before it assembles effectful ports',async()=>{
+  const w=await world('unfunded_hosted',{issueFor:'Build a different app.'}),hn=await harness(w);
+  try{
+   const r=runtime(w,hn,{hosted:true});
+   const planSha256=deriveOwnerJourney({ownerId:w.owner,template:w.template,request:REQUEST}).planSha256;
+   await assert.rejects(new QualificationRoot(r.host).run({ownerId:w.owner,kind:'human'},{request:REQUEST,planSha256}),
+    error=>error instanceof QualificationRootRefused&&error.message==='QDEV_ROOT_UNCONFIGURED:QDEV_DENIED');
+   assert.equal(r.contexts.length,0);
+   assert.equal(await count(w,'qdev_work'),0);
+   assert.equal(hn.log.factory.length+hn.log.verifier.length,0);
   }finally{await hn.stop();}
  });
 
