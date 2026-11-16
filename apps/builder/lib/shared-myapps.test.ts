@@ -20,8 +20,9 @@ for (const features of [[], [...FEATURE_IDS]]) {
     for (const file of ["agent/tools/installed_apps.ts", "app/apps/installed/page.tsx", "app/api/myapps/[...path]/route.ts"]) {
       assert.deepEqual(byPath.get(file), await readFile(path.join(root, file)), `unchanged authority boundary: ${file}`);
     }
-    for (const name of ["api", "hosting", "runtime", "workflow"]) {
-      const file = `lib/myapps/${name}.ts`;
+    for (const file of ["lib/myapps/api.ts", "lib/myapps/hosting.ts", "lib/myapps/runtime.ts", "lib/myapps/workflow.ts",
+      "lib/qualification/hosted-mac-build.ts", "lib/qualification/hosted-mac-worker.ts",
+      "lib/qualification/hosted-preview.ts", "scripts/private-beta/hosted-mac-worker.ts"]) {
       const original = await readFile(path.join(root, file), "utf8");
       assert.equal(byPath.get(file)?.toString(), original.replaceAll("../../../../packages/myapps/", "../../packages/myapps/"));
     }
