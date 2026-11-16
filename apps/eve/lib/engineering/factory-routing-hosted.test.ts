@@ -46,9 +46,9 @@ describe('hosted Factory routing', () => {
     const sent: string[] = [];
     const db: MailboxDb = { query: async (sql: string, params?: unknown[]) => {
       if (sql.startsWith('WITH poller')) { sent.push(String(params?.[6])); return [{ id: params?.[0] }]; }
-      if (sql.includes("state='ANSWERED'") && sql.startsWith('DELETE')) {
+      if (sql.includes("state='ANSWERED'") && sql.startsWith('WITH answer')) {
         const body = Buffer.from(JSON.stringify(healthyBody));
-        return [{ response_status: 200, response_headers: { 'content-type': 'application/json' }, response_body_sha256: (await import('node:crypto')).createHash('sha256').update(body).digest('hex'), response_body_base64: body.toString('base64') }];
+        return [{ pending: false, response_status: 200, response_headers: { 'content-type': 'application/json' }, response_body_sha256: (await import('node:crypto')).createHash('sha256').update(body).digest('hex'), response_body_base64: body.toString('base64') }];
       }
       return [];
     } };
