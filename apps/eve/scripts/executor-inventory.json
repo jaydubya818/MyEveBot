@@ -4639,7 +4639,7 @@
     "lib/qualification/result.ts": {
       "classification": "INTERNAL",
       "reason": "Pure consumption of signed Factory Results over the existing V4 verifier; performs no I/O. Independent source review PENDING; fingerprint pins exact bytes. Private beta 20261103 (owner-local, NOT independently reviewed): type widening to JourneyProjectInput / parameterized release environment via journey-profile.ts; frozen qdev values unchanged.",
-      "sha256": "83868f1d0dd7f82eda4653c33ecf3b9069ab8c09de7f96c4c19788044f120644"
+      "sha256": "8d77b661c473dd46839ed4cb9add5edec2875ea5a3456a2535f221e62b80d1da"
     },
     "lib/qualification/verdict.ts": {
       "classification": "INTERNAL",
@@ -5054,7 +5054,7 @@
     "lib/qualification/refusal-code.ts": {
       "classification": "INTERNAL",
       "reason": "Converts an error into a bounded refusal code for owner-safe diagnostics without execution authority.",
-      "sha256": "e7ce4e779900e0291e0a3426aec80430dc48554b85e73282c9d53a6543498215"
+      "sha256": "e8f2091497639434db5e9d31694ba1f28e6f6d170de9f2cc55403f289cb3751a"
     }
   }
 }

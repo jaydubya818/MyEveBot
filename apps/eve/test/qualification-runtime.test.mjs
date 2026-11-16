@@ -83,7 +83,7 @@ test('Result consumption rejects wrong Factory identity, revoked/historical keys
  assert.throws(()=>take(1,{...s1.signed,artifacts:[]},null),e=>/QDEV_RESULT_VERIFICATION_FAILED/.test(e.code));
  assert.throws(()=>take(1,s1.signed,null,{expected:{...f.expectedByStage[1],requestId:'another-request'}}),e=>/QDEV_RESULT_VERIFICATION_FAILED/.test(e.code));
  const failed=f.stage(1,f.baseline,{mutate:m=>{m.status='FAILED';m.candidate=null;m.evidence=[];m.artifacts=[];m.evidenceDigest=digest([]);m.artifactDigest=digest([]);},dropArtifacts:true});
- assert.throws(()=>take(1,failed.signed,null),e=>e.code==='QDEV_RESULT_NOT_COMPLETED');
+ assert.throws(()=>take(1,failed.signed,null),e=>e.code==='QDEV_RESULT_NOT_COMPLETED:FACTORY_FAILED');
 });
 
 function verification(){

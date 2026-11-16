@@ -32,6 +32,10 @@ it("surfaces the underlying UPPER_SNAKE code of a non-QDEV halt (owner-safe; QDE
   const { projectProgress } = await import("./progress.ts");
   expect(haltCode("Capability admission denied: RUNTIME_ROLE_UNQUALIFIED")).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
   expect(haltCode("QDEV_RETAINED_ADMISSION_PENDING")).toBe("QDEV_RETAINED_ADMISSION_PENDING");
+  // A detailed QDEV refusal keeps its own detail (retry #7: the Factory's FAILED Result surfaced only as QDEV_RESULT_NOT_COMPLETED).
+  expect(haltCode("QDEV_RESULT_NOT_COMPLETED:FACTORY_FAILED")).toBe("QDEV_RESULT_NOT_COMPLETED:FACTORY_FAILED");
+  expect(haltCode("QDEV_RESULT_NOT_COMPLETED:NO_CANDIDATE")).toBe("QDEV_RESULT_NOT_COMPLETED:NO_CANDIDATE");
+  expect(haltCode("QDEV_RESULT_NOT_COMPLETED:bad")).toBe("QDEV_HALTED:QDEV_RESULT_NOT_COMPLETED");
   expect(haltCode("connect ECONNREFUSED postgres://user:secret@host/db")).toBe("QDEV_HALTED");
   expect(haltCode("FACTORY_RELAY_CREDENTIAL_UNAVAILABLE at /x/y?token=ABC")).toBe("QDEV_HALTED:FACTORY_RELAY_CREDENTIAL_UNAVAILABLE");
   expect(haltCode("plain words only")).toBe("QDEV_HALTED");

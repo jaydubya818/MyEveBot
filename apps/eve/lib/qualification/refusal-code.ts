@@ -16,7 +16,7 @@ export function refusalCode(error: unknown, fallback = "UNCLASSIFIED"): string {
 export const HALT_CODE = /^QDEV_[A-Z_]+(?::[A-Z][A-Z0-9_]{5,80})?$/;
 export function haltCode(code: unknown): string {
   const raw = typeof code === "string" ? code : "";
-  if (/^QDEV_[A-Z_]+$/.test(raw)) return raw;
+  if (/^QDEV_[A-Z_]+$/.test(raw) || HALT_CODE.test(raw)) return raw;   // QDEV_X or an already-detailed QDEV_X:<CODE> (e.g. QDEV_RESULT_NOT_COMPLETED:FACTORY_FAILED)
   const token = /(?<![A-Za-z0-9_])[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+(?![A-Za-z0-9_])/.exec(raw)?.[0];
   return token && token.length >= 6 && token.length <= 81 ? `QDEV_HALTED:${token}` : "QDEV_HALTED";
 }

@@ -44,7 +44,10 @@ export function consumeStageResult(input: {
     throw new ResultRejected("QDEV_RESULT_VERIFICATION_FAILED:" + (error instanceof Error ? error.message : "unknown").slice(0, 120));
   }
   const { manifest } = verified;
-  if (manifest.status !== "COMPLETED" || !manifest.candidate) throw new ResultRejected("QDEV_RESULT_NOT_COMPLETED");
+  // The Factory's own terminal status travels with the refusal (QDEV_RESULT_NOT_COMPLETED:FACTORY_FAILED|FACTORY_CANCELLED|NO_CANDIDATE) so the
+  // owner sees why the signed Result was not accepted; the code stays QDEV_[A-Z_]+:<CODE> (journal / presentation shape).
+  if (manifest.status !== "COMPLETED" || !manifest.candidate)
+    throw new ResultRejected(`QDEV_RESULT_NOT_COMPLETED:${manifest.status === "COMPLETED" ? "NO_CANDIDATE" : `FACTORY_${manifest.status}`}`);
   if (manifest.candidate.base !== start.commit) throw new ResultRejected("QDEV_RESULT_BASE_MISMATCH");
   if (manifest.candidate.commit === start.commit) throw new ResultRejected("QDEV_RESULT_NO_CHANGE");
   // A Result is not acceptance: any non-passed required evidence blocks the chain.
