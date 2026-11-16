@@ -42,3 +42,12 @@ it("surfaces the underlying UPPER_SNAKE code of a non-QDEV halt (owner-safe; QDE
   expect(presentJourney(halted).code).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
   expect(projectProgress([{ kind: "HALTED", stage: 1, code: "QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED" }] as never).code).toBe("QDEV_HALTED:RUNTIME_ROLE_UNQUALIFIED");
 });
+
+it("halt detail falls back to the error's own lower_snake code (hosted capability gate) and never to its message words", async () => {
+  const { haltDetail, haltCode } = await import("./refusal-code.ts");
+  const gate = Object.assign(new Error("This hosted installation is not qualified."), { code: "capabilities_unavailable" });
+  expect(haltCode(haltDetail(gate))).toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
+  expect(haltDetail(new Error("Capability admission denied: RUNTIME_ROLE_UNQUALIFIED"))).toBe("Capability admission denied: RUNTIME_ROLE_UNQUALIFIED");
+  expect(haltCode(haltDetail(Object.assign(new Error("x"), { code: "Not A Code" })))).toBe("QDEV_HALTED");
+  expect(haltCode(haltDetail("nope"))).toBe("QDEV_UNKNOWN");
+});

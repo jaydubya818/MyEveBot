@@ -9,6 +9,7 @@ import { consumeStageResult, type AcceptedStageResult } from "./result.ts";
 import { verifyVerdict, type SignedVerdict, type VerifierKey, type Verdict } from "./verdict.ts";
 import { acceptDelivery } from "./delivery.ts";
 import { InMemoryJournal, type JournalEvent, type JourneyJournal } from "./journal.ts";
+import { haltDetail } from "./refusal-code.ts";
 
 export type StageExpected = Omit<LocalResultV4Expected, "inputCommit" | "inputTree" | "factoryVersion" | "sourceDigest">;
 /** Everything that touches a provider, a Factory, the custodian or MyApps is injected.
@@ -189,7 +190,7 @@ export class QualificationJourney {
           await this.journal.append({ kind: "OP_SETTLED", stage: stage.stage, key: op.key });
         }
       } catch (error) {
-        throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
+        throw new JourneyHalted(stage.stage, haltDetail(error), records);
       }
       const record: StageRecord = { stage: stage.stage, workId: work.id };
       let priorAccepted: Extract<JournalEvent, { kind: "STAGE_ACCEPTED" }> | undefined;
@@ -223,7 +224,7 @@ export class QualificationJourney {
         }
       } catch (error) {
         records.push(record);
-        throw new JourneyHalted(stage.stage, error instanceof Error ? error.message : "QDEV_UNKNOWN", records);
+        throw new JourneyHalted(stage.stage, haltDetail(error), records);
       }
       records.push(record);
       if (!priorAccepted) {

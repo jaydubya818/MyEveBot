@@ -20,3 +20,14 @@ export function haltCode(code: unknown): string {
   const token = /(?<![A-Za-z0-9_])[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+(?![A-Za-z0-9_])/.exec(raw)?.[0];
   return token && token.length >= 6 && token.length <= 81 ? `QDEV_HALTED:${token}` : "QDEV_HALTED";
 }
+
+/**
+ * The halt detail kept for haltCode(): the error message, and when it carries no UPPER_SNAKE token, the error's own lower_snake `code`
+ * upper-cased (e.g. CapabilityError capabilities_unavailable "This hosted installation is not qualified." -> "... [CAPABILITIES_UNAVAILABLE]").
+ */
+export function haltDetail(error: unknown): string {
+  const message = error instanceof Error ? error.message : "QDEV_UNKNOWN";
+  if (haltCode(message) !== "QDEV_HALTED") return message;
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === "string" && /^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(code) && code.length <= 80 ? `${message} [${code.toUpperCase()}]` : message;
+}
