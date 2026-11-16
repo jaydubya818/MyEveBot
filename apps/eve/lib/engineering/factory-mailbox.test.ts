@@ -157,6 +157,38 @@ describe.skipIf(!connection)("hosted Factory mailbox v1 against real PostgreSQL"
     expect(await lease()).toBeNull();
   });
 
+  it("uses one scoped read per poll and withdraws an expired, unleased request", async () => {
+    const { id } = await enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("actions"), deadlineMs: 10_000 });
+    // Exercise the pending and expired paths against PostgreSQL without waiting for the real deadline.
+    const statements: string[] = [];
+    const observedDb: MailboxDb = {
+      async query(sql, params) {
+        statements.push(sql);
+        const rows = await db.query(sql, params);
+        if (statements.length === 1) {
+          await pool.query("UPDATE factory_mailbox_requests SET created_at=now() - interval '10 seconds', deadline=now() - interval '1 second' WHERE id=$1", [id]);
+        }
+        return rows;
+      },
+    };
+    await expect(awaitMailboxResponse(observedDb, A, id, { pollMs: 10 })).rejects.toMatchObject({ code: "MAILBOX_DEADLINE" });
+    expect(statements).toHaveLength(3); // two polls, then the existing scoped withdrawal
+    expect(statements.filter(sql => sql.includes("deadline > now()"))).toHaveLength(2);
+    expect(await lease()).toBeNull();
+    expect((await pool.query("SELECT id FROM factory_mailbox_requests WHERE id=$1", [id])).rows).toEqual([]);
+  });
+
+  it("consumes a stored answer once even when two response readers overlap", async () => {
+    const { id } = await enqueueMailboxRequest(db, A, { target: "factory", method: "GET", path: P("actions"), deadlineMs: 10_000 });
+    const envelope = (await lease())!;
+    await respondMailboxRequest(db, A, reply(envelope, 200, Buffer.from("one response")));
+    const outcomes = await Promise.allSettled([0, 1].map(() => awaitMailboxResponse(db, A, id, { pollMs: 10 })));
+    const responses = outcomes.flatMap(result => result.status === "fulfilled" ? [result.value] : []);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].body.toString()).toBe("one response");
+    expect(outcomes.flatMap(result => result.status === "rejected" ? [result.reason.code] : [])).toEqual(["MAILBOX_DEADLINE"]);
+  });
+
   it("the caller's own signal aborts the wait and withdraws an unleased request", async () => {
     const send = mailboxFetch(db, A, "factory", ORIGIN, { pollMs: 20 });
     await expect(send(ORIGIN + P("x"), { signal: AbortSignal.timeout(100) })).rejects.toBeTruthy();

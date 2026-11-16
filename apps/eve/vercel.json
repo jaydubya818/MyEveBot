@@ -5,6 +5,7 @@
     "deploymentEnabled": {
       "codex/sofie-beta-acceptance-20261116": false,
       "main": false,
+      "codex/sofie-mailbox-response-poll-20261116": false,
       "codex/chat-unqualified-label-20261021": false,
       "codex/checkpoint-h-authenticated-enterprise": false,
       "codex/missioncontrol-enterprise-consumer": false,
