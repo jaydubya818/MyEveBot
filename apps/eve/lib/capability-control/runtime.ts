@@ -2,7 +2,9 @@ import { propagateCapabilityPolicy } from '../../../../packages/capability-enfor
 import { reconcileBackendControls } from '../../../../packages/capability-enforcement/src/lifecycle-transport.ts';
 import type { PolicyKey } from '../../../../packages/capability-enforcement/src/ordering-wire.ts';
 import pg from 'pg';
-import {externalAlphaPolicy} from '../external-alpha/policy.ts';
+import {externalAlphaPolicy,externalAlphaInstallation} from '../external-alpha/policy.ts';
+import { hostedProfileFromEnv, type HostedProfile } from '../qualification/hosted-profile.ts';
+import { hostedOwnerScope } from '../engineering/factory-mailbox.ts';
 import {digest} from '../engineering/contract.ts';
 import { z } from 'zod';
 import { authenticateWebPrincipal } from '../web-auth.ts';
@@ -23,6 +25,27 @@ const configuration = z.object({
 });
 let pool: pg.Pool | undefined;
 
+/**
+ * Owner-only recovery-witness exemption (Jay, 2026-11-16 11:55 PT, option A).
+ * TODO(https://github.com/jaydubya818/MyEveBot/issues/120): remove once the owner installation has a Postgres recovery witness.
+ * Matched ONLY on constants of this code (installation `jay`, the sofie-personal-agent Vercel project) and the parsed, validated hosted
+ * profile (role OWNER, its stable owner scope): no flag or env var a tester installation could set turns it on. Any external-alpha installation
+ * (tester projects, MYEVE_EXTERNAL_ALPHA_POLICY) never qualifies and keeps the full policy + witness requirement.
+ */
+export const WITNESS_EXEMPT_OWNER = Object.freeze({ installationId: 'jay', vercelProjectId: 'prj_L6faw25wnFGUZtrLKBIccg8gIDLR' });
+export function witnessExemptOwner(env: NodeJS.ProcessEnv, config: { id: string; environment: string; origin: string }): HostedProfile | null {
+  try {
+    if (externalAlphaInstallation(env) || env.MYEVE_EXTERNAL_ALPHA_POLICY) return null;
+    if (env.VERCEL_PROJECT_ID !== WITNESS_EXEMPT_OWNER.vercelProjectId || config.id !== WITNESS_EXEMPT_OWNER.installationId) return null;
+    const profile = hostedProfileFromEnv(env);
+    if (!profile || profile.role !== 'OWNER' || profile.installationId !== WITNESS_EXEMPT_OWNER.installationId) return null;
+    if (profile.factory.ownerScope !== hostedOwnerScope(profile) || capabilityOwnerId(profile.ownerId, env) !== hostedOwnerScope(profile)) return null;
+    if (env.MYEVE_MISSIONCONTROL_MODE !== 'APPROVED_NONPRODUCTION' || config.environment !== 'qualification'
+      || new URL(config.origin).protocol !== 'https:' || new URL(config.origin).origin !== new URL(profile.servedOrigin).origin) return null;
+    return profile;
+  } catch { return null; }
+}
+
 export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
   if (env.MYEVE_CAPABILITY_CONTROL_ENABLED !== 'true')
     throw new CapabilityError('capabilities_unavailable', 'Capability controls require an isolated testing installation.', 503);
@@ -30,8 +53,12 @@ export function capabilityConfiguration(env: NodeJS.ProcessEnv = process.env) {
     environment: env.MYEVE_CAPABILITY_ENVIRONMENT, databaseUrl: env.MYEVE_CAPABILITY_DATABASE_URL,
     origin: env.MYEVE_CAPABILITY_ORIGIN });
   if (!result.success) throw new CapabilityError('capabilities_setup_required', 'Capability controls have not been configured for this installation.', 503);
-  if (env.VERCEL || env.VERCEL_ENV === 'production') {
-    const policy=externalAlphaPolicy(env),witness=configuredRecoveryWitness(env);
+  const exempt = (env.VERCEL || env.VERCEL_ENV === 'production') ? witnessExemptOwner(env, result.data) : null;
+  if (exempt) console.warn(`[capability] CAPABILITY_WITNESS_EXEMPT_OWNER installation=${exempt.installationId} scope=${hostedOwnerScope(exempt)}: admitted without external-alpha policy or recovery witness (owner-only exemption; remove per MyEveBot#120)`);
+  else if (env.VERCEL || env.VERCEL_ENV === 'production') {
+    // A missing or malformed policy (e.g. EXTERNAL_ALPHA_POLICY_REQUIRED on a tester install) is the same refusal: capabilities_unavailable.
+    let policy:ReturnType<typeof externalAlphaPolicy>=null;try{policy=externalAlphaPolicy(env);}catch{policy=null;}
+    const witness=configuredRecoveryWitness(env);
     if(env.MYEVE_MISSIONCONTROL_MODE!=='APPROVED_NONPRODUCTION'||!policy||result.data.environment!=='qualification'
       ||new URL(result.data.origin).protocol!=='https:'||!witness||!isPostgresRecoveryWitness(witness))
       throw new CapabilityError('capabilities_unavailable','This hosted installation is not qualified.',503);
