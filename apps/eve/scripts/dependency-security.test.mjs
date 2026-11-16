@@ -54,6 +54,23 @@ test('removing the generator preserves the exact licensed stylesheet', async () 
 
 const root = new URL('../../../', import.meta.url);
 
+test('the shell dependency resolves the patched XML parser and XML conversion still works', async () => {
+  const fromShell = createRequire(require.resolve('just-bash'));
+  const manifest = JSON.parse(await readFile(new URL('node_modules/fast-xml-parser/package.json', root), 'utf8'));
+  assert.equal(manifest.version, '5.12.0');
+  assert.equal(fromShell.resolve('fast-xml-parser'), require.resolve('fast-xml-parser'));
+  const xml = '<dashboard title="health"><build>ready</build></dashboard>';
+  const { XMLParser } = fromShell('fast-xml-parser');
+  assert.deepEqual(new XMLParser({ ignoreAttributes: false }).parse(xml), {
+    dashboard: { build: 'ready', '@_title': 'health' },
+  });
+  const { Bash } = await import('just-bash');
+  const shell = new Bash({ files: { '/document.xml': xml } });
+  const result = await shell.exec('yq -p xml -o json . /document.xml');
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), { dashboard: { build: 'ready', '+@title': 'health' } });
+});
+
 test('sprintf mitigation rejects amplification before invoking argument callbacks', async () => {
   const { sprintf } = require('../../../patches/sprintf-js-1.1.3.js');
   let invoked = false;
