@@ -144,17 +144,34 @@ test('FactoryStageAdmitter over the store sources: MissionControl, then prepare,
   const writerIdentity={runId:randomUUID(),writerGeneration:1,dispatchIdentity:'d',workId:id,workGeneration:1,factoryId:e.factoryId,factoryVersion:e.factoryVersion,requestId:rid,
     workOrderId:e.workOrderId,remoteRunId:e.runId,baseSha:baseline.commit,allowedPaths:['src/App.tsx']};
   const writers={inspect:async(w,r)=>{order.push('inspect');return {id:r,dispatch_state:'PREPARED'};},identity:async run=>({...writerIdentity,repository:'x',deadline:'2099-01-01T00:00:00.000Z'})};
-  const adapter={prepare:async(r,proof)=>{order.push('prepare');assert.deepEqual(proof,{synthetic:'proof'});
+  let proofs=0;
+  const adapter={prepare:async(r,proof)=>{order.push('prepare');assert.deepEqual(proof,{synthetic:'proof',n:1});
     return {requestId:r.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'PREPARED',snapshot:{...e,requestId:r.requestId},spend:{status:'KNOWN',ceilingUsd:1}};}};
   const src=sources({1:id,2:'',3:''},{adapter,writers,newRequestId:()=>rid,
-    admission:async()=>{order.push('proof');return {synthetic:'proof'};},
-    admitPrepared:async c=>{order.push('admit');assert.deepEqual(c.missionControl,{synthetic:'proof'});return {decisionId:c.decisionId,runId:randomUUID()};}});
+    admission:async()=>{order.push('proof');return {synthetic:'proof',n:++proofs};},
+    // The receiving transaction must retain the admission obtained AFTER prepare (n=2), never the pre-prepare one (n=1, expired by mailbox latency).
+    admitPrepared:async c=>{order.push('admit');assert.deepEqual(c.missionControl,{synthetic:'proof',n:2});return {decisionId:c.decisionId,runId:randomUUID()};}});
   const admitter=new FactoryStageAdmitter(src);
   const retained=await admitter.retained(1);
   // The MissionControl admission is re-acquired after the (mailbox-latency) prepare: its receipt lives at most 10 s.
   assert.deepEqual(order,['proof','prepare','proof','admit','inspect']);
   assert.equal(retained.binding.workId,id);assert.equal(retained.binding.inputCommit,baseline.commit);assert.equal(retained.request.input.baseRef,baseline.commit);
-  await admitter.retained(1);assert.equal(order.length,5,'a second call never re-prepares');
+  await admitter.retained(1);assert.equal(order.length,5,'a second call never re-prepares');assert.equal(proofs,2);
+});
+
+test('identity refuses when the post-prepare MissionControl admission is unavailable or for another tuple (no stale receipt is retained)',async()=>{
+  for(const second of [null,{synthetic:'proof',tupleSha256:'other'}]){
+    const id=await seedWork(),rid=randomUUID(),order=[];let proofs=0;
+    const s0=fx.stage(1,baseline),e=s0.manifest.execution;
+    const writers={inspect:async(w,r)=>({id:r,dispatch_state:'PREPARED'}),identity:async()=>({runId:randomUUID(),writerGeneration:1,dispatchIdentity:'d',workId:id,workGeneration:1,
+      factoryId:e.factoryId,factoryVersion:e.factoryVersion,requestId:rid,workOrderId:e.workOrderId,remoteRunId:e.runId,baseSha:baseline.commit,allowedPaths:['src/App.tsx'],repository:'x',deadline:'2099-01-01T00:00:00.000Z'})};
+    const adapter={prepare:async r=>{order.push('prepare');return {requestId:r.requestId,workOrderId:e.workOrderId,runId:e.runId,state:'PREPARED',snapshot:{...e,requestId:r.requestId},spend:{status:'KNOWN',ceilingUsd:1}};}};
+    const src=sources({1:id,2:'',3:''},{adapter,writers,newRequestId:()=>rid,
+      admission:async()=>{order.push('proof');return ++proofs===1?{synthetic:'proof',tupleSha256:'t'}:second;},
+      admitPrepared:async()=>{order.push('admit');throw Error('must not admit');}});
+    await assert.rejects(new FactoryStageAdmitter(src).retained(1));
+    assert.deepEqual(order,['proof','prepare','proof'],'refused after prepare, before any admit');
+  }
 });
 
 test('identity refuses a writer that is not PREPARED, and the admitter refuses when the sources are disabled or MissionControl yields no proof',async()=>{
