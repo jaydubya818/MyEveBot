@@ -1,8 +1,22 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { capabilityConfiguration, WITNESS_EXEMPT_OWNER } from "./runtime.ts";
+import { generateKeyPairSync } from "node:crypto";
+import { capabilityConfiguration } from "./runtime.ts";
+import { WITNESS_EXEMPT_OWNER } from "./owner-scope.ts";
 import { HOSTED_PROFILE, hostedOwnerScope } from "../engineering/factory-mailbox.ts";
 import { HOSTED_ASSURANCE_LABEL } from "../qualification/hosted-profile.ts";
 import { haltCode, haltDetail } from "../qualification/refusal-code.ts";
+
+const fixture = vi.hoisted(() => ({ pem: "" }));
+vi.mock(import("./owner-scope.ts"), async (load) => {
+  const actual = await load();
+  const { createHash, generateKeyPairSync } = await import("node:crypto");
+  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  fixture.pem = privateKey.export({ type: "pkcs8", format: "pem" }).toString();
+  const spki = publicKey.export({ type: "spki", format: "der" });
+  return { ...actual, WITNESS_EXEMPT_OWNER: {
+    ...actual.WITNESS_EXEMPT_OWNER, confirmationKeyId: createHash("sha256").update(spki).digest("hex"),
+  } };
+});
 
 /** Owner-only recovery-witness exemption (MyEveBot#120): owner `jay` admitted with a warning; testers and everything else keep the full gate. */
 const served = "https://sofie-personal-agent.vercel.app";
@@ -24,7 +38,7 @@ const ownerEnv = (over: Env = {}): NodeJS.ProcessEnv => ({
   MYEVE_CAPABILITY_CONTROL_ENABLED: "true", MYEVE_MISSIONCONTROL_MODE: "APPROVED_NONPRODUCTION", MYEVE_CAPABILITY_INSTALLATION_ID: "jay",
   MYEVE_CAPABILITY_ENVIRONMENT: "qualification", MYEVE_CAPABILITY_ORIGIN: served,
   DATABASE_URL: "postgresql://127.0.0.1/app", MYEVE_CAPABILITY_DATABASE_URL: "postgresql://127.0.0.1/app",
-  MYEVE_HOSTED_PROFILE: JSON.stringify(profile("jay")), ...over,
+  MYEVE_HOSTED_PROFILE: JSON.stringify(profile("jay")), MYEVE_SOFIE_CONFIRM_KEY: fixture.pem, ...over,
 } as NodeJS.ProcessEnv);
 const testerEnv = (slot: "1" | "2", over: Env = {}): NodeJS.ProcessEnv => ownerEnv({
   EVE_PROJECT_NAME: `myeve-alpha-tester-${slot}`, VERCEL_PROJECT_ID: `prj_tester_${slot}`, MYEVE_OWNER_ID: `tester-owner-${slot}`,
@@ -50,6 +64,28 @@ describe("owner-only capability recovery-witness exemption", () => {
     expect(refusedCode(testerEnv(slot, { VERCEL_PROJECT_ID: WITNESS_EXEMPT_OWNER.vercelProjectId, MYEVE_HOSTED_PROFILE: JSON.stringify(profile("jay", "OWNER", `tester-owner-${slot}`)), MYEVE_CAPABILITY_INSTALLATION_ID: "jay" })))
       .toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
     expect(warn).not.toHaveBeenCalled();
+  });
+  it("requires the installed owner's confirmation key, including in otherwise matching configuration", () => {
+    const { privateKey } = generateKeyPairSync("ed25519");
+    const anotherKey = privateKey.export({ type: "pkcs8", format: "pem" }).toString();
+    for (const key of [undefined, "invalid", anotherKey]) {
+      expect(refusedCode(ownerEnv({ MYEVE_SOFIE_CONFIRM_KEY: key }))).toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
+    }
+  });
+  it("requires the canonical owner, origin and production target", () => {
+    const otherOrigin = "https://other.example.test";
+    for (const override of [
+      { MYEVE_OWNER_ID: undefined },
+      { MYEVE_OWNER_ID: "other", MYEVE_HOSTED_PROFILE: JSON.stringify(profile("jay", "OWNER", "other")) },
+      { MYEVE_CAPABILITY_ORIGIN: otherOrigin, MYEVE_HOSTED_PROFILE: JSON.stringify({ ...profile("jay"), servedOrigin: otherOrigin }) },
+      { VERCEL_ENV: "preview" },
+      { VERCEL_TARGET_ENV: "preview" },
+      { VERCEL: undefined, VERCEL_ENV: undefined },
+      { MYEVE_EXTERNAL_ALPHA_HOSTED_BETA: "true" },
+    ]) expect(refusedCode(ownerEnv(override))).toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
+  });
+  it.each(["1", "2"] as const)("keeps the tester-%s witness gate with Vercel system variables disabled", slot => {
+    expect(refusedCode(testerEnv(slot, { VERCEL: undefined, VERCEL_ENV: undefined }))).toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
   });
   it("refuses a non-hosted Vercel environment (no hosted profile)", () => {
     expect(refusedCode(ownerEnv({ MYEVE_HOSTED_PROFILE: undefined }))).toBe("QDEV_HALTED:CAPABILITIES_UNAVAILABLE");
