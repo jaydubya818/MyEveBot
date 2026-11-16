@@ -45,6 +45,16 @@ for (const features of [[], [...FEATURE_IDS]]) {
     assert.deepEqual(packaged.workspaces, ["packages/capability-control", "packages/capability-enforcement"]);
     assert.deepEqual(packaged.overrides, repository.overrides);
     assert.deepEqual(packaged.dependencies, application.dependencies);
+    const lock = JSON.parse(await readFile(path.resolve(root, "../../package-lock.json"), "utf8")).packages;
+    for (const [section, names] of [
+      ["dependencies", ["braintrust", "@opentelemetry/exporter-trace-otlp-http"]],
+      ["devDependencies", ["just-bash", "vite"]],
+    ] as const) {
+      for (const name of names) {
+        const locked = lock[`apps/eve/node_modules/${name}`] ?? lock[`node_modules/${name}`];
+        assert.equal(packaged[section][name], locked.version, `standalone uses the qualified ${name} version`);
+      }
+    }
     assert.equal(packaged.scripts.postinstall, repository.scripts.postinstall);
     assert.equal(packaged.scripts["security:patches"], repository.scripts["security:patches"]);
     assert.equal(packaged.scripts.build, `${repository.scripts.postinstall} && ${repository.scripts["security:patches"]} && ${application.scripts.build}`);
