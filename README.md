@@ -69,6 +69,27 @@ The Environment selects where work runs; a HarnessProvider selects how an admitt
 - Model choice in ordinary owner chat is distinct from protected execution models. A bounded execution contract pins its own provider/model and fallback policy.
 - Native tools remain subject to capability, scope, approval and execution checks; describing an action does not authorize it.
 
+#### Chat and build requests in a hosted or owner-local build installation
+
+An installation that runs the governed build journey (`MYEVE_QDEV_ENABLED=true` with an owner-request host bundle) serves ordinary chat and build requests from the same conversation. Each owner message is routed once, when it is received:
+
+| Owner message | Route | What answers |
+|---|---|---|
+| An explicit build request: an imperative for a new software artifact ("Build me a React dashboard showing …", "Can you create a habit tracker app?"), or any message starting with `/build` | Journey | The deterministic, zero-cost journey model proposes a plan. Nothing starts. |
+| The exact confirmation the proposal names (`confirm <12 characters>`) | Journey | The journey model starts that plan through `qualification_journey`. |
+| Everything else: greetings, questions (including "what model is this?"), memory questions, follow-ups in a thread that already has a plan or a build, "yes"/"go ahead" | Chat | The selected chat model, under the ordinary per-run budget and accounting. |
+
+Rules that hold on every turn:
+
+- Only an explicit build request produces a plan, and only the exact confirmation starts one. A plain "yes" does not.
+- A chat turn never has the journey tool. It is withheld from the model, removed from the history the model sees, not registered for the step, and a journey call emitted anyway fails the step.
+- A paid chat model is selected only when the message hook recorded the turn as chat for the message actually in the prompt. A missing or stale record, a journey call awaiting readback, an unadmitted principal or a frozen (single approved request) installation all stay on the free journey model.
+- Chat turns need the same host admission as the journey: the authenticated human owner of an enabled, configured installation.
+- Delegation to subagents and automatic context compaction stay closed in these installations, for chat turns too. A very long thread therefore fails at compaction instead of summarising; start a new conversation.
+- Chat spend is limited per run by the ordinary run budget. It is not counted against the build ledger (per-stage, per-build and monthly caps), which covers confirmed builds only.
+
+The router is `apps/eve/lib/qualification/turn-route.ts`; the per-turn record is `apps/eve/agent/lib/qdev-turn.ts`.
+
 ### Persistent Agents and Live Agent Cards
 
 Owners can create specialists with durable names, purposes and instructions, inspect their profiles, and select the relevant Agent. The primary Agent is protected. Agent creation does not confer external capabilities or inherit another Agent's credentials.

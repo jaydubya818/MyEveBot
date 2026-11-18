@@ -60,11 +60,14 @@ function parseRequest(input: unknown): QualificationRequest | null | undefined {
 }
 
 /** Host-owned conversation model for the authenticated owner. The returned model must carry provider `myeve-qdev`
- *  and is the ONLY model the QDEV installation may call; the host is responsible for its scoped client/accounting. */
+ *  and is the ONLY model a JOURNEY turn of the QDEV installation may call; the host is responsible for its scoped client/accounting.
+ *  A conversation that also serves ordinary chat (owner-request installations) exposes `route`: a pure decision per owner message. Without it
+ *  every turn is a JOURNEY turn (frozen installations keep their closed, provider-free behaviour). */
 export type QdevConversationModel = { specificationVersion: string; provider: string; modelId: string; supportedUrls?: unknown; doGenerate(options: any): Promise<any>; doStream(options: any): Promise<any> };
 export type QdevConversation = {
   ownerId: string; contextWindowTokens: number;
   model(input: { sessionId: string; stepKey: string }): QdevConversationModel;
+  route?(ownerText: string | undefined): "JOURNEY" | "CHAT";
 };
 export type QualificationRootHost = {
   enabled(): boolean;

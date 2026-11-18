@@ -4,6 +4,7 @@ import { canonical } from "../engineering/factory-producer-protocol.ts";
 import { digest } from "../engineering/contract.ts";
 import { QDEV_BASELINE } from "../external-alpha/qualification-accounting.ts";
 import { qualificationConversation } from "./conversation-model.ts";
+import { ownerMessageRoute } from "./turn-route.ts";
 import { qdevJourneyId } from "./custody-profile.ts";
 import { journeyBinding, journeyProfile, privateBetaInstallationSchema, stageBindingId } from "./journey-profile.ts";
 import { assertPlanBindsProject, deriveOwnerJourney, normalizeOwnerRequest } from "./owner-request.ts";
@@ -150,6 +151,28 @@ it("a confirmation that does not match the immediately preceding proposal starts
   expect(textOf(await model.doGenerate(opts(cases[1])))).toMatch(/does not match/);
   expect(textOf(await model.doGenerate(opts([userMsg("status")])))).toMatch(/Nothing was started/);
   expect(textOf(await model.doGenerate(opts([userMsg("hi")])))).toMatch(/Nothing was started/);
+});
+
+it.each(["hello - what model is this?", "hello", "what model is this?", "what do you remember about me?", "remember that I like green tea", "how do I build an app?", "thanks", "why did you make a plan?",
+  "yes", "go ahead", "Make the app icon blue", "build the app", "Generate a game plan for Q1", "Please create a site visit checklist", "make a calculator joke", "create a dashboard? no wait, just tell me the weather"])(
+  "defence in depth: %j is never derived into a plan, in a new conversation or after an earlier proposal", async (text) => {
+    const model = conversation();
+    const proposed = textOf(await model.doGenerate(opts([userMsg(REQUEST)])));
+    expect(proposed).toMatch(/\[plan [a-f0-9]{64}\]/);                                                                   // control: an explicit build request is proposed
+    for (const prompt of [[userMsg(text)], [userMsg(REQUEST), assistantMsg(proposed), userMsg(text)]]) {
+      const r = await model.doGenerate(opts(prompt));
+      expect(r.content.every((p: any) => p.type === "text")).toBe(true);
+      expect(textOf(r)).not.toMatch(/\[plan |reply: confirm|Request digest/);
+      expect(textOf(r)).toMatch(/Nothing was started/);
+    }
+  });
+
+it("the owner-request conversation serves chat through the shared message router; a frozen conversation does not", async () => {
+  const routed = qualificationConversation({ ownerId: OWNER, revalidate: async () => true, ownerRequest: { derive: () => null } });
+  expect(routed.route).toBe(ownerMessageRoute);
+  expect(routed.route!("hello - what model is this?")).toBe("CHAT");
+  expect(routed.route!(REQUEST)).toBe("JOURNEY");
+  expect(qualificationConversation({ ownerId: OWNER, revalidate: async () => true, approvedRequest: REQUEST }).route).toBeUndefined();
 });
 
 it("the web channel's Client context marker between the proposal and the confirmation is skipped as metadata, never treated as the owner's turn", async () => {

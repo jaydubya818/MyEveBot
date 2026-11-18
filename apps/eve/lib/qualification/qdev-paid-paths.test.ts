@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 const probe = vi.hoisted(() => ({ provider: 0, legacy: [] as { name: string; args: unknown[] }[],
-  queries: [] as { sql: string; params: unknown[] }[], agentLookups: 0, ownerRecoveries: 0 }));
+  queries: [] as { sql: string; params: unknown[] }[], agentLookups: 0, ownerRecoveries: 0,
+  // What the message hook records for the turn (agent/lib/qdev-turn.ts) and what the host answers for a received message.
+  recorded: null as null | { route: "JOURNEY" | "CHAT"; fingerprint: string; turnId?: string }, messageRoute: null as null | "JOURNEY" | "CHAT", routed: [] as unknown[] }));
+vi.mock("../../agent/lib/qdev-turn.ts", () => ({ recordedQdevTurn: () => probe.recorded, qdevChatTurn: () => probe.recorded?.route === "CHAT",
+  recordQdevTurn: (record: typeof probe.recorded) => { probe.recorded = record; } }));
+vi.mock("./ingress.ts", async (original) => { const actual = await original<typeof import("./ingress.ts")>(); return { ...actual,
+  qdevMessageRoute: async (session: never, text: string | undefined) => { probe.routed.push(text);
+    return probe.messageRoute ? { route: probe.messageRoute, fingerprint: "fp" } : actual.qdevMessageRoute(session, text); } }; });
 vi.mock("ai", () => ({
   experimental_evaluate: async () => { probe.provider++; throw Error("FAKE_PROVIDER_REACHED"); },
   gateway: { evaluationModel: () => ({}) },
@@ -31,7 +38,7 @@ beforeEach(() => {
   delete process.env.MYEVE_ALPHA_OWNER_BINDING;
   probe.provider = 0;
   probe.legacy = [];
-  probe.queries = []; probe.agentLookups = 0; probe.ownerRecoveries = 0;
+  probe.queries = []; probe.agentLookups = 0; probe.ownerRecoveries = 0; probe.recorded = null; probe.messageRoute = null; probe.routed = [];
 });
 afterEach(() => { process.env = { ...saved }; });
 
@@ -110,4 +117,53 @@ it("ordinary installations retain all agent-run lifecycle events and owner chat 
   expect(probe.queries.every(q => q.sql.includes("agent_runs"))).toBe(true);
   expect(probe.queries[1].params).toEqual([ctx.session.id, 0.42]);
   expect(probe.agentLookups).toBe(1); expect(probe.ownerRecoveries).toBe(1);
+});
+
+// ---- A QDEV turn positively recorded as ordinary chat is budgeted and accounted like any other chat turn ----
+it("QDEV chat turn: the run budget is asserted before the step and its cost is recorded after it", async () => {
+  probe.recorded = { route: "CHAT", fingerprint: "fp" };
+  await event("step.started");
+  await event("step.completed", { usage: { costUsd: 0.42 } });
+  expect(probe.legacy).toEqual([
+    { name: "assertTaskBudget", args: [ctx.session.id] },
+    { name: "recordTaskModelStep", args: [ctx.session.id, 0.42] },
+  ]);
+  await runAgentEvents();
+  expect(probe.queries).toHaveLength(5);
+  expect(probe.queries[1].params).toEqual([ctx.session.id, 0.42]);
+});
+it("QDEV chat turn: delegation and auxiliary compaction stay closed", async () => {
+  probe.recorded = { route: "CHAT", fingerprint: "fp" };
+  await expect(event("subagent.called", { sessionId: ctx.session.id, childSessionId: "child", callId: "call", name: "coder" })).rejects.toThrow("QDEV_DELEGATION_DISABLED");
+  await expect(event("compaction.requested")).rejects.toThrow("PAID_PATH_DENIED:context-compaction");
+  expect(probe.legacy).toEqual([]); expect(probe.provider).toBe(0);
+});
+it("QDEV journey turn after a chat turn: the ledger is isolated again", async () => {
+  probe.recorded = { route: "JOURNEY", fingerprint: "fp" };
+  await event("step.started"); await event("step.completed", { usage: { costUsd: 0.42 } }); await runAgentEvents();
+  expect(probe.legacy).toEqual([]); expect(probe.queries).toEqual([]);
+});
+it("QDEV message received as chat: the route is recorded with its turn and the owner chat run is bound as in an ordinary installation", async () => {
+  probe.messageRoute = "CHAT";
+  await (ownerChat.events!["message.received"] as any)({ data: { message: "hello - what model is this?", turnId: "turn-7" } }, ctx);
+  expect(probe.recorded).toEqual({ route: "CHAT", fingerprint: "fp", turnId: "turn-7" });
+  expect(probe.routed).toEqual(["hello - what model is this?"]);
+  expect(probe.agentLookups).toBe(1); expect(probe.ownerRecoveries).toBe(1);
+});
+it("QDEV message received as a journey message: the route is recorded and no legacy agent or owner chat run is touched", async () => {
+  probe.recorded = { route: "CHAT", fingerprint: "old" };                       // a previous chat turn
+  probe.messageRoute = "JOURNEY";
+  await (ownerChat.events!["message.received"] as any)({ data: { message: "Build me a React dashboard", turnId: "turn-8" } }, ctx);
+  expect(probe.recorded).toEqual({ route: "JOURNEY", fingerprint: "fp", turnId: "turn-8" });
+  expect(probe.agentLookups).toBe(0); expect(probe.ownerRecoveries).toBe(0); expect(probe.queries).toEqual([]);
+});
+it("QDEV message with a file attachment is routed as a non-text message", async () => {
+  probe.messageRoute = "CHAT";
+  await (ownerChat.events!["message.received"] as any)({ data: { message: "build a habit tracker", parts: [{ type: "file" }], turnId: "turn-9" } }, ctx);
+  expect(probe.routed).toEqual([undefined]);
+});
+it("QDEV message in an unconfigured installation is recorded as JOURNEY by the real host admission (fail closed)", async () => {
+  await receiveMessage();
+  expect(probe.recorded?.route).toBe("JOURNEY");
+  expect(probe.agentLookups).toBe(0); expect(probe.ownerRecoveries).toBe(0);
 });
