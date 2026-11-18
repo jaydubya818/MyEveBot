@@ -3956,8 +3956,8 @@
     },
     "app/api/work-inbox/route.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions.",
-      "sha256": "e6eba8a13e2482359b37f2df3f13c8817898784026db12a724fc1b2616681912"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. P0 chat routing 20261117 (claude/p0-chat-routing-20261117; fresh-context adversarial review of the first cut applied, NOT independently re-reviewed after its fixes): Logs the failure cause (name and bounded ASCII message) for operators; response body and status unchanged.",
+      "sha256": "c27ce15cbb225686fe7f478d551524336928080ee865947f00a8a4eb442c866e"
     },
     "lib/product/groups.ts": {
       "classification": "INTERNAL",
@@ -5065,6 +5065,11 @@
       "classification": "ENFORCED",
       "reason": "Pure turn router and chat-turn model wrapper for owner-request QDEV installations. ownerMessageRoute: JOURNEY only for an exact confirmation or an explicit build request. dispatchRoute: CHAT only with a positive CHAT record whose fingerprint matches a recent owner message that itself classifies as CHAT, and never while a journey call awaits readback. qdevChatTurnModel selects no model: it wraps the one already selected, removes the journey tool and journey call history, and fails any journey tool call. Evidence: turn-route.test.ts (misroute fixtures from the adversarial review), agent.qdev-ingress.test.ts. P0 chat routing 20261117 (claude/p0-chat-routing-20261117; fresh-context adversarial review of the first cut applied, NOT independently re-reviewed after its fixes).",
       "sha256": "0623de5cb8f342f1443ac0543b6b9bf4efe2b14ef32f4dc07ec8ff16e8321d21"
+    },
+    "lib/product/work-inbox-refresh.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure client refresh reducer for the Work inbox: a failed poll keeps the last good view, a 401 is reported as signed out. No I/O. Evidence: work-inbox-refresh.test.ts.",
+      "sha256": "d550e0011cd5de2ff6c1d27d70aa0e7ee6cbc3c7dc37ab60884a3c0b60a9faa2"
     }
   }
 }
