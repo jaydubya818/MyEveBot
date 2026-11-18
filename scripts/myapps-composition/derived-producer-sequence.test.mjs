@@ -40,7 +40,7 @@ function fixture(options={}){
   },retainFailedBuildInputSnapshot:(root,input,prefix)=>{
    assert.equal(root,copy);events.push('failed-snapshot:'+input.id);if(options.diagnosticFailure)throw diagnostic;
   },createRequire:()=>({resolve:()=>copy+'/node_modules/next/package.json'}),
-  bytes:()=>JSON.stringify({version:'16.4.6',bin:{next:'dist/bin/next'}}),realpathSync:value=>value,
+  bytes:()=>JSON.stringify({version:'16.4.3',bin:{next:'dist/bin/next'}}),realpathSync:value=>value,
   sealRuntimeOutput:path=>{events.push('seal');return {root:{path},entries:[{path:'index.mjs',type:'file'},{path:'_libs/eve.mjs',type:'file'}]};},
   verifyEmittedPackages:()=>({status:'EXTERNAL_NOT_QUALIFIED'})};
  const build=runInNewContext(subject+'\nbuildPreparedCurrent;',context,{timeout:1000});

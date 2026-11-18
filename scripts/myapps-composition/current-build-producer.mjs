@@ -324,7 +324,7 @@ export async function buildPreparedCurrent(prepared,buildEnvironment){
  writeFileSync(join(evidence,'eve-derived-inputs-private.json'),JSON.stringify(derivedInputs)+'\n',{flag:'wx',mode:0o600});
  inputs=afterEve;verifyBuildInputs(copy,inputs);
  const appRequire=createRequire(join(app,'package.json')),nextPackage=appRequire.resolve('next/package.json');
- const next=JSON.parse(bytes(nextPackage));assert.equal(next.version,'16.4.6','BUILD_UNKNOWN_NEXT_PROFILE');
+ const next=JSON.parse(bytes(nextPackage));assert.equal(next.version,'16.4.3','BUILD_UNKNOWN_NEXT_PROFILE');
  const nextCli=join(dirname(nextPackage),next.bin.next);
  assert(realpathSync(nextCli).startsWith(copy+sep),'BUILD_NEXT_CLI_ESCAPE');
  commands.push(await ownedBuild(spec.toolchain.node.path,[nextCli,'build','--webpack'],'next',{...buildEnv,NEXT_TELEMETRY_DISABLED:'1'}));
