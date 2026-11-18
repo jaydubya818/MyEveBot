@@ -6,6 +6,7 @@ import { workState } from './work-state.ts';
 import { getAgent, effectiveCapability } from '../agents.ts';
 import { getCapabilities } from '../capability-registry.ts';
 import { ROUTINE_RELEASE } from '../routine-release.ts';
+import { readableWorks } from './readable-works.ts';
 
 /** Agent identity is never inferred from a role label or from the producer. */
 export async function readAgentHome(beta: BetaIntegration, owner: string, agentId: string) {
@@ -23,7 +24,7 @@ export async function readAgentHome(beta: BetaIntegration, owner: string, agentI
       WHERE r.owner_id=$1 AND r.agent_id=$2 AND r.status<>'archived' ORDER BY r.updated_at DESC,r.id DESC LIMIT 20`,[owner,agentId]),
     beta.query(`SELECT id,title,status,result_summary,thread_id,updated_at FROM task_runs WHERE owner_id=$1 AND agent_id=$2 ORDER BY updated_at DESC,id DESC LIMIT 20`,[owner,agentId]),
   ]);
-  const works = await Promise.all(references.map(async reference => {
+  const {works, unavailableWorks} = await readableWorks(references, reference => String(reference.id), async reference => {
     const {projection} = await new CanonicalBetaWork(beta).projection(owner,String(reference.id));
     let publication: Awaited<ReturnType<OwnerPublication["view"]>> | null = null;
     if (projection.nativeResult?.current && projection.factoryWriter && projection.nativeDevelopment?.phase === 'VERIFICATION_PASSED') {
@@ -32,7 +33,7 @@ export async function readAgentHome(beta: BetaIntegration, owner: string, agentI
     }
     const state=workState(projection,publication);
     return {projection,needsDecision:state.lane === "Needs You",state};
-  }));
+  }, 'agent-home');
   return {
     agent: {id:agent.id,name:agent.name,handle:agent.slug,purpose:agent.description||agent.role,role:agent.role,configurationStatus:agent.status,avatarConfig:agent.avatarConfig},
     authority: getCapabilities().filter(c=>agent.capabilities.some(a=>a.id===c.id)||(agent.isPrimary&&['tool.list_emails','tool.send_email','tool.engineering_work','tool.engineering_factory'].includes(c.id))).slice(0,16).map(c=>{
@@ -41,7 +42,7 @@ export async function readAgentHome(beta: BetaIntegration, owner: string, agentI
     }),
     // Release-disabled responsibilities must never look like active monitoring.
     routineExecutionQualified:ROUTINE_RELEASE.enabled,
-    works, threads:threads.map(t=>({id:String(t.id),title:String(t.title)})),
+    works, unavailableWorks, threads:threads.map(t=>({id:String(t.id),title:String(t.title)})),
     routines:routines.map(r=>({id:String(r.id),name:String(r.name),status:String(r.status),timezone:r.timezone?String(r.timezone):null,
       nextRun:r.next_fire_at?new Date(r.next_fire_at).toISOString():null,lastRun:r.last_run??null})),
     runs:runs.map(r=>({id:String(r.id),title:String(r.title),status:String(r.status),summary:r.result_summary?String(r.result_summary):null,threadId:r.thread_id?String(r.thread_id):null})),

@@ -3906,13 +3906,13 @@
     },
     "lib/product/agent-home.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
-      "sha256": "074385c427dbbd4859e0a3e2795c33e9a0f76b565607fd29a5512aadc62919d6"
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion. Owner-page sweep 20261118 (claude/p0-chat-routing-20261117): per-Work projection goes through readableWorks, so one unreadable retained Work is omitted and counted instead of failing the whole view. Presentation only.",
+      "sha256": "dc8414b036bca9e5cdc7b7407fe7c3c8ada885ecd21c74ae67fa6146a4c34cb9"
     },
     "app/api/agents/[id]/home/route.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
-      "sha256": "39b328fce1b3fed879c2b68f78d516c45b1299f824c2659995334af85784aebf"
+      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification. Owner-page sweep 20261118 (claude/p0-chat-routing-20261117): logs the failure cause (name and bounded ASCII message) for operators; response unchanged.",
+      "sha256": "e336f54ee6198177903f883d7705730154be3b18308f493ce47431ffb8f6a00e"
     },
     "lib/routine-check.ts": {
       "classification": "INTERNAL",
@@ -3951,8 +3951,8 @@
     },
     "lib/product/work-inbox.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): passes hostedVerifier (MYEVE_HOSTED_PROFILE present) to the presentation; presentation only.",
-      "sha256": "59bfddfe5bf7e1270a46479991fdc6e2a3afe6f30dd21277632e95166f9ef682"
+      "reason": "Owner-scoped canonical retained Work/Result/Proof and presentation only; exact identity/version/digest/currentness, bounded query/context and incomplete-Proof disclosure. No model, dispatch, lifecycle, grant or publication authority from readback. Work inbox query is parameterized and bounded after production owner authentication. Evidence: work-thread PostgreSQL, conversation-readback, context/Proof and owner-UX search/isolation regressions. Hosted private beta 20261105 (codex/private-beta-hosted-20261105, NOT independently reviewed): passes hostedVerifier (MYEVE_HOSTED_PROFILE present) to the presentation; presentation only. Owner-page sweep 20261118 (claude/p0-chat-routing-20261117): per-Work projection goes through readableWorks (omit and count an unreadable item). Presentation only.",
+      "sha256": "4b3966148ec4f994e1aa5dd60cc037ff6413afe588ac8d7523066e42fc1611de"
     },
     "app/api/work-inbox/route.ts": {
       "classification": "READ_ONLY",
@@ -4397,8 +4397,8 @@
     },
     "app/api/beta/issues/route.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical signed owner session and exact deployment owner, same-origin writes,16KiBbody,strict report model,private no-store response. Session/foreign-owner/cross-origin tests and restricted-role PostgreSQL tests. Batch4 also requires canonical installed enrollment after owner authentication; absent/unavailable enrollment never opens report storage.",
-      "sha256": "d1a4760c303d5fff820cb7f50aa58d651f98fe3e15aac8cec67c1ece69374236"
+      "reason": "Canonical signed owner session and exact deployment owner, same-origin writes,16KiBbody,strict report model,private no-store response. Session/foreign-owner/cross-origin tests and restricted-role PostgreSQL tests. Batch4 also requires canonical installed enrollment after owner authentication; absent/unavailable enrollment never opens report storage. Owner-page sweep 20261118 (claude/p0-chat-routing-20261117): a hosted private-beta installation's own owner is eligible for feedback by its hosted profile (it has no legacy installed-MissionControl client configuration, so the enrollment check threw and every request answered 503); other installations keep the enrollment check, and a failed check is 'not set up' rather than an exception. GET failures say the list could not be loaded; the cause is logged. Storage, owner and same-origin checks unchanged.",
+      "sha256": "b1f72dfa62487f8f92c03677053b77a6452b601f0edcfeee5426057549adceeb"
     },
     "lib/beta-feedback.ts": {
       "classification": "ENFORCED",
@@ -5070,6 +5070,11 @@
       "classification": "INTERNAL",
       "reason": "Pure client refresh reducer for the Work inbox: a failed poll keeps the last good view, a 401 is reported as signed out. No I/O. Evidence: work-inbox-refresh.test.ts.",
       "sha256": "d550e0011cd5de2ff6c1d27d70aa0e7ee6cbc3c7dc37ab60884a3c0b60a9faa2"
+    },
+    "lib/product/readable-works.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Presentation helper: reads a page of Work items, omits and counts any whose projection throws, logs the cause, and rethrows WorkError so authorisation failures are never hidden. No writes, retries or authority. Evidence: readable-works.test.ts. Owner-page sweep 20261118 (claude/p0-chat-routing-20261117).",
+      "sha256": "7691a07a0e52387ec12a759787853fc2ea95a5d4e6676932b59923e5e2762690"
     }
   }
 }

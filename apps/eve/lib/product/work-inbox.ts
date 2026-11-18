@@ -4,10 +4,11 @@ import { OwnerPublication } from '../engineering/owner-publication.ts';
 import { WorkError } from '../engineering/types.ts';
 import { ownerWorkPresentation } from './owner-work.ts';
 import { workState, type WorkLane } from './work-state.ts';
+import { readableWorks } from './readable-works.ts';
 
 export async function readWorkInbox(beta: BetaIntegration, owner: string, offset = 0, query = "") {
   const rows = await beta.query(`SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND ($3::text='' OR strpos(lower(title),lower($3))>0) ORDER BY updated_at DESC,id DESC LIMIT 21 OFFSET $2`,[owner,offset,query]);
-  const works = await Promise.all(rows.slice(0,20).map(async row => {
+  const {works, unavailableWorks} = await readableWorks(rows.slice(0,20), row => String(row.id), async row => {
     const {projection} = await new CanonicalBetaWork(beta).projection(owner,String(row.id));
     let publication: Awaited<ReturnType<OwnerPublication['view']>> | null = null;
     if (projection.nativeResult?.current && projection.factoryWriter && projection.nativeDevelopment?.phase === 'VERIFICATION_PASSED') {
@@ -25,9 +26,9 @@ export async function readWorkInbox(beta: BetaIntegration, owner: string, offset
       version:projection.workVersion,generation:projection.workGeneration,
       agentName:thread?.agent_name ? String(thread.agent_name) : null,
       threadId:thread?.thread_id ? String(thread.thread_id) : null};
-  }));
+  }, 'work-inbox');
   const counts: Record<WorkLane,number> = {'Needs You':0,Working:0,Monitoring:0,Completed:0,Waiting:0,Stopped:0,Ready:0};
   works.forEach(work=>counts[work.lane]++);
-  return {works,counts,nextOffset:rows.length>20?offset+20:null,offset,limit:20};
+  return {works,unavailableWorks,counts,nextOffset:rows.length>20?offset+20:null,offset,limit:20};
 }
 export type WorkInboxView = Awaited<ReturnType<typeof readWorkInbox>>;
