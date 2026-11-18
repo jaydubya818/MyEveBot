@@ -1,6 +1,6 @@
 import { QDEV_LIMITS } from "../external-alpha/qualification-accounting.ts";
 import type { JourneyPlan } from "./plan.ts";
-import type { FactorySpendPlan } from "../engineering/factory-spend.ts";
+import { guaranteedProductiveOperations, type FactorySpendPlan } from "../engineering/factory-spend.ts";
 
 /**
  * Unpaid configuration preflight. The Factory-backed operation of stages 1-3 (CODING in stages 1-2, FACTORY in stage 3) sends the canonical
@@ -47,11 +47,11 @@ export async function checkStageWorkBudgets(db: Reader, ownerId: string, plan: J
 }
 
 /**
- * The smallest Work ceiling (microUSD) MyFactory's `validateBudget` admits for a WORK_LEDGER_V2 paid plan: the protected completion reserve plus every
- * productive slot at the largest per-call bound that reserve admits (`plannedCompletionOperations * perOp <= completionReserveMicrousd`).
+ * The smallest Work ceiling (microUSD) MyFactory's `validateBudget` admits for a WORK_LEDGER_V2 paid plan: the protected completion reserve plus the
+ * conservatively guaranteed productive slots (step + first repair call; R9) at the largest per-call bound that reserve admits (`plannedCompletionOperations * perOp <= completionReserveMicrousd`).
  */
 export function factoryMinimumCeilingMicrousd(plan: FactorySpendPlan): number {
-  return plan.completionReserveMicrousd + plan.plannedProductiveOperations * Math.floor(plan.completionReserveMicrousd / plan.plannedCompletionOperations);
+  return plan.completionReserveMicrousd + guaranteedProductiveOperations(plan.plannedProductiveOperations) * Math.floor(plan.completionReserveMicrousd / plan.plannedCompletionOperations);
 }
 
 /**

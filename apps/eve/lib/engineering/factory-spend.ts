@@ -23,6 +23,10 @@ export const factorySpendPlanSchema=z.object({
 }).strict().refine(p=>p.maxPaidOperations===p.plannedProductiveOperations+p.plannedCompletionOperations,
  'Paid operation limit must equal the complete productive and completion plan');
 export type FactorySpendPlan=z.infer<typeof factorySpendPlanSchema>;
+/** R9 (owner approval 2026-11-17): the bounded repair round after the productive step may use at most this many model calls (MyFactory spend-policy). */
+export const REPAIR_ROUND_MAX_MODEL_CALLS=3;
+/** Productive calls a paid plan must fund conservatively up front: the productive step and the first repair call. */
+export const guaranteedProductiveOperations=(planned:number)=>Math.min(planned,2);
 export const factorySpendContractSchema=z.object({version:z.enum(['WORK_LEDGER_V1','WORK_LEDGER_V2']),sourceDigest:hash}).strict();
 export type FactorySpendProfile={sourceDigest:string;factoryVersion:string;spendContract?:z.infer<typeof factorySpendContractSchema>;
  spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'CLOUD_DETERMINISTIC'|'CLOUD_PRODUCTION_VALIDATION'|'LIVE'|'OWNER_SUBSCRIPTION_LOCAL';spendEnforced:boolean;spendReview?:FactorySpendReview}};
@@ -107,8 +111,10 @@ export const workSpendV2Schema=ledgerShape.extend({
   s.completionOperationsUsed!==completion.length||completion.length>s.plannedCompletionOperations||
   s.operations.length-completion.length>s.plannedProductiveOperations||
   s.completionOperationSlotsRemaining!==s.plannedCompletionOperations-completion.length)bad('Incomplete or exceeded operation plan');
- const completeBound=s.plannedProductiveOperations*s.perOperationReserveMicrousd+s.completionReserveMicrousd;
- if(!Number.isSafeInteger(completeBound)||completeBound>s.ceilingMicrousd||
+ // R9: the static bound funds the productive step + first repair call (MyFactory guaranteedProductiveOperations); further repair calls (at most
+ // 1+3 productive in all) are each reserved in full against remaining headroom at call time, so the hard ceiling never moves.
+ const completeBound=guaranteedProductiveOperations(s.plannedProductiveOperations)*s.perOperationReserveMicrousd+s.completionReserveMicrousd;
+ if(!Number.isSafeInteger(completeBound)||completeBound>s.ceilingMicrousd||s.plannedProductiveOperations>1+REPAIR_ROUND_MAX_MODEL_CALLS||
   s.plannedCompletionOperations*s.perOperationReserveMicrousd>s.completionReserveMicrousd)bad('Conservative complete plan does not fit');
  if(remaining<0||remaining!==s.completionReserveRemainingMicrousd||
   s.productiveAllowanceRemainingMicrousd!==s.availableMicrousd-remaining)bad('Protected completion reserve mismatch or theft');

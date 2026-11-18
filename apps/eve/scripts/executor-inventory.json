@@ -3540,7 +3540,7 @@
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
       "reason": "Pure consumer validation of authoritative producer evidence. Subscription usage is a distinct operations-only type with null money, exact operation identity, unique IDs, no future generation and consistent phase/count plan. Current-generation request/Work/run/dispatch/FactoryVersion remain bound. Priced V2 review, UNKNOWN retention and paid admission gates are unchanged; no reader creates execution, refund or spending authority. Source review review_pr30; metered/subscription adversarial tests.",
-      "sha256": "1803963773992484e27c9e6639c90ed909fd342192b2fbd9c66a86a0c299054c"
+      "sha256": "c7f1e2743740cab6f1e5df03d4497f7bef447ca73986d050490948a55bac5b9b"
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
@@ -4884,7 +4884,7 @@
     "lib/qualification/work-budget-preflight.ts": {
       "classification": "ENFORCED",
       "reason": "Unpaid, read-only configuration preflight for the QDEV launcher. For stages 1-3 it reads only `engineering_work.max_cost_usd` of the three profile Works (owner-scoped, no provider, reservation, ledger or credential) and refuses the installation unless each Work budget, as both the native ceiling (floor) and the capability-challenge budget (ceil), is an exact micro-dollar amount that fits the approved plan's single Factory-backed operation reservation (CODING in stages 1-2, FACTORY in stage 3), the stage Work ceiling and the per-Work qdev limit; shared, missing or unreadable Works refuse. It prevents the charged-parent guard from refusing coding only after Sofie has spent. Evidence: qualification-custody-launcher.integration.mjs. Pure hosted preflight requires the configured stage ceiling to fit the charged reservation and Factory completion reserve before Work creation.",
-      "sha256": "b0ea545399c4b02a77c1464cef8a8a4691c945e31d5af7f808464c6b25968a65"
+      "sha256": "030a7d157438afc5140a6a75e9f2cd010ee96818c7792bcf29e23248b2f42e4d"
     },
     "lib/qualification/progress.ts": {
       "classification": "INTERNAL",
