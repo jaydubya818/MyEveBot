@@ -143,19 +143,31 @@ export function proposalBefore(prompt: readonly Message[], index: number): strin
 
 // --- the chat-turn model wrapper ------------------------------------------------------------------------------------
 export const QDEV_CHAT_JOURNEY_TOOL_DENIED = "QDEV_PAID_PATH_DENIED:chat-journey-tool";
+export const QDEV_CHAT_BUILD_TOOL_DENIED = "QDEV_PAID_PATH_DENIED:chat-build-tool";
+/**
+ * In a build installation the confirmed journey is the only way to build software. The older build/dispatch tools of an ordinary
+ * installation (engineering Work, Factory actions, MyFactory work orders, Foreman issues) are a second path around the plan and its
+ * confirmation, so a chat turn does not have them either. (Observed on production 2026-11-18: after a plan, a chat model answered a bare
+ * "yes" by calling `engineering_work`.)
+ */
+export const QDEV_CHAT_WITHHELD_TOOLS: ReadonlySet<string> = new Set([JOURNEY_TOOL, "engineering_work", "engineering_factory", "engineering_direct",
+  "create_factory_work_order", "delegate_foreman_issue"]);
+const withheld = (name: unknown) => typeof name === "string" && QDEV_CHAT_WITHHELD_TOOLS.has(name);
+const withheldPart = (x: Part) => (x.type === "tool-call" || x.type === "tool-result") && withheld(x.toolName);
 const CHAT_HINT = [
   "This installation also runs a governed build journey that you cannot start, confirm, resume or report on.",
   "If the owner wants software built, tell them to send an explicit request such as \"Build me a React dashboard showing …\" (or start the message with /build); they will get a plan and must reply with the exact confirmation text it names.",
   "If the previous assistant message proposed a plan and the owner seems to be agreeing, tell them to reply with exactly the confirmation text that proposal names (confirm followed by 12 characters); a plain yes does not start it.",
+  "You have no tool that starts, queues or dispatches a build, a work order or an engineering task in this installation; do not try to, and do not offer to.",
   "Never claim that a build was started, is running or finished, and never invent a plan digest or confirmation code.",
 ].join(" ");
 
-/** Chat history for a paid model: journey tool calls/results (and anything tied to them) are removed, their deterministic text summary stays, and the build hint follows the leading system messages. */
+/** Chat history for a paid model: calls/results of the withheld build tools (and anything tied to them) are removed, the assistant's own text about them stays, and the build hint follows the leading system messages. */
 export function chatTurnPrompt<M extends Message>(prompt: readonly M[]): M[] {
   const removedCalls = new Set<unknown>(), removedApprovals = new Set<unknown>();
-  for (const m of prompt) for (const x of parts(m) ?? []) if (journeyPart(x)) removedCalls.add(x.toolCallId);
+  for (const m of prompt) for (const x of parts(m) ?? []) if (withheldPart(x)) removedCalls.add(x.toolCallId);
   for (const m of prompt) for (const x of parts(m) ?? []) if (x.type === "tool-approval-request" && removedCalls.has(x.toolCallId)) removedApprovals.add(x.approvalId);
-  const drop = (x: Part) => journeyPart(x) || (x.toolCallId !== undefined && removedCalls.has(x.toolCallId)) || (x.approvalId !== undefined && removedApprovals.has(x.approvalId));
+  const drop = (x: Part) => withheldPart(x) || (x.toolCallId !== undefined && removedCalls.has(x.toolCallId)) || (x.approvalId !== undefined && removedApprovals.has(x.approvalId));
   const cleaned: M[] = [];
   for (const m of prompt) {
     const p = parts(m);
@@ -170,31 +182,35 @@ export function chatTurnPrompt<M extends Message>(prompt: readonly M[]): M[] {
 }
 
 type LanguageModel = { doGenerate(options: any): PromiseLike<any>; doStream(options: any): PromiseLike<any> };
-const namesJourney = (x: any) => x?.toolName === JOURNEY_TOOL && (x.type === "tool-call" || x.type === "tool-input-start");
+const emitted = (x: any) => x?.type === "tool-call" || x?.type === "tool-input-start";
+/** The refusal for a withheld tool the model emitted anyway, or null. */
+const emittedRefusal = (x: any): string | null => !emitted(x) || !withheld(x.toolName) ? null : x.toolName === JOURNEY_TOOL ? QDEV_CHAT_JOURNEY_TOOL_DENIED : QDEV_CHAT_BUILD_TOOL_DENIED;
 
 /**
- * Wrap the installation's normal chat model for a CHAT turn of a QDEV installation. The journey tool is not offered, a tool choice naming it is
- * refused, journey calls are absent from the history, and any journey tool call the model emits anyway fails the step before the framework can
- * execute it. Spend authority for a build stays solely with the confirmed, deterministic journey path.
+ * Wrap the installation's normal chat model for a CHAT turn of a QDEV installation. The journey tool and the other build tools
+ * (QDEV_CHAT_WITHHELD_TOOLS) are not offered, a tool choice naming one is refused, their calls are absent from the history, and any such
+ * call the model emits anyway fails the step before the framework can execute it. Building stays solely with the confirmed journey.
  */
 export function qdevChatTurnModel<T extends LanguageModel>(model: T): T {
   const prepare = (options: any) => {
-    if (options?.toolChoice?.type === "tool" && options.toolChoice.toolName === JOURNEY_TOOL) throw Error(QDEV_CHAT_JOURNEY_TOOL_DENIED);
+    if (options?.toolChoice?.type === "tool" && withheld(options.toolChoice.toolName)) throw Error(options.toolChoice.toolName === JOURNEY_TOOL ? QDEV_CHAT_JOURNEY_TOOL_DENIED : QDEV_CHAT_BUILD_TOOL_DENIED);
     return { ...options, prompt: chatTurnPrompt(options?.prompt ?? []),
-      ...(Array.isArray(options?.tools) ? { tools: options.tools.filter((t: any) => t?.name !== JOURNEY_TOOL) } : {}) };
+      ...(Array.isArray(options?.tools) ? { tools: options.tools.filter((t: any) => !withheld(t?.name)) } : {}) };
   };
   const base = model as any;
   return { specificationVersion: base.specificationVersion, provider: base.provider, modelId: base.modelId, supportedUrls: base.supportedUrls,
     async doGenerate(options: any) {
       const generated = await model.doGenerate(prepare(options));
-      if (Array.isArray(generated?.content) && generated.content.some(namesJourney)) throw Error(QDEV_CHAT_JOURNEY_TOOL_DENIED);
+      const refusal = Array.isArray(generated?.content) ? generated.content.map(emittedRefusal).find(Boolean) : null;
+      if (refusal) throw Error(refusal);
       return generated;
     },
     async doStream(options: any) {
       const streamed = await model.doStream(prepare(options));
       if (!streamed?.stream || typeof streamed.stream.pipeThrough !== "function") return streamed;
       return { ...streamed, stream: streamed.stream.pipeThrough(new TransformStream({ transform(part: any, controller) {
-        if (namesJourney(part)) controller.error(Error(QDEV_CHAT_JOURNEY_TOOL_DENIED)); else controller.enqueue(part);
+        const refusal = emittedRefusal(part);
+        if (refusal) controller.error(Error(refusal)); else controller.enqueue(part);
       } })) };
     } } as unknown as T;
 }

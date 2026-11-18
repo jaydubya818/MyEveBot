@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { chatTurnPrompt, CONFIRM, dispatchRoute, explicitBuildRequest, journeyContinuation, JOURNEY_TOOL, ownerMessageFingerprint, ownerMessageRoute,
-  QDEV_CHAT_JOURNEY_TOOL_DENIED, qdevChatTurnModel, type QdevTurnRecord } from "./turn-route.ts";
+  QDEV_CHAT_BUILD_TOOL_DENIED, QDEV_CHAT_JOURNEY_TOOL_DENIED, QDEV_CHAT_WITHHELD_TOOLS, qdevChatTurnModel, type QdevTurnRecord } from "./turn-route.ts";
 
 const PLAN = "5371fffa714d" + "0".repeat(52);
 const CODE = PLAN.slice(0, 12);
@@ -163,5 +163,33 @@ describe("chat turn model", () => {
     const { seen, model } = fake([]);
     await expect(qdevChatTurnModel(model).doGenerate({ ...options, toolChoice: { type: "tool", toolName: JOURNEY_TOOL } })).rejects.toThrow(QDEV_CHAT_JOURNEY_TOOL_DENIED);
     expect(seen).toHaveLength(0);
+  });
+  // Production 2026-11-18: after a plan, a chat model answered a bare "yes" by calling `engineering_work` (a second build path).
+  const BUILD_TOOLS = ["engineering_work", "engineering_factory", "engineering_direct", "create_factory_work_order", "delegate_foreman_issue"];
+  it("the withheld set is exactly the journey tool plus the older build and dispatch tools", () => {
+    expect([...QDEV_CHAT_WITHHELD_TOOLS].sort()).toEqual([JOURNEY_TOOL, ...BUILD_TOOLS].sort());
+  });
+  it("the older build tools are never offered on a chat turn, and their history is removed; ordinary tools are untouched", async () => {
+    const { seen, model } = fake([{ type: "text", text: "ok" }]);
+    const history = [system, user("x"), { role: "assistant", content: [{ type: "text", text: "Created." }, { type: "tool-call", toolCallId: "e1", toolName: "engineering_work", input: "{}" }] },
+      { role: "tool", content: [{ type: "tool-result", toolCallId: "e1", toolName: "engineering_work", output: { type: "json", value: {} } }] }, user("yes")];
+    await qdevChatTurnModel(model).doGenerate({ prompt: history, tools: [...BUILD_TOOLS, JOURNEY_TOOL, "memory_search", "web_fetch"].map(name => ({ type: "function", name })) });
+    expect(seen[0].tools.map((t: any) => t.name)).toEqual(["memory_search", "web_fetch"]);
+    expect(JSON.stringify(seen[0].prompt)).not.toMatch(/engineering_work|e1/);
+    expect(JSON.stringify(seen[0].prompt)).toContain("Created.");
+    expect(JSON.stringify(seen[0].prompt)).toContain("no tool that starts");
+  });
+  it.each(BUILD_TOOLS)("a %s call emitted by the chat model fails the step (generate, stream, forced choice)", async (toolName) => {
+    const call = { type: "tool-call", toolCallId: "x", toolName, input: "{}" };
+    const wrapped = qdevChatTurnModel(fake([call], [call]).model);
+    await expect(wrapped.doGenerate(options)).rejects.toThrow(QDEV_CHAT_BUILD_TOOL_DENIED);
+    await expect(drain((await wrapped.doStream(options)).stream)).rejects.toThrow(QDEV_CHAT_BUILD_TOOL_DENIED);
+    await expect(wrapped.doGenerate({ ...options, toolChoice: { type: "tool", toolName } })).rejects.toThrow(QDEV_CHAT_BUILD_TOOL_DENIED);
+  });
+  it("an ordinary tool call passes through", async () => {
+    const call = { type: "tool-call", toolCallId: "m", toolName: "memory_search", input: "{}" };
+    const wrapped = qdevChatTurnModel(fake([call], [call]).model);
+    expect((await wrapped.doGenerate(options)).content).toEqual([call]);
+    expect(await drain((await wrapped.doStream(options)).stream)).toEqual([call]);
   });
 });
