@@ -78,7 +78,7 @@ the runner never scans or drops an unowned database to repair that failure.
   fragment. Other origins, ports, callback paths and methods stay denied; no
   external queue, fake run binding or ownership-guard bypass is used.
 - In the copied layout only, replace the Google font import/declarations with
-  public `next/font/local` calls. Reuse the exact installed Next16.4.3 bundled
+  public `next/font/local` calls. Reuse the exact installed Next 16.4.6 bundled
   `Geist-Regular.ttf`, SHA256
   `bde046ddd9f20be35b0bd56cc79eb752b967fb6661a3fe76cb067bb09f871d76`,
   for all three existing CSS variables. Record the layout before/after and asset
