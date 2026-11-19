@@ -7,6 +7,7 @@ import type { ExecutionDatabase } from "../execution-types.ts";
 import { digest } from "../engineering/contract.ts";
 import { hostedTesterProfile } from "./hosted-profile.ts";
 import { cloudQualificationProject } from "../engineering/cloud-access-qualification.ts";
+import { dispatchRoute, ownerMessageFingerprint, type QdevTurnRecord } from "./turn-route.ts";
 
 /**
  * Pre-model ingress policy for a QDEV installation (MYEVE_QDEV_ENABLED=true). It runs at the head of every model
@@ -58,7 +59,7 @@ export type QdevIngressInput = {
   stepKey: string;
 };
 
-export async function qdevModelSelection(input: QdevIngressInput): Promise<{ model: QdevConversationModel; modelContextWindowTokens: number }> {
+async function admittedConversation(input: QdevIngressInput) {
   if (mixedInstallation()) refuse("QDEV_INGRESS_MIXED_INSTALLATION");
   const { session } = input, ownerId = qdevRequestOwner(session);
   if (!ownerId) return refuse("QDEV_INGRESS_PRINCIPAL");
@@ -70,11 +71,50 @@ export async function qdevModelSelection(input: QdevIngressInput): Promise<{ mod
   if (conversation.ownerId !== ownerId) refuse("QDEV_INGRESS_OWNER");
   const model = conversation.model({ sessionId: session.id, stepKey: `${session.id}:${input.stepKey}` });
   if (!model || model.provider !== "myeve-qdev") refuse("QDEV_INGRESS_MODEL");
-  if (externalAlphaInstallation()) {
-    const step = turnStep.exec(input.stepKey);
-    if (!step) return refuse("QDEV_TESTER_TURN_BINDING");
-    // A verified tool result may arrive after the chat allowance's short deadline. Its readback spends nothing.
-    if (step[2] === "0") await authorizeHostedTesterTurn(ownerId, session.id, input.stepKey);
-  }
+  return { ownerId, conversation, model };
+}
+async function admitJourneyTurn(ownerId: string, input: QdevIngressInput) {
+  if (!externalAlphaInstallation()) return;
+  const step = turnStep.exec(input.stepKey);
+  if (!step) return refuse("QDEV_TESTER_TURN_BINDING");
+  // A verified tool result may arrive after the chat allowance's short deadline. Its readback spends nothing.
+  if (step[2] === "0") await authorizeHostedTesterTurn(ownerId, input.session.id, input.stepKey);
+}
+
+export async function qdevModelSelection(input: QdevIngressInput): Promise<{ model: QdevConversationModel; modelContextWindowTokens: number }> {
+  const { ownerId, conversation, model } = await admittedConversation(input);
+  await admitJourneyTurn(ownerId, input);
   return { model, modelContextWindowTokens: conversation.contextWindowTokens };
+}
+
+export type QdevTurnSelection = { route: "JOURNEY"; model: QdevConversationModel; modelContextWindowTokens: number } | { route: "CHAT" };
+/**
+ * Per-dispatch selection for a QDEV installation. Every refusal of `qdevModelSelection` applies first, to every turn: the installation
+ * must be unmixed, the request must come from the authenticated human owner, and the QDEV host must be enabled and configured for that
+ * exact owner. A CHAT turn exists only in an installation whose host conversation serves chat (owner-request installations), and only
+ * when the message hook recorded CHAT for an owner message that is in this prompt and no journey call is awaiting readback
+ * (`dispatchRoute`). It is handed back to the installation's ordinary chat selection, which keeps its own admission and budget; nothing
+ * about the journey is consumed. Everything else, including a conversation without `route`, a missing record or a route that throws,
+ * is a JOURNEY turn on the host's free deterministic model.
+ */
+export async function qdevTurnSelection(input: QdevIngressInput & { prompt: unknown; recorded: QdevTurnRecord | null }): Promise<QdevTurnSelection> {
+  const { ownerId, conversation, model } = await admittedConversation(input);
+  let route: "JOURNEY" | "CHAT" = "JOURNEY";
+  try { if (typeof conversation.route === "function" && dispatchRoute(input.prompt, input.recorded) === "CHAT") route = "CHAT"; } catch { route = "JOURNEY"; }
+  if (route === "CHAT") return { route };
+  await admitJourneyTurn(ownerId, input);
+  return { route, model, modelContextWindowTokens: conversation.contextWindowTokens };
+}
+
+/**
+ * The route to record for an owner message as it is received. CHAT only for an admitted owner of an installation whose host conversation
+ * serves chat and classifies this text as chat. Any refusal or error is JOURNEY: the ordinary run ledger stays untouched and model
+ * selection (which repeats the admission) answers or refuses on its own.
+ */
+export async function qdevMessageRoute(session: QdevIngressInput["session"], text: string | undefined): Promise<QdevTurnRecord> {
+  const fingerprint = ownerMessageFingerprint(text);
+  try {
+    const { conversation } = await admittedConversation({ session, stepKey: "message" });
+    return { route: typeof conversation.route === "function" && conversation.route(text) === "CHAT" ? "CHAT" : "JOURNEY", fingerprint };
+  } catch { return { route: "JOURNEY", fingerprint }; }
 }

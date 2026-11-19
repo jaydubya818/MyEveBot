@@ -15,7 +15,9 @@ import {ownerBudgetedModel,ownerModelStepKey} from "../lib/relay/owner/model.ts"
 import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
-import { qdevInstallation, qdevModelSelection } from "../lib/qualification/ingress.ts";
+import { qdevInstallation, qdevTurnSelection } from "../lib/qualification/ingress.ts";
+import { qdevChatTurnModel } from "../lib/qualification/turn-route.ts";
+import { recordedQdevTurn } from "./lib/qdev-turn.ts";
 
 import { clientTurnSettings, primaryChatSettings, rememberedChatSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
@@ -61,9 +63,6 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
-        // QDEV installation: the complete authenticated request is admitted by the QDEV host before ANY other branch, lookup or
-        // provider. Mixed installation modes are refused, and nothing here falls back to the generic Gateway.
-        if(qdevInstallation())return qdevModelSelection({session:ctx.session as never,stepKey:ownerModelStepKey(_event)});
         const retained=ctx.session.auth.current?.attributes.myeveRetainedSummary;
         if(retained!==undefined){
           const binding=retainedSummaryBinding(retained),current=ctx.session.auth.current,initiator=ctx.session.auth.initiator;
@@ -119,15 +118,27 @@ export default defineAgent({
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
         };
-        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected;
+        const resolve = async (options?:{prompt?:unknown}) => {
+          // QDEV installation: the complete authenticated request is admitted by the QDEV host before ANY other branch, lookup or
+          // provider, on every dispatch. Mixed installation modes are refused. A JOURNEY turn (an explicit build request, its exact
+          // confirmation, the continuation of a journey call, or any turn the message hook did not positively record as chat) can only
+          // reach the host's own deterministic `myeve-qdev` model and never falls back to the generic Gateway. A turn recorded as chat in an
+          // owner-request installation takes the installation's normal chat selection below, under the ordinary run budget and accounting
+          // (agent/hooks), with the journey tool withheld and refused (qdevChatTurnModel).
+          const qdev=qdevInstallation()?await qdevTurnSelection({session:ctx.session as never,stepKey:ownerModelStepKey(_event),prompt:options?.prompt,recorded:recordedQdevTurn()}):null;
+          if(qdev)console.info('sofie_qdev_turn_route',{sessionId:ctx.session.id,route:qdev.route});
+          if(qdev?.route==='JOURNEY'){
+            if(qdev.model.provider!=='myeve-qdev')throw Error('QDEV_PAID_PATH_DENIED:agent-model-selection');
+            return qdev.model as unknown as ReturnType<typeof gateway>;
+          }
+          const selected=await select(); const value='model' in selected?selected.model:selected;
           // agent-model-selection: an external-alpha installation can only dispatch through its budgeted model (or the deterministic evidence summary).
-          if(qdevInstallation()){
-            if(typeof value==='string'||value.provider!=='myeve-qdev')throw Error('QDEV_PAID_PATH_DENIED:agent-model-selection');
-          }else if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
-          return typeof value==='string'?gateway(value):value; };
+          if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
+          const model=typeof value==='string'?gateway(value):value;
+          return qdev?qdevChatTurnModel(model):model; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
-          doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
-          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},
+          doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve(options)).doGenerate(options),
+          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve(options)).doStream(options)},
           // Eve estimates its full catalog before the alpha wrapper removes
           // unavailable capabilities. Keep the existing framework token window;
           // alpha admission separately enforces 32,000 bytes before any dispatch.

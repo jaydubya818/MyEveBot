@@ -4,11 +4,13 @@ import Link from "next/link";
 import type { WorkInboxView } from "@/lib/product/work-inbox";
 import type { WorkLane } from "@/lib/product/work-state";
 import { Empty } from "./primitives";
+import { INBOX_REFRESH_TIMEOUT_MS, initialInboxRefresh, nextInboxRefresh } from "@/lib/product/work-inbox-refresh";
 const lanes: WorkLane[] = ["Needs You", "Working", "Monitoring", "Completed", "Waiting", "Stopped", "Ready"];
 
 export function WorkInbox({ overview = false }: { overview?: boolean }) {
-  const [data, setData] = useState<WorkInboxView | null>(null);
-  const [error, setError] = useState(false);
+  const [refresh, setRefresh] = useState(initialInboxRefresh<WorkInboxView>);
+  const { data, error, stale } = refresh;
+  const setData = (_: null) => setRefresh(initialInboxRefresh<WorkInboxView>());
   const [revision, setRevision] = useState(0);
   const [offset, setOffset] = useState(0);
   const [lane, setLane] = useState<WorkLane | "Active">("Active");
@@ -23,11 +25,11 @@ export function WorkInbox({ overview = false }: { overview?: boolean }) {
       if (busy) return;
       busy = true;
       try {
-        const response = await fetch(`/api/work-inbox?offset=${offset}`, { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) });
-        if (!response.ok) throw Error();
+        const response = await fetch(`/api/work-inbox?offset=${offset}`, { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(INBOX_REFRESH_TIMEOUT_MS)]) });
+        if (!response.ok) { if (!controller.signal.aborted) setRefresh(previous => nextInboxRefresh(previous, { ok: false, status: response.status })); return; }
         const next: WorkInboxView = await response.json();
-        if (!controller.signal.aborted) { setData(next); setError(false); }
-      } catch { if (!controller.signal.aborted) { setData(null); setError(true); } }
+        if (!controller.signal.aborted) setRefresh(previous => nextInboxRefresh(previous, { ok: true, data: next }));
+      } catch { if (!controller.signal.aborted) setRefresh(previous => nextInboxRefresh(previous, { ok: false })); }
       finally { busy = false; }
     }
     const refresh = () => { if (document.visibilityState === "visible") void load(); };
@@ -49,7 +51,10 @@ export function WorkInbox({ overview = false }: { overview?: boolean }) {
     { title: "Recently completed", works: data?.works.filter(w => w.lane === "Completed") ?? [] },
   ];
   return <section id="work-inbox" aria-label="Work" data-work-inbox>
-    {error ? <div role="alert"><p>Work could not be refreshed.</p><button onClick={() => setRevision(v => v + 1)}>Try again</button></div> : !data ? <p role="status">Loading your Work…</p> : <>
+    {error === "signed-out" ? <div role="alert"><p>Your session ended.</p><Link href="/login">Sign in again →</Link></div>
+      : error ? <div role="alert"><p>Work could not be refreshed.</p><button onClick={() => setRevision(v => v + 1)}>Try again</button></div> : !data ? <p role="status">Loading your Work…</p> : <>
+      {stale && <p role="status" className="owner-muted" data-work-inbox-stale>Showing the last update. Refreshing…</p>}
+      {data.unavailableWorks > 0 && <p role="status" className="owner-muted" data-work-inbox-unavailable>{data.unavailableWorks === 1 ? "1 Work item could not be shown." : `${data.unavailableWorks} Work items could not be shown.`}</p>}
       {overview ? sections.map(section => section.works.length > 0 && <section className="owner-today-section" key={section.title}><div className="owner-row"><h2>{section.title}</h2><Link href="/work">View all Work →</Link></div>{workList(section.works.slice(0, 3))}</section>) : <>
         <div className="owner-actions" role="group" aria-label="Filter Work by state">{(["Active", "Needs You", "Ready", "Completed", "Stopped"] as const).map(value => <button key={value} type="button" aria-pressed={lane === value} onClick={() => setLane(value)}>{value === "Ready" ? "Results" : value} ({value === "Active" ? data.counts.Working + data.counts.Monitoring + data.counts.Waiting : data.counts[value]})</button>)}</div>
         {workList(data.works.filter(w => lane === "Active" ? ["Working", "Monitoring", "Waiting"].includes(w.lane) : w.lane === lane))}

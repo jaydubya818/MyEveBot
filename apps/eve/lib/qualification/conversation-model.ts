@@ -6,12 +6,13 @@ import type { JournalEvent } from "./journal.ts";
 import { ImprovementRefused, type ImprovementRecorder } from "./improvement.ts";
 import { describeProgress, projectProgress } from "./progress.ts";
 import { HOSTED_VERIFIER_LABEL, VERDICT_ASSURANCE, type VerdictAssurance } from "./journey-profile.ts";
+import { CONFIRM, explicitBuildRequest, isClientContext, JOURNEY_TOOL, ownerMessageRoute, PROPOSAL, STATUS_INTENT } from "./turn-route.ts";
 
 type Model = ReturnType<typeof gateway>;
 type Options = Parameters<Model["doGenerate"]>[0];
 type Result = Awaited<ReturnType<Model["doGenerate"]>>;
 type Part = Awaited<ReturnType<Model["doStream"]>>["stream"] extends ReadableStream<infer P> ? P : never;
-const TOOL = "qualification_journey";
+const TOOL = JOURNEY_TOOL;
 const unverified = "The journey response could not be verified for this conversation. Review its retained history; no automatic retry was started.";
 const pending = "The approved journey was already requested. Its response is pending or unavailable. Review its retained history; no automatic retry was started.";
 const sha = z.string().regex(/^[a-f0-9]{64}$/);
@@ -78,7 +79,7 @@ function present(value: unknown, deliveryUrl: string | undefined, assurance: Ver
     "Release readiness and tester activation still require their own authorization."].join("\n\n");
 }
 
-const statusIntent = /^\s*(status|progress|where (are we|is it)|how (is|'s) (it|the (journey|build|project|app)) (going|doing))\b/i;
+const statusIntent = STATUS_INTENT;
 const improveIntent = /^\s*(improve|improvement|change|add|fix|update|make|remove|support|show|let|rename|redesign)\b/i;
 const improvementRefusal: Record<string, string> = {
   QDEV_IMPROVEMENT_REQUEST: "That improvement request is empty or too long (2000 characters at most). Nothing was recorded.",
@@ -197,22 +198,10 @@ function deterministicModel(modelId: string, generate: (options: Options) => Pro
 
 type Prompt = Options["prompt"];
 type Message = Prompt[number];
-const CONFIRM = /^\s*confirm\s+([a-f0-9]{12})\s*$/i;
-const PROPOSAL = /\[plan ([a-f0-9]{64})\]/;
 const userTextOf = (m: Message | undefined): string | undefined =>
   m?.role === "user" && m.content.every(p => p.type === "text") ? m.content.map(p => p.type === "text" ? p.text : "").join("\n").trim() : undefined;
 const assistantTextOf = (m: Message | undefined): string | undefined =>
   m?.role === "assistant" ? m.content.map(p => p.type === "text" ? p.text : "").join("\n") : undefined;
-/**
- * The web channel inserts its own `Client context:\n{json}` user message (thread id, client time, selected model) ahead of an owner turn. It is channel
- * metadata, never an owner request or confirmation, so the proposal/confirmation adjacency skips it like a system message. Only a message made entirely of
- * such well-formed markers is skipped; anything else (including a malformed marker) still breaks adjacency and refuses.
- */
-const CLIENT_CONTEXT_PREFIX = "Client context:\n";
-const isClientContext = (m: Message | undefined): boolean => m?.role === "user" && m.content.length > 0 && m.content.every(p => {
-  if (p.type !== "text" || !p.text.startsWith(CLIENT_CONTEXT_PREFIX)) return false;
-  try { const v: unknown = JSON.parse(p.text.slice(CLIENT_CONTEXT_PREFIX.length)); return v !== null && typeof v === "object" && !Array.isArray(v); } catch { return false; }
-});
 const metadata = (m: Message | undefined) => m?.role === "system" || isClientContext(m);
 const ownerFallback = "Send the development request you want built (for example: \"Build me a React dashboard showing GitHub repository health and failing CI pipelines.\"). I will show the derived plan and its digest; nothing runs until you confirm it.";
 const confirmMismatch = "That confirmation does not match the plan proposed immediately before it, so nothing was started. Send the request again to get a fresh proposal.";
@@ -251,7 +240,7 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
     `[plan ${d.planSha256}]`,
     `To start exactly this plan, reply: confirm ${d.planSha256.slice(0, 12)}`,
   ].join("\n\n");
-  return { ownerId, contextWindowTokens: 200_000, model(input) {
+  return { ownerId, contextWindowTokens: 200_000, route: ownerMessageRoute, model(input) {
     const identity = z.object({ sessionId: z.string().min(1).max(255), stepKey: z.string().min(1).max(1000) }).strict().parse(input);
     const binding = { ownerId, ...identity };
     async function generate(options: Options): Promise<Result> {
@@ -301,6 +290,9 @@ function ownerRequestConversation(ownerId: string, revalidate: QualificationConv
       const text = userTextOf(options.prompt[userIndex]);
       if (text === undefined) return textResult(ownerFallback);
       if (statusIntent.test(text)) return textResult(`Progress is reported as the result of each confirmed request; this owner-local installation keeps no chat progress view yet. Nothing was started.\n\n${ownerFallback}`);
+      // Only an explicit build request is ever derived into a plan. Ordinary chat is routed to the installation's chat model before this
+      // model is selected (see turn-route.ts); if any other text still arrives here it gets the fixed guidance, never a plan.
+      if (!explicitBuildRequest(text)) return textResult(`Nothing was started. ${ownerFallback}`);
       const derived = safeDerive(text);
       if (!derived) return textResult(`That request is empty, too short or too long (2000 characters at most), contains control characters, or this installation is not configured to derive a plan. Nothing was started.`);
       return textResult(proposalText(derived));

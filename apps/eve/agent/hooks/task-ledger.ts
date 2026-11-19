@@ -1,6 +1,7 @@
 import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
 import { defineHook } from "eve/hooks";
+import { qdevChatTurn } from "../lib/qdev-turn.ts";
 
 import {
   assertTaskBudget,
@@ -10,9 +11,11 @@ import {
   registerTaskSubagent,
 } from "../../lib/task-runs.ts";
 
-// QDEV accounting lives exclusively in the qualification journey. These
+// QDEV journey accounting lives exclusively in the qualification journey. On a JOURNEY turn these
 // framework hooks must never read or mutate the original task ledger.
 const qdevInstallation = () => process.env.MYEVE_QDEV_ENABLED === "true";
+// A QDEV turn positively recorded as ordinary chat (agent/lib/qdev-turn.ts) is budgeted and accounted here like any other chat turn.
+const qdevJourneyTurn = () => qdevInstallation() && !qdevChatTurn();
 
 function resultText(value: unknown): string {
   if (typeof value === "string") return value;
@@ -34,14 +37,14 @@ export default defineHook({
       if(ownerRuntimeFromAuth(ctx.session.auth))throw new Error("External request cannot start an unreserved compaction call.");
     },
     async "step.started"(_event, ctx) {
-      if(qdevInstallation())return;
+      if(qdevJourneyTurn())return;
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)return;
       const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
       if(ownerRuntime)await resolveOwnerRuntime(ownerRuntime);
       await assertTaskBudget(ctx.session.id);
     },
     async "step.completed"(event, ctx) {
-      if(qdevInstallation())return;
+      if(qdevJourneyTurn())return;
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)return; // No model operation or execution-budget mutation.
       const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
       if(ownerRuntime)return; // Provider boundary durably settles usage exactly once.
@@ -59,7 +62,7 @@ export default defineHook({
       });
     },
     async "subagent.completed"(event, ctx) {
-      if(qdevInstallation())return;
+      if(qdevJourneyTurn())return;
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)throw new Error('Retained summaries cannot delegate.');
       await completeTaskSubagent({
         parentSessionId: ctx.session.id,
@@ -69,7 +72,7 @@ export default defineHook({
       });
     },
     async "action.result"(event, ctx) {
-      if(qdevInstallation())return;
+      if(qdevJourneyTurn())return;
       if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)throw new Error('Retained summaries cannot execute actions.');
       if (
         event.data.status !== "failed" ||
