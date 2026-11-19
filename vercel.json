@@ -1,0 +1,8 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "codex/sofie-integration-audit-20261117": false,
+      "claude/sofie-owner-integrated-20261116": false
+    }
+  }
+}
