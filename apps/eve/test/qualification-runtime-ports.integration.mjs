@@ -15,6 +15,7 @@ import {join,dirname} from 'node:path';
 import {productionRuntimePorts} from '../lib/qualification/custody-loader.ts';
 import {createServer} from 'node:http';
 import {Client} from 'pg';
+import {emptySessionView} from 'eve/events';
 import {QualificationAccounting,qualificationBinding,QDEV_BASELINE} from '../lib/external-alpha/qualification-accounting.ts';
 import {JOURNAL_SCHEMA} from '../lib/qualification/journal.ts';
 import {QualificationRoot,registerQualificationHost} from '../lib/qualification/root.ts';
@@ -334,16 +335,17 @@ try{
    await w.db.query(JOURNAL_SCHEMA);
    const r=runtime(w,runtimePortsProvider(()=>hn.custody()));
    // Use the actual Eve definitions, not mocks of defineAgent/defineDynamic or a replacement conversation model.
-   const [{default:agent},{default:toolDefinition}]=await Promise.all([import('../agent/agent.ts'),import('../agent/tools/qualification_journey.ts')]);
+   const [{resolveSofieModel},{resolveQualificationJourney}]=await Promise.all([import('../agent/agent.ts'),import('../agent/tools/qualification_journey.ts')]);
    registerQualificationHost(r.host);
    const principal={principalId:r.owner,principalType:'user',authenticator:'myeve-web-session',attributes:{owner:'true'}};
-   const context={session:{id:randomUUID(),auth:{current:principal,initiator:principal}},messages:[]};
-   const selected=await agent.model.events['step.started']({},context);
+   const turn={id:'fixture-turn',sequence:0};
+   const context={session:{id:randomUUID(),turn,auth:{current:principal,initiator:principal}},turn,view:emptySessionView(),messages:async()=>[]};
+   const selected=resolveSofieModel(context);
    const user={role:'user',content:[{type:'text',text:APPROVED}]};
    const requested=await selected.model.doGenerate({prompt:[user],tools:[{type:'function',name:'qualification_journey',inputSchema:{type:'object'}}]});
    assert.equal(requested.finishReason.unified,'tool-calls');
    const call=requested.content.find(p=>p.type==='tool-call');assert.equal(call.toolName,'qualification_journey');
-   const tool=await toolDefinition.events['step.started']({},context);assert.ok(tool);
+   const tool=await resolveQualificationJourney(context);assert.ok(tool);
    const out=await tool.execute({},context);assert.equal(out.status,'COMPLETED_UNCLAIMED',JSON.stringify(out));
    const answer=await selected.model.doGenerate({prompt:[user,{role:'assistant',content:[call]},{role:'tool',content:[{
     type:'tool-result',toolCallId:call.toolCallId,toolName:call.toolName,output:{type:'json',value:out},
@@ -400,7 +402,7 @@ try{
  });
 
  for(const [mode,label,code] of [['producerSigned','a verdict signed by a producer-side key under the verifier key id','QDEV_VERDICT_SIGNATURE'],
-  ['wrongCandidate','a verdict for a different candidate','QDEV_HALTED']])      // binding mismatches carry a field suffix, which the owner-safe presentation collapses
+  ['wrongCandidate','a verdict for a different candidate','QDEV_HALTED:QDEV_VERDICT_BINDING_MISMATCH']])
   await test(`negative: ${label} halts the journey with no PASS presented and no delivery observed`,async()=>{
    const w=await world('p4'+mode.slice(0,2)),hn=await harness(w,{verdictMode:mode});try{
     await w.db.query(JOURNAL_SCHEMA);

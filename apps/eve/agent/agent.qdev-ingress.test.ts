@@ -1,3 +1,4 @@
+import { emptySessionView, foldEvents } from "eve/events";
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { JOURNEY_TOOL, ownerMessageFingerprint, ownerMessageRoute, type QdevTurnRecord } from '../lib/qualification/turn-route.ts';
 // Actual agent module + actual ingress/bootstrap/root. Providers are fake endpoints; legacy installation modules are call-counting mocks.
@@ -50,10 +51,16 @@ const source = {
 /** Fresh module graph per scenario: the real agent, ingress, bootstrap and root. `real` registers an assembled host first. */
 async function load(real: boolean) {
   vi.resetModules();
-  const [{ default: agent }, bootstrap, root] = await Promise.all([import('./agent.ts'), import('../lib/qualification/host-bootstrap.ts'), import('../lib/qualification/root.ts')]);
+  const [{ resolveSofieModel }, bootstrap, root] = await Promise.all([import('./agent.ts'), import('../lib/qualification/host-bootstrap.ts'), import('../lib/qualification/root.ts')]);
   if (real) root.registerQualificationHost(bootstrap.assembleQualificationHost(source as never));
   const dispatch = async (ctx: any, options: any = prompt('Build the approved dashboard'), stream = false, step?: string) => {
-    const selected = (agent as any).model.events['step.started']({ step }, ctx);
+    const sequence = Number(step?.split(':').at(-1) ?? 0);
+    const view = foldEvents(emptySessionView(), [
+      { type: 'session.started', data: { sessionId: ctx.session.id } },
+      { type: 'turn.started', scope: { turnId: 'turn' }, data: { turnId: 'turn' } },
+      ...Array.from({ length: sequence }, (_, i) => ({ type: 'model.requested', scope: { turnId: 'turn', runId: 'run-' + i }, data: { runId: 'run-' + i, owner: { turnId: 'turn' } } })),
+    ].map((event, line) => ({ ...event, meta: { position: { line, index: 0 }, at: "2026-11-22T00:00:00.000Z" } })));
+    const selected = resolveSofieModel({ ...ctx, view, turn: { id: 'turn' }, messages: async () => ctx.messages });
     try { await (stream ? selected.model.doStream(options) : selected.model.doGenerate(options)); return 'CALLED'; } catch (e) { return (e as Error).message; }
   };
   return { dispatch, bootstrap, root };
@@ -155,7 +162,7 @@ const built = [...planned, u(`confirm ${PLAN.slice(0, 12)}`), journeyCall, journ
 const tools = [{ type: 'function', name: JOURNEY_TOOL }, { type: 'function', name: 'memory_search' }];
 const turn = (...messages: unknown[]) => ({ prompt: messages, tools });
 /** What the message hook records for an owner message (agent/hooks/owner-chat-run.ts). */
-const received = (text: string): QdevTurnRecord => (probe.recorded = { route: ownerMessageRoute(text), fingerprint: ownerMessageFingerprint(text) });
+const received = (text: string): QdevTurnRecord => (probe.recorded = { route: ownerMessageRoute(text), fingerprint: ownerMessageFingerprint(text), turnId: "turn" });
 
 it.each(['hello - what model is this?', 'hello', 'what model is this?', 'what do you remember about me?', 'remember that I prefer green tea', 'how do I build an app?', 'thanks', 'yes', 'status'])(
   'owner-request installation: %j in a new conversation gets the normal chat model, never the plan deriver', async (text) => {

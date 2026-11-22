@@ -83,7 +83,8 @@
       "codex/sofie-owner-boundary-review-20261116": false,
       "claude/sofie-hosted-integrated-20261110": false,
       "claude/sofie-owner-integrated-20261116": false,
-      "claude/p0-chat-routing-20261117": false
+      "claude/p0-chat-routing-20261117": false,
+      "codex/sofie-eve-1-0": false
     }
   },
   "functions": {

@@ -6,13 +6,13 @@ vi.mock('../../lib/qualification/root.ts', () => ({
   qualificationRoot: () => ({ run: mocks.run }),
 }));
 vi.mock('../../lib/qualification/host-bootstrap.ts', () => ({ ensureQualificationHost: () => undefined }));
-import definition from './qualification_journey.ts';
+import { resolveQualificationJourney } from './qualification_journey.ts';
 
 const human = () => ({ principalId: 'owner', principalType: 'user', authenticator: 'myeve-web-session', attributes: { owner: 'true' } });
-const context = (over: Record<string, unknown> = {}, parent?: unknown) => ({ session: { parent, auth: {
+const context = (over: Record<string, unknown> = {}, parent?: unknown) => ({ session: { turn: { id: 'confirm-turn', sequence: 0 }, parent, auth: {
   current: { ...human(), ...over }, initiator: human(),
 } } });
-const discover = (ctx: ReturnType<typeof context>) => definition.events['step.started']!({}, ctx as never) as Promise<any>;
+const discover = (ctx: ReturnType<typeof context>) => resolveQualificationJourney(ctx as never) as Promise<any>;
 beforeEach(() => { vi.clearAllMocks(); mocks.available = true; mocks.run.mockResolvedValue({ status: 'HALTED', readiness: 'NOT_CLAIMED', authority: 'NONE' }); });
 afterEach(() => vi.unstubAllEnvs());
 

@@ -23,12 +23,12 @@ vi.mock('../../lib/external-alpha/allowance.ts', () => ({
 }));
 vi.mock('../lib/receipts-db.ts', () => ({ db: () => ({}) }));
 vi.mock('../../lib/engineering/cloud-access-qualification.ts', () => ({cloudQualificationProject: () => process.env.TEST_QDEV_MIXED_CLOUD === 'true'}));
-import definition from './qualification_journey.ts';
+import { resolveQualificationJourney } from './qualification_journey.ts';
 
 const human = (id = 'owner') => ({principalId: id, principalType: 'user', authenticator: 'myeve-web-session', attributes: {owner: 'true'} as Record<string, unknown>});
-const context = () => ({session: {id: 'session', auth: {current: human(), initiator: human()}}});
+const context = () => ({session: {id: 'session', turn: { id: 'confirm-turn', sequence: 0 }, auth: {current: human(), initiator: human()}}});
 type Context = ReturnType<typeof context>;
-const discover = (ctx: Context) => definition.events['step.started']!({ data: { turnId: 'confirm-turn', stepIndex: 0 } }, ctx as never) as Promise<any>;
+const discover = (ctx: Context) => resolveQualificationJourney(ctx as never) as Promise<any>;
 beforeEach(() => {
   calls.run.mockClear();
   calls.admit.mockReset().mockResolvedValue({ id: 'allowance' });

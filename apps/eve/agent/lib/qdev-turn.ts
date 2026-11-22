@@ -2,7 +2,7 @@ import { defineState } from "eve/context";
 import type { QdevTurnRecord } from "../../lib/qualification/turn-route.ts";
 
 /**
- * The route of the owner's latest message in a QDEV installation, decided once at `message.received` (agent/hooks/owner-chat-run.ts) and
+ * The route of the owner's latest message in a QDEV installation, decided once at `delivery.consumed` (agent/hooks/owner-chat-run.ts) and
  * read by the model selection, the journey tool and the budget/accounting hooks of every step of that turn. Durable per session, never
  * shared with subagents. Absent (null) means "not recorded": every reader then treats the turn as a JOURNEY turn (free, isolated).
  */
@@ -13,8 +13,11 @@ export function recordQdevTurn(record: QdevTurnRecord | null): void {
   try { turn.update(() => ({ record })); } catch { /* unrecorded => JOURNEY */ }
 }
 /** The recorded turn, or null when nothing was recorded or no eve context is active (never throws). */
-export function recordedQdevTurn(): QdevTurnRecord | null {
-  try { return turn.get().record ?? null; } catch { return null; }
+export function recordedQdevTurn(turnId?: string): QdevTurnRecord | null {
+  try {
+    const record = turn.get().record;
+    return turnId === undefined || record?.turnId === turnId ? record : null;
+  } catch { return null; }
 }
 /** True when this QDEV turn was positively recorded as ordinary chat. Only then do the ordinary run budget and accounting apply. */
 export const qdevChatTurn = (): boolean => recordedQdevTurn()?.route === "CHAT";

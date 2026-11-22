@@ -19,6 +19,7 @@ import { StaticArtifactCandidate } from "../../../../packages/myapps/src/static-
 import { digest } from "../engineering/contract.ts";
 import { leaseMailboxRequest, mailboxFetch, pollerCredentialSha256, respondMailboxRequest, sha256Hex, type MailboxDb } from "../engineering/factory-mailbox.ts";
 import { LiveFactoryAdapter } from "../engineering/factory-live-adapter.ts";
+import { createWebSessionToken, WEB_SESSION_COOKIE } from "../web-auth.ts";
 import { ArtifactStagingStore } from "./artifact-staging.ts";
 import { acceptDelivery } from "./delivery.ts";
 import { HostedMacMyAppsPort, readMacBuild } from "./hosted-mac-build.ts";
@@ -84,6 +85,8 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
     query.mockImplementation(async (sql: string, params: unknown[]) => (await pool.query(sql, params)).rows);
     vi.stubEnv("MYEVE_HOSTED_PROFILE", JSON.stringify(profileJson)); vi.stubEnv("MYEVE_OWNER_ID", "jay"); vi.stubEnv("DATABASE_URL", connection!);
     vi.stubEnv("MYEVE_SESSION_SECRET", "synthetic fixture session secret at least 32 chars");
+    vi.stubEnv("MYEVE_ACCESS_PASSWORD", "only for the disposable hosted fixture");
+    vi.stubEnv("MYEVE_ENGINEERING_MODE", "dogfood");
     stagingRoot = await mkdtemp(join(tmpdir(), "hosted-e2e-staging-"));
   });
   afterAll(async () => {
@@ -174,6 +177,28 @@ describe.skipIf(!connection)("hosted private beta end to end over a local fake m
     }]);
     expect(await listHostedPreviewResults(db, { ...profile, ownerId: "another-owner" })).toEqual([]);
     expect(await listHostedPreviewResults(db, { ...profile, installationId: "another-installation" })).toEqual([]);
+    const [result] = await listHostedPreviewResults(db, profile);
+    const { GET: openPreview } = await import("../../app/api/previews/v1/[artifact]/route");
+    const { GET: readPreview } = await import("../../app/api/previews/v1/[artifact]/g/[grant]/[[...path]]/route");
+    const resultLink = HOSTED + result.previewPath;
+    const context = { params: Promise.resolve({ artifact: result.id }) };
+    expect((await openPreview(new Request(resultLink), context)).status).toBe(401);
+    const redirect = await openPreview(new Request(resultLink, {
+      headers: { cookie: `${WEB_SESSION_COOKIE}=${createWebSessionToken()}` },
+    }), context);
+    expect(redirect.status).toBe(303);
+    const location = redirect.headers.get("location")!;
+    const grant = location.split("/")[6];
+    const html = await readPreview(new Request(HOSTED + location), {
+      params: Promise.resolve({ artifact: result.id, grant, path: ["index.html"] }),
+    });
+    expect(html.status).toBe(200);
+    expect(await html.text()).toContain(`/api/previews/v1/${result.id}/g/${grant}/assets/app.js`);
+    const script = await readPreview(new Request(`${HOSTED}/api/previews/v1/${result.id}/g/${grant}/assets/app.js`), {
+      params: Promise.resolve({ artifact: result.id, grant, path: ["assets", "app.js"] }),
+    });
+    expect(script.status).toBe(200);
+    expect(await script.text()).toBe(files["dist/assets/app.js"].toString());
     expect(await worker.once()).toEqual([]);
     expect(forwarded.every(f => !f.includes("/artifact/"))).toBe(true);
   });

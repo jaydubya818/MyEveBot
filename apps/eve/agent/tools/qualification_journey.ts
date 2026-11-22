@@ -3,7 +3,6 @@ import { z } from "zod";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { ensureQualificationHost } from "../../lib/qualification/host-bootstrap.ts";
 import { qualificationRoot, QualificationRootRefused } from "../../lib/qualification/root.ts";
-import { ownerModelStepKey } from "../../lib/relay/owner/model.ts";
 import { authorizeHostedTesterTurn, qdevRequestOwner } from "../../lib/qualification/ingress.ts";
 import { qdevChatTurn } from "../lib/qdev-turn.ts";
 
@@ -18,26 +17,24 @@ const owner = (ctx: { session: { auth: { current?: any }; parent?: unknown } }) 
   const ownerId = qdevRequestOwner(ctx.session);
   return ownerId ? { ownerId, kind: "human" as const } : null;
 };
-export default defineDynamic({
-  events: {
-    "step.started": async (event, ctx) => {
-      // A turn recorded as ordinary chat never has the journey tool: a paid chat model cannot start a build even if it emits the call.
-      if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !owner(ctx as never) || qdevChatTurn()) return null;
-      const ownerId = owner(ctx as never)!.ownerId;
-      return defineTool({
-        availableInSubagents: false,
-        description: "Run the ledger-gated journey for the authenticated owner: Sofie plan, coding, Factory build, verification and delivery. Frozen installations take no parameters; owner-local installations take only the owner-confirmed request and its plan digest. Reports an unclaimed presentation and never grants readiness or authority.",
-        inputSchema: z.union([z.object({}).strict(),
-          z.object({ request: z.string().min(1).max(4000), planSha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict()]),
-        async execute(input, toolCtx) {
-          const principal = owner(toolCtx as never);
-          if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !principal || principal.ownerId !== ownerId || toolCtx.session.id !== ctx.session.id || qdevChatTurn())
-            throw new QualificationRootRefused("QDEV_ROOT_PRINCIPAL");
-          await authorizeHostedTesterTurn(principal.ownerId, toolCtx.session.id, ownerModelStepKey(event));
-          ensureQualificationHost();
-          return qualificationRoot().run(principal, input);
-        },
-      });
+export async function resolveQualificationJourney(ctx: Parameters<Parameters<typeof defineDynamic>[0]>[0]) {
+  // A turn recorded as ordinary chat never has the journey tool: a paid chat model cannot start a build even if it emits the call.
+  if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !owner(ctx as never) || qdevChatTurn()) return null;
+  const ownerId = owner(ctx as never)!.ownerId;
+  return defineTool({
+    availableInSubagents: false,
+    description: "Run the ledger-gated journey for the authenticated owner: Sofie plan, coding, Factory build, verification and delivery. Frozen installations take no parameters; owner-local installations take only the owner-confirmed request and its plan digest. Reports an unclaimed presentation and never grants readiness or authority.",
+    inputSchema: z.union([z.object({}).strict(),
+      z.object({ request: z.string().min(1).max(4000), planSha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict()]),
+    async execute(input, toolCtx) {
+      const principal = owner(toolCtx as never);
+      if (checkCapabilityAvailability("tool.qualification_journey")?.status !== "available" || !principal || principal.ownerId !== ownerId || toolCtx.session.id !== ctx.session.id || qdevChatTurn())
+        throw new QualificationRootRefused("QDEV_ROOT_PRINCIPAL");
+      await authorizeHostedTesterTurn(principal.ownerId, toolCtx.session.id, `${toolCtx.session.turn.id}:0`);
+      ensureQualificationHost();
+      return qualificationRoot().run(principal, input);
     },
-  },
-});
+  });
+}
+
+export default defineDynamic(resolveQualificationJourney);

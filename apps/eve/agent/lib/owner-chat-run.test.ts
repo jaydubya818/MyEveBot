@@ -5,7 +5,7 @@ vi.mock('./session-settings.ts',()=>({resolveSessionAgent:mocks.agent}));
 vi.mock('../../lib/execution-auth.ts',()=>({executionIdentityFromAuth:mocks.identity}));
 import hook from '../hooks/owner-chat-run.ts';
 const ctx:any={session:{id:'same-conversation',auth:{current:{principalId:'owner',principalType:'user',attributes:{owner:'true'}}}}};
-const receive=(message:string,context=ctx)=>hook.events!['message.received']!({data:{message}} as any,context);
+const receive=(message:string,context=ctx)=>hook.events!['delivery.consumed']!({data:{parts:[{kind:'text',text:message}],turnId:'turn-1'}} as any,context);
 beforeEach(()=>{vi.resetAllMocks();mocks.agent.mockResolvedValue({id:'agent'});mocks.run.mockResolvedValue('fresh-run');});
 describe('owner-chat Run recovery',()=>{
  it('recovers only on new input while preserving session identity',async()=>{await receive('Ask Atlas about research');expect(mocks.run).toHaveBeenCalledWith({ownerId:'owner',sessionId:'same-conversation',agentId:'agent',recover:true,initialize:false});});
