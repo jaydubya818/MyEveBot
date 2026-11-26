@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      MISSIONCONTROL_EXPECTED_SHA: f5a7ca311c94ea2b82d49427690c46137a41445a
+      MISSIONCONTROL_EXPECTED_SHA: e8adfdf7bf798d10afb700264fe20baf5819884e
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -32,12 +32,10 @@ jobs:
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
       - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
         working-directory: apps/eve
-      - name: Actual password login, delayed persistence, reconnect and failed save
-        run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: f5a7ca311c94ea2b82d49427690c46137a41445a
+          ref: e8adfdf7bf798d10afb700264fe20baf5819884e
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -69,6 +67,14 @@ jobs:
             echo "Exact runtime recovery did not pass; required qualification is blocked."
             exit 1
           fi
+      - name: Composed authenticated Result with exact execution runtime
+        if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
+        env:
+          MC_OWNER_REVIEW_QUALIFICATION: '1'
+          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
+          MC_COMPATIBILITY_PORT: '3476'
+          MC_LOCAL_OWNER_UI: '1'
+        run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"
       - name: Authenticated enterprise proposal and canonical owner isolation
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
@@ -82,15 +88,9 @@ jobs:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" f5a7ca311c94ea2b82d49427690c46137a41445a
-      - name: Composed authenticated Result with exact execution runtime
-        if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
-        env:
-          MC_OWNER_REVIEW_QUALIFICATION: '1'
-          MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
-          MC_COMPATIBILITY_PORT: '3476'
-          MC_LOCAL_OWNER_UI: '1'
-        run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" e8adfdf7bf798d10afb700264fe20baf5819884e
+      - name: Actual password login, delayed persistence, reconnect and failed save
+        run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
