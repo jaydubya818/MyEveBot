@@ -61,6 +61,7 @@ export async function prepareCompletedResultConsumer(db) {
       }
     }
     return { stop, applicationSecret: secret, applicationKeyId: 'result-fixture-1',
+      applicationOwnerHandoff:()=>ownerBrowser?.ownerHandoff(),
       afterOwnerAcceptance:async()=>{
         if(!ownerBrowser)return {status:'NOT_RUN'};
         const receipt=await ownerBrowser.result(resultInput,resultBinding);

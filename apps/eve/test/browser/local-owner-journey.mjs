@@ -21,7 +21,7 @@ export async function startLocalOwnerJourney({source,owner,pool,output}){
  const snapshot=()=>cli('snapshot','-c');
  const wait=async(test)=>{for(let n=0;n<90;n++){const text=(await cli('get','text','body'))+'\n'+await snapshot();if(test(text))return text;await new Promise(r=>setTimeout(r,300));}throw Error('MyEve owner UI did not reach expected state');};
  const send=async text=>{await cli('find','role','textbox','fill',text,'--name','Message Sofie','--exact');await cli('find','role','button','click','--name','Send','--exact');};
- const actions=async()=> (await pool.query("SELECT provider_receipt FROM action_requests WHERE owner_id=$1 AND trigger->>'kind'='owner_chat' AND capability_id='tool.mission_control' AND status='completed' ORDER BY created_at",[owner])).rows;
+ const actions=async()=> (await pool.query("SELECT id,provider_receipt FROM action_requests WHERE owner_id=$1 AND trigger->>'kind'='owner_chat' AND capability_id='tool.mission_control' AND status='completed' ORDER BY created_at",[owner])).rows;
  try{
   await requireAvailablePort(3077);agent=await startBuiltAgent({entry:join(app,'.output/server/index.mjs'),app,env,log});
   server=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'start','--hostname','127.0.0.1','--port','3077'],{cwd:app,env:{...env,NODE_ENV:'production'},stdio:['ignore',log.fd,log.fd]});
@@ -31,8 +31,9 @@ export async function startLocalOwnerJourney({source,owner,pool,output}){
   await cli('find','label','Your access password','fill',password);await cli('find','role','button','click','--name','Open Sofie','--exact');
   await wait(t=>t.includes('Message Sofie'));await cli('find','role','button','click','--name','New conversation','--exact');checks.push('actual-password-owner-login');
  }catch(error){await cli('close').catch(()=>{});await stopOwnedProcess(server);await stopOwnedProcess(agent);await log.close();throw error;}
- const commands=[];
+ const commands=[];let ownerHandoff;
  return {
+  ownerHandoff(){assert.ok(ownerHandoff,'Actual MyEve owner link must be observed');return ownerHandoff;},
   async command(input,binding){
    await writeFile(configFile,JSON.stringify({...Object.fromEntries(Object.entries(process.env).filter(([key])=>key.startsWith('MYEVE_MISSIONCONTROL_'))),MYEVE_MISSIONCONTROL_SECRET:binding.secret,MYEVE_MISSIONCONTROL_CONNECTION_ID:binding.connectionId}),{mode:0o600});
    await writeFile(join(output,'tool-input.json'),JSON.stringify(input));const before=(await actions()).length;
@@ -40,14 +41,25 @@ export async function startLocalOwnerJourney({source,owner,pool,output}){
    let rows;for(let n=0;n<180;n++){rows=await actions();if(rows.length===before+1)break;assert.ok(rows.length<=before+1,'A UI send cannot execute twice');await new Promise(r=>setTimeout(r,200));}
    assert.equal(rows.length,before+1,'Exactly one actual ActionGateway receipt per UI send');
    await wait(t=>!t.includes('button "Stop"'));const receipt=rows.at(-1).provider_receipt;
-   commands.push({operation:input.operation,commandId:receipt.authentication.commandId,missionId:receipt.response.missionId??null,proposalId:receipt.response.proposalId??null,status:receipt.response.status??null});
+   if(input.operation==='enterprise.propose') {
+     ownerHandoff=(await cli('get','attr','a[href^="http://localhost:5188/v2/missions"]','href')).trim();
+     const url=new URL(ownerHandoff);
+     assert.equal(url.searchParams.get('proposal'),receipt.response.proposalId);
+     assert.equal(url.searchParams.get('proposalDigest'),receipt.response.digest);
+     assert.equal(url.searchParams.get('workspace'),process.env.MYEVE_MISSIONCONTROL_PROJECT_ID);
+     checks.push('actual-MyEve-owner-handoff-link-bound');
+   }
+   // Intake acknowledgments use the request-side signed command and durable Action ID.
+   // Only Result observations carry a response authentication envelope.
+   if(input.operation==='enterprise.result')assert.ok(receipt.authentication?.commandId,'Result response authentication is required');
+   commands.push({operation:input.operation,actionId:rows.at(-1).id,commandId:receipt.authentication?.commandId??null,missionId:receipt.response.missionId??null,proposalId:receipt.response.proposalId??null,status:receipt.response.status??null,ownerAcceptance:receipt.response.ownerAcceptance??null});
    await writeFile(join(output,'commands.json'),JSON.stringify(commands,null,2)+'\n');
    await cli('screenshot',join(output,'command-'+commands.length+'.png'),'--full');
    await cli('reload');await wait(t=>t.includes('Deterministic Sofie readback'));checks.push('durable-reconnect-'+input.operation);
    return receipt;
   },
   async result(input,binding){const receipt=await this.command(input,binding);assert.equal(receipt.response.status,'AVAILABLE');assert.equal(receipt.response.missionId,input.missionId);checks.push('same-Mission-Result-and-Proof-visible');return receipt;},
-  report(){return {status:commands.length>=3&&checks.includes('same-Mission-Result-and-Proof-visible')?'PASS':'INCOMPLETE',authentication:'ACTUAL_MYEVE_PASSWORD_SESSION',model:'DETERMINISTIC_FIXTURE',build,checks,commands,paidOperations:0,hostedClerk:'NOT_RUN'};},
+  report(){return {status:commands.length>=3&&checks.includes('same-Mission-Result-and-Proof-visible')?'PASS':'INCOMPLETE',authentication:'ACTUAL_MYEVE_PASSWORD_SESSION',model:'DETERMINISTIC_FIXTURE',build,checks,commands,ownerHandoff,paidOperations:0,hostedClerk:'NOT_RUN'};},
   async stop(){try{await cli('close');}finally{await stopOwnedProcess(server);await stopOwnedProcess(agent);await log.close();await writeFile(join(output,'report.json'),JSON.stringify(this.report(),null,2)+'\n');}}
  };
 }
