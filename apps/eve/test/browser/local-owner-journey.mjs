@@ -16,16 +16,20 @@ export async function startLocalOwnerJourney({source,owner,pool,databaseUrl,outp
  assert.equal(browserProvenance.schema,'owner-browser-provenance/v1');
  assert.equal(process.env.AGENT_BROWSER_EXECUTABLE_PATH,browserProvenance.browser.executable);
  assert.equal(process.env.MC_OWNER_BROWSER_CLI,browserProvenance.driver.launcher);
+ const fixture=JSON.parse(await readFile(join(source,'CHECKPOINT_H_FIXTURE.json'),'utf8'));
+ const workDatastore={...fixture.workDatastore,transportSha256:fixture.transformedHashes['apps/eve/test/browser/local-transport.cjs']};
+ assert.equal(workDatastore.mode,'qualification');assert.equal(workDatastore.database,'myeve_beta_enterprise');assert.match(workDatastore.transportSha256,/^[a-f0-9]{64}$/);
  const configFile=join(source,'runtime-browser-config.json'),password=randomBytes(24).toString('hex');
  const env=enterpriseBrowserEnvironment({source,owner,output,password,databaseUrl,runtimeConfigFile:configFile});
+ assert.equal(env.MYEVE_BETA_MODE,workDatastore.mode);assert.equal(new URL(env.MYEVE_BETA_DATABASE_URL).pathname,'/'+workDatastore.database);
  const build=await buildProductionBrowser({app,output,require,env});
  const log=await open(join(output,'server.log'),'wx'),session='myeve-owner-'+randomUUID(),checks=[];
  let agent,server;
- const cli=async(...args)=>{try{return (await execute(process.execPath,[browserProvenance.driver.launcher,'--session',session,...args],{timeout:45000,maxBuffer:1024*1024})).stdout;}catch(error){if(args.includes(password))throw Error('Owner login input failed; credential redacted');throw error;}};
+ const cli=async(...args)=>(await execute(process.execPath,[browserProvenance.driver.launcher,'--session',session,...args],{timeout:45000,maxBuffer:1024*1024})).stdout;
  const snapshot=()=>cli('snapshot','-c');
  const lastCard='Array.from(document.querySelectorAll(\'[aria-label="Enterprise Result and Proof"]\')).at(-1)';
  const cardText=async()=>JSON.parse(await cli('eval',`${lastCard}?.innerText ?? ""`));
- const waitCard=async test=>{for(let n=0;n<90;n++){const text=await cardText();if(test(text))return text;await new Promise(r=>setTimeout(r,300));}throw Error('The current Result card did not show its exact accepted Proof');};
+ const waitCard=async test=>{for(let n=0;n<90;n++){const text=await cardText();if(test(text))return text;await new Promise(r=>setTimeout(r,300));}throw Error('The current Result card did not show the required state and Proof');};
  const wait=async(test)=>{for(let n=0;n<90;n++){let text='';try{text=(await cli('get','text','body'))+'\n'+await snapshot();}catch(error){if(!/Element not found: body\b/.test(String(error.stderr??error.message)))throw error;}if(test(text))return text;await new Promise(r=>setTimeout(r,300));}throw Error('MyEve owner UI did not reach expected state');};
  const send=async text=>{await cli('find','role','textbox','fill',text,'--name','Message Sofie','--exact');await cli('find','role','button','click','--name','Send','--exact');};
  const actions=async()=> (await pool.query("SELECT id,trigger->>'id' AS session_id,provider_receipt FROM action_requests WHERE owner_id=$1 AND trigger->>'kind'='owner_chat' AND capability_id='tool.mission_control' AND status='completed' ORDER BY created_at",[owner])).rows;
@@ -39,7 +43,7 @@ export async function startLocalOwnerJourney({source,owner,pool,databaseUrl,outp
   await new Promise((resolve,reject)=>{const child=execFile(process.execPath,[browserProvenance.driver.launcher,'--session',session,'batch','--bail','--json'],{timeout:45000,maxBuffer:1024*1024},error=>error?reject(Error('Owner login input failed; credential redacted')):resolve());child.stdin.on('error',()=>reject(Error('Owner login input failed; credential redacted')));child.stdin.end(JSON.stringify([['find','label','Your access password','fill',password],['find','role','button','click','--name','Open Sofie','--exact']]));});
   await wait(t=>t.includes('Message Sofie'));await cli('find','role','button','click','--name','New conversation','--exact');checks.push('actual-password-owner-login');
  }catch(error){await cli('close').catch(()=>{});await stopOwnedProcess(server);await stopOwnedProcess(agent);await log.close();throw error;}
- const commands=[];let ownerHandoff;
+ const commands=[];let ownerHandoff,workProgressReadback;
  return {
   ownerHandoff(){assert.ok(ownerHandoff,'Actual MyEve owner link must be observed');return ownerHandoff;},
   async command(input,binding,{deferReadback=false}={}){
@@ -72,7 +76,7 @@ export async function startLocalOwnerJourney({source,owner,pool,databaseUrl,outp
   async result(input,binding,{deferReadback=false}={}){
     const receipt=await this.command(input,binding,{deferReadback}),result=receipt.response;
     assert.equal(result.status,'AVAILABLE');assert.equal(result.missionId,input.missionId);
-    await waitCard(text=>text.includes('Enterprise Result and Proof')&&text.includes('Mission '+input.missionId)&&text.includes('Recorded owner acceptance: '+result.ownerAcceptance));
+    await waitCard(text=>text.includes('Result / Proof')&&text.includes('Mission '+input.missionId)&&text.includes('Recorded owner acceptance: '+result.ownerAcceptance));
     if(deferReadback){
       assert.equal(result.ownerAcceptance,'PENDING');
       checks.push('same-Mission-Result-and-Proof-visible','visible-Result-and-Proof-PENDING','pending-Result-visible-before-owner-acceptance');
@@ -80,16 +84,21 @@ export async function startLocalOwnerJourney({source,owner,pool,databaseUrl,outp
     }
     await cli('find','last','[aria-label="Enterprise Result and Proof"] summary','click');
     const proofText=await waitCard(text=>text.includes('Recorded owner acceptance: ACCEPTED')&&result.workOrders.every(work=>text.includes('WorkOrder: '+work.workOrderId)&&text.includes('Candidate: '+work.candidate)&&text.includes('Independent verifier: '+work.verificationAttemptId)&&text.includes('Evidence: '+work.evidenceSetDigest)&&text.includes('Proof: '+work.proofDigest)));
-    let workStatus=0;for(let n=0;n<60;n++){workStatus=Number((await cli('eval','performance.getEntriesByType("resource").filter(r=>new URL(r.name).pathname==="/api/work-thread").at(-1)?.responseStatus ?? 0')).trim());if(workStatus)break;await new Promise(r=>setTimeout(r,100));}
-    assert.equal(workStatus,200,'Canonical Work progress must read its real disposable datastore');
+    const threads=(await pool.query("SELECT id FROM web_chat_threads WHERE owner_id=$1 AND chat #>> '{session,sessionId}'=$2",[owner,commands.at(-1).sessionId])).rows;
+    assert.equal(threads.length,1,'Work readback must bind this exact owner and browser session');
+    const threadId=threads[0].id,startedAt=Date.now();
+    const progress=JSON.parse(await cli('eval',`(async()=>{const r=await fetch('/api/work-thread?threadId='+encodeURIComponent(${JSON.stringify(threadId)}),{cache:'no-store'});return {status:r.status,body:await r.json()};})()`));
+    assert.equal(progress.status,200,'Canonical Work progress must read its real disposable datastore');assert.deepEqual(progress.body.works,[],'Enterprise intake cannot silently create separate Beta Work');
     assert.ok(!(await cli('get','text','body')).includes('Work progress could not be refreshed.'));
+    await new Promise(r=>setTimeout(r,750));assert.ok(!(await cli('get','text','body')).includes('Work progress could not be refreshed.'));
+    workProgressReadback={threadId,sessionId:commands.at(-1).sessionId,startedAt,completedAt:Date.now(),httpStatus:progress.status,workCount:progress.body.works.length,afterAcceptedProof:true,warningChecks:2};
     checks.push('canonical-Work-progress-readback-without-error');
     await cli('eval',`${lastCard}?.scrollIntoView({block:"start"})`);
     await cli('screenshot',join(output,'visible-result-'+result.ownerAcceptance.toLowerCase()+'.png'),'--full');
     await writeFile(join(output,'visible-result-'+result.ownerAcceptance.toLowerCase()+'.txt'),proofText);
     checks.push('same-Mission-Result-and-Proof-visible','visible-Result-and-Proof-'+result.ownerAcceptance);return receipt;
   },
-  report(){const accepted=commands.length===4&&commands.at(-1).status==='AVAILABLE'&&commands.at(-1).ownerAcceptance==='ACCEPTED'&&checks.includes('visible-Result-and-Proof-ACCEPTED')&&checks.includes('canonical-Work-progress-readback-without-error');const pending=commands.length===3&&commands.at(-1).status==='AVAILABLE'&&commands.at(-1).ownerAcceptance==='PENDING'&&checks.includes('pending-Result-visible-before-owner-acceptance');return {status:accepted?'PASS':pending?'PENDING_OWNER_ACCEPTANCE':'INCOMPLETE',authentication:'ACTUAL_MYEVE_PASSWORD_SESSION',model:'DETERMINISTIC_FIXTURE',build,browserProvenance,checks,commands,ownerHandoff,paidOperations:0,hostedClerk:'NOT_RUN'};},
+  report(){const accepted=commands.length===4&&commands.at(-1).status==='AVAILABLE'&&commands.at(-1).ownerAcceptance==='ACCEPTED'&&checks.includes('visible-Result-and-Proof-ACCEPTED')&&checks.includes('canonical-Work-progress-readback-without-error');const pending=commands.length===3&&commands.at(-1).status==='AVAILABLE'&&commands.at(-1).ownerAcceptance==='PENDING'&&checks.includes('pending-Result-visible-before-owner-acceptance');return {status:accepted?'PASS':pending?'PENDING_OWNER_ACCEPTANCE':'INCOMPLETE',authentication:'ACTUAL_MYEVE_PASSWORD_SESSION',model:'DETERMINISTIC_FIXTURE',build,browserProvenance,workDatastore,workProgressReadback,checks,commands,ownerHandoff,paidOperations:0,hostedClerk:'NOT_RUN'};},
   async stop(){try{await cli('close');}finally{await stopOwnedProcess(server);await stopOwnedProcess(agent);await log.close();await writeFile(join(output,'report.json'),JSON.stringify(this.report(),null,2)+'\n');}}
  };
 }

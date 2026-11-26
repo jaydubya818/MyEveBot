@@ -14,7 +14,9 @@ assert.ok(['linux','darwin'].includes(process.platform)&&['x64','arm64'].include
 const native=join(packageRoot,'bin',`agent-browser-${process.platform}-${process.arch}`);
 const hash=async file=>createHash('sha256').update(await readFile(file)).digest('hex');
 const executable=await realpath(chromium.executablePath());
-const playwrightFile=toolRequire.resolve('playwright-core/package.json');
+const testRequire=createRequire(createRequire(import.meta.url).resolve('@playwright/test/package.json'));
+const playwrightRequire=createRequire(testRequire.resolve('playwright/package.json'));
+const playwrightFile=playwrightRequire.resolve('playwright-core/package.json');
 const playwright=JSON.parse(await readFile(playwrightFile,'utf8'));
 const browser=(JSON.parse(await readFile(join(dirname(playwrightFile),'browsers.json'),'utf8'))).browsers.find(b=>b.name==='chromium');
 const version=execFileSync(executable,['--version'],{encoding:'utf8',timeout:10000}).trim();

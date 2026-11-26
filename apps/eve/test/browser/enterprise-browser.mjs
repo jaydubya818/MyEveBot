@@ -72,6 +72,8 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
   try {
     const manifestBytes=await readFile(join(source,'CHECKPOINT_H_FIXTURE.json'));
     const manifest=JSON.parse(manifestBytes);assert.match(manifest.sha,/^[a-f0-9]{40}$/);
+    report.workDatastore=manifest.workDatastore;
+    assert.equal(report.workDatastore.mode,'qualification');assert.equal(report.workDatastore.database,'myeve_beta_enterprise');
     Object.assign(report,{myEveSourceSha:manifest.sha,sourceMode:'INSTRUMENTED_SOURCE_COPY',sourceOverlays:manifest.overlays,fixtureManifestSha256:createHash('sha256').update(manifestBytes).digest('hex')});
     state=warmed??await start({source,owner,databaseUrl,...(input.operation==='enterprise.result'?{runtimeConfigFile:join(source,'runtime-browser-config.json')}:{})});warmed=undefined;const {page}=state;report.checks.push(...state.checks);report.browserBuild=state.browserBuild;
     await page.getByRole('button',{name:'New conversation',exact:true}).click();

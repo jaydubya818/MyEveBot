@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      MISSIONCONTROL_EXPECTED_SHA: 74597e702b2acf7373adfb5c1b4784005a986491
+      MISSIONCONTROL_EXPECTED_SHA: 993e3dfa5ad5eb33b28b8f5061db146eee4d815c
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 74597e702b2acf7373adfb5c1b4784005a986491
+          ref: 993e3dfa5ad5eb33b28b8f5061db146eee4d815c
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -89,7 +89,7 @@ jobs:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 74597e702b2acf7373adfb5c1b4784005a986491
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 993e3dfa5ad5eb33b28b8f5061db146eee4d815c
       - name: Actual password login, delayed persistence, reconnect and failed save
         if: ${{ !cancelled() }}
         run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
