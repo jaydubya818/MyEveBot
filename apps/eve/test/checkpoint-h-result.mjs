@@ -32,7 +32,9 @@ try {
   report.proof=validateHybrid(journey,records,report.missionControlSha);
   report.browser=journey.stages.completedEnterpriseResultConsumer?.browser??{status:'NOT_RUN'};
   report.execution={native:journey.nativeExecution,hybrid:journey.hybridMission,accounting:journey.nativeDelegatedAccounting};
+  report.runnerExitCode=log.status;report.backendFunctionTiming=journey.completedResultFunctionTiming??{status:'NOT_RUN'};
   report.status=log.status===0&&report.browser.status==='PASS'?'PASS':'FAIL';
+  if(log.status!==0)report.error='LINKED_NATIVE_QUALIFICATION_NONZERO; inspect retained hybrid.log and backendFunctionTiming';
   if(process.env.MC_LOCAL_OWNER_UI==='1'&&report.status==='PASS'){
     assert.equal(journey.stages.linkedOwnerReview?.localOwnerUi?.status,'PASS');
     assert.equal(journey.stages.acceptedResultOwnerBrowser?.status,'PASS');
