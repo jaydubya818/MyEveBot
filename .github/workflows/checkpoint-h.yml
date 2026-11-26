@@ -9,10 +9,10 @@ permissions:
 # Advisory. Green jobs never establish the full cross-system owner journey.
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      MISSIONCONTROL_EXPECTED_SHA: 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
+      MISSIONCONTROL_EXPECTED_SHA: f5a7ca311c94ea2b82d49427690c46137a41445a
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
+          ref: f5a7ca311c94ea2b82d49427690c46137a41445a
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -82,7 +82,7 @@ jobs:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" f5a7ca311c94ea2b82d49427690c46137a41445a
       - name: Composed authenticated Result with exact execution runtime
         if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
