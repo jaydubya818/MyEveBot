@@ -30,7 +30,7 @@ try {
   const journey=JSON.parse(await readFile(join(output,'hybrid/journey.json'),'utf8'));
   const records=JSON.parse(await readFile(join(output,'hybrid/durable-records.json'),'utf8'));
   report.proof=validateHybrid(journey,records,report.missionControlSha);
-  report.browser=journey.stages.completedEnterpriseResultConsumer?.browser??{status:'NOT_RUN'};
+  report.browser=(process.env.MC_LOCAL_OWNER_UI==='1'?journey.stages.acceptedResultOwnerBrowser:journey.stages.completedEnterpriseResultConsumer?.browser)??{status:'NOT_RUN'};
   report.execution={native:journey.nativeExecution,hybrid:journey.hybridMission,accounting:journey.nativeDelegatedAccounting};
   report.runnerExitCode=log.status;report.backendFunctionTiming=journey.completedResultFunctionTiming??{status:'NOT_RUN'};
   report.status=log.status===0&&report.browser.status==='PASS'?'PASS':'FAIL';
@@ -46,6 +46,10 @@ try {
     assert.ok(journey.stages.acceptedResultOwnerBrowser.checks.includes('visible-Result-and-Proof-ACCEPTED'));
     assert.equal(typeof journey.stages.acceptedResultOwnerBrowser.ownerHandoff,'string');
     assert.ok(commands.filter(c=>c.missionId).every(c=>c.missionId===journey.stages.linkedOwnerReview.missionId));
+    assert.equal(journey.stages.completedEnterpriseResultConsumer.browser.status,'PENDING_OWNER_ACCEPTANCE');
+    assert.match(report.browser.browserProvenance.driver.nativeSha256,/^[a-f0-9]{64}$/);
+    assert.equal(report.browser.browserProvenance.driver.nativeSha256,journey.stages.linkedOwnerReview.localOwnerUi.browserProvenance.driver.nativeSha256);
+    assert.equal(report.browser.browserProvenance.browser.sha256,journey.stages.linkedOwnerReview.localOwnerUi.browserProvenance.browser.sha256);
     report.fullJourney='LOCAL_SYNTHETIC_OWNER_UI';
     report.ownerUi=journey.stages.linkedOwnerReview.localOwnerUi;
     report.acceptedBrowserReadback=journey.stages.acceptedResultOwnerBrowser;

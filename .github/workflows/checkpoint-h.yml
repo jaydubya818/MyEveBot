@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      MISSIONCONTROL_EXPECTED_SHA: c837fb49d31fbf67635f7ffc0e42b415a44312d8
+      MISSIONCONTROL_EXPECTED_SHA: 74597e702b2acf7373adfb5c1b4784005a986491
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -25,9 +25,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Install pinned background owner UI driver
         run: |
-          npm install --prefix "$RUNNER_TEMP/owner-browser" --ignore-scripts --no-audit --no-fund agent-browser@0.34.0
-          "$RUNNER_TEMP/owner-browser/node_modules/.bin/agent-browser" install
-          printf '%s\n' "$RUNNER_TEMP/owner-browser/node_modules/.bin" >> "$GITHUB_PATH"
+          npm ci --prefix apps/eve/test/browser/owner-driver --ignore-scripts --no-audit --no-fund
+          node apps/eve/test/browser/owner-browser-provenance.mjs "$RUNNER_TEMP/checkpoint-h/driver.json"
       - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
       - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
@@ -35,7 +34,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: c837fb49d31fbf67635f7ffc0e42b415a44312d8
+          ref: 74597e702b2acf7373adfb5c1b4784005a986491
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -76,6 +75,7 @@ jobs:
           MC_LOCAL_OWNER_UI: '1'
         run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"
       - name: Authenticated enterprise proposal and canonical owner isolation
+        if: ${{ !cancelled() }}
         env:
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MYEVE_CHECKPOINT_H_BROWSER: '1'
@@ -84,12 +84,14 @@ jobs:
           node apps/eve/test/browser/prepare-enterprise.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/sofie-browser-source"
           node --import tsx "$RUNNER_TEMP/sofie-browser-source/apps/eve/test/missioncontrol-consumer.integration.mjs" "$RUNNER_TEMP/checkpoint-h/proposal"
       - name: Complete Result consumer security with four fresh hybrid cohorts
+        if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" c837fb49d31fbf67635f7ffc0e42b415a44312d8
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 74597e702b2acf7373adfb5c1b4784005a986491
       - name: Actual password login, delayed persistence, reconnect and failed save
+        if: ${{ !cancelled() }}
         run: node apps/eve/test/browser/authenticated-binding.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/checkpoint-h/binding"
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

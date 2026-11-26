@@ -20,7 +20,7 @@ try {
 await symlink(join(source,'node_modules'),join(target,'node_modules'));await symlink(join(source,'apps/eve/node_modules'),join(target,'apps/eve/node_modules'));
 await copyFile(join(source,'apps/eve/test/browser/enterprise-model.fixture.ts'),join(target,'apps/eve/agent/agent.ts'));
 const config=join(target,'apps/eve/next.config.ts');await writeFile(config,disableFixtureDevIndicator(await readFile(config,'utf8')));
-const transport=join(target,'apps/eve/test/browser/local-transport.cjs');await writeFile(transport,(await readFile(transport,'utf8')).replace("configured.pathname !== '/blocker_fixes'","configured.pathname !== '/postgres'"));
+const transport=join(target,'apps/eve/test/browser/local-transport.cjs');await writeFile(transport,(await readFile(transport,'utf8')).replace("configured.pathname !== '/blocker_fixes'","configured.pathname !== '/myeve_beta_enterprise'"));
 const consumer=join(target,'apps/eve/lib/missioncontrol/consumer.ts');
 const code=instrumentEnterpriseRuntimeConfig(await readFile(consumer,'utf8'));
 await writeFile(consumer,instrumentEnterpriseConsumer(instrumentEnterpriseResponseFailure(code)));

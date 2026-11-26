@@ -18,22 +18,25 @@ for(const file of execFileSync('git',['ls-files','--cached','--others','--exclud
 await symlink(join(root,'node_modules'),join(source,'node_modules'));await symlink(join(root,'apps/eve/node_modules'),join(source,'apps/eve/node_modules'));
 const app=join(source,'apps/eve');await copyFile(join(root,'apps/eve/test/browser/eve-session-fixture.ts'),join(app,'agent/agent.ts'));
 const config=join(app,'next.config.ts');await writeFile(config,disableFixtureDevIndicator(await readFile(config,'utf8')));
+const transport=join(app,'test/browser/local-transport.cjs');await writeFile(transport,(await readFile(transport,'utf8')).replace("configured.pathname !== '/blocker_fixes'","configured.pathname !== '/myeve_beta_enterprise'"));
 const docker=process.env.MC_GOLDEN_DOCKER||'docker',name='checkpoint-h-'+randomUUID(),port=55539,webPort=3081,owner='checkpoint-h-owner';
 const report={schema:'checkpoint-h-binding/v1',source:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),sourceDirty:!!execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),sourceTreeDigest:createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),checks:[],status:'IN_PROGRESS',paidOperations:0,productionIntegration:'NOT_RUN',sourceCopy:source};
 report.browserRuntime='DEVELOPMENT_SERVER_WITHOUT_DEV_INDICATOR';
 report.fixtureConfig={originalHash:sourceFiles['apps/eve/next.config.ts'],transformedHash:createHash('sha256').update(await readFile(config)).digest('hex')};
+report.workDatastore={mode:'qualification',database:'myeve_beta_enterprise',transportOriginalHash:sourceFiles['apps/eve/test/browser/local-transport.cjs'],transportTransformedHash:createHash('sha256').update(await readFile(transport)).digest('hex')};
 let pool,server,browser,page,log,container=false;
 const audit=async()=>{
  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  return page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return {violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),passes:r.passes.length};});
 };
 try {
- execFileSync(docker,['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_DB=blocker_fixes','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
- pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'blocker_fixes'});
+ execFileSync(docker,['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_DB=myeve_beta_enterprise','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
+ pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'myeve_beta_enterprise'});
  for(let n=0;;n++){try{await pool.query('SELECT 1');break;}catch(e){if(n===60)throw e;await new Promise(r=>setTimeout(r,200));}}
  for(const f of (await readdir(join(app,'migrations'))).filter(f=>f.endsWith('.sql')).sort())await pool.query(await readFile(join(app,'migrations',f),'utf8'));
  const password=randomBytes(24).toString('hex');
- const env={PATH:process.env.PATH,HOME:process.env.HOME,TMPDIR:process.env.TMPDIR,MYEVE_TEST_DATABASE_URL:`postgresql://postgres@localhost:${port}/blocker_fixes`,DATABASE_URL:`postgresql://postgres@localhost:${port}/blocker_fixes`,MYEVE_OWNER_ID:owner,OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'};
+ const databaseUrl=`postgresql://postgres@localhost:${port}/myeve_beta_enterprise`;
+ const env={PATH:process.env.PATH,HOME:process.env.HOME,TMPDIR:process.env.TMPDIR,MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_BETA_MODE:'qualification',MYEVE_BETA_DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'};
  const databaseTests=await new Promise((resolveCode,reject)=>{
    const child=spawn(process.execPath,['--import','tsx','--test','test/agent-session-binding.integration.mjs'],{cwd:app,env,stdio:['ignore','pipe','pipe']});
    let logs='';child.stdout.on('data',data=>logs+=data);child.stderr.on('data',data=>logs+=data);
@@ -54,12 +57,15 @@ try {
  await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('fixture hello');await page.getByRole('button',{name:'Send',exact:true}).click();
  await page.getByRole('status').filter({hasText:'Saving conversation'}).waitFor();
  assert.equal(await page.getByRole('button',{name:'Send',exact:true}).isDisabled(),true);
+ assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue(),'fixture hello','Forced duplicate submit requires the original nonempty draft');
  await page.getByRole('textbox',{name:'Message Sofie',exact:true}).evaluate(node=>node.closest('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
  await page.waitForTimeout(3000);report.sessionPostsWhileSavePending=report.sessionPosts.length;report.saveWasDelayed=blocked;release();
  await page.unrouteAll({behavior:'wait'});
  try{await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:90000});}catch(e){report.bindingRows=(await pool.query('SELECT id,owner_id,agent_id,role_id FROM web_chat_threads WHERE owner_id=$1',[owner])).rows;throw e;}
  assert.ok(blocked);assert.equal(report.sessionPostsWhileSavePending,0,'First send must await authorized conversation persistence');report.checks.push('delayed save precedes session execution');
  report.bindingRows=(await pool.query('SELECT id,owner_id,agent_id,role_id FROM web_chat_threads WHERE owner_id=$1',[owner])).rows;assert.ok(report.bindingRows.some(r=>r.agent_id));report.checks.push('canonical Agent binding persisted');
+ const progress=await context.request.get(`http://localhost:${webPort}/api/work-thread?threadId=${encodeURIComponent(report.bindingRows[0].id)}`);
+ assert.equal(progress.status(),200);assert.deepEqual((await progress.json()).works,[]);assert.equal(await page.getByText('Work progress could not be refreshed.',{exact:false}).count(),0);report.checks.push('canonical Work progress reads the real disposable datastore');
  await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});
  await page.waitForTimeout(1500);
  await page.screenshot({path:join(output,'first-reply.png'),fullPage:true});

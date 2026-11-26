@@ -25,8 +25,8 @@ let db,pool,container=false;
 const originalTransport=neonConfig.fetchFunction;
 try {
   execFileSync('docker',['run','--detach','--name',pgName,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,
-    '--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
-  pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'postgres',max:8});
+    '--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_DB=myeve_beta_enterprise','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
+  pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'myeve_beta_enterprise',max:8});
   let ready=false;for(let i=0;i<60;i++){try{await pool.query('SELECT 1');ready=true;break;}catch{await new Promise(r=>setTimeout(r,200));}}assert.ok(ready);
   const dir=new URL('../migrations/',import.meta.url);
   for(const file of (await readdir(dir)).filter(f=>f.endsWith('.sql')).sort())await pool.query(await readFile(new URL(file,dir),'utf8'));
@@ -64,7 +64,7 @@ try {
   let prepared;await check('actual-Sofie-tool-and-Action-Gateway-proposal',async()=>{prepared=await call(propose);assert.equal(prepared.receipt.response.proposal.title,proposal.title);});
   if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
     const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
-    receipt.browser=await qualifySofieBrowser({source:fileURLToPath(new URL('../../../',import.meta.url)),pool,input:propose,owner,db,databaseUrl:'postgresql://postgres@localhost:55519/postgres'});
+    receipt.browser=await qualifySofieBrowser({source:fileURLToPath(new URL('../../../',import.meta.url)),pool,input:propose,owner,db,databaseUrl:'postgresql://postgres@localhost:55519/myeve_beta_enterprise'});
     assert.equal(receipt.browser.status,'PASS');
   }
   const proposalId=prepared.receipt.response.proposalId,proposalDigest=prepared.receipt.response.digest;

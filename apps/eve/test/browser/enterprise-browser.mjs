@@ -22,14 +22,17 @@ export async function closeWarmSofieBrowser(){const state=warmed;warmed=undefine
 export function enterpriseBrowserEnvironment({source,owner,databaseUrl,output,password,runtimeConfigFile}) {
   const app=join(source,'apps/eve');
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>/^(PATH|HOME|TMPDIR|NODE_PATH|EVE_ENABLED_FEATURES|MYEVE_MISSIONCONTROL_.*)$/.test(key)));
-  Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,
+  const database=new URL(databaseUrl);
+  assert.ok(['postgres:','postgresql:'].includes(database.protocol)&&['localhost','127.0.0.1'].includes(database.hostname)&&database.port&&!database.search);
+  assert.equal(database.pathname,'/myeve_beta_enterprise');
+  Object.assign(env,{MYEVE_TEST_DATABASE_URL:databaseUrl,DATABASE_URL:databaseUrl,MYEVE_OWNER_ID:owner,MYEVE_BETA_MODE:'qualification',MYEVE_BETA_DATABASE_URL:databaseUrl,
     NEXT_PUBLIC_MISSIONCONTROL_OWNER_URL:'http://localhost:5188',OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_OWNER_NAME:'Qualification Owner',NEXT_PUBLIC_AGENT_NAME:'Sofie',MYEVE_ENGINEERING_MODE:'dogfood',
     MYEVE_ACCESS_PASSWORD:password,MYEVE_SESSION_SECRET:randomBytes(32).toString('hex'),MC_COMPOSED_BROWSER_INPUT:join(output,'tool-input.json'),
     NODE_OPTIONS:'--require='+join(app,'test/browser/local-transport.cjs'),NEXT_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'});
   if(runtimeConfigFile !== undefined)env.MC_COMPOSED_BROWSER_CONFIG_FILE=runtimeConfigFile;
   return env;
 }
-async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/postgres',runtimeConfigFile}) {
+async function start({source,owner,databaseUrl='postgresql://postgres@localhost:55529/myeve_beta_enterprise',runtimeConfigFile}) {
   const output=resolve(process.env.MC_COMPOSED_BROWSER_OUTPUT),app=join(source,'apps/eve');await mkdir(output,{recursive:true});
   await copyFile(join(source,'CHECKPOINT_H_FIXTURE.json'),join(output,'fixture-source.json'));
   const require=createRequire(join(source,'package.json')),password=randomBytes(24).toString('hex');

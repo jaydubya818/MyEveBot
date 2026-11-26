@@ -67,10 +67,14 @@ test('overlay rejects missing, repeated and already transformed declarations',()
 });
 
 test('actual browser startup env uses canonical proposal env and explicit Result runtime file',async()=>fixture(async({enterpriseConfig,config})=>{
-  const options={source:'/fixture-source',owner:'owner',databaseUrl:'postgresql://localhost/fixture',output:'/fixture-output',password:'fixture-only'};
+  const options={source:'/fixture-source',owner:'owner',databaseUrl:'postgresql://postgres@localhost:55529/myeve_beta_enterprise',output:'/fixture-output',password:'fixture-only'};
   // Even an inherited file setting cannot turn the proposal browser into a Result consumer.
   process.env.MC_COMPOSED_BROWSER_CONFIG_FILE=config;
   const proposal=enterpriseBrowserEnvironment(options);
+  assert.equal(proposal.MYEVE_BETA_MODE,'qualification');
+  assert.equal(proposal.MYEVE_BETA_DATABASE_URL,options.databaseUrl);
+  assert.throws(()=>enterpriseBrowserEnvironment({...options,databaseUrl:'postgresql://postgres@production.invalid:5432/myeve_beta_enterprise'}));
+  assert.throws(()=>enterpriseBrowserEnvironment({...options,databaseUrl:'postgresql://postgres@localhost:5432/postgres'}));
   assert.equal(proposal.MC_COMPOSED_BROWSER_CONFIG_FILE,undefined);
   delete process.env.MC_COMPOSED_BROWSER_CONFIG_FILE;
   assert.equal(enterpriseConfig({...pending,...proposal}).connectionId,'pending-draft');

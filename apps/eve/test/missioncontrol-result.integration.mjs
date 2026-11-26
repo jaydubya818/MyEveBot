@@ -23,12 +23,12 @@ export async function prepareCompletedResultConsumer(db) {
     (result.checkTimings??=[]).push({name,startedAt,completedAt:Date.now()});
     if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'security-check-timings.json'),JSON.stringify(result.checkTimings,null,2)+'\n');
     console.log('PASS result '+name);};
-  const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
+  const name='mc-sofie-result-'+randomUUID(),port=55529,database='myeve_beta_enterprise',databaseUrl=`postgresql://postgres@localhost:${port}/${database}`,originalTransport=neonConfig.fetchFunction;
   let pool,container=false,ownerBrowser,resultInput,resultBinding,intakeConnectionId;
   async function stop(){await ownerBrowser?.stop();if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
   try {
-    execFileSync('docker',['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
-    pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'postgres',max:8});
+    execFileSync('docker',['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e',`POSTGRES_DB=${database}`,'pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
+    pool=new Pool({host:'127.0.0.1',port,user:'postgres',database,max:8});
     let ready=false;for(let i=0;i<60;i++){try{await pool.query('SELECT 1');ready=true;break;}catch{await new Promise(r=>setTimeout(r,200));}}assert.ok(ready);
     const dir=new URL('../migrations/',import.meta.url);
     for(const file of (await readdir(dir)).filter(f=>f.endsWith('.sql')).sort())await pool.query(await readFile(new URL(file,dir),'utf8'));
@@ -54,7 +54,7 @@ export async function prepareCompletedResultConsumer(db) {
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
       if(process.env.MC_LOCAL_OWNER_UI==='1') {
         const {startLocalOwnerJourney}=await import('./browser/local-owner-journey.mjs');
-        ownerBrowser=await startLocalOwnerJourney({source:sourceRoot,owner,pool,output:process.env.MC_COMPOSED_BROWSER_OUTPUT});
+        ownerBrowser=await startLocalOwnerJourney({source:sourceRoot,owner,pool,databaseUrl,output:process.env.MC_COMPOSED_BROWSER_OUTPUT});
       } else {
         const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
         await warmSofieBrowser({source:sourceRoot,owner});
@@ -119,7 +119,7 @@ export async function prepareCompletedResultConsumer(db) {
     await check('required-observations-never-dispatch-or-settle',async()=>assert.equal(contentDigest(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'})),contentDigest(beforeRuns)));
     result.completed=completed;
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
-      if(ownerBrowser){await ownerBrowser.result(input,resultBinding,{deferReadback:true});result.browser=ownerBrowser.report();result.status=result.browser.status;return result;}
+      if(ownerBrowser){await ownerBrowser.result(input,resultBinding,{deferReadback:true});result.browser=ownerBrowser.report();assert.equal(result.browser.status,'PENDING_OWNER_ACCEPTANCE');result.status='PASS';result.boundary='PENDING Result observed before the separate owner decision; final browser acceptance remains required';return result;}
       const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
       result.browser=await qualifySofieBrowser({source:sourceRoot,pool,input,owner,db});
       result.status=result.browser.status;
