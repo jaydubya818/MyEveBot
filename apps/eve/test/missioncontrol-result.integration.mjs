@@ -119,7 +119,7 @@ export async function prepareCompletedResultConsumer(db) {
     await check('required-observations-never-dispatch-or-settle',async()=>assert.equal(contentDigest(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'})),contentDigest(beforeRuns)));
     result.completed=completed;
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
-      if(ownerBrowser){await ownerBrowser.result(input,resultBinding);result.browser=ownerBrowser.report();result.status=result.browser.status;return result;}
+      if(ownerBrowser){await ownerBrowser.result(input,resultBinding,{deferReadback:true});result.browser=ownerBrowser.report();result.status=result.browser.status;return result;}
       const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
       result.browser=await qualifySofieBrowser({source:sourceRoot,pool,input,owner,db});
       result.status=result.browser.status;

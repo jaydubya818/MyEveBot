@@ -34,13 +34,13 @@ export async function startLocalOwnerJourney({source,owner,pool,output}){
  const commands=[];let ownerHandoff;
  return {
   ownerHandoff(){assert.ok(ownerHandoff,'Actual MyEve owner link must be observed');return ownerHandoff;},
-  async command(input,binding){
+  async command(input,binding,{deferReadback=false}={}){
    await writeFile(configFile,JSON.stringify({...Object.fromEntries(Object.entries(process.env).filter(([key])=>key.startsWith('MYEVE_MISSIONCONTROL_'))),MYEVE_MISSIONCONTROL_SECRET:binding.secret,MYEVE_MISSIONCONTROL_CONNECTION_ID:binding.connectionId}),{mode:0o600});
    await writeFile(join(output,'tool-input.json'),JSON.stringify(input));const before=(await actions()).length;
    await send(input.operation==='enterprise.propose'?'Build an Agentic HR platform':input.operation==='enterprise.submit'?'Create this owner-authorized Mission draft.':'Read the exact current Result and Proof.');
    let rows;for(let n=0;n<180;n++){rows=await actions();if(rows.length===before+1)break;assert.ok(rows.length<=before+1,'A UI send cannot execute twice');await new Promise(r=>setTimeout(r,200));}
    assert.equal(rows.length,before+1,'Exactly one actual ActionGateway receipt per UI send');
-   await wait(t=>!t.includes('button "Stop"'));const receipt=rows.at(-1).provider_receipt;
+   if(!deferReadback)await wait(t=>!t.includes('button "Stop"'));const receipt=rows.at(-1).provider_receipt;
    const sessionId=rows.at(-1).session_id;assert.ok(sessionId,'Actual browser Action requires its durable session identity');
    if(commands.length)assert.equal(sessionId,commands[0].sessionId,'Reconnect must keep the same actual browser conversation');
    if(input.operation==='enterprise.propose') {
@@ -54,16 +54,22 @@ export async function startLocalOwnerJourney({source,owner,pool,output}){
    // Intake acknowledgments use the request-side signed command and durable Action ID.
    // Only Result observations carry a response authentication envelope.
    if(input.operation==='enterprise.result')assert.ok(receipt.authentication?.commandId,'Result response authentication is required');
-   commands.push({operation:input.operation,actionId:rows.at(-1).id,sessionId,commandId:receipt.authentication?.commandId??null,missionId:receipt.response.missionId??null,proposalId:receipt.response.proposalId??null,status:receipt.response.status??null,ownerAcceptance:receipt.response.ownerAcceptance??null});
+   commands.push({operation:input.operation,actionId:rows.at(-1).id,sessionId,commandId:receipt.authentication?.commandId??null,missionId:receipt.response.missionId??null,proposalId:receipt.response.proposalId??null,status:receipt.response.status??null,ownerAcceptance:receipt.response.ownerAcceptance??null,observedAt:receipt.observedAt??null,freshUntil:receipt.response.freshUntil??null});
    await writeFile(join(output,'commands.json'),JSON.stringify(commands,null,2)+'\n');
+   if(deferReadback)return receipt;
    await cli('screenshot',join(output,'command-'+commands.length+'.png'),'--full');
    await cli('reload');await wait(t=>t.includes('Deterministic Sofie readback'));checks.push('durable-reconnect-'+input.operation);
    return receipt;
   },
-  async result(input,binding){
-    const receipt=await this.command(input,binding),result=receipt.response;
+  async result(input,binding,{deferReadback=false}={}){
+    const receipt=await this.command(input,binding,{deferReadback}),result=receipt.response;
     assert.equal(result.status,'AVAILABLE');assert.equal(result.missionId,input.missionId);
     await wait(text=>text.includes('Enterprise Result and Proof')&&text.includes('Mission '+input.missionId)&&text.includes('Recorded owner acceptance: '+result.ownerAcceptance));
+    if(deferReadback){
+      assert.equal(result.ownerAcceptance,'PENDING');
+      checks.push('same-Mission-Result-and-Proof-visible','visible-Result-and-Proof-PENDING','pending-Result-visible-before-owner-acceptance');
+      return receipt;
+    }
     await cli('find','last','[aria-label="Enterprise Result and Proof"] summary','click');
     await wait(text=>result.workOrders.every(work=>text.includes('WorkOrder: '+work.workOrderId)&&text.includes('Candidate: '+work.candidate)&&text.includes('Independent verifier: '+work.verificationAttemptId)&&text.includes('Evidence: '+work.evidenceSetDigest)&&text.includes('Proof: '+work.proofDigest)));
     await cli('screenshot',join(output,'visible-result-'+result.ownerAcceptance.toLowerCase()+'.png'),'--full');
