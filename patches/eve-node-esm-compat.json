@@ -1,0 +1,27 @@
+{
+  "package": "eve",
+  "version": "0.66.3",
+  "replacement": "patches/eve-node-esm-compat/node-esm-compat-banner.js",
+  "patchedSha256": "517c5f4df18110a6f8e78b4f85787bb092f5a754755c9e5493150e68fb986cb7",
+  "source": {
+    "version": "0.70.1",
+    "commit": "dc50f62df36f839f1ff699cb9ada1d3d791c0432",
+    "url": "https://github.com/vercel/eve/commit/dc50f62df36f839f1ff699cb9ada1d3d791c0432",
+    "publishedFile": "dist/src/internal/node-esm-compat-banner.js",
+    "license": "Apache-2.0",
+    "publishedSha256": "15584cf4ccffe3af6e653467eabcab4035068ed95a9335a37907dbbc0bed3e58"
+  },
+  "scope": "Published upstream compatibility-banner module only; no runtime/channel/auth/task API upgrade",
+  "files": [
+    {
+      "path": "dist/src/internal/node-esm-compat-banner.js",
+      "upstreamSha256": "6b85c7b0476eefbbfa197fa14f4598b950fcd1f5d98666d16390bf75037e0a3a"
+    }
+  ],
+  "kind": "packaging",
+  "localAmendment": "Require a declaration terminator after the candidate binding; prose such as comma-require-all inside embedded skills is not a declaration. Retry only the exact Rolldown native AST serialization defect with pinned Acorn 8.18.0; other parser errors remain failures.",
+  "parserDependency": {
+    "package": "acorn",
+    "version": "8.18.0"
+  }
+}

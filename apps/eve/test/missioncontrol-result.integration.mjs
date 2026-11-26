@@ -24,8 +24,8 @@ export async function prepareCompletedResultConsumer(db) {
     if(process.env.MC_COMPOSED_BROWSER_OUTPUT)await writeFile(join(process.env.MC_COMPOSED_BROWSER_OUTPUT,'security-check-timings.json'),JSON.stringify(result.checkTimings,null,2)+'\n');
     console.log('PASS result '+name);};
   const name='mc-sofie-result-'+randomUUID(),port=55529,originalTransport=neonConfig.fetchFunction;
-  let pool,container=false;
-  async function stop(){if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
+  let pool,container=false,ownerBrowser,resultInput,resultBinding,intakeConnectionId;
+  async function stop(){await ownerBrowser?.stop();if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1'){const browser=await import('./browser/enterprise-browser.mjs');await browser.closeWarmSofieBrowser();await rm(new URL('../../../runtime-browser-config.json',import.meta.url),{force:true});}neonConfig.fetchFunction=originalTransport;if(pool){await pool.end();pool=null;}if(container){execFileSync('docker',['rm','-f',name],{stdio:'pipe'});container=false;}result.cleanup='VERIFIED';}
   try {
     execFileSync('docker',['run','--detach','--name',name,'--pull=never','--memory=768m','--cpus=2','-p',`127.0.0.1:${port}:5432`,'--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a'],{stdio:'pipe'});container=true;
     pool=new Pool({host:'127.0.0.1',port,user:'postgres',database:'postgres',max:8});
@@ -52,15 +52,27 @@ export async function prepareCompletedResultConsumer(db) {
     }
     process.env.EVE_ENABLED_FEATURES='missioncontrol-readiness';
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
-      const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
-      await warmSofieBrowser({source:sourceRoot,owner});
+      if(process.env.MC_LOCAL_OWNER_UI==='1') {
+        const {startLocalOwnerJourney}=await import('./browser/local-owner-journey.mjs');
+        ownerBrowser=await startLocalOwnerJourney({source:sourceRoot,owner,pool,output:process.env.MC_COMPOSED_BROWSER_OUTPUT});
+      } else {
+        const {warmSofieBrowser}=await import('./browser/enterprise-browser.mjs');
+        await warmSofieBrowser({source:sourceRoot,owner});
+      }
     }
     return { stop, applicationSecret: secret, applicationKeyId: 'result-fixture-1',
+      afterOwnerAcceptance:async()=>{
+        if(!ownerBrowser)return {status:'NOT_RUN'};
+        const receipt=await ownerBrowser.result(resultInput,resultBinding);
+        assert.equal(receipt.response.ownerAcceptance,'ACCEPTED');
+        return ownerBrowser.report();
+      },
       applicationCommand: async(input,binding)=>{
         assert.ok(['enterprise.propose','enterprise.submit'].includes(input.operation));
         Object.assign(process.env,{MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
           MYEVE_MISSIONCONTROL_SECRET:binding.secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,
           MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:binding.connectionId});
+        if(ownerBrowser){intakeConnectionId=binding.connectionId;return ownerBrowser.command(input,binding);}
         const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
         return (await executeEnterpriseTool(input,{callId:randomUUID(),session:{id:'linked-owner-intake',auth:{current:principal,initiator:principal}}})).receipt;
       }, qualify: async(missionId,{beforeSecurity}={})=>{
@@ -69,7 +81,12 @@ export async function prepareCompletedResultConsumer(db) {
     const fault=(id,patch,unset=[])=>mutate('nativeFixture:fault',{id,patch,unset});
     const connectionArgs={projectId:s.projectId,ownerMemberId:s.memberId,owningTeamId:s.teamId,expiresAt:Date.now()+600000,missionId};
     await check('owner-and-tenant-connection-isolation',async()=>{for(const client of [db.anonymous,db.peer,db.other])await assert.rejects(()=>mutate('sofieEnterprise:connect',connectionArgs,client),ownerDenied);});
-    const connection=await mutate('sofieEnterprise:connect',connectionArgs);
+    const connection=ownerBrowser ? await (async()=>{
+      assert.ok(intakeConnectionId,'Same browser intake connection required');
+      const record=await db.owner.query('nativeFixture:inspectRecord',{id:intakeConnectionId});
+      assert.ok(record?.resultScope,'Owner UI must authorize the exact Result before browser observation');
+      return {connectionId:intakeConnectionId,resultScope:record.resultScope};
+    })() : await mutate('sofieEnterprise:connect',connectionArgs);
     Object.assign(process.env,{EVE_ENABLED_FEATURES:'missioncontrol-readiness',MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:`http://127.0.0.1:${process.env.MC_COMPATIBILITY_PORT??3390}`,
       MYEVE_MISSIONCONTROL_SECRET:secret,MYEVE_MISSIONCONTROL_OWNER_ID:owner,MYEVE_MISSIONCONTROL_OPERATOR_ID:s.operatorId,MYEVE_MISSIONCONTROL_TENANT_ID:s.tenantId,
       MYEVE_MISSIONCONTROL_PROJECT_ID:s.projectId,MYEVE_MISSIONCONTROL_CONNECTION_ID:connection.connectionId});
@@ -77,6 +94,7 @@ export async function prepareCompletedResultConsumer(db) {
     const principal={authenticator:'myeve-web-session',principalId:owner,principalType:'user',attributes:{owner:'true',myeveAgentId:agent}};
     const context=()=>({callId:randomUUID(),session:{id:'synthetic-result-session',auth:{current:principal,initiator:principal}}});
     const input={operation:'enterprise.result',missionId,expectedPlanDigest:connection.resultScope.planDigest},config=enterpriseConfig();
+    resultInput=input;resultBinding={secret,connectionId:connection.connectionId};
     const call=(ctx=context())=>executeEnterpriseTool(input,ctx);
     const beforeRuns=await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'});
     const observed=await qualifyResultObservations({readTransport:()=>sendEnterpriseCommand(config,input),readTool:()=>call(),
@@ -100,6 +118,7 @@ export async function prepareCompletedResultConsumer(db) {
     await check('required-observations-never-dispatch-or-settle',async()=>assert.equal(contentDigest(await db.owner.query('nativeFixture:inspect',{table:'workflowRuns'})),contentDigest(beforeRuns)));
     result.completed=completed;
     if(process.env.MYEVE_CHECKPOINT_H_BROWSER === '1') {
+      if(ownerBrowser){await ownerBrowser.result(input,resultBinding);result.browser=ownerBrowser.report();result.status=result.browser.status;return result;}
       const {qualifySofieBrowser}=await import('./browser/enterprise-browser.mjs');
       result.browser=await qualifySofieBrowser({source:sourceRoot,pool,input,owner,db});
       result.status=result.browser.status;

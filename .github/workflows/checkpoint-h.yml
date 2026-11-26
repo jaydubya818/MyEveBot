@@ -10,7 +10,9 @@ permissions:
 jobs:
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      MISSIONCONTROL_EXPECTED_SHA: 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -19,7 +21,13 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node scripts/security/apply-dependency-patches.mjs && npm run security:patches && node --test scripts/eve-packaging.test.mjs scripts/security/apply-dependency-patches.test.mjs
       - run: npx playwright install --with-deps chromium
+      - name: Install pinned background owner UI driver
+        run: |
+          npm install --prefix "$RUNNER_TEMP/owner-browser" --ignore-scripts --no-audit --no-fund agent-browser@0.34.0
+          "$RUNNER_TEMP/owner-browser/node_modules/.bin/agent-browser" install
+          printf '%s\n' "$RUNNER_TEMP/owner-browser/node_modules/.bin" >> "$GITHUB_PATH"
       - run: docker pull pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
       - run: npx tsc --noEmit --project apps/eve/tsconfig.json
       - run: npx vitest run lib/thread-owner-conflict.test.ts lib/threads-db-owner-conflict.test.ts lib/threads-route-owner-conflict.test.ts components/enterprise-mission-card.test.tsx lib/missioncontrol/owner-review-link.test.ts
@@ -29,7 +37,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: jaydubya818/MissionControl
-          ref: 0b1c58bc1c6b53a834b5e20b07f39c638de28db9
+          ref: 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
           path: .qualification/missioncontrol
           fetch-depth: 0
           persist-credentials: false
@@ -74,13 +82,14 @@ jobs:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
-        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 0b1c58bc1c6b53a834b5e20b07f39c638de28db9
+        run: node apps/eve/test/checkpoint-h-result-security.mjs "$RUNNER_TEMP/checkpoint-h/result-security" 34f5cdb3c465b764ee1b00bcd34ddb756a3ce23c
       - name: Composed authenticated Result with exact execution runtime
         if: ${{ !cancelled() && steps.runtime.outcome == 'success' }}
         env:
           MC_OWNER_REVIEW_QUALIFICATION: '1'
           MISSIONCONTROL_SOURCE_ROOT: ${{ github.workspace }}/.qualification/missioncontrol
           MC_COMPATIBILITY_PORT: '3476'
+          MC_LOCAL_OWNER_UI: '1'
         run: node apps/eve/test/checkpoint-h-result.mjs "$RUNNER_TEMP/checkpoint-h/result"
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

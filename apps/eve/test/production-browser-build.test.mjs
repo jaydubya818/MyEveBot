@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,rm,copyFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -11,6 +11,10 @@ test('production fixture records actual build identity and fails closed on eithe
   try {
     const eve=join(root,'eve'),next=join(root,'next.cjs'),app=join(root,'app');
     await mkdir(join(eve,'bin'),{recursive:true});await mkdir(app);
+    const packaging=JSON.parse(await readFile(new URL('../../../patches/eve-node-esm-compat.json',import.meta.url),'utf8'));
+    await writeFile(join(eve,'package.json'),JSON.stringify({version:packaging.version}));
+    await mkdir(join(eve,'dist/src/internal'),{recursive:true});
+    await copyFile(new URL('../../../patches/eve-node-esm-compat/node-esm-compat-banner.js',import.meta.url),join(eve,packaging.files[0].path));
     await writeFile(join(eve,'bin/eve.js'),`if(process.argv[2]!=='build'||process.env.NODE_ENV!=='production'||process.env.CI!=='1')process.exit(90);process.exit(Number(process.env.EVE_EXIT??0));`);
     await writeFile(next,`if(process.argv.slice(2).join(' ')!=='build --webpack')process.exit(90);if(process.env.NEXT_EXIT)process.exit(Number(process.env.NEXT_EXIT));require('fs').mkdirSync('.next',{recursive:true});require('fs').writeFileSync('.next/BUILD_ID','actual-fixture-build');require('fs').writeFileSync('.next/build-manifest.json','{}');`);
     const require={resolve:name=>name==='eve/package.json'?join(eve,'package.json'):next};
@@ -20,7 +24,7 @@ test('production fixture records actual build identity and fails closed on eithe
       if(failure)await assert.rejects(run,/build must succeed/);
       else {
         const report=await run();
-        assert.deepEqual(report,{mode:'PRODUCTION_BUILD',stages:['deterministic-agent','next-production'],nextBuildId:'actual-fixture-build',nextBuildManifestSha256:createHash('sha256').update('{}').digest('hex')});
+        assert.deepEqual(report,{mode:'PRODUCTION_BUILD',stages:['deterministic-agent','next-production'],nextBuildId:'actual-fixture-build',nextBuildManifestSha256:createHash('sha256').update('{}').digest('hex'),sdkVersion:packaging.version,packagingSha256:packaging.patchedSha256,packagingSource:packaging.source});
         assert.deepEqual(JSON.parse(await readFile(join(output,'build-report.json'),'utf8')),report);
       }
       const log=await readFile(join(output,'build.log'),'utf8');assert.ok(log.includes('BUILD deterministic-agent'));

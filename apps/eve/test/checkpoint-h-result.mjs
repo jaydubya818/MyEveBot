@@ -16,7 +16,7 @@ try {
  else {
   assert.equal(sha(process.env.MC_LOCAL_MYFACTORY_ROOT),'e498c31db8b749fa91b0544ecd1d1a661b971c2c');
   const controlEnvironment={...process.env};
-  for(const key of ['MC_SOFIE_RESULT_CONSUMER_ROOT','MYEVE_CHECKPOINT_H_BROWSER','MC_COMPOSED_BROWSER_OUTPUT'])delete controlEnvironment[key];
+  for(const key of ['MC_SOFIE_RESULT_CONSUMER_ROOT','MYEVE_CHECKPOINT_H_BROWSER','MC_COMPOSED_BROWSER_OUTPUT','MC_LOCAL_OWNER_UI'])delete controlEnvironment[key];
   const controls=spawnSync(process.execPath,['--import','tsx','scripts/qualification/native-successor-journey.mts',process.env.MC_GOLDEN_RUNTIME_BUILD,process.env.MC_GOLDEN_DOCKER,join(output,'native-controls'),'execute'],{cwd:mc,encoding:'utf8',maxBuffer:32*1024*1024,env:controlEnvironment});
   await writeFile(join(output,'native-controls.log'),(controls.stdout??'')+(controls.stderr??''));
   assert.equal(controls.status,0,'Separate native fault and gate controls must pass before the positive linked journey');
@@ -33,6 +33,16 @@ try {
   report.browser=journey.stages.completedEnterpriseResultConsumer?.browser??{status:'NOT_RUN'};
   report.execution={native:journey.nativeExecution,hybrid:journey.hybridMission,accounting:journey.nativeDelegatedAccounting};
   report.status=log.status===0&&report.browser.status==='PASS'?'PASS':'FAIL';
+  if(process.env.MC_LOCAL_OWNER_UI==='1'&&report.status==='PASS'){
+    assert.equal(journey.stages.linkedOwnerReview?.localOwnerUi?.status,'PASS');
+    assert.equal(journey.stages.acceptedResultOwnerBrowser?.status,'PASS');
+    const commands=journey.stages.acceptedResultOwnerBrowser.commands;
+    assert.deepEqual(commands.map(c=>c.operation),['enterprise.propose','enterprise.submit','enterprise.result','enterprise.result']);
+    assert.ok(commands.filter(c=>c.missionId).every(c=>c.missionId===journey.stages.linkedOwnerReview.missionId));
+    report.fullJourney='LOCAL_SYNTHETIC_OWNER_UI';
+    report.ownerUi=journey.stages.linkedOwnerReview.localOwnerUi;
+    report.acceptedBrowserReadback=journey.stages.acceptedResultOwnerBrowser;
+  }
  }
 } catch(error){report.status='FAIL';report.error=String(error);}
 await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

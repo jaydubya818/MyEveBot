@@ -7,6 +7,12 @@ import {stopOwnedProcess} from './production-browser-runtime.mjs';
 
 /** Build only the isolated deterministic source copy. No deployment or provider credentials. */
 export async function buildProductionBrowser({app,output,require,env}) {
+  const sdkRoot=dirname(require.resolve('eve/package.json'));
+  const packaging=JSON.parse(await readFile(new URL('../../../../patches/eve-node-esm-compat.json',import.meta.url),'utf8'));
+  const sdk=JSON.parse(await readFile(join(sdkRoot,'package.json'),'utf8'));
+  const packagingSha256=createHash('sha256').update(await readFile(join(sdkRoot,packaging.files[0].path))).digest('hex');
+  assert.equal(sdk.version,packaging.version,'Production qualification requires the reviewed SDK version');
+  assert.equal(packagingSha256,packaging.patchedSha256,'Apply the reviewed packaging patch before building');
   const log=await open(join(output,'build.log'),'wx'),stages=[];
   try {
     for(const [name,args] of [
@@ -28,7 +34,7 @@ export async function buildProductionBrowser({app,output,require,env}) {
     const nextBuildId=(await readFile(join(app,'.next/BUILD_ID'),'utf8')).trim();
     assert.ok(nextBuildId,'Production browser must retain its actual Next.js build identity');
     const nextBuildManifestSha256=createHash('sha256').update(await readFile(join(app,'.next/build-manifest.json'))).digest('hex');
-    const report={mode:'PRODUCTION_BUILD',stages,nextBuildId,nextBuildManifestSha256};
+    const report={mode:'PRODUCTION_BUILD',stages,nextBuildId,nextBuildManifestSha256,sdkVersion:sdk.version,packagingSha256,packagingSource:packaging.source};
     await writeFile(join(output,'build-report.json'),JSON.stringify(report,null,2)+'\n');
     return report;
   } finally {await log.close();}

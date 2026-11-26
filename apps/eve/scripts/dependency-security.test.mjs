@@ -115,7 +115,10 @@ test('patch application is idempotent and rejects missing, drifted, or replaced 
     await cp(new URL('scripts/security/apply-dependency-patches.mjs', root), join(fixture, 'scripts/security/apply-dependency-patches.mjs'));
     await cp(new URL('patches', root), join(fixture, 'patches'), { recursive: true });
     await cp(new URL('node_modules/sprintf-js', root), join(fixture, 'node_modules/sprintf-js'), { recursive: true });
-    await writeFile(join(fixture, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/sprintf-js': { version: '1.1.3' } } }));
+    await cp(new URL('node_modules/eve', root), join(fixture, 'node_modules/eve'), { recursive: true });
+    await mkdir(join(fixture,'node_modules/acorn'),{recursive:true});
+    await cp(new URL('node_modules/acorn/package.json',root),join(fixture,'node_modules/acorn/package.json'));
+    await writeFile(join(fixture, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/sprintf-js': { version: '1.1.3' }, 'node_modules/eve': { version: '0.66.3' } } }));
     const run = (...args) => spawnSync(process.execPath, ['scripts/security/apply-dependency-patches.mjs', ...args], { cwd: fixture, encoding: 'utf8' });
     assert.equal(run().status, 0);
     assert.equal(run('--check').status, 0);
