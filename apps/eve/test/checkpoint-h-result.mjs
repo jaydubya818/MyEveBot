@@ -39,7 +39,9 @@ try {
     const commands=journey.stages.acceptedResultOwnerBrowser.commands;
     assert.deepEqual(commands.map(c=>c.operation),['enterprise.propose','enterprise.submit','enterprise.result','enterprise.result']);
     assert.equal(new Set(commands.map(c=>c.actionId)).size,4);
+    assert.equal(new Set(commands.map(c=>c.sessionId)).size,1);
     assert.equal(commands.at(-1).ownerAcceptance,'ACCEPTED');
+    assert.ok(journey.stages.acceptedResultOwnerBrowser.checks.includes('visible-Result-and-Proof-ACCEPTED'));
     assert.equal(typeof journey.stages.acceptedResultOwnerBrowser.ownerHandoff,'string');
     assert.ok(commands.filter(c=>c.missionId).every(c=>c.missionId===journey.stages.linkedOwnerReview.missionId));
     report.fullJourney='LOCAL_SYNTHETIC_OWNER_UI';
