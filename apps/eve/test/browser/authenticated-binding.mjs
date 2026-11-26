@@ -9,6 +9,7 @@ import {Pool} from 'pg';
 import {chromium} from '@playwright/test';
 import {checkMobileConversationLayout} from './mobile-conversation-layout.mjs';
 import {disableFixtureDevIndicator} from './enterprise-visual-overlay.mjs';
+import {requireAvailablePort} from './production-browser-runtime.mjs';
 const root=resolve(process.argv[2]),output=resolve(process.argv[3]);await mkdir(output,{recursive:true});
 const require=createRequire(join(root,'package.json'));
 const scratch=await mkdtemp(join(tmpdir(),'checkpoint-h-binding-')),source=join(scratch,'source');
@@ -39,6 +40,7 @@ try {
    child.once('error',reject);child.once('exit',async code=>{await writeFile(join(output,'database-binding.log'),logs);resolveCode(code);});
  });
  assert.equal(databaseTests,0,'Real database ownership and concurrent Agent binding tests');report.checks.push('real database ownership and concurrent binding');
+ await requireAvailablePort(webPort);
  log=await open(join(output,'server.log'),'wx');server=spawn(process.execPath,[require.resolve('next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port',String(webPort)],{cwd:app,env,stdio:['ignore',log.fd,log.fd]});
  for(let n=0;;n++){try{if((await fetch(`http://localhost:${webPort}/login`)).ok)break;}catch{}if(n===180)throw Error('Server not ready');await new Promise(r=>setTimeout(r,500));}
  browser=await chromium.launch({headless:true});const context=await browser.newContext({viewport:{width:1280,height:900}});page=await context.newPage();
@@ -50,6 +52,9 @@ try {
  let release;const gate=new Promise(r=>release=r);let blocked=false;
  await page.route('**/api/threads/*',async route=>{if(route.request().method()==='PUT'){blocked=true;await gate;}await route.continue();});
  await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('fixture hello');await page.getByRole('button',{name:'Send',exact:true}).click();
+ await page.getByRole('status').filter({hasText:'Saving conversation'}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Send',exact:true}).isDisabled(),true);
+ await page.getByRole('textbox',{name:'Message Sofie',exact:true}).evaluate(node=>node.closest('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
  await page.waitForTimeout(3000);report.sessionPostsWhileSavePending=report.sessionPosts.length;report.saveWasDelayed=blocked;release();
  await page.unrouteAll({behavior:'wait'});
  try{await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:90000});}catch(e){report.bindingRows=(await pool.query('SELECT id,owner_id,agent_id,role_id FROM web_chat_threads WHERE owner_id=$1',[owner])).rows;throw e;}
@@ -60,7 +65,19 @@ try {
  await page.screenshot({path:join(output,'first-reply.png'),fullPage:true});
  report.desktopAccessibility=await audit();assert.deepEqual(report.desktopAccessibility.violations,[],'Desktop conversation accessibility');
  await page.setViewportSize({width:390,height:844});
- await page.reload();await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:45000});
+ await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('Preserve this unsent draft across reconnect.');
+ let reconnectRelease;const reconnectGate=new Promise(resolve=>reconnectRelease=resolve);
+ await page.route('**/eve/v1/session/*/stream*',async route=>{await reconnectGate;await route.continue();});
+ await page.reload();
+ try {
+  await page.getByRole('status').filter({hasText:'Restoring conversation'}).waitFor({timeout:45000});
+  assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).isDisabled(),true);
+  assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue(),'Preserve this unsent draft across reconnect.');
+ } finally {reconnectRelease();}
+ await page.unrouteAll({behavior:'wait'});
+ await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:45000});
+ assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue(),'Preserve this unsent draft across reconnect.');
+ report.checks.push('reconnect preserves unsent draft and gates new sends');
  await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('fixture follow-up');await page.getByRole('button',{name:'Send',exact:true}).click();
  await page.waitForFunction(()=>document.body.innerText.split('Migration fixture reply.').length===3,{},{timeout:90000});assert.equal(report.sessionPosts.filter(p=>p==='/eve/v1/session').length,1);report.checks.push('same session follow-up after reconnect');
  await page.getByRole('button',{name:'Stop',exact:true}).waitFor({state:'hidden',timeout:45000});
@@ -71,6 +88,11 @@ try {
  await page.getByRole('button',{name:'Open threads',exact:true}).click();
  await page.getByRole('button',{name:'New conversation',exact:true}).click();await page.route('**/api/threads/*',async route=>{if(route.request().method()==='PUT')await route.fulfill({status:503,body:'Unavailable'});else await route.continue();});
  const before=report.sessionPosts.length;await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill('retain this draft');await page.getByRole('button',{name:'Send',exact:true}).click();await page.getByRole('alert').filter({hasText:'conversation'}).waitFor();assert.equal(report.sessionPosts.length,before);assert.equal(await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue(),'retain this draft');report.checks.push('failed save retains draft and prevents execution');
+ await page.unrouteAll({behavior:'wait'});await page.getByRole('button',{name:'Send',exact:true}).click();
+ await page.getByText('Migration fixture reply.',{exact:true}).waitFor({timeout:90000});
+ assert.equal(report.sessionPosts.length,before+1,'Recovered save starts exactly one new session');
+ assert.equal(report.sessionPosts.filter(path=>path==='/eve/v1/session').length,2,'One session for each of the two conversations');
+ report.checks.push('failed save recovers without duplicate session');
  report.status='PASS';
 } catch(e){report.status='FAIL';report.error=String(e);if(page){report.pageText=await page.locator('body').innerText().catch(()=>'');report.draft=await page.getByRole('textbox',{name:'Message Sofie',exact:true}).inputValue().catch(()=>'');await page.screenshot({path:join(output,'failure.png'),fullPage:true}).catch(()=>{});}}
 finally{await browser?.close();server?.kill('SIGTERM');if(server&&server.exitCode===null&&server.signalCode===null)await new Promise(r=>server.once('exit',r));await log?.close();await pool?.end();if(container)execFileSync(docker,['rm','-f',name],{stdio:'pipe'});report.cleanup='VERIFIED';await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}
