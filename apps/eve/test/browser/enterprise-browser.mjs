@@ -40,7 +40,7 @@ async function start({source,owner,databaseUrl='postgresql://postgres@localhost:
   const browserBuild=await buildProductionBrowser({app,output,require,env});
   await requireAvailablePort(3077);
   const log=await open(join(output,'server.log'),'wx');
-  const state={output,require,log,browserBuild,posts:[],checks:[]};
+  const state={output,require,log,browserBuild,posts:[],checks:[],workDatastore:{mode:env.MYEVE_BETA_MODE,database:new URL(env.MYEVE_BETA_DATABASE_URL).pathname.slice(1)}};
   const interrupted=signal=>{void close(state).finally(()=>process.kill(process.pid,signal));};
   const interrupt=()=>interrupted('SIGINT'),terminate=()=>interrupted('SIGTERM');
   const exiting=()=>{state.server?.kill('SIGTERM');state.agent?.kill('SIGTERM');};
@@ -76,6 +76,7 @@ export async function qualifySofieBrowser({source,pool,input,owner,databaseUrl})
     assert.equal(report.workDatastore.mode,'qualification');assert.equal(report.workDatastore.database,'myeve_beta_enterprise');
     Object.assign(report,{myEveSourceSha:manifest.sha,sourceMode:'INSTRUMENTED_SOURCE_COPY',sourceOverlays:manifest.overlays,fixtureManifestSha256:createHash('sha256').update(manifestBytes).digest('hex')});
     state=warmed??await start({source,owner,databaseUrl,...(input.operation==='enterprise.result'?{runtimeConfigFile:join(source,'runtime-browser-config.json')}:{})});warmed=undefined;const {page}=state;report.checks.push(...state.checks);report.browserBuild=state.browserBuild;
+    assert.deepEqual(state.workDatastore,manifest.workDatastore);report.workDatastore=state.workDatastore;
     await page.getByRole('button',{name:'New conversation',exact:true}).click();
     await page.getByRole('heading',{name:'Hey Qualification Owner',exact:true}).waitFor();report.checks.push('fixture-owner-display-identity-matches');
     const send=async text=>{await page.getByRole('textbox',{name:'Message Sofie',exact:true}).fill(text);await page.getByRole('button',{name:'Send',exact:true}).click();};
