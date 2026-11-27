@@ -36,3 +36,12 @@ npm-debug.log*
 
 # Assembled CLOUD P0 evidence is published by its isolated test runner.
 /output/playwright/consolidation-cloud/
+
+# Added by daily-repo-improvement
+.env
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
