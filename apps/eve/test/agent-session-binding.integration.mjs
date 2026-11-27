@@ -97,6 +97,21 @@ integration("session and thread Agent bindings are authoritative across requests
     });
     assert.equal(fromPersistedThread?.id, researcher.id, "missing Agent header must retain the persisted thread Agent");
 
+    await assert.rejects(() => resolveSessionAgent({
+      ownerId: `foreign_${ownerId}`, sessionId: `session_${crypto.randomUUID()}`,
+      auth: { current: principal(`foreign_${ownerId}`, null, threadId) }, primaryFallback: true,
+    }), /Thread does not belong/);
+    await assert.rejects(() => bindAgentRun(`session_${crypto.randomUUID()}`, "0", `foreign_${ownerId}`, researcher, threadId), /Thread does not belong/);
+
+    const racingThread = `thread_${crypto.randomUUID()}`;
+    threadIds.push(racingThread);
+    await db().query(`INSERT INTO web_chat_threads(id,owner_id,title,updated_at,chat) VALUES($1,$2,'Concurrent binding',1,'{}'::jsonb)`, [racingThread, ownerId]);
+    const contenders = await Promise.allSettled([researcher, finance].map(agent =>
+      bindAgentRun(`session_${crypto.randomUUID()}`, "0", ownerId, agent, racingThread)));
+    assert.equal(contenders.filter(r => r.status === "fulfilled").length, 1, "only one executor may bind an unbound conversation");
+    const winningRuns = await db().query(`SELECT r.agent_id FROM agent_runs r JOIN web_chat_threads t ON t.id=r.thread_id AND t.owner_id=r.owner_id AND t.agent_id=r.agent_id WHERE r.thread_id=$1`, [racingThread]);
+    assert.equal(winningRuns.length, 1, "conflicting concurrent selection must not create a Run");
+
     const legacyThreadId = `thread_${crypto.randomUUID()}`;
     threadIds.push(legacyThreadId);
     await db().query(`INSERT INTO web_chat_threads(id,owner_id,agent_id,title,updated_at,chat) VALUES($1,$2,NULL,'Legacy unbound thread',1,'{}'::jsonb)`, [legacyThreadId, ownerId]);

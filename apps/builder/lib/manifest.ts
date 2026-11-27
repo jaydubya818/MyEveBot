@@ -64,6 +64,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/engineering_work.ts",
   "agent/tools/engineering_direct.ts",
   "agent/tools/engineering_factory.ts",
+  "agent/tools/mission_control.ts",
   // Claimed for source completeness; isExcluded still removes tests from deployments.
   "agent/tools/engineering_direct.test.ts",
   "agent/tools/engineering_factory.test.ts",

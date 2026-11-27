@@ -46,3 +46,27 @@ it("reports a failed network save without quarantining the thread", async () => 
   expect(await saveThreadForCurrentOwner("offline", { title: "Draft" })).toBe(false);
   expect(threadHasOwnerConflict("offline")).toBe(false);
 });
+
+it("does not report persistence before the authorized server response", async () => {
+  let finish!: (response: Response) => void;
+  vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(resolve => { finish = resolve; })));
+  const { saveThreadForCurrentOwner } = await import("./thread-owner-conflict");
+  let settled = false;
+  const saved = saveThreadForCurrentOwner("delayed", {}).then(value => { settled = true; return value; });
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  finish(Response.json({ ok: true }));
+  expect(await saved).toBe(true);
+});
+
+it.each([401, 403, 409, 503])("fails closed on HTTP %s so sending can retain the draft", async status => {
+  vi.stubGlobal("fetch", vi.fn(async () => Response.json({ error: { code: "unavailable" } }, { status })));
+  const { saveThreadForCurrentOwner } = await import("./thread-owner-conflict");
+  expect(await saveThreadForCurrentOwner("unavailable", {})).toBe(false);
+});
+
+it("fails closed on a disconnected transport", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("Disconnected"); }));
+  const { saveThreadForCurrentOwner } = await import("./thread-owner-conflict");
+  expect(await saveThreadForCurrentOwner("disconnected", {})).toBe(false);
+});

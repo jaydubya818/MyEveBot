@@ -35,7 +35,7 @@ export function CapabilityNotice({
         <p className="text-xs font-medium text-kumo-default">
           {unavailable ? "System status unavailable" : "Limited mode"}
         </p>
-        <p className="mt-0.5 text-xs leading-5 text-kumo-subtle">{detail}</p>
+        <p className="mt-0.5 text-xs leading-5 text-kumo-default">{detail}</p>
       </div>
       <Button variant="ghost" size="sm" className="shrink-0" onClick={onReview}>
         Review setup

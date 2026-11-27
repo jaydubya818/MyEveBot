@@ -5,6 +5,8 @@
     "deploymentEnabled": {
       "codex/ui-e2e-20261102": false,
       "main": false,
+      "codex/checkpoint-h-authenticated-enterprise": false,
+      "codex/missioncontrol-enterprise-consumer": false,
       "codex/peer-message-answers": false,
       "codex/federation-request-deadline": false,
       "codex/federation-final-consolidation": false,
@@ -20,7 +22,8 @@
       "codex/peer-conversation-ui": false,
       "codex/telegram-current-integration": false,
       "codex/cloud-execution": false,
-      "codex/unified-capability-control-plane": false
+      "codex/unified-capability-control-plane": false,
+      "codex/integration-reconcile-20261104": false
     }
   },
   "functions": {

@@ -33,7 +33,23 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const migrations=await loadMigrations();await runMigrations(database(pool),migrations,()=>{});
   await runMigrations(database(upgrade),migrations.filter(m => m.name <= '0081_factory_validation_lifecycle.sql'),()=>{});
  },120000);
- afterAll(async()=>{await pool?.end();await upgrade?.end();if(admin){for(const name of names)await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}},30000);
+ afterAll(async()=>{
+  await pool?.end();await upgrade?.end();
+  if(admin){
+   // pg.Pool.end() can resolve before PostgreSQL observes the socket close.
+   // Wait for our disposable connections instead of forcibly terminating them.
+   try {
+    for(const name of names){
+     const deadline=Date.now()+5000;
+     while(Number((await admin.query('SELECT count(*) FROM pg_stat_activity WHERE datname=$1',[name])).rows[0].count)>0){
+      if(Date.now()>=deadline)throw Error('Disposable database connections did not close: '+name);
+      await new Promise(resolve=>setTimeout(resolve,25));
+     }
+     await admin.query('DROP DATABASE IF EXISTS '+name);
+    }
+   } finally {await admin.end();}
+  }
+ },30000);
  async function fixture(options:{db?:any;legacy?:boolean;duration?:number;save?:boolean;repository?:string;factoryVersion?:string;owner?:string;maxCost?:number;noDecision?:boolean}={}){
   const p=options.db??pool,owner=options.owner??'disposable-validation-owner',store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database(p));
   const created=await store.create({title:'Immutable preparation regression',objective:'Offline model-free PostgreSQL qualification',repository:options.repository??'fixture/normalizer',criteria:[{id:randomUUID(),statement:'Preserve preparation',method:'test'}],maxCostUsd:options.maxCost??1,maxDurationSeconds:180,idempotencyKey:randomUUID()});

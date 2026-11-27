@@ -94,6 +94,7 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
+import { EnterpriseMissionCard } from "@/components/enterprise-mission-card";
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
 import type { CapabilityStatus } from "@/lib/capabilities";
@@ -256,10 +257,13 @@ function loadThreadIndex(): ThreadIndex {
     if (legacy) {
       ownerLocalStorage.setItem(chatKey(meta.id), legacy);
       ownerLocalStorage.removeItem(LEGACY_CHAT_KEY);
+    } else {
+      saveLocalChat(meta.id, {});
     }
     return { activeId: meta.id, threads: [meta] };
   } catch {
     const meta = newThreadMeta();
+    saveLocalChat(meta.id, {});
     return { activeId: meta.id, threads: [meta] };
   }
 }
@@ -965,11 +969,14 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         return;
       }
       if (chat) saveLocalChat(threadId, chat);
-      setActiveChat((prev) => ({
-        threadId,
-        chat: chat ?? {},
-        revision: prev?.threadId === threadId ? (prev.revision ?? 0) + 1 : 0,
-      }));
+      setActiveChat((prev) => {
+        if (!chat && prev?.threadId === threadId) return prev;
+        return {
+          threadId,
+          chat: chat ?? {},
+          revision: prev?.threadId === threadId ? (prev.revision ?? 0) + 1 : 0,
+        };
+      });
     });
     return () => {
       cancelled = true;
@@ -2444,15 +2451,17 @@ function ChatThread({
         </div>
       )}
       <div className="mx-auto flex size-full max-w-3xl min-h-0 flex-col px-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          shape="square"
-          icon={SidebarSimpleIcon}
-          className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
-          aria-label="Open threads"
-          onClick={onOpenSidebar}
-        />
+        <div className="flex shrink-0 py-2 md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="min-h-11 min-w-11"
+            aria-label="Open threads"
+            onClick={onOpenSidebar}
+          />
+        </div>
 
         {agentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
@@ -3110,7 +3119,7 @@ function ChatMessage({
     <Message align={align}>
       <MessageContent className="gap-2">
         {message.parts.map((part, index) => (
-          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} />
+          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} onEnterpriseRefresh={!busy && !readOnly ? onRetry : undefined} />
         ))}
         {message.role === "assistant" && text.length > 0 && (
           <div className={cn(actionRowClass, !assistantDone && "invisible")}>
@@ -3188,11 +3197,13 @@ function ChatMessage({
 }
 
 function ChatPart({
+  onEnterpriseRefresh,
   part,
   role,
   readOnly,
   onRespond,
 }: {
+  onEnterpriseRefresh?: (message: string) => void;
   part: EveMessagePart;
   role: "assistant" | "user";
   readOnly: boolean;
@@ -3281,6 +3292,7 @@ function ChatPart({
 
       return (
         <div className="flex flex-col gap-2">
+          {part.toolName === "mission_control" && part.state === "output-available" && <EnterpriseMissionCard input={part.input} output={part.output} onRefresh={onEnterpriseRefresh} />}
           {expandable ? (
             <details>
               <summary aria-label={`${label}. Open Proof of Work / Advanced`} className="w-fit cursor-pointer list-none rounded-md hover:brightness-125 [&::-webkit-details-marker]:hidden">
