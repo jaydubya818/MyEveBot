@@ -257,6 +257,8 @@ function loadThreadIndex(): ThreadIndex {
     if (legacy) {
       ownerLocalStorage.setItem(chatKey(meta.id), legacy);
       ownerLocalStorage.removeItem(LEGACY_CHAT_KEY);
+    } else {
+      saveLocalChat(meta.id, {});
     }
     return { activeId: meta.id, threads: [meta] };
   } catch {
