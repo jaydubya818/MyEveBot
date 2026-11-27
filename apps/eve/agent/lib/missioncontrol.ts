@@ -10,7 +10,7 @@ export function enterpriseAdapter(config:EnterpriseConfig,input:EnterpriseInput)
   const observationId=input.operation==='enterprise.result'?randomUUID():null;
   return {
     async resolveTarget(){return {provider:'missioncontrol',account:config.missionControlOwnerId,
-      resource:`${config.projectId}/${config.connectionId}${observationId ? '/result-observation/'+observationId : ''}`,environment:'ISOLATED_DETERMINISTIC'};},
+      resource:`${config.projectId}/${config.connectionId}${observationId ? '/result-observation/'+observationId : ''}`,environment:config.mode};},
     async execute(parameters,authority){
       await consumeActionAuthority(authority,parameters,CAPABILITY);
       await consumeProviderAuthority(authority,parameters,CAPABILITY);

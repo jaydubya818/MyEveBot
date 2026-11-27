@@ -6,6 +6,7 @@ export { enterpriseInput, enterpriseResult, type EnterpriseInput } from './contr
 export const APPLICATION = 'myeve-sofie-readiness-v1';
 export const CAPABILITY = 'tool.mission_control';
 export interface EnterpriseConfig {
+  mode:'ISOLATED_DETERMINISTIC'|'STAGING_OWNER_QUALIFICATION';
   endpoint:string; ownerId:string; missionControlOwnerId:string; tenantId:string; projectId:string; connectionId:string; secret:string;
 }
 /** Canonical mc-service-command-v1 encoding; parity is checked against pinned MissionControl source. */
@@ -17,14 +18,18 @@ export function canonical(value: unknown): string {
 export const contentDigest = (value: unknown) => 'sha256:' + createHash('sha256').update(canonical(value)).digest('hex');
 
 export function enterpriseConfig(env: NodeJS.ProcessEnv = process.env): EnterpriseConfig {
-  if (env.MYEVE_MISSIONCONTROL_MODE !== 'ISOLATED_DETERMINISTIC') throw Error('ENTERPRISE_DISABLED');
+  const mode=env.MYEVE_MISSIONCONTROL_MODE;
+  if (mode !== 'ISOLATED_DETERMINISTIC' && mode !== 'STAGING_OWNER_QUALIFICATION') throw Error('ENTERPRISE_DISABLED');
   const required = (name:string) => {const value=env[name];if(!value || value!==value.trim())throw Error('ENTERPRISE_UNCONFIGURED');return value;};
   const endpoint=required('MYEVE_MISSIONCONTROL_URL'), url=new URL(endpoint);
-  // This engineering candidate cannot address any cloud or production endpoint.
-  if(url.protocol!=='http:' || url.hostname!=='127.0.0.1' || !url.port || url.pathname!=='/' || url.search || url.hash || url.username || url.password)
+  // The hosted qualification target is a dedicated empty staging deployment.
+  const destinationAllowed=mode==='ISOLATED_DETERMINISTIC'
+    ? url.protocol==='http:' && url.hostname==='127.0.0.1' && Boolean(url.port)
+    : url.origin==='https://rightful-grasshopper-709.convex.cloud';
+  if(!destinationAllowed || url.pathname!=='/' || url.search || url.hash || url.username || url.password)
     throw Error('ENTERPRISE_DESTINATION_DENIED');
   const secret=required('MYEVE_MISSIONCONTROL_SECRET');if(secret.length<32)throw Error('ENTERPRISE_UNCONFIGURED');
-  return Object.freeze({endpoint:url.origin,secret,ownerId:required('MYEVE_MISSIONCONTROL_OWNER_ID'),
+  return Object.freeze({mode,endpoint:url.origin,secret,ownerId:required('MYEVE_MISSIONCONTROL_OWNER_ID'),
     missionControlOwnerId:required('MYEVE_MISSIONCONTROL_OPERATOR_ID'),tenantId:required('MYEVE_MISSIONCONTROL_TENANT_ID'),
     projectId:required('MYEVE_MISSIONCONTROL_PROJECT_ID'),connectionId:required('MYEVE_MISSIONCONTROL_CONNECTION_ID')});
 }

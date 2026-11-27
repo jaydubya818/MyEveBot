@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
-import {APPLICATION,enterpriseConfig,enterpriseInput,contentDigest,signedCommand,validateResponse} from '../lib/missioncontrol/consumer.ts';
+import {APPLICATION,enterpriseConfig,enterpriseInput,contentDigest,signedCommand,validateResponse,sendEnterpriseCommand} from '../lib/missioncontrol/consumer.ts';
 import {executeEnterpriseTool,enterpriseAdapter} from '../agent/lib/missioncontrol.ts';
 import {getCapability} from '../lib/capability-registry.ts';
 const env={EVE_ENABLED_FEATURES:'missioncontrol-readiness',MYEVE_MISSIONCONTROL_MODE:'ISOLATED_DETERMINISTIC',MYEVE_MISSIONCONTROL_URL:'http://127.0.0.1:3398',
@@ -14,6 +14,24 @@ function response(response=body){return {schema:'sofie-enterprise-response/v1',a
 test('disabled by default, never routable to production',()=>{
   assert.throws(()=>enterpriseConfig({}));assert.equal(getCapability('tool.mission_control',{}).availability.status,'disabled');
   for(const url of ['https://example.com','http://localhost:3398','http://127.0.0.1:3398/path','http://user@127.0.0.1:3398','http://127.0.0.1:3398/?x=1'])assert.throws(()=>enterpriseConfig({...env,MYEVE_MISSIONCONTROL_URL:url}));
+});
+test('staging qualification allows only the dedicated HTTPS backend',()=>{
+  const staging={...env,MYEVE_MISSIONCONTROL_MODE:'STAGING_OWNER_QUALIFICATION',MYEVE_MISSIONCONTROL_URL:'https://rightful-grasshopper-709.convex.cloud'};
+  assert.equal(enterpriseConfig(staging).endpoint,staging.MYEVE_MISSIONCONTROL_URL);
+  for(const url of ['https://gallant-cassowary-27.convex.cloud','https://different-gopher-55.convex.cloud',
+    'https://another.convex.cloud','https://rightful-grasshopper-709.convex.cloud.attacker.test',
+    'https://sub.rightful-grasshopper-709.convex.cloud','http://rightful-grasshopper-709.convex.cloud',
+    'https://rightful-grasshopper-709.convex.cloud:8443','https://rightful-grasshopper-709.convex.cloud/path',
+    'https://rightful-grasshopper-709.convex.cloud/?token=x','https://rightful-grasshopper-709.convex.cloud/#fragment',
+    'https://user@rightful-grasshopper-709.convex.cloud','http://127.0.0.1:3398'])
+    assert.throws(()=>enterpriseConfig({...staging,MYEVE_MISSIONCONTROL_URL:url}),/DESTINATION_DENIED/);
+  assert.throws(()=>enterpriseConfig({...env,MYEVE_MISSIONCONTROL_URL:staging.MYEVE_MISSIONCONTROL_URL}),/DESTINATION_DENIED/);
+  assert.throws(()=>enterpriseConfig({...staging,MYEVE_MISSIONCONTROL_MODE:'PRODUCTION'}),/DISABLED/);
+});
+test('Action target records the selected qualification environment',async()=>{
+  const staging=enterpriseConfig({...env,MYEVE_MISSIONCONTROL_MODE:'STAGING_OWNER_QUALIFICATION',MYEVE_MISSIONCONTROL_URL:'https://rightful-grasshopper-709.convex.cloud'});
+  assert.equal((await enterpriseAdapter(staging,input).resolveTarget()).environment,'STAGING_OWNER_QUALIFICATION');
+  assert.equal((await enterpriseAdapter(config,input).resolveTarget()).environment,'ISOLATED_DETERMINISTIC');
 });
 test('only bounded proposal, submit, read and inspect operations, zero budget, no identity or approval inputs',()=>{
   assert.deepEqual(enterpriseInput.parse(input),input);
@@ -57,6 +75,11 @@ test('Result protocol requires keyed response authentication and exact request, 
     const authentication={commandId:p.envelope.commandId,requestDigest:p.envelope.payloadDigest,expiresAt:now+60000};
     return {...r,authentication:{...authentication,signature:'sha256:'+createHmac('sha256',config.secret).update(contentDigest({...r,authentication})).digest('hex')}};}
   assert.equal(validateResponse(config,input,sign(),now).response.status,'NOT_AVAILABLE');
+  const staging=enterpriseConfig({...env,MYEVE_MISSIONCONTROL_MODE:'STAGING_OWNER_QUALIFICATION',MYEVE_MISSIONCONTROL_URL:'https://rightful-grasshopper-709.convex.cloud'});
+  assert.equal(validateResponse(staging,input,sign(),now).response.status,'NOT_AVAILABLE');
+  assert.throws(()=>validateResponse(staging,input,sign({...payload,scope:'PRODUCTION'}),now));
+  assert.throws(()=>validateResponse(staging,input,sign({...payload,ownerId:'foreign'}),now));
+  assert.throws(()=>validateResponse(staging,input,sign(),now+60001));
   assert.throws(()=>validateResponse(config,input,response(payload),now));
   for(const patch of [{ownerId:'foreign'},{tenantId:'foreign'},{projectId:'foreign'},{missionId:'foreign'},
     {status:'AVAILABLE',enterpriseQualityGate:'PASS',reasons:[]},{enterpriseQualityGate:'PASS'},{freshUntil:now-1},{qualityContract:{revision:2,digest:d}}])
@@ -66,4 +89,18 @@ test('Result protocol requires keyed response authentication and exact request, 
   assert.throws(()=>validateResponse({...config,secret:'other-secret'},input,sign(),now),/AUTHENTICATION/);
   assert.throws(()=>validateResponse(config,{...input,expectedPlanDigest:'sha256:'+'2'.repeat(64)},sign(),now));
   assert.throws(()=>validateResponse(config,input,sign(),now+60001));
+});
+
+test('staging transport uses the pinned endpoint, canonical signature and redirect denial',async()=>{
+  const staging=enterpriseConfig({...env,MYEVE_MISSIONCONTROL_MODE:'STAGING_OWNER_QUALIFICATION',MYEVE_MISSIONCONTROL_URL:'https://rightful-grasshopper-709.convex.cloud'});
+  assert.equal(getCapability('tool.mission_control',{...env,MYEVE_MISSIONCONTROL_MODE:staging.mode,MYEVE_MISSIONCONTROL_URL:staging.endpoint}).availability.status,'available');
+  const previous=globalThis.fetch;let calls=0;
+  globalThis.fetch=async(url,options)=>{
+    calls++;assert.equal(url,staging.endpoint+'/api/action');assert.equal(options.redirect,'error');
+    const packet=JSON.parse(options.body);assert.equal(packet.path,'sofieEnterprise:command');
+    assert.equal(packet.args[0].envelope.projectId,staging.projectId);assert.ok(packet.args[0].envelope.signature.startsWith('sha256='));
+    return new Response(JSON.stringify({status:'success',value:response()}),{headers:{'content-type':'application/json'}});
+  };
+  try{assert.equal((await sendEnterpriseCommand(staging,input)).response.proposalId,'proposal');assert.equal(calls,1);}
+  finally{globalThis.fetch=previous;}
 });
