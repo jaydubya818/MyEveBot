@@ -263,6 +263,7 @@ function loadThreadIndex(): ThreadIndex {
     return { activeId: meta.id, threads: [meta] };
   } catch {
     const meta = newThreadMeta();
+    saveLocalChat(meta.id, {});
     return { activeId: meta.id, threads: [meta] };
   }
 }
@@ -968,11 +969,14 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         return;
       }
       if (chat) saveLocalChat(threadId, chat);
-      setActiveChat((prev) => ({
-        threadId,
-        chat: chat ?? {},
-        revision: prev?.threadId === threadId ? (prev.revision ?? 0) + 1 : 0,
-      }));
+      setActiveChat((prev) => {
+        if (!chat && prev?.threadId === threadId) return prev;
+        return {
+          threadId,
+          chat: chat ?? {},
+          revision: prev?.threadId === threadId ? (prev.revision ?? 0) + 1 : 0,
+        };
+      });
     });
     return () => {
       cancelled = true;
