@@ -2437,8 +2437,8 @@
     },
     "lib/readiness.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "e0266f8ca58766bfd16eb6c981865d40eef6e69fc90d52ad1da67f274ab220eb"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed owner installation readiness: reject missing, foreign, malformed or expired configuration metadata in the diagnostic status before the existing catalog probe. No execution ports, credential values, grants, provider fallback or admission policy changed. Covered by readiness.test.ts, including expiry boundary and unchanged normal catalog probe.",
+      "sha256": "5a6e6ea10451c05203b7edd9c9790d5883eaa27e4e1ad9a195425a0c9969d0f2"
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",

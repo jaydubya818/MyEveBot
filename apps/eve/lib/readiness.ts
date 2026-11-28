@@ -7,6 +7,7 @@ import { FALLBACK_TOOLKITS, manageConnections } from "@/lib/composio-connect";
 import { capabilityMap } from "@/lib/capabilities";
 import { requiredDatabaseMigration } from "@/lib/database-schema";
 import { webAuthConfigStatus, webAuthRequired } from "@/lib/web-auth";
+import { deploymentOwnerId } from "@/lib/owner-identity";
 
 export type ReadinessState = "ready" | "setup_required" | "error" | "excluded";
 
@@ -64,6 +65,24 @@ function environmentReady(name: string): boolean {
   return Boolean(process.env[name]?.trim());
 }
 
+function ownerInstallationSetupDetail(now: number): string | null {
+  if (process.env.MYEVE_QDEV_ENABLED !== "true") return null;
+  let installation: { ownerId?: unknown; notAfter?: unknown } | null;
+  try {
+    installation = JSON.parse(process.env.MYEVE_QDEV_HOST_BUNDLE ?? "null");
+  } catch {
+    installation = null;
+  }
+  if (installation?.ownerId !== deploymentOwnerId() || typeof installation.notAfter !== "string" ||
+    !Number.isFinite(Date.parse(installation.notAfter))) {
+    return "Owner access for this installation is not configured. Complete the owner setup before using Sofie.";
+  }
+  if (Date.parse(installation.notAfter) <= now) {
+    return "Owner access for this installation has expired. Renew it through the existing installation setup before using Sofie.";
+  }
+  return null;
+}
+
 function setup(
   check: Omit<ReadinessCheck, "state" | "detail">,
   detail: string,
@@ -102,7 +121,10 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
   }
 
   const aiBase = { id: "ai" as const, label: "AI Gateway", required: true };
-  if (
+  const ownerSetupDetail = ownerInstallationSetupDetail(now);
+  if (ownerSetupDetail) {
+    checks.push(setup(aiBase, ownerSetupDetail));
+  } else if (
     !environmentReady("AI_GATEWAY_API_KEY") &&
     !environmentReady("VERCEL_OIDC_TOKEN") &&
     process.env.VERCEL !== "1"
