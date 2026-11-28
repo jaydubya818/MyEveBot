@@ -45,6 +45,9 @@ for (const features of [[], [...FEATURE_IDS]]) {
     assert.deepEqual(packaged.workspaces, ["packages/capability-control", "packages/capability-enforcement"]);
     assert.deepEqual(packaged.overrides, repository.overrides);
     assert.deepEqual(packaged.dependencies, application.dependencies);
+    const packagingPatch = JSON.parse(byPath.get("patches/eve-node-esm-compat.json")!.toString());
+    assert.equal(packaged.devDependencies.acorn, packagingPatch.parserDependency.version);
+    assert.deepEqual(byPath.get(packagingPatch.replacement), await readFile(path.resolve(root, "../..", packagingPatch.replacement)));
     const lock = JSON.parse(await readFile(path.resolve(root, "../../package-lock.json"), "utf8")).packages;
     for (const [section, names] of [
       ["dependencies", ["braintrust", "@opentelemetry/exporter-trace-otlp-http"]],
@@ -150,6 +153,8 @@ test("changed security script contracts and competing root configuration require
   for (const conflict of [{ workspaces: [] }, { overrides: {} }, { scripts: { build: "next build", postinstall: "echo override" } }]) {
     assert.throws(() => standalonePackageManifest({ scripts: { build: "next build" }, ...conflict }, repository), /reconciliation/);
   }
+  assert.throws(() => standalonePackageManifest({ scripts: { build: "next build" } }, { ...repository, devDependencies: { ...repository.devDependencies, acorn: "8.17.0" } }), /Unrecognized/);
+  assert.throws(() => standalonePackageManifest({ scripts: { build: "next build" }, devDependencies: { acorn: "8.17.0" } }, repository), /reconciliation/);
 });
 
 

@@ -53,6 +53,10 @@ export const DEPENDENCY_SECURITY_FILES = [
   "patches/sprintf-js-1.1.3.json",
   "patches/sprintf-js-1.1.3.js",
   "patches/sprintf-js-LICENSE",
+  "patches/eve-node-esm-compat.json",
+  "patches/eve-node-esm-compat/LICENSE",
+  "patches/eve-node-esm-compat/README.md",
+  "patches/eve-node-esm-compat/node-esm-compat-banner.js",
 ] as const;
 
 export const STANDALONE_SHARED_FILES = [
@@ -157,19 +161,24 @@ export function relocateCapabilityReferences(file: string, data: Buffer): Buffer
 export function standalonePackageManifest(application: Record<string, unknown>, repository: Record<string, unknown>): void {
   const scripts = application.scripts as Record<string, string>;
   const repositoryScripts = repository.scripts as Record<string, string>;
+  const repositoryDevDependencies = repository.devDependencies as Record<string, string> | undefined;
+  const applicationDevDependencies = (application.devDependencies ?? {}) as Record<string, string>;
   const apply = "node scripts/security/apply-dependency-patches.mjs";
   const check = `${apply} --check`;
   if (repositoryScripts.postinstall !== apply || repositoryScripts["security:patches"] !== check ||
-    !repository.overrides || typeof repository.overrides !== "object" || Array.isArray(repository.overrides)) {
+    !repository.overrides || typeof repository.overrides !== "object" || Array.isArray(repository.overrides) ||
+    repositoryDevDependencies?.acorn !== "8.18.0") {
     throw new Error("Unrecognized canonical dependency security contract");
   }
   if (application.workspaces !== undefined || application.overrides !== undefined ||
-    scripts.postinstall !== undefined || scripts["security:patches"] !== undefined || !scripts.build) {
+    scripts.postinstall !== undefined || scripts["security:patches"] !== undefined || !scripts.build ||
+    (applicationDevDependencies.acorn !== undefined && applicationDevDependencies.acorn !== repositoryDevDependencies.acorn)) {
     throw new Error("Standalone package contract requires explicit reconciliation");
   }
   application.workspaces = ["packages/capability-control", "packages/capability-enforcement"];
   application.overrides = repository.overrides;
   application.packageManager = repository.packageManager;
+  application.devDependencies = { ...applicationDevDependencies, acorn: repositoryDevDependencies.acorn };
   scripts.postinstall = apply;
   scripts["security:patches"] = check;
   // Explicit build commands still run with npm --ignore-scripts. Apply and
